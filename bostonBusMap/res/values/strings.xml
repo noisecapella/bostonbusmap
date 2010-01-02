@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    
+    <string name="app_name">BostonBusMap</string>
+<string name="refreshButton">Refresh!</string>
+
+<string name="runInBackgroundCheckbox">runInBackgroundKey</string>
+<string name="showUnpredictableBusesCheckbox">showUnpredictableBusesKey</string>
+</resources>
