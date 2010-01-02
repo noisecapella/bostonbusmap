@@ -21,9 +21,13 @@ package boston.BusMap;
 import boston.BusMap.R;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.net.Uri;
 import android.os.Bundle;
+import android.preference.Preference;
 import android.preference.PreferenceActivity;
 import android.preference.PreferenceManager;
+import android.preference.PreferenceScreen;
+import android.view.MenuItem;
 import android.widget.TextView;
 
 public class Preferences extends PreferenceActivity 
@@ -37,5 +41,15 @@ public class Preferences extends PreferenceActivity
 		addPreferencesFromResource(R.xml.preferences);
 	}
 	
-	
+	@Override
+	public boolean onPreferenceTreeClick(PreferenceScreen preferenceScreen,
+			Preference preference) {
+		if (preference.getKey().equals("about"))
+		{
+			Intent viewIntent = new Intent("android.intent.action.VIEW", Uri.parse("http://www.terribleinformation.org/george/bostonbusmap"));
+			startActivity(viewIntent);
+		}
+		
+		return super.onPreferenceTreeClick(preferenceScreen, preference);
+	}
 }

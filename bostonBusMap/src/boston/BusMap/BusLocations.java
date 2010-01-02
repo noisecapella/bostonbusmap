@@ -103,6 +103,13 @@ public class BusLocations
 		private boolean predictable;
 		
 		/**
+		 * Is the bus inbound, or outbound?
+		 * This only makes sense if predictable is true
+		 */
+		private boolean inBound;
+		
+		
+		/**
 		 * Used in calculating the distance between coordinates
 		 */
 		private final double radiusOfEarthInKilo = 6371.2;
@@ -110,16 +117,18 @@ public class BusLocations
 		
 		private double timeBetweenUpdatesInMillis;
 		
-		public BusLocation(double latitude, double longitude, int id, String route, int seconds, String heading, boolean predictable)
+		public BusLocation(double latitude, double longitude, int id, String route, int seconds, double lastUpdateInMillis,
+				String heading, boolean predictable, boolean inBound)
 		{
 			this.latitude = latitude;
 			this.longitude = longitude;
 			this.id = id;
 			this.route = route;
 			this.seconds = seconds;
-			this.lastUpdateInMillis = System.currentTimeMillis();
+			this.lastUpdateInMillis = lastUpdateInMillis;
 			this.heading = heading;
 			this.predictable = predictable;
+			this.inBound = inBound;
 		}
 
 		/**
@@ -146,31 +155,10 @@ public class BusLocations
 		 * @param thetaBackup direction in radians, where east is 0 and going counterclockwise
 		 * @return a descriptive String showing the direction (for example: E (90 deg))
 		 */
-		private String radiansToCardinalDirections(double thetaBackup)
+		private String radiansToCardinalDirections(double thetaAsRadians)
 		{
-			String[] directions = new String[] {"E","NE","N","NW", "W", "SW", "S", "SE"};
-			
-			double thetaInRadians = thetaBackup;
-			if (thetaInRadians < 0)
-			{
-				//adjust to 0 <= thetaInRadians <= 2PI
-				thetaInRadians = 2 * Math.PI + thetaInRadians;
-			}
-			thetaInRadians += Math.PI / 8.0; //adjust to fit neatly as indexes to the directions array
-			if (thetaInRadians > 2 * Math.PI)
-			{
-				thetaInRadians -= 2 * Math.PI;
-			}
-			
-			
-			int index = (int)(thetaInRadians / (Math.PI / 4.0));
-			if (index < 0 || index >= directions.length)
-			{
-				return "calculation error";
-			}
-			
 			//NOTE: degrees will be 0 == north, going clockwise
-			int degrees = (int)(thetaBackup * 180.0 / Math.PI);
+			int degrees = (int)(thetaAsRadians * 180.0 / Math.PI);
 			if (degrees < 0)
 			{
 				degrees += 360;
@@ -183,7 +171,7 @@ public class BusLocations
 				degrees += 360;
 			}
 			
-			return directions[index] + " (" + degrees + " deg)";
+			return degrees + " deg (" + convertHeadingToCardinal(degrees) + ")";
 		}
 
 		/**
@@ -248,6 +236,58 @@ public class BusLocations
 			}
 			
 		}
+
+		public String makeTitle() {
+        	String title = "Id: " + id + ", route: " + (route != null ? route : "null");
+        	title += "\nSeconds since update: " + (int)(seconds + (System.currentTimeMillis() - lastUpdateInMillis) / 1000);
+        	String direction = getDirection();
+        	if (direction.length() != 0 && predictable == false)
+        	{
+        		title += "\nEstimated direction: " + direction;
+        	}
+        	
+        	if (predictable)
+        	{
+        		title += "\nHeading: " + heading + " deg (" + convertHeadingToCardinal(Integer.parseInt(heading)) + ")";
+
+        		title += "\n";
+        		if (inBound)
+        		{
+        			title += "Inbound";
+        		}
+        		else
+        		{
+        			title += "Outbound";
+        		}
+        	}
+        	return title;
+		}
+
+		/**
+		 * Converts a heading to a cardinal direction string
+		 * 
+		 * @param degree heading in degrees, where 0 is north and 90 is east
+		 * @return a direction (for example "N" for north)
+		 */
+		private String convertHeadingToCardinal(double degree)
+		{
+			//shift degree so all directions line up nicely
+			degree += 360.0 / 16; //22.5
+			if (degree >= 360)
+			{
+				degree -= 360;
+			}
+			
+			//get an index into the directions array
+			int index = (int)(degree / (360.0 / 8.0));
+			if (index < 0 || index >= 8)
+			{
+				return "calculation error";
+			}
+			
+			String[] directions = new String[] {"N", "NE", "E", "SE", "S", "SW", "W", "NW"};
+			return directions[index];
+		}
 	}
 	
 	/**
@@ -260,6 +300,8 @@ public class BusLocations
 	 */
 	private final String mbtaDataUrl = "http://webservices.nextbus.com/service/publicXMLFeed?command=vehicleLocations&a=mbta&t=";
 
+	private double lastTime = 0;
+	
 	/**
 	 * Update the bus locations based on data from the XML feed 
 	 * 
@@ -275,7 +317,7 @@ public class BusLocations
 	{
 		//read data from the URL
 		URL url;
-		String urlString = mbtaDataUrl + ((long)System.currentTimeMillis()); 
+		String urlString = mbtaDataUrl + (long)lastTime; 
 		url = new URL(urlString);
 		
 		DataInputStream dataInputStream;
@@ -286,11 +328,25 @@ public class BusLocations
 		
 		stream.read(bytes, 0, bytes.length);
 		
+		String debuggingString = new String(bytes);
+		
 		//parse the data into an XML document
 		Document document = builder.parse(new ByteArrayInputStream(bytes));
 		
+		//first check for errors
+		if (document.getElementsByTagName("Error").getLength() != 0)
+		{
+			throw new RuntimeException("The feed is reporting an error"); 
+			
+		}
+		
+		//get the time that this information is valid until
+		Element lastTimeElement = (Element)document.getElementsByTagName("lastTime").item(0);
+		lastTime = Double.parseDouble(lastTimeElement.getAttribute("time"));
+
 		//iterate through each vehicle mentioned
 		NodeList nodeList = document.getElementsByTagName("vehicle");
+		
 		for (int i = 0; i < nodeList.getLength(); i++)
 		{
 			Element element = (Element)nodeList.item(i);
@@ -302,8 +358,14 @@ public class BusLocations
 			int seconds = Integer.parseInt(element.getAttribute("secsSinceReport"));
 			String heading = element.getAttribute("heading");
 			boolean predictable = Boolean.parseBoolean(element.getAttribute("predictable")); 
+			boolean inBound = false;
+			if (element.getAttribute("dirTag").equals("in"))
+			{
+				inBound = true;
+			}
 			
-			BusLocation newBusLocation = new BusLocation(lat, lon, id, route, seconds, heading, predictable);
+			BusLocation newBusLocation = new BusLocation(lat, lon, id, route, seconds, lastTime, 
+					heading, predictable, inBound);
 			
 			Integer idInt = new Integer(id);
 			if (busMapping.containsKey(idInt))
@@ -368,14 +430,30 @@ public class BusLocations
 	public List<BusLocation> getBusLocations(int maxLocations, double centerLatitude, double centerLongitude, boolean doShowUnpredictable) {
 
 		ArrayList<BusLocation> newLocations = new ArrayList<BusLocation>();
-		newLocations.addAll(busMapping.values());
+		
+		if (doShowUnpredictable == false)
+		{
+			for (BusLocation busLocation : busMapping.values())
+			{
+				if (busLocation.predictable == true)
+				{
+					newLocations.add(busLocation);
+				}
+			}
+		}
+		else
+		{
+			newLocations.addAll(busMapping.values());
+		}
 		
 		if (maxLocations > newLocations.size())
 		{
 			maxLocations = newLocations.size();
 		}
 		
-		Collections.sort(newLocations, new BusComparator(centerLatitude, centerLongitude, doShowUnpredictable));
+		
+		
+		Collections.sort(newLocations, new BusComparator(centerLatitude, centerLongitude));
 		
 		return newLocations.subList(0, maxLocations);
 	}
@@ -384,13 +462,11 @@ public class BusLocations
 	{
 		private final double centerLatitude;
 		private final double centerLongitude;
-		private final boolean doShowUnpredictable;
 		
-		public BusComparator(double centerLatitude, double centerLongitude, boolean doShowUnpredictable)
+		public BusComparator(double centerLatitude, double centerLongitude)
 		{
 			this.centerLatitude = centerLatitude;
 			this.centerLongitude = centerLongitude;
-			this.doShowUnpredictable = doShowUnpredictable;
 		}
 		
 		/**
@@ -399,20 +475,6 @@ public class BusLocations
 		@Override
 		public int compare(BusLocation arg0, BusLocation arg1)
 		{
-			if (doShowUnpredictable == false)
-			{
-				//sort predictable elements to beginning
-				if (arg0.predictable && arg1.predictable == false)
-				{
-					//
-					return -1;
-				}
-				else if (arg0.predictable == false && arg1.predictable)
-				{
-					return 1;
-				}
-			}
-			
 			double dist = arg0.distanceFrom(centerLatitude, centerLongitude);
 			double otherDist = arg0.distanceFrom(centerLatitude, centerLongitude);
 			

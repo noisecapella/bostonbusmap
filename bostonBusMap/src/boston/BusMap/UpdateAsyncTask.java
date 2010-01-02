@@ -140,14 +140,7 @@ public class UpdateAsyncTask extends AsyncTask<Object, String, List<BusLocation>
         {
         	GeoPoint point = new GeoPoint((int)(busLocation.latitude * 1000000), (int)(busLocation.longitude * 1000000));
         	
-        	String title = "Id: " + busLocation.id + ", route: " + (busLocation.route != null ? busLocation.route : "null");
-        	title += "\nSeconds since last update: " + (int)((System.currentTimeMillis() - busLocation.lastUpdateInMillis) / 1000);
-        	String direction = busLocation.getDirection();
-        	if (direction.length() != 0)
-        	{
-        		title += "\nDirection: " + direction;
-        		title += "\nSpeed: " + busLocation.getSpeed();
-        	}
+        	String title = busLocation.makeTitle();
         	
         	//the title is displayed when someone taps on the icon
         	OverlayItem overlay = new OverlayItem(point, title, title);

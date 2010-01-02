@@ -33,6 +33,8 @@ import android.graphics.drawable.Drawable;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
+import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -105,7 +107,8 @@ public class Main extends MapActivity
 	/**
 	 * not currently used, but should be used in the future to prevent multiple updates happening at once
 	 */
-	private boolean inProgress;
+	private Boolean inProgress = new Boolean(false);
+	
 	
     /** Called when the activity is first created. */
     @Override
@@ -181,7 +184,7 @@ public class Main extends MapActivity
     	{
     	case R.id.settingsMenuItem:
     		startActivity(new Intent(this, Preferences.class));
-    		
+    		break;
     		
     	}
     	return true;
@@ -201,6 +204,8 @@ public class Main extends MapActivity
 		return false;
 	}
 
+	private UpdateAsyncTask updateAsyncTask;
+	
 	/**
 	 * executes the update
 	 */
@@ -211,8 +216,21 @@ public class Main extends MapActivity
 		//make sure we don't update too often
 		lastUpdateTime = System.currentTimeMillis();
 
-		new UpdateAsyncTask(textView, busPicture, mapView).execute(new Double(center.getLatitudeE6() / 1000000.0),
+		//don't do two updates at once
+		if (updateAsyncTask != null)
+		{
+			if (updateAsyncTask.getStatus().equals(UpdateAsyncTask.Status.FINISHED) == false)
+			{
+				//task is not finished yet
+				return;
+			}
+		}
+		
+		updateAsyncTask = new UpdateAsyncTask(textView, busPicture, mapView);
+		updateAsyncTask.execute(new Double(center.getLatitudeE6() / 1000000.0),
 				new Double(center.getLongitudeE6() / 1000000.0), new Integer(maxOverlays), busLocations, doShowUnpredictable());
+		
+		
 	}
 	
 	@Override
