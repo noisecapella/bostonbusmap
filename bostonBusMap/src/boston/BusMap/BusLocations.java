@@ -93,6 +93,16 @@ public class BusLocations
 		private double distanceFromLastY;
 		
 		/**
+		 * What is the heading mentioned for the bus?
+		 */
+		private String heading;
+		
+		/**
+		 * Does the bus behave predictably?
+		 */
+		private boolean predictable;
+		
+		/**
 		 * Used in calculating the distance between coordinates
 		 */
 		private final double radiusOfEarthInKilo = 6371.2;
@@ -100,7 +110,7 @@ public class BusLocations
 		
 		private double timeBetweenUpdatesInMillis;
 		
-		public BusLocation(double latitude, double longitude, int id, String route, int seconds)
+		public BusLocation(double latitude, double longitude, int id, String route, int seconds, String heading, boolean predictable)
 		{
 			this.latitude = latitude;
 			this.longitude = longitude;
@@ -108,11 +118,8 @@ public class BusLocations
 			this.route = route;
 			this.seconds = seconds;
 			this.lastUpdateInMillis = System.currentTimeMillis();
-		}
-
-		public BusLocation(BusLocation newLocation, BusLocation oldLocation) {
-			this(newLocation.latitude, newLocation.longitude, newLocation.id, newLocation.route, newLocation.seconds);
-			
+			this.heading = heading;
+			this.predictable = predictable;
 		}
 
 		/**
@@ -287,13 +294,16 @@ public class BusLocations
 		for (int i = 0; i < nodeList.getLength(); i++)
 		{
 			Element element = (Element)nodeList.item(i);
+			
 			double lat = Double.parseDouble(element.getAttribute("lat"));
 			double lon = Double.parseDouble(element.getAttribute("lon"));
-				
 			int id = Integer.parseInt(element.getAttribute("id"));
 			String route = element.getAttribute("routeTag");
 			int seconds = Integer.parseInt(element.getAttribute("secsSinceReport"));
-			BusLocation newBusLocation = new BusLocation(lat, lon, id, route, seconds);
+			String heading = element.getAttribute("heading");
+			boolean predictable = Boolean.parseBoolean(element.getAttribute("predictable")); 
+			
+			BusLocation newBusLocation = new BusLocation(lat, lon, id, route, seconds, heading, predictable);
 			
 			Integer idInt = new Integer(id);
 			if (busMapping.containsKey(idInt))
@@ -389,6 +399,20 @@ public class BusLocations
 		@Override
 		public int compare(BusLocation arg0, BusLocation arg1)
 		{
+			if (doShowUnpredictable == false)
+			{
+				//sort predictable elements to beginning
+				if (arg0.predictable && arg1.predictable == false)
+				{
+					//
+					return -1;
+				}
+				else if (arg0.predictable == false && arg1.predictable)
+				{
+					return 1;
+				}
+			}
+			
 			double dist = arg0.distanceFrom(centerLatitude, centerLongitude);
 			double otherDist = arg0.distanceFrom(centerLatitude, centerLongitude);
 			
