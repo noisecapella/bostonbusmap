@@ -2,4 +2,5 @@
 <CheckBoxPreference android:key="@string/runInBackgroundCheckbox" android:title="Update continuously"></CheckBoxPreference>
 <CheckBoxPreference android:key="@string/showUnpredictableBusesCheckbox" android:title="Show all buses?" android:summary="Show unpredictable buses"></CheckBoxPreference>
 <Preference android:title="About BostonBusMap" android:key="about"></Preference>
+
 </PreferenceScreen>

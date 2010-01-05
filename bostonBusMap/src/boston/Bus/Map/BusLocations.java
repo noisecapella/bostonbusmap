@@ -208,11 +208,11 @@ public class BusLocations
 			distanceFromLastX = distanceFrom(latitude * Math.PI / 180.0, oldBusLocation.longitude * Math.PI / 180.0);
 			distanceFromLastY = distanceFrom(oldBusLocation.latitude * Math.PI / 180.0, longitude * Math.PI / 180.0);
 			
-			if (oldBusLocation.latitude < latitude)
+			if (oldBusLocation.latitude > latitude)
 			{
 				distanceFromLastX *= -1;
 			}
-			if (oldBusLocation.longitude < longitude)
+			if (oldBusLocation.longitude > longitude)
 			{
 				distanceFromLastY *= -1;
 			}
