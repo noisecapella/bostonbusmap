@@ -128,11 +128,18 @@ public class UpdateAsyncTask extends AsyncTask<Object, String, List<BusLocation>
 		
 		List<com.google.android.maps.Overlay> overlays = mapView.getOverlays();
         
+		int selectedBusId = -1;
+		if (overlays.size() > 0 && overlays.get(0) instanceof BusOverlay)
+		{
+			BusOverlay oldBusOverlay = (BusOverlay)overlays.get(0);
+			selectedBusId = oldBusOverlay.getSelectedBusId();
+		}
+		
         overlays.clear();
         textView.setText("Drawing overlays...");
         
         
-    	BusOverlay busOverlay = new BusOverlay(busPicture, textView.getContext(), busLocations);
+    	BusOverlay busOverlay = new BusOverlay(busPicture, textView.getContext(), busLocations, selectedBusId);
     	
     	
     	//draw the buses on the map

@@ -109,6 +109,8 @@ public class BusLocations
 		private boolean inBound;
 		
 		
+		
+		
 		/**
 		 * Used in calculating the distance between coordinates
 		 */
@@ -210,11 +212,11 @@ public class BusLocations
 			
 			if (oldBusLocation.latitude > latitude)
 			{
-				distanceFromLastX *= -1;
+				distanceFromLastY *= -1;
 			}
 			if (oldBusLocation.longitude > longitude)
 			{
-				distanceFromLastY *= -1;
+				distanceFromLastX *= -1;
 			}
 			
 			timeBetweenUpdatesInMillis = lastUpdateInMillis - oldBusLocation.lastUpdateInMillis;
@@ -238,7 +240,7 @@ public class BusLocations
 		}
 
 		public String makeTitle() {
-        	String title = "Id: " + id + ", route: " + (route != null ? route : "null");
+        	String title = "Id: " + id + ", route: " + (route != null ? route : "not mentioned");
         	title += "\nSeconds since update: " + (int)(seconds + (System.currentTimeMillis() - lastUpdateInMillis) / 1000);
         	String direction = getDirection();
         	if (direction.length() != 0 && predictable == false)

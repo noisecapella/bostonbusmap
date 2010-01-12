@@ -30,6 +30,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.drawable.Drawable;
+import android.graphics.drawable.StateListDrawable;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
@@ -69,7 +70,7 @@ public class Main extends MapActivity
 	private final int bostonLatitudeAsInt = (int)(bostonLatitude * 1000000);
 	private final int bostonLongitudeAsInt = (int)(bostonLongitude * 1000000);
 	
-	
+	//watertown is slightly north and west of boston
 	private final double watertownLatitude = 42.37;
 	private final double watertownLongitude = -71.183;
 	private final int watertownLatitudeAsInt = (int)(watertownLatitude * 1000000);
@@ -130,9 +131,11 @@ public class Main extends MapActivity
         
         //make the textView blank
         textView.setText("");
-        
+        	
         //store picture of bus
-        busPicture = getResources().getDrawable(R.drawable.x);
+        busPicture = getResources().getDrawable(R.drawable.bus_statelist);
+        
+        
         
         //this is the refresh button
         button.setOnClickListener(new OnClickListener() {
@@ -219,7 +222,9 @@ public class Main extends MapActivity
 				//task is not finished yet
 				return;
 			}
+			
 		}
+		
 		
 		updateAsyncTask = new UpdateAsyncTask(textView, busPicture, mapView);
 		updateAsyncTask.execute(new Double(center.getLatitudeE6() / 1000000.0),

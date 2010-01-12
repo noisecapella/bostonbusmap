@@ -26,11 +26,13 @@ import boston.Bus.Map.BusLocations.BusLocation;
 
 import com.google.android.maps.GeoPoint;
 import com.google.android.maps.MapView;
+import com.google.android.maps.OverlayItem;
 
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Point;
+import android.graphics.Rect;
 import android.graphics.RectF;
 import android.graphics.drawable.Drawable;
 import android.text.TextPaint;
@@ -47,13 +49,27 @@ public class BusOverlay extends com.google.android.maps.ItemizedOverlay<com.goog
 
 	private ArrayList<com.google.android.maps.OverlayItem> overlays = new ArrayList<com.google.android.maps.OverlayItem>();
 	private Context context;
+	private Drawable busPicture;
+	private Drawable busSelectedPicture;
 	private List<BusLocation> busLocations;
 	
-	public BusOverlay(Drawable defaultMarker, Context context, List<BusLocation> busLocations) {
-		super(boundCenterBottom(defaultMarker));
+	public BusOverlay(Drawable busPicture, Context context, List<BusLocation> busLocations, int selectedBusId) {
+		super(boundCenterBottom(busPicture));
 
 		this.context = context;
+		this.busPicture = busPicture;
 		this.busLocations = busLocations;
+		
+		for (int i = 0; i < busLocations.size(); i++)
+		{
+			BusLocation busLocation = busLocations.get(i);
+			
+			if (busLocation.id == selectedBusId)
+			{
+				setLastFocusedIndex(i);
+				return;
+			}
+		}
 	}
 
 	
@@ -65,7 +81,9 @@ public class BusOverlay extends com.google.android.maps.ItemizedOverlay<com.goog
 	
 	public void addOverlay(com.google.android.maps.OverlayItem item)
 	{
+		
 		overlays.add(item);
+		
 		populate();
 	}
 	
@@ -85,8 +103,10 @@ public class BusOverlay extends com.google.android.maps.ItemizedOverlay<com.goog
 	{
 		//TODO: make this look nicer. Right now it's a box in the center of the screen that stays for a few seconds
 		//there's probably a way to do it like Google Maps does it when you click an overlay, produce a bubble with text inside it
-		Toast.makeText(context, overlays.get(i).getTitle(), Toast.LENGTH_SHORT).show();
-		return true;
+		OverlayItem item = overlays.get(i);
+		Toast.makeText(context, item.getTitle(), Toast.LENGTH_SHORT).show();
+		
+		return super.onTap(i);
 	}
 	
 	
@@ -94,6 +114,39 @@ public class BusOverlay extends com.google.android.maps.ItemizedOverlay<com.goog
 	public void draw(Canvas canvas, MapView mapView, boolean shadow)
 	{
 		super.draw(canvas, mapView, shadow);
+		
+		/*for (int i = 0; i < size(); i++)
+		{
+			com.google.android.maps.OverlayItem item = getItem(i);
+			
+			GeoPoint geoPoint = item.getPoint();
+			Point point = new Point();
+			mapView.getProjection().toPixels(geoPoint, point);
+			
+			
+			Drawable drawable;
+			if (i == selectedBusIndex)
+			{
+				drawable = busSelectedPicture;
+				drawable.setState(R.);
+			}
+			else
+			{
+				drawable = busPicture;
+			}
+			
+			int width = drawable.getIntrinsicWidth();
+			int height = drawable.getIntrinsicHeight();
+			int left = point.x - width/2;
+			int top = point.y - height/2;
+			int right = point.x + width/2;
+			int bottom = point.y + height/2;
+			
+			drawable.setBounds(left, top, right, bottom);
+			
+			drawable.draw(canvas);
+		}
+		*/
 		
 		//the following code used to write the bus id on the bus icon, but that looked pretty ugly
 		/*TextPaint textPaint = new TextPaint();
@@ -114,5 +167,19 @@ public class BusOverlay extends com.google.android.maps.ItemizedOverlay<com.goog
 		}
 		
 		*/
+	}
+
+
+	public int getSelectedBusId() {
+		int selectedBusIndex = getLastFocusedIndex();
+		if (selectedBusIndex == -1)
+		{
+			return -1;
+		}
+		else
+		{
+			return busLocations.get(selectedBusIndex).id;
+		}
+		
 	}
 }
