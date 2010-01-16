@@ -25,6 +25,7 @@ import java.util.List;
 import boston.Bus.Map.BusLocations.BusLocation;
 
 import com.google.android.maps.GeoPoint;
+import com.google.android.maps.ItemizedOverlay;
 import com.google.android.maps.MapView;
 import com.google.android.maps.OverlayItem;
 
@@ -52,6 +53,7 @@ public class BusOverlay extends com.google.android.maps.ItemizedOverlay<com.goog
 	private Drawable busPicture;
 	private Drawable busSelectedPicture;
 	private List<BusLocation> busLocations;
+	private int selectedBusIndex;
 	
 	public BusOverlay(Drawable busPicture, Context context, List<BusLocation> busLocations, int selectedBusId) {
 		super(boundCenterBottom(busPicture));
@@ -59,17 +61,31 @@ public class BusOverlay extends com.google.android.maps.ItemizedOverlay<com.goog
 		this.context = context;
 		this.busPicture = busPicture;
 		this.busLocations = busLocations;
-		
+		this.selectedBusIndex = -1;
 		for (int i = 0; i < busLocations.size(); i++)
 		{
 			BusLocation busLocation = busLocations.get(i);
-			
+
 			if (busLocation.id == selectedBusId)
 			{
-				setLastFocusedIndex(i);
-				return;
+				selectedBusIndex = i;
+				break;
 			}
 		}
+
+		this.setOnFocusChangeListener(new OnFocusChangeListener() {
+
+			@Override
+			public void onFocusChanged(ItemizedOverlay overlay,
+					OverlayItem newFocus) {
+				//if you click on a bus, it would normally draw the selected bus without this code
+				//but in certain cases (you click away from any bus, then click on the bus again) it got confused and didn't draw
+				//things right. This corrects that (hopefully)
+				setLastFocusedIndex(-1);
+				setFocus(newFocus);
+			}
+		});
+
 	}
 
 	
@@ -81,7 +97,6 @@ public class BusOverlay extends com.google.android.maps.ItemizedOverlay<com.goog
 	
 	public void addOverlay(com.google.android.maps.OverlayItem item)
 	{
-		
 		overlays.add(item);
 		
 		populate();
@@ -105,6 +120,7 @@ public class BusOverlay extends com.google.android.maps.ItemizedOverlay<com.goog
 		//there's probably a way to do it like Google Maps does it when you click an overlay, produce a bubble with text inside it
 		OverlayItem item = overlays.get(i);
 		Toast.makeText(context, item.getTitle(), Toast.LENGTH_SHORT).show();
+
 		
 		return super.onTap(i);
 	}
@@ -113,63 +129,19 @@ public class BusOverlay extends com.google.android.maps.ItemizedOverlay<com.goog
 	@Override
 	public void draw(Canvas canvas, MapView mapView, boolean shadow)
 	{
+		if (selectedBusIndex != -1)
+		{
+			//make sure that selected buses are preserved during refreshes
+			setFocus(overlays.get(selectedBusIndex));
+			selectedBusIndex = -1;
+		}
+			
+		
 		super.draw(canvas, mapView, shadow);
-		
-		/*for (int i = 0; i < size(); i++)
-		{
-			com.google.android.maps.OverlayItem item = getItem(i);
-			
-			GeoPoint geoPoint = item.getPoint();
-			Point point = new Point();
-			mapView.getProjection().toPixels(geoPoint, point);
-			
-			
-			Drawable drawable;
-			if (i == selectedBusIndex)
-			{
-				drawable = busSelectedPicture;
-				drawable.setState(R.);
-			}
-			else
-			{
-				drawable = busPicture;
-			}
-			
-			int width = drawable.getIntrinsicWidth();
-			int height = drawable.getIntrinsicHeight();
-			int left = point.x - width/2;
-			int top = point.y - height/2;
-			int right = point.x + width/2;
-			int bottom = point.y + height/2;
-			
-			drawable.setBounds(left, top, right, bottom);
-			
-			drawable.draw(canvas);
-		}
-		*/
-		
-		//the following code used to write the bus id on the bus icon, but that looked pretty ugly
-		/*TextPaint textPaint = new TextPaint();
-		textPaint.setColor(Color.BLACK);
-		textPaint.setAntiAlias(true);
-		textPaint.setTextSize(9);
-		
-		for (int i = 0; i < size(); i++)
-		{
-			com.google.android.maps.OverlayItem item = getItem(i);
-			
-			BusLocation busLocation = busLocations.get(i);
-			
-			GeoPoint geoPoint = item.getPoint();
-			Point point = new Point();
-			mapView.getProjection().toPixels(geoPoint, point);
-			canvas.drawText(new Integer(busLocation.id).toString(), point.x - 10, point.y - 16, textPaint);
-		}
-		
-		*/
 	}
 
-
+	
+	
 	public int getSelectedBusId() {
 		int selectedBusIndex = getLastFocusedIndex();
 		if (selectedBusIndex == -1)
