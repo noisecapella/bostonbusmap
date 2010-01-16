@@ -240,7 +240,15 @@ public class BusLocations
 		}
 
 		public String makeTitle() {
-        	String title = "Id: " + id + ", route: " + (route != null ? route : "not mentioned");
+        	String title = "Id: " + id + ", route: ";
+        	if (route == null || route.equals("null"))
+        	{
+        		title += "not mentioned";
+        	}
+        	else
+        	{
+        		title += route;
+        	}
         	title += "\nSeconds since update: " + (int)(seconds + (System.currentTimeMillis() - lastUpdateInMillis) / 1000);
         	String direction = getDirection();
         	if (direction.length() != 0 && predictable == false)
@@ -261,6 +269,11 @@ public class BusLocations
         		{
         			title += "Outbound";
         		}
+        	}
+        	else
+        	{
+        		//TODO: how should we say this?
+        		//title += "\nUnpredictable";
         	}
         	return title;
 		}
