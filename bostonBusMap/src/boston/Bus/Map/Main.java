@@ -103,10 +103,10 @@ public class Main extends MapActivity
 	 */
 	private final int fetchDelay = 13000;
 
-	private final BusLocations busLocations = new BusLocations();
+	private BusLocations busLocations = new BusLocations();
 
 	
-    /** Called when the activity is first created. */
+    /** Called when the activity is first created or the screen layout changes */
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -118,20 +118,33 @@ public class Main extends MapActivity
         textView = (TextView)findViewById(R.id.TextView01);
         button = (Button)findViewById(R.id.Button01);
         
-        //move maps widget to point to boston or watertown
-        MapController controller = mapView.getController();
-        GeoPoint bostonLocation = new GeoPoint(bostonLatitudeAsInt, bostonLongitudeAsInt);
-        controller.setCenter(bostonLocation);
-
-        //enable plus/minus zoom buttons in map
-        mapView.setBuiltInZoomControls(true);
-
-        //set zoom depth
-        controller.setZoom(14);
         
-        //make the textView blank
-        textView.setText("");
-        	
+        Object obj = getLastNonConfigurationInstance();
+        if (obj != null)
+        {
+        	CurrentState currentState = (CurrentState)obj;
+        	currentState.restoreWidgets(textView, mapView);
+        	lastUpdateTime = currentState.getLastUpdateTime();
+        	busLocations = currentState.getBusLocations();
+        }
+        else
+        {
+        
+        	//move maps widget to point to boston or watertown
+        	MapController controller = mapView.getController();
+        	GeoPoint bostonLocation = new GeoPoint(bostonLatitudeAsInt, bostonLongitudeAsInt);
+        	controller.setCenter(bostonLocation);
+
+        	//enable plus/minus zoom buttons in map
+        	mapView.setBuiltInZoomControls(true);
+
+        	//set zoom depth
+        	controller.setZoom(14);
+
+        	//make the textView blank
+        	textView.setText("");
+
+        }
         //store picture of bus
         busPicture = getResources().getDrawable(R.drawable.bus_statelist);
         
@@ -255,5 +268,12 @@ public class Main extends MapActivity
 		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
 		
 		return prefs.getBoolean(getString(R.string.showUnpredictableBusesCheckbox), false);
+	}
+
+	@Override
+	public Object onRetainNonConfigurationInstance() {
+		// TODO Auto-generated method stub
+		
+		return new CurrentState(textView, mapView, busLocations, lastUpdateTime);
 	}
 }
