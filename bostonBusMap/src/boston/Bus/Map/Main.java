@@ -126,6 +126,7 @@ public class Main extends MapActivity
         	currentState.restoreWidgets(textView, mapView);
         	lastUpdateTime = currentState.getLastUpdateTime();
         	busLocations = currentState.getBusLocations();
+
         }
         else
         {
@@ -135,9 +136,6 @@ public class Main extends MapActivity
         	GeoPoint bostonLocation = new GeoPoint(bostonLatitudeAsInt, bostonLongitudeAsInt);
         	controller.setCenter(bostonLocation);
 
-        	//enable plus/minus zoom buttons in map
-        	mapView.setBuiltInZoomControls(true);
-
         	//set zoom depth
         	controller.setZoom(14);
 
@@ -145,7 +143,11 @@ public class Main extends MapActivity
         	textView.setText("");
 
         }
-        //store picture of bus
+        
+    	//enable plus/minus zoom buttons in map
+        mapView.setBuiltInZoomControls(true);
+
+    	//store picture of bus
         busPicture = getResources().getDrawable(R.drawable.bus_statelist);
         
         
