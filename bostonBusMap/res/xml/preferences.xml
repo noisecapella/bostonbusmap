@@ -3,4 +3,5 @@
 <CheckBoxPreference android:key="@string/showUnpredictableBusesCheckbox" android:title="Show all buses?" android:summary="Show unpredictable buses"></CheckBoxPreference>
 <Preference android:title="About BostonBusMap" android:key="about"></Preference>
 
+<CheckBoxPreference android:summary="Saves battery life" android:title="Timeout after 5 minutes" android:defaultValue="true" android:key="@string/timeoutPreferenceCheckbox"></CheckBoxPreference>
 </PreferenceScreen>

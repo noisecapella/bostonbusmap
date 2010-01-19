@@ -45,6 +45,7 @@ import android.preference.PreferenceManager;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.MenuItem.OnMenuItemClickListener;
 import android.view.View.OnClickListener;
@@ -105,6 +106,15 @@ public class Main extends MapActivity
 
 	private BusLocations busLocations = new BusLocations();
 
+	/**
+	 * Time when onCreate was last called (in millis)
+	 */
+	private double onCreateTime;
+	
+	/**
+	 * Five minutes in milliseconds
+	 */
+	private final double fiveMinutes = 5 * 60 * 1000;
 	
     /** Called when the activity is first created or the screen layout changes */
     @Override
@@ -112,6 +122,7 @@ public class Main extends MapActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
         
+        onCreateTime = System.currentTimeMillis();
 
         //get widgets
         mapView = (MapView)findViewById(R.id.mapview);
@@ -163,31 +174,68 @@ public class Main extends MapActivity
 					return;
 				}
 				
-				runUpdateTask();
+				runUpdateTask("Finished update!");
 			}
 		});
         
         
-        updateBuses = new Runnable() {
-			
-			@Override
-			public void run() {
-				//if not too soon, do the update
-				if (System.currentTimeMillis() - lastUpdateTime > fetchDelay)
-				{
-					runUpdateTask();
-				}
-				
-				//make updateBuses execute every 10 seconds (or whatever fetchDelay is)
-				//to disable this, the user should go into the settings and uncheck 'Run in background'
-				handler.postDelayed(updateBuses, fetchDelay);
-				
-			}
-		};
+        updateBuses = doUpdateBuses();
+    }
 		
-		
+
+
+
+
+    private Runnable doUpdateBuses()
+    {
+    	return new Runnable() {
+
+    		@Override
+    		public void run() {
+    			double currentTime = System.currentTimeMillis();
+
+    			boolean doTimeout = doTimeout();
+    			if ((currentTime - onCreateTime > fiveMinutes) && doTimeout)
+    			{
+    				//timeout
+    				//this is done to help prevent the phone from wasting battery
+    				//power if the user leaves the app running on their phone
+    				runUpdateTask("Finished update! 5 minutes reached; to update further click Refresh");
+    			}
+    			else if (currentTime - lastUpdateTime > fetchDelay)
+    			{
+    				//if not too soon, do the update
+    				runUpdateTask("Finished update!");
+
+
+    				//make updateBuses execute every 10 seconds (or whatever fetchDelay is)
+    				//to disable this, the user should go into the settings and uncheck 'Run in background'
+    				handler.postDelayed(updateBuses, fetchDelay);
+    			}
+
+
+    		}
+    	};
     }
 
+    private void startUpdateTask()
+    {
+    	onCreateTime = System.currentTimeMillis();
+    	
+    	if (updateAsyncTask != null && updateAsyncTask.getStatus().equals(UpdateAsyncTask.Status.FINISHED))
+    	{
+    		handler.post(updateBuses);
+    	}
+    }
+    
+    @Override
+    public boolean onTouchEvent(MotionEvent event) {
+    	startUpdateTask();
+    	
+    	// TODO Auto-generated method stub
+    	return super.onTouchEvent(event);
+    }
+    
     @Override
     public boolean onOptionsItemSelected(MenuItem item)
     {
@@ -222,7 +270,7 @@ public class Main extends MapActivity
 	/**
 	 * executes the update
 	 */
-	private void runUpdateTask() {
+	private void runUpdateTask(String finalMessage) {
 		//update around the current center of the mapView
 		GeoPoint center = mapView.getMapCenter();
 		
@@ -241,7 +289,7 @@ public class Main extends MapActivity
 		}
 		
 		
-		updateAsyncTask = new UpdateAsyncTask(textView, busPicture, mapView);
+		updateAsyncTask = new UpdateAsyncTask(textView, busPicture, mapView, finalMessage);
 		updateAsyncTask.execute(new Double(center.getLatitudeE6() / 1000000.0),
 				new Double(center.getLongitudeE6() / 1000000.0), new Integer(maxOverlays), busLocations, doShowUnpredictable());
 		
@@ -272,6 +320,13 @@ public class Main extends MapActivity
 		return prefs.getBoolean(getString(R.string.showUnpredictableBusesCheckbox), false);
 	}
 
+	private boolean doTimeout()
+	{
+		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+		
+		return prefs.getBoolean(getString(R.string.timeoutPreferenceCheckbox), false);
+	}
+	
 	@Override
 	public Object onRetainNonConfigurationInstance() {
 		// TODO Auto-generated method stub

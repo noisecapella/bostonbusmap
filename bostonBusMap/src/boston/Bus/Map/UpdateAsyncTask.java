@@ -45,8 +45,9 @@ public class UpdateAsyncTask extends AsyncTask<Object, String, List<BusLocation>
 	private TextView textView;
 	private Drawable busPicture;
 	private MapView mapView;
+	private String finalMessage;
 	
-	public UpdateAsyncTask(TextView textView, Drawable busPicture, MapView mapView)
+	public UpdateAsyncTask(TextView textView, Drawable busPicture, MapView mapView, String finalMessage)
 	{
 		super();
 		
@@ -54,6 +55,7 @@ public class UpdateAsyncTask extends AsyncTask<Object, String, List<BusLocation>
 		this.textView = textView;
 		this.busPicture = busPicture;
 		this.mapView = mapView;
+		this.finalMessage = finalMessage;
 	}
 	
 	@Override
@@ -158,7 +160,7 @@ public class UpdateAsyncTask extends AsyncTask<Object, String, List<BusLocation>
         //make sure we redraw map
         mapView.invalidate();
         
-        textView.setText("Finished update!");
+        textView.setText(finalMessage);
         
 	}
 }
