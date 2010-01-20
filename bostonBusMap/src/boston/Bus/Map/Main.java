@@ -114,7 +114,7 @@ public class Main extends MapActivity
 	/**
 	 * Five minutes in milliseconds
 	 */
-	private final double fiveMinutes = 5 * 60 * 1000;
+	private final double timeoutInMillis = 10 * 60 * 1000; //10 minutes
 	
     /** Called when the activity is first created or the screen layout changes */
     @Override
@@ -195,29 +195,31 @@ public class Main extends MapActivity
     			double currentTime = System.currentTimeMillis();
 
     			boolean doTimeout = doTimeout();
-    			if ((currentTime - onCreateTime > fiveMinutes) && doTimeout)
+    			if ((currentTime - onCreateTime > timeoutInMillis) && doTimeout)
     			{
     				//timeout
     				//this is done to help prevent the phone from wasting battery
     				//power if the user leaves the app running on their phone
-    				runUpdateTask("Finished update! 5 minutes reached; to update further click Refresh");
+    				runUpdateTask("Finished update! 10 minutes reached; to update further click Refresh");
     			}
-    			else if (currentTime - lastUpdateTime > fetchDelay)
+    			else 
     			{
-    				//if not too soon, do the update
-    				runUpdateTask("Finished update!");
+    				if (currentTime - lastUpdateTime > fetchDelay)
+    				{
+    					//if not too soon, do the update
+    					runUpdateTask("Finished update!");
 
+
+    				}
 
     				//make updateBuses execute every 10 seconds (or whatever fetchDelay is)
     				//to disable this, the user should go into the settings and uncheck 'Run in background'
     				handler.postDelayed(updateBuses, fetchDelay);
     			}
-
-
     		}
     	};
     }
-
+/*
     private void startUpdateTask()
     {
     	onCreateTime = System.currentTimeMillis();
@@ -227,14 +229,14 @@ public class Main extends MapActivity
     		handler.post(updateBuses);
     	}
     }
-    
-    @Override
+    */
+    /*@Override
     public boolean onTouchEvent(MotionEvent event) {
     	startUpdateTask();
     	
     	// TODO Auto-generated method stub
     	return super.onTouchEvent(event);
-    }
+    }*/
     
     @Override
     public boolean onOptionsItemSelected(MenuItem item)
