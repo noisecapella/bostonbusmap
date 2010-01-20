@@ -175,6 +175,7 @@ public class Main extends MapActivity
 					return;
 				}
 
+				onCreateTime = System.currentTimeMillis();
 				handler.removeCallbacks(updateBuses);
 				if(doUpdateConstantly())
 				{
@@ -200,22 +201,25 @@ public class Main extends MapActivity
 					//timeout
 					//this is done to help prevent the phone from wasting battery
 					//power if the user leaves the app running on their phone
-					runUpdateTask("Finished update! 10 minutes reached; to update further click Refresh");
-				}
-				else 
-				{
-					if (currentTime - lastUpdateTime > fetchDelay)
+					
+					if (updateAsyncTask != null && updateAsyncTask.getStatus().equals(UpdateAsyncTask.Status.FINISHED))
 					{
-						//if not too soon, do the update
-						runUpdateTask("Finished update!");
-		
-						
+						runUpdateTask("Finished update! 10 minutes reached; to update further click Refresh");
+						return;
 					}
-		
-					//make updateBuses execute every 10 seconds (or whatever fetchDelay is)
-					//to disable this, the user should go into the settings and uncheck 'Run in background'
-					handler.postDelayed(updateBuses, fetchDelay);
+					
 				}
+				
+				if (currentTime - lastUpdateTime > fetchDelay)
+				{
+					//if not too soon, do the update
+					runUpdateTask("Finished update!");
+				}
+
+				//make updateBuses execute every 10 seconds (or whatever fetchDelay is)
+				//to disable this, the user should go into the settings and uncheck 'Run in background'
+				handler.postDelayed(updateBuses, fetchDelay);
+
 			}
 		};
     }
