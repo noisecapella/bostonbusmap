@@ -168,11 +168,20 @@ public class Main extends MapActivity
 			
 			@Override
 			public void onClick(View arg0) {
+
 				if (System.currentTimeMillis() - lastUpdateTime < fetchDelay)
 				{
 					textView.setText("Please wait 10 seconds before clicking Refresh again");
 					return;
 				}
+
+				handler.removeCallbacks(updateBuses);
+				if(doUpdateConstantly())
+				{
+					//if the runInBackground checkbox is clicked, start the handler updating
+				    handler.postAtTime(updateBuses, (long)(fetchDelay * 1.5));
+				}
+				
 				
 				runUpdateTask("Finished update!");
 			}
@@ -200,7 +209,7 @@ public class Main extends MapActivity
 						//if not too soon, do the update
 						runUpdateTask("Finished update!");
 		
-		
+						
 					}
 		
 					//make updateBuses execute every 10 seconds (or whatever fetchDelay is)
@@ -280,16 +289,24 @@ public class Main extends MapActivity
 		super.onResume();
 
 		//check the result
-	    SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
-        
-	    
-	    handler.removeCallbacks(updateBuses);
-	    if(prefs.getBoolean(getString(R.string.runInBackgroundCheckbox), false))
-	    {
-	    	//if the runInBackground checkbox is clicked, start the handler updating
-	        handler.postAtTime(updateBuses, fetchDelay);
-	    }
+		handler.removeCallbacks(updateBuses);
+		if(doUpdateConstantly())
+		{
+			//if the runInBackground checkbox is clicked, start the handler updating
+		    handler.postAtTime(updateBuses, fetchDelay);
+		}
 		
+	}
+
+
+
+
+
+	private boolean doUpdateConstantly()
+	{
+		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+		
+		return prefs.getBoolean(getString(R.string.runInBackgroundCheckbox), false);
 	}
 	
 	private boolean doShowUnpredictable()
