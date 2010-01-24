@@ -18,9 +18,12 @@
     */
 package boston.Bus.Map;
 
+import com.google.android.maps.GeoPoint;
 import com.google.android.maps.MapView;
 
 import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
 import android.os.Bundle;
 import android.widget.TextView;
 
@@ -29,12 +32,14 @@ import android.widget.TextView;
  * Remember that you need to declare this in the permissions part of AndroidManifest.xml
  *
  */
-public class MyLocationListener implements android.location.LocationListener {
+public class OneTimeLocationListener implements LocationListener {
 
-	private MapView mapView;
+	private final MapView mapView;
 	
 	private double latitude;
 	private double longitude;
+
+	private final LocationManager locationManager;
 	
 	public double getLatitude()
 	{
@@ -46,21 +51,26 @@ public class MyLocationListener implements android.location.LocationListener {
 		return longitude;
 	}
 	
-	public MyLocationListener(MapView mapView)
+	public OneTimeLocationListener(MapView mapView, LocationManager locationManager)
 	{
 		this.mapView = mapView;
+		this.locationManager = locationManager;
 	}
 	
 	@Override
 	public void onLocationChanged(Location location) {
-		// TODO Auto-generated method stub
-		double milliseconds = System.currentTimeMillis();
-		
 		latitude = location.getLatitude();
 		longitude = location.getLongitude();
 		
-		String str = latitude + ", " + longitude + " at " + milliseconds;
-		//textView.setText(str);
+		final int e6 = 1000000;
+		
+		int latAsInt = (int)(latitude * e6);
+		int lonAsInt = (int)(longitude * e6);
+		
+		
+		mapView.getController().animateTo(new GeoPoint(latAsInt, lonAsInt));
+		
+		locationManager.removeUpdates(this);
 	}
 
 	@Override

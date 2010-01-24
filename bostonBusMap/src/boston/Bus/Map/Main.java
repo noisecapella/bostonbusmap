@@ -31,6 +31,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.StateListDrawable;
+import android.location.Criteria;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
@@ -53,6 +54,7 @@ import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 import android.widget.ZoomControls;
 
 /**
@@ -116,7 +118,6 @@ public class Main extends MapActivity
 	 */
 	private final double timeoutInMillis = 10 * 60 * 1000; //10 minutes
 	
-    /** Called when the activity is first created or the screen layout changes */
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -130,6 +131,8 @@ public class Main extends MapActivity
         button = (Button)findViewById(R.id.Button01);
         
         
+        
+        
         Object obj = getLastNonConfigurationInstance();
         if (obj != null)
         {
@@ -137,19 +140,33 @@ public class Main extends MapActivity
         	currentState.restoreWidgets(textView, mapView);
         	lastUpdateTime = currentState.getLastUpdateTime();
         	busLocations = currentState.getBusLocations();
-
+        	
         }
         else
         {
-        
-        	//move maps widget to point to boston or watertown
-        	MapController controller = mapView.getController();
-        	GeoPoint bostonLocation = new GeoPoint(bostonLatitudeAsInt, bostonLongitudeAsInt);
-        	controller.setCenter(bostonLocation);
+        	SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+            int centerLat = prefs.getInt("centerLat", Integer.MAX_VALUE);
+            int centerLon = prefs.getInt("centerLon", Integer.MAX_VALUE);
+            int zoomLevel = prefs.getInt("zoomLevel", Integer.MAX_VALUE);
 
-        	//set zoom depth
-        	controller.setZoom(14);
+            if (centerLat != Integer.MAX_VALUE && centerLon != Integer.MAX_VALUE && zoomLevel != Integer.MAX_VALUE)
+            {
 
+            	GeoPoint point = new GeoPoint(centerLat, centerLon);
+            	MapController controller = mapView.getController();
+            	controller.setCenter(point);
+            	controller.setZoom(zoomLevel);
+            }
+            else
+            {
+            	//move maps widget to point to boston or watertown
+            	MapController controller = mapView.getController();
+            	GeoPoint bostonLocation = new GeoPoint(bostonLatitudeAsInt, bostonLongitudeAsInt);
+            	controller.setCenter(bostonLocation);
+
+            	//set zoom depth
+            	controller.setZoom(14);
+            }
         	//make the textView blank
         	textView.setText("");
 
@@ -225,7 +242,24 @@ public class Main extends MapActivity
     }
 		
 
+    @Override
+    protected void onDestroy() {
+    	if (mapView != null)
+    	{
 
+    		GeoPoint point = mapView.getMapCenter();
+    		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+    		SharedPreferences.Editor editor = prefs.edit();
+
+
+    		editor.putInt("centerLat", point.getLatitudeE6());
+    		editor.putInt("centerLon", point.getLongitudeE6());
+    		editor.putInt("zoomLevel", mapView.getZoomLevel());
+    		editor.commit();
+    	}
+    	
+    	super.onDestroy();
+    }
 
 
     @Override
@@ -238,7 +272,32 @@ public class Main extends MapActivity
     	case R.id.settingsMenuItem:
     		startActivity(new Intent(this, Preferences.class));
     		break;
+    	case R.id.centerOnBostonMenuItem:
+    	
+    		if (mapView != null)
+    		{
+    			GeoPoint point = new GeoPoint(bostonLatitudeAsInt, bostonLongitudeAsInt);
+    			mapView.getController().animateTo(point);
+    		}
+    		break;
+    	
+    	case R.id.centerOnLocationMenuItem:
+    		if (mapView != null)
+    		{
+    			Criteria criteria = new Criteria();
+    			criteria.setAccuracy(Criteria.ACCURACY_COARSE);
+    			
+    			LocationManager locationManager = (LocationManager)getSystemService(LOCATION_SERVICE);
+
+    			OneTimeLocationListener listener = new OneTimeLocationListener(mapView, locationManager);
+
+    			locationManager.requestLocationUpdates(locationManager.getBestProvider(criteria, true), 0, 0, listener, getMainLooper());
+    			
+    			Toast.makeText(this, "Finding current location...", Toast.LENGTH_SHORT).show();
+    			//... it might take a few seconds
+    		}
     		
+    		break;
     	}
     	return true;
     }
