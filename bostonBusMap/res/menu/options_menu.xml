@@ -1,12 +1,9 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
-
-
-
-
-<group android:id="@+id/group01">
-	<item android:menuCategory="system" android:id="@+id/settingsMenuItem"
-		android:title="Settings"></item>
-	<item android:id="@+id/centerOnBostonMenuItem" android:title="Center on Boston"></item>
-	<item android:id="@+id/centerOnLocationMenuItem" android:title="Center on current location"></item>
-</group>
+	<item android:id="@+id/centerOnLocationMenuItem" android:titleCondensed="Center on your location">
+	</item><item android:id="@+id/centerOnBostonMenuItem" android:title="Center on Boston">
+	</item>
+	
+	<item android:id="@+id/settingsMenuItem" android:title="Settings">
+	</item>
 </menu>
+

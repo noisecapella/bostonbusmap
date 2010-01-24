@@ -32,6 +32,7 @@ import com.google.android.maps.OverlayItem;
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.Paint;
 import android.graphics.Point;
 import android.graphics.Rect;
 import android.graphics.RectF;
@@ -48,18 +49,19 @@ import android.widget.Toast;
  */
 public class BusOverlay extends com.google.android.maps.ItemizedOverlay<com.google.android.maps.OverlayItem> {
 
-	private ArrayList<com.google.android.maps.OverlayItem> overlays = new ArrayList<com.google.android.maps.OverlayItem>();
-	private Context context;
-	private Drawable busPicture;
-	private Drawable busSelectedPicture;
-	private List<BusLocation> busLocations;
+	private final ArrayList<com.google.android.maps.OverlayItem> overlays = new ArrayList<com.google.android.maps.OverlayItem>();
+	private final Context context;
+	private final Drawable busPicture;
+	private final List<BusLocation> busLocations;
 	private int selectedBusIndex;
+	private final Drawable arrow;
 	
-	public BusOverlay(Drawable busPicture, Context context, List<BusLocation> busLocations, int selectedBusId) {
+	public BusOverlay(Drawable busPicture, Context context, List<BusLocation> busLocations, int selectedBusId, Drawable arrow) {
 		super(boundCenterBottom(busPicture));
 
 		this.context = context;
 		this.busPicture = busPicture;
+		this.arrow = arrow;
 		this.busLocations = busLocations;
 		this.selectedBusIndex = -1;
 		for (int i = 0; i < busLocations.size(); i++)
@@ -129,6 +131,14 @@ public class BusOverlay extends com.google.android.maps.ItemizedOverlay<com.goog
 	@Override
 	public void draw(Canvas canvas, MapView mapView, boolean shadow)
 	{
+		for (int i = 0; i < overlays.size(); i++)
+		{
+			OverlayItem item = overlays.get(i);
+			BusLocation busLocation = busLocations.get(i);
+			
+			item.setMarker(new BusDrawable(busPicture, busLocation.getHeading(), arrow));
+		}
+		
 		if (selectedBusIndex != -1)
 		{
 			//make sure that selected buses are preserved during refreshes
@@ -136,7 +146,6 @@ public class BusOverlay extends com.google.android.maps.ItemizedOverlay<com.goog
 			selectedBusIndex = -1;
 		}
 			
-		
 		super.draw(canvas, mapView, shadow);
 	}
 

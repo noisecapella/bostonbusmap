@@ -42,12 +42,13 @@ import android.widget.TextView;
  */
 public class UpdateAsyncTask extends AsyncTask<Object, String, List<BusLocation>>
 {
-	private TextView textView;
-	private Drawable busPicture;
-	private MapView mapView;
-	private String finalMessage;
+	private final TextView textView;
+	private final Drawable busPicture;
+	private final MapView mapView;
+	private final String finalMessage;
+	private final Drawable arrow;
 	
-	public UpdateAsyncTask(TextView textView, Drawable busPicture, MapView mapView, String finalMessage)
+	public UpdateAsyncTask(TextView textView, Drawable busPicture, MapView mapView, String finalMessage, Drawable arrow)
 	{
 		super();
 		
@@ -56,6 +57,7 @@ public class UpdateAsyncTask extends AsyncTask<Object, String, List<BusLocation>
 		this.busPicture = busPicture;
 		this.mapView = mapView;
 		this.finalMessage = finalMessage;
+		this.arrow = arrow;
 	}
 	
 	@Override
@@ -141,7 +143,7 @@ public class UpdateAsyncTask extends AsyncTask<Object, String, List<BusLocation>
         textView.setText("Drawing overlays...");
         
         
-    	BusOverlay busOverlay = new BusOverlay(busPicture, textView.getContext(), busLocations, selectedBusId);
+    	BusOverlay busOverlay = new BusOverlay(busPicture, textView.getContext(), busLocations, selectedBusId, arrow);
     	
     	
     	//draw the buses on the map

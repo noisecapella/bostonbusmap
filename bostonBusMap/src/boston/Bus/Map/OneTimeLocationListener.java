@@ -28,7 +28,7 @@ import android.os.Bundle;
 import android.widget.TextView;
 
 /**
- * This is not currently used, but it would get the current location from the GPS device on the phone
+ * This gets the location and sets the mapView to it, then unregisters itself so that this only gets executed once
  * Remember that you need to declare this in the permissions part of AndroidManifest.xml
  *
  */

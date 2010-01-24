@@ -29,6 +29,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.BitmapFactory;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.StateListDrawable;
 import android.location.Criteria;
@@ -81,7 +82,7 @@ public class Main extends MapActivity
 	
 	
 	private Drawable busPicture;
-	
+	private Drawable arrow;
 	
 	private final int maxOverlays = 20;
 	
@@ -177,6 +178,8 @@ public class Main extends MapActivity
 
     	//store picture of bus
         busPicture = getResources().getDrawable(R.drawable.bus_statelist);
+        
+        arrow = getResources().getDrawable(R.drawable.arrow);
         
         
         
@@ -298,6 +301,7 @@ public class Main extends MapActivity
     		}
     		
     		break;
+ 
     	}
     	return true;
     }
@@ -340,7 +344,7 @@ public class Main extends MapActivity
 		}
 		
 		
-		updateAsyncTask = new UpdateAsyncTask(textView, busPicture, mapView, finalMessage);
+		updateAsyncTask = new UpdateAsyncTask(textView, busPicture, mapView, finalMessage, arrow);
 		updateAsyncTask.execute(new Double(center.getLatitudeE6() / 1000000.0),
 				new Double(center.getLongitudeE6() / 1000000.0), new Integer(maxOverlays), busLocations, doShowUnpredictable());
 		

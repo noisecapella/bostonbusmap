@@ -133,6 +133,22 @@ public class BusLocations
 			this.inBound = inBound;
 		}
 
+		public int getHeading()
+		{
+			if (predictable)
+			{
+				return Integer.parseInt(heading);
+			}
+			else
+			{
+				//TODO: this repeats code from getDirection(), make a method to reuse code
+				double thetaInRadians = Math.atan2(distanceFromLastY, distanceFromLastX);
+				
+				int degrees = radiansToDegrees(thetaInRadians);
+				return degrees;
+			}
+		}
+		
 		/**
 		 * 
 		 * @return a String describing the direction of the bus, or "" if it can't be calculated.
@@ -140,15 +156,16 @@ public class BusLocations
 		 */
 		public String getDirection()
 		{
-			double thetaInRadians = Math.atan2(distanceFromLastY, distanceFromLastX);
-			
 			if (distanceFromLastY == 0 && distanceFromLastX == 0)
 			{
 				return "";
 			}
 			else
 			{
-				return radiansToCardinalDirections(thetaInRadians);
+				double thetaInRadians = Math.atan2(distanceFromLastY, distanceFromLastX);
+				
+				int degrees = radiansToDegrees(thetaInRadians); 
+				return  degrees + " deg (" + convertHeadingToCardinal(degrees) + ")";
 			}
 			
 		}
@@ -157,7 +174,7 @@ public class BusLocations
 		 * @param thetaBackup direction in radians, where east is 0 and going counterclockwise
 		 * @return a descriptive String showing the direction (for example: E (90 deg))
 		 */
-		private String radiansToCardinalDirections(double thetaAsRadians)
+		private int radiansToDegrees(double thetaAsRadians)
 		{
 			//NOTE: degrees will be 0 == north, going clockwise
 			int degrees = (int)(thetaAsRadians * 180.0 / Math.PI);
@@ -173,7 +190,7 @@ public class BusLocations
 				degrees += 360;
 			}
 			
-			return degrees + " deg (" + convertHeadingToCardinal(degrees) + ")";
+			return degrees;
 		}
 
 		/**
@@ -303,6 +320,7 @@ public class BusLocations
 			String[] directions = new String[] {"N", "NE", "E", "SE", "S", "SW", "W", "NW"};
 			return directions[index];
 		}
+
 	}
 	
 	/**
