@@ -18,6 +18,14 @@ import android.graphics.drawable.Drawable;
 import android.opengl.Matrix;
 import android.util.AttributeSet;
 
+/**
+ * This draws a bus with an arrow in it. There might be a simpler way than subclassing Drawable; if so let me know
+ * 
+ * 
+ * 
+ * @author schneg
+ *
+ */
 public class BusDrawable extends Drawable {
 	private final Drawable drawable;
 	private final Drawable arrow;
@@ -32,32 +40,31 @@ public class BusDrawable extends Drawable {
 	
 	@Override
 	public void draw(Canvas canvas) {
-		// TODO Auto-generated method stub
-		//arrow.setBounds(drawable.getBounds());
-//		Rect bounds = arrow.getBounds();
-		int arrowLeft = -arrow.getIntrinsicWidth() / 2;
-		int arrowTop = 0;
-		int arrowRight = arrow.getIntrinsicWidth() / 2;
-		int arrowBottom = arrow.getIntrinsicHeight();
+		//put the arrow in the bus window
 		
-		//arrow.setBounds(arrowLeft, arrowTop, arrowRight, arrowBottom);
+		int arrowLeft = -(arrow.getIntrinsicWidth() / 4);
+		int arrowTop = -drawable.getIntrinsicHeight() + 7;
+		int arrowWidth = (int)(arrow.getIntrinsicWidth() * 0.60); 
+		int arrowHeight = (int)(arrow.getIntrinsicHeight() * 0.60);
+		int arrowRight = arrowLeft + arrowWidth;
+		int arrowBottom = arrowTop + arrowHeight;
 		
-		//canvas.
-		//canvas.rotate(heading);
-		
-		
-		
-		//arrow.setBounds(-10, 0, arrow.getIntrinsicWidth() - 10, arrow.getIntrinsicHeight());
+		//first draw the bus	
 		drawable.draw(canvas);
+
+		
+		arrow.setBounds(arrowLeft, arrowTop, arrowRight, arrowBottom);
 		
 		canvas.save();
-		canvas.rotate(heading);
+		//set rotation pivot at the center of the arrow image
+		canvas.rotate(heading, arrowLeft + arrowWidth/2, arrowTop + arrowHeight / 2);
 		
 		Rect rect = arrow.getBounds();
-		arrow.setBounds(arrowLeft, arrowTop, arrowRight, arrowBottom);
 		arrow.draw(canvas);
 		arrow.setBounds(rect);
 		canvas.restore();
+
+		
 		
 	}
 

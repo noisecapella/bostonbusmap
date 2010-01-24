@@ -133,6 +133,25 @@ public class BusLocations
 			this.inBound = inBound;
 		}
 
+		public boolean hasHeading()
+		{
+			if (predictable)
+			{
+				return (getHeading() >= 0);
+			}
+			else
+			{
+				if (distanceFromLastY == 0 && distanceFromLastX == 0)
+				{
+					return false;
+				}
+				else
+				{
+					return true;
+				}
+			}
+		}
+		
 		public int getHeading()
 		{
 			if (predictable)

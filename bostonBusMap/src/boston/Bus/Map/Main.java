@@ -287,17 +287,7 @@ public class Main extends MapActivity
     	case R.id.centerOnLocationMenuItem:
     		if (mapView != null)
     		{
-    			Criteria criteria = new Criteria();
-    			criteria.setAccuracy(Criteria.ACCURACY_COARSE);
-    			
-    			LocationManager locationManager = (LocationManager)getSystemService(LOCATION_SERVICE);
-
-    			OneTimeLocationListener listener = new OneTimeLocationListener(mapView, locationManager);
-
-    			locationManager.requestLocationUpdates(locationManager.getBestProvider(criteria, true), 0, 0, listener, getMainLooper());
-    			
-    			Toast.makeText(this, "Finding current location...", Toast.LENGTH_SHORT).show();
-    			//... it might take a few seconds
+    			centerOnCurrentLocation();
     		}
     		
     		break;
@@ -305,6 +295,41 @@ public class Main extends MapActivity
     	}
     	return true;
     }
+
+    /**
+     * Figure out the current location of the phone, and move the map to it
+     */
+	private void centerOnCurrentLocation() {
+		Criteria criteria = new Criteria();
+		criteria.setAccuracy(Criteria.ACCURACY_COARSE);
+		
+		String noProviders = "Cannot use any location service. \nAre any enabled (like GPS) in your system settings?";
+		
+		LocationManager locationManager = (LocationManager)getSystemService(LOCATION_SERVICE);
+		if (locationManager != null)
+		{
+			OneTimeLocationListener listener = new OneTimeLocationListener(mapView, locationManager);
+
+			String provider = locationManager.getBestProvider(criteria, true);
+			if (provider == null)
+			{
+				Toast.makeText(this, noProviders, Toast.LENGTH_LONG).show();
+			}
+			else
+			{
+				locationManager.requestLocationUpdates(provider, 0, 0, listener, getMainLooper());
+
+				Toast.makeText(this, "Finding current location...", Toast.LENGTH_SHORT).show();
+				//... it might take a few seconds. 
+				//TODO: make sure that it eventually shows the error message if location is never found
+			}
+		}
+		else
+		{
+			//i don't think this will happen, but just in case
+			Toast.makeText(this, noProviders, Toast.LENGTH_LONG).show();
+		}
+	}
     
     @Override
     public boolean onCreateOptionsMenu(Menu menu)

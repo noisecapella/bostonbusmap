@@ -136,7 +136,16 @@ public class BusOverlay extends com.google.android.maps.ItemizedOverlay<com.goog
 			OverlayItem item = overlays.get(i);
 			BusLocation busLocation = busLocations.get(i);
 			
-			item.setMarker(new BusDrawable(busPicture, busLocation.getHeading(), arrow));
+			
+			if (shadow || !busLocation.hasHeading())
+			{
+				item.setMarker(busPicture);
+			}
+			else
+			{
+				//don't draw a shadow for the arrow; that's drawn weirdly
+				item.setMarker(new BusDrawable(busPicture, busLocation.getHeading(), arrow));
+			}
 		}
 		
 		if (selectedBusIndex != -1)

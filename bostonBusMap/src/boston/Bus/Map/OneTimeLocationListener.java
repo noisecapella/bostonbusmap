@@ -24,8 +24,10 @@ import com.google.android.maps.MapView;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
+import android.location.LocationProvider;
 import android.os.Bundle;
 import android.widget.TextView;
+import android.widget.Toast;
 
 /**
  * This gets the location and sets the mapView to it, then unregisters itself so that this only gets executed once
@@ -70,13 +72,17 @@ public class OneTimeLocationListener implements LocationListener {
 		
 		mapView.getController().animateTo(new GeoPoint(latAsInt, lonAsInt));
 		
+		//we only update once, so remove it now
 		locationManager.removeUpdates(this);
 	}
 
+	private final String locationUnavailable = "Current location is unavailable";
+	
 	@Override
 	public void onProviderDisabled(String arg0) {
 		// TODO Auto-generated method stub
-
+		Toast.makeText(mapView.getContext(), locationUnavailable, Toast.LENGTH_LONG).show();
+		locationManager.removeUpdates(this);
 	}
 
 	@Override
@@ -88,7 +94,16 @@ public class OneTimeLocationListener implements LocationListener {
 	@Override
 	public void onStatusChanged(String arg0, int arg1, Bundle arg2) {
 		// TODO Auto-generated method stub
-
+		switch (arg1)
+		{
+		case LocationProvider.AVAILABLE:
+			break;
+		case LocationProvider.OUT_OF_SERVICE:
+		case LocationProvider.TEMPORARILY_UNAVAILABLE:
+			Toast.makeText(mapView.getContext(), locationUnavailable, Toast.LENGTH_LONG).show();
+			locationManager.removeUpdates(this);
+			break;
+		}
 	}
 
 }
