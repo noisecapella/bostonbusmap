@@ -75,8 +75,14 @@ public class OneTimeLocationListener implements LocationListener {
 		this.context = context;
 		
 		terminateLocate = createTerminateLocate();
-		handler.postDelayed(terminateLocate, terminateAfter);
+	}
+
+	public void start()
+	{
 		
+		handler.removeCallbacks(terminateLocate);
+		handler.postDelayed(terminateLocate, terminateAfter);
+		Toast.makeText(context, "Finding current location...", Toast.LENGTH_SHORT).show();
 	}
 	
 	private Runnable createTerminateLocate()
@@ -88,9 +94,19 @@ public class OneTimeLocationListener implements LocationListener {
 			public void run() {
 				// TODO Auto-generated method stub
 				Toast.makeText(context, "Cannot find location, try again later", Toast.LENGTH_LONG).show();
+				
 				locationManager.removeUpdates(listener);
 			}
 		};
+	}
+	
+	/**
+	 * If the activity is pausing, silently remove any callbacks  
+	 */
+	public void release()
+	{		
+		handler.removeCallbacks(terminateLocate);
+		locationManager.removeUpdates(this);
 	}
 	
 	@Override

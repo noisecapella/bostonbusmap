@@ -119,6 +119,11 @@ public class Main extends MapActivity
 	 */
 	private final double timeoutInMillis = 10 * 60 * 1000; //10 minutes
 	
+	/**
+	 * What is used to figure out the current location
+	 */
+	private OneTimeLocationListener locationListener;
+	
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -246,7 +251,7 @@ public class Main extends MapActivity
 		
 
     @Override
-    protected void onDestroy() {
+    protected void onPause() {
     	if (mapView != null)
     	{
 
@@ -261,7 +266,12 @@ public class Main extends MapActivity
     		editor.commit();
     	}
     	
-    	super.onDestroy();
+		if (locationListener != null)
+		{
+			locationListener.release();
+		}
+    	
+		super.onPause();
     }
 
 
@@ -308,8 +318,6 @@ public class Main extends MapActivity
 		LocationManager locationManager = (LocationManager)getSystemService(LOCATION_SERVICE);
 		if (locationManager != null)
 		{
-			OneTimeLocationListener listener = new OneTimeLocationListener(mapView, locationManager, this);
-
 			String provider = locationManager.getBestProvider(criteria, true);
 			if (provider == null)
 			{
@@ -317,9 +325,20 @@ public class Main extends MapActivity
 			}
 			else
 			{
-				locationManager.requestLocationUpdates(provider, 0, 0, listener, getMainLooper());
+				if (locationListener != null)
+				{
+					locationManager.removeUpdates(locationListener);
+				}
+				else
+				{
+					locationListener = new OneTimeLocationListener(mapView, locationManager, this);
+				}
+				
+				locationListener.start();
+				
+				locationManager.requestLocationUpdates(provider, 0, 0, locationListener, getMainLooper());
 
-				Toast.makeText(this, "Finding current location...", Toast.LENGTH_SHORT).show();
+				
 				//... it might take a few seconds. 
 				//TODO: make sure that it eventually shows the error message if location is never found
 			}
