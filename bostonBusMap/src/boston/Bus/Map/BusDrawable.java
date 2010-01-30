@@ -5,18 +5,25 @@ import java.io.IOException;
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
 
+import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Canvas;
+import android.graphics.Color;
 import android.graphics.ColorFilter;
+import android.graphics.NinePatch;
 import android.graphics.Paint;
 import android.graphics.Rect;
 import android.graphics.Region;
 import android.graphics.PorterDuff.Mode;
 import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.NinePatchDrawable;
 import android.graphics.drawable.StateListDrawable;
 import android.graphics.drawable.Drawable;
 import android.opengl.Matrix;
 import android.util.AttributeSet;
+import android.view.ViewGroup.LayoutParams;
+import android.widget.Button;
+import android.widget.TextView;
 
 /**
  * This draws a bus with an arrow in it. There might be a simpler way than subclassing Drawable; if so let me know
@@ -27,15 +34,37 @@ import android.util.AttributeSet;
  *
  */
 public class BusDrawable extends Drawable {
-	private final Drawable drawable;
+	private final Drawable bus;
 	private final Drawable arrow;
 	private final int heading;
+	private final Drawable tooltip;
+	private final TextView textView;
 	
-	public BusDrawable(Drawable drawable, int heading, Drawable arrow)
+	public BusDrawable(Drawable drawable, int heading, Drawable arrow, Drawable tooltip, TextView textView)
 	{
-		this.drawable = drawable;
+		this.bus = drawable;
 		this.heading = heading;
-		this.arrow = arrow;
+		
+		if (arrow != null)
+		{
+			this.arrow = arrow;
+		}
+		else
+		{
+			this.arrow = new BitmapDrawable();
+		}
+		
+		
+		if (tooltip != null)
+		{
+			this.tooltip = tooltip;
+		}
+		else
+		{
+			this.tooltip = new BitmapDrawable();
+		}
+		
+		this.textView = textView;
 	}
 	
 	@Override
@@ -43,16 +72,16 @@ public class BusDrawable extends Drawable {
 		//put the arrow in the bus window
 		
 		int arrowLeft = -(arrow.getIntrinsicWidth() / 4);
-		int arrowTop = -drawable.getIntrinsicHeight() + 7;
+		int arrowTop = -bus.getIntrinsicHeight() + 7;
 		int arrowWidth = (int)(arrow.getIntrinsicWidth() * 0.60); 
 		int arrowHeight = (int)(arrow.getIntrinsicHeight() * 0.60);
 		int arrowRight = arrowLeft + arrowWidth;
 		int arrowBottom = arrowTop + arrowHeight;
 		
-		//first draw the bus	
-		drawable.draw(canvas);
+		//first draw the bus
+		bus.draw(canvas);
 
-		
+		//then draw arrow
 		arrow.setBounds(arrowLeft, arrowTop, arrowRight, arrowBottom);
 		
 		canvas.save();
@@ -63,214 +92,235 @@ public class BusDrawable extends Drawable {
 		arrow.draw(canvas);
 		arrow.setBounds(rect);
 		canvas.restore();
+		
+		
+		//last, draw tooltip if necessary. This drawable will be empty if we don't need to draw it
+		if (textView != null)
+		{
+			int tooltipLeft = -bus.getIntrinsicWidth();
+			int tooltipTop = -bus.getIntrinsicHeight() * 2;
 
-		
-		
+			//tooltip.setBounds(0, 0, tooltipWidth, tooltipHeight);
+			
+			textView.setBackgroundDrawable(tooltip);
+			textView.setLayoutParams(new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT));
+			//textView.layout(tooltipLeft, tooltipTop, tooltipRight, tooltipBottom);
+			//textView.
+
+			//textView.setText(text);
+			
+			textView.measure(100, 100);
+			int tooltipWidth = textView.getMeasuredWidth();
+			int tooltipHeight = textView.getMeasuredHeight();
+			int tooltipRight = tooltipLeft + tooltipWidth;
+			int tooltipBottom = tooltipTop + tooltipHeight;
+			
+			
+			textView.layout(tooltipLeft, tooltipTop, tooltipRight, tooltipBottom);
+			textView.setTextColor(Color.BLACK);
+			
+			//HACK: the textView is drawing at 0,0, and i can't get it to draw slightly to the left
+			canvas.save();
+			canvas.translate(-textView.getMeasuredWidth() / 2, 0);
+			textView.draw(canvas);
+			canvas.restore();
+			
+		}
 	}
 
 	
 	
 	@Override
 	public int getOpacity() {
-		// TODO Auto-generated method stubpadding
-		arrow.getOpacity();
-		return drawable.getOpacity();
+		return bus.getOpacity();
 	}
 
 	@Override
 	public void setAlpha(int alpha) {
-		// TODO Auto-generated method stub
-		drawable.setAlpha(alpha);
+		bus.setAlpha(alpha);
 		arrow.setAlpha(alpha);
+		tooltip.setAlpha(alpha);
 	}
 
 	@Override
 	public void setColorFilter(ColorFilter cf) {
-		// TODO Auto-generated method stub
-		drawable.setColorFilter(cf);
+		bus.setColorFilter(cf);
 		arrow.setColorFilter(cf);
+		tooltip.setColorFilter(cf);
 	}
 	
 	@Override
 	public int getIntrinsicHeight() {
-		// TODO Auto-generated method stub
-		return drawable.getIntrinsicHeight() + arrow.getIntrinsicHeight();
+		//ignoring arrow because it's inside the drawable
+		
+		return bus.getIntrinsicHeight() + tooltip.getIntrinsicHeight();
 	}
 	@Override
 	public int getIntrinsicWidth() {
-		// TODO Auto-generated method stub
-		return drawable.getIntrinsicWidth() + arrow.getIntrinsicWidth();
+		return bus.getIntrinsicWidth() + tooltip.getIntrinsicWidth();
 	}
 	
 	@Override
 	public int getMinimumHeight() {
-		// TODO Auto-generated method stub
-		return drawable.getMinimumHeight() + arrow.getMinimumHeight();
+		return bus.getMinimumHeight() + tooltip.getMinimumHeight();
 	}
 	
 	@Override
 	public int getMinimumWidth() {
-		// TODO Auto-generated method stub
-		return drawable.getMinimumWidth() + arrow.getMinimumWidth();
+		return bus.getMinimumWidth() + tooltip.getMinimumWidth();
 	}
 	
 	@Override
 	public Drawable getCurrent() {
-		// TODO Auto-generated method stub
-		arrow.getCurrent();
-		return drawable.getCurrent();
+		return bus.getCurrent();
 	}
 	
 	@Override
 	public void clearColorFilter() {
-		// TODO Auto-generated method stub
 		arrow.clearColorFilter();
-		drawable.clearColorFilter();
+		bus.clearColorFilter();
+		tooltip.clearColorFilter();
 	}
 	
 	@Override
 	public boolean equals(Object o) {
-		// TODO Auto-generated method stub
-		return drawable.equals(o);
+		return bus.equals(o);
 	}
 	
 	@Override
 	public int getChangingConfigurations() {
-		// TODO Auto-generated method stub
-		arrow.getChangingConfigurations();
-		return drawable.getChangingConfigurations();
+		return bus.getChangingConfigurations();
 	}
 	
 	@Override
 	public ConstantState getConstantState() {
-		// TODO Auto-generated method stub
-		arrow.getConstantState();
-		return drawable.getConstantState();
+		return bus.getConstantState();
 	}
 	
 	@Override
 	public boolean getPadding(Rect padding) {
-		// TODO Auto-generated method stub
-		arrow.getPadding(padding);
-		return drawable.getPadding(padding);
+		return bus.getPadding(padding);
 	}
 	
 	@Override
 	public int[] getState() {
-		// TODO Auto-generated method stub
-		arrow.getState();
-		return drawable.getState();
+		return bus.getState();
 	}
 	
 	@Override
 	public Region getTransparentRegion() {
-		// TODO Auto-generated method stub
-		arrow.getTransparentRegion();
-		return drawable.getTransparentRegion();
+		return bus.getTransparentRegion();
 	}
 	
 	@Override
 	public int hashCode() {
-		// TODO Auto-generated method stub
-		return drawable.hashCode();
+		return bus.hashCode();
 	}
 	
 	@Override
 	public void inflate(Resources r, XmlPullParser parser, AttributeSet attrs)
 			throws XmlPullParserException, IOException {
-		// TODO Auto-generated method stub
-		drawable.inflate(r, parser, attrs);
+		bus.inflate(r, parser, attrs);
 		arrow.inflate(r, parser, attrs);
+		tooltip.inflate(r, parser, attrs);
 	}
 	
 	@Override
 	public void invalidateSelf() {
-		// TODO Auto-generated method stub
-		drawable.invalidateSelf();
+		bus.invalidateSelf();
 		arrow.invalidateSelf();
+		tooltip.invalidateSelf();
 	}
 	
 	@Override
 	public boolean isStateful() {
-		// TODO Auto-generated method stub
-		arrow.isStateful();
-		return drawable.isStateful();
+		return bus.isStateful();
 	}
 	
 	@Override
 	public Drawable mutate() {
-		// TODO Auto-generated method stub
+		//NOTE: even though mutate() returns a Drawable, it also changes the state of the current item (i think)
+		//so we need to do it on each one
+		
 		arrow.mutate();
-		return drawable.mutate();
+		tooltip.mutate();
+		return bus.mutate();
 	}
 	
 	@Override
 	public void scheduleSelf(Runnable what, long when) {
-		// TODO Auto-generated method stub
-		drawable.scheduleSelf(what, when);
+		bus.scheduleSelf(what, when);
 		arrow.scheduleSelf(what, when);
+		tooltip.scheduleSelf(what, when);
 	}
 	
 	@Override
 	public void setBounds(int left, int top, int right, int bottom) {
-		// TODO Auto-generated method stub
-		drawable.setBounds(left, top, right, bottom);
+		bus.setBounds(left, top, right, bottom);
 		arrow.setBounds(left, top, right, bottom);
+		tooltip.setBounds(left, top, right, bottom);
 	}
 	
 	@Override
 	public void setBounds(Rect bounds) {
-		// TODO Auto-generated method stub
-		drawable.setBounds(bounds);
+		bus.setBounds(bounds);
 		arrow.setBounds(bounds);
+		tooltip.setBounds(bounds);
 	}
 	
 	@Override
 	public void setChangingConfigurations(int configs) {
-		// TODO Auto-generated method stub
-		drawable.setChangingConfigurations(configs);
+		bus.setChangingConfigurations(configs);
 		arrow.setChangingConfigurations(configs);
+		tooltip.setChangingConfigurations(configs);
 	}
 	
 	@Override
 	public void setColorFilter(int color, Mode mode) {
-		// TODO Auto-generated method stub
-		drawable.setColorFilter(color, mode);
+		bus.setColorFilter(color, mode);
 		arrow.setColorFilter(color, mode);
+		tooltip.setColorFilter(color, mode);
 	}
 	
 	@Override
 	public void setDither(boolean dither) {
-		// TODO Auto-generated method stub
 		arrow.setDither(dither);
-		drawable.setDither(dither);
+		bus.setDither(dither);
+		tooltip.setDither(dither);
 	}
 	
 	@Override
 	public void setFilterBitmap(boolean filter) {
-		// TODO Auto-generated method stub
 		arrow.setFilterBitmap(filter);
-		drawable.setFilterBitmap(filter);
+		bus.setFilterBitmap(filter);
+		tooltip.setFilterBitmap(filter);
 	}
 	
 	@Override
 	public boolean setState(int[] stateSet) {
-		// TODO Auto-generated method stub
-		arrow.setState(stateSet);
-		return drawable.setState(stateSet);
+		boolean arrowModified = arrow.setState(stateSet);
+		boolean busModified = bus.setState(stateSet);
+		boolean tooltipModified = tooltip.setState(stateSet);
+		
+		//we have to make sure all three are called. If we inline this, the condition may short circuit and not all setState will be called
+		return arrowModified || busModified || tooltipModified;
 	}
 	
 	@Override
 	public boolean setVisible(boolean visible, boolean restart) {
-		// TODO Auto-generated method stub
-		arrow.setVisible(visible, restart);
-		return drawable.setVisible(visible, restart);
+		boolean arrowModified = arrow.setVisible(visible, restart);
+		boolean busModified = bus.setVisible(visible, restart);
+		boolean tooltipModified = tooltip.setVisible(visible, restart);
+		
+		
+		//we have to make sure all three are called. If we inline this, the condition may short circuit and not all setVisible will be called
+		return arrowModified || busModified || tooltipModified;
 	}
 	
 	@Override
 	public void unscheduleSelf(Runnable what) {
-		// TODO Auto-generated method stub
-		drawable.unscheduleSelf(what);
+		bus.unscheduleSelf(what);
 		arrow.unscheduleSelf(what);
+		tooltip.unscheduleSelf(what);
 	}
 }

@@ -47,8 +47,9 @@ public class UpdateAsyncTask extends AsyncTask<Object, String, List<BusLocation>
 	private final MapView mapView;
 	private final String finalMessage;
 	private final Drawable arrow;
+	private final Drawable tooltip;
 	
-	public UpdateAsyncTask(TextView textView, Drawable busPicture, MapView mapView, String finalMessage, Drawable arrow)
+	public UpdateAsyncTask(TextView textView, Drawable busPicture, MapView mapView, String finalMessage, Drawable arrow, Drawable tooltip)
 	{
 		super();
 		
@@ -58,6 +59,7 @@ public class UpdateAsyncTask extends AsyncTask<Object, String, List<BusLocation>
 		this.mapView = mapView;
 		this.finalMessage = finalMessage;
 		this.arrow = arrow;
+		this.tooltip = tooltip;
 	}
 	
 	@Override
@@ -143,7 +145,7 @@ public class UpdateAsyncTask extends AsyncTask<Object, String, List<BusLocation>
         textView.setText("Drawing overlays...");
         
         
-    	BusOverlay busOverlay = new BusOverlay(busPicture, textView.getContext(), busLocations, selectedBusId, arrow);
+    	BusOverlay busOverlay = new BusOverlay(busPicture, textView.getContext(), busLocations, selectedBusId, arrow, tooltip);
     	
     	
     	//draw the buses on the map

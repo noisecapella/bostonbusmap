@@ -124,6 +124,8 @@ public class Main extends MapActivity
 	 */
 	private OneTimeLocationListener locationListener;
 	
+	private Drawable tooltip; 
+	
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -185,7 +187,7 @@ public class Main extends MapActivity
         busPicture = getResources().getDrawable(R.drawable.bus_statelist);
         
         arrow = getResources().getDrawable(R.drawable.arrow);
-        
+        tooltip = getResources().getDrawable(R.drawable.tooltip);
         
         
         //this is the refresh button
@@ -391,7 +393,7 @@ public class Main extends MapActivity
 		}
 		
 		
-		updateAsyncTask = new UpdateAsyncTask(textView, busPicture, mapView, finalMessage, arrow);
+		updateAsyncTask = new UpdateAsyncTask(textView, busPicture, mapView, finalMessage, arrow, tooltip);
 		updateAsyncTask.execute(new Double(center.getLatitudeE6() / 1000000.0),
 				new Double(center.getLongitudeE6() / 1000000.0), new Integer(maxOverlays), busLocations, doShowUnpredictable());
 		

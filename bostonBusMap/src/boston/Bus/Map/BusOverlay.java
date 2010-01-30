@@ -38,6 +38,11 @@ import android.graphics.Rect;
 import android.graphics.RectF;
 import android.graphics.drawable.Drawable;
 import android.text.TextPaint;
+import android.view.LayoutInflater;
+import android.view.ViewGroup;
+import android.view.ViewGroup.LayoutParams;
+import android.widget.LinearLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
 
@@ -56,7 +61,9 @@ public class BusOverlay extends com.google.android.maps.ItemizedOverlay<com.goog
 	private int selectedBusIndex;
 	private final Drawable arrow;
 	
-	public BusOverlay(Drawable busPicture, Context context, List<BusLocation> busLocations, int selectedBusId, Drawable arrow) {
+	private final Drawable tooltip;
+	
+	public BusOverlay(Drawable busPicture, Context context, List<BusLocation> busLocations, int selectedBusId, Drawable arrow, Drawable tooltip) {
 		super(boundCenterBottom(busPicture));
 
 		this.context = context;
@@ -64,6 +71,10 @@ public class BusOverlay extends com.google.android.maps.ItemizedOverlay<com.goog
 		this.arrow = arrow;
 		this.busLocations = busLocations;
 		this.selectedBusIndex = -1;
+		
+		this.tooltip = tooltip;
+		
+		
 		for (int i = 0; i < busLocations.size(); i++)
 		{
 			BusLocation busLocation = busLocations.get(i);
@@ -116,36 +127,36 @@ public class BusOverlay extends com.google.android.maps.ItemizedOverlay<com.goog
 	}
 
 	@Override
-	protected boolean onTap(int i)
-	{
-		//TODO: make this look nicer. Right now it's a box in the center of the screen that stays for a few seconds
-		//there's probably a way to do it like Google Maps does it when you click an overlay, produce a bubble with text inside it
-		OverlayItem item = overlays.get(i);
-		Toast.makeText(context, item.getTitle(), Toast.LENGTH_SHORT).show();
-
-		
-		return super.onTap(i);
-	}
-	
-	
-	@Override
 	public void draw(Canvas canvas, MapView mapView, boolean shadow)
 	{
+		int lastFocusedIndex = getLastFocusedIndex();
 		for (int i = 0; i < overlays.size(); i++)
 		{
 			OverlayItem item = overlays.get(i);
 			BusLocation busLocation = busLocations.get(i);
-			
-			
-			if (shadow || !busLocation.hasHeading())
+
+			Drawable drawable = busPicture;
+			if (shadow == false)
 			{
-				item.setMarker(busPicture);
+				//to make life easier we won't draw shadows except for the bus
+				//the tooltip has some weird error where the shadow draws a little left and up from where it should draw
+				
+				if (lastFocusedIndex == i)
+				{
+					TextView textView = new TextView(context);
+					String title = overlays.get(lastFocusedIndex).getTitle();
+					textView.setText(title);
+
+					drawable = new BusDrawable(busPicture, busLocation.getHeading(), arrow, tooltip, textView);
+				}
+				else
+				{
+					drawable = new BusDrawable(busPicture, busLocation.getHeading(), arrow, null, null);
+				}
 			}
-			else
-			{
-				//don't draw a shadow for the arrow; that's drawn weirdly
-				item.setMarker(new BusDrawable(busPicture, busLocation.getHeading(), arrow));
-			}
+			
+			item.setMarker(drawable);
+			
 		}
 		
 		if (selectedBusIndex != -1)
