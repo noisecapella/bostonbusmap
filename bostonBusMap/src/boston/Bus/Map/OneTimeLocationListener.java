@@ -21,11 +21,13 @@ package boston.Bus.Map;
 import com.google.android.maps.GeoPoint;
 import com.google.android.maps.MapView;
 
+import android.content.Context;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.location.LocationProvider;
 import android.os.Bundle;
+import android.os.Handler;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -42,6 +44,18 @@ public class OneTimeLocationListener implements LocationListener {
 	private double longitude;
 
 	private final LocationManager locationManager;
+	private final Handler handler;
+	
+	private final Context context;
+	/**
+	 * Max time to wait before cancelling locate, in millis
+	 */
+	private final int terminateAfter = 40000;
+	
+	/**
+	 * Used to terminate this operation after terminateAfter milliseconds
+	 */
+	private final Runnable terminateLocate;
 	
 	public double getLatitude()
 	{
@@ -53,10 +67,30 @@ public class OneTimeLocationListener implements LocationListener {
 		return longitude;
 	}
 	
-	public OneTimeLocationListener(MapView mapView, LocationManager locationManager)
+	public OneTimeLocationListener(MapView mapView, LocationManager locationManager, Context context)
 	{
 		this.mapView = mapView;
 		this.locationManager = locationManager;
+		this.handler = new Handler();
+		this.context = context;
+		
+		terminateLocate = createTerminateLocate();
+		handler.postDelayed(terminateLocate, terminateAfter);
+		
+	}
+	
+	private Runnable createTerminateLocate()
+	{
+		final LocationListener listener = this;
+		return new Runnable() {
+			
+			@Override
+			public void run() {
+				// TODO Auto-generated method stub
+				Toast.makeText(context, "Cannot find location, try again later", Toast.LENGTH_LONG).show();
+				locationManager.removeUpdates(listener);
+			}
+		};
 	}
 	
 	@Override

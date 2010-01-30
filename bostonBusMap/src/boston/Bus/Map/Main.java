@@ -308,7 +308,7 @@ public class Main extends MapActivity
 		LocationManager locationManager = (LocationManager)getSystemService(LOCATION_SERVICE);
 		if (locationManager != null)
 		{
-			OneTimeLocationListener listener = new OneTimeLocationListener(mapView, locationManager);
+			OneTimeLocationListener listener = new OneTimeLocationListener(mapView, locationManager, this);
 
 			String provider = locationManager.getBestProvider(criteria, true);
 			if (provider == null)
