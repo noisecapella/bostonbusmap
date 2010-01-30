@@ -87,7 +87,6 @@ public class OneTimeLocationListener implements LocationListener {
 	
 	private Runnable createTerminateLocate()
 	{
-		final LocationListener listener = this;
 		return new Runnable() {
 			
 			@Override
@@ -95,7 +94,7 @@ public class OneTimeLocationListener implements LocationListener {
 				// TODO Auto-generated method stub
 				Toast.makeText(context, "Cannot find location, try again later", Toast.LENGTH_LONG).show();
 				
-				locationManager.removeUpdates(listener);
+				release();
 			}
 		};
 	}
@@ -123,8 +122,7 @@ public class OneTimeLocationListener implements LocationListener {
 		mapView.getController().animateTo(new GeoPoint(latAsInt, lonAsInt));
 		
 		//we only update once, so remove it now
-		locationManager.removeUpdates(this);
-		handler.removeCallbacks(terminateLocate);
+		release();
 	}
 
 	private final String locationUnavailable = "Current location is unavailable";
@@ -133,7 +131,7 @@ public class OneTimeLocationListener implements LocationListener {
 	public void onProviderDisabled(String arg0) {
 		// TODO Auto-generated method stub
 		Toast.makeText(mapView.getContext(), locationUnavailable, Toast.LENGTH_LONG).show();
-		locationManager.removeUpdates(this);
+		release();
 	}
 
 	@Override
@@ -152,7 +150,7 @@ public class OneTimeLocationListener implements LocationListener {
 		case LocationProvider.OUT_OF_SERVICE:
 		case LocationProvider.TEMPORARILY_UNAVAILABLE:
 			Toast.makeText(mapView.getContext(), locationUnavailable, Toast.LENGTH_LONG).show();
-			locationManager.removeUpdates(this);
+			release();
 			break;
 		}
 	}
