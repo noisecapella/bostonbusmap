@@ -124,6 +124,7 @@ public class OneTimeLocationListener implements LocationListener {
 		
 		//we only update once, so remove it now
 		locationManager.removeUpdates(this);
+		handler.removeCallbacks(terminateLocate);
 	}
 
 	private final String locationUnavailable = "Current location is unavailable";
