@@ -141,18 +141,27 @@ public class BusOverlay extends com.google.android.maps.ItemizedOverlay<com.goog
 				//to make life easier we won't draw shadows except for the bus
 				//the tooltip has some weird error where the shadow draws a little left and up from where it should draw
 				
+				Drawable arrowArg = null, tooltipArg = null;
+				TextView textViewArg = null;
+				
+				//if selected, draw the tooltip
 				if (lastFocusedIndex == i)
 				{
 					TextView textView = new TextView(context);
 					String title = overlays.get(lastFocusedIndex).getTitle();
 					textView.setText(title);
+					tooltipArg = tooltip;
+					textViewArg = textView;
+				}
 
-					drawable = new BusDrawable(busPicture, busLocation.getHeading(), arrow, tooltip, textView);
-				}
-				else
+				//if it has a direction, draw the arrow
+				if (busLocation.hasHeading())
 				{
-					drawable = new BusDrawable(busPicture, busLocation.getHeading(), arrow, null, null);
+					arrowArg = arrow;
 				}
+				
+				//the constructor should ignore the arrow and tooltip if these arguments are null
+				drawable = new BusDrawable(busPicture, busLocation.getHeading(), arrowArg, tooltipArg, textViewArg);
 			}
 			
 			item.setMarker(drawable);
