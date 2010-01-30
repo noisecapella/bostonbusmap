@@ -84,7 +84,7 @@ public class Main extends MapActivity
 	private Drawable busPicture;
 	private Drawable arrow;
 	
-	private final int maxOverlays = 20;
+	private final int maxOverlays = 27;
 	
 	/**
 	 * The last time we updated, in milliseconds. Used to make sure we don't update more frequently than
