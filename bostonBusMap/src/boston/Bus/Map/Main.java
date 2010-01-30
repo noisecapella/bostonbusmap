@@ -230,6 +230,9 @@ public class Main extends MapActivity
 					if (updateAsyncTask != null && updateAsyncTask.getStatus().equals(UpdateAsyncTask.Status.FINISHED))
 					{
 						runUpdateTask("Finished update! 10 minutes reached; to update further click Refresh");
+						
+						//allow user to click Refresh right away
+						lastUpdateTime -= fetchDelay;
 						return;
 					}
 					
