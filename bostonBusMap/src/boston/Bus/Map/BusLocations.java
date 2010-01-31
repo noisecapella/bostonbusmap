@@ -376,14 +376,9 @@ public class BusLocations
 		DocumentBuilder builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
 			
 		InputStream stream = url.openStream();
-		byte[] bytes = ReadToEnd(stream);
-		
-		stream.read(bytes, 0, bytes.length);
-		
-		String debuggingString = new String(bytes);
 		
 		//parse the data into an XML document
-		Document document = builder.parse(new ByteArrayInputStream(bytes));
+		Document document = builder.parse(stream);
 		
 		//first check for errors
 		if (document.getElementsByTagName("Error").getLength() != 0)

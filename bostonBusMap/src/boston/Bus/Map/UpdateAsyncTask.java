@@ -22,6 +22,11 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.xml.parsers.FactoryConfigurationError;
+import javax.xml.parsers.ParserConfigurationException;
+
+import org.xml.sax.SAXException;
+
 
 import boston.Bus.Map.BusLocations.BusLocation;
 
@@ -97,12 +102,24 @@ public class UpdateAsyncTask extends AsyncTask<Object, String, List<BusLocation>
 			e.printStackTrace();
 			return new ArrayList<BusLocation>();
 			
+		} catch (SAXException e) {
+			publishProgress("XML parsing exception; cannot update. Maybe there was a hiccup in the feed?");
+			e.printStackTrace();
+			return new ArrayList<BusLocation>();
+		} catch (ParserConfigurationException e) {
+			publishProgress("XML parser configuration exception; cannot update");
+			e.printStackTrace();
+			return new ArrayList<BusLocation>();
+		} catch (FactoryConfigurationError e) {
+			publishProgress("XML parser factory configuration exception; cannot update");
+			e.printStackTrace();
+			return new ArrayList<BusLocation>();
 		}
 		catch (Exception e)
 		{
-			 publishProgress("Unknown error occurred when fetching bus locations");
-			 e.printStackTrace();
-			 return new ArrayList<BusLocation>();
+			publishProgress("Unknown exception occurred");
+			e.printStackTrace();
+			return new ArrayList<BusLocation>();
 		}
     	
 		publishProgress("Preparing to draw bus overlays...");
