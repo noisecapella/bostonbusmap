@@ -1,25 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
       package="boston.Bus.Map"
-      android:versionCode="10"
-      android:versionName="1.09">
-    <application android:label="@string/app_name" android:icon="@drawable/bus">
-        <activity android:label="@string/app_name" android:name=".Main">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity>
-		<activity android:name=".Preferences"
-          		android:label="@string/app_name">
+      android:versionCode="14"
+      android:versionName="1.13">
+	<application android:label="@string/app_name" android:icon="@drawable/bus">
+		<activity android:label="@string/app_name" android:name=".Main">
+			<intent-filter>
+				<action android:name="android.intent.action.MAIN" />
+				<category android:name="android.intent.category.LAUNCHER" />
+			</intent-filter>
 		</activity>
-    <uses-library android:name="com.google.android.maps"></uses-library>
-</application>
+		<activity android:name=".Preferences" android:label="@string/app_name">
+		</activity>
+		<uses-library android:name="com.google.android.maps"></uses-library>
+	</application>
 
 
-<uses-sdk android:minSdkVersion="3"></uses-sdk>
-<uses-permission android:name="android.permission.INTERNET"></uses-permission>
+	<uses-sdk android:minSdkVersion="3"></uses-sdk>
+	<uses-permission android:name="android.permission.INTERNET"></uses-permission>
 
-<uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"></uses-permission>
-<uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"></uses-permission>
+	<uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"></uses-permission>
+	<uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"></uses-permission>
 </manifest> 

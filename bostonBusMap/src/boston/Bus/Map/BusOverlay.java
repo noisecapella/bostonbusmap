@@ -148,7 +148,7 @@ public class BusOverlay extends com.google.android.maps.ItemizedOverlay<com.goog
 				if (lastFocusedIndex == i)
 				{
 					TextView textView = new TextView(context);
-					String title = overlays.get(lastFocusedIndex).getTitle();
+					String title = busLocation.makeTitle();
 					textView.setText(title);
 					tooltipArg = tooltip;
 					textViewArg = textView;
