@@ -395,8 +395,8 @@ public class Main extends MapActivity
 		
 		
 		updateAsyncTask = new UpdateAsyncTask(textView, busPicture, mapView, finalMessage, arrow, tooltip);
-		updateAsyncTask.execute(new Double(center.getLatitudeE6() / 1000000.0),
-				new Double(center.getLongitudeE6() / 1000000.0), new Integer(maxOverlays), busLocations, doShowUnpredictable());
+		updateAsyncTask.runUpdate(center.getLatitudeE6() / 1000000.0,
+				center.getLongitudeE6() / 1000000.0, maxOverlays, busLocations, doShowUnpredictable());
 		
 		
 	}

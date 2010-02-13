@@ -67,6 +67,19 @@ public class UpdateAsyncTask extends AsyncTask<Object, String, List<BusLocation>
 		this.tooltip = tooltip;
 	}
 	
+	/**
+	 * A type safe wrapper around execute
+	 * @param latitude
+	 * @param longitude
+	 * @param maxOverlays
+	 * @param busLocations
+	 * @param doShowUnpredictable
+	 */
+	public void runUpdate(double latitude, double longitude, int maxOverlays, BusLocations busLocations, boolean doShowUnpredictable)
+	{
+		execute(latitude, longitude, maxOverlays, busLocations, doShowUnpredictable);
+	}
+	
 	@Override
 	protected List<BusLocation> doInBackground(Object... args) {
 		// these are the arguments passed in on the execute() function
