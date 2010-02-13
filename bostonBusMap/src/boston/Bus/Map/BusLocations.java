@@ -217,7 +217,7 @@ public class BusLocations
 		 * @param lon2 longitude in radians
 		 * @return distance in miles
 		 */
-		private double distanceFrom(double lat2, double lon2)
+		double distanceFrom(double lat2, double lon2)
 		{
 			double lat1 = latitude * Math.PI / 180.0;
 			double lon1 = longitude * Math.PI / 180.0;
@@ -506,27 +506,4 @@ public class BusLocations
 		return newLocations.subList(0, maxLocations);
 	}
 	
-	private class BusComparator implements Comparator<BusLocation>
-	{
-		private final double centerLatitude;
-		private final double centerLongitude;
-		
-		public BusComparator(double centerLatitude, double centerLongitude)
-		{
-			this.centerLatitude = centerLatitude;
-			this.centerLongitude = centerLongitude;
-		}
-		
-		/**
-		 * Sort by distance to the center
-		 */
-		@Override
-		public int compare(BusLocation arg0, BusLocation arg1)
-		{
-			double dist = arg0.distanceFrom(centerLatitude * (Math.PI / 180.0), centerLongitude * (Math.PI / 180.0));
-			double otherDist = arg1.distanceFrom(centerLatitude * (Math.PI / 180.0), centerLongitude * (Math.PI / 180.0));
-			
-			return Double.compare(dist, otherDist);
-		}
-	}
 }
