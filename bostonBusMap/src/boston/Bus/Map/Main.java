@@ -44,6 +44,7 @@ import android.os.Message;
 import android.os.Handler.Callback;
 import android.preference.PreferenceActivity;
 import android.preference.PreferenceManager;
+import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -414,9 +415,13 @@ public class Main extends MapActivity
 		
 	}
 
+	@Override
+	public boolean onKeyDown(int keyCode, KeyEvent event) {
+		// TODO Auto-generated method stub
+		return super.onKeyDown(keyCode, event);
+	}
 
-
-
+	
 
 	private boolean doUpdateConstantly()
 	{
