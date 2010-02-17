@@ -461,22 +461,22 @@ public class Main extends MapActivity implements Updateable
 	 */
 	public void triggerUpdate() {
 		// TODO Auto-generated method stub
-		updateAsyncTask = new UpdateAsyncTask(textView, busPicture, mapView, null, arrow, tooltip, this);
-		
-		//delay this for a second so that we kinda sorta account for map fling
+		//delay this so that we kinda sorta account for map fling
 		handler.postDelayed(new Runnable() {
 			
 			@Override
 			public void run() {
 				// TODO Auto-generated method stub
+				UpdateAsyncTask minorUpdate = new UpdateAsyncTask(textView, busPicture, mapView, null, arrow, tooltip, Main.this);
+				
 
 				GeoPoint center = mapView.getMapCenter();
 				
-				updateAsyncTask.runUpdate(center.getLatitudeE6() / 1000000.0,
+				minorUpdate.runUpdate(center.getLatitudeE6() / 1000000.0,
 						center.getLongitudeE6() / 1000000.0, maxOverlays, busLocations, doShowUnpredictable(), false);
 				
 			}
-		}, 1000);
+		}, 500);
 		
 
 	}
