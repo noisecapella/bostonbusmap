@@ -44,6 +44,7 @@ import android.os.Message;
 import android.os.Handler.Callback;
 import android.preference.PreferenceActivity;
 import android.preference.PreferenceManager;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -52,6 +53,7 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.MenuItem.OnMenuItemClickListener;
 import android.view.View.OnClickListener;
+import android.view.View.OnTouchListener;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.LinearLayout;
@@ -63,7 +65,7 @@ import android.widget.ZoomControls;
  * The main activity
  *
  */
-public class Main extends MapActivity
+public class Main extends MapActivity implements Updateable
 {
 	private MapView mapView;
 	private TextView textView;
@@ -85,7 +87,7 @@ public class Main extends MapActivity
 	private Drawable busPicture;
 	private Drawable arrow;
 	
-	private final int maxOverlays = 27;
+	private final int maxOverlays = 15;
 	
 	/**
 	 * The last time we updated, in milliseconds. Used to make sure we don't update more frequently than
@@ -253,6 +255,7 @@ public class Main extends MapActivity
 
 			}
 		};
+		
     }
 		
 
@@ -394,12 +397,14 @@ public class Main extends MapActivity
 		}
 		
 		
-		updateAsyncTask = new UpdateAsyncTask(textView, busPicture, mapView, finalMessage, arrow, tooltip);
+		updateAsyncTask = new UpdateAsyncTask(textView, busPicture, mapView, finalMessage, arrow, tooltip, this);
 		updateAsyncTask.runUpdate(center.getLatitudeE6() / 1000000.0,
-				center.getLongitudeE6() / 1000000.0, maxOverlays, busLocations, doShowUnpredictable());
+				center.getLongitudeE6() / 1000000.0, maxOverlays, busLocations, doShowUnpredictable(), true);
 		
 		
 	}
+	
+	private final GeoPoint lastCenterLocation = new GeoPoint(0,0);
 	
 	@Override
 	protected void onResume() {
@@ -449,5 +454,30 @@ public class Main extends MapActivity
 		// TODO Auto-generated method stub
 		
 		return new CurrentState(textView, mapView, busLocations, lastUpdateTime);
+	}
+
+	/**
+	 * when BusOverlay.onTouchEvent is hit, we redraw the buses around the new center (without doing getting new data from the server) 
+	 */
+	public void triggerUpdate() {
+		// TODO Auto-generated method stub
+		updateAsyncTask = new UpdateAsyncTask(textView, busPicture, mapView, null, arrow, tooltip, this);
+		
+		//delay this for a second so that we kinda sorta account for map fling
+		handler.postDelayed(new Runnable() {
+			
+			@Override
+			public void run() {
+				// TODO Auto-generated method stub
+
+				GeoPoint center = mapView.getMapCenter();
+				
+				updateAsyncTask.runUpdate(center.getLatitudeE6() / 1000000.0,
+						center.getLongitudeE6() / 1000000.0, maxOverlays, busLocations, doShowUnpredictable(), false);
+				
+			}
+		}, 1000);
+		
+
 	}
 }

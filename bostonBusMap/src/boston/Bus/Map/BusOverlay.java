@@ -39,6 +39,7 @@ import android.graphics.RectF;
 import android.graphics.drawable.Drawable;
 import android.text.TextPaint;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.ViewGroup;
 import android.view.ViewGroup.LayoutParams;
 import android.widget.LinearLayout;
@@ -62,8 +63,10 @@ public class BusOverlay extends com.google.android.maps.ItemizedOverlay<com.goog
 	private final Drawable arrow;
 	
 	private final Drawable tooltip;
+	private final Updateable updateable;
 	
-	public BusOverlay(Drawable busPicture, Context context, List<BusLocation> busLocations, int selectedBusId, Drawable arrow, Drawable tooltip) {
+	public BusOverlay(Drawable busPicture, Context context, List<BusLocation> busLocations,
+			int selectedBusId, Drawable arrow, Drawable tooltip, Updateable updateable) {
 		super(boundCenterBottom(busPicture));
 
 		this.context = context;
@@ -73,7 +76,7 @@ public class BusOverlay extends com.google.android.maps.ItemizedOverlay<com.goog
 		this.selectedBusIndex = -1;
 		
 		this.tooltip = tooltip;
-		
+		this.updateable = updateable;
 		
 		for (int i = 0; i < busLocations.size(); i++)
 		{
@@ -101,6 +104,20 @@ public class BusOverlay extends com.google.android.maps.ItemizedOverlay<com.goog
 
 	}
 
+	
+	@Override
+	public boolean onTouchEvent(MotionEvent event, MapView mapView) {
+		// TODO Auto-generated method stub
+
+		if (event.getAction() == MotionEvent.ACTION_UP)
+		{
+			updateable.triggerUpdate();
+		}
+		
+
+		
+		return false;
+	}
 	
 	@Override
 	public int size() {

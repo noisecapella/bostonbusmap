@@ -53,8 +53,12 @@ public class UpdateAsyncTask extends AsyncTask<Object, String, List<BusLocation>
 	private final String finalMessage;
 	private final Drawable arrow;
 	private final Drawable tooltip;
+	private final Updateable updateable;
 	
-	public UpdateAsyncTask(TextView textView, Drawable busPicture, MapView mapView, String finalMessage, Drawable arrow, Drawable tooltip)
+	private boolean silenceUpdates;
+	
+	public UpdateAsyncTask(TextView textView, Drawable busPicture, MapView mapView, String finalMessage,
+			Drawable arrow, Drawable tooltip, Updateable updateable)
 	{
 		super();
 		
@@ -65,6 +69,7 @@ public class UpdateAsyncTask extends AsyncTask<Object, String, List<BusLocation>
 		this.finalMessage = finalMessage;
 		this.arrow = arrow;
 		this.tooltip = tooltip;
+		this.updateable = updateable;
 	}
 	
 	/**
@@ -75,11 +80,12 @@ public class UpdateAsyncTask extends AsyncTask<Object, String, List<BusLocation>
 	 * @param busLocations
 	 * @param doShowUnpredictable
 	 */
-	public void runUpdate(double latitude, double longitude, int maxOverlays, BusLocations busLocations, boolean doShowUnpredictable)
+	public void runUpdate(double latitude, double longitude, int maxOverlays,
+			BusLocations busLocations, boolean doShowUnpredictable, boolean doRefresh)
 	{
-		execute(latitude, longitude, maxOverlays, busLocations, doShowUnpredictable);
+		execute(latitude, longitude, maxOverlays, busLocations, doShowUnpredictable, doRefresh);
 	}
-	
+
 	@Override
 	protected List<BusLocation> doInBackground(Object... args) {
 		// these are the arguments passed in on the execute() function
@@ -89,52 +95,65 @@ public class UpdateAsyncTask extends AsyncTask<Object, String, List<BusLocation>
 		int maxOverlays = ((Integer)args[2]).intValue();
 		BusLocations busLocations = (BusLocations)args[3];
 		boolean doShowUnpredictable = ((Boolean)args[4]).booleanValue();
+		boolean doRefresh = ((Boolean)args[5]).booleanValue();
 		
-		return updateBusLocations(latitude, longitude, maxOverlays, busLocations, doShowUnpredictable);
+		return updateBusLocations(latitude, longitude, maxOverlays, busLocations, doShowUnpredictable, doRefresh);
 	}
 
 	@Override
 	protected void onProgressUpdate(String... strings)
 	{
-		textView.setText(strings[0]);
+		if (silenceUpdates == false)
+		{
+			textView.setText(strings[0]);
+		}
 	}
-	
+
 	public List<BusLocation> updateBusLocations(double latitude, double longitude, int maxOverlays, BusLocations busLocations,
-			boolean doShowUnpredictable)
-    {
-		publishProgress("Fetching bus location data...");
+			boolean doShowUnpredictable, boolean doRefresh)
+	{
+		if (doRefresh == false)
+		{
+			//if doRefresh is false, we just want to resort the overlays for a new center. Don't bother updating the text
+			silenceUpdates = true;
+		}
 		
-		try
+		publishProgress("Fetching bus location data...");
+
+		if (doRefresh)
 		{
-			 busLocations.Refresh();
+			try
+			{
+
+				busLocations.Refresh();
+			}
+			catch (IOException e)
+			{
+				//this probably means that there is no Internet available, or there's something wrong with the feed
+				publishProgress("Bus feed is inaccessable; try again later");
+				e.printStackTrace();
+				return new ArrayList<BusLocation>();
+
+			} catch (SAXException e) {
+				publishProgress("XML parsing exception; cannot update. Maybe there was a hiccup in the feed?");
+				e.printStackTrace();
+				return new ArrayList<BusLocation>();
+			} catch (ParserConfigurationException e) {
+				publishProgress("XML parser configuration exception; cannot update");
+				e.printStackTrace();
+				return new ArrayList<BusLocation>();
+			} catch (FactoryConfigurationError e) {
+				publishProgress("XML parser factory configuration exception; cannot update");
+				e.printStackTrace();
+				return new ArrayList<BusLocation>();
+			}
+			catch (Exception e)
+			{
+				publishProgress("Unknown exception occurred");
+				e.printStackTrace();
+				return new ArrayList<BusLocation>();
+			}
 		}
-		catch (IOException e)
-		{
-			//this probably means that there is no Internet available, or there's something wrong with the feed
-			publishProgress("Bus feed is inaccessable; try again later");
-			e.printStackTrace();
-			return new ArrayList<BusLocation>();
-			
-		} catch (SAXException e) {
-			publishProgress("XML parsing exception; cannot update. Maybe there was a hiccup in the feed?");
-			e.printStackTrace();
-			return new ArrayList<BusLocation>();
-		} catch (ParserConfigurationException e) {
-			publishProgress("XML parser configuration exception; cannot update");
-			e.printStackTrace();
-			return new ArrayList<BusLocation>();
-		} catch (FactoryConfigurationError e) {
-			publishProgress("XML parser factory configuration exception; cannot update");
-			e.printStackTrace();
-			return new ArrayList<BusLocation>();
-		}
-		catch (Exception e)
-		{
-			publishProgress("Unknown exception occurred");
-			e.printStackTrace();
-			return new ArrayList<BusLocation>();
-		}
-    	
 		publishProgress("Preparing to draw bus overlays...");
 		
 		ArrayList<BusLocation> ret = new ArrayList<BusLocation>();
@@ -172,10 +191,12 @@ public class UpdateAsyncTask extends AsyncTask<Object, String, List<BusLocation>
 		}
 		
         overlays.clear();
-        textView.setText("Drawing overlays...");
+        
+        publishProgress("Drawing overlays...");
         
         
-    	BusOverlay busOverlay = new BusOverlay(busPicture, textView.getContext(), busLocations, selectedBusId, arrow, tooltip);
+    	BusOverlay busOverlay = new BusOverlay(busPicture, textView.getContext(), busLocations, selectedBusId,
+    			arrow, tooltip, updateable);
     	
     	
     	//draw the buses on the map
@@ -194,7 +215,10 @@ public class UpdateAsyncTask extends AsyncTask<Object, String, List<BusLocation>
         //make sure we redraw map
         mapView.invalidate();
         
-        textView.setText(finalMessage);
+        if (finalMessage != null)
+        {
+        	publishProgress(finalMessage);
+        }
         
 	}
 }
