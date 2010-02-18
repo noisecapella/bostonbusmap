@@ -38,8 +38,11 @@ import android.graphics.Rect;
 import android.graphics.RectF;
 import android.graphics.drawable.Drawable;
 import android.text.TextPaint;
+import android.util.Log;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
+import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewGroup.LayoutParams;
 import android.widget.LinearLayout;
@@ -208,5 +211,32 @@ public class BusOverlay extends com.google.android.maps.ItemizedOverlay<com.goog
 			return busLocations.get(selectedBusIndex).id;
 		}
 		
+	}
+
+
+	public void handleKey(int keyCode) {
+		// TODO Auto-generated method stub
+		
+		/*OverlayItem newFocus = null;
+		
+		switch (keyCode)
+		{
+		case KeyEvent.KEYCODE_DPAD_RIGHT:
+		case KeyEvent.KEYCODE_DPAD_DOWN:
+			newFocus = nextFocus(true);
+			break;
+		case KeyEvent.KEYCODE_DPAD_UP:
+		case KeyEvent.KEYCODE_DPAD_LEFT:
+			newFocus = nextFocus(false);
+			break;
+		}
+	
+		if (newFocus != null)
+		{
+			int index = overlays.indexOf(newFocus);
+			selectedBusIndex = index;
+			setFocus(newFocus);
+			
+		}*/
 	}
 }

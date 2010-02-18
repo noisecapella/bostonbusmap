@@ -18,12 +18,16 @@
     */
 package boston.Bus.Map;
 
+import java.util.List;
+
 import boston.Bus.Map.R;
 
 import com.google.android.maps.GeoPoint;
 import com.google.android.maps.MapActivity;
 import com.google.android.maps.MapController;
 import com.google.android.maps.MapView;
+import com.google.android.maps.Overlay;
+import com.google.android.maps.OverlayItem;
 
 import android.app.Activity;
 import android.content.Context;
@@ -397,9 +401,8 @@ public class Main extends MapActivity implements Updateable
 		}
 		
 		
-		updateAsyncTask = new UpdateAsyncTask(textView, busPicture, mapView, finalMessage, arrow, tooltip, this);
-		updateAsyncTask.runUpdate(center.getLatitudeE6() / 1000000.0,
-				center.getLongitudeE6() / 1000000.0, maxOverlays, busLocations, doShowUnpredictable(), true);
+		updateAsyncTask = new UpdateAsyncTask(textView, busPicture, mapView, finalMessage, arrow, tooltip, this, doShowUnpredictable(), true, maxOverlays);
+		updateAsyncTask.runUpdate(busLocations);
 		
 		
 	}
@@ -456,6 +459,27 @@ public class Main extends MapActivity implements Updateable
 		return new CurrentState(textView, mapView, busLocations, lastUpdateTime);
 	}
 
+	
+	@Override
+	public boolean onKeyUp(int keyCode, KeyEvent event) {
+		// TODO Auto-generated method stub
+		
+		List<Overlay> overlays = mapView.getOverlays();
+		if (overlays.size() != 0)
+		{
+			Overlay overlay = overlays.get(0);
+			if (overlay instanceof BusOverlay)
+			{
+				BusOverlay busOverlay = (BusOverlay)overlay;
+				busOverlay.handleKey(keyCode);
+				
+				mapView.invalidate();
+			}
+		
+		}
+		return false;
+	}
+
 	/**
 	 * when BusOverlay.onTouchEvent is hit, we redraw the buses around the new center (without doing getting new data from the server) 
 	 */
@@ -464,19 +488,31 @@ public class Main extends MapActivity implements Updateable
 		//delay this so that we kinda sorta account for map fling
 		handler.postDelayed(new Runnable() {
 			
+			private UpdateAsyncTask minorUpdate;
+
 			@Override
 			public void run() {
-				// TODO Auto-generated method stub
-				UpdateAsyncTask minorUpdate = new UpdateAsyncTask(textView, busPicture, mapView, null, arrow, tooltip, Main.this);
+				//don't do two updates at once
+				if (minorUpdate != null)
+				{
+					if (minorUpdate.getStatus().equals(UpdateAsyncTask.Status.FINISHED) == false)
+					{
+						//task is not finished yet
+						return;
+					}
+					
+				}
+
+				minorUpdate = new UpdateAsyncTask(textView, busPicture, mapView, null, arrow,
+						tooltip, Main.this, doShowUnpredictable(), false, maxOverlays);
 				
 
 				GeoPoint center = mapView.getMapCenter();
 				
-				minorUpdate.runUpdate(center.getLatitudeE6() / 1000000.0,
-						center.getLongitudeE6() / 1000000.0, maxOverlays, busLocations, doShowUnpredictable(), false);
+				minorUpdate.runUpdate(busLocations);
 				
 			}
-		}, 500);
+		}, 250);
 		
 
 	}

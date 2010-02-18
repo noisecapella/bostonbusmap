@@ -45,7 +45,7 @@ import android.widget.TextView;
  * Handles the heavy work of downloading and parsing the XML in a separate thread from the UI.
  *
  */
-public class UpdateAsyncTask extends AsyncTask<Object, String, List<BusLocation>>
+public class UpdateAsyncTask extends AsyncTask<Object, String, BusLocations>
 {
 	private final TextView textView;
 	private final Drawable busPicture;
@@ -54,11 +54,14 @@ public class UpdateAsyncTask extends AsyncTask<Object, String, List<BusLocation>
 	private final Drawable arrow;
 	private final Drawable tooltip;
 	private final Updateable updateable;
+	private final boolean doShowUnpredictable;
+	private final boolean doRefresh;
+	private final int maxOverlays;
 	
 	private boolean silenceUpdates;
 	
 	public UpdateAsyncTask(TextView textView, Drawable busPicture, MapView mapView, String finalMessage,
-			Drawable arrow, Drawable tooltip, Updateable updateable)
+			Drawable arrow, Drawable tooltip, Updateable updateable, boolean doShowUnpredictable, boolean doRefresh, int maxOverlays)
 	{
 		super();
 		
@@ -70,6 +73,9 @@ public class UpdateAsyncTask extends AsyncTask<Object, String, List<BusLocation>
 		this.arrow = arrow;
 		this.tooltip = tooltip;
 		this.updateable = updateable;
+		this.doShowUnpredictable = doShowUnpredictable;
+		this.doRefresh = doRefresh;
+		this.maxOverlays = maxOverlays;
 	}
 	
 	/**
@@ -80,24 +86,17 @@ public class UpdateAsyncTask extends AsyncTask<Object, String, List<BusLocation>
 	 * @param busLocations
 	 * @param doShowUnpredictable
 	 */
-	public void runUpdate(double latitude, double longitude, int maxOverlays,
-			BusLocations busLocations, boolean doShowUnpredictable, boolean doRefresh)
+	public void runUpdate(BusLocations busLocations)
 	{
-		execute(latitude, longitude, maxOverlays, busLocations, doShowUnpredictable, doRefresh);
+		execute(busLocations);
 	}
 
 	@Override
-	protected List<BusLocation> doInBackground(Object... args) {
-		// these are the arguments passed in on the execute() function
-		double latitude = ((Double)args[0]).doubleValue();
-		double longitude = ((Double)args[1]).doubleValue();
+	protected BusLocations doInBackground(Object... args) {
 		//number of bus pictures to draw. Too many will make things slow
-		int maxOverlays = ((Integer)args[2]).intValue();
-		BusLocations busLocations = (BusLocations)args[3];
-		boolean doShowUnpredictable = ((Boolean)args[4]).booleanValue();
-		boolean doRefresh = ((Boolean)args[5]).booleanValue();
+		BusLocations busLocations = (BusLocations)args[0];
 		
-		return updateBusLocations(latitude, longitude, maxOverlays, busLocations, doShowUnpredictable, doRefresh);
+		return updateBusLocations(busLocations);
 	}
 
 	@Override
@@ -107,10 +106,10 @@ public class UpdateAsyncTask extends AsyncTask<Object, String, List<BusLocation>
 		{
 			textView.setText(strings[0]);
 		}
+		
 	}
 
-	public List<BusLocation> updateBusLocations(double latitude, double longitude, int maxOverlays, BusLocations busLocations,
-			boolean doShowUnpredictable, boolean doRefresh)
+	public BusLocations updateBusLocations(BusLocations busLocations)
 	{
 		if (doRefresh == false)
 		{
@@ -132,51 +131,59 @@ public class UpdateAsyncTask extends AsyncTask<Object, String, List<BusLocation>
 				//this probably means that there is no Internet available, or there's something wrong with the feed
 				publishProgress("Bus feed is inaccessable; try again later");
 				e.printStackTrace();
-				return new ArrayList<BusLocation>();
+				return null;
 
 			} catch (SAXException e) {
 				publishProgress("XML parsing exception; cannot update. Maybe there was a hiccup in the feed?");
 				e.printStackTrace();
-				return new ArrayList<BusLocation>();
+				return null;
 			} catch (ParserConfigurationException e) {
 				publishProgress("XML parser configuration exception; cannot update");
 				e.printStackTrace();
-				return new ArrayList<BusLocation>();
+				return null;
 			} catch (FactoryConfigurationError e) {
 				publishProgress("XML parser factory configuration exception; cannot update");
 				e.printStackTrace();
-				return new ArrayList<BusLocation>();
+				return null;
 			}
 			catch (Exception e)
 			{
 				publishProgress("Unknown exception occurred");
 				e.printStackTrace();
-				return new ArrayList<BusLocation>();
+				return null;
 			}
 		}
 		publishProgress("Preparing to draw bus overlays...");
 		
-		ArrayList<BusLocation> ret = new ArrayList<BusLocation>();
-		
-		ret.addAll(busLocations.getBusLocations(maxOverlays, latitude, longitude, doShowUnpredictable));
-		
 		publishProgress("Adding bus overlays to map...");
 		
-		if (ret.size() == 0)
+    	return busLocations;
+    }
+	
+	@Override
+	protected void onPostExecute(BusLocations busLocationsObject)
+	{
+		if (busLocationsObject == null)
+		{
+			//we probably posted an error message already; just return
+			return;
+		}
+		
+		GeoPoint center = mapView.getMapCenter();
+		double latitude = center.getLatitudeE6() / 1000000.0;
+		double longitude = center.getLongitudeE6() / 1000000.0;
+		
+		
+		ArrayList<BusLocation> busLocations = new ArrayList<BusLocation>();
+		
+		busLocations.addAll(busLocationsObject.getBusLocations(maxOverlays, latitude, longitude, doShowUnpredictable));
+		
+		if (busLocations.size() == 0)
 		{
 			//no data? oh well
 			//sometimes the feed provides an empty XML message; completely valid but without any vehicle elements
 			publishProgress("Finished update, no data provided");
-		}
-		
-    	return ret;
-    }
-	
-	@Override
-	protected void onPostExecute(List<BusLocation> busLocations)
-	{
-		if (busLocations.size() == 0)
-		{
+
 			//an error probably occurred; keep buses where they were before, and don't overwrite message in textbox
 			return;
 		}
