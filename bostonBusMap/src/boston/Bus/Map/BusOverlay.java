@@ -118,7 +118,7 @@ public class BusOverlay extends com.google.android.maps.ItemizedOverlay<com.goog
 
 		if (event.getAction() == MotionEvent.ACTION_UP)
 		{
-			updateable.triggerUpdate();
+			updateable.triggerUpdate(250);
 		}
 		
 

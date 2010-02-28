@@ -293,7 +293,7 @@ public class Main extends MapActivity implements Updateable
     		{
     			GeoPoint point = new GeoPoint(bostonLatitudeAsInt, bostonLongitudeAsInt);
     			mapView.getController().animateTo(point);
-    			triggerUpdate();
+    			triggerUpdate(1500);
     		}
     		break;
     	
@@ -474,7 +474,7 @@ public class Main extends MapActivity implements Updateable
 	/**
 	 * when BusOverlay.onTouchEvent is hit, we redraw the buses around the new center (without doing getting new data from the server) 
 	 */
-	public void triggerUpdate() {
+	public void triggerUpdate(int millisDelay) {
 		// TODO Auto-generated method stub
 		//delay this so that we kinda sorta account for map fling
 		handler.postDelayed(new Runnable() {
@@ -499,7 +499,7 @@ public class Main extends MapActivity implements Updateable
 				minorUpdate.runUpdate(busLocations);
 				
 			}
-		}, 250);
+		}, millisDelay);
 		
 
 	}
