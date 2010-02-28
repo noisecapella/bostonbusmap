@@ -207,7 +207,8 @@ public class BusOverlay extends com.google.android.maps.ItemizedOverlay<com.goog
 		Point circleCenter = projection.toPixels(firstPoint, null); 
 
 		//find out farthest point from bus that's closest to center
-		//these points are sorted by 
+		//these points are sorted by distance from center of screen, but we want
+		//distance from the bus closest to the center, which is not quite the same
 		OverlayItem last = first;
 		int lastDistance = 0;
 		Point circleRadius = circleCenter;
@@ -229,13 +230,10 @@ public class BusOverlay extends com.google.android.maps.ItemizedOverlay<com.goog
 		}
 
 		float busHeight = busPicture.getIntrinsicHeight();
-		float busWidth = busPicture.getIntrinsicWidth();
 		
-		float busDiagonal = (float)Math.sqrt(busHeight * busHeight + busWidth * busWidth);
+		float radius = (float)Math.sqrt(lastDistance);
 		
-		float radius = (float)Math.sqrt(lastDistance); //+ busDiagonal / 2;
-		
-		
+		//draw a circle showing which buses are currently displayed
 		Paint paint = new Paint();
 		paint.setColor(Color.BLACK);
 		paint.setAlpha(0x11); //very light grey

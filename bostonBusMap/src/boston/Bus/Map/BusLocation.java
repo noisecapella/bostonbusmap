@@ -6,13 +6,22 @@ package boston.Bus.Map;
 public class BusLocation
 {
 	/**
-	 * Current latitude of bus 
+	 * Current latitude of bus, in radians 
 	 */
 	public final double latitude;
 	/**
-	 * Current longitude of bus
+	 * Current longitude of bus, in radians
 	 */
 	public final double longitude;
+	
+	/**
+	 * Current latitude of bus, in degrees
+	 */
+	public final double latitudeAsDegrees;
+	/**
+	 * Current longitude of bus, in degrees
+	 */
+	public final double longitudeAsDegrees;
 	
 	/**
 	 * The bus id. This uniquely identifies a bus
@@ -33,11 +42,11 @@ public class BusLocation
 	public final double lastUpdateInMillis;
 	
 	/**
-	 * Distance in miles of the bus from its previous location, in the x dimension
+	 * Distance in miles of the bus from its previous location, in the x dimension, squared
 	 */
 	private double distanceFromLastX;
 	/**
-	 * Distance in miles of the bus from its previous location, in the y dimension
+	 * Distance in miles of the bus from its previous location, in the y dimension, squared
 	 */
 	private double distanceFromLastY;
 	
@@ -66,13 +75,19 @@ public class BusLocation
 	private final double radiusOfEarthInKilo = 6371.2;
 	private final double kilometersPerMile = 1.609344;
 	
+	private final double degreesToRadians = Math.PI / 180.0;
+	
 	private double timeBetweenUpdatesInMillis;
+	
+	
 	
 	public BusLocation(double latitude, double longitude, int id, String route, int seconds, double lastUpdateInMillis,
 			String heading, boolean predictable, boolean inBound)
 	{
-		this.latitude = latitude;
-		this.longitude = longitude;
+		this.latitude = latitude * degreesToRadians;
+		this.longitude = longitude * degreesToRadians;
+		this.latitudeAsDegrees = latitude;
+		this.longitudeAsDegrees = longitude;
 		this.id = id;
 		this.route = route;
 		this.seconds = seconds;
@@ -166,10 +181,10 @@ public class BusLocation
 	 * @param lon2 longitude in radians
 	 * @return distance in miles
 	 */
-	double distanceFrom(double lat2, double lon2)
+	public double distanceFrom(double lat2, double lon2)
 	{
-		double lat1 = latitude * Math.PI / 180.0;
-		double lon1 = longitude * Math.PI / 180.0;
+		double lat1 = latitude;
+		double lon1 = longitude;
 		
 		
 		//great circle distance
@@ -192,8 +207,8 @@ public class BusLocation
 			//ignore
 			return;
 		}
-		distanceFromLastX = distanceFrom(latitude * Math.PI / 180.0, oldBusLocation.longitude * Math.PI / 180.0);
-		distanceFromLastY = distanceFrom(oldBusLocation.latitude * Math.PI / 180.0, longitude * Math.PI / 180.0);
+		distanceFromLastX = distanceFrom(latitude, oldBusLocation.longitude);
+		distanceFromLastY = distanceFrom(oldBusLocation.latitude, longitude);
 		
 		if (oldBusLocation.latitude > latitude)
 		{
@@ -205,23 +220,6 @@ public class BusLocation
 		}
 		
 		timeBetweenUpdatesInMillis = lastUpdateInMillis - oldBusLocation.lastUpdateInMillis;
-	}
-
-	public String getSpeed() {
-		//time in hours
-		//distance in miles
-		
-		double time = ((timeBetweenUpdatesInMillis / 1000.0) / 60.0) / 60.0;
-		double distance = Math.sqrt(distanceFromLastX * distanceFromLastX + distanceFromLastY * distanceFromLastY);
-		if (time == 0)
-		{
-			return "";
-		}
-		else
-		{
-			return String.format("%f", distance/time) + " MPH";
-		}
-		
 	}
 
 	public String makeTitle() {

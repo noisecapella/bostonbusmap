@@ -78,11 +78,7 @@ public class UpdateAsyncTask extends AsyncTask<Object, String, BusLocations>
 	
 	/**
 	 * A type safe wrapper around execute
-	 * @param latitude
-	 * @param longitude
-	 * @param maxOverlays
 	 * @param busLocations
-	 * @param doShowUnpredictable
 	 */
 	public void runUpdate(BusLocations busLocations)
 	{
@@ -207,7 +203,7 @@ public class UpdateAsyncTask extends AsyncTask<Object, String, BusLocations>
     	//draw the buses on the map
         for (BusLocation busLocation : busLocations)
         {
-        	GeoPoint point = new GeoPoint((int)(busLocation.latitude * 1000000), (int)(busLocation.longitude * 1000000));
+        	GeoPoint point = new GeoPoint((int)(busLocation.latitudeAsDegrees * 1000000), (int)(busLocation.longitudeAsDegrees * 1000000));
         	
         	String title = busLocation.makeTitle();
         	

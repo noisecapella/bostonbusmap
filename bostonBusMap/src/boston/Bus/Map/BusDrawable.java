@@ -20,6 +20,7 @@ import android.graphics.drawable.NinePatchDrawable;
 import android.graphics.drawable.StateListDrawable;
 import android.graphics.drawable.Drawable;
 import android.opengl.Matrix;
+import android.os.Debug;
 import android.util.AttributeSet;
 import android.view.ViewGroup.LayoutParams;
 import android.widget.Button;
@@ -44,39 +45,14 @@ public class BusDrawable extends Drawable {
 	{
 		this.bus = drawable;
 		this.heading = heading;
-		
-		if (arrow != null)
-		{
-			this.arrow = arrow;
-		}
-		else
-		{
-			this.arrow = new BitmapDrawable();
-		}
-		
-		
-		if (tooltip != null)
-		{
-			this.tooltip = tooltip;
-		}
-		else
-		{
-			this.tooltip = new BitmapDrawable();
-		}
+		this.arrow = arrow;
+		this.tooltip = tooltip;
 		
 		this.textView = textView;
 	}
 	
 	@Override
 	public void draw(Canvas canvas) {
-		//put the arrow in the bus window
-		
-		int arrowLeft = -(arrow.getIntrinsicWidth() / 4);
-		int arrowTop = -bus.getIntrinsicHeight() + 7;
-		int arrowWidth = (int)(arrow.getIntrinsicWidth() * 0.60); 
-		int arrowHeight = (int)(arrow.getIntrinsicHeight() * 0.60);
-		int arrowRight = arrowLeft + arrowWidth;
-		int arrowBottom = arrowTop + arrowHeight;
 		
 		//NOTE: 0, 0 is the bottom center point of the bus icon
 		
@@ -84,20 +60,33 @@ public class BusDrawable extends Drawable {
 		bus.draw(canvas);
 		
 		//then draw arrow
-		arrow.setBounds(arrowLeft, arrowTop, arrowRight, arrowBottom);
-		
-		canvas.save();
-		//set rotation pivot at the center of the arrow image
-		canvas.rotate(heading, arrowLeft + arrowWidth/2, arrowTop + arrowHeight / 2);
-		
-		Rect rect = arrow.getBounds();
-		arrow.draw(canvas);
-		arrow.setBounds(rect);
-		canvas.restore();
-		
+		if (arrow != null)
+		{
+			//put the arrow in the bus window
+			
+			int arrowLeft = -(arrow.getIntrinsicWidth() / 4);
+			int arrowTop = -bus.getIntrinsicHeight() + 7;
+			
+			//NOTE: use integer division when possible. This code is frequently executed
+			int arrowWidth = (arrow.getIntrinsicWidth() * 6) / 10;  
+			int arrowHeight = (arrow.getIntrinsicHeight() * 6) / 10;
+			int arrowRight = arrowLeft + arrowWidth;
+			int arrowBottom = arrowTop + arrowHeight;
+
+			arrow.setBounds(arrowLeft, arrowTop, arrowRight, arrowBottom);
+
+			canvas.save();
+			//set rotation pivot at the center of the arrow image
+			canvas.rotate(heading, arrowLeft + arrowWidth/2, arrowTop + arrowHeight / 2);
+
+			Rect rect = arrow.getBounds();
+			arrow.draw(canvas);
+			arrow.setBounds(rect);
+			canvas.restore();
+		}
 		
 		//last, draw tooltip if necessary. This drawable will be empty if we don't need to draw it
-		if (textView != null)
+		if (textView != null && tooltip != null)
 		{
 			int tooltipLeft = -bus.getIntrinsicWidth();
 			int tooltipTop = -bus.getIntrinsicHeight() * 2;
@@ -128,7 +117,6 @@ public class BusDrawable extends Drawable {
 			canvas.restore();
 			
 		}
-
 	}
 
 	
@@ -141,36 +129,48 @@ public class BusDrawable extends Drawable {
 	@Override
 	public void setAlpha(int alpha) {
 		bus.setAlpha(alpha);
-		arrow.setAlpha(alpha);
-		tooltip.setAlpha(alpha);
+		
+		if (arrow != null)
+		{
+			arrow.setAlpha(alpha);
+		}
+		if (tooltip != null)
+		{
+			tooltip.setAlpha(alpha);
+		}
 	}
 
 	@Override
 	public void setColorFilter(ColorFilter cf) {
 		bus.setColorFilter(cf);
-		arrow.setColorFilter(cf);
-		tooltip.setColorFilter(cf);
+		if (arrow != null)
+		{
+			arrow.setColorFilter(cf);
+		}
+		if (tooltip != null)
+		{
+			tooltip.setColorFilter(cf);
+		}
 	}
 	
 	@Override
 	public int getIntrinsicHeight() {
 		//ignoring arrow because it's inside the drawable
-		
-		return bus.getIntrinsicHeight() + tooltip.getIntrinsicHeight();
+		return bus.getIntrinsicHeight() + (tooltip != null ? tooltip.getIntrinsicHeight() : 0);
 	}
 	@Override
 	public int getIntrinsicWidth() {
-		return bus.getIntrinsicWidth() + tooltip.getIntrinsicWidth();
+		return bus.getIntrinsicWidth() + (tooltip != null ? tooltip.getIntrinsicWidth() : 0);
 	}
 	
 	@Override
 	public int getMinimumHeight() {
-		return bus.getMinimumHeight() + tooltip.getMinimumHeight();
+		return bus.getMinimumHeight() + (tooltip != null ? tooltip.getMinimumHeight() : 0);
 	}
 	
 	@Override
 	public int getMinimumWidth() {
-		return bus.getMinimumWidth() + tooltip.getMinimumWidth();
+		return bus.getMinimumWidth() + (tooltip != null ? tooltip.getMinimumWidth() : 0);
 	}
 	
 	@Override
@@ -180,9 +180,15 @@ public class BusDrawable extends Drawable {
 	
 	@Override
 	public void clearColorFilter() {
-		arrow.clearColorFilter();
 		bus.clearColorFilter();
-		tooltip.clearColorFilter();
+		if (arrow != null)
+		{
+			arrow.clearColorFilter();
+		}
+		if (tooltip != null)
+		{
+			tooltip.clearColorFilter();
+		}
 	}
 	
 	@Override
@@ -224,15 +230,27 @@ public class BusDrawable extends Drawable {
 	public void inflate(Resources r, XmlPullParser parser, AttributeSet attrs)
 			throws XmlPullParserException, IOException {
 		bus.inflate(r, parser, attrs);
-		arrow.inflate(r, parser, attrs);
-		tooltip.inflate(r, parser, attrs);
+		if (arrow != null)
+		{
+			arrow.inflate(r, parser, attrs);
+		}
+		if (tooltip != null)
+		{
+			tooltip.inflate(r, parser, attrs);
+		}
 	}
 	
 	@Override
 	public void invalidateSelf() {
 		bus.invalidateSelf();
-		arrow.invalidateSelf();
-		tooltip.invalidateSelf();
+		if (arrow != null)
+		{
+			arrow.invalidateSelf();
+		}
+		if (tooltip != null)
+		{
+			tooltip.invalidateSelf();
+		}
 	}
 	
 	@Override
@@ -245,65 +263,113 @@ public class BusDrawable extends Drawable {
 		//NOTE: even though mutate() returns a Drawable, it also changes the state of the current item (i think)
 		//so we need to do it on each one
 		
-		arrow.mutate();
-		tooltip.mutate();
+		if (arrow != null)
+		{
+			arrow.mutate();
+		}
+		if (tooltip != null)
+		{
+			tooltip.mutate();
+		}
 		return bus.mutate();
 	}
 	
 	@Override
 	public void scheduleSelf(Runnable what, long when) {
 		bus.scheduleSelf(what, when);
-		arrow.scheduleSelf(what, when);
-		tooltip.scheduleSelf(what, when);
+		if (arrow != null)
+		{
+			arrow.scheduleSelf(what, when);
+		}
+		if (tooltip != null)
+		{
+			tooltip.scheduleSelf(what, when);
+		}
 	}
 	
 	@Override
 	public void setBounds(int left, int top, int right, int bottom) {
 		bus.setBounds(left, top, right, bottom);
-		arrow.setBounds(left, top, right, bottom);
-		tooltip.setBounds(left, top, right, bottom);
+		if (arrow != null)
+		{
+			arrow.setBounds(left, top, right, bottom);
+		}
+		if (tooltip != null)
+		{
+			tooltip.setBounds(left, top, right, bottom);
+		}
 	}
 	
 	@Override
 	public void setBounds(Rect bounds) {
 		bus.setBounds(bounds);
-		arrow.setBounds(bounds);
-		tooltip.setBounds(bounds);
+		if (arrow != null)
+		{
+			arrow.setBounds(bounds);
+		}
+		if (tooltip != null)
+		{
+			tooltip.setBounds(bounds);
+		}
 	}
 	
 	@Override
 	public void setChangingConfigurations(int configs) {
 		bus.setChangingConfigurations(configs);
-		arrow.setChangingConfigurations(configs);
-		tooltip.setChangingConfigurations(configs);
+		if (arrow != null)
+		{
+			arrow.setChangingConfigurations(configs);
+		}
+		if (tooltip != null)
+		{
+			tooltip.setChangingConfigurations(configs);
+		}
 	}
 	
 	@Override
 	public void setColorFilter(int color, Mode mode) {
 		bus.setColorFilter(color, mode);
-		arrow.setColorFilter(color, mode);
-		tooltip.setColorFilter(color, mode);
+		if (arrow != null)
+		{
+			arrow.setColorFilter(color, mode);
+		}
+		if (tooltip != null)
+		{
+			tooltip.setColorFilter(color, mode);
+		}
 	}
 	
 	@Override
 	public void setDither(boolean dither) {
-		arrow.setDither(dither);
 		bus.setDither(dither);
-		tooltip.setDither(dither);
+		if (arrow != null)
+		{
+			arrow.setDither(dither);
+		}
+		if (tooltip != null)
+		{
+			tooltip.setDither(dither);
+		}
 	}
 	
 	@Override
 	public void setFilterBitmap(boolean filter) {
-		arrow.setFilterBitmap(filter);
 		bus.setFilterBitmap(filter);
-		tooltip.setFilterBitmap(filter);
+		if (arrow != null)
+		{
+			arrow.setFilterBitmap(filter);
+		}
+		if (tooltip != null)
+		{
+			tooltip.setFilterBitmap(filter);
+		}
 	}
 	
 	@Override
 	public boolean setState(int[] stateSet) {
-		boolean arrowModified = arrow.setState(stateSet);
 		boolean busModified = bus.setState(stateSet);
-		boolean tooltipModified = tooltip.setState(stateSet);
+		boolean arrowModified = (arrow != null ? arrow.setState(stateSet) : false);
+		boolean tooltipModified = (tooltip != null ? tooltip.setState(stateSet) : false);
 		
 		//we have to make sure all three are called. If we inline this, the condition may short circuit and not all setState will be called
 		return arrowModified || busModified || tooltipModified;
@@ -311,9 +377,9 @@ public class BusDrawable extends Drawable {
 	
 	@Override
 	public boolean setVisible(boolean visible, boolean restart) {
-		boolean arrowModified = arrow.setVisible(visible, restart);
 		boolean busModified = bus.setVisible(visible, restart);
-		boolean tooltipModified = tooltip.setVisible(visible, restart);
+		boolean arrowModified = (arrow != null ? arrow.setVisible(visible, restart) : false);
+		boolean tooltipModified = (tooltip != null ? tooltip.setVisible(visible, restart) : false);
 		
 		
 		//we have to make sure all three are called. If we inline this, the condition may short circuit and not all setVisible will be called
@@ -323,7 +389,13 @@ public class BusDrawable extends Drawable {
 	@Override
 	public void unscheduleSelf(Runnable what) {
 		bus.unscheduleSelf(what);
-		arrow.unscheduleSelf(what);
-		tooltip.unscheduleSelf(what);
+		if (arrow != null)
+		{
+			arrow.unscheduleSelf(what);
+		}
+		if (tooltip != null)
+		{
+			tooltip.unscheduleSelf(what);
+		}
 	}
 }
