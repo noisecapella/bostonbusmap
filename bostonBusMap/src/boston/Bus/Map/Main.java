@@ -142,8 +142,8 @@ public class Main extends MapActivity implements Updateable
 
         //get widgets
         mapView = (MapView)findViewById(R.id.mapview);
-        textView = (TextView)findViewById(R.id.TextView01);
-        button = (Button)findViewById(R.id.Button01);
+        textView = (TextView)findViewById(R.id.statusView);
+        button = (Button)findViewById(R.id.refreshButton);
         
         
         
@@ -386,7 +386,8 @@ public class Main extends MapActivity implements Updateable
 		}
 		
 		
-		updateAsyncTask = new UpdateAsyncTask(textView, busPicture, mapView, finalMessage, arrow, tooltip, this, doShowUnpredictable(), true, maxOverlays);
+		updateAsyncTask = new UpdateAsyncTask(textView, busPicture, mapView, finalMessage,
+				arrow, tooltip, this, doShowUnpredictable(), true, maxOverlays, doHideHighlightCircle() == false);
 		updateAsyncTask.runUpdate(busLocations);
 		
 		
@@ -428,6 +429,13 @@ public class Main extends MapActivity implements Updateable
 		return prefs.getBoolean(getString(R.string.showUnpredictableBusesCheckbox), false);
 	}
 
+	private boolean doHideHighlightCircle()
+	{
+		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+		
+		return prefs.getBoolean(getString(R.string.hideCircleCheckbox), false);
+	}
+	
 	@Override
 	public Object onRetainNonConfigurationInstance() {
 		// TODO Auto-generated method stub
@@ -483,7 +491,7 @@ public class Main extends MapActivity implements Updateable
 				}
 
 				minorUpdate = new UpdateAsyncTask(textView, busPicture, mapView, null, arrow,
-						tooltip, Main.this, doShowUnpredictable(), false, maxOverlays);
+						tooltip, Main.this, doShowUnpredictable(), false, maxOverlays, doHideHighlightCircle() == false);
 				
 
 				minorUpdate.runUpdate(busLocations);

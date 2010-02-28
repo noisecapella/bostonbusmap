@@ -55,11 +55,13 @@ public class UpdateAsyncTask extends AsyncTask<Object, String, BusLocations>
 	private final boolean doShowUnpredictable;
 	private final boolean doRefresh;
 	private final int maxOverlays;
+	private final boolean drawCircle;
 	
 	private boolean silenceUpdates;
 	
 	public UpdateAsyncTask(TextView textView, Drawable busPicture, MapView mapView, String finalMessage,
-			Drawable arrow, Drawable tooltip, Updateable updateable, boolean doShowUnpredictable, boolean doRefresh, int maxOverlays)
+			Drawable arrow, Drawable tooltip, Updateable updateable, boolean doShowUnpredictable, boolean doRefresh, int maxOverlays,
+			boolean drawCircle)
 	{
 		super();
 		
@@ -74,6 +76,7 @@ public class UpdateAsyncTask extends AsyncTask<Object, String, BusLocations>
 		this.doShowUnpredictable = doShowUnpredictable;
 		this.doRefresh = doRefresh;
 		this.maxOverlays = maxOverlays;
+		this.drawCircle = drawCircle;
 	}
 	
 	/**
@@ -197,7 +200,7 @@ public class UpdateAsyncTask extends AsyncTask<Object, String, BusLocations>
         
         
     	BusOverlay busOverlay = new BusOverlay(busPicture, textView.getContext(), busLocations, selectedBusId,
-    			arrow, tooltip, updateable);
+    			arrow, tooltip, updateable, drawCircle);
     	
     	
     	//draw the buses on the map

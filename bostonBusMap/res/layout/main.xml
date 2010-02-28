@@ -4,11 +4,11 @@
 	xmlns:android="http://schemas.android.com/apk/res/android"
 	android:orientation="vertical">
 
-	<LinearLayout android:id="@+id/LinearLayout02"
+	<LinearLayout
 		android:layout_width="wrap_content" android:layout_height="wrap_content">
-		<Button android:id="@+id/Button01" android:layout_width="wrap_content"
+		<Button android:id="@+id/refreshButton" android:layout_width="wrap_content"
 			android:layout_height="wrap_content" android:text="@string/refreshButton"></Button>
-		<TextView android:text="" android:id="@+id/TextView01"
+		<TextView android:text="" android:id="@+id/statusView"
 			android:layout_width="wrap_content" android:layout_height="wrap_content"></TextView>
 
 	</LinearLayout>

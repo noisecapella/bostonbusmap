@@ -1,6 +1,6 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
 <CheckBoxPreference android:key="@string/runInBackgroundCheckbox" android:title="Update continuously"></CheckBoxPreference>
 <CheckBoxPreference android:key="@string/showUnpredictableBusesCheckbox" android:title="Show all buses?" android:summary="Show unpredictable buses"></CheckBoxPreference>
-<CheckBoxPreference android:key="@string/showCircleCheckbox" android:title="Hide grey circle?" android:summary="This shows what buses are being looked at"/>
+<CheckBoxPreference android:key="@string/hideCircleCheckbox" android:title="Hide grey circle?" android:summary="This shows what buses are being looked at"/>
 <Preference android:title="About BostonBusMap" android:key="about"></Preference>
 </PreferenceScreen>
