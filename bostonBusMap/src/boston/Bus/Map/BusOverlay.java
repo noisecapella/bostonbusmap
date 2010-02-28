@@ -28,6 +28,7 @@ import com.google.android.maps.GeoPoint;
 import com.google.android.maps.ItemizedOverlay;
 import com.google.android.maps.MapView;
 import com.google.android.maps.OverlayItem;
+import com.google.android.maps.Projection;
 
 import android.content.Context;
 import android.graphics.Canvas;
@@ -37,6 +38,9 @@ import android.graphics.Point;
 import android.graphics.Rect;
 import android.graphics.RectF;
 import android.graphics.drawable.Drawable;
+import android.graphics.drawable.ShapeDrawable;
+import android.graphics.drawable.shapes.OvalShape;
+import android.graphics.drawable.shapes.Shape;
 import android.text.TextPaint;
 import android.util.Log;
 import android.view.KeyEvent;
@@ -195,6 +199,33 @@ public class BusOverlay extends com.google.android.maps.ItemizedOverlay<com.goog
 			selectedBusIndex = -1;
 		}
 			
+		//first overlayitem will be closest to center
+		OverlayItem first = overlays.get(0);
+		OverlayItem last = overlays.get(overlays.size() - 1);
+		
+		GeoPoint firstPoint = first.getPoint();
+		GeoPoint lastPoint = last.getPoint();
+		
+		Point circleCenter = new Point();
+		Point circleRadius = new Point(); 
+		
+		Projection projection = mapView.getProjection();
+		projection.toPixels(firstPoint, circleCenter);
+		projection.toPixels(lastPoint, circleRadius);
+		
+		float dx = circleRadius.x - circleCenter.x;
+		float dy = circleRadius.y - circleCenter.y;
+		
+		
+		float radius = (float)Math.sqrt(dx * dx + dy * dy);
+		
+		
+		Paint paint = new Paint();
+		paint.setColor(Color.BLUE);
+		paint.setAlpha(0x33);
+
+		canvas.drawCircle(circleCenter.x, circleCenter.y, radius, paint);
+		
 		super.draw(canvas, mapView, shadow);
 	}
 
