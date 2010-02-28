@@ -46,7 +46,7 @@ public class Preferences extends PreferenceActivity
 			Preference preference) {
 		if (preference.getKey().equals("about"))
 		{
-			Intent viewIntent = new Intent("android.intent.action.VIEW", Uri.parse("http://www.terribleinformation.org/george/bostonbusmap"));
+			Intent viewIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("http://www.terribleinformation.org/george/bostonbusmap"));
 			startActivity(viewIntent);
 		}
 		

@@ -7,4 +7,5 @@
 <string name="runInBackgroundCheckbox">runInBackgroundKey</string>
 <string name="showUnpredictableBusesCheckbox">showUnpredictableBusesKey</string>
 
+<string name="showCircleCheckbox">showCircleCheckboxKey</string>
 </resources>

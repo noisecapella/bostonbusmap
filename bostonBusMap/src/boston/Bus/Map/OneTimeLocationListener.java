@@ -47,6 +47,7 @@ public class OneTimeLocationListener implements LocationListener {
 	private final Handler handler;
 	
 	private final Context context;
+	private final Updateable updateable;
 	/**
 	 * Max time to wait before cancelling locate, in millis
 	 */
@@ -67,12 +68,13 @@ public class OneTimeLocationListener implements LocationListener {
 		return longitude;
 	}
 	
-	public OneTimeLocationListener(MapView mapView, LocationManager locationManager, Context context)
+	public OneTimeLocationListener(MapView mapView, LocationManager locationManager, Context context, Updateable updateable)
 	{
 		this.mapView = mapView;
 		this.locationManager = locationManager;
 		this.handler = new Handler();
 		this.context = context;
+		this.updateable = updateable;
 		
 		terminateLocate = createTerminateLocate();
 	}
@@ -123,6 +125,8 @@ public class OneTimeLocationListener implements LocationListener {
 		
 		//we only update once, so remove it now
 		release();
+		
+		updateable.triggerUpdate();
 	}
 
 	private final String locationUnavailable = "Current location is unavailable";

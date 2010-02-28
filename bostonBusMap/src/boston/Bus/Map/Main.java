@@ -291,6 +291,7 @@ public class Main extends MapActivity implements Updateable
     		{
     			GeoPoint point = new GeoPoint(bostonLatitudeAsInt, bostonLongitudeAsInt);
     			mapView.getController().animateTo(point);
+    			triggerUpdate();
     		}
     		break;
     	
@@ -331,7 +332,7 @@ public class Main extends MapActivity implements Updateable
 				}
 				else
 				{
-					locationListener = new OneTimeLocationListener(mapView, locationManager, this);
+					locationListener = new OneTimeLocationListener(mapView, locationManager, this, this);
 				}
 				
 				locationListener.start();
@@ -456,6 +457,11 @@ public class Main extends MapActivity implements Updateable
 	}
 
 	/**
+	 * Updates which don't grab new data from the internet, they just change location
+	 */
+	private UpdateAsyncTask minorUpdate;
+
+	/**
 	 * when BusOverlay.onTouchEvent is hit, we redraw the buses around the new center (without doing getting new data from the server) 
 	 */
 	public void triggerUpdate() {
@@ -463,8 +469,6 @@ public class Main extends MapActivity implements Updateable
 		//delay this so that we kinda sorta account for map fling
 		handler.postDelayed(new Runnable() {
 			
-			private UpdateAsyncTask minorUpdate;
-
 			@Override
 			public void run() {
 				//don't do two updates at once
@@ -482,8 +486,6 @@ public class Main extends MapActivity implements Updateable
 						tooltip, Main.this, doShowUnpredictable(), false, maxOverlays);
 				
 
-				GeoPoint center = mapView.getMapCenter();
-				
 				minorUpdate.runUpdate(busLocations);
 				
 			}
