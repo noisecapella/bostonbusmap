@@ -91,14 +91,8 @@ public class BusDrawable extends Drawable {
 			int tooltipLeft = -bus.getIntrinsicWidth();
 			int tooltipTop = -bus.getIntrinsicHeight() * 2;
 
-			//tooltip.setBounds(0, 0, tooltipWidth, tooltipHeight);
-			
 			textView.setBackgroundDrawable(tooltip);
 			textView.setLayoutParams(new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT));
-			//textView.layout(tooltipLeft, tooltipTop, tooltipRight, tooltipBottom);
-			//textView.
-
-			//textView.setText(text);
 			
 			textView.measure(100, 100);
 			int tooltipWidth = textView.getMeasuredWidth();
