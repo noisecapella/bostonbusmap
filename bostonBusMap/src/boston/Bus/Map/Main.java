@@ -229,24 +229,6 @@ public class Main extends MapActivity implements Updateable
 			public void run() {
 				double currentTime = System.currentTimeMillis();
 		
-				boolean doTimeout = doTimeout();
-				if ((currentTime - onCreateTime > timeoutInMillis) && doTimeout)
-				{
-					//timeout
-					//this is done to help prevent the phone from wasting battery
-					//power if the user leaves the app running on their phone
-					
-					if (updateAsyncTask != null && updateAsyncTask.getStatus().equals(UpdateAsyncTask.Status.FINISHED))
-					{
-						runUpdateTask("Finished update! 10 minutes reached; to update further click Refresh");
-						
-						//allow user to click Refresh right away
-						lastUpdateTime -= fetchDelay;
-						return;
-					}
-					
-				}
-				
 				if (currentTime - lastUpdateTime > fetchDelay)
 				{
 					//if not too soon, do the update
@@ -284,6 +266,11 @@ public class Main extends MapActivity implements Updateable
 			locationListener.release();
 		}
     	
+		
+		if (handler != null && updateBuses != null)
+		{
+			handler.removeCallbacks(updateBuses);
+		}
 		super.onPause();
     }
 
@@ -383,9 +370,6 @@ public class Main extends MapActivity implements Updateable
 	 * executes the update
 	 */
 	private void runUpdateTask(String finalMessage) {
-		//update around the current center of the mapView
-		GeoPoint center = mapView.getMapCenter();
-		
 		//make sure we don't update too often
 		lastUpdateTime = System.currentTimeMillis();
 
@@ -406,8 +390,6 @@ public class Main extends MapActivity implements Updateable
 		
 		
 	}
-	
-	private final GeoPoint lastCenterLocation = new GeoPoint(0,0);
 	
 	@Override
 	protected void onResume() {
@@ -445,13 +427,6 @@ public class Main extends MapActivity implements Updateable
 		return prefs.getBoolean(getString(R.string.showUnpredictableBusesCheckbox), false);
 	}
 
-	private boolean doTimeout()
-	{
-		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
-		
-		return prefs.getBoolean(getString(R.string.timeoutPreferenceCheckbox), false);
-	}
-	
 	@Override
 	public Object onRetainNonConfigurationInstance() {
 		// TODO Auto-generated method stub
