@@ -78,9 +78,11 @@ public class BusDrawable extends Drawable {
 		int arrowRight = arrowLeft + arrowWidth;
 		int arrowBottom = arrowTop + arrowHeight;
 		
+		//NOTE: 0, 0 is the bottom center point of the bus icon
+		
 		//first draw the bus
 		bus.draw(canvas);
-
+		
 		//then draw arrow
 		arrow.setBounds(arrowLeft, arrowTop, arrowRight, arrowBottom);
 		
@@ -126,6 +128,7 @@ public class BusDrawable extends Drawable {
 			canvas.restore();
 			
 		}
+
 	}
 
 	

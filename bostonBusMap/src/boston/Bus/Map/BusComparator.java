@@ -2,17 +2,22 @@ package boston.Bus.Map;
 
 import java.util.Comparator;
 
-import boston.Bus.Map.BusLocations.BusLocation;
 
 public class BusComparator implements Comparator<BusLocation>
 {
+	/**
+	 * Center latitude in radians
+	 */
 	private final double centerLatitude;
+	/**
+	 * Center longitude in radians
+	 */
 	private final double centerLongitude;
 	
 	public BusComparator(double centerLatitude, double centerLongitude)
 	{
-		this.centerLatitude = centerLatitude;
-		this.centerLongitude = centerLongitude;
+		this.centerLatitude = centerLatitude * (Math.PI / 180.0);
+		this.centerLongitude = centerLongitude * (Math.PI / 180.0);
 	}
 	
 	/**
@@ -21,8 +26,8 @@ public class BusComparator implements Comparator<BusLocation>
 	@Override
 	public int compare(BusLocation arg0, BusLocation arg1)
 	{
-		double dist = arg0.distanceFrom(centerLatitude * (Math.PI / 180.0), centerLongitude * (Math.PI / 180.0));
-		double otherDist = arg1.distanceFrom(centerLatitude * (Math.PI / 180.0), centerLongitude * (Math.PI / 180.0));
+		double dist = arg0.distanceFrom(centerLatitude, centerLongitude);
+		double otherDist = arg1.distanceFrom(centerLatitude, centerLongitude);
 		
 		return Double.compare(dist, otherDist);
 	}

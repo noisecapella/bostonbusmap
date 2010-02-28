@@ -1,0 +1,294 @@
+package boston.Bus.Map;
+
+/**
+ * This class stores information about the bus. This information is mostly taken from the feed
+ */
+public class BusLocation
+{
+	/**
+	 * Current latitude of bus 
+	 */
+	public final double latitude;
+	/**
+	 * Current longitude of bus
+	 */
+	public final double longitude;
+	
+	/**
+	 * The bus id. This uniquely identifies a bus
+	 */
+	public final int id;
+	/**
+	 * The route number. This may be null if the XML says so
+	 */
+	public final String route;
+	
+	/**
+	 * seconds since the bus last sent GPS data to the server. This comes from the XML; we don't calculate this
+	 */
+	public final int seconds;
+	/**
+	 * Creation time of this bus object
+	 */
+	public final double lastUpdateInMillis;
+	
+	/**
+	 * Distance in miles of the bus from its previous location, in the x dimension
+	 */
+	private double distanceFromLastX;
+	/**
+	 * Distance in miles of the bus from its previous location, in the y dimension
+	 */
+	private double distanceFromLastY;
+	
+	/**
+	 * What is the heading mentioned for the bus?
+	 */
+	private final String heading;
+	
+	/**
+	 * Does the bus behave predictably?
+	 */
+	public final boolean predictable;
+	
+	/**
+	 * Is the bus inbound, or outbound?
+	 * This only makes sense if predictable is true
+	 */
+	private final boolean inBound;
+	
+	
+	
+	
+	/**
+	 * Used in calculating the distance between coordinates
+	 */
+	private final double radiusOfEarthInKilo = 6371.2;
+	private final double kilometersPerMile = 1.609344;
+	
+	private double timeBetweenUpdatesInMillis;
+	
+	public BusLocation(double latitude, double longitude, int id, String route, int seconds, double lastUpdateInMillis,
+			String heading, boolean predictable, boolean inBound)
+	{
+		this.latitude = latitude;
+		this.longitude = longitude;
+		this.id = id;
+		this.route = route;
+		this.seconds = seconds;
+		this.lastUpdateInMillis = lastUpdateInMillis;
+		this.heading = heading;
+		this.predictable = predictable;
+		this.inBound = inBound;
+	}
+
+	public boolean hasHeading()
+	{
+		if (predictable)
+		{
+			return (getHeading() >= 0);
+		}
+		else
+		{
+			if (distanceFromLastY == 0 && distanceFromLastX == 0)
+			{
+				return false;
+			}
+			else
+			{
+				return true;
+			}
+		}
+	}
+	
+	public int getHeading()
+	{
+		if (predictable)
+		{
+			return Integer.parseInt(heading);
+		}
+		else
+		{
+			//TODO: this repeats code from getDirection(), make a method to reuse code
+			double thetaInRadians = Math.atan2(distanceFromLastY, distanceFromLastX);
+			
+			int degrees = radiansToDegrees(thetaInRadians);
+			return degrees;
+		}
+	}
+	
+	/**
+	 * 
+	 * @return a String describing the direction of the bus, or "" if it can't be calculated.
+	 * For example: E (90 deg)
+	 */
+	public String getDirection()
+	{
+		if (distanceFromLastY == 0 && distanceFromLastX == 0)
+		{
+			return "";
+		}
+		else
+		{
+			double thetaInRadians = Math.atan2(distanceFromLastY, distanceFromLastX);
+			
+			int degrees = radiansToDegrees(thetaInRadians); 
+			return  degrees + " deg (" + convertHeadingToCardinal(degrees) + ")";
+		}
+		
+	}
+	/**
+	 * 
+	 * @param thetaBackup direction in radians, where east is 0 and going counterclockwise
+	 * @return a descriptive String showing the direction (for example: E (90 deg))
+	 */
+	private int radiansToDegrees(double thetaAsRadians)
+	{
+		//NOTE: degrees will be 0 == north, going clockwise
+		int degrees = (int)(thetaAsRadians * 180.0 / Math.PI);
+		if (degrees < 0)
+		{
+			degrees += 360;
+		}
+		
+		//convert to usual compass orientation
+		degrees = -degrees + 90;
+		if (degrees < 0)
+		{
+			degrees += 360;
+		}
+		
+		return degrees;
+	}
+
+	/**
+	 * @param lat2 latitude in radians
+	 * @param lon2 longitude in radians
+	 * @return distance in miles
+	 */
+	double distanceFrom(double lat2, double lon2)
+	{
+		double lat1 = latitude * Math.PI / 180.0;
+		double lon1 = longitude * Math.PI / 180.0;
+		
+		
+		//great circle distance
+		double dist = Math.acos(Math.sin(lat1) * Math.sin(lat2) + Math.cos(lat1) * Math.cos(lat2) * Math.cos(lon2 - lon1));
+		dist *= radiusOfEarthInKilo;
+		dist /= kilometersPerMile;
+		
+		return dist;
+	}
+	
+	/**
+	 * calculate the distance from the old location
+	 * 
+	 * @param oldBusLocation
+	 */
+	public void movedFrom(BusLocation oldBusLocation)
+	{
+		if (oldBusLocation.latitude == latitude && oldBusLocation.longitude == longitude)
+		{
+			//ignore
+			return;
+		}
+		distanceFromLastX = distanceFrom(latitude * Math.PI / 180.0, oldBusLocation.longitude * Math.PI / 180.0);
+		distanceFromLastY = distanceFrom(oldBusLocation.latitude * Math.PI / 180.0, longitude * Math.PI / 180.0);
+		
+		if (oldBusLocation.latitude > latitude)
+		{
+			distanceFromLastY *= -1;
+		}
+		if (oldBusLocation.longitude > longitude)
+		{
+			distanceFromLastX *= -1;
+		}
+		
+		timeBetweenUpdatesInMillis = lastUpdateInMillis - oldBusLocation.lastUpdateInMillis;
+	}
+
+	public String getSpeed() {
+		//time in hours
+		//distance in miles
+		
+		double time = ((timeBetweenUpdatesInMillis / 1000.0) / 60.0) / 60.0;
+		double distance = Math.sqrt(distanceFromLastX * distanceFromLastX + distanceFromLastY * distanceFromLastY);
+		if (time == 0)
+		{
+			return "";
+		}
+		else
+		{
+			return String.format("%f", distance/time) + " MPH";
+		}
+		
+	}
+
+	public String makeTitle() {
+    	String title = "Id: " + id + ", route: ";
+    	if (route == null || route.equals("null"))
+    	{
+    		title += "not mentioned";
+    	}
+    	else
+    	{
+    		title += route;
+    	}
+    	title += "\nSeconds since update: " + (int)(seconds + (System.currentTimeMillis() - lastUpdateInMillis) / 1000);
+    	String direction = getDirection();
+    	if (direction.length() != 0 && predictable == false)
+    	{
+    		title += "\nEstimated direction: " + direction;
+    	}
+    	
+    	if (predictable)
+    	{
+    		title += "\nHeading: " + heading + " deg (" + convertHeadingToCardinal(Integer.parseInt(heading)) + ")";
+
+    		title += "\n";
+    		if (inBound)
+    		{
+    			title += "Inbound";
+    		}
+    		else
+    		{
+    			title += "Outbound";
+    		}
+    	}
+    	else
+    	{
+    		//TODO: how should we say this?
+    		//title += "\nUnpredictable";
+    	}
+    	return title;
+	}
+
+	/**
+	 * Converts a heading to a cardinal direction string
+	 * 
+	 * @param degree heading in degrees, where 0 is north and 90 is east
+	 * @return a direction (for example "N" for north)
+	 */
+	private String convertHeadingToCardinal(double degree)
+	{
+		//shift degree so all directions line up nicely
+		degree += 360.0 / 16; //22.5
+		if (degree >= 360)
+		{
+			degree -= 360;
+		}
+		
+		//get an index into the directions array
+		int index = (int)(degree / (360.0 / 8.0));
+		if (index < 0 || index >= 8)
+		{
+			return "calculation error";
+		}
+		
+		String[] directions = new String[] {"N", "NE", "E", "SE", "S", "SW", "W", "NW"};
+		return directions[index];
+	}
+
+	
+}
+

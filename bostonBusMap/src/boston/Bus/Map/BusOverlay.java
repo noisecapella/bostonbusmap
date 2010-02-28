@@ -22,8 +22,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 
-import boston.Bus.Map.BusLocations.BusLocation;
-
 import com.google.android.maps.GeoPoint;
 import com.google.android.maps.ItemizedOverlay;
 import com.google.android.maps.MapView;
@@ -199,33 +197,53 @@ public class BusOverlay extends com.google.android.maps.ItemizedOverlay<com.goog
 			selectedBusIndex = -1;
 		}
 			
+		//draw a circle showing the area where overlays are currently shown
 		//first overlayitem will be closest to center
-		OverlayItem first = overlays.get(0);
-		OverlayItem last = overlays.get(overlays.size() - 1);
-		
-		GeoPoint firstPoint = first.getPoint();
-		GeoPoint lastPoint = last.getPoint();
-		
-		Point circleCenter = new Point();
-		Point circleRadius = new Point(); 
-		
 		Projection projection = mapView.getProjection();
-		projection.toPixels(firstPoint, circleCenter);
-		projection.toPixels(lastPoint, circleRadius);
+
+		//get screen location
+		OverlayItem first = overlays.get(0);
+		GeoPoint firstPoint = first.getPoint();
+		Point circleCenter = projection.toPixels(firstPoint, null); 
+
+		//find out farthest point from bus that's closest to center
+		//these points are sorted by 
+		OverlayItem last = first;
+		int lastDistance = 0;
+		Point circleRadius = circleCenter;
+		for (int i = 1; i < overlays.size(); i++)
+		{
+			OverlayItem item = overlays.get(i);
+			GeoPoint geoPoint = item.getPoint();
+			Point point = projection.toPixels(geoPoint, null);
+			
+			int dx = circleCenter.x - point.x;
+			int dy = circleCenter.y - point.y;
+			int distance = dx*dx + dy*dy;
+			if (distance > lastDistance)
+			{
+				lastDistance = distance;  
+				last = item;
+				circleRadius = point;
+			}
+		}
+
+		float busHeight = busPicture.getIntrinsicHeight();
+		float busWidth = busPicture.getIntrinsicWidth();
 		
-		float dx = circleRadius.x - circleCenter.x;
-		float dy = circleRadius.y - circleCenter.y;
+		float busDiagonal = (float)Math.sqrt(busHeight * busHeight + busWidth * busWidth);
 		
-		
-		float radius = (float)Math.sqrt(dx * dx + dy * dy);
+		float radius = (float)Math.sqrt(lastDistance); //+ busDiagonal / 2;
 		
 		
 		Paint paint = new Paint();
-		paint.setColor(Color.BLUE);
-		paint.setAlpha(0x33);
+		paint.setColor(Color.BLACK);
+		paint.setAlpha(0x11); //very light grey
 
-		canvas.drawCircle(circleCenter.x, circleCenter.y, radius, paint);
-		
+		float circleCenterX = circleCenter.x;
+		float circleCenterY = circleCenter.y - busHeight / 2; 
+		canvas.drawCircle(circleCenterX, circleCenterY, radius, paint);
+
 		super.draw(canvas, mapView, shadow);
 	}
 
