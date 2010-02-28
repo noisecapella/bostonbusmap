@@ -43,6 +43,7 @@ import javax.xml.parsers.ParserConfigurationException;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
@@ -62,6 +63,10 @@ public class BusLocations
 	private final String mbtaDataUrl = "http://webservices.nextbus.com/service/publicXMLFeed?command=vehicleLocations&a=mbta&t=";
 
 	private double lastTime = 0;
+
+	private boolean postVehicleRouteEstimate;
+
+	private final HashMap<Integer, String> vehiclesToRouteNames = new HashMap<Integer, String>();
 	
 	/**
 	 * Update the bus locations based on data from the XML feed 
@@ -74,8 +79,35 @@ public class BusLocations
 	 * @throws FactoryConfigurationError
 	 */
 	public void Refresh() throws SAXException, IOException,
-	ParserConfigurationException, FactoryConfigurationError 
+			ParserConfigurationException, FactoryConfigurationError 
 	{
+		//NOTE: disable this code for now
+		if (postVehicleRouteEstimate && false)
+		{
+			vehiclesToRouteNames.clear();
+			
+			String vehicleToRouteNameUrl = "http://kk.csail.mit.edu/~nickolai/bus-infer/vehicle-to-routename.xml";
+			URL url = new URL(vehicleToRouteNameUrl);
+			
+			DocumentBuilder builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
+			
+			InputStream stream = url.openStream();
+			
+			//parse the data into an XML document
+			Document document = builder.parse(stream);
+			
+			NodeList nodeList = document.getElementsByTagName("vehicle");
+			
+			for (int i = 0; i < nodeList.getLength(); i++)
+			{
+				Element node = (Element)nodeList.item(i);
+				vehiclesToRouteNames.put(Integer.parseInt(node.getAttribute("id")), node.getAttribute("routeTag"));
+			}
+			
+			postVehicleRouteEstimate = false;
+		}
+		
+		
 		//read data from the URL
 		URL url;
 		String urlString = mbtaDataUrl + (long)lastTime; 
@@ -119,6 +151,16 @@ public class BusLocations
 			{
 				inBound = true;
 			}
+			
+			if (vehiclesToRouteNames.containsKey(id))
+			{
+				String value = vehiclesToRouteNames.get(id);
+				if (value != null && value.length() != 0)
+				{
+					route = value;
+				}
+			}
+			
 			
 			BusLocation newBusLocation = new BusLocation(lat, lon, id, route, seconds, lastTime, 
 					heading, predictable, inBound);
@@ -212,6 +254,11 @@ public class BusLocations
 		Collections.sort(newLocations, new BusComparator(centerLatitude, centerLongitude));
 		
 		return newLocations.subList(0, maxLocations);
+	}
+
+	public void postVehicleRouteEstimate() {
+		// TODO Auto-generated method stub
+		postVehicleRouteEstimate = true;
 	}
 	
 }
