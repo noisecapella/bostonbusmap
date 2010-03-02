@@ -185,8 +185,8 @@ public class Main extends MapActivity implements Updateable
         	//make the textView blank
         	textView.setText("");
 
-        	
-        	busLocations.postVehicleRouteEstimate();
+        	//TODO: this is implemented, do necessary work in preferences to make this usable
+        	//busLocations.postVehicleRouteEstimate();
         }
         
     	//enable plus/minus zoom buttons in map

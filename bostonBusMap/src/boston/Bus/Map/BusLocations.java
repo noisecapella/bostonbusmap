@@ -82,7 +82,7 @@ public class BusLocations
 			ParserConfigurationException, FactoryConfigurationError 
 	{
 		//NOTE: disable this code for now
-		if (postVehicleRouteEstimate && false)
+		if (postVehicleRouteEstimate)
 		{
 			vehiclesToRouteNames.clear();
 			

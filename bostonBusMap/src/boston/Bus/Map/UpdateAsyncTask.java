@@ -37,6 +37,7 @@ import android.graphics.ColorFilter;
 import android.graphics.PorterDuff.Mode;
 import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
+import android.os.Handler;
 import android.widget.TextView;
 
 /**
@@ -158,7 +159,7 @@ public class UpdateAsyncTask extends AsyncTask<Object, String, BusLocations>
     }
 	
 	@Override
-	protected void onPostExecute(BusLocations busLocationsObject)
+	protected void onPostExecute(final BusLocations busLocationsObject)
 	{
 		if (busLocationsObject == null)
 		{
@@ -167,13 +168,31 @@ public class UpdateAsyncTask extends AsyncTask<Object, String, BusLocations>
 		}
 		
 		GeoPoint center = mapView.getMapCenter();
-		double latitude = center.getLatitudeE6() / 1000000.0;
-		double longitude = center.getLongitudeE6() / 1000000.0;
+		final double latitude = center.getLatitudeE6() / 1000000.0;
+		final double longitude = center.getLongitudeE6() / 1000000.0;
 		
 		
-		ArrayList<BusLocation> busLocations = new ArrayList<BusLocation>();
+		final Handler uiHandler = new Handler();
+		
+		//make sure resorting of bus icons doesn't block the ui thread
+		new Thread(new Runnable() {
+			
+			@Override
+			public void run() {
+				// TODO Auto-generated method stub
+				sortBuses(busLocationsObject, latitude, longitude, uiHandler);
+				
+			}
+		}).run();
+        
+	}
+
+	private void sortBuses(BusLocations busLocationsObject, final double latitude,
+			final double longitude, Handler uiHandler) {
+		final ArrayList<BusLocation> busLocations = new ArrayList<BusLocation>();
 		
 		busLocations.addAll(busLocationsObject.getBusLocations(maxOverlays, latitude, longitude, doShowUnpredictable));
+		
 		
 		if (busLocations.size() == 0)
 		{
@@ -196,13 +215,20 @@ public class UpdateAsyncTask extends AsyncTask<Object, String, BusLocations>
 		
         overlays.clear();
         
-        publishProgress("Drawing overlays...");
-        
-        
-    	BusOverlay busOverlay = new BusOverlay(busPicture, textView.getContext(), busLocations, selectedBusId,
+    	final BusOverlay busOverlay = new BusOverlay(busPicture, textView.getContext(), busLocations, selectedBusId,
     			arrow, tooltip, updateable, drawCircle);
     	
-    	
+		uiHandler.post(new Runnable() {
+			
+			@Override
+			public void run() {
+				// TODO Auto-generated method stub
+				displayIcons(busOverlay, busLocations, latitude, longitude);
+			}
+		});
+	}
+	private void displayIcons(BusOverlay busOverlay, ArrayList<BusLocation> busLocations, double latitude, double longitude)
+	{
     	//draw the buses on the map
         for (BusLocation busLocation : busLocations)
         {
@@ -214,7 +240,7 @@ public class UpdateAsyncTask extends AsyncTask<Object, String, BusLocations>
         	OverlayItem overlay = new OverlayItem(point, title, title);
         	busOverlay.addOverlay(overlay);
         }
-        overlays.add(busOverlay);
+        mapView.getOverlays().add(busOverlay);
 
         //make sure we redraw map
         mapView.invalidate();
@@ -223,6 +249,5 @@ public class UpdateAsyncTask extends AsyncTask<Object, String, BusLocations>
         {
         	publishProgress(finalMessage);
         }
-        
 	}
 }
