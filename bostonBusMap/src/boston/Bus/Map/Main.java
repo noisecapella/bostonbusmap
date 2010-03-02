@@ -185,8 +185,10 @@ public class Main extends MapActivity implements Updateable
         	//make the textView blank
         	textView.setText("");
 
-        	//TODO: this is implemented, do necessary work in preferences to make this usable
-        	//busLocations.postVehicleRouteEstimate();
+        	if (doInferVehicleRoute())
+        	{
+        		busLocations.postVehicleRouteEstimate();
+        	}
         }
         
     	//enable plus/minus zoom buttons in map
@@ -436,6 +438,16 @@ public class Main extends MapActivity implements Updateable
 		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
 		
 		return prefs.getBoolean(getString(R.string.hideCircleCheckbox), false);
+	}
+	
+	private boolean doInferVehicleRoute()
+	{
+		return false;
+		/*
+		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+		
+		return prefs.getBoolean(getString(R.string.inferVehicleRouteCheckbox), false);
+		*/
 	}
 	
 	@Override

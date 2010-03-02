@@ -2,5 +2,7 @@
 <CheckBoxPreference android:key="@string/runInBackgroundCheckbox" android:title="Update continuously"></CheckBoxPreference>
 <CheckBoxPreference android:key="@string/showUnpredictableBusesCheckbox" android:title="Show all buses?" android:summary="Show unpredictable buses"></CheckBoxPreference>
 <CheckBoxPreference android:key="@string/hideCircleCheckbox" android:title="Hide grey circle?" android:summary="This shows what buses are being looked at"/>
+<!--  <CheckBoxPreference android:key="@string/inferVehicleRouteCheckbox" android:title="Infer vehicle route numbers"
+ android:summary="(EXPERIMENTAL / UNRELIABLE) See website for info about this" />-->
 <Preference android:title="About BostonBusMap" android:key="about"></Preference>
 </PreferenceScreen>
