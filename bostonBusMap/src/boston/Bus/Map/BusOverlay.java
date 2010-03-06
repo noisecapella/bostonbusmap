@@ -111,14 +111,30 @@ public class BusOverlay extends com.google.android.maps.ItemizedOverlay<com.goog
 
 	}
 
+	/**
+	 * Was there a drag between when the finger touched the touchscreen and when it released?
+	 */
+	private boolean mapMoved;
+	
 	
 	@Override
 	public boolean onTouchEvent(MotionEvent event, MapView mapView) {
 		// TODO Auto-generated method stub
 
-		if (event.getAction() == MotionEvent.ACTION_UP)
+		if (event.getAction() == MotionEvent.ACTION_DOWN)
 		{
-			updateable.triggerUpdate(250);
+			mapMoved = false;
+		}
+		else if (event.getAction() == MotionEvent.ACTION_MOVE)
+		{
+			mapMoved = true;
+		}
+		else if (event.getAction() == MotionEvent.ACTION_UP)
+		{
+			if (mapMoved)
+			{
+				updateable.triggerUpdate(250);
+			}
 		}
 		
 
