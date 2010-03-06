@@ -262,7 +262,7 @@ public class BusLocation
     		//TODO: how should we say this?
     		//title += "\nUnpredictable";
     		
-    		if (route == null && inferBusRoute != null)
+    		if ((route == null || route.equals("null")) && inferBusRoute != null)
     		{
     			title += "\nEstimated route number: " + inferBusRoute;
     		}

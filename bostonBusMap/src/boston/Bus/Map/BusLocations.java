@@ -88,9 +88,16 @@ public class BusLocations
 		//NOTE: disable this code for now
 		if (inferBusRoutes && (System.currentTimeMillis() - lastInferBusRoutesTime > tenMinutes))
 		{
+			//if we can't read from this feed, it'll throw an exception
+			//set last time we read from site to 5 minutes ago, so it won't try to read for another 5 minutes
+			//(currently it will check inferred route info every 10 minutes)
+			lastInferBusRoutesTime = System.currentTimeMillis() - tenMinutes / 2;
+			
+			
 			vehiclesToRouteNames.clear();
 			
-			String vehicleToRouteNameUrl = "http://kk.csail.mit.edu/~nickolai/bus-infer/vehicle-to-routename.xml";
+			//thanks Nickolai Zeldovich! http://people.csail.mit.edu/nickolai/
+			final String vehicleToRouteNameUrl = "http://kk.csail.mit.edu/~nickolai/bus-infer/vehicle-to-routename.xml";
 			URL url = new URL(vehicleToRouteNameUrl);
 			
 			DocumentBuilder builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
