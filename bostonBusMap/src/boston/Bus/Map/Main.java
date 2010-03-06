@@ -184,11 +184,6 @@ public class Main extends MapActivity implements Updateable
             }
         	//make the textView blank
         	textView.setText("");
-
-        	if (doInferVehicleRoute())
-        	{
-        		busLocations.postVehicleRouteEstimate();
-        	}
         }
         
     	//enable plus/minus zoom buttons in map
@@ -391,7 +386,8 @@ public class Main extends MapActivity implements Updateable
 		
 		
 		updateAsyncTask = new UpdateAsyncTask(textView, busPicture, mapView, finalMessage,
-				arrow, tooltip, this, doShowUnpredictable(), true, maxOverlays, doHideHighlightCircle() == false);
+				arrow, tooltip, this, doShowUnpredictable(), true, maxOverlays, doHideHighlightCircle() == false,
+				doInferVehicleRoute());
 		updateAsyncTask.runUpdate(busLocations);
 		
 		
@@ -442,12 +438,10 @@ public class Main extends MapActivity implements Updateable
 	
 	private boolean doInferVehicleRoute()
 	{
-		return false;
-		/*
 		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
 		
 		return prefs.getBoolean(getString(R.string.inferVehicleRouteCheckbox), false);
-		*/
+		
 	}
 	
 	@Override
@@ -505,7 +499,8 @@ public class Main extends MapActivity implements Updateable
 				}
 
 				minorUpdate = new UpdateAsyncTask(textView, busPicture, mapView, null, arrow,
-						tooltip, Main.this, doShowUnpredictable(), false, maxOverlays, doHideHighlightCircle() == false);
+						tooltip, Main.this, doShowUnpredictable(), false, maxOverlays, doHideHighlightCircle() == false,
+						doInferVehicleRoute());
 				
 
 				minorUpdate.runUpdate(busLocations);

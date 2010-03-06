@@ -57,12 +57,13 @@ public class UpdateAsyncTask extends AsyncTask<Object, String, BusLocations>
 	private final boolean doRefresh;
 	private final int maxOverlays;
 	private final boolean drawCircle;
+	private final boolean inferBusRoutes;
 	
 	private boolean silenceUpdates;
 	
 	public UpdateAsyncTask(TextView textView, Drawable busPicture, MapView mapView, String finalMessage,
 			Drawable arrow, Drawable tooltip, Updateable updateable, boolean doShowUnpredictable, boolean doRefresh, int maxOverlays,
-			boolean drawCircle)
+			boolean drawCircle, boolean inferBusRoutes)
 	{
 		super();
 		
@@ -78,6 +79,7 @@ public class UpdateAsyncTask extends AsyncTask<Object, String, BusLocations>
 		this.doRefresh = doRefresh;
 		this.maxOverlays = maxOverlays;
 		this.drawCircle = drawCircle;
+		this.inferBusRoutes = inferBusRoutes;
 	}
 	
 	/**
@@ -121,8 +123,7 @@ public class UpdateAsyncTask extends AsyncTask<Object, String, BusLocations>
 		{
 			try
 			{
-
-				busLocations.Refresh();
+				busLocations.Refresh(inferBusRoutes);
 			}
 			catch (IOException e)
 			{
@@ -218,17 +219,6 @@ public class UpdateAsyncTask extends AsyncTask<Object, String, BusLocations>
     	final BusOverlay busOverlay = new BusOverlay(busPicture, textView.getContext(), busLocations, selectedBusId,
     			arrow, tooltip, updateable, drawCircle);
     	
-		uiHandler.post(new Runnable() {
-			
-			@Override
-			public void run() {
-				// TODO Auto-generated method stub
-				displayIcons(busOverlay, busLocations, latitude, longitude);
-			}
-		});
-	}
-	private void displayIcons(BusOverlay busOverlay, ArrayList<BusLocation> busLocations, double latitude, double longitude)
-	{
     	//draw the buses on the map
         for (BusLocation busLocation : busLocations)
         {
@@ -240,6 +230,18 @@ public class UpdateAsyncTask extends AsyncTask<Object, String, BusLocations>
         	OverlayItem overlay = new OverlayItem(point, title, title);
         	busOverlay.addOverlay(overlay);
         }
+
+        uiHandler.post(new Runnable() {
+			
+			@Override
+			public void run() {
+				// TODO Auto-generated method stub
+				displayIcons(busOverlay, busLocations, latitude, longitude);
+			}
+		});
+	}
+	private void displayIcons(BusOverlay busOverlay, ArrayList<BusLocation> busLocations, double latitude, double longitude)
+	{
         mapView.getOverlays().add(busOverlay);
 
         //make sure we redraw map

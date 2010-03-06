@@ -66,7 +66,10 @@ public class BusLocation
 	 */
 	private final boolean inBound;
 	
-	
+	/**
+	 * Inferred bus route
+	 */
+	private final String inferBusRoute;
 	
 	
 	/**
@@ -82,7 +85,7 @@ public class BusLocation
 	
 	
 	public BusLocation(double latitude, double longitude, int id, String route, int seconds, double lastUpdateInMillis,
-			String heading, boolean predictable, boolean inBound)
+			String heading, boolean predictable, boolean inBound, String inferBusRoute)
 	{
 		this.latitude = latitude * degreesToRadians;
 		this.longitude = longitude * degreesToRadians;
@@ -95,6 +98,7 @@ public class BusLocation
 		this.heading = heading;
 		this.predictable = predictable;
 		this.inBound = inBound;
+		this.inferBusRoute = inferBusRoute;
 	}
 
 	public boolean hasHeading()
@@ -257,6 +261,11 @@ public class BusLocation
     	{
     		//TODO: how should we say this?
     		//title += "\nUnpredictable";
+    		
+    		if (route == null && inferBusRoute != null)
+    		{
+    			title += "\nEstimated route number: " + inferBusRoute;
+    		}
     	}
     	return title;
 	}

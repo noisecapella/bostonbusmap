@@ -62,11 +62,15 @@ public class BusLocations
 	 */
 	private final String mbtaDataUrl = "http://webservices.nextbus.com/service/publicXMLFeed?command=vehicleLocations&a=mbta&t=";
 
-	private double lastTime = 0;
-
-	private boolean postVehicleRouteEstimate;
-
+	private double lastUpdateTime = 0;
 	private final HashMap<Integer, String> vehiclesToRouteNames = new HashMap<Integer, String>();
+	
+	private double lastInferBusRoutesTime = 0;
+	
+	/**
+	 * Ten minutes in milliseconds
+	 */
+	private final double tenMinutes = 10 * 60 * 1000;
 	
 	/**
 	 * Update the bus locations based on data from the XML feed 
@@ -78,11 +82,11 @@ public class BusLocations
 	 * @throws ParserConfigurationException
 	 * @throws FactoryConfigurationError
 	 */
-	public void Refresh() throws SAXException, IOException,
+	public void Refresh(boolean inferBusRoutes) throws SAXException, IOException,
 			ParserConfigurationException, FactoryConfigurationError 
 	{
 		//NOTE: disable this code for now
-		if (postVehicleRouteEstimate)
+		if (inferBusRoutes && (System.currentTimeMillis() - lastInferBusRoutesTime > tenMinutes))
 		{
 			vehiclesToRouteNames.clear();
 			
@@ -104,13 +108,13 @@ public class BusLocations
 				vehiclesToRouteNames.put(Integer.parseInt(node.getAttribute("id")), node.getAttribute("routeTag"));
 			}
 			
-			postVehicleRouteEstimate = false;
+			lastInferBusRoutesTime = System.currentTimeMillis();
 		}
 		
 		
 		//read data from the URL
 		URL url;
-		String urlString = mbtaDataUrl + (long)lastTime; 
+		String urlString = mbtaDataUrl + (long)lastUpdateTime; 
 		url = new URL(urlString);
 		
 		DataInputStream dataInputStream;
@@ -130,7 +134,7 @@ public class BusLocations
 		
 		//get the time that this information is valid until
 		Element lastTimeElement = (Element)document.getElementsByTagName("lastTime").item(0);
-		lastTime = Double.parseDouble(lastTimeElement.getAttribute("time"));
+		lastUpdateTime = Double.parseDouble(lastTimeElement.getAttribute("time"));
 
 		//iterate through each vehicle mentioned
 		NodeList nodeList = document.getElementsByTagName("vehicle");
@@ -152,18 +156,19 @@ public class BusLocations
 				inBound = true;
 			}
 			
+			String inferBusRoute = null;
 			if (vehiclesToRouteNames.containsKey(id))
 			{
 				String value = vehiclesToRouteNames.get(id);
 				if (value != null && value.length() != 0)
 				{
-					route = value;
+					inferBusRoute = value;
 				}
 			}
 			
 			
-			BusLocation newBusLocation = new BusLocation(lat, lon, id, route, seconds, lastTime, 
-					heading, predictable, inBound);
+			BusLocation newBusLocation = new BusLocation(lat, lon, id, route, seconds, lastUpdateTime, 
+					heading, predictable, inBound, inferBusRoute);
 			
 			Integer idInt = new Integer(id);
 			if (busMapping.containsKey(idInt))
@@ -255,10 +260,4 @@ public class BusLocations
 		
 		return newLocations.subList(0, maxLocations);
 	}
-
-	public void postVehicleRouteEstimate() {
-		// TODO Auto-generated method stub
-		postVehicleRouteEstimate = true;
-	}
-	
 }
