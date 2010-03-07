@@ -195,7 +195,8 @@ public class UpdateAsyncTask extends AsyncTask<Object, String, BusLocations>
 		busLocations.addAll(busLocationsObject.getBusLocations(maxOverlays, latitude, longitude, doShowUnpredictable));
 		
 		
-		if (busLocations.size() == 0)
+		//if doRefresh is false, we should skip this, it prevents the icons from updating locations
+		if (busLocations.size() == 0 && doRefresh)
 		{
 			//no data? oh well
 			//sometimes the feed provides an empty XML message; completely valid but without any vehicle elements
