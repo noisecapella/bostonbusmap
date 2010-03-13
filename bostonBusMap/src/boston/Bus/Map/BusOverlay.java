@@ -215,7 +215,7 @@ public class BusOverlay extends com.google.android.maps.ItemizedOverlay<com.goog
 			selectedBusIndex = -1;
 		}
 			
-		if (drawHighlightCircle)
+		if (drawHighlightCircle && overlays.size() > 0)
 		{
 			//draw a circle showing the area where overlays are currently shown
 			//first overlayitem will be closest to center
