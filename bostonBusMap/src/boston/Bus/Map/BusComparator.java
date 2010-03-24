@@ -26,6 +26,9 @@ public class BusComparator implements Comparator<BusLocation>
 	@Override
 	public int compare(BusLocation arg0, BusLocation arg1)
 	{
+		final double centerLatitude = this.centerLatitude;
+		final double centerLongitude = this.centerLongitude;
+		
 		double dist = arg0.distanceFrom(centerLatitude, centerLongitude);
 		double otherDist = arg1.distanceFrom(centerLatitude, centerLongitude);
 		

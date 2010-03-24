@@ -55,7 +55,7 @@ public class BusLocations
 	/**
 	 * A mapping of the bus number to bus location
 	 */
-	private Map<Integer, BusLocation> busMapping = new HashMap<Integer, BusLocation>();
+	private final HashMap<Integer, BusLocation> busMapping = new HashMap<Integer, BusLocation>();
 	
 	/**
 	 * The XML feed URL
