@@ -52,7 +52,7 @@ public class UpdateAsyncTask extends AsyncTask<Object, String, BusLocations>
 	private final String finalMessage;
 	private final Drawable arrow;
 	private final Drawable tooltip;
-	private final Updateable updateable;
+	private final Main updateable;
 	private final boolean doShowUnpredictable;
 	private final boolean doRefresh;
 	private final int maxOverlays;
@@ -62,7 +62,7 @@ public class UpdateAsyncTask extends AsyncTask<Object, String, BusLocations>
 	private boolean silenceUpdates;
 	
 	public UpdateAsyncTask(TextView textView, Drawable busPicture, MapView mapView, String finalMessage,
-			Drawable arrow, Drawable tooltip, Updateable updateable, boolean doShowUnpredictable, boolean doRefresh, int maxOverlays,
+			Drawable arrow, Drawable tooltip, Main updateable, boolean doShowUnpredictable, boolean doRefresh, int maxOverlays,
 			boolean drawCircle, boolean inferBusRoutes)
 	{
 		super();
