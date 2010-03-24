@@ -40,8 +40,10 @@ public class BusDrawable extends Drawable {
 	private final int heading;
 	private final Drawable tooltip;
 	private final TextView textView;
+	private final float circleRadius;
 	
-	public BusDrawable(Drawable drawable, int heading, Drawable arrow, Drawable tooltip, TextView textView)
+	
+	public BusDrawable(Drawable drawable, int heading, Drawable arrow, Drawable tooltip, TextView textView, float circleRadius)
 	{
 		this.bus = drawable;
 		this.heading = heading;
@@ -49,6 +51,7 @@ public class BusDrawable extends Drawable {
 		this.tooltip = tooltip;
 		
 		this.textView = textView;
+		this.circleRadius = circleRadius;
 	}
 	
 	@Override
@@ -110,6 +113,16 @@ public class BusDrawable extends Drawable {
 			textView.draw(canvas);
 			canvas.restore();
 			
+		}
+		
+		if (circleRadius != 0)
+		{
+			//draw a circle showing which buses are currently displayed
+			Paint paint = new Paint();
+			paint.setColor(Color.BLACK);
+			paint.setAlpha(0x22); //very light grey
+
+			canvas.drawCircle(0, 0, circleRadius, paint);			
 		}
 	}
 
