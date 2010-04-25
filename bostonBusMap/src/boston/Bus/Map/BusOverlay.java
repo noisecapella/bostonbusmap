@@ -256,7 +256,7 @@ public class BusOverlay extends com.google.android.maps.ItemizedOverlay<com.goog
 			//draw a circle showing which buses are currently displayed
 			Paint paint = new Paint();
 			paint.setColor(Color.BLACK);
-			paint.setAlpha(0x11); //very light grey
+			paint.setAlpha(0xc); //very light grey
 
 			float circleCenterX = circleCenter.x;
 			float circleCenterY = circleCenter.y - busHeight / 2; 
