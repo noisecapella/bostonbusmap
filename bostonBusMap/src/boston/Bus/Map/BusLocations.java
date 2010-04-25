@@ -55,7 +55,7 @@ public class BusLocations
 	/**
 	 * A mapping of the bus number to bus location
 	 */
-	private final HashMap<Integer, BusLocation> busMapping = new HashMap<Integer, BusLocation>();
+	private Map<Integer, BusLocation> busMapping = new HashMap<Integer, BusLocation>();
 	
 	/**
 	 * The XML feed URL
@@ -73,13 +73,6 @@ public class BusLocations
 	private final double tenMinutes = 10 * 60 * 1000;
 	
 	/**
-	 * This should let us know if the user checked or unchecked the Infer bus routes checkbox. If inferBusRoutes in Refresh()
-	 * is true and this is false, we should do a refresh, and if inferBusRoutes is false and this is true, we should
-	 * clear the bus information 
-	 */
-	private boolean lastInferBusRoutes;
-	
-	/**
 	 * Update the bus locations based on data from the XML feed 
 	 * 
 	 * @param centerLat
@@ -92,10 +85,8 @@ public class BusLocations
 	public void Refresh(boolean inferBusRoutes) throws SAXException, IOException,
 			ParserConfigurationException, FactoryConfigurationError 
 	{
-		//if Infer bus routes is checked and either:
-		//(a) 10 minutes have passed
-		//(b) the checkbox wasn't checked before, which means we should refresh anyway
-		if (inferBusRoutes && ((System.currentTimeMillis() - lastInferBusRoutesTime > tenMinutes) || (lastInferBusRoutes == false)))
+		//NOTE: disable this code for now
+		if (inferBusRoutes && (System.currentTimeMillis() - lastInferBusRoutesTime > tenMinutes))
 		{
 			//if we can't read from this feed, it'll throw an exception
 			//set last time we read from site to 5 minutes ago, so it won't try to read for another 5 minutes
@@ -126,19 +117,14 @@ public class BusLocations
 			
 			lastInferBusRoutesTime = System.currentTimeMillis();
 		}
-		else if (inferBusRoutes == false && lastInferBusRoutes == true)
-		{
-			//clear vehicle mapping if checkbox is false
-			vehiclesToRouteNames.clear();
-		}
 		
-		lastInferBusRoutes = inferBusRoutes;
 		
 		//read data from the URL
 		URL url;
 		String urlString = mbtaDataUrl + (long)lastUpdateTime; 
 		url = new URL(urlString);
 		
+		DataInputStream dataInputStream;
 		DocumentBuilder builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
 			
 		InputStream stream = url.openStream();

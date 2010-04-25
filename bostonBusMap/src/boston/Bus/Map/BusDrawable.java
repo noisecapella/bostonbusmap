@@ -41,7 +41,6 @@ public class BusDrawable extends Drawable {
 	private final Drawable tooltip;
 	private final TextView textView;
 	
-	
 	public BusDrawable(Drawable drawable, int heading, Drawable arrow, Drawable tooltip, TextView textView)
 	{
 		this.bus = drawable;
@@ -112,7 +111,6 @@ public class BusDrawable extends Drawable {
 			canvas.restore();
 			
 		}
-		
 	}
 
 	
