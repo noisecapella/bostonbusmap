@@ -68,11 +68,11 @@ public class BusOverlay extends com.google.android.maps.ItemizedOverlay<com.goog
 	private final Drawable arrow;
 	
 	private final Drawable tooltip;
-	private final Main updateable;
+	private final Updateable updateable;
 	private final boolean drawHighlightCircle;
 	
 	public BusOverlay(Drawable busPicture, Context context, List<BusLocation> busLocations,
-			int selectedBusId, Drawable arrow, Drawable tooltip, Main updateable, boolean drawHighlightCircle) {
+			int selectedBusId, Drawable arrow, Drawable tooltip, Updateable updateable, boolean drawHighlightCircle) {
 		super(boundCenterBottom(busPicture));
 
 		this.context = context;
@@ -170,52 +170,6 @@ public class BusOverlay extends com.google.android.maps.ItemizedOverlay<com.goog
 	public void draw(Canvas canvas, MapView mapView, boolean shadow)
 	{
 		int lastFocusedIndex = getLastFocusedIndex();
-		
-		if (selectedBusIndex != -1)
-		{
-			//make sure that selected buses are preserved during refreshes
-			setFocus(overlays.get(selectedBusIndex));
-			selectedBusIndex = -1;
-		}
-			
-		float busHeight = busPicture.getIntrinsicHeight();
-		
-		float circleRadius = 0;
-		
-		if (drawHighlightCircle && overlays.size() > 0)
-		{
-			//draw a circle showing the area where overlays are currently shown
-			//first overlayitem will be closest to center
-			Projection projection = mapView.getProjection();
-
-			//get screen location
-			OverlayItem first = overlays.get(0);
-			GeoPoint firstPoint = first.getPoint();
-			Point circleCenter = projection.toPixels(firstPoint, null); 
-
-			//find out farthest point from bus that's closest to center
-			//these points are sorted by distance from center of screen, but we want
-			//distance from the bus closest to the center, which is not quite the same
-			int lastDistance = 0;
-			for (int i = 1; i < overlays.size(); i++)
-			{
-				OverlayItem item = overlays.get(i);
-				GeoPoint geoPoint = item.getPoint();
-				Point point = projection.toPixels(geoPoint, null);
-
-				int dx = circleCenter.x - point.x;
-				int dy = circleCenter.y - point.y;
-				int distance = dx*dx + dy*dy;
-				if (distance > lastDistance)
-				{
-					lastDistance = distance;  
-				}
-			}
-
-			circleRadius = (float)Math.sqrt(lastDistance);
-
-		}
-		
 		for (int i = 0; i < overlays.size(); i++)
 		{
 			OverlayItem item = overlays.get(i);
@@ -247,14 +201,67 @@ public class BusOverlay extends com.google.android.maps.ItemizedOverlay<com.goog
 				}
 				
 				//the constructor should ignore the arrow and tooltip if these arguments are null
-				drawable = new BusDrawable(busPicture, busLocation.getHeading(), arrowArg, tooltipArg, textViewArg, 
-						i == 0 ? circleRadius : 0);
+				drawable = new BusDrawable(busPicture, busLocation.getHeading(), arrowArg, tooltipArg, textViewArg);
 			}
 			
 			item.setMarker(drawable);
 			
 		}
+		
+		if (selectedBusIndex != -1)
+		{
+			//make sure that selected buses are preserved during refreshes
+			setFocus(overlays.get(selectedBusIndex));
+			selectedBusIndex = -1;
+		}
+			
+		if (drawHighlightCircle && overlays.size() > 0)
+		{
+			//draw a circle showing the area where overlays are currently shown
+			//first overlayitem will be closest to center
+			Projection projection = mapView.getProjection();
 
+			//get screen location
+			OverlayItem first = overlays.get(0);
+			GeoPoint firstPoint = first.getPoint();
+			Point circleCenter = projection.toPixels(firstPoint, null); 
+
+			//find out farthest point from bus that's closest to center
+			//these points are sorted by distance from center of screen, but we want
+			//distance from the bus closest to the center, which is not quite the same
+			OverlayItem last = first;
+			int lastDistance = 0;
+			Point circleRadius = circleCenter;
+			for (int i = 1; i < overlays.size(); i++)
+			{
+				OverlayItem item = overlays.get(i);
+				GeoPoint geoPoint = item.getPoint();
+				Point point = projection.toPixels(geoPoint, null);
+
+				int dx = circleCenter.x - point.x;
+				int dy = circleCenter.y - point.y;
+				int distance = dx*dx + dy*dy;
+				if (distance > lastDistance)
+				{
+					lastDistance = distance;  
+					last = item;
+					circleRadius = point;
+				}
+			}
+
+			float busHeight = busPicture.getIntrinsicHeight();
+
+			float radius = (float)Math.sqrt(lastDistance);
+
+			//draw a circle showing which buses are currently displayed
+			Paint paint = new Paint();
+			paint.setColor(Color.BLACK);
+			paint.setAlpha(0x11); //very light grey
+
+			float circleCenterX = circleCenter.x;
+			float circleCenterY = circleCenter.y - busHeight / 2; 
+			canvas.drawCircle(circleCenterX, circleCenterY, radius, paint);
+		}
 		super.draw(canvas, mapView, shadow);
 	}
 

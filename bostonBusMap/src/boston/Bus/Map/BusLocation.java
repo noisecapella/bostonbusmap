@@ -161,7 +161,7 @@ public class BusLocation
 	 * @param thetaBackup direction in radians, where east is 0 and going counterclockwise
 	 * @return a descriptive String showing the direction (for example: E (90 deg))
 	 */
-	private static int radiansToDegrees(double thetaAsRadians)
+	private int radiansToDegrees(double thetaAsRadians)
 	{
 		//NOTE: degrees will be 0 == north, going clockwise
 		int degrees = (int)(thetaAsRadians * 180.0 / Math.PI);
