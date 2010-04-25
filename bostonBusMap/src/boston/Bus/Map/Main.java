@@ -69,7 +69,7 @@ import android.widget.ZoomControls;
  * The main activity
  *
  */
-public class Main extends MapActivity implements Updateable
+public class Main extends MapActivity 
 {
 	private MapView mapView;
 	private TextView textView;
