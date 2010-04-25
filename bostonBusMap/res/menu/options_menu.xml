@@ -5,5 +5,7 @@
 	
 	<item android:id="@+id/settingsMenuItem" android:title="Settings">
 	</item>
+
+<item android:id="@+id/refreshItem" android:title="Refresh"></item>
 </menu>
 

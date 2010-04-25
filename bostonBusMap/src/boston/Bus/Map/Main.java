@@ -73,7 +73,6 @@ public class Main extends MapActivity implements Updateable
 {
 	private MapView mapView;
 	private TextView textView;
-	private Button button;
 	
 	
 	private final double bostonLatitude = 42.3583333;
@@ -143,7 +142,6 @@ public class Main extends MapActivity implements Updateable
         //get widgets
         mapView = (MapView)findViewById(R.id.mapview);
         textView = (TextView)findViewById(R.id.statusView);
-        button = (Button)findViewById(R.id.refreshButton);
         
         
         
@@ -194,33 +192,6 @@ public class Main extends MapActivity implements Updateable
         
         arrow = getResources().getDrawable(R.drawable.arrow);
         tooltip = getResources().getDrawable(R.drawable.tooltip);
-        
-        
-        //this is the refresh button
-        button.setOnClickListener(new OnClickListener() {
-			
-			@Override
-			public void onClick(View arg0) {
-
-				if (System.currentTimeMillis() - lastUpdateTime < fetchDelay)
-				{
-					textView.setText("Please wait 10 seconds before clicking Refresh again");
-					return;
-				}
-
-				onCreateTime = System.currentTimeMillis();
-				handler.removeCallbacks(updateBuses);
-				if(doUpdateConstantly())
-				{
-					//if the runInBackground checkbox is clicked, start the handler updating
-				    handler.postAtTime(updateBuses, (long)(fetchDelay * 1.5));
-				}
-				
-				
-				runUpdateTask("Finished update!");
-			}
-		});
-        
         
         updateBuses = new Runnable() {
 		
@@ -281,6 +252,25 @@ public class Main extends MapActivity implements Updateable
     	//currently, the only item is 'Settings'
     	switch (item.getItemId())
     	{
+    	case R.id.refreshItem:
+			if (System.currentTimeMillis() - lastUpdateTime < fetchDelay)
+			{
+				textView.setText("Please wait 10 seconds before clicking Refresh again");
+				break;
+			}
+
+			onCreateTime = System.currentTimeMillis();
+			handler.removeCallbacks(updateBuses);
+			if(doUpdateConstantly())
+			{
+				//if the runInBackground checkbox is clicked, start the handler updating
+			    handler.postAtTime(updateBuses, (long)(fetchDelay * 1.5));
+			}
+			
+			
+			runUpdateTask("Finished update!");
+
+    		break;
     	case R.id.settingsMenuItem:
     		startActivity(new Intent(this, Preferences.class));
     		break;
