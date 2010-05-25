@@ -306,4 +306,9 @@ public class BusOverlay extends com.google.android.maps.ItemizedOverlay<com.goog
 			
 		}*/
 	}
+
+	public void doPopulate() {
+		// TODO Auto-generated method stub
+		populate();
+	}
 }

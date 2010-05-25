@@ -220,6 +220,10 @@ public class UpdateAsyncTask extends AsyncTask<Object, String, BusLocations>
     	final BusOverlay busOverlay = new BusOverlay(busPicture, textView.getContext(), busLocations, selectedBusId,
     			arrow, tooltip, updateable, drawCircle);
     	
+    	//we need to run populate even if there are 0 busLocations. See this link:
+    	//http://groups.google.com/group/android-beginners/browse_thread/thread/6d75c084681f943e?pli=1
+    	busOverlay.doPopulate();
+    	
     	//draw the buses on the map
         for (BusLocation busLocation : busLocations)
         {
