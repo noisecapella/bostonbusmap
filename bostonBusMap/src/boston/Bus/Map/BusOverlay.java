@@ -68,11 +68,11 @@ public class BusOverlay extends com.google.android.maps.ItemizedOverlay<com.goog
 	private final Drawable arrow;
 	
 	private final Drawable tooltip;
-	private final Updateable updateable;
+	private final UpdateHandler updateable;
 	private final boolean drawHighlightCircle;
 	
 	public BusOverlay(Drawable busPicture, Context context, List<BusLocation> busLocations,
-			int selectedBusId, Drawable arrow, Drawable tooltip, Updateable updateable, boolean drawHighlightCircle) {
+			int selectedBusId, Drawable arrow, Drawable tooltip, UpdateHandler updateable, boolean drawHighlightCircle) {
 		super(boundCenterBottom(busPicture));
 
 		this.context = context;

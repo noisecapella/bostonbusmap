@@ -38,13 +38,13 @@ import android.graphics.drawable.Drawable;
 import android.graphics.drawable.StateListDrawable;
 import android.location.Criteria;
 import android.location.Location;
-import android.location.LocationListener;
 import android.location.LocationManager;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.Message;
+
+import android.os.SystemClock;
 import android.os.Handler.Callback;
 import android.preference.PreferenceActivity;
 import android.preference.PreferenceManager;
@@ -69,7 +69,7 @@ import android.widget.ZoomControls;
  * The main activity
  *
  */
-public class Main extends MapActivity implements Updateable
+public class Main extends MapActivity
 {
 	private MapView mapView;
 	private TextView textView;
@@ -90,36 +90,13 @@ public class Main extends MapActivity implements Updateable
 	private Drawable busPicture;
 	private Drawable arrow;
 	
-	private final int maxOverlays = 15;
-	
-	/**
-	 * The last time we updated, in milliseconds. Used to make sure we don't update more frequently than
-	 * every 10 seconds, to avoid unnecessary strain on their server
-	 */
-	private double lastUpdateTime;
-	
-	/**
-	 * This contains the code that updates the bus locations
-	 */
-	private Runnable updateBuses;
 	/**
 	 * Used to make updateBuses run every 10 seconds or so
 	 */
-	private Handler handler = new Handler();
+	private UpdateHandler handler;
 	
-	/**
-	 * The minimum time in milliseconds between updates. The XML feed requires a minimum of 10 seconds,
-	 * I'm doing 13 just in case
-	 */
-	private final int fetchDelay = 13000;
-
 	private BusLocations busLocations = new BusLocations();
 
-	/**
-	 * Time when onCreate was last called (in millis)
-	 */
-	private double onCreateTime;
-	
 	/**
 	 * Five minutes in milliseconds
 	 */
@@ -137,14 +114,18 @@ public class Main extends MapActivity implements Updateable
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
         
-        onCreateTime = System.currentTimeMillis();
-
         //get widgets
         mapView = (MapView)findViewById(R.id.mapview);
         textView = (TextView)findViewById(R.id.statusView);
         
+    	//store picture of bus
+        busPicture = getResources().getDrawable(R.drawable.bus_statelist);
+        
+        arrow = getResources().getDrawable(R.drawable.arrow);
+        tooltip = getResources().getDrawable(R.drawable.tooltip);
         
         
+        double lastUpdateTime = 0;
         
         Object obj = getLastNonConfigurationInstance();
         if (obj != null)
@@ -184,38 +165,23 @@ public class Main extends MapActivity implements Updateable
         	textView.setText("");
         }
         
+        handler = new UpdateHandler(textView, busPicture, mapView, arrow, tooltip, busLocations);
+        handler.setLastUpdateTime(lastUpdateTime);
+        populateHandlerSettings();
+        
+        if (handler.getUpdateConstantly())
+        {
+        	handler.instantRefresh();
+        }
+        
     	//enable plus/minus zoom buttons in map
         mapView.setBuiltInZoomControls(true);
 
-    	//store picture of bus
-        busPicture = getResources().getDrawable(R.drawable.bus_statelist);
-        
-        arrow = getResources().getDrawable(R.drawable.arrow);
-        tooltip = getResources().getDrawable(R.drawable.tooltip);
-        
-        updateBuses = new Runnable() {
-		
-			@Override
-			public void run() {
-				double currentTime = System.currentTimeMillis();
-		
-				if (currentTime - lastUpdateTime > fetchDelay)
-				{
-					//if not too soon, do the update
-					runUpdateTask("Finished update!");
-				}
-
-				//make updateBuses execute every 10 seconds (or whatever fetchDelay is)
-				//to disable this, the user should go into the settings and uncheck 'Run in background'
-				handler.postDelayed(updateBuses, fetchDelay);
-
-			}
-		};
-		
     }
 		
 
-    @Override
+
+	@Override
     protected void onPause() {
     	if (mapView != null)
     	{
@@ -237,9 +203,9 @@ public class Main extends MapActivity implements Updateable
 		}
     	
 		
-		if (handler != null && updateBuses != null)
+		if (handler != null)
 		{
-			handler.removeCallbacks(updateBuses);
+			handler.removeAllMessages();
 		}
 		super.onPause();
     }
@@ -253,23 +219,11 @@ public class Main extends MapActivity implements Updateable
     	switch (item.getItemId())
     	{
     	case R.id.refreshItem:
-			if (System.currentTimeMillis() - lastUpdateTime < fetchDelay)
-			{
-				textView.setText("Please wait 10 seconds before clicking Refresh again");
-				break;
-			}
-
-			onCreateTime = System.currentTimeMillis();
-			handler.removeCallbacks(updateBuses);
-			if(doUpdateConstantly())
-			{
-				//if the runInBackground checkbox is clicked, start the handler updating
-			    handler.postAtTime(updateBuses, (long)(fetchDelay * 1.5));
-			}
-			
-			
-			runUpdateTask("Finished update!");
-
+    		boolean b = handler.instantRefresh();
+    		if (b == false)
+    		{
+    			textView.setText("Please wait 10 seconds before clicking Refresh again");
+    		}
     		break;
     	case R.id.settingsMenuItem:
     		startActivity(new Intent(this, Preferences.class));
@@ -280,7 +234,7 @@ public class Main extends MapActivity implements Updateable
     		{
     			GeoPoint point = new GeoPoint(bostonLatitudeAsInt, bostonLongitudeAsInt);
     			mapView.getController().animateTo(point);
-    			triggerUpdate(1500);
+    			handler.triggerUpdate(1500);
     		}
     		break;
     	
@@ -321,7 +275,7 @@ public class Main extends MapActivity implements Updateable
 				}
 				else
 				{
-					locationListener = new OneTimeLocationListener(mapView, locationManager, this, this);
+					locationListener = new OneTimeLocationListener(mapView, locationManager, this, handler);
 				}
 				
 				locationListener.start();
@@ -354,150 +308,99 @@ public class Main extends MapActivity implements Updateable
 		return false;
 	}
 
-	private UpdateAsyncTask updateAsyncTask;
-	
-	/**
-	 * executes the update
-	 */
-	private void runUpdateTask(String finalMessage) {
-		//make sure we don't update too often
-		lastUpdateTime = System.currentTimeMillis();
-
-		//don't do two updates at once
-		if (updateAsyncTask != null)
-		{
-			if (updateAsyncTask.getStatus().equals(UpdateAsyncTask.Status.FINISHED) == false)
-			{
-				//task is not finished yet
-				return;
-			}
-			
-		}
-		
-		
-		updateAsyncTask = new UpdateAsyncTask(textView, busPicture, mapView, finalMessage,
-				arrow, tooltip, this, doShowUnpredictable(), true, maxOverlays, doHideHighlightCircle() == false,
-				doInferVehicleRoute());
-		updateAsyncTask.runUpdate(busLocations);
-		
-		
-	}
-	
 	@Override
 	protected void onResume() {
 		super.onResume();
 
 		//check the result
-		handler.removeCallbacks(updateBuses);
-		if(doUpdateConstantly())
-		{
-			//if the runInBackground checkbox is clicked, start the handler updating
-		    handler.postAtTime(updateBuses, fetchDelay);
-		}
+		populateHandlerSettings();
+		handler.resume();
 		
 	}
 
 	@Override
 	public boolean onKeyDown(int keyCode, KeyEvent event) {
-		// TODO Auto-generated method stub
-		return super.onKeyDown(keyCode, event);
+		if (keyCode == KeyEvent.KEYCODE_BACK)
+		{
+			return super.onKeyDown(keyCode, event);
+		}
+		else if (mapView != null)
+		{
+			return mapView.onKeyDown(keyCode, event);
+		}
+		else
+		{
+			return super.onKeyDown(keyCode, event);
+		}
 	}
 
 	
-
-	private boolean doUpdateConstantly()
-	{
-		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
-		
-		return prefs.getBoolean(getString(R.string.runInBackgroundCheckbox), false);
-	}
-	
-	private boolean doShowUnpredictable()
-	{
-		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
-		
-		return prefs.getBoolean(getString(R.string.showUnpredictableBusesCheckbox), false);
+    private void populateHandlerSettings() {
+    	SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+    	
+    	handler.setUpdateConstantly(prefs.getBoolean(getString(R.string.runInBackgroundCheckbox), false));
+    	handler.setShowUnpredictable(prefs.getBoolean(getString(R.string.showUnpredictableBusesCheckbox), false));
+    	handler.setHideHighlightCircle(prefs.getBoolean(getString(R.string.hideCircleCheckbox), false));
+    	handler.setInferVehicleRoute(prefs.getBoolean(getString(R.string.inferVehicleRouteCheckbox), false));
 	}
 
-	private boolean doHideHighlightCircle()
-	{
-		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
-		
-		return prefs.getBoolean(getString(R.string.hideCircleCheckbox), false);
-	}
-	
-	private boolean doInferVehicleRoute()
-	{
-		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
-		
-		return prefs.getBoolean(getString(R.string.inferVehicleRouteCheckbox), false);
-		
-	}
-	
 	@Override
 	public Object onRetainNonConfigurationInstance() {
 		// TODO Auto-generated method stub
 		
-		return new CurrentState(textView, mapView, busLocations, lastUpdateTime);
+		return new CurrentState(textView, mapView, busLocations, handler.getLastUpdateTime());
 	}
 
 	
 	@Override
 	public boolean onKeyUp(int keyCode, KeyEvent event) {
-		// TODO Auto-generated method stub
-		
-		List<Overlay> overlays = mapView.getOverlays();
-		if (overlays.size() != 0)
+		if (keyCode == KeyEvent.KEYCODE_BACK)
 		{
-			Overlay overlay = overlays.get(0);
-			if (overlay instanceof BusOverlay)
-			{
-				BusOverlay busOverlay = (BusOverlay)overlay;
-				busOverlay.handleKey(keyCode);
-				
-				mapView.invalidate();
-			}
-		
+			return super.onKeyUp(keyCode, event);
 		}
-		return false;
+		else if (mapView != null)
+		{
+			handler.triggerUpdate(250);
+			
+			if (keyCode == KeyEvent.KEYCODE_DPAD_CENTER)
+			{
+				float centerX = mapView.getWidth() / 2;
+				float centerY = mapView.getHeight() / 2;
+				
+				//make it a tap to the center of the screen
+					
+				MotionEvent downEvent = MotionEvent.obtain(SystemClock.uptimeMillis(), SystemClock.uptimeMillis(),
+						MotionEvent.ACTION_DOWN, centerX, centerY, 0);
+				MotionEvent upEvent = MotionEvent.obtain(SystemClock.uptimeMillis(), SystemClock.uptimeMillis(),
+						MotionEvent.ACTION_UP, centerX, centerY, 0);
+				
+				
+				mapView.onTouchEvent(downEvent);
+				return mapView.onTouchEvent(upEvent);
+			}
+			else
+			{
+			
+				return mapView.onKeyUp(keyCode, event);
+			}
+		}
+		else
+		{
+			return super.onKeyUp(keyCode, event);
+		}
 	}
 
-	/**
-	 * Updates which don't grab new data from the internet, they just change location
-	 */
-	private UpdateAsyncTask minorUpdate;
-
-	/**
-	 * when BusOverlay.onTouchEvent is hit, we redraw the buses around the new center (without doing getting new data from the server) 
-	 */
-	public void triggerUpdate(int millisDelay) {
+	@Override
+	public boolean onTrackballEvent(MotionEvent event) {
 		// TODO Auto-generated method stub
-		//delay this so that we kinda sorta account for map fling
-		handler.postDelayed(new Runnable() {
-			
-			@Override
-			public void run() {
-				//don't do two updates at once
-				if (minorUpdate != null)
-				{
-					if (minorUpdate.getStatus().equals(UpdateAsyncTask.Status.FINISHED) == false)
-					{
-						//task is not finished yet
-						return;
-					}
-					
-				}
-
-				minorUpdate = new UpdateAsyncTask(textView, busPicture, mapView, null, arrow,
-						tooltip, Main.this, doShowUnpredictable(), false, maxOverlays, doHideHighlightCircle() == false,
-						doInferVehicleRoute());
-				
-
-				minorUpdate.runUpdate(busLocations);
-				
-			}
-		}, millisDelay);
-		
-
+		if (mapView != null)
+		{
+			handler.triggerUpdate(250);
+			return mapView.onTrackballEvent(event);
+		}
+		else
+		{
+			return false;
+		}
 	}
 }
