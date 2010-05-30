@@ -194,7 +194,7 @@ public class Main extends MapActivity
     		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
     		SharedPreferences.Editor editor = prefs.edit();
 
-
+    		//TODO: these strings should be stored as const strings somewhere, to avoid typos and for easy lookup
     		editor.putInt("centerLat", point.getLatitudeE6());
     		editor.putInt("centerLon", point.getLongitudeE6());
     		editor.putInt("zoomLevel", mapView.getZoomLevel());
@@ -219,7 +219,6 @@ public class Main extends MapActivity
     public boolean onOptionsItemSelected(MenuItem item)
     {
     	//when the menu button is clicked, a menu comes up
-    	//currently, the only item is 'Settings'
     	switch (item.getItemId())
     	{
     	case R.id.refreshItem:

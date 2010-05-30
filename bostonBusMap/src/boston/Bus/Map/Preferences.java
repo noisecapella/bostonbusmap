@@ -44,7 +44,7 @@ public class Preferences extends PreferenceActivity
 	@Override
 	public boolean onPreferenceTreeClick(PreferenceScreen preferenceScreen,
 			Preference preference) {
-		if (preference.getKey().equals("about"))
+		if (preference != null && "about".equals(preference.getKey()))
 		{
 			Intent viewIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("http://www.terribleinformation.org/george/bostonbusmap"));
 			startActivity(viewIntent);

@@ -230,6 +230,7 @@ public class BusOverlay extends com.google.android.maps.ItemizedOverlay<com.goog
 			paint.setStyle(Style.STROKE);
 			paint.setStrokeWidth(2);
 			paint.setAntiAlias(true);
+			paint.setAlpha(0x70);
 
 			float circleCenterX = circleCenter.x;
 			float circleCenterY = circleCenter.y - busHeight / 2; 
