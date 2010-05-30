@@ -35,6 +35,7 @@ import android.graphics.Paint;
 import android.graphics.Point;
 import android.graphics.Rect;
 import android.graphics.RectF;
+import android.graphics.Paint.Style;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.ShapeDrawable;
 import android.graphics.drawable.shapes.OvalShape;
@@ -62,34 +63,30 @@ public class BusOverlay extends com.google.android.maps.ItemizedOverlay<com.goog
 
 	private final ArrayList<com.google.android.maps.OverlayItem> overlays = new ArrayList<com.google.android.maps.OverlayItem>();
 	private final Context context;
-	private final Drawable busPicture;
-	private final List<BusLocation> busLocations;
+	private final List<Location> busLocations;
 	private int selectedBusIndex;
-	private final Drawable arrow;
-	
-	private final Drawable tooltip;
 	private final UpdateHandler updateable;
 	private final boolean drawHighlightCircle;
+	private final int busHeight;
 	
-	public BusOverlay(Drawable busPicture, Context context, List<BusLocation> busLocations,
-			int selectedBusId, Drawable arrow, Drawable tooltip, UpdateHandler updateable, boolean drawHighlightCircle) {
+	public BusOverlay(Drawable busPicture, Context context, List<Location> busLocations,
+			int selectedBusId, UpdateHandler updateable, boolean drawHighlightCircle) {
 		super(boundCenterBottom(busPicture));
 
 		this.context = context;
-		this.busPicture = busPicture;
-		this.arrow = arrow;
-		this.busLocations = busLocations;
+		this.busLocations = new ArrayList<Location>();
+		this.busLocations.addAll(busLocations);
 		this.selectedBusIndex = -1;
-		
-		this.tooltip = tooltip;
-		this.updateable = updateable;
 		this.drawHighlightCircle = drawHighlightCircle;
+		this.busHeight = busPicture.getIntrinsicHeight();
+		
+		this.updateable = updateable;
 		
 		for (int i = 0; i < busLocations.size(); i++)
 		{
-			BusLocation busLocation = busLocations.get(i);
+			Location busLocation = busLocations.get(i);
 
-			if (busLocation.id == selectedBusId)
+			if (busLocation.getId() == selectedBusId)
 			{
 				selectedBusIndex = i;
 				break;
@@ -148,13 +145,13 @@ public class BusOverlay extends com.google.android.maps.ItemizedOverlay<com.goog
 		return overlays.size();
 	}
 	
-	public void addOverlay(com.google.android.maps.OverlayItem item)
+	public void addOverlay(OverlayItem item)
 	{
 		overlays.add(item);
 		
 		populate();
 	}
-	
+
 	@Override
 	protected com.google.android.maps.OverlayItem createItem(int i)
 	{
@@ -173,37 +170,10 @@ public class BusOverlay extends com.google.android.maps.ItemizedOverlay<com.goog
 		for (int i = 0; i < overlays.size(); i++)
 		{
 			OverlayItem item = overlays.get(i);
-			BusLocation busLocation = busLocations.get(i);
+			Location busLocation = busLocations.get(i);
 
-			Drawable drawable = busPicture;
-			if (shadow == false)
-			{
-				//to make life easier we won't draw shadows except for the bus
-				//the tooltip has some weird error where the shadow draws a little left and up from where it should draw
-				
-				Drawable arrowArg = null, tooltipArg = null;
-				TextView textViewArg = null;
-				
-				//if selected, draw the tooltip
-				if (lastFocusedIndex == i)
-				{
-					TextView textView = new TextView(context);
-					String title = busLocation.makeTitle();
-					textView.setText(title);
-					tooltipArg = tooltip;
-					textViewArg = textView;
-				}
-
-				//if it has a direction, draw the arrow
-				if (busLocation.hasHeading())
-				{
-					arrowArg = arrow;
-				}
-				
-				//the constructor should ignore the arrow and tooltip if these arguments are null
-				drawable = new BusDrawable(busPicture, busLocation.getHeading(), arrowArg, tooltipArg, textViewArg);
-			}
-			
+			boolean isSelected = i == lastFocusedIndex;
+			Drawable drawable = busLocation.getDrawable(context, shadow, isSelected);
 			item.setMarker(drawable);
 			
 		}
@@ -248,15 +218,18 @@ public class BusOverlay extends com.google.android.maps.ItemizedOverlay<com.goog
 					circleRadius = point;
 				}
 			}
+		
 
-			float busHeight = busPicture.getIntrinsicHeight();
+			
 
 			float radius = (float)Math.sqrt(lastDistance);
 
 			//draw a circle showing which buses are currently displayed
 			Paint paint = new Paint();
-			paint.setColor(Color.BLACK);
-			paint.setAlpha(0xc); //very light grey
+			paint.setColor(Color.rgb(0x77, 0x77, 0xff));
+			paint.setStyle(Style.STROKE);
+			paint.setStrokeWidth(2);
+			paint.setAntiAlias(true);
 
 			float circleCenterX = circleCenter.x;
 			float circleCenterY = circleCenter.y - busHeight / 2; 
@@ -275,36 +248,9 @@ public class BusOverlay extends com.google.android.maps.ItemizedOverlay<com.goog
 		}
 		else
 		{
-			return busLocations.get(selectedBusIndex).id;
+			return busLocations.get(selectedBusIndex).getId();
 		}
 		
-	}
-
-
-	public void handleKey(int keyCode) {
-		// TODO Auto-generated method stub
-		
-		/*OverlayItem newFocus = null;
-		
-		switch (keyCode)
-		{
-		case KeyEvent.KEYCODE_DPAD_RIGHT:
-		case KeyEvent.KEYCODE_DPAD_DOWN:
-			newFocus = nextFocus(true);
-			break;
-		case KeyEvent.KEYCODE_DPAD_UP:
-		case KeyEvent.KEYCODE_DPAD_LEFT:
-			newFocus = nextFocus(false);
-			break;
-		}
-	
-		if (newFocus != null)
-		{
-			int index = overlays.indexOf(newFocus);
-			selectedBusIndex = index;
-			setFocus(newFocus);
-			
-		}*/
 	}
 
 	public void doPopulate() {

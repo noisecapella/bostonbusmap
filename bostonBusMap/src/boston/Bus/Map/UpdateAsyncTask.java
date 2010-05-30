@@ -25,15 +25,19 @@ import java.util.List;
 import javax.xml.parsers.FactoryConfigurationError;
 import javax.xml.parsers.ParserConfigurationException;
 
+import org.apache.http.client.CircularRedirectException;
 import org.xml.sax.SAXException;
 
 
 import com.google.android.maps.GeoPoint;
 import com.google.android.maps.MapView;
 import com.google.android.maps.OverlayItem;
+import com.google.android.maps.Projection;
 
 import android.graphics.Color;
 import android.graphics.ColorFilter;
+import android.graphics.Paint;
+import android.graphics.Point;
 import android.graphics.PorterDuff.Mode;
 import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
@@ -190,7 +194,7 @@ public class UpdateAsyncTask extends AsyncTask<Object, String, BusLocations>
 
 	private void sortBuses(BusLocations busLocationsObject, final double latitude,
 			final double longitude, Handler uiHandler) {
-		final ArrayList<BusLocation> busLocations = new ArrayList<BusLocation>();
+		final ArrayList<Location> busLocations = new ArrayList<Location>();
 		
 		busLocations.addAll(busLocationsObject.getBusLocations(maxOverlays, latitude, longitude, doShowUnpredictable));
 		
@@ -218,16 +222,16 @@ public class UpdateAsyncTask extends AsyncTask<Object, String, BusLocations>
         overlays.clear();
         
     	final BusOverlay busOverlay = new BusOverlay(busPicture, textView.getContext(), busLocations, selectedBusId,
-    			arrow, tooltip, updateable, drawCircle);
+    			updateable, drawCircle);
     	
     	//we need to run populate even if there are 0 busLocations. See this link:
     	//http://groups.google.com/group/android-beginners/browse_thread/thread/6d75c084681f943e?pli=1
     	busOverlay.doPopulate();
     	
     	//draw the buses on the map
-        for (BusLocation busLocation : busLocations)
+        for (Location busLocation : busLocations)
         {
-        	GeoPoint point = new GeoPoint((int)(busLocation.latitudeAsDegrees * 1000000), (int)(busLocation.longitudeAsDegrees * 1000000));
+        	GeoPoint point = new GeoPoint((int)(busLocation.getLatitudeAsDegrees() * 1000000), (int)(busLocation.getLongitudeAsDegrees() * 1000000));
         	
         	String title = busLocation.makeTitle();
         	
@@ -236,16 +240,18 @@ public class UpdateAsyncTask extends AsyncTask<Object, String, BusLocations>
         	busOverlay.addOverlay(overlay);
         }
 
+
+        
         uiHandler.post(new Runnable() {
 			
 			@Override
 			public void run() {
 				// TODO Auto-generated method stub
-				displayIcons(busOverlay, busLocations, latitude, longitude);
+				displayIcons(busOverlay, latitude, longitude);
 			}
 		});
 	}
-	private void displayIcons(BusOverlay busOverlay, ArrayList<BusLocation> busLocations, double latitude, double longitude)
+	private void displayIcons(BusOverlay busOverlay, double latitude, double longitude)
 	{
         mapView.getOverlays().add(busOverlay);
 

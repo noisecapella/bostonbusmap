@@ -95,7 +95,7 @@ public class Main extends MapActivity
 	 */
 	private UpdateHandler handler;
 	
-	private BusLocations busLocations = new BusLocations();
+	private BusLocations busLocations;
 
 	/**
 	 * Five minutes in milliseconds
@@ -124,6 +124,10 @@ public class Main extends MapActivity
         arrow = getResources().getDrawable(R.drawable.arrow);
         tooltip = getResources().getDrawable(R.drawable.tooltip);
         
+        if (busLocations == null)
+        {
+        	busLocations = new BusLocations(busPicture, arrow, tooltip);
+        }
         
         double lastUpdateTime = 0;
         

@@ -48,6 +48,7 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 
+import android.graphics.drawable.Drawable;
 import android.location.LocationListener;
 
 public class BusLocations
@@ -78,6 +79,17 @@ public class BusLocations
 	 * clear the bus information 
 	 */
 	private boolean lastInferBusRoutes;
+	
+	private final Drawable bus;
+	private final Drawable arrow;
+	private final Drawable tooltip;
+	
+	public BusLocations(Drawable bus, Drawable arrow, Drawable tooltip)
+	{
+		this.bus = bus;
+		this.arrow = arrow;
+		this.tooltip = tooltip;
+	}
 	
 	/**
 	 * Update the bus locations based on data from the XML feed 
@@ -189,7 +201,7 @@ public class BusLocations
 			
 			
 			BusLocation newBusLocation = new BusLocation(lat, lon, id, route, seconds, lastUpdateTime, 
-					heading, predictable, inBound, inferBusRoute);
+					heading, predictable, inBound, inferBusRoute, bus, arrow, tooltip);
 			
 			Integer idInt = new Integer(id);
 			if (busMapping.containsKey(idInt))
@@ -218,31 +230,6 @@ public class BusLocations
 		{
 			busMapping.remove(id);
 		}
-	}
-	
-	/**
-	 * Read a stream and return a byte array of its contents
-	 * @param stream
-	 * @return
-	 * @throws IOException
-	 */
-	private byte[] ReadToEnd(InputStream stream) throws IOException {
-		byte[] ret = new byte[0];
-		
-		byte[] bytesRead = new byte[4096];
-
-		int amountRead;
-		while ((amountRead = stream.read(bytesRead, 0, bytesRead.length)) > 0)
-		{
-			byte[] newRet = new byte[ret.length + amountRead];
-			
-			//concat ret + temp
-			System.arraycopy(ret, 0, newRet, 0, ret.length);
-			System.arraycopy(bytesRead, 0, newRet, ret.length, amountRead);
-			
-			ret = newRet;
-		}
-		return ret;
 	}
 
 	/**
