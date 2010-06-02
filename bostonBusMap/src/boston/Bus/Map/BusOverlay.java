@@ -31,6 +31,7 @@ import com.google.android.maps.Projection;
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.ColorFilter;
 import android.graphics.Paint;
 import android.graphics.Point;
 import android.graphics.Rect;
@@ -175,6 +176,7 @@ public class BusOverlay extends com.google.android.maps.ItemizedOverlay<com.goog
 			boolean isSelected = i == lastFocusedIndex;
 			Drawable drawable = busLocation.getDrawable(context, shadow, isSelected);
 			item.setMarker(drawable);
+			boundCenterBottom(drawable);
 			
 		}
 		

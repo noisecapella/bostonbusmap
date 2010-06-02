@@ -28,6 +28,7 @@ import android.location.LocationManager;
 import android.location.LocationProvider;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Message;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -44,7 +45,6 @@ public class OneTimeLocationListener implements LocationListener {
 	private double longitude;
 
 	private final LocationManager locationManager;
-	private final Handler handler;
 	
 	private final Context context;
 	private final UpdateHandler updateable;
@@ -52,11 +52,6 @@ public class OneTimeLocationListener implements LocationListener {
 	 * Max time to wait before cancelling locate, in millis
 	 */
 	private final int terminateAfter = 40000;
-	
-	/**
-	 * Used to terminate this operation after terminateAfter milliseconds
-	 */
-	private final Runnable terminateLocate;
 	
 	public double getLatitude()
 	{
@@ -72,33 +67,18 @@ public class OneTimeLocationListener implements LocationListener {
 	{
 		this.mapView = mapView;
 		this.locationManager = locationManager;
-		this.handler = new Handler();
 		this.context = context;
 		this.updateable = updateable;
-		
-		terminateLocate = createTerminateLocate();
+		updateable.setLocationListener(this);
 	}
 
 	public void start()
 	{
+		updateable.removeMessages(UpdateHandler.LOCATION_NOT_FOUND);
+		updateable.removeMessages(UpdateHandler.LOCATION_FOUND);
 		
-		handler.removeCallbacks(terminateLocate);
-		handler.postDelayed(terminateLocate, terminateAfter);
+		updateable.sendEmptyMessageDelayed(UpdateHandler.LOCATION_NOT_FOUND, terminateAfter);
 		Toast.makeText(context, "Finding current location...", Toast.LENGTH_SHORT).show();
-	}
-	
-	private Runnable createTerminateLocate()
-	{
-		return new Runnable() {
-			
-			@Override
-			public void run() {
-				// TODO Auto-generated method stub
-				Toast.makeText(context, "Cannot find location, try again later", Toast.LENGTH_LONG).show();
-				
-				release();
-			}
-		};
 	}
 	
 	/**
@@ -106,7 +86,8 @@ public class OneTimeLocationListener implements LocationListener {
 	 */
 	public void release()
 	{		
-		handler.removeCallbacks(terminateLocate);
+		updateable.removeMessages(UpdateHandler.LOCATION_NOT_FOUND);
+		updateable.removeMessages(UpdateHandler.LOCATION_FOUND);
 		locationManager.removeUpdates(this);
 	}
 	
@@ -120,11 +101,21 @@ public class OneTimeLocationListener implements LocationListener {
 		int latAsInt = (int)(latitude * e6);
 		int lonAsInt = (int)(longitude * e6);
 		
+		//TODO: is there some way we can communicate a radius too?
 		
+		//TODO: this happens in this method, but other stuff happens in UpdateHandler... make this more intuitive
 		mapView.getController().animateTo(new GeoPoint(latAsInt, lonAsInt));
+		
 		
 		//we only update once, so remove it now
 		release();
+		
+		Message msg = new Message();
+		msg.what = UpdateHandler.LOCATION_FOUND;
+		msg.arg1 = latAsInt;
+		msg.arg2 = lonAsInt;
+		updateable.sendMessage(msg);
+		
 		
 		updateable.triggerUpdate(1500);
 	}

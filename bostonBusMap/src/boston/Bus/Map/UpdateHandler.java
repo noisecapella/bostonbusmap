@@ -2,10 +2,12 @@ package boston.Bus.Map;
 
 import com.google.android.maps.MapView;
 
+import android.content.Context;
 import android.graphics.drawable.Drawable;
 import android.os.Handler;
 import android.os.Message;
 import android.widget.TextView;
+import android.widget.Toast;
 
 public class UpdateHandler extends Handler {
 	/**
@@ -17,6 +19,9 @@ public class UpdateHandler extends Handler {
 	 */
 	public static final int MINOR = 2;
 	
+	public static final int LOCATION_NOT_FOUND = 3;
+	public static final int LOCATION_FOUND = 4;
+
 	
 	/**
 	 * The last time we updated, in milliseconds. Used to make sure we don't update more frequently than
@@ -46,8 +51,10 @@ public class UpdateHandler extends Handler {
 	private final Drawable tooltip;
 	private boolean inferBusLocations;
 	private final BusLocations busLocations;
+	private OneTimeLocationListener oneTimeLocationListener;
+	private final Context context;
 	
-	public UpdateHandler(TextView textView, Drawable busPicture, MapView mapView, Drawable arrow, Drawable tooltip, BusLocations busLocations)
+	public UpdateHandler(TextView textView, Drawable busPicture, MapView mapView, Drawable arrow, Drawable tooltip, BusLocations busLocations, Context context)
 	{
 		this.textView = textView;
 		this.busPicture = busPicture;
@@ -55,6 +62,7 @@ public class UpdateHandler extends Handler {
 		this.arrow = arrow;
 		this.tooltip = tooltip;
 		this.busLocations = busLocations;
+		this.context = context;
 		lastUpdateTime = System.currentTimeMillis();
 	}
 	
@@ -104,6 +112,31 @@ public class UpdateHandler extends Handler {
 			
 
 			break;
+		case LOCATION_NOT_FOUND:
+			Toast.makeText(context, "Cannot find location, try again later", Toast.LENGTH_LONG).show();
+			
+			busLocations.clearCurrentLocation();
+			
+			if (oneTimeLocationListener != null)
+			{
+				oneTimeLocationListener.release();
+				oneTimeLocationListener = null;
+			}
+			else
+			{
+				//we normally do this in release()
+				removeMessages(LOCATION_NOT_FOUND);
+				removeMessages(LOCATION_FOUND);
+			}
+			
+			
+			break;
+		case LOCATION_FOUND:
+			busLocations.setCurrentLocation(msg.arg1, msg.arg2);
+			
+			removeMessages(LOCATION_NOT_FOUND);
+			
+			break;
 		}
 		
 	}
@@ -113,6 +146,8 @@ public class UpdateHandler extends Handler {
 	public void removeAllMessages() {
 		removeMessages(MAJOR);
 		removeMessages(MINOR);
+		removeMessages(LOCATION_NOT_FOUND);
+		removeMessages(LOCATION_FOUND);
 	}
 
 
@@ -224,5 +259,12 @@ public class UpdateHandler extends Handler {
 			//if the runInBackground checkbox is clicked, start the handler updating
 		    instantRefresh();
 		}
+	}
+
+
+	public void setLocationListener(
+			OneTimeLocationListener oneTimeLocationListener) {
+		this.oneTimeLocationListener = oneTimeLocationListener;
+		
 	}
 }

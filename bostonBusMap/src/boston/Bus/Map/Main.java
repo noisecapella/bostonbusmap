@@ -87,8 +87,6 @@ public class Main extends MapActivity
 	private final int watertownLongitudeAsInt = (int)(watertownLongitude * 1000000);
 	
 	
-	private Drawable busPicture;
-	private Drawable arrow;
 	
 	/**
 	 * Used to make updateBuses run every 10 seconds or so
@@ -107,7 +105,6 @@ public class Main extends MapActivity
 	 */
 	private OneTimeLocationListener locationListener;
 	
-	private Drawable tooltip; 
 	
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -119,14 +116,17 @@ public class Main extends MapActivity
         textView = (TextView)findViewById(R.id.statusView);
         
     	//store picture of bus
-        busPicture = getResources().getDrawable(R.drawable.bus_statelist);
+        Drawable locationDrawable = getResources().getDrawable(R.drawable.ic_maps_indicator_current_position);
+
+        Drawable busPicture = getResources().getDrawable(R.drawable.bus_statelist);
         
-        arrow = getResources().getDrawable(R.drawable.arrow);
-        tooltip = getResources().getDrawable(R.drawable.tooltip);
+        Drawable arrow = getResources().getDrawable(R.drawable.arrow);
+        Drawable tooltip = getResources().getDrawable(R.drawable.tooltip);
+        
         
         if (busLocations == null)
         {
-        	busLocations = new BusLocations(busPicture, arrow, tooltip);
+        	busLocations = new BusLocations(busPicture, arrow, tooltip, locationDrawable);
         }
         
         double lastUpdateTime = 0;
@@ -169,7 +169,7 @@ public class Main extends MapActivity
         	textView.setText("");
         }
         
-        handler = new UpdateHandler(textView, busPicture, mapView, arrow, tooltip, busLocations);
+        handler = new UpdateHandler(textView, busPicture, mapView, arrow, tooltip, busLocations, this);
         handler.setLastUpdateTime(lastUpdateTime);
         populateHandlerSettings();
         

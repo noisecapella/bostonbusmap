@@ -32,7 +32,9 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Hashtable;
+import java.util.Iterator;
 import java.util.List;
+import java.util.ListIterator;
 import java.util.Map;
 import java.util.Set;
 
@@ -83,12 +85,14 @@ public class BusLocations
 	private final Drawable bus;
 	private final Drawable arrow;
 	private final Drawable tooltip;
+	private final Drawable locationDrawable;
 	
-	public BusLocations(Drawable bus, Drawable arrow, Drawable tooltip)
+	public BusLocations(Drawable bus, Drawable arrow, Drawable tooltip, Drawable locationDrawable)
 	{
 		this.bus = bus;
 		this.arrow = arrow;
 		this.tooltip = tooltip;
+		this.locationDrawable = locationDrawable;
 	}
 	
 	/**
@@ -267,5 +271,33 @@ public class BusLocations
 		Collections.sort(newLocations, new BusComparator(centerLatitude, centerLongitude));
 		
 		return newLocations.subList(0, maxLocations);
+	}
+
+	private int latitudeAsDegreesE6;
+	private int longitudeAsDegreesE6;
+	private boolean showCurrentLocation;
+	
+	public void setCurrentLocation(int latitudeAsDegreesE6, int longitudeAsDegreesE6) {
+		this.latitudeAsDegreesE6 = latitudeAsDegreesE6;
+		this.longitudeAsDegreesE6 = longitudeAsDegreesE6;
+		showCurrentLocation = true;
+	}
+	
+	public void clearCurrentLocation()
+	{
+		showCurrentLocation = false;
+	}
+	
+	public CurrentLocation getCurrentLocation()
+	{
+		if (showCurrentLocation)
+		{
+			CurrentLocation location = new CurrentLocation(locationDrawable, latitudeAsDegreesE6, longitudeAsDegreesE6);
+			return location;
+		}
+		else
+		{
+			return null;
+		}
 	}
 }

@@ -197,7 +197,11 @@ public class UpdateAsyncTask extends AsyncTask<Object, String, BusLocations>
 		final ArrayList<Location> busLocations = new ArrayList<Location>();
 		
 		busLocations.addAll(busLocationsObject.getBusLocations(maxOverlays, latitude, longitude, doShowUnpredictable));
-		
+		CurrentLocation currentLocation = busLocationsObject.getCurrentLocation();
+		if (currentLocation != null)
+		{
+			busLocations.add(currentLocation);
+		}
 		
 		//if doRefresh is false, we should skip this, it prevents the icons from updating locations
 		if (busLocations.size() == 0 && doRefresh)
@@ -240,7 +244,7 @@ public class UpdateAsyncTask extends AsyncTask<Object, String, BusLocations>
         	busOverlay.addOverlay(overlay);
         }
 
-
+        
         
         uiHandler.post(new Runnable() {
 			
