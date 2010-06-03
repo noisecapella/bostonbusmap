@@ -123,10 +123,11 @@ public class Main extends MapActivity
         Drawable arrow = getResources().getDrawable(R.drawable.arrow);
         Drawable tooltip = getResources().getDrawable(R.drawable.tooltip);
         
+        Drawable busStop = getResources().getDrawable(R.drawable.busstop);
         
         if (busLocations == null)
         {
-        	busLocations = new Locations(busPicture, arrow, tooltip, locationDrawable);
+        	busLocations = new Locations(busPicture, arrow, tooltip, locationDrawable, busStop);
         }
         
         double lastUpdateTime = 0;

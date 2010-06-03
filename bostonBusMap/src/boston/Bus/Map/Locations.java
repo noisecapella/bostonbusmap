@@ -24,6 +24,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.StringReader;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
@@ -60,39 +61,65 @@ public final class Locations
 	 */
 	private Map<Integer, BusLocation> busMapping = new HashMap<Integer, BusLocation>();
 	
+	private Map<String, ArrayList<StopLocation>> stopMapping = new HashMap<String, ArrayList<StopLocation>>();
+	
 	/**
 	 * The XML feed URL
 	 */
-	private final String mbtaDataUrl = "http://webservices.nextbus.com/service/publicXMLFeed?command=vehicleLocations&a=mbta&t=";
+	private final String mbtaLocationsDataUrl = "http://webservices.nextbus.com/service/publicXMLFeed?command=vehicleLocations&a=mbta&t=";
 
+	private final String mbtaRouteConfigDataUrl = "http://webservices.nextbus.com/service/publicXMLFeed?command=routeConfig&a=mbta&r=";
+	
 	private double lastUpdateTime = 0;
-	private final HashMap<Integer, String> vehiclesToRouteNames = new HashMap<Integer, String>();
 	
-	private double lastInferBusRoutesTime = 0;
-	
-	/**
-	 * Ten minutes in milliseconds
-	 */
-	private final double tenMinutes = 10 * 60 * 1000;
-	
-	/**
-	 * This should let us know if the user checked or unchecked the Infer bus routes checkbox. If inferBusRoutes in Refresh()
-	 * is true and this is false, we should do a refresh, and if inferBusRoutes is false and this is true, we should
-	 * clear the bus information 
-	 */
-	private boolean lastInferBusRoutes;
 	
 	private final Drawable bus;
 	private final Drawable arrow;
 	private final Drawable tooltip;
 	private final Drawable locationDrawable;
+	private final Drawable busStop;
 	
-	public Locations(Drawable bus, Drawable arrow, Drawable tooltip, Drawable locationDrawable)
+	public Locations(Drawable bus, Drawable arrow, Drawable tooltip, Drawable locationDrawable, Drawable busStop)
 	{
 		this.bus = bus;
 		this.arrow = arrow;
 		this.tooltip = tooltip;
 		this.locationDrawable = locationDrawable;
+		this.busStop = busStop;
+	}
+	
+	public void InitializeStopInfo(String route, String xml) throws ParserConfigurationException, FactoryConfigurationError, SAXException, IOException 
+	{
+		DocumentBuilder builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
+		
+		
+		Document document = builder.parse(new ByteArrayInputStream(xml.getBytes()));
+		
+		//first check for errors
+		if (document.getElementsByTagName("Error").getLength() != 0)
+		{
+			throw new RuntimeException("The feed is reporting an error"); 
+			
+		}
+		
+		ArrayList<StopLocation> stopLocations = new ArrayList<StopLocation>();
+		
+		NodeList routeList = document.getElementsByTagName("stop");
+		for (int i = 0; i < routeList.getLength(); i++)
+		{
+			Element stop = (Element)routeList.item(i);
+			
+			float latitudeAsDegrees = Float.parseFloat(stop.getAttribute("lat"));
+			float longitudeAsDegrees = Float.parseFloat(stop.getAttribute("lon"));
+			int id = Integer.parseInt(stop.getAttribute("stopId"));
+			String title = stop.getAttribute("title");
+			boolean inBound = "in".equals(stop.getAttribute("dirTag"));
+			
+			StopLocation stopLocation = new StopLocation(latitudeAsDegrees, longitudeAsDegrees, busStop, tooltip, id, title, inBound);
+			stopLocations.add(stopLocation);
+		}
+		
+		stopMapping.put(route, stopLocations);
 	}
 	
 	/**
@@ -108,51 +135,9 @@ public final class Locations
 	public void Refresh(boolean inferBusRoutes) throws SAXException, IOException,
 			ParserConfigurationException, FactoryConfigurationError 
 	{
-		//if Infer bus routes is checked and either:
-		//(a) 10 minutes have passed
-		//(b) the checkbox wasn't checked before, which means we should refresh anyway
-		if (inferBusRoutes && ((System.currentTimeMillis() - lastInferBusRoutesTime > tenMinutes) || (lastInferBusRoutes == false)))
-		{
-			//if we can't read from this feed, it'll throw an exception
-			//set last time we read from site to 5 minutes ago, so it won't try to read for another 5 minutes
-			//(currently it will check inferred route info every 10 minutes)
-			lastInferBusRoutesTime = System.currentTimeMillis() - tenMinutes / 2;
-			
-			
-			vehiclesToRouteNames.clear();
-			
-			//thanks Nickolai Zeldovich! http://people.csail.mit.edu/nickolai/
-			final String vehicleToRouteNameUrl = "http://kk.csail.mit.edu/~nickolai/bus-infer/vehicle-to-routename.xml";
-			URL url = new URL(vehicleToRouteNameUrl);
-			
-			DocumentBuilder builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
-			
-			InputStream stream = url.openStream();
-			
-			//parse the data into an XML document
-			Document document = builder.parse(stream);
-			
-			NodeList nodeList = document.getElementsByTagName("vehicle");
-			
-			for (int i = 0; i < nodeList.getLength(); i++)
-			{
-				Element node = (Element)nodeList.item(i);
-				vehiclesToRouteNames.put(Integer.parseInt(node.getAttribute("id")), node.getAttribute("routeTag"));
-			}
-			
-			lastInferBusRoutesTime = System.currentTimeMillis();
-		}
-		else if (inferBusRoutes == false && lastInferBusRoutes == true)
-		{
-			//clear vehicle mapping if checkbox is false
-			vehiclesToRouteNames.clear();
-		}
-		
-		lastInferBusRoutes = inferBusRoutes;
-		
 		//read data from the URL
 		URL url;
-		String urlString = mbtaDataUrl + (long)lastUpdateTime; 
+		String urlString = mbtaLocationsDataUrl + (long)lastUpdateTime; 
 		url = new URL(urlString);
 		
 		DocumentBuilder builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
@@ -193,19 +178,8 @@ public final class Locations
 				inBound = true;
 			}
 			
-			String inferBusRoute = null;
-			if (vehiclesToRouteNames.containsKey(id))
-			{
-				String value = vehiclesToRouteNames.get(id);
-				if (value != null && value.length() != 0)
-				{
-					inferBusRoute = value;
-				}
-			}
-			
-			
 			BusLocation newBusLocation = new BusLocation(lat, lon, id, route, seconds, lastUpdateTime, 
-					heading, predictable, inBound, inferBusRoute, bus, arrow, tooltip);
+					heading, predictable, inBound, bus, arrow, tooltip);
 			
 			Integer idInt = new Integer(id);
 			if (busMapping.containsKey(idInt))

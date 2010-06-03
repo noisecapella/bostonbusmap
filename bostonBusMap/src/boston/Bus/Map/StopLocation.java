@@ -14,9 +14,13 @@ public class StopLocation implements Location
 	private final Drawable tooltip;
 	
 	private final int id;
+	
+	private final String title;
+	private final boolean inBound;
+	
 	private static final int LOCATIONTYPE = 3; 
 	
-	public StopLocation(double latitudeAsDegrees, double longitudeAsDegrees, Drawable busStop, Drawable tooltip, int id)
+	public StopLocation(double latitudeAsDegrees, double longitudeAsDegrees, Drawable busStop, Drawable tooltip, int id, String title, boolean inBound)
 	{
 		this.latitude = latitudeAsDegrees * LocationComparator.degreesToRadians;
 		this.latitudeAsDegrees = latitudeAsDegrees;
@@ -25,6 +29,8 @@ public class StopLocation implements Location
 		this.busStop = busStop;
 		this.tooltip = tooltip;
 		this.id = id;
+		this.title = title;
+		this.inBound = inBound;
 	}
 	
 	@Override
@@ -91,7 +97,9 @@ public class StopLocation implements Location
 
 	@Override
 	public String makeTitle() {
-		return "Stop: " + id;
+		String ret = "Stop: " + id;
+		ret += "\nTitle: " + title;
+		return ret;
 	}
 
 }

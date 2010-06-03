@@ -70,19 +70,6 @@ public class BusLocation implements Location
 	 */
 	private final boolean inBound;
 	
-	/**
-	 * Inferred bus route
-	 */
-	private final String inferBusRoute;
-	
-	
-	/**
-	 * Used in calculating the distance between coordinates
-	 */
-	private final double radiusOfEarthInKilo = 6371.2;
-	private final double kilometersPerMile = 1.609344;
-	
-	private double timeBetweenUpdatesInMillis;
 	
 	private final Drawable bus;
 	private final Drawable arrow;
@@ -91,7 +78,7 @@ public class BusLocation implements Location
 	private static final int LOCATIONTYPE = 1;
 	
 	public BusLocation(double latitude, double longitude, int id, String route, int seconds, double lastUpdateInMillis,
-			String heading, boolean predictable, boolean inBound, String inferBusRoute, Drawable bus, Drawable arrow, Drawable tooltip)
+			String heading, boolean predictable, boolean inBound, Drawable bus, Drawable arrow, Drawable tooltip)
 	{
 		this.latitude = latitude * LocationComparator.degreesToRadians;
 		this.longitude = longitude * LocationComparator.degreesToRadians;
@@ -104,7 +91,6 @@ public class BusLocation implements Location
 		this.heading = heading;
 		this.predictable = predictable;
 		this.inBound = inBound;
-		this.inferBusRoute = inferBusRoute;
 		this.bus = bus;
 		this.arrow = arrow;
 		this.tooltip = tooltip;
@@ -191,16 +177,7 @@ public class BusLocation implements Location
 
 	public double distanceFrom(double lat2, double lon2)
 	{
-		double lat1 = latitude;
-		double lon1 = longitude;
-		
-		
-		//great circle distance
-		double dist = Math.acos(Math.sin(lat1) * Math.sin(lat2) + Math.cos(lat1) * Math.cos(lat2) * Math.cos(lon2 - lon1));
-		dist *= radiusOfEarthInKilo;
-		dist /= kilometersPerMile;
-		
-		return dist;
+		return LocationComparator.computeDistance(latitude, longitude, lat2, lon2);
 	}
 	
 	/**
@@ -226,8 +203,6 @@ public class BusLocation implements Location
 		{
 			distanceFromLastX *= -1;
 		}
-		
-		timeBetweenUpdatesInMillis = lastUpdateInMillis - oldBusLocation.lastUpdateInMillis;
 	}
 
 	public String makeTitle() {
@@ -261,16 +236,7 @@ public class BusLocation implements Location
     			title += "Outbound";
     		}
     	}
-    	else
-    	{
-    		//TODO: how should we say this?
-    		//title += "\nUnpredictable";
-    		
-    		if ((route == null || route.equals("null")) && inferBusRoute != null)
-    		{
-    			title += "\nEstimated route number: " + inferBusRoute;
-    		}
-    	}
+
     	return title;
 	}
 
