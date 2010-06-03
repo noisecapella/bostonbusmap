@@ -132,7 +132,7 @@ public final class Locations
 	 * @throws ParserConfigurationException
 	 * @throws FactoryConfigurationError
 	 */
-	public void Refresh(boolean inferBusRoutes) throws SAXException, IOException,
+	public void Refresh() throws SAXException, IOException,
 			ParserConfigurationException, FactoryConfigurationError 
 	{
 		//read data from the URL

@@ -8,6 +8,5 @@
 <string name="showUnpredictableBusesCheckbox">showUnpredictableBusesKey</string>
 
 <string name="hideCircleCheckbox">hideCircleCheckboxKey</string>
-<string name="inferVehicleRouteCheckbox">inferVehicleRoute</string>
 <string name="numOverlaysPreference">numOverlaysPreference</string>
 </resources>

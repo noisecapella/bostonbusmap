@@ -49,7 +49,6 @@ public class UpdateHandler extends Handler {
 	private final MapView mapView;
 	private final Drawable arrow;
 	private final Drawable tooltip;
-	private boolean inferBusLocations;
 	private final Locations busLocations;
 	private OneTimeLocationListener oneTimeLocationListener;
 	private final Context context;
@@ -104,8 +103,7 @@ public class UpdateHandler extends Handler {
 			removeMessages(MINOR);
 			
 			minorUpdate = new UpdateAsyncTask(textView, busPicture, mapView, null, arrow,
-					tooltip, this, getShowUnpredictable(), false, maxOverlays, getHideHighlightCircle() == false,
-					getInferVehicleRoute());
+					tooltip, this, getShowUnpredictable(), false, maxOverlays, getHideHighlightCircle() == false);
 			
 
 			minorUpdate.runUpdate(busLocations);
@@ -171,11 +169,8 @@ public class UpdateHandler extends Handler {
 		
 		
 		updateAsyncTask = new UpdateAsyncTask(textView, busPicture, mapView, finalMessage,
-				arrow, tooltip, this, getShowUnpredictable(), true, maxOverlays, getHideHighlightCircle() == false,
-				getInferVehicleRoute());
+				arrow, tooltip, this, getShowUnpredictable(), true, maxOverlays, getHideHighlightCircle() == false);
 		updateAsyncTask.runUpdate(busLocations);
-		
-		
 	}
 
 	public boolean instantRefresh() {
@@ -234,16 +229,6 @@ public class UpdateHandler extends Handler {
 	public boolean getShowUnpredictable()
 	{
 		return showUnpredictable;
-	}
-
-	public void setInferVehicleRoute(boolean b)
-	{
-		inferBusLocations = b;
-	}
-	
-	public boolean getInferVehicleRoute()
-	{
-		return inferBusLocations;
 	}
 
 	public void triggerUpdate(int millis) {
