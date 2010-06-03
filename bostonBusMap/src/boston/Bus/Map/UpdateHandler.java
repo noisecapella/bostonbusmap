@@ -50,11 +50,11 @@ public class UpdateHandler extends Handler {
 	private final Drawable arrow;
 	private final Drawable tooltip;
 	private boolean inferBusLocations;
-	private final BusLocations busLocations;
+	private final Locations busLocations;
 	private OneTimeLocationListener oneTimeLocationListener;
 	private final Context context;
 	
-	public UpdateHandler(TextView textView, Drawable busPicture, MapView mapView, Drawable arrow, Drawable tooltip, BusLocations busLocations, Context context)
+	public UpdateHandler(TextView textView, Drawable busPicture, MapView mapView, Drawable arrow, Drawable tooltip, Locations busLocations, Context context)
 	{
 		this.textView = textView;
 		this.busPicture = busPicture;

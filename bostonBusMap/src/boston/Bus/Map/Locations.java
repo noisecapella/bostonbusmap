@@ -53,7 +53,7 @@ import org.xml.sax.SAXException;
 import android.graphics.drawable.Drawable;
 import android.location.LocationListener;
 
-public class BusLocations
+public final class Locations
 {
 	/**
 	 * A mapping of the bus number to bus location
@@ -87,7 +87,7 @@ public class BusLocations
 	private final Drawable tooltip;
 	private final Drawable locationDrawable;
 	
-	public BusLocations(Drawable bus, Drawable arrow, Drawable tooltip, Drawable locationDrawable)
+	public Locations(Drawable bus, Drawable arrow, Drawable tooltip, Drawable locationDrawable)
 	{
 		this.bus = bus;
 		this.arrow = arrow;

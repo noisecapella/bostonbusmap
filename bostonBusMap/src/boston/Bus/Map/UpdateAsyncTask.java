@@ -48,7 +48,7 @@ import android.widget.TextView;
  * Handles the heavy work of downloading and parsing the XML in a separate thread from the UI.
  *
  */
-public class UpdateAsyncTask extends AsyncTask<Object, String, BusLocations>
+public class UpdateAsyncTask extends AsyncTask<Object, String, Locations>
 {
 	private final TextView textView;
 	private final Drawable busPicture;
@@ -90,15 +90,15 @@ public class UpdateAsyncTask extends AsyncTask<Object, String, BusLocations>
 	 * A type safe wrapper around execute
 	 * @param busLocations
 	 */
-	public void runUpdate(BusLocations busLocations)
+	public void runUpdate(Locations busLocations)
 	{
 		execute(busLocations);
 	}
 
 	@Override
-	protected BusLocations doInBackground(Object... args) {
+	protected Locations doInBackground(Object... args) {
 		//number of bus pictures to draw. Too many will make things slow
-		BusLocations busLocations = (BusLocations)args[0];
+		Locations busLocations = (Locations)args[0];
 		
 		return updateBusLocations(busLocations);
 	}
@@ -113,7 +113,7 @@ public class UpdateAsyncTask extends AsyncTask<Object, String, BusLocations>
 		
 	}
 
-	public BusLocations updateBusLocations(BusLocations busLocations)
+	public Locations updateBusLocations(Locations busLocations)
 	{
 		if (doRefresh == false)
 		{
@@ -164,7 +164,7 @@ public class UpdateAsyncTask extends AsyncTask<Object, String, BusLocations>
     }
 	
 	@Override
-	protected void onPostExecute(final BusLocations busLocationsObject)
+	protected void onPostExecute(final Locations busLocationsObject)
 	{
 		if (busLocationsObject == null)
 		{
@@ -192,7 +192,7 @@ public class UpdateAsyncTask extends AsyncTask<Object, String, BusLocations>
         
 	}
 
-	private void sortBuses(BusLocations busLocationsObject, final double latitude,
+	private void sortBuses(Locations busLocationsObject, final double latitude,
 			final double longitude, Handler uiHandler) {
 		final ArrayList<Location> busLocations = new ArrayList<Location>();
 		

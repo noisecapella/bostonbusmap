@@ -5,6 +5,10 @@ import android.graphics.drawable.Drawable;
 
 public interface Location {
 
+	/**
+	 * Some unique value for the location
+	 * @return
+	 */
 	int getId();
 
 	boolean hasHeading();

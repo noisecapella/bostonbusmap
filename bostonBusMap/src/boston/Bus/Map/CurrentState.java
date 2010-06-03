@@ -10,11 +10,11 @@ import com.google.android.maps.Overlay;
 public class CurrentState {
 	private final CharSequence textViewStatus;
 	private final double lastUpdateTime;
-	private final BusLocations busLocations;
+	private final Locations busLocations;
 	private final List<Overlay> overlays;
 	
 	public CurrentState(TextView textView, MapView mapView,
-			BusLocations busLocations, double lastUpdateTime) {
+			Locations busLocations, double lastUpdateTime) {
 		if (textView == null)
 		{
 			textViewStatus = "";
@@ -40,7 +40,7 @@ public class CurrentState {
 		return lastUpdateTime;
 	}
 	
-	public BusLocations getBusLocations()
+	public Locations getBusLocations()
 	{
 		return busLocations;
 	}

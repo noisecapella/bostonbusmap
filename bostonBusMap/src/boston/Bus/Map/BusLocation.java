@@ -88,6 +88,7 @@ public class BusLocation implements Location
 	private final Drawable arrow;
 	private final Drawable tooltip;
 	
+	private static final int LOCATIONTYPE = 1;
 	
 	public BusLocation(double latitude, double longitude, int id, String route, int seconds, double lastUpdateInMillis,
 			String heading, boolean predictable, boolean inBound, String inferBusRoute, Drawable bus, Drawable arrow, Drawable tooltip)
@@ -299,9 +300,10 @@ public class BusLocation implements Location
 		return directions[index];
 	}
 
+	@Override
 	public int getId()
 	{
-		return id;
+		return id | LOCATIONTYPE << 16;
 	}
 
 	public Drawable getDrawable(Context context, boolean shadow, boolean isSelected) {

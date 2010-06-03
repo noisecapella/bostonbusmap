@@ -64,7 +64,7 @@ public class BusOverlay extends com.google.android.maps.ItemizedOverlay<com.goog
 
 	private final ArrayList<com.google.android.maps.OverlayItem> overlays = new ArrayList<com.google.android.maps.OverlayItem>();
 	private final Context context;
-	private final List<Location> busLocations;
+	private final List<Location> locations;
 	private int selectedBusIndex;
 	private final UpdateHandler updateable;
 	private final boolean drawHighlightCircle;
@@ -75,8 +75,8 @@ public class BusOverlay extends com.google.android.maps.ItemizedOverlay<com.goog
 		super(boundCenterBottom(busPicture));
 
 		this.context = context;
-		this.busLocations = new ArrayList<Location>();
-		this.busLocations.addAll(busLocations);
+		this.locations = new ArrayList<Location>();
+		this.locations.addAll(busLocations);
 		this.selectedBusIndex = -1;
 		this.drawHighlightCircle = drawHighlightCircle;
 		this.busHeight = busPicture.getIntrinsicHeight();
@@ -171,7 +171,7 @@ public class BusOverlay extends com.google.android.maps.ItemizedOverlay<com.goog
 		for (int i = 0; i < overlays.size(); i++)
 		{
 			OverlayItem item = overlays.get(i);
-			Location busLocation = busLocations.get(i);
+			Location busLocation = locations.get(i);
 
 			boolean isSelected = i == lastFocusedIndex;
 			Drawable drawable = busLocation.getDrawable(context, shadow, isSelected);
@@ -251,7 +251,7 @@ public class BusOverlay extends com.google.android.maps.ItemizedOverlay<com.goog
 		}
 		else
 		{
-			return busLocations.get(selectedBusIndex).getId();
+			return locations.get(selectedBusIndex).getId();
 		}
 		
 	}

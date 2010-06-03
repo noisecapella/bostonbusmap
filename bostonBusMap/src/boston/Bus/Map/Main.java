@@ -93,7 +93,7 @@ public class Main extends MapActivity
 	 */
 	private UpdateHandler handler;
 	
-	private BusLocations busLocations;
+	private Locations busLocations;
 
 	/**
 	 * Five minutes in milliseconds
@@ -126,7 +126,7 @@ public class Main extends MapActivity
         
         if (busLocations == null)
         {
-        	busLocations = new BusLocations(busPicture, arrow, tooltip, locationDrawable);
+        	busLocations = new Locations(busPicture, arrow, tooltip, locationDrawable);
         }
         
         double lastUpdateTime = 0;

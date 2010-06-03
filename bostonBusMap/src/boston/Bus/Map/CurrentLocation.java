@@ -10,7 +10,10 @@ public class CurrentLocation implements Location
 	private final double longitude;
 	private final double latitudeAsDegrees;
 	private final double longitudeAsDegrees;
-	public static final int ID = -1;
+	
+	public static final int LOCATIONTYPE = 2;
+	
+	public static final int ID = 0 | LOCATIONTYPE << 16;
 	
 	public CurrentLocation(Drawable drawable, int latitudeAsDegreesE6, int longitudeAsDegreesE6)
 	{
