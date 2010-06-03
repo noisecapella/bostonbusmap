@@ -6,6 +6,8 @@ import android.graphics.drawable.Drawable;
 public class CurrentLocation implements Location
 {
 	private final Drawable drawable;
+	private final double latitude;
+	private final double longitude;
 	private final double latitudeAsDegrees;
 	private final double longitudeAsDegrees;
 	public static final int ID = -1;
@@ -14,8 +16,11 @@ public class CurrentLocation implements Location
 	{
 		this.drawable = drawable;
 		final double e6 = 1000000.0;
-		this.latitudeAsDegrees = latitudeAsDegreesE6 / e6;
+		this.latitudeAsDegrees = latitudeAsDegreesE6 / e6; 
 		this.longitudeAsDegrees = longitudeAsDegreesE6 / e6;
+		this.latitude = latitudeAsDegrees * LocationComparator.degreesToRadians;
+		this.longitude = longitudeAsDegrees * LocationComparator.degreesToRadians;
+		
 	}
 
 	@Override
@@ -54,6 +59,12 @@ public class CurrentLocation implements Location
 	@Override
 	public String makeTitle() {
 		return "Current location";
+	}
+
+	@Override
+	public double distanceFrom(double centerLatitude, double centerLongitude) {
+		// TODO Auto-generated method stub
+		return LocationComparator.computeDistance(latitude, longitude, centerLatitude, centerLongitude);
 	}
 
 }

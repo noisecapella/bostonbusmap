@@ -18,4 +18,11 @@ public interface Location {
 	double getLatitudeAsDegrees();
 	
 	double getLongitudeAsDegrees();
+
+	/**
+	 * @param lat2 latitude in radians
+	 * @param lon2 longitude in radians
+	 * @return distance in miles
+	 */
+	double distanceFrom(double centerLatitude, double centerLongitude);
 }

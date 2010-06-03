@@ -82,8 +82,6 @@ public class BusLocation implements Location
 	private final double radiusOfEarthInKilo = 6371.2;
 	private final double kilometersPerMile = 1.609344;
 	
-	private final double degreesToRadians = Math.PI / 180.0;
-	
 	private double timeBetweenUpdatesInMillis;
 	
 	private final Drawable bus;
@@ -94,8 +92,8 @@ public class BusLocation implements Location
 	public BusLocation(double latitude, double longitude, int id, String route, int seconds, double lastUpdateInMillis,
 			String heading, boolean predictable, boolean inBound, String inferBusRoute, Drawable bus, Drawable arrow, Drawable tooltip)
 	{
-		this.latitude = latitude * degreesToRadians;
-		this.longitude = longitude * degreesToRadians;
+		this.latitude = latitude * LocationComparator.degreesToRadians;
+		this.longitude = longitude * LocationComparator.degreesToRadians;
 		this.latitudeAsDegrees = latitude;
 		this.longitudeAsDegrees = longitude;
 		this.id = id;
@@ -190,11 +188,6 @@ public class BusLocation implements Location
 		return degrees;
 	}
 
-	/**
-	 * @param lat2 latitude in radians
-	 * @param lon2 longitude in radians
-	 * @return distance in miles
-	 */
 	public double distanceFrom(double lat2, double lon2)
 	{
 		double lat1 = latitude;

@@ -268,7 +268,7 @@ public class BusLocations
 		
 		
 		
-		Collections.sort(newLocations, new BusComparator(centerLatitude, centerLongitude));
+		Collections.sort(newLocations, new LocationComparator(centerLatitude, centerLongitude));
 		
 		return newLocations.subList(0, maxLocations);
 	}
