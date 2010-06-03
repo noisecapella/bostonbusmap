@@ -18,7 +18,15 @@
     */
 package boston.Bus.Map;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.List;
+
+import javax.xml.parsers.FactoryConfigurationError;
+import javax.xml.parsers.ParserConfigurationException;
+
+import org.xml.sax.SAXException;
 
 import boston.Bus.Map.R;
 
@@ -128,6 +136,40 @@ public class Main extends MapActivity
         if (busLocations == null)
         {
         	busLocations = new Locations(busPicture, arrow, tooltip, locationDrawable, busStop);
+        	
+        	
+        	/*
+        	
+        	InputStream stream = getResources().openRawResource(R.xml.testxml);
+        	
+        	ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        	int r;
+        	byte b[] = new byte[4096];
+        	try
+        	{
+        		while ((r = stream.read(b, 0, b.length)) > 0)
+        		{
+        			outputStream.write(b, 0, r);
+        		}
+
+        		outputStream.reset();
+        		String xml = new String(outputStream.toByteArray());
+
+        		busLocations.InitializeStopInfo("71", xml);
+        	}
+        	catch (IOException e)
+        	{
+        		e.printStackTrace();
+        	} catch (ParserConfigurationException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (FactoryConfigurationError e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (SAXException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}*/
         }
         
         double lastUpdateTime = 0;
