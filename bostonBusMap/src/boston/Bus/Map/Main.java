@@ -137,33 +137,7 @@ public class Main extends MapActivity
         {
         	busLocations = new Locations(busPicture, arrow, tooltip, locationDrawable, busStop);
         	
-        	
-        	
-        	
-        	InputStream stream = getResources().openRawResource(R.xml.testxml);
-        	
-        	ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        	int r;
-        	byte b[] = new byte[4096];
-        	try
-        	{
-        		while ((r = stream.read(b, 0, b.length)) > 0)
-        		{
-        			outputStream.write(b, 0, r);
-        		}
-
-        		outputStream.reset();
-        		String xml = new String(outputStream.toByteArray());
-
-        		busLocations.useRoute("71");
-        	}
-        	catch (IOException e)
-        	{
-        		e.printStackTrace();
-			} catch (FactoryConfigurationError e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
+       		busLocations.useRoute("71");
         }
         
         double lastUpdateTime = 0;

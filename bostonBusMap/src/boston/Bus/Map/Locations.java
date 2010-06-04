@@ -53,6 +53,7 @@ import org.xml.sax.SAXException;
 
 import android.graphics.drawable.Drawable;
 import android.location.LocationListener;
+import android.util.Log;
 
 public final class Locations
 {
@@ -259,8 +260,7 @@ public final class Locations
 				
 				for (int j = 0; j < predictionList.getLength(); j++)
 				{
-					Element predictionElement = (Element)predictionList.item(i);
-					
+					Element predictionElement = (Element)predictionList.item(j);
 					int seconds = Integer.parseInt(predictionElement.getAttribute("seconds"));
 					
 					long epochTime = Long.parseLong(predictionElement.getAttribute("epochTime"));

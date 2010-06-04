@@ -103,6 +103,10 @@ public class StopLocation implements Location
 	@Override
 	public String makeTitle() {
 		String ret = "Stop: " + id;
+		if (inBound.isSet())
+		{
+			ret += "\n" + (inBound.getValue() ? "inbound" : "outbound");
+		}
 		ret += "\nTitle: " + title;
 		
 		if (predictions.size() != 0)

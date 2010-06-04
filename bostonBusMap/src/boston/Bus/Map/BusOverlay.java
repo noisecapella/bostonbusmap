@@ -176,7 +176,7 @@ public class BusOverlay extends com.google.android.maps.ItemizedOverlay<com.goog
 			boolean isSelected = i == lastFocusedIndex;
 			Drawable drawable = busLocation.getDrawable(context, shadow, isSelected);
 			item.setMarker(drawable);
-			if (busLocation instanceof CurrentLocation)
+			if (!(busLocation instanceof BusLocation))
 			{
 				boundCenterBottom(drawable);
 			}
@@ -211,7 +211,7 @@ public class BusOverlay extends com.google.android.maps.ItemizedOverlay<com.goog
 			{
 				OverlayItem item = overlays.get(i);
 				Location location = locations.get(i);
-				if (location instanceof BusLocation)
+				if (!(location instanceof CurrentLocation))
 				{
 					GeoPoint geoPoint = item.getPoint();
 					Point point = projection.toPixels(geoPoint, null);
