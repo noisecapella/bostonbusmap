@@ -141,6 +141,10 @@ public class UpdateAsyncTask extends AsyncTask<Object, String, Locations>
 				publishProgress("XML parsing exception; cannot update. Maybe there was a hiccup in the feed?");
 				e.printStackTrace();
 				return null;
+			} catch (NumberFormatException e) {
+				publishProgress("XML parsing exception; cannot update. Maybe there was a hiccup in the feed?");
+				e.printStackTrace();
+				return null;
 			} catch (ParserConfigurationException e) {
 				publishProgress("XML parser configuration exception; cannot update");
 				e.printStackTrace();
@@ -197,7 +201,8 @@ public class UpdateAsyncTask extends AsyncTask<Object, String, Locations>
 			final double longitude, Handler uiHandler) {
 		final ArrayList<Location> busLocations = new ArrayList<Location>();
 		
-		busLocations.addAll(busLocationsObject.getBusLocations(maxOverlays, latitude, longitude, doShowUnpredictable));
+		busLocations.addAll(busLocationsObject.getLocations(maxOverlays, latitude, longitude, doShowUnpredictable));
+
 		CurrentLocation currentLocation = busLocationsObject.getCurrentLocation();
 		if (currentLocation != null)
 		{

@@ -59,9 +59,9 @@ public final class Locations
 	/**
 	 * A mapping of the bus number to bus location
 	 */
-	private Map<Integer, BusLocation> busMapping = new HashMap<Integer, BusLocation>();
+	private HashMap<Integer, BusLocation> busMapping = new HashMap<Integer, BusLocation>();
 	
-	private Map<String, ArrayList<StopLocation>> stopMapping = new HashMap<String, ArrayList<StopLocation>>();
+	private HashMap<String, HashMap<Integer, StopLocation>> stopMapping = new HashMap<String, HashMap<Integer, StopLocation>>();
 	
 	/**
 	 * The XML feed URL
@@ -69,6 +69,11 @@ public final class Locations
 	private final String mbtaLocationsDataUrl = "http://webservices.nextbus.com/service/publicXMLFeed?command=vehicleLocations&a=mbta&t=";
 
 	private final String mbtaRouteConfigDataUrl = "http://webservices.nextbus.com/service/publicXMLFeed?command=routeConfig&a=mbta&r=";
+	
+	private final String mbtaPredictionsDataUrl = "http://webservices.nextbus.com/service/publicXMLFeed?command=predictionsForMultiStops&a=mbta";
+
+	
+	private String focusedRoute;
 	
 	private final HashMap<Integer, String> vehiclesToRouteNames = new HashMap<Integer, String>();
 
@@ -104,12 +109,12 @@ public final class Locations
 		this.busStop = busStop;
 	}
 	
-	public void InitializeStopInfo(String route, String xml) throws ParserConfigurationException, FactoryConfigurationError, SAXException, IOException 
+	private void initializeStopInfo(String route, InputStream inputStream) throws ParserConfigurationException, FactoryConfigurationError, SAXException, IOException 
 	{
 		DocumentBuilder builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
 		
 		
-		Document document = builder.parse(new ByteArrayInputStream(xml.getBytes()));
+		Document document = builder.parse(inputStream);
 		
 		//first check for errors
 		if (document.getElementsByTagName("Error").getLength() != 0)
@@ -118,21 +123,56 @@ public final class Locations
 			
 		}
 		
-		ArrayList<StopLocation> stopLocations = new ArrayList<StopLocation>();
+		HashMap<Integer, StopLocation> stopLocations = new HashMap<Integer, StopLocation>();
 		
-		NodeList routeList = document.getElementsByTagName("stop");
-		for (int i = 0; i < routeList.getLength(); i++)
+		Element routeElement = (Element)document.getElementsByTagName("route").item(0);
+		
+		
+		//TODO: there are many different stop tags
+		NodeList stopList = routeElement.getChildNodes();
+		for (int i = 0; i < stopList.getLength(); i++)
 		{
-			Element stop = (Element)routeList.item(i);
+			Node node = stopList.item(i);
+			if (node.getNodeType() != Node.ELEMENT_NODE)
+			{
+				continue;
+			}
+			
+			Element stop = (Element)node;
+			
+			if ("stop".equals(stop.getTagName()) == false)
+			{
+				continue;
+			}
 			
 			float latitudeAsDegrees = Float.parseFloat(stop.getAttribute("lat"));
 			float longitudeAsDegrees = Float.parseFloat(stop.getAttribute("lon"));
-			int id = Integer.parseInt(stop.getAttribute("stopId"));
-			String title = stop.getAttribute("title");
-			boolean inBound = "in".equals(stop.getAttribute("dirTag"));
+			int id = 0;
+			try
+			{
+				id = Integer.parseInt(stop.getAttribute("stopId"));
 			
+			}
+			catch (Exception e)
+			{
+				e.printStackTrace();
+			}
+			String title = stop.getAttribute("title");
+			TriState inBound = new TriState();
+			
+			String dirTag = stop.getAttribute("dirTag");
+			if ("in".equals(dirTag))
+			{
+				inBound.set(true);
+			}
+			else if ("out".equals(dirTag))
+			{
+				inBound.set(false);
+			}
+			
+
 			StopLocation stopLocation = new StopLocation(latitudeAsDegrees, longitudeAsDegrees, busStop, tooltip, id, title, inBound);
-			stopLocations.add(stopLocation);
+			stopLocations.put(id, stopLocation);
 		}
 		
 		stopMapping.put(route, stopLocations);
@@ -151,6 +191,180 @@ public final class Locations
 	public void Refresh(boolean inferBusRoutes) throws SAXException, IOException,
 			ParserConfigurationException, FactoryConfigurationError 
 	{
+		updateInferRoutes(inferBusRoutes);
+		
+		//read data from the URL
+		URL url;
+		if (focusedRoute == null)
+		{
+			final String urlString = mbtaLocationsDataUrl + (long)lastUpdateTime;
+			url = new URL(urlString);
+		}
+		else
+		{
+			if (stopMapping.containsKey(focusedRoute))
+			{
+				//ok, do predictions now
+				StringBuffer urlString = new StringBuffer(mbtaPredictionsDataUrl);// + "&stops=39|null|6570&stops=39|null|6571";
+				
+				for (StopLocation location : stopMapping.get(focusedRoute).values())
+				{
+					urlString.append("&stops=").append(focusedRoute).append("|null|").append(location.getStopNumber());
+				}
+				url = new URL(urlString.toString());
+			}
+			else
+			{
+				//populate stops
+				final String urlString = mbtaRouteConfigDataUrl + focusedRoute;
+				url = new URL(urlString);
+				
+				//just initialize the route and then end for this round
+				InputStream stream = url.openStream();
+				initializeStopInfo(focusedRoute, stream);
+				return;
+			}
+		}
+		
+		DocumentBuilder builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
+			
+		InputStream stream = url.openStream();
+		
+		//parse the data into an XML document
+		Document document = builder.parse(stream);
+		
+		//first check for errors
+		if (document.getElementsByTagName("Error").getLength() != 0)
+		{
+			throw new RuntimeException("The feed is reporting an error"); 
+			
+		}
+		
+		if (focusedRoute != null)
+		{
+			HashMap<Integer, StopLocation> stopLocations = stopMapping.get(focusedRoute);
+			
+			NodeList predictionsList = document.getElementsByTagName("predictions");
+			
+			for (int i = 0; i < predictionsList.getLength(); i++)
+			{
+				Element predictionsElement = (Element)predictionsList.item(i);
+				
+				int stopId = Integer.parseInt(predictionsElement.getAttribute("stopTag"));
+				StopLocation location = stopLocations.get(stopId);
+				
+				location.clearPredictions();
+				
+				NodeList predictionList = predictionsElement.getElementsByTagName("prediction");
+				
+				for (int j = 0; j < predictionList.getLength(); j++)
+				{
+					Element predictionElement = (Element)predictionList.item(i);
+					
+					int seconds = Integer.parseInt(predictionElement.getAttribute("seconds"));
+					
+					long epochTime = Long.parseLong(predictionElement.getAttribute("epochTime"));
+					
+					int vehicleId = Integer.parseInt(predictionElement.getAttribute("vehicle"));
+					
+					TriState inBound = new TriState();
+					
+					String dirTag = predictionElement.getAttribute("dirTag");
+					if (dirTag.equals("in"))
+					{
+						inBound.set(true);
+					}
+					else if (dirTag.equals("out"))
+					{
+						inBound.set(false);
+					}
+					
+					location.addPrediction(seconds, epochTime, vehicleId, inBound);
+				}
+				
+			}
+		}
+		else
+		{
+			//get the time that this information is valid until
+			Element lastTimeElement = (Element)document.getElementsByTagName("lastTime").item(0);
+			lastUpdateTime = Double.parseDouble(lastTimeElement.getAttribute("time"));
+
+			//iterate through each vehicle mentioned
+			NodeList nodeList = document.getElementsByTagName("vehicle");
+
+			for (int i = 0; i < nodeList.getLength(); i++)
+			{
+				Element element = (Element)nodeList.item(i);
+
+				double lat = Double.parseDouble(element.getAttribute("lat"));
+				double lon = Double.parseDouble(element.getAttribute("lon"));
+				int id = Integer.parseInt(element.getAttribute("id"));
+				String route = element.getAttribute("routeTag");
+				int seconds = Integer.parseInt(element.getAttribute("secsSinceReport"));
+				String heading = element.getAttribute("heading");
+				boolean predictable = Boolean.parseBoolean(element.getAttribute("predictable")); 
+				TriState inBound = new TriState();
+				String dirTag = element.getAttribute("dirTag");
+
+				if (dirTag.equals("in"))
+				{
+					inBound.set(true);
+				}
+				else if (dirTag.equals("out"))
+				{
+					inBound.set(false);
+				}
+				//else it will remain unset
+
+				String inferBusRoute = null;
+				if (vehiclesToRouteNames.containsKey(id))
+				{
+					String value = vehiclesToRouteNames.get(id);
+					if (value != null && value.length() != 0)
+					{
+						inferBusRoute = value;
+					}
+				}
+
+
+
+				BusLocation newBusLocation = new BusLocation(lat, lon, id, route, seconds, lastUpdateTime, 
+						heading, predictable, inBound, inferBusRoute, bus, arrow, tooltip);
+
+				Integer idInt = new Integer(id);
+				if (busMapping.containsKey(idInt))
+				{
+					//calculate the direction of the bus from the current and previous locations
+					newBusLocation.movedFrom(busMapping.get(idInt));
+				}
+
+				busMapping.put(idInt, newBusLocation);
+			}
+
+
+			//delete old buses
+			List<Integer> busesToBeDeleted = new ArrayList<Integer>();
+			for (Integer id : busMapping.keySet())
+			{
+				BusLocation busLocation = busMapping.get(id);
+				if (busLocation.lastUpdateInMillis + 180000 < System.currentTimeMillis())
+				{
+					//put this old dog to sleep
+					busesToBeDeleted.add(id);
+				}
+			}
+
+			for (Integer id : busesToBeDeleted)
+			{
+				busMapping.remove(id);
+			}
+		}
+	}
+
+	private void updateInferRoutes(boolean inferBusRoutes)
+			throws MalformedURLException, ParserConfigurationException,
+			FactoryConfigurationError, IOException, SAXException {
 		//if Infer bus routes is checked and either:
 		//(a) 10 minutes have passed
 		//(b) the checkbox wasn't checked before, which means we should refresh anyway
@@ -192,99 +406,8 @@ public final class Locations
 		}
 		
 		lastInferBusRoutes = inferBusRoutes;
-		//read data from the URL
-		URL url;
-		String urlString = mbtaLocationsDataUrl + (long)lastUpdateTime; 
-		url = new URL(urlString);
-		
-		DocumentBuilder builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
-			
-		InputStream stream = url.openStream();
-		
-		//parse the data into an XML document
-		Document document = builder.parse(stream);
-		
-		//first check for errors
-		if (document.getElementsByTagName("Error").getLength() != 0)
-		{
-			throw new RuntimeException("The feed is reporting an error"); 
-			
-		}
-		
-		//get the time that this information is valid until
-		Element lastTimeElement = (Element)document.getElementsByTagName("lastTime").item(0);
-		lastUpdateTime = Double.parseDouble(lastTimeElement.getAttribute("time"));
-
-		//iterate through each vehicle mentioned
-		NodeList nodeList = document.getElementsByTagName("vehicle");
-		
-		for (int i = 0; i < nodeList.getLength(); i++)
-		{
-			Element element = (Element)nodeList.item(i);
-			
-			double lat = Double.parseDouble(element.getAttribute("lat"));
-			double lon = Double.parseDouble(element.getAttribute("lon"));
-			int id = Integer.parseInt(element.getAttribute("id"));
-			String route = element.getAttribute("routeTag");
-			int seconds = Integer.parseInt(element.getAttribute("secsSinceReport"));
-			String heading = element.getAttribute("heading");
-			boolean predictable = Boolean.parseBoolean(element.getAttribute("predictable")); 
-			TriState inBound = new TriState();
-			String dirTag = element.getAttribute("dirTag");
-			
-			if (dirTag.equals("in"))
-			{
-				inBound.set(true);
-			}
-			else if (dirTag.equals("out"))
-			{
-				inBound.set(false);
-			}
-			//else it will remain unset
-			
-			String inferBusRoute = null;
-			if (vehiclesToRouteNames.containsKey(id))
-			{
-				String value = vehiclesToRouteNames.get(id);
-				if (value != null && value.length() != 0)
-				{
-					inferBusRoute = value;
-				}
-			}
-			
-
-			
-			BusLocation newBusLocation = new BusLocation(lat, lon, id, route, seconds, lastUpdateTime, 
-					heading, predictable, inBound, inferBusRoute, bus, arrow, tooltip);
-			
-			Integer idInt = new Integer(id);
-			if (busMapping.containsKey(idInt))
-			{
-				//calculate the direction of the bus from the current and previous locations
-				newBusLocation.movedFrom(busMapping.get(idInt));
-			}
-
-			busMapping.put(idInt, newBusLocation);
-		}
-			
-
-		//delete old buses
-		List<Integer> busesToBeDeleted = new ArrayList<Integer>();
-		for (Integer id : busMapping.keySet())
-		{
-			BusLocation busLocation = busMapping.get(id);
-			if (busLocation.lastUpdateInMillis + 180000 < System.currentTimeMillis())
-			{
-				//put this old dog to sleep
-				busesToBeDeleted.add(id);
-			}
-		}
-		
-		for (Integer id : busesToBeDeleted)
-		{
-			busMapping.remove(id);
-		}
 	}
+
 
 	/**
 	 * Return the 20 (or whatever maxLocations is) closest buses to the center
@@ -292,23 +415,31 @@ public final class Locations
 	 * @param maxLocations
 	 * @return
 	 */
-	public List<BusLocation> getBusLocations(int maxLocations, double centerLatitude, double centerLongitude, boolean doShowUnpredictable) {
+	public List<Location> getLocations(int maxLocations, double centerLatitude, double centerLongitude, boolean doShowUnpredictable) {
 
-		ArrayList<BusLocation> newLocations = new ArrayList<BusLocation>();
-		
-		if (doShowUnpredictable == false)
+		ArrayList<Location> newLocations = new ArrayList<Location>();
+
+		if (focusedRoute == null)
 		{
-			for (BusLocation busLocation : busMapping.values())
+
+			if (doShowUnpredictable == false)
 			{
-				if (busLocation.predictable == true)
+				for (BusLocation busLocation : busMapping.values())
 				{
-					newLocations.add(busLocation);
+					if (busLocation.predictable == true)
+					{
+						newLocations.add(busLocation);
+					}
 				}
+			}
+			else
+			{
+				newLocations.addAll(busMapping.values());
 			}
 		}
 		else
 		{
-			newLocations.addAll(busMapping.values());
+			newLocations.addAll(stopMapping.get(focusedRoute).values());
 		}
 		
 		if (maxLocations > newLocations.size())
@@ -349,5 +480,19 @@ public final class Locations
 		{
 			return null;
 		}
+	}
+
+	public void useRoute(String focusedRoute) {
+		this.focusedRoute = focusedRoute;
+		
+	}
+	
+	public void useBusLocations()
+	{
+		focusedRoute = null;
+	}
+
+	public boolean isUsingBusLocations() {
+		return focusedRoute == null;
 	}
 }

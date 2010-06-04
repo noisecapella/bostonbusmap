@@ -138,7 +138,7 @@ public class Main extends MapActivity
         	busLocations = new Locations(busPicture, arrow, tooltip, locationDrawable, busStop);
         	
         	
-        	/*
+        	
         	
         	InputStream stream = getResources().openRawResource(R.xml.testxml);
         	
@@ -155,21 +155,15 @@ public class Main extends MapActivity
         		outputStream.reset();
         		String xml = new String(outputStream.toByteArray());
 
-        		busLocations.InitializeStopInfo("71", xml);
+        		busLocations.useRoute("71");
         	}
         	catch (IOException e)
         	{
         		e.printStackTrace();
-        	} catch (ParserConfigurationException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
 			} catch (FactoryConfigurationError e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
-			} catch (SAXException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}*/
+			}
         }
         
         double lastUpdateTime = 0;
