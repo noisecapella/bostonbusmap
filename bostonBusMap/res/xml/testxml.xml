@@ -1,0 +1,61 @@
+<body copyright="All data copyright MBTA 2010.">
+
+<route tag="71" title="71" color="996600" oppositeColor="ffffff" latMin="42.3654499" latMax="42.3778199" lonMin="-71.18561" lonMax="-71.11881">
+<stop tag="2046" title="Mt Auburn St @ Main St" dirTag="71_71_0009v0_0" lat="42.3654499" lon="-71.18398" stopId="02046"/>
+<stop tag="2044" title="Mt Auburn St @ Summer St" dirTag="71_71_0009v0_0" lat="42.3665199" lon="-71.18145" stopId="02044"/>
+<stop tag="2043" title="Mt Auburn St @ Marshall St" dirTag="71_71_0009v0_0" lat="42.3678999" lon="-71.17898" stopId="02043"/>
+<stop tag="2042" title="Mt Auburn St @ Russell Ave" dirTag="71_71_0009v0_0" lat="42.3684899" lon="-71.17614" stopId="02042"/>
+<stop tag="2047" title="Mt Auburn St @ Bates Rd E" dirTag="71_71_0009v0_0" lat="42.3688499" lon="-71.17443" stopId="02047"/>
+<stop tag="2041" title="Mt Auburn St @ Bailey Rd" dirTag="71_71_0009v0_0" lat="42.3695699" lon="-71.17279" stopId="02041"/>
+<stop tag="2040" title="Mt Auburn St @ Amherst Rd" dirTag="71_71_0009v0_0" lat="42.3700699" lon="-71.17086" stopId="02040"/>
+<stop tag="2039" title="Mt Auburn St @ Oakley Rd" dirTag="71_71_0009v0_0" lat="42.3700699" lon="-71.16892" stopId="02039"/>
+<stop tag="2038" title="Mt Auburn St @ Adams Ave" dirTag="71_71_0009v0_0" lat="42.3700499" lon="-71.16663" stopId="02038"/>
+<stop tag="2037" title="Mt Auburn St @ Winsor Ave" dirTag="71_71_0009v0_0" lat="42.3708899" lon="-71.16351" stopId="02037"/>
+<stop tag="2036" title="Mt Auburn St @ Upland Rd" dirTag="71_71_0009v0_0" lat="42.3703299" lon="-71.1605" stopId="02036"/>
+<stop tag="2035" title="Mt Auburn St @ Lloyd Rd" dirTag="71_71_0009v0_0" lat="42.3706499" lon="-71.15895" stopId="02035"/>
+<stop tag="2034" title="Mt Auburn St @ Kimball Rd" dirTag="71_71_0009v0_0" lat="42.3716099" lon="-71.15753" stopId="02034"/>
+<stop tag="2033" title="Mt Auburn St @ Keenan St" dirTag="71_71_0009v0_0" lat="42.3728099" lon="-71.15509" stopId="02033"/>
+<stop tag="2032" title="Mt Auburn St @ Saint Marys St" dirTag="71_71_0009v0_0" lat="42.3738599" lon="-71.15239" stopId="02032"/>
+<stop tag="2031" title="818 Mt Auburn St" dirTag="71_71_0009v0_0" lat="42.3743699" lon="-71.15079" stopId="02031"/>
+<stop tag="2030" title="Mt Auburn St @ Homer Ave" dirTag="71_71_0009v0_0" lat="42.3750699" lon="-71.14824" stopId="02030"/>
+<stop tag="2029" title="Mt Auburn St @ Aberdeen Ave" dirTag="71_71_0009v0_0" lat="42.3754299" lon="-71.14528" stopId="02029"/>
+<stop tag="2028" title="Mt Auburn St @ Brattle St" dirTag="71_71_0009v0_0" lat="42.3754199" lon="-71.1427" stopId="02028"/>
+<stop tag="2027" title="Mt Auburn St @ Lowell Pk" dirTag="71_71_0009v0_0" lat="42.3750799" lon="-71.14015" stopId="02027"/>
+<stop tag="2026" title="Mt Auburn St @ Traill St" dirTag="71_71_0009v0_0" lat="42.3751399" lon="-71.13666" stopId="02026"/>
+<stop tag="2025" title="Mt Auburn St @ Longfellow Rd" dirTag="71_71_0009v0_0" lat="42.3749799" lon="-71.13404" stopId="02025"/>
+<stop tag="2023" title="Mt Auburn St @ Sparks St" dirTag="71_71_0009v0_0" lat="42.3748199" lon="-71.13047" stopId="02023"/>
+<stop tag="2022" title="Mt Auburn St @ Willard St" dirTag="71_71_0009v0_0" lat="42.3746699" lon="-71.12833" stopId="02022"/>
+<stop tag="2021" title="Mt Auburn St @ Ash St" dirTag="71_71_0009v0_0" lat="42.3744699" lon="-71.12561" stopId="02021"/>
+<stop tag="2020" title="Mt Auburn St @ Story St" dirTag="71_71_0009v0_0" lat="42.3735899" lon="-71.1231" stopId="02020"/>
+<stop tag="2076" title="Harvard Lower Busway @ Red Line" dirTag="71_7120022v0_1" lat="42.3743899" lon="-71.11881" stopId="02076"/>
+<stop tag="2076" title="Harvard Lower Busway @ Red Line" dirTag="71_71_0009v0_0" lat="42.3743899" lon="-71.11881" stopId="02076"/>
+<stop tag="12614" title="Waterhouse St @ Massachusetts Ave" dirTag="71_71_0009v0_0" lat="42.3778199" lon="-71.12037" stopId="12614"/>
+<stop tag="20761" title="Harvard Upper Busway @ Red Line" dirTag="71_7120022v0_1" lat="42.3742799" lon="-71.11888" stopId="20761"/>
+<stop tag="2074" title="114 Mt Auburn St" dirTag="71_7120022v0_1" lat="42.3731499" lon="-71.12229" stopId="02074"/>
+<stop tag="2073" title="Mt Auburn St @ Brewer St" dirTag="71_7120022v0_1" lat="42.3739499" lon="-71.12476" stopId="02073"/>
+<stop tag="2072" title="Mt Auburn St opp Willard St" dirTag="71_7120022v0_1" lat="42.3744999" lon="-71.12814" stopId="02072"/>
+<stop tag="2071" title="Mt Auburn St opp Sparks St" dirTag="71_7120022v0_1" lat="42.3746399" lon="-71.13037" stopId="02071"/>
+<stop tag="2070" title="Mt Auburn St @ Mt Auburn Hospital" dirTag="71_7120022v0_1" lat="42.3748599" lon="-71.13369" stopId="02070"/>
+<stop tag="2068" title="Mt Auburn St opp Traill St" dirTag="71_7120022v0_1" lat="42.3750299" lon="-71.1368" stopId="02068"/>
+<stop tag="2067" title="Mt Auburn St @ Coolidge Ave" dirTag="71_7120022v0_1" lat="42.3749299" lon="-71.13993" stopId="02067"/>
+<stop tag="2066" title="Mt Auburn St opp Brattle St" dirTag="71_7120022v0_1" lat="42.3753099" lon="-71.14331" stopId="02066"/>
+<stop tag="2065" title="Mt Auburn St @ Aberdeen Ave" dirTag="71_7120022v0_1" lat="42.3752499" lon="-71.14526" stopId="02065"/>
+<stop tag="2064" title="Mt Auburn St opp Homer Ave" dirTag="71_7120022v0_1" lat="42.3749399" lon="-71.14775" stopId="02064"/>
+<stop tag="2062" title="Mt Auburn St @ Ralph Piteri Terr" dirTag="71_7120022v0_1" lat="42.3737999" lon="-71.15225" stopId="02062"/>
+<stop tag="2061" title="Mt Auburn St opp Keenan St" dirTag="71_7120022v0_1" lat="42.3727199" lon="-71.15493" stopId="02061"/>
+<stop tag="2060" title="Mt Auburn St @ Bigelow Ave" dirTag="71_7120022v0_1" lat="42.3710699" lon="-71.15805" stopId="02060"/>
+<stop tag="2058" title="Mt Auburn St @ Adams St" dirTag="71_7120022v0_1" lat="42.3704399" lon="-71.16156" stopId="02058"/>
+<stop tag="2057" title="Mt Auburn St @ School St" dirTag="71_7120022v0_1" lat="42.3706399" lon="-71.16477" stopId="02057"/>
+<stop tag="2056" title="Mt Auburn St @ Chauncy St" dirTag="71_7120022v0_1" lat="42.3699499" lon="-71.16702" stopId="02056"/>
+<stop tag="2055" title="Mt Auburn St opp Oakley Rd" dirTag="71_7120022v0_1" lat="42.3699399" lon="-71.16861" stopId="02055"/>
+<stop tag="2054" title="Mt Auburn St @ Boylston St" dirTag="71_7120022v0_1" lat="42.3699999" lon="-71.17081" stopId="02054"/>
+<stop tag="2053" title="Mt Auburn St @ Lincoln St" dirTag="71_7120022v0_1" lat="42.3694799" lon="-71.17277" stopId="02053"/>
+<stop tag="2052" title="Mt Auburn St @ Walnut St" dirTag="71_7120022v0_1" lat="42.3690599" lon="-71.1737" stopId="02052"/>
+<stop tag="2051" title="Mt Auburn St  @ Franklin St" dirTag="71_7120022v0_1" lat="42.3683999" lon="-71.17605" stopId="02051"/>
+<stop tag="2050" title="Mt Auburn St @ Parker St" dirTag="71_7120022v0_1" lat="42.3679599" lon="-71.17874" stopId="02050"/>
+<stop tag="2049" title="Mt Auburn St @ Patten St" dirTag="71_7120022v0_1" lat="42.3665799" lon="-71.18121" stopId="02049"/>
+<stop tag="2048" title="Mt Auburn St @ Main St" dirTag="71_7120022v0_1" lat="42.3657399" lon="-71.18343" stopId="02048"/>
+<stop tag="8178" title="Watertown Sq Terminal" dirTag="71_7120022v0_1" lat="42.3655099" lon="-71.18561" stopId="08178"/>
+<stop tag="8178" title="Watertown Sq Terminal" dirTag="71_71_0009v0_0" lat="42.3655099" lon="-71.18561" stopId="08178"/>
+</route>
+</body>

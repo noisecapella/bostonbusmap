@@ -70,7 +70,23 @@ public final class Locations
 
 	private final String mbtaRouteConfigDataUrl = "http://webservices.nextbus.com/service/publicXMLFeed?command=routeConfig&a=mbta&r=";
 	
+	private final HashMap<Integer, String> vehiclesToRouteNames = new HashMap<Integer, String>();
+
+	private double lastInferBusRoutesTime = 0;
+	
 	private double lastUpdateTime = 0;
+	
+	/**
+	 * This should let us know if the user checked or unchecked the Infer bus routes checkbox. If inferBusRoutes in Refresh()
+	 * is true and this is false, we should do a refresh, and if inferBusRoutes is false and this is true, we should
+	 * clear the bus information 
+	 */
+	private boolean lastInferBusRoutes;
+
+	/**
+	 * in millis
+	 */
+	private final double tenMinutes = 10 * 60 * 1000;
 	
 	
 	private final Drawable bus;
@@ -132,9 +148,50 @@ public final class Locations
 	 * @throws ParserConfigurationException
 	 * @throws FactoryConfigurationError
 	 */
-	public void Refresh() throws SAXException, IOException,
+	public void Refresh(boolean inferBusRoutes) throws SAXException, IOException,
 			ParserConfigurationException, FactoryConfigurationError 
 	{
+		//if Infer bus routes is checked and either:
+		//(a) 10 minutes have passed
+		//(b) the checkbox wasn't checked before, which means we should refresh anyway
+		if (inferBusRoutes && ((System.currentTimeMillis() - lastInferBusRoutesTime > tenMinutes) || (lastInferBusRoutes == false)))
+		{
+			//if we can't read from this feed, it'll throw an exception
+			//set last time we read from site to 5 minutes ago, so it won't try to read for another 5 minutes
+			//(currently it will check inferred route info every 10 minutes)
+			lastInferBusRoutesTime = System.currentTimeMillis() - tenMinutes / 2;
+			
+			
+			vehiclesToRouteNames.clear();
+			
+			//thanks Nickolai Zeldovich! http://people.csail.mit.edu/nickolai/
+			final String vehicleToRouteNameUrl = "http://kk.csail.mit.edu/~nickolai/bus-infer/vehicle-to-routename.xml";
+			URL url = new URL(vehicleToRouteNameUrl);
+			
+			DocumentBuilder builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
+			
+			InputStream stream = url.openStream();
+			
+			//parse the data into an XML document
+			Document document = builder.parse(stream);
+			
+			NodeList nodeList = document.getElementsByTagName("vehicle");
+			
+			for (int i = 0; i < nodeList.getLength(); i++)
+			{
+				Element node = (Element)nodeList.item(i);
+				vehiclesToRouteNames.put(Integer.parseInt(node.getAttribute("id")), node.getAttribute("routeTag"));
+			}
+			
+			lastInferBusRoutesTime = System.currentTimeMillis();
+		}
+		else if (inferBusRoutes == false && lastInferBusRoutes == true)
+		{
+			//clear vehicle mapping if checkbox is false
+			vehiclesToRouteNames.clear();
+		}
+		
+		lastInferBusRoutes = inferBusRoutes;
 		//read data from the URL
 		URL url;
 		String urlString = mbtaLocationsDataUrl + (long)lastUpdateTime; 
@@ -172,14 +229,33 @@ public final class Locations
 			int seconds = Integer.parseInt(element.getAttribute("secsSinceReport"));
 			String heading = element.getAttribute("heading");
 			boolean predictable = Boolean.parseBoolean(element.getAttribute("predictable")); 
-			boolean inBound = false;
-			if (element.getAttribute("dirTag").equals("in"))
+			TriState inBound = new TriState();
+			String dirTag = element.getAttribute("dirTag");
+			
+			if (dirTag.equals("in"))
 			{
-				inBound = true;
+				inBound.set(true);
+			}
+			else if (dirTag.equals("out"))
+			{
+				inBound.set(false);
+			}
+			//else it will remain unset
+			
+			String inferBusRoute = null;
+			if (vehiclesToRouteNames.containsKey(id))
+			{
+				String value = vehiclesToRouteNames.get(id);
+				if (value != null && value.length() != 0)
+				{
+					inferBusRoute = value;
+				}
 			}
 			
+
+			
 			BusLocation newBusLocation = new BusLocation(lat, lon, id, route, seconds, lastUpdateTime, 
-					heading, predictable, inBound, bus, arrow, tooltip);
+					heading, predictable, inBound, inferBusRoute, bus, arrow, tooltip);
 			
 			Integer idInt = new Integer(id);
 			if (busMapping.containsKey(idInt))

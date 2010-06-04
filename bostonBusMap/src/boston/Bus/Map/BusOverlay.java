@@ -210,17 +210,21 @@ public class BusOverlay extends com.google.android.maps.ItemizedOverlay<com.goog
 			for (int i = 1; i < overlays.size(); i++)
 			{
 				OverlayItem item = overlays.get(i);
-				GeoPoint geoPoint = item.getPoint();
-				Point point = projection.toPixels(geoPoint, null);
-
-				int dx = circleCenter.x - point.x;
-				int dy = circleCenter.y - point.y;
-				int distance = dx*dx + dy*dy;
-				if (distance > lastDistance)
+				Location location = locations.get(i);
+				if (location instanceof BusLocation)
 				{
-					lastDistance = distance;  
-					last = item;
-					circleRadius = point;
+					GeoPoint geoPoint = item.getPoint();
+					Point point = projection.toPixels(geoPoint, null);
+
+					int dx = circleCenter.x - point.x;
+					int dy = circleCenter.y - point.y;
+					int distance = dx*dx + dy*dy;
+					if (distance > lastDistance)
+					{
+						lastDistance = distance;  
+						last = item;
+						circleRadius = point;
+					}
 				}
 			}
 		

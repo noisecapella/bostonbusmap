@@ -64,9 +64,11 @@ public class UpdateAsyncTask extends AsyncTask<Object, String, Locations>
 	
 	private boolean silenceUpdates;
 	
+	private final boolean inferBusRoutes;
+	
 	public UpdateAsyncTask(TextView textView, Drawable busPicture, MapView mapView, String finalMessage,
 			Drawable arrow, Drawable tooltip, UpdateHandler updateable, boolean doShowUnpredictable, boolean doRefresh, int maxOverlays,
-			boolean drawCircle)
+			boolean drawCircle, boolean inferBusRoutes)
 	{
 		super();
 		
@@ -82,6 +84,7 @@ public class UpdateAsyncTask extends AsyncTask<Object, String, Locations>
 		this.doRefresh = doRefresh;
 		this.maxOverlays = maxOverlays;
 		this.drawCircle = drawCircle;
+		this.inferBusRoutes = inferBusRoutes;
 	}
 	
 	/**
@@ -125,7 +128,7 @@ public class UpdateAsyncTask extends AsyncTask<Object, String, Locations>
 		{
 			try
 			{
-				busLocations.Refresh();
+				busLocations.Refresh(inferBusRoutes);
 			}
 			catch (IOException e)
 			{

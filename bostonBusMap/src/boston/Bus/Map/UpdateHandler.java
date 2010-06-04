@@ -49,6 +49,7 @@ public class UpdateHandler extends Handler {
 	private final MapView mapView;
 	private final Drawable arrow;
 	private final Drawable tooltip;
+	private boolean inferBusRoutes;
 	private final Locations busLocations;
 	private OneTimeLocationListener oneTimeLocationListener;
 	private final Context context;
@@ -103,7 +104,7 @@ public class UpdateHandler extends Handler {
 			removeMessages(MINOR);
 			
 			minorUpdate = new UpdateAsyncTask(textView, busPicture, mapView, null, arrow,
-					tooltip, this, getShowUnpredictable(), false, maxOverlays, getHideHighlightCircle() == false);
+					tooltip, this, getShowUnpredictable(), false, maxOverlays, getHideHighlightCircle() == false, getInferBusRoutes());
 			
 
 			minorUpdate.runUpdate(busLocations);
@@ -169,7 +170,7 @@ public class UpdateHandler extends Handler {
 		
 		
 		updateAsyncTask = new UpdateAsyncTask(textView, busPicture, mapView, finalMessage,
-				arrow, tooltip, this, getShowUnpredictable(), true, maxOverlays, getHideHighlightCircle() == false);
+				arrow, tooltip, this, getShowUnpredictable(), true, maxOverlays, getHideHighlightCircle() == false, getInferBusRoutes());
 		updateAsyncTask.runUpdate(busLocations);
 	}
 
@@ -230,7 +231,17 @@ public class UpdateHandler extends Handler {
 	{
 		return showUnpredictable;
 	}
+	
+	public void setInferBusRoutes(boolean b)
+	{
+		inferBusRoutes = b;
+	}
 
+	public boolean getInferBusRoutes()
+	{
+		return inferBusRoutes;
+	}
+	
 	public void triggerUpdate(int millis) {
 		sendEmptyMessageDelayed(MINOR, millis);
 		

@@ -387,6 +387,7 @@ public class Main extends MapActivity
     	handler.setUpdateConstantly(prefs.getBoolean(getString(R.string.runInBackgroundCheckbox), false));
     	handler.setShowUnpredictable(prefs.getBoolean(getString(R.string.showUnpredictableBusesCheckbox), false));
     	handler.setHideHighlightCircle(prefs.getBoolean(getString(R.string.hideCircleCheckbox), false));
+    	handler.setInferBusRoutes(prefs.getBoolean(getString(R.string.inferVehicleRouteCheckbox), false));
 	}
 
 	@Override

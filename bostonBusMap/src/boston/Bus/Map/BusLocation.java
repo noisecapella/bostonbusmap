@@ -68,7 +68,12 @@ public class BusLocation implements Location
 	 * Is the bus inbound, or outbound?
 	 * This only makes sense if predictable is true
 	 */
-	private final boolean inBound;
+	private final TriState inBound;
+	
+	/**
+	 * Inferred bus route
+	 */
+	private final String inferBusRoute;
 	
 	
 	private final Drawable bus;
@@ -78,7 +83,7 @@ public class BusLocation implements Location
 	private static final int LOCATIONTYPE = 1;
 	
 	public BusLocation(double latitude, double longitude, int id, String route, int seconds, double lastUpdateInMillis,
-			String heading, boolean predictable, boolean inBound, Drawable bus, Drawable arrow, Drawable tooltip)
+			String heading, boolean predictable, TriState inBound, String inferBusRoute, Drawable bus, Drawable arrow, Drawable tooltip)
 	{
 		this.latitude = latitude * LocationComparator.degreesToRadians;
 		this.longitude = longitude * LocationComparator.degreesToRadians;
@@ -91,6 +96,7 @@ public class BusLocation implements Location
 		this.heading = heading;
 		this.predictable = predictable;
 		this.inBound = inBound;
+		this.inferBusRoute = inferBusRoute;
 		this.bus = bus;
 		this.arrow = arrow;
 		this.tooltip = tooltip;
@@ -226,17 +232,30 @@ public class BusLocation implements Location
     	{
     		title += "\nHeading: " + heading + " deg (" + convertHeadingToCardinal(Integer.parseInt(heading)) + ")";
 
-    		title += "\n";
-    		if (inBound)
+    		if (inBound.isSet())
     		{
-    			title += "Inbound";
-    		}
-    		else
-    		{
-    			title += "Outbound";
+        		title += "\n";
+    			if (inBound.getValue())
+    			{
+    				title += "Inbound";
+    			}
+    			else
+    			{
+    				title += "Outbound";
+    			}
     		}
     	}
-
+    	else
+    	{
+    		//TODO: how should we say this?
+    		//title += "\nUnpredictable";
+    		
+    		if ((route == null || route.equals("null")) && inferBusRoute != null)
+    		{
+    			title += "\nEstimated route number: " + inferBusRoute;
+    		}
+    	}
+    	
     	return title;
 	}
 
