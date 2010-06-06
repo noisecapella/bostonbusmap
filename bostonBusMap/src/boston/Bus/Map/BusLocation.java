@@ -79,13 +79,12 @@ public class BusLocation implements Location
 	
 	private final Drawable bus;
 	private final Drawable arrow;
-	private final Drawable tooltip;
 	
 	private static final int LOCATIONTYPE = 1;
 	
 	public BusLocation(double latitude, double longitude, int id, RouteConfig route, int seconds, double lastUpdateInMillis,
 			String heading, boolean predictable, String dirTag, String inferBusRoute,
-			Drawable bus, Drawable arrow, Drawable tooltip)
+			Drawable bus, Drawable arrow)
 	{
 		this.latitude = latitude * LocationComparator.degreesToRadians;
 		this.longitude = longitude * LocationComparator.degreesToRadians;
@@ -101,7 +100,6 @@ public class BusLocation implements Location
 		this.inferBusRoute = inferBusRoute;
 		this.bus = bus;
 		this.arrow = arrow;
-		this.tooltip = tooltip;
 	}
 
 	public boolean hasHeading()
@@ -289,38 +287,13 @@ public class BusLocation implements Location
 
 	public Drawable getDrawable(Context context, boolean shadow, boolean isSelected) {
 		Drawable drawable = bus;
-		if (shadow == false)
+		if (shadow == false && hasHeading())
 		{
 			//to make life easier we won't draw shadows except for the bus
 			//the tooltip has some weird error where the shadow draws a little left and up from where it should draw
 			
-			Drawable arrowArg = null, tooltipArg = null;
-			TextView textViewArg = null;
-			
-			//if selected, draw the tooltip
-			if (isSelected)
-			{
-				TextView textView = new TextView(context);
-				String title = makeTitle();
-				textView.setText(title);
-				tooltipArg = tooltip;
-				textViewArg = textView;
-			}
-
-			//if it has a direction, draw the arrow
-			boolean hasHeading = hasHeading();
-			if (hasHeading)
-			{
-				arrowArg = arrow;
-			}
-			
-			if (isSelected || hasHeading)
-			{
-				//is there a reason to use BusDrawable?
-				
-				//the constructor should ignore the arrow and tooltip if these arguments are null
-				drawable = new BusDrawable(bus, getHeading(), arrowArg, tooltipArg, textViewArg);
-			}
+			//the constructor should ignore the arrow and tooltip if these arguments are null
+			drawable = new BusDrawable(bus, getHeading(), arrow);
 		}
 		return drawable;
 	}

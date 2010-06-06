@@ -21,6 +21,7 @@ package boston.Bus.Map;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.HashMap;
 import java.util.List;
 
 import javax.xml.parsers.FactoryConfigurationError;
@@ -42,6 +43,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Resources;
+import android.database.sqlite.SQLiteDatabase;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.StateListDrawable;
@@ -115,6 +117,9 @@ public class Main extends MapActivity
 	private OneTimeLocationListener locationListener;
 	
 	
+	private final String[] routesSupported = new String[] {"1", "4", "15", "22", "23", "28", "32", "39",
+			"57", "66", "71", "73", "77", "111", "114", "116", "117"};
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -137,7 +142,7 @@ public class Main extends MapActivity
         
         if (busLocations == null)
         {
-        	busLocations = new Locations(busPicture, arrow, tooltip, locationDrawable, busStop);
+        	busLocations = new Locations(busPicture, arrow, locationDrawable, busStop, getOrMakeRouteConfigs(busStop));
         	
        		busLocations.useRoute("77");
         }
@@ -196,6 +201,22 @@ public class Main extends MapActivity
 
     }
 		
+
+
+	private HashMap<String, RouteConfig> getOrMakeRouteConfigs(Drawable busStop) {
+		HashMap<String, RouteConfig> map = new HashMap<String, RouteConfig>();
+		
+		DatabaseHelper helper = new DatabaseHelper(this);
+		SQLiteDatabase database = helper.getWritableDatabase();
+		synchronized (database)
+		{
+			helper.populateMap(map, busStop, routesSupported);
+		}
+		
+		
+		return map;
+	}
+
 
 
 	@Override

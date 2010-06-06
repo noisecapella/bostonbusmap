@@ -106,9 +106,8 @@ public class UpdateHandler extends Handler {
 			//remove duplicate messages
 			removeMessages(MINOR);
 			
-			minorUpdate = new UpdateAsyncTask(textView, busPicture, mapView, null, arrow,
-					tooltip, this, getShowUnpredictable(), false, maxOverlays,
-					getHideHighlightCircle() == false, getInferBusRoutes(), busOverlay);
+			minorUpdate = new UpdateAsyncTask(textView, mapView, null, getShowUnpredictable(), false, maxOverlays,
+					getHideHighlightCircle() == false, getInferBusRoutes(), busOverlay, context);
 			
 
 			minorUpdate.runUpdate(busLocations);
@@ -173,9 +172,9 @@ public class UpdateHandler extends Handler {
 		}
 		
 		
-		updateAsyncTask = new UpdateAsyncTask(textView, busPicture, mapView, finalMessage,
-				arrow, tooltip, this, getShowUnpredictable(), true, maxOverlays,
-				getHideHighlightCircle() == false, getInferBusRoutes(), busOverlay);
+		updateAsyncTask = new UpdateAsyncTask(textView, mapView, finalMessage,
+				getShowUnpredictable(), true, maxOverlays,
+				getHideHighlightCircle() == false, getInferBusRoutes(), busOverlay, context);
 		updateAsyncTask.runUpdate(busLocations);
 	}
 

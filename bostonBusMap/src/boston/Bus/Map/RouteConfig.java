@@ -53,5 +53,11 @@ public class RouteConfig {
 	public String getRouteName() {
 		return route;
 	}
+
+
+
+	public Collection<String> getDirtags() {
+		return directions.keySet();
+	}
 			
 }

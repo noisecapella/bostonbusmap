@@ -38,17 +38,12 @@ public class BusDrawable extends Drawable {
 	private final Drawable bus;
 	private final Drawable arrow;
 	private final int heading;
-	private final Drawable tooltip;
-	private final TextView textView;
 	
-	public BusDrawable(Drawable drawable, int heading, Drawable arrow, Drawable tooltip, TextView textView)
+	public BusDrawable(Drawable drawable, int heading, Drawable arrow)
 	{
 		this.bus = drawable;
 		this.heading = heading;
 		this.arrow = arrow;
-		this.tooltip = tooltip;
-		
-		this.textView = textView;
 	}
 	
 	@Override
@@ -85,32 +80,6 @@ public class BusDrawable extends Drawable {
 			canvas.restore();
 		}
 		
-		//last, draw tooltip if necessary. This drawable will be empty if we don't need to draw it
-		if (textView != null && tooltip != null)
-		{
-			int tooltipLeft = -bus.getIntrinsicWidth();
-			int tooltipTop = -bus.getIntrinsicHeight() * 2;
-
-			textView.setBackgroundDrawable(tooltip);
-			textView.setLayoutParams(new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT));
-			
-			textView.measure(100, 100);
-			int tooltipWidth = textView.getMeasuredWidth();
-			int tooltipHeight = textView.getMeasuredHeight();
-			int tooltipRight = tooltipLeft + tooltipWidth;
-			int tooltipBottom = tooltipTop + tooltipHeight;
-			
-			
-			textView.layout(tooltipLeft, tooltipTop, tooltipRight, tooltipBottom);
-			textView.setTextColor(Color.BLACK);
-			
-			//HACK: the textView is drawing at 0,0, and i can't get it to draw slightly to the left
-			canvas.save();
-			canvas.translate(-textView.getMeasuredWidth() / 2, 0);
-			textView.draw(canvas);
-			canvas.restore();
-			
-		}
 	}
 
 	
@@ -128,10 +97,6 @@ public class BusDrawable extends Drawable {
 		{
 			arrow.setAlpha(alpha);
 		}
-		if (tooltip != null)
-		{
-			tooltip.setAlpha(alpha);
-		}
 	}
 
 	@Override
@@ -141,30 +106,26 @@ public class BusDrawable extends Drawable {
 		{
 			arrow.setColorFilter(cf);
 		}
-		if (tooltip != null)
-		{
-			tooltip.setColorFilter(cf);
-		}
 	}
 	
 	@Override
 	public int getIntrinsicHeight() {
 		//ignoring arrow because it's inside the drawable
-		return bus.getIntrinsicHeight() + (tooltip != null ? tooltip.getIntrinsicHeight() : 0);
+		return bus.getIntrinsicHeight();
 	}
 	@Override
 	public int getIntrinsicWidth() {
-		return bus.getIntrinsicWidth() + (tooltip != null ? tooltip.getIntrinsicWidth() : 0);
+		return bus.getIntrinsicWidth();
 	}
 	
 	@Override
 	public int getMinimumHeight() {
-		return bus.getMinimumHeight() + (tooltip != null ? tooltip.getMinimumHeight() : 0);
+		return bus.getMinimumHeight();
 	}
 	
 	@Override
 	public int getMinimumWidth() {
-		return bus.getMinimumWidth() + (tooltip != null ? tooltip.getMinimumWidth() : 0);
+		return bus.getMinimumWidth();
 	}
 	
 	@Override
@@ -178,10 +139,6 @@ public class BusDrawable extends Drawable {
 		if (arrow != null)
 		{
 			arrow.clearColorFilter();
-		}
-		if (tooltip != null)
-		{
-			tooltip.clearColorFilter();
 		}
 	}
 	
@@ -228,10 +185,6 @@ public class BusDrawable extends Drawable {
 		{
 			arrow.inflate(r, parser, attrs);
 		}
-		if (tooltip != null)
-		{
-			tooltip.inflate(r, parser, attrs);
-		}
 	}
 	
 	@Override
@@ -240,10 +193,6 @@ public class BusDrawable extends Drawable {
 		if (arrow != null)
 		{
 			arrow.invalidateSelf();
-		}
-		if (tooltip != null)
-		{
-			tooltip.invalidateSelf();
 		}
 	}
 	
@@ -261,10 +210,6 @@ public class BusDrawable extends Drawable {
 		{
 			arrow.mutate();
 		}
-		if (tooltip != null)
-		{
-			tooltip.mutate();
-		}
 		return bus.mutate();
 	}
 	
@@ -275,10 +220,6 @@ public class BusDrawable extends Drawable {
 		{
 			arrow.scheduleSelf(what, when);
 		}
-		if (tooltip != null)
-		{
-			tooltip.scheduleSelf(what, when);
-		}
 	}
 	
 	@Override
@@ -287,10 +228,6 @@ public class BusDrawable extends Drawable {
 		if (arrow != null)
 		{
 			arrow.setBounds(left, top, right, bottom);
-		}
-		if (tooltip != null)
-		{
-			tooltip.setBounds(left, top, right, bottom);
 		}
 	}
 	
@@ -301,10 +238,6 @@ public class BusDrawable extends Drawable {
 		{
 			arrow.setBounds(bounds);
 		}
-		if (tooltip != null)
-		{
-			tooltip.setBounds(bounds);
-		}
 	}
 	
 	@Override
@@ -313,10 +246,6 @@ public class BusDrawable extends Drawable {
 		if (arrow != null)
 		{
 			arrow.setChangingConfigurations(configs);
-		}
-		if (tooltip != null)
-		{
-			tooltip.setChangingConfigurations(configs);
 		}
 	}
 	
@@ -327,10 +256,6 @@ public class BusDrawable extends Drawable {
 		{
 			arrow.setColorFilter(color, mode);
 		}
-		if (tooltip != null)
-		{
-			tooltip.setColorFilter(color, mode);
-		}
 	}
 	
 	@Override
@@ -339,10 +264,6 @@ public class BusDrawable extends Drawable {
 		if (arrow != null)
 		{
 			arrow.setDither(dither);
-		}
-		if (tooltip != null)
-		{
-			tooltip.setDither(dither);
 		}
 	}
 	
@@ -353,31 +274,24 @@ public class BusDrawable extends Drawable {
 		{
 			arrow.setFilterBitmap(filter);
 		}
-		if (tooltip != null)
-		{
-			tooltip.setFilterBitmap(filter);
-		}
 	}
 	
 	@Override
 	public boolean setState(int[] stateSet) {
 		boolean busModified = bus.setState(stateSet);
 		boolean arrowModified = (arrow != null ? arrow.setState(stateSet) : false);
-		boolean tooltipModified = (tooltip != null ? tooltip.setState(stateSet) : false);
 		
 		//we have to make sure all three are called. If we inline this, the condition may short circuit and not all setState will be called
-		return arrowModified || busModified || tooltipModified;
+		return arrowModified || busModified;
 	}
 	
 	@Override
 	public boolean setVisible(boolean visible, boolean restart) {
 		boolean busModified = bus.setVisible(visible, restart);
 		boolean arrowModified = (arrow != null ? arrow.setVisible(visible, restart) : false);
-		boolean tooltipModified = (tooltip != null ? tooltip.setVisible(visible, restart) : false);
-		
 		
 		//we have to make sure all three are called. If we inline this, the condition may short circuit and not all setVisible will be called
-		return arrowModified || busModified || tooltipModified;
+		return arrowModified || busModified;
 	}
 	
 	@Override
@@ -386,10 +300,6 @@ public class BusDrawable extends Drawable {
 		if (arrow != null)
 		{
 			arrow.unscheduleSelf(what);
-		}
-		if (tooltip != null)
-		{
-			tooltip.unscheduleSelf(what);
 		}
 	}
 }

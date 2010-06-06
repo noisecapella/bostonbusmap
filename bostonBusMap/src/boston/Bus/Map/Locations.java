@@ -51,6 +51,7 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 
+import android.content.Context;
 import android.graphics.drawable.Drawable;
 import android.location.LocationListener;
 import android.util.Log;
@@ -62,7 +63,7 @@ public final class Locations
 	 */
 	private HashMap<Integer, BusLocation> busMapping = new HashMap<Integer, BusLocation>();
 	
-	private HashMap<String, RouteConfig> stopMapping = new HashMap<String, RouteConfig>();
+	private final HashMap<String, RouteConfig> stopMapping;
 	
 	/**
 	 * The XML feed URL
@@ -97,20 +98,21 @@ public final class Locations
 	
 	private final Drawable bus;
 	private final Drawable arrow;
-	private final Drawable tooltip;
 	private final Drawable locationDrawable;
 	private final Drawable busStop;
 	
-	public Locations(Drawable bus, Drawable arrow, Drawable tooltip, Drawable locationDrawable, Drawable busStop)
+	public Locations(Drawable bus, Drawable arrow, Drawable locationDrawable,
+			Drawable busStop, HashMap<String, RouteConfig> stopMapping)
 	{
 		this.bus = bus;
 		this.arrow = arrow;
-		this.tooltip = tooltip;
 		this.locationDrawable = locationDrawable;
 		this.busStop = busStop;
+		
+		this.stopMapping = stopMapping;
 	}
 	
-	private void initializeStopInfo(String route, InputStream inputStream) throws ParserConfigurationException, FactoryConfigurationError, SAXException, IOException 
+	private void initializeStopInfo(String route, InputStream inputStream, DatabaseHelper helper) throws ParserConfigurationException, FactoryConfigurationError, SAXException, IOException 
 	{
 		DocumentBuilder builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
 		
@@ -161,7 +163,7 @@ public final class Locations
 
 
 				StopLocation stopLocation = new StopLocation(latitudeAsDegrees, longitudeAsDegrees, 
-						busStop, tooltip, id, title, dirTag, stopLocations);
+						busStop, id, title, dirTag, stopLocations);
 				stopLocations.addStop(id, stopLocation);
 			}
 			else if ("direction".equals(stop.getTagName()))
@@ -172,6 +174,8 @@ public final class Locations
 		}
 		
 		stopMapping.put(route, stopLocations);
+		
+		helper.saveMapping(route, stopLocations);
 	}
 	
 	/**
@@ -183,9 +187,10 @@ public final class Locations
 	 * @throws IOException
 	 * @throws ParserConfigurationException
 	 * @throws FactoryConfigurationError
+	 * @throws FeedException 
 	 */
-	public void Refresh(boolean inferBusRoutes) throws SAXException, IOException,
-			ParserConfigurationException, FactoryConfigurationError 
+	public void Refresh(Context context, boolean inferBusRoutes) throws SAXException, IOException,
+			ParserConfigurationException, FactoryConfigurationError, FeedException 
 	{
 		updateInferRoutes(inferBusRoutes);
 		
@@ -200,24 +205,39 @@ public final class Locations
 		{
 			if (stopMapping.containsKey(focusedRoute))
 			{
-				//ok, do predictions now
-				StringBuffer urlString = new StringBuffer(mbtaPredictionsDataUrl);// + "&stops=39|null|6570&stops=39|null|6571";
-				
-				for (StopLocation location : stopMapping.get(focusedRoute).getStops())
+				RouteConfig routeConfig = stopMapping.get(focusedRoute);
+				if (routeConfig.getStops().size() != 0)
 				{
-					urlString.append("&stops=").append(focusedRoute).append("|null|").append(location.getStopNumber());
+					//ok, do predictions now
+					StringBuffer urlString = new StringBuffer(mbtaPredictionsDataUrl);// + "&stops=39|null|6570&stops=39|null|6571";
+
+					for (StopLocation location : routeConfig.getStops())
+					{
+						urlString.append("&stops=").append(focusedRoute).append("|null|").append(location.getStopNumber());
+					}
+					url = new URL(urlString.toString());
 				}
-				url = new URL(urlString.toString());
+				else
+				{
+					//populate stops
+					final String urlString = mbtaRouteConfigDataUrl + focusedRoute;
+					url = new URL(urlString);
+
+					//just initialize the route and then end for this round
+					InputStream stream = url.openStream();
+					initializeStopInfo(focusedRoute, stream, new DatabaseHelper(context));
+					return;
+				}
 			}
 			else
 			{
 				//populate stops
 				final String urlString = mbtaRouteConfigDataUrl + focusedRoute;
 				url = new URL(urlString);
-				
+
 				//just initialize the route and then end for this round
 				InputStream stream = url.openStream();
-				initializeStopInfo(focusedRoute, stream);
+				initializeStopInfo(focusedRoute, stream, new DatabaseHelper(context));
 				return;
 			}
 		}
@@ -232,7 +252,8 @@ public final class Locations
 		//first check for errors
 		if (document.getElementsByTagName("Error").getLength() != 0)
 		{
-			throw new RuntimeException("The feed is reporting an error"); 
+			Log.e("FEEDERROR", url.toString());
+			throw new FeedException(); 
 			
 		}
 		
@@ -315,7 +336,7 @@ public final class Locations
 				
 
 				BusLocation newBusLocation = new BusLocation(lat, lon, id, routeConfig, seconds, lastUpdateTime, 
-						heading, predictable, dirTag, inferBusRoute, bus, arrow, tooltip);
+						heading, predictable, dirTag, inferBusRoute, bus, arrow);
 
 				Integer idInt = new Integer(id);
 				if (busMapping.containsKey(idInt))

@@ -14,7 +14,6 @@ public class StopLocation implements Location
 	private final double latitudeAsDegrees;
 	private final double longitudeAsDegrees;
 	private final Drawable busStop;
-	private final Drawable tooltip;
 	
 	private final int id;
 	
@@ -27,14 +26,14 @@ public class StopLocation implements Location
 	
 	private static final int LOCATIONTYPE = 3; 
 	
-	public StopLocation(double latitudeAsDegrees, double longitudeAsDegrees, Drawable busStop, Drawable tooltip, int id, String title, String inBound, RouteConfig route)
+	public StopLocation(double latitudeAsDegrees, double longitudeAsDegrees,
+			Drawable busStop, int id, String title, String inBound, RouteConfig route)
 	{
 		this.latitude = latitudeAsDegrees * LocationComparator.degreesToRadians;
 		this.latitudeAsDegrees = latitudeAsDegrees;
 		this.longitude = longitudeAsDegrees * LocationComparator.degreesToRadians;
 		this.longitudeAsDegrees = longitudeAsDegrees;
 		this.busStop = busStop;
-		this.tooltip = tooltip;
 		this.id = id;
 		this.title = title;
 		this.inBound = inBound;
@@ -81,7 +80,7 @@ public class StopLocation implements Location
 
 	@Override
 	public String makeTitle() {
-		String directionToShow = route.getDirection(inBound);
+		//String directionToShow = route.getDirection(inBound);
 		
 		String ret = "Stop: " + id + /*"\n" + directionToShow +*/ "\nTitle: " + title;
 		
@@ -112,6 +111,14 @@ public class StopLocation implements Location
 		String directionToShow = route.getDirection(direction);
 		predictions.add(new Prediction(seconds, epochTime, vehicleId, directionToShow));
 		
+	}
+
+	public String getTitle() {
+		return title;
+	}
+
+	public String getDirtag() {
+		return inBound;
 	}
 
 }

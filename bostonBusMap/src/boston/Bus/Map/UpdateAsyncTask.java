@@ -34,6 +34,7 @@ import com.google.android.maps.MapView;
 import com.google.android.maps.OverlayItem;
 import com.google.android.maps.Projection;
 
+import android.content.Context;
 import android.graphics.Color;
 import android.graphics.ColorFilter;
 import android.graphics.Paint;
@@ -42,6 +43,7 @@ import android.graphics.PorterDuff.Mode;
 import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
 import android.os.Handler;
+import android.util.Log;
 import android.widget.TextView;
 
 /**
@@ -50,43 +52,37 @@ import android.widget.TextView;
  */
 public class UpdateAsyncTask extends AsyncTask<Object, String, Locations>
 {
-	private final TextView textView;
-	private final Drawable busPicture;
 	private final MapView mapView;
 	private final String finalMessage;
-	private final Drawable arrow;
-	private final Drawable tooltip;
-	private final UpdateHandler updateable;
 	private final boolean doShowUnpredictable;
 	private final boolean doRefresh;
 	private final int maxOverlays;
 	private final boolean drawCircle;
+	private final Context context;
+	private final TextView textView;
 	
 	private boolean silenceUpdates;
 	
 	private final boolean inferBusRoutes;
 	private BusOverlay busOverlay;
 	
-	public UpdateAsyncTask(TextView textView, Drawable busPicture, MapView mapView, String finalMessage,
-			Drawable arrow, Drawable tooltip, UpdateHandler updateable, boolean doShowUnpredictable, boolean doRefresh, int maxOverlays,
-			boolean drawCircle, boolean inferBusRoutes, BusOverlay busOverlay)
+	public UpdateAsyncTask(TextView textView, MapView mapView, String finalMessage,
+			boolean doShowUnpredictable, boolean doRefresh, int maxOverlays,
+			boolean drawCircle, boolean inferBusRoutes, BusOverlay busOverlay, Context context)
 	{
 		super();
 		
 		//NOTE: these should only be used in one of the UI threads
-		this.textView = textView;
-		this.busPicture = busPicture;
 		this.mapView = mapView;
 		this.finalMessage = finalMessage;
-		this.arrow = arrow;
-		this.tooltip = tooltip;
-		this.updateable = updateable;
 		this.doShowUnpredictable = doShowUnpredictable;
 		this.doRefresh = doRefresh;
 		this.maxOverlays = maxOverlays;
 		this.drawCircle = drawCircle;
 		this.inferBusRoutes = inferBusRoutes;
 		this.busOverlay = busOverlay;
+		this.context = context;
+		this.textView = textView;
 	}
 	
 	/**
@@ -130,22 +126,25 @@ public class UpdateAsyncTask extends AsyncTask<Object, String, Locations>
 		{
 			try
 			{
-				busLocations.Refresh(inferBusRoutes);
+				busLocations.Refresh(context, inferBusRoutes);
+			}
+			catch (FeedException e)
+			{
+				publishProgress("The feed is reporting an error");
+				return null;
 			}
 			catch (IOException e)
 			{
 				//this probably means that there is no Internet available, or there's something wrong with the feed
 				publishProgress("Bus feed is inaccessable; try again later");
-				e.printStackTrace();
+				
 				return null;
 
 			} catch (SAXException e) {
 				publishProgress("XML parsing exception; cannot update. Maybe there was a hiccup in the feed?");
-				e.printStackTrace();
 				return null;
 			} catch (NumberFormatException e) {
 				publishProgress("XML parsing exception; cannot update. Maybe there was a hiccup in the feed?");
-				e.printStackTrace();
 				return null;
 			} catch (ParserConfigurationException e) {
 				publishProgress("XML parser configuration exception; cannot update");
@@ -159,7 +158,6 @@ public class UpdateAsyncTask extends AsyncTask<Object, String, Locations>
 			catch (Exception e)
 			{
 				publishProgress("Unknown exception occurred");
-				e.printStackTrace();
 				return null;
 			}
 		}
