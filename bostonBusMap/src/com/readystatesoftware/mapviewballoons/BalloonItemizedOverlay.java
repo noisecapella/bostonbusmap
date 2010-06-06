@@ -24,8 +24,10 @@ import android.graphics.drawable.Drawable;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.View.OnTouchListener;
 import android.view.ViewGroup.LayoutParams;
+import boston.Bus.Map.R;
 
 import com.google.android.maps.GeoPoint;
 import com.google.android.maps.ItemizedOverlay;
@@ -33,6 +35,7 @@ import com.google.android.maps.MapController;
 import com.google.android.maps.MapView;
 import com.google.android.maps.Overlay;
 import com.google.android.maps.OverlayItem;
+import com.google.android.maps.ItemizedOverlay.OnFocusChangeListener;
 
 /**
  * An abstract extension of ItemizedOverlay for displaying an information balloon
@@ -57,6 +60,7 @@ public abstract class BalloonItemizedOverlay<Item> extends ItemizedOverlay<Overl
 	public BalloonItemizedOverlay(Drawable defaultMarker, MapView mapView) {
 		super(defaultMarker);
 		this.mapView = mapView;
+		
 		viewOffset = 0;
 		mc = mapView.getController();
 	}
@@ -102,7 +106,7 @@ public abstract class BalloonItemizedOverlay<Item> extends ItemizedOverlay<Overl
 		
 		if (balloonView == null) {
 			balloonView = new BalloonOverlayView(mapView.getContext(), viewOffset);
-			clickRegion = (View) balloonView.findViewById(boston.Bus.Map.R.id.popupLayout);
+			clickRegion = (View) balloonView.findViewById(R.id.balloon_main_layout);
 			isRecycled = false;
 		} else {
 			isRecycled = true;
@@ -132,7 +136,7 @@ public abstract class BalloonItemizedOverlay<Item> extends ItemizedOverlay<Overl
 			mapView.addView(balloonView, params);
 		}
 		
-		mc.animateTo(point);
+		//mc.animateTo(point);
 		
 		return true;
 	}
@@ -140,7 +144,7 @@ public abstract class BalloonItemizedOverlay<Item> extends ItemizedOverlay<Overl
 	/**
 	 * Sets the visibility of this overlay's balloon view to GONE. 
 	 */
-	private void hideBalloon() {
+	protected void hideBalloon() {
 		if (balloonView != null) {
 			balloonView.setVisibility(View.GONE);
 		}
@@ -177,7 +181,7 @@ public abstract class BalloonItemizedOverlay<Item> extends ItemizedOverlay<Overl
 			clickRegion.setOnTouchListener(new OnTouchListener() {
 				public boolean onTouch(View v, MotionEvent event) {
 					
-					View l =  ((View) v.getParent()).findViewById(boston.Bus.Map.R.id.popupLayout);
+					View l =  ((View) v.getParent()).findViewById(R.id.balloon_main_layout);
 					Drawable d = l.getBackground();
 					
 					if (event.getAction() == MotionEvent.ACTION_DOWN) {
@@ -209,6 +213,6 @@ public abstract class BalloonItemizedOverlay<Item> extends ItemizedOverlay<Overl
 			return;
 		}
 
+		
 	}
-	
 }

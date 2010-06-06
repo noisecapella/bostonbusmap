@@ -43,6 +43,7 @@ import android.graphics.drawable.ShapeDrawable;
 import android.graphics.drawable.shapes.OvalShape;
 import android.graphics.drawable.shapes.Shape;
 import android.text.TextPaint;
+import android.text.method.HideReturnsTransformationMethod;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
@@ -92,11 +93,14 @@ public class BusOverlay extends BalloonItemizedOverlay<com.google.android.maps.O
 				//things right. This corrects that (hopefully)
 				setLastFocusedIndex(-1);
 				setFocus(newFocus);
+				if (newFocus == null)
+				{
+					hideBalloon();
+				}
 			}
 		});
 		
-		setBalloonBottomOffset(30);
-
+		setBalloonBottomOffset(40);
 	}
 
 	/**

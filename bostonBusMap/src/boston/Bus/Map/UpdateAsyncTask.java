@@ -265,7 +265,10 @@ public class UpdateAsyncTask extends AsyncTask<Object, String, Locations>
 	}
 	private void displayIcons(BusOverlay busOverlay, double latitude, double longitude)
 	{
-        mapView.getOverlays().add(busOverlay);
+		if (mapView.getOverlays().contains(busOverlay) == false)
+		{
+			mapView.getOverlays().add(busOverlay);
+		}
 
         //make sure we redraw map
         mapView.invalidate();
