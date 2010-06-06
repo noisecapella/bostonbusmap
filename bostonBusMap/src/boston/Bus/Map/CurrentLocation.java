@@ -63,6 +63,11 @@ public class CurrentLocation implements Location
 	public String makeTitle() {
 		return "Current location";
 	}
+	
+	@Override
+	public String makeSnippet() {
+		return "";
+	}
 
 	@Override
 	public double distanceFrom(double centerLatitude, double centerLongitude) {

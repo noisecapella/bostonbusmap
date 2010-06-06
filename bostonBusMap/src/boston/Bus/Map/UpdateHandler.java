@@ -53,8 +53,10 @@ public class UpdateHandler extends Handler {
 	private final Locations busLocations;
 	private OneTimeLocationListener oneTimeLocationListener;
 	private final Context context;
+	private final BusOverlay busOverlay; 
 	
-	public UpdateHandler(TextView textView, Drawable busPicture, MapView mapView, Drawable arrow, Drawable tooltip, Locations busLocations, Context context)
+	public UpdateHandler(TextView textView, Drawable busPicture, MapView mapView,
+			Drawable arrow, Drawable tooltip, Locations busLocations, Context context)
 	{
 		this.textView = textView;
 		this.busPicture = busPicture;
@@ -63,6 +65,7 @@ public class UpdateHandler extends Handler {
 		this.tooltip = tooltip;
 		this.busLocations = busLocations;
 		this.context = context;
+		this.busOverlay = new BusOverlay(busPicture, context, this, mapView);
 		lastUpdateTime = System.currentTimeMillis();
 	}
 	
@@ -104,7 +107,8 @@ public class UpdateHandler extends Handler {
 			removeMessages(MINOR);
 			
 			minorUpdate = new UpdateAsyncTask(textView, busPicture, mapView, null, arrow,
-					tooltip, this, getShowUnpredictable(), false, maxOverlays, getHideHighlightCircle() == false, getInferBusRoutes());
+					tooltip, this, getShowUnpredictable(), false, maxOverlays,
+					getHideHighlightCircle() == false, getInferBusRoutes(), busOverlay);
 			
 
 			minorUpdate.runUpdate(busLocations);
@@ -170,7 +174,8 @@ public class UpdateHandler extends Handler {
 		
 		
 		updateAsyncTask = new UpdateAsyncTask(textView, busPicture, mapView, finalMessage,
-				arrow, tooltip, this, getShowUnpredictable(), true, maxOverlays, getHideHighlightCircle() == false, getInferBusRoutes());
+				arrow, tooltip, this, getShowUnpredictable(), true, maxOverlays,
+				getHideHighlightCircle() == false, getInferBusRoutes(), busOverlay);
 		updateAsyncTask.runUpdate(busLocations);
 	}
 

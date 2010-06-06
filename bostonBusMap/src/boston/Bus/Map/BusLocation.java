@@ -211,6 +211,11 @@ public class BusLocation implements Location
 		}
 	}
 
+	public String makeSnippet()
+	{
+		return "";
+	}
+	
 	public String makeTitle() {
     	String title = "Id: " + id + ", route: ";
     	if (route == null || route.equals("null"))

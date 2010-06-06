@@ -41,6 +41,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.res.Resources;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.StateListDrawable;
@@ -124,20 +125,21 @@ public class Main extends MapActivity
         textView = (TextView)findViewById(R.id.statusView);
         
     	//store picture of bus
-        Drawable locationDrawable = getResources().getDrawable(R.drawable.ic_maps_indicator_current_position);
+        Resources resources = getResources();
+        Drawable locationDrawable = resources.getDrawable(R.drawable.ic_maps_indicator_current_position);
 
-        Drawable busPicture = getResources().getDrawable(R.drawable.bus_statelist);
+        Drawable busPicture = resources.getDrawable(R.drawable.bus_statelist);
         
-        Drawable arrow = getResources().getDrawable(R.drawable.arrow);
-        Drawable tooltip = getResources().getDrawable(R.drawable.tooltip);
+        Drawable arrow = resources.getDrawable(R.drawable.arrow);
+        Drawable tooltip = resources.getDrawable(R.drawable.tooltip);
         
-        Drawable busStop = getResources().getDrawable(R.drawable.busstop);
+        Drawable busStop = resources.getDrawable(R.drawable.busstop_statelist);
         
         if (busLocations == null)
         {
         	busLocations = new Locations(busPicture, arrow, tooltip, locationDrawable, busStop);
         	
-       		busLocations.useRoute("71");
+       		busLocations.useRoute("77");
         }
         
         double lastUpdateTime = 0;

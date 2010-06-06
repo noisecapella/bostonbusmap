@@ -23,13 +23,21 @@ public class Prediction {
 		{
 			return "";
 		}
-		else if (minutesLeft == 0)
-		{
-			return "Bus " + vehicleId + " arriving now!";
-		}
 		else
 		{
-			return "Bus " + vehicleId + " arriving in " + minutesLeft + " min";
-		}
+			String ret = "Bus " + vehicleId;
+			if (inBound.isSet())
+			{
+				ret += " " + (inBound.getValue() ? "inbound" : "outbound");
+			}
+			if (minutesLeft == 0)
+			{
+				return ret + " arriving now!";
+			}
+			else
+			{
+				return ret + " arriving in " + minutesLeft + " min";
+			}
+		}			
 	}
 }

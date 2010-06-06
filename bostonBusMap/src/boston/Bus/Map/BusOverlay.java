@@ -27,6 +27,7 @@ import com.google.android.maps.ItemizedOverlay;
 import com.google.android.maps.MapView;
 import com.google.android.maps.OverlayItem;
 import com.google.android.maps.Projection;
+import com.readystatesoftware.mapviewballoons.BalloonItemizedOverlay;
 
 import android.content.Context;
 import android.graphics.Canvas;
@@ -60,40 +61,27 @@ import android.widget.Toast;
  * Much of this was borrowed from the helpful tutorial at http://developer.android.com/guide/tutorials/views/hello-mapview.html
  * 
  */
-public class BusOverlay extends com.google.android.maps.ItemizedOverlay<com.google.android.maps.OverlayItem> {
+public class BusOverlay extends BalloonItemizedOverlay<com.google.android.maps.OverlayItem> {
 
 	private final ArrayList<com.google.android.maps.OverlayItem> overlays = new ArrayList<com.google.android.maps.OverlayItem>();
 	private final Context context;
-	private final List<Location> locations;
+	private final List<Location> locations = new ArrayList<Location>();
 	private int selectedBusIndex;
 	private final UpdateHandler updateable;
-	private final boolean drawHighlightCircle;
+	private boolean drawHighlightCircle;
 	private final int busHeight;
 	
-	public BusOverlay(Drawable busPicture, Context context, List<Location> busLocations,
-			int selectedBusId, UpdateHandler updateable, boolean drawHighlightCircle) {
-		super(boundCenterBottom(busPicture));
+	
+	public BusOverlay(Drawable busPicture, Context context, 
+			UpdateHandler updateable, MapView mapView) {
+		super(boundCenterBottom(busPicture), mapView);
 
 		this.context = context;
-		this.locations = new ArrayList<Location>();
-		this.locations.addAll(busLocations);
 		this.selectedBusIndex = -1;
-		this.drawHighlightCircle = drawHighlightCircle;
 		this.busHeight = busPicture.getIntrinsicHeight();
 		
 		this.updateable = updateable;
 		
-		for (int i = 0; i < busLocations.size(); i++)
-		{
-			Location busLocation = busLocations.get(i);
-
-			if (busLocation.getId() == selectedBusId)
-			{
-				selectedBusIndex = i;
-				break;
-			}
-		}
-
 		this.setOnFocusChangeListener(new OnFocusChangeListener() {
 
 			@Override
@@ -106,6 +94,8 @@ public class BusOverlay extends com.google.android.maps.ItemizedOverlay<com.goog
 				setFocus(newFocus);
 			}
 		});
+		
+		setBalloonBottomOffset(30);
 
 	}
 
@@ -114,6 +104,27 @@ public class BusOverlay extends com.google.android.maps.ItemizedOverlay<com.goog
 	 */
 	private boolean mapMoved;
 	
+	public void setDrawHighlightCircle(boolean b)
+	{
+		drawHighlightCircle = b;
+	}
+	
+	public void setBusLocations(List<Location> busLocations, int selectedBusId)
+	{
+		locations.clear();
+		locations.addAll(busLocations);
+		
+		for (int i = 0; i < locations.size(); i++)
+		{
+			Location busLocation = locations.get(i);
+
+			if (busLocation.getId() == selectedBusId)
+			{
+				selectedBusIndex = i;
+				break;
+			}
+		}
+	}
 	
 	@Override
 	public boolean onTouchEvent(MotionEvent event, MapView mapView) {
@@ -267,4 +278,5 @@ public class BusOverlay extends com.google.android.maps.ItemizedOverlay<com.goog
 		// TODO Auto-generated method stub
 		populate();
 	}
+	
 }

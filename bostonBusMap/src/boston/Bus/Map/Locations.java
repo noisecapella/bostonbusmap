@@ -439,7 +439,10 @@ public final class Locations
 		}
 		else
 		{
-			newLocations.addAll(stopMapping.get(focusedRoute).values());
+			if (stopMapping.containsKey(focusedRoute))
+			{
+				newLocations.addAll(stopMapping.get(focusedRoute).values());
+			}
 		}
 		
 		if (maxLocations > newLocations.size())

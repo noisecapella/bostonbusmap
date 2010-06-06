@@ -46,31 +46,7 @@ public class StopLocation implements Location
 	@Override
 	public Drawable getDrawable(Context context, boolean shadow,
 			boolean isSelected) {
-		Drawable drawable = busStop;
-		if (shadow == false)
-		{
-			//to make life easier we won't draw shadows except for the bus stop
-			//the tooltip has some weird error where the shadow draws a little left and up from where it should draw
-			
-			Drawable arrowArg = null, tooltipArg = null;
-			TextView textViewArg = null;
-			
-			//if selected, draw the tooltip
-			if (isSelected)
-			{
-				TextView textView = new TextView(context);
-				String title = makeTitle();
-				textView.setText(title);
-				tooltipArg = tooltip;
-				textViewArg = textView;
-			}
-
-			//is there a reason to use BusDrawable?
-
-			//the constructor should ignore the arrow and tooltip if these arguments are null
-			drawable = new BusDrawable(busStop, getHeading(), arrowArg, tooltipArg, textViewArg);
-		}
-		return drawable;
+		return busStop;
 	}
 
 	@Override
@@ -105,22 +81,23 @@ public class StopLocation implements Location
 		String ret = "Stop: " + id;
 		if (inBound.isSet())
 		{
-			ret += "\n" + (inBound.getValue() ? "inbound" : "outbound");
+			ret += "\n" + (inBound.getValue() ? "Inbound" : "Outbound");
 		}
 		ret += "\nTitle: " + title;
 		
-		if (predictions.size() != 0)
-		{
-			ret += "\n";
-		}
-		
+		return ret;
+	}
+
+	@Override
+	public String makeSnippet() {
+		String ret = "";
 		for (Prediction prediction : predictions)
 		{
 			ret += "\n" + prediction.toString();
 		}
 		return ret;
 	}
-
+	
 	public int getStopNumber() {
 		return id;
 	}

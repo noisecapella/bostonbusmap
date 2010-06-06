@@ -29,4 +29,6 @@ public interface Location {
 	 * @return distance in miles
 	 */
 	double distanceFrom(double centerLatitude, double centerLongitude);
+
+	String makeSnippet();
 }

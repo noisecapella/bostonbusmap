@@ -65,10 +65,11 @@ public class UpdateAsyncTask extends AsyncTask<Object, String, Locations>
 	private boolean silenceUpdates;
 	
 	private final boolean inferBusRoutes;
+	private BusOverlay busOverlay;
 	
 	public UpdateAsyncTask(TextView textView, Drawable busPicture, MapView mapView, String finalMessage,
 			Drawable arrow, Drawable tooltip, UpdateHandler updateable, boolean doShowUnpredictable, boolean doRefresh, int maxOverlays,
-			boolean drawCircle, boolean inferBusRoutes)
+			boolean drawCircle, boolean inferBusRoutes, BusOverlay busOverlay)
 	{
 		super();
 		
@@ -85,6 +86,7 @@ public class UpdateAsyncTask extends AsyncTask<Object, String, Locations>
 		this.maxOverlays = maxOverlays;
 		this.drawCircle = drawCircle;
 		this.inferBusRoutes = inferBusRoutes;
+		this.busOverlay = busOverlay;
 	}
 	
 	/**
@@ -223,19 +225,18 @@ public class UpdateAsyncTask extends AsyncTask<Object, String, Locations>
 		List<com.google.android.maps.Overlay> overlays = mapView.getOverlays();
         
 		int selectedBusId = -1;
-		if (overlays.size() > 0 && overlays.get(0) instanceof BusOverlay)
+		if (busOverlay != null)
 		{
-			BusOverlay oldBusOverlay = (BusOverlay)overlays.get(0);
-			selectedBusId = oldBusOverlay.getSelectedBusId();
+			selectedBusId = busOverlay.getSelectedBusId();
 		}
 		
-        overlays.clear();
-        
-    	final BusOverlay busOverlay = new BusOverlay(busPicture, textView.getContext(), busLocations, selectedBusId,
-    			updateable, drawCircle);
-    	
+		busOverlay.setDrawHighlightCircle(drawCircle);
+		busOverlay.setBusLocations(busLocations, selectedBusId);
+		
     	//we need to run populate even if there are 0 busLocations. See this link:
     	//http://groups.google.com/group/android-beginners/browse_thread/thread/6d75c084681f943e?pli=1
+    	busOverlay.clear();
+
     	busOverlay.doPopulate();
     	
     	//draw the buses on the map
@@ -244,9 +245,10 @@ public class UpdateAsyncTask extends AsyncTask<Object, String, Locations>
         	GeoPoint point = new GeoPoint((int)(busLocation.getLatitudeAsDegrees() * 1000000), (int)(busLocation.getLongitudeAsDegrees() * 1000000));
         	
         	String title = busLocation.makeTitle();
+        	String snippet = busLocation.makeSnippet();
         	
         	//the title is displayed when someone taps on the icon
-        	OverlayItem overlay = new OverlayItem(point, title, title);
+        	OverlayItem overlay = new OverlayItem(point, title, snippet);
         	busOverlay.addOverlay(overlay);
         }
 
