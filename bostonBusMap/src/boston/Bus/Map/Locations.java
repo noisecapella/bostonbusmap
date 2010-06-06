@@ -62,7 +62,7 @@ public final class Locations
 	 */
 	private HashMap<Integer, BusLocation> busMapping = new HashMap<Integer, BusLocation>();
 	
-	private HashMap<String, HashMap<Integer, StopLocation>> stopMapping = new HashMap<String, HashMap<Integer, StopLocation>>();
+	private HashMap<String, RouteConfig> stopMapping = new HashMap<String, RouteConfig>();
 	
 	/**
 	 * The XML feed URL
@@ -124,7 +124,7 @@ public final class Locations
 			
 		}
 		
-		HashMap<Integer, StopLocation> stopLocations = new HashMap<Integer, StopLocation>();
+		RouteConfig stopLocations = new RouteConfig(route);
 		
 		Element routeElement = (Element)document.getElementsByTagName("route").item(0);
 		
@@ -141,39 +141,34 @@ public final class Locations
 			
 			Element stop = (Element)node;
 			
-			if ("stop".equals(stop.getTagName()) == false)
+			if ("stop".equals(stop.getTagName()))
 			{
-				continue;
-			}
-			
-			float latitudeAsDegrees = Float.parseFloat(stop.getAttribute("lat"));
-			float longitudeAsDegrees = Float.parseFloat(stop.getAttribute("lon"));
-			int id = 0;
-			try
-			{
-				id = Integer.parseInt(stop.getAttribute("stopId"));
-			
-			}
-			catch (Exception e)
-			{
-				e.printStackTrace();
-			}
-			String title = stop.getAttribute("title");
-			TriState inBound = new TriState();
-			
-			String dirTag = stop.getAttribute("dirTag");
-			if ("in".equals(dirTag))
-			{
-				inBound.set(true);
-			}
-			else if ("out".equals(dirTag))
-			{
-				inBound.set(false);
-			}
-			
+				float latitudeAsDegrees = Float.parseFloat(stop.getAttribute("lat"));
+				float longitudeAsDegrees = Float.parseFloat(stop.getAttribute("lon"));
+				int id = 0;
+				try
+				{
+					id = Integer.parseInt(stop.getAttribute("stopId"));
 
-			StopLocation stopLocation = new StopLocation(latitudeAsDegrees, longitudeAsDegrees, busStop, tooltip, id, title, inBound);
-			stopLocations.put(id, stopLocation);
+				}
+				catch (Exception e)
+				{
+					e.printStackTrace();
+				}
+				String title = stop.getAttribute("title");
+
+				String dirTag = stop.getAttribute("dirTag");
+
+
+				StopLocation stopLocation = new StopLocation(latitudeAsDegrees, longitudeAsDegrees, 
+						busStop, tooltip, id, title, dirTag, stopLocations);
+				stopLocations.addStop(id, stopLocation);
+			}
+			else if ("direction".equals(stop.getTagName()))
+			{
+				
+				stopLocations.addDirection(stop.getAttribute("tag"), stop.getAttribute("name"));
+			}
 		}
 		
 		stopMapping.put(route, stopLocations);
@@ -208,7 +203,7 @@ public final class Locations
 				//ok, do predictions now
 				StringBuffer urlString = new StringBuffer(mbtaPredictionsDataUrl);// + "&stops=39|null|6570&stops=39|null|6571";
 				
-				for (StopLocation location : stopMapping.get(focusedRoute).values())
+				for (StopLocation location : stopMapping.get(focusedRoute).getStops())
 				{
 					urlString.append("&stops=").append(focusedRoute).append("|null|").append(location.getStopNumber());
 				}
@@ -243,7 +238,7 @@ public final class Locations
 		
 		if (focusedRoute != null)
 		{
-			HashMap<Integer, StopLocation> stopLocations = stopMapping.get(focusedRoute);
+			RouteConfig stopLocations = stopMapping.get(focusedRoute);
 			
 			NodeList predictionsList = document.getElementsByTagName("predictions");
 			
@@ -252,7 +247,7 @@ public final class Locations
 				Element predictionsElement = (Element)predictionsList.item(i);
 				
 				int stopId = Integer.parseInt(predictionsElement.getAttribute("stopTag"));
-				StopLocation location = stopLocations.get(stopId);
+				StopLocation location = stopLocations.getStop(stopId);
 				
 				location.clearPredictions();
 				
@@ -267,19 +262,10 @@ public final class Locations
 					
 					int vehicleId = Integer.parseInt(predictionElement.getAttribute("vehicle"));
 					
-					TriState inBound = new TriState();
 					
 					String dirTag = predictionElement.getAttribute("dirTag");
-					if (dirTag.equals("in"))
-					{
-						inBound.set(true);
-					}
-					else if (dirTag.equals("out"))
-					{
-						inBound.set(false);
-					}
 					
-					location.addPrediction(seconds, epochTime, vehicleId, inBound);
+					location.addPrediction(seconds, epochTime, vehicleId, dirTag);
 				}
 				
 			}
@@ -304,18 +290,8 @@ public final class Locations
 				int seconds = Integer.parseInt(element.getAttribute("secsSinceReport"));
 				String heading = element.getAttribute("heading");
 				boolean predictable = Boolean.parseBoolean(element.getAttribute("predictable")); 
-				TriState inBound = new TriState();
 				String dirTag = element.getAttribute("dirTag");
 
-				if (dirTag.equals("in"))
-				{
-					inBound.set(true);
-				}
-				else if (dirTag.equals("out"))
-				{
-					inBound.set(false);
-				}
-				//else it will remain unset
 
 				String inferBusRoute = null;
 				if (vehiclesToRouteNames.containsKey(id))
@@ -327,10 +303,19 @@ public final class Locations
 					}
 				}
 
+				RouteConfig routeConfig;
+				if (stopMapping.containsKey(route))
+				{
+					routeConfig = stopMapping.get(route);
+				}
+				else
+				{
+					routeConfig = new RouteConfig(route);
+				}
+				
 
-
-				BusLocation newBusLocation = new BusLocation(lat, lon, id, route, seconds, lastUpdateTime, 
-						heading, predictable, inBound, inferBusRoute, bus, arrow, tooltip);
+				BusLocation newBusLocation = new BusLocation(lat, lon, id, routeConfig, seconds, lastUpdateTime, 
+						heading, predictable, dirTag, inferBusRoute, bus, arrow, tooltip);
 
 				Integer idInt = new Integer(id);
 				if (busMapping.containsKey(idInt))
@@ -441,7 +426,7 @@ public final class Locations
 		{
 			if (stopMapping.containsKey(focusedRoute))
 			{
-				newLocations.addAll(stopMapping.get(focusedRoute).values());
+				newLocations.addAll(stopMapping.get(focusedRoute).getStops());
 			}
 		}
 		

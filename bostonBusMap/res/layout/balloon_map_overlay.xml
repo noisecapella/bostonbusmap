@@ -21,5 +21,6 @@
 			android:layout_width="fill_parent" 
 			android:id="@+id/balloon_item_snippet"
 			android:text="balloon_item_snippet" 
-			android:textSize="10dip"></TextView>
+			android:textSize="12dip"
+			android:textColor="#FF000000"></TextView>
 </LinearLayout>

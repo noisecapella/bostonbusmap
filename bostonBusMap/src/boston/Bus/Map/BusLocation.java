@@ -2,6 +2,7 @@ package boston.Bus.Map;
 
 import android.content.Context;
 import android.graphics.drawable.Drawable;
+import android.text.Html.TagHandler;
 import android.widget.TextView;
 
 /**
@@ -34,7 +35,7 @@ public class BusLocation implements Location
 	/**
 	 * The route number. This may be null if the XML says so
 	 */
-	public final String route;
+	public final RouteConfig route;
 	
 	/**
 	 * seconds since the bus last sent GPS data to the server. This comes from the XML; we don't calculate this
@@ -68,7 +69,7 @@ public class BusLocation implements Location
 	 * Is the bus inbound, or outbound?
 	 * This only makes sense if predictable is true
 	 */
-	private final TriState inBound;
+	private final String dirTag;
 	
 	/**
 	 * Inferred bus route
@@ -82,8 +83,9 @@ public class BusLocation implements Location
 	
 	private static final int LOCATIONTYPE = 1;
 	
-	public BusLocation(double latitude, double longitude, int id, String route, int seconds, double lastUpdateInMillis,
-			String heading, boolean predictable, TriState inBound, String inferBusRoute, Drawable bus, Drawable arrow, Drawable tooltip)
+	public BusLocation(double latitude, double longitude, int id, RouteConfig route, int seconds, double lastUpdateInMillis,
+			String heading, boolean predictable, String dirTag, String inferBusRoute,
+			Drawable bus, Drawable arrow, Drawable tooltip)
 	{
 		this.latitude = latitude * LocationComparator.degreesToRadians;
 		this.longitude = longitude * LocationComparator.degreesToRadians;
@@ -95,7 +97,7 @@ public class BusLocation implements Location
 		this.lastUpdateInMillis = lastUpdateInMillis;
 		this.heading = heading;
 		this.predictable = predictable;
-		this.inBound = inBound;
+		this.dirTag = dirTag;
 		this.inferBusRoute = inferBusRoute;
 		this.bus = bus;
 		this.arrow = arrow;
@@ -218,13 +220,13 @@ public class BusLocation implements Location
 	
 	public String makeTitle() {
     	String title = "Id: " + id + ", route: ";
-    	if (route == null || route.equals("null"))
+    	if (route == null || route.getRouteName() == null || route.getRouteName().equals("null"))
     	{
     		title += "not mentioned";
     	}
     	else
     	{
-    		title += route;
+    		title += route.getRouteName();
     	}
     	title += "\nSeconds since update: " + (int)(seconds + (System.currentTimeMillis() - lastUpdateInMillis) / 1000);
     	String direction = getDirection();
@@ -237,25 +239,14 @@ public class BusLocation implements Location
     	{
     		title += "\nHeading: " + heading + " deg (" + convertHeadingToCardinal(Integer.parseInt(heading)) + ")";
 
-    		if (inBound.isSet())
-    		{
-        		title += "\n";
-    			if (inBound.getValue())
-    			{
-    				title += "Inbound";
-    			}
-    			else
-    			{
-    				title += "Outbound";
-    			}
-    		}
+    		title += "\n" + route.getDirection(dirTag);
     	}
     	else
     	{
     		//TODO: how should we say this?
     		//title += "\nUnpredictable";
     		
-    		if ((route == null || route.equals("null")) && inferBusRoute != null)
+    		if ((route == null || "null".equals(route.getRouteName())) && inferBusRoute != null)
     		{
     			title += "\nEstimated route number: " + inferBusRoute;
     		}

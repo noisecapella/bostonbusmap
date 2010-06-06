@@ -19,13 +19,15 @@ public class StopLocation implements Location
 	private final int id;
 	
 	private final String title;
-	private final TriState inBound;
+	private final String inBound;
+	
+	private final RouteConfig route;
 	
 	private final ArrayList<Prediction> predictions = new ArrayList<Prediction>();
 	
 	private static final int LOCATIONTYPE = 3; 
 	
-	public StopLocation(double latitudeAsDegrees, double longitudeAsDegrees, Drawable busStop, Drawable tooltip, int id, String title, TriState inBound)
+	public StopLocation(double latitudeAsDegrees, double longitudeAsDegrees, Drawable busStop, Drawable tooltip, int id, String title, String inBound, RouteConfig route)
 	{
 		this.latitude = latitudeAsDegrees * LocationComparator.degreesToRadians;
 		this.latitudeAsDegrees = latitudeAsDegrees;
@@ -36,6 +38,7 @@ public class StopLocation implements Location
 		this.id = id;
 		this.title = title;
 		this.inBound = inBound;
+		this.route = route;
 	}
 	
 	@Override
@@ -78,12 +81,9 @@ public class StopLocation implements Location
 
 	@Override
 	public String makeTitle() {
-		String ret = "Stop: " + id;
-		if (inBound.isSet())
-		{
-			ret += "\n" + (inBound.getValue() ? "Inbound" : "Outbound");
-		}
-		ret += "\nTitle: " + title;
+		String directionToShow = route.getDirection(inBound);
+		
+		String ret = "Stop: " + id + /*"\n" + directionToShow +*/ "\nTitle: " + title;
 		
 		return ret;
 	}
@@ -108,8 +108,9 @@ public class StopLocation implements Location
 	}
 	
 	public void addPrediction(int seconds, long epochTime, int vehicleId,
-			TriState inBound) {
-		predictions.add(new Prediction(seconds, epochTime, vehicleId, inBound));
+			String direction) {
+		String directionToShow = route.getDirection(direction);
+		predictions.add(new Prediction(seconds, epochTime, vehicleId, directionToShow));
 		
 	}
 

@@ -4,14 +4,14 @@ public class Prediction {
 	private final int seconds;
 	private final long epochTime;
 	private final int vehicleId;
-	private final TriState inBound;
+	private final String directionToShow;
 	
 	public Prediction(int seconds, long epochTime, int vehicleId,
-			TriState inBound) {
+			String directionToShow) {
 		this.seconds = seconds;
 		this.epochTime = epochTime;
 		this.vehicleId = vehicleId;
-		this.inBound = inBound;
+		this.directionToShow = directionToShow;
 	}
 
 	@Override
@@ -25,11 +25,8 @@ public class Prediction {
 		}
 		else
 		{
-			String ret = "Bus " + vehicleId;
-			if (inBound.isSet())
-			{
-				ret += " " + (inBound.getValue() ? "inbound" : "outbound");
-			}
+			String ret = "Bus " + vehicleId + " " + directionToShow;
+
 			if (minutesLeft == 0)
 			{
 				return ret + " arriving now!";
