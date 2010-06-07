@@ -4,11 +4,11 @@
 	android:layout_height="wrap_content"
 	android:orientation="vertical" 
 	android:paddingBottom="5dip"
+	android:paddingTop="5dip"
 	android:paddingLeft="10dip" 
-	android:minWidth="200dip" 
 	android:id="@+id/balloon_main_layout"
 	android:background="@drawable/tooltip" 
-	android:paddingTop="0dip"
+	
 	android:paddingRight="10dip">
 
 		<TextView android:layout_height="wrap_content"

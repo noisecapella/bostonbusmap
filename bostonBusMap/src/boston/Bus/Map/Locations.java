@@ -266,29 +266,31 @@ public final class Locations
 			for (int i = 0; i < predictionsList.getLength(); i++)
 			{
 				Element predictionsElement = (Element)predictionsList.item(i);
-				
+
 				int stopId = Integer.parseInt(predictionsElement.getAttribute("stopTag"));
 				StopLocation location = stopLocations.getStop(stopId);
-				
-				location.clearPredictions();
-				
-				NodeList predictionList = predictionsElement.getElementsByTagName("prediction");
-				
-				for (int j = 0; j < predictionList.getLength(); j++)
+
+				if (location != null)
 				{
-					Element predictionElement = (Element)predictionList.item(j);
-					int seconds = Integer.parseInt(predictionElement.getAttribute("seconds"));
-					
-					long epochTime = Long.parseLong(predictionElement.getAttribute("epochTime"));
-					
-					int vehicleId = Integer.parseInt(predictionElement.getAttribute("vehicle"));
-					
-					
-					String dirTag = predictionElement.getAttribute("dirTag");
-					
-					location.addPrediction(seconds, epochTime, vehicleId, dirTag);
+					location.clearPredictions();
+
+					NodeList predictionList = predictionsElement.getElementsByTagName("prediction");
+
+					for (int j = 0; j < predictionList.getLength(); j++)
+					{
+						Element predictionElement = (Element)predictionList.item(j);
+						int minutes = Integer.parseInt(predictionElement.getAttribute("minutes"));
+
+						long epochTime = Long.parseLong(predictionElement.getAttribute("epochTime"));
+
+						int vehicleId = Integer.parseInt(predictionElement.getAttribute("vehicle"));
+
+
+						String dirTag = predictionElement.getAttribute("dirTag");
+
+						location.addPrediction(minutes, epochTime, vehicleId, dirTag);
+					}
 				}
-				
 			}
 		}
 		else

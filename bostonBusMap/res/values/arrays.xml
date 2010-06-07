@@ -1,11 +1,35 @@
-<resources><string-array name="numOverlaysKeys"><item>Few</item>
-<item>Some</item>
-<item>Many</item>
-<item>All</item>
-</string-array>
-<integer-array name="numOverlaysValues"><item>5</item><item>15</item>
-<item>30</item>
-<item>1000</item>
+<resources>
+	<string-array name="numOverlaysKeys">
+		<item>Few</item>
+		<item>Some</item>
+		<item>Many</item>
+		<item>All</item>
+	</string-array>
+	<integer-array name="numOverlaysValues">
+		<item>5</item>
+		<item>15</item>
+		<item>30</item>
+		<item>1000</item>
 
-</integer-array>
+	</integer-array>
+
+	<string-array name="modes">
+ 		<item>1</item>
+		<item>4</item>
+		<item>15</item>
+		<item>22</item>
+		<item>23</item>
+		<item>28</item>
+		<item>32</item>
+		<item>39</item>
+		<item>57</item>
+		<item>66</item>
+		<item>71</item>
+		<item>73</item>
+		<item>77</item>
+		<item>111</item>
+		<item>114</item>
+		<item>116</item>
+		<item>117</item>
+	</string-array>
 </resources>

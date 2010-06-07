@@ -113,21 +113,10 @@ public class BusOverlay extends BalloonItemizedOverlay<com.google.android.maps.O
 		drawHighlightCircle = b;
 	}
 	
-	public void setBusLocations(List<Location> busLocations, int selectedBusId)
+	public void setBusLocations(List<Location> busLocations)
 	{
 		locations.clear();
 		locations.addAll(busLocations);
-		
-		for (int i = 0; i < locations.size(); i++)
-		{
-			Location busLocation = locations.get(i);
-
-			if (busLocation.getId() == selectedBusId)
-			{
-				selectedBusIndex = i;
-				break;
-			}
-		}
 	}
 	
 	@Override
@@ -219,9 +208,7 @@ public class BusOverlay extends BalloonItemizedOverlay<com.google.android.maps.O
 			//find out farthest point from bus that's closest to center
 			//these points are sorted by distance from center of screen, but we want
 			//distance from the bus closest to the center, which is not quite the same
-			OverlayItem last = first;
 			int lastDistance = 0;
-			Point circleRadius = circleCenter;
 			for (int i = 1; i < overlays.size(); i++)
 			{
 				OverlayItem item = overlays.get(i);
@@ -237,8 +224,6 @@ public class BusOverlay extends BalloonItemizedOverlay<com.google.android.maps.O
 					if (distance > lastDistance)
 					{
 						lastDistance = distance;  
-						last = item;
-						circleRadius = point;
 					}
 				}
 			}
@@ -273,7 +258,15 @@ public class BusOverlay extends BalloonItemizedOverlay<com.google.android.maps.O
 		}
 		else
 		{
-			return locations.get(selectedBusIndex).getId();
+			if (selectedBusIndex >= locations.size())
+			{
+				this.selectedBusIndex = -1;
+				return -1;
+			}
+			else
+			{
+				return locations.get(selectedBusIndex).getId();
+			}
 		}
 		
 	}
@@ -281,6 +274,40 @@ public class BusOverlay extends BalloonItemizedOverlay<com.google.android.maps.O
 	public void doPopulate() {
 		// TODO Auto-generated method stub
 		populate();
+	}
+
+	public void refreshBalloons() {
+		
+		Log.i("REFRESHBALLOONS", selectedBusIndex + " ");
+		if (selectedBusIndex == -1)
+		{
+			hideBalloon();
+		}
+		else
+		{
+			onTap(selectedBusIndex);
+		}
+	}
+	
+	public void setSelectedBusId(int selectedBusId)
+	{
+		if (selectedBusId != -1)
+		{
+			for (int i = 0; i < locations.size(); i++)
+			{
+				Location busLocation = locations.get(i);
+
+				if (busLocation.getId() == selectedBusId)
+				{
+					selectedBusIndex = i;
+					break;
+				}
+			}
+		}
+		else
+		{
+			selectedBusIndex = -1;
+		}
 	}
 	
 }

@@ -213,7 +213,7 @@ public class BusLocation implements Location
 
 	public String makeSnippet()
 	{
-		return "";
+		return null;
 	}
 	
 	public String makeTitle() {
@@ -237,7 +237,11 @@ public class BusLocation implements Location
     	{
     		title += "\nHeading: " + heading + " deg (" + convertHeadingToCardinal(Integer.parseInt(heading)) + ")";
 
-    		title += "\n" + route.getDirection(dirTag);
+    		String directionName = route.getDirection(dirTag);
+    		if (directionName != null && directionName.length() != 0)
+    		{
+    			title += "\n" + directionName;
+    		}
     	}
     	else
     	{

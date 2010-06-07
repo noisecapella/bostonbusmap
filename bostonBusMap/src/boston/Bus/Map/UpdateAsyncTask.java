@@ -158,6 +158,7 @@ public class UpdateAsyncTask extends AsyncTask<Object, String, Locations>
 			catch (Exception e)
 			{
 				publishProgress("Unknown exception occurred");
+				e.printStackTrace();
 				return null;
 			}
 		}
@@ -220,8 +221,6 @@ public class UpdateAsyncTask extends AsyncTask<Object, String, Locations>
 			return;
 		}
 		
-		List<com.google.android.maps.Overlay> overlays = mapView.getOverlays();
-        
 		int selectedBusId = -1;
 		if (busOverlay != null)
 		{
@@ -229,7 +228,7 @@ public class UpdateAsyncTask extends AsyncTask<Object, String, Locations>
 		}
 		
 		busOverlay.setDrawHighlightCircle(drawCircle);
-		busOverlay.setBusLocations(busLocations, selectedBusId);
+		busOverlay.setBusLocations(busLocations);
 		
     	//we need to run populate even if there are 0 busLocations. See this link:
     	//http://groups.google.com/group/android-beginners/browse_thread/thread/6d75c084681f943e?pli=1
@@ -250,7 +249,8 @@ public class UpdateAsyncTask extends AsyncTask<Object, String, Locations>
         	busOverlay.addOverlay(overlay);
         }
 
-        
+        busOverlay.setSelectedBusId(selectedBusId);
+        busOverlay.refreshBalloons();
         
         uiHandler.post(new Runnable() {
 			

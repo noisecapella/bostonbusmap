@@ -66,7 +66,7 @@ public class CurrentLocation implements Location
 	
 	@Override
 	public String makeSnippet() {
-		return "";
+		return null;
 	}
 
 	@Override

@@ -21,6 +21,7 @@ package boston.Bus.Map;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
@@ -69,12 +70,17 @@ import android.view.View;
 import android.view.MenuItem.OnMenuItemClickListener;
 import android.view.View.OnClickListener;
 import android.view.View.OnTouchListener;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.LinearLayout;
+import android.widget.SimpleAdapter;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ZoomControls;
+import android.widget.AdapterView.OnItemSelectedListener;
 
 /**
  * The main activity
@@ -117,9 +123,6 @@ public class Main extends MapActivity
 	private OneTimeLocationListener locationListener;
 	
 	
-	private final String[] routesSupported = new String[] {"1", "4", "15", "22", "23", "28", "32", "39",
-			"57", "66", "71", "73", "77", "111", "114", "116", "117"};
-
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -129,8 +132,52 @@ public class Main extends MapActivity
         mapView = (MapView)findViewById(R.id.mapview);
         textView = (TextView)findViewById(R.id.statusView);
         
-    	//store picture of bus
+        Spinner modeSpinner = (Spinner)findViewById(R.id.modeSpinner);
+        
         Resources resources = getResources();
+        String[] routesSupported = resources.getStringArray(R.array.modes);
+        
+        final ArrayList<HashMap<String, String>> routeList = new ArrayList<HashMap<String, String>>();
+        
+        for (String route : routesSupported)
+        {
+        	HashMap<String, String> map = new HashMap<String, String>();
+        	map.put("name", route);
+        	routeList.add(map);
+        }
+        
+        HashMap<String, String> map = new HashMap<String, String>();
+        map.put("name", "vehicles");
+        routeList.add(map);
+        
+        ArrayAdapter adapter = ArrayAdapter.createFromResource(
+                this, R.array.modes, android.R.layout.simple_spinner_item);
+
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+
+        modeSpinner.setAdapter(adapter);
+        
+        modeSpinner.setOnItemSelectedListener(new OnItemSelectedListener() {
+
+			@Override
+			public void onItemSelected(AdapterView<?> parent, View view,
+					int position, long id) {
+				String value = routeList.get(position).get("name");
+				Log.i("SELECTED", value);
+				if (busLocations != null)
+				{
+					busLocations.useRoute(value);
+				}
+			}
+
+			@Override
+			public void onNothingSelected(AdapterView<?> parent) {
+				// TODO Auto-generated method stub
+				Log.i("SELECTED", "NONE");
+			}
+		});
+        
+    	//store picture of bus
         Drawable locationDrawable = resources.getDrawable(R.drawable.ic_maps_indicator_current_position);
 
         Drawable busPicture = resources.getDrawable(R.drawable.bus_statelist);
@@ -142,9 +189,9 @@ public class Main extends MapActivity
         
         if (busLocations == null)
         {
-        	busLocations = new Locations(busPicture, arrow, locationDrawable, busStop, getOrMakeRouteConfigs(busStop));
+        	busLocations = new Locations(busPicture, arrow, locationDrawable, busStop, getOrMakeRouteConfigs(busStop, routesSupported));
         	
-       		busLocations.useRoute("77");
+        	busLocations.useRoute(null);
         }
         
         double lastUpdateTime = 0;
@@ -203,7 +250,7 @@ public class Main extends MapActivity
 		
 
 
-	private HashMap<String, RouteConfig> getOrMakeRouteConfigs(Drawable busStop) {
+	private HashMap<String, RouteConfig> getOrMakeRouteConfigs(Drawable busStop, String[] routesSupported) {
 		HashMap<String, RouteConfig> map = new HashMap<String, RouteConfig>();
 		
 		DatabaseHelper helper = new DatabaseHelper(this);

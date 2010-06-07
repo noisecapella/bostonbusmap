@@ -40,7 +40,7 @@ public class DatabaseHelper extends SQLiteOpenHelper
 	public void populateMap(HashMap<String, RouteConfig> map, Drawable busStop, String[] routes) {
 
 		SQLiteDatabase database = getReadableDatabase();
-
+		Cursor cursor = null;
 		try
 		{
 			for (String route : routes)
@@ -49,7 +49,7 @@ public class DatabaseHelper extends SQLiteOpenHelper
 
 				
 				
-				Cursor cursor = database.query("directions", new String[] {"route", "tag", "name"},
+				cursor = database.query("directions", new String[] {"route", "tag", "name"},
 						"route=?", new String[]{route}, null, null, null);
 				cursor.moveToFirst();
 				while (cursor.isAfterLast() == false)
@@ -60,7 +60,8 @@ public class DatabaseHelper extends SQLiteOpenHelper
 
 					cursor.moveToNext();
 				}
-
+				cursor.close();
+				
 				cursor = database.query("stops", new String[] {"route", "stopId", "lat", "lon", "title", "dirtag"}, 
 						"route=?", new String[]{route}, null, null, null);
 				cursor.moveToFirst();
@@ -77,13 +78,18 @@ public class DatabaseHelper extends SQLiteOpenHelper
 					routeConfig.addStop(stopId, location);
 					cursor.moveToNext();
 				}
-
+				cursor.close();
+				
 				map.put(route, routeConfig);
 			}
 		}
 		finally
 		{
 			database.close();
+			if (cursor != null)
+			{
+				cursor.close();
+			}
 		}
 	}
 
@@ -109,11 +115,11 @@ public class DatabaseHelper extends SQLiteOpenHelper
 					long numUpdated = database.replace("stops", null, values);
 					if (numUpdated != 0)
 					{
-						Log.i("NUMUPDATED", numUpdated + " ");
+						//Log.i("NUMUPDATED", numUpdated + " ");
 					}
 					else
 					{
-						Log.i("NUMUPDATED", numUpdated + " ");
+						//Log.i("NUMUPDATED", numUpdated + " ");
 					}
 				}
 

@@ -1,6 +1,8 @@
 package boston.Bus.Map;
 
 import java.util.ArrayList;
+import java.util.SortedSet;
+import java.util.TreeSet;
 
 import android.content.Context;
 import android.graphics.drawable.Drawable;
@@ -22,7 +24,7 @@ public class StopLocation implements Location
 	
 	private final RouteConfig route;
 	
-	private final ArrayList<Prediction> predictions = new ArrayList<Prediction>();
+	private final SortedSet<Prediction> predictions = new TreeSet<Prediction>();
 	
 	private static final int LOCATIONTYPE = 3; 
 	
@@ -89,11 +91,18 @@ public class StopLocation implements Location
 
 	@Override
 	public String makeSnippet() {
+		if (predictions.size() == 0)
+		{
+			return null;
+		}
+		
+		
 		String ret = "";
 		for (Prediction prediction : predictions)
 		{
 			ret += "\n" + prediction.toString();
 		}
+		
 		return ret;
 	}
 	
@@ -106,10 +115,10 @@ public class StopLocation implements Location
 		predictions.clear();
 	}
 	
-	public void addPrediction(int seconds, long epochTime, int vehicleId,
+	public void addPrediction(int minutes, long epochTime, int vehicleId,
 			String direction) {
 		String directionToShow = route.getDirection(direction);
-		predictions.add(new Prediction(seconds, epochTime, vehicleId, directionToShow));
+		predictions.add(new Prediction(minutes, epochTime, vehicleId, directionToShow));
 		
 	}
 
