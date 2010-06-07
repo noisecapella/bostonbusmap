@@ -23,7 +23,11 @@ public class Prediction implements Comparable<Prediction>
 		}
 		else
 		{
-			String ret = "Bus " + vehicleId + " " + directionToShow;
+			String ret = "Bus " + vehicleId;
+			if (directionToShow != null && directionToShow.length() != 0)
+			{
+				//ret += " " + directionToShow;
+			}
 
 			if (minutes == 0)
 			{

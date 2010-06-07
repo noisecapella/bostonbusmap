@@ -278,7 +278,7 @@ public class BusOverlay extends BalloonItemizedOverlay<com.google.android.maps.O
 
 	public void refreshBalloons() {
 		
-		Log.i("REFRESHBALLOONS", selectedBusIndex + " ");
+		//Log.i("REFRESHBALLOONS", selectedBusIndex + " ");
 		if (selectedBusIndex == -1)
 		{
 			hideBalloon();

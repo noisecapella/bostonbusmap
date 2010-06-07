@@ -59,6 +59,13 @@ import android.util.Log;
 public final class Locations
 {
 	/**
+	 * No change to mode we're in. 0 is vehicle locations, and others are indexes to route numbers for bus predictions, as index into
+	 * routesSupported. (In this class, routesSupported is defined such that 0 is null, 1 is route 1, 2 is route 4, etc, so -1
+	 * should be the only special case to deal with)
+	 */
+	public static final int NO_CHANGE = -1;
+
+	/**
 	 * A mapping of the bus number to bus location
 	 */
 	private HashMap<Integer, BusLocation> busMapping = new HashMap<Integer, BusLocation>();
@@ -101,15 +108,20 @@ public final class Locations
 	private final Drawable locationDrawable;
 	private final Drawable busStop;
 	
+	private final String[] routesSupported;
+	
 	public Locations(Drawable bus, Drawable arrow, Drawable locationDrawable,
-			Drawable busStop, HashMap<String, RouteConfig> stopMapping)
+			Drawable busStop, HashMap<String, RouteConfig> stopMapping, String[] routesSupported)
 	{
 		this.bus = bus;
 		this.arrow = arrow;
 		this.locationDrawable = locationDrawable;
 		this.busStop = busStop;
+		this.routesSupported = routesSupported;
 		
 		this.stopMapping = stopMapping;
+		
+		this.focusedRoute = null;
 	}
 	
 	private void initializeStopInfo(String route, InputStream inputStream, DatabaseHelper helper) throws ParserConfigurationException, FactoryConfigurationError, SAXException, IOException 
@@ -189,10 +201,11 @@ public final class Locations
 	 * @throws FactoryConfigurationError
 	 * @throws FeedException 
 	 */
-	public void Refresh(Context context, boolean inferBusRoutes) throws SAXException, IOException,
+	public void Refresh(Context context, boolean inferBusRoutes, int routesSupportedIndex) throws SAXException, IOException,
 			ParserConfigurationException, FactoryConfigurationError, FeedException 
 	{
 		updateInferRoutes(inferBusRoutes);
+		useRoute(routesSupportedIndex);
 		
 		//read data from the URL
 		URL url;
@@ -253,7 +266,7 @@ public final class Locations
 		if (document.getElementsByTagName("Error").getLength() != 0)
 		{
 			Log.e("FEEDERROR", url.toString());
-			throw new FeedException(); 
+			//throw new FeedException(); 
 			
 		}
 		
@@ -493,9 +506,26 @@ public final class Locations
 		}
 	}
 
-	public void useRoute(String focusedRoute) {
-		this.focusedRoute = focusedRoute;
-		
+	private void useRoute(int position) {
+		Log.i("USEROUTE", position + " ");
+		if (position == -1)
+		{
+			//-1 means don't change this
+			Log.i("USEROUTE", "NOCHANGE");
+		}
+		else
+		{
+			if (position == 0)
+			{
+				Log.i("USEROUTE", "null");
+			}
+			else
+			{
+				Log.i("USEROUTE", routesSupported[position]);
+			}
+			focusedRoute = routesSupported[position];
+			
+		}
 	}
 	
 	public void useBusLocations()

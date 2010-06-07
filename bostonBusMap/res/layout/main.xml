@@ -6,13 +6,12 @@
 	<RelativeLayout
 		android:layout_width="wrap_content" android:layout_height="wrap_content"
 		 android:orientation="horizontal">
-		<TextView android:id="@+id/statusView"
-			android:layout_width="wrap_content" android:layout_height="wrap_content"
-			 android:text="abc"></TextView>
 	
 <Spinner android:layout_width="wrap_content" android:layout_height="wrap_content" 
 android:id="@+id/modeSpinner"
 android:layout_alignParentRight="true" ></Spinner>
+		<TextView android:id="@+id/statusView"
+			android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="a quick brown fox jumps over the lazy dog. the quick brown fox jumps over the lazy dog." android:layout_toLeftOf="@+id/modeSpinner" android:layout_alignParentLeft="true"></TextView>
 </RelativeLayout>
 	<com.google.android.maps.MapView
 		android:id="@+id/mapview" android:layout_width="fill_parent"

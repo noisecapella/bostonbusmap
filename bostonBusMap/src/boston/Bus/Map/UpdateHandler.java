@@ -6,6 +6,7 @@ import android.content.Context;
 import android.graphics.drawable.Drawable;
 import android.os.Handler;
 import android.os.Message;
+import android.util.Log;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -69,6 +70,7 @@ public class UpdateHandler extends Handler {
 		lastUpdateTime = System.currentTimeMillis();
 	}
 	
+	private int currentRoutesSupportedIndex = Locations.NO_CHANGE;
 	
 	@Override
 	public void handleMessage(Message msg) {
@@ -76,13 +78,12 @@ public class UpdateHandler extends Handler {
 		{
 		case MAJOR:
 			//remove duplicates
-			removeMessages(MAJOR);
 			double currentTime = System.currentTimeMillis();
 			
 			if (currentTime - lastUpdateTime > fetchDelay)
 			{
 				//if not too soon, do the update
-				runUpdateTask("Finished update!");
+				runUpdateTask("Finished update!", currentRoutesSupportedIndex);
 			}
 
 			//make updateBuses execute every 10 seconds (or whatever fetchDelay is)
@@ -93,11 +94,14 @@ public class UpdateHandler extends Handler {
 			break;
 		case MINOR:
 			//don't do two updates at once
+			Log.i("MINOR", "started");
 			if (minorUpdate != null)
 			{
 				if (minorUpdate.getStatus().equals(UpdateAsyncTask.Status.FINISHED) == false)
 				{
 					//task is not finished yet
+					Log.i("MINOR", "not finished yet");
+					sendEmptyMessageDelayed(MINOR, 200);
 					return;
 				}
 				
@@ -107,11 +111,12 @@ public class UpdateHandler extends Handler {
 			removeMessages(MINOR);
 			
 			minorUpdate = new UpdateAsyncTask(textView, mapView, null, getShowUnpredictable(), false, maxOverlays,
-					getHideHighlightCircle() == false, getInferBusRoutes(), busOverlay, context);
+					getHideHighlightCircle() == false, getInferBusRoutes(), busOverlay, context, currentRoutesSupportedIndex);
 			
 
 			minorUpdate.runUpdate(busLocations);
 			
+			Log.i("MINOR", "done currentRoutesSupportedIndex == " + currentRoutesSupportedIndex);
 
 			break;
 		case LOCATION_NOT_FOUND:
@@ -156,7 +161,7 @@ public class UpdateHandler extends Handler {
 	/**
 	 * executes the update
 	 */
-	private void runUpdateTask(String finalMessage) {
+	private void runUpdateTask(String finalMessage, int routesSupportedIndex) {
 		//make sure we don't update too often
 		lastUpdateTime = System.currentTimeMillis();
 
@@ -174,12 +179,12 @@ public class UpdateHandler extends Handler {
 		
 		updateAsyncTask = new UpdateAsyncTask(textView, mapView, finalMessage,
 				getShowUnpredictable(), true, maxOverlays,
-				getHideHighlightCircle() == false, getInferBusRoutes(), busOverlay, context);
+				getHideHighlightCircle() == false, getInferBusRoutes(), busOverlay, context, routesSupportedIndex);
 		updateAsyncTask.runUpdate(busLocations);
 	}
 
 	public boolean instantRefresh() {
-		removeAllMessages();
+		//removeAllMessages();
 		
 		if(getUpdateConstantly())
 		{
@@ -192,7 +197,7 @@ public class UpdateHandler extends Handler {
 			return false;
 		}
 
-		runUpdateTask("Finished update!");
+		runUpdateTask("Finished update!", Locations.NO_CHANGE);
 		return true;
 
 	}
@@ -247,7 +252,14 @@ public class UpdateHandler extends Handler {
 	}
 	
 	public void triggerUpdate(int millis) {
+		Log.i("TRIGGER", "UPDATE, " + millis);
 		sendEmptyMessageDelayed(MINOR, millis);
+		
+	}
+	
+	public void triggerUpdate() {
+		Log.i("TRIGGER", "UPDATE");
+		sendEmptyMessage(MINOR);
 		
 	}
 
@@ -266,5 +278,10 @@ public class UpdateHandler extends Handler {
 			OneTimeLocationListener oneTimeLocationListener) {
 		this.oneTimeLocationListener = oneTimeLocationListener;
 		
+	}
+	
+	public void setRoutesSupportedIndex(int index)
+	{
+		currentRoutesSupportedIndex = index;
 	}
 }

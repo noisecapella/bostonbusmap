@@ -82,9 +82,9 @@ public class StopLocation implements Location
 
 	@Override
 	public String makeTitle() {
-		//String directionToShow = route.getDirection(inBound);
+		String directionToShow = route.getDirection(inBound);
 		
-		String ret = "Stop: " + id + /*"\n" + directionToShow +*/ "\nTitle: " + title;
+		String ret = "Route: " + route.getRouteName() + ", stop: " + id + "\n" + directionToShow + "\nTitle: " + title;
 		
 		return ret;
 	}

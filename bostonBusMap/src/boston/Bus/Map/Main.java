@@ -55,6 +55,7 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Message;
 
 import android.os.SystemClock;
 import android.os.Handler.Callback;
@@ -135,49 +136,7 @@ public class Main extends MapActivity
         Spinner modeSpinner = (Spinner)findViewById(R.id.modeSpinner);
         
         Resources resources = getResources();
-        String[] routesSupported = resources.getStringArray(R.array.modes);
-        
-        final ArrayList<HashMap<String, String>> routeList = new ArrayList<HashMap<String, String>>();
-        
-        for (String route : routesSupported)
-        {
-        	HashMap<String, String> map = new HashMap<String, String>();
-        	map.put("name", route);
-        	routeList.add(map);
-        }
-        
-        HashMap<String, String> map = new HashMap<String, String>();
-        map.put("name", "vehicles");
-        routeList.add(map);
-        
-        ArrayAdapter adapter = ArrayAdapter.createFromResource(
-                this, R.array.modes, android.R.layout.simple_spinner_item);
 
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-
-        modeSpinner.setAdapter(adapter);
-        
-        modeSpinner.setOnItemSelectedListener(new OnItemSelectedListener() {
-
-			@Override
-			public void onItemSelected(AdapterView<?> parent, View view,
-					int position, long id) {
-				String value = routeList.get(position).get("name");
-				Log.i("SELECTED", value);
-				if (busLocations != null)
-				{
-					busLocations.useRoute(value);
-				}
-			}
-
-			@Override
-			public void onNothingSelected(AdapterView<?> parent) {
-				// TODO Auto-generated method stub
-				Log.i("SELECTED", "NONE");
-			}
-		});
-        
-    	//store picture of bus
         Drawable locationDrawable = resources.getDrawable(R.drawable.ic_maps_indicator_current_position);
 
         Drawable busPicture = resources.getDrawable(R.drawable.bus_statelist);
@@ -187,13 +146,69 @@ public class Main extends MapActivity
         
         Drawable busStop = resources.getDrawable(R.drawable.busstop_statelist);
         
-        if (busLocations == null)
+
+        String[] routesSupported = resources.getStringArray(R.array.modes);
+        
+        final ArrayList<HashMap<String, String>> routeList = new ArrayList<HashMap<String, String>>();
+        
         {
-        	busLocations = new Locations(busPicture, arrow, locationDrawable, busStop, getOrMakeRouteConfigs(busStop, routesSupported));
-        	
-        	busLocations.useRoute(null);
+        	HashMap<String, String> map = new HashMap<String, String>();
+        	map.put("name", "Bus Locations");
+        	map.put("key", null);
+        	routeList.add(map);
+        }
+
+        for (String route : routesSupported)
+        {
+        	HashMap<String, String> map = new HashMap<String, String>();
+        	map.put("name", "Route " + route);
+        	map.put("key", route);
+        	routeList.add(map);
         }
         
+        
+        SimpleAdapter adapter = new SimpleAdapter(this, routeList, android.R.layout.simple_spinner_item, new String[]{"name"}, 
+        		new int[]{android.R.id.text1});
+
+        adapter.setDropDownViewResource(android.R.layout.simple_dropdown_item_1line);
+
+        modeSpinner.setAdapter(adapter);
+        
+
+        
+        if (busLocations == null)
+        {
+        	String[] routesSupportedAndBusLocations = new String[routesSupported.length + 1];
+        	System.arraycopy(routesSupported, 0, routesSupportedAndBusLocations, 1, routesSupported.length);
+        	
+        	//leave the first one null to indicate bus locations option
+        	
+        	busLocations = new Locations(busPicture, arrow, locationDrawable, busStop,
+        			getOrMakeRouteConfigs(busStop, routesSupported), routesSupportedAndBusLocations);
+        }
+
+        handler = new UpdateHandler(textView, busPicture, mapView, arrow, tooltip, busLocations, this);
+        populateHandlerSettings();
+        
+        modeSpinner.setOnItemSelectedListener(new OnItemSelectedListener() {
+
+			@Override
+			public void onItemSelected(AdapterView<?> parent, View view,
+					int position, long id) {
+				if (busLocations != null && handler != null)
+				{
+					handler.setRoutesSupportedIndex(position);
+					handler.triggerUpdate();
+				}
+			}
+
+			@Override
+			public void onNothingSelected(AdapterView<?> parent) {
+				// TODO Auto-generated method stub
+				Log.i("SELECTED", "NONE");
+			}
+		});
+
         double lastUpdateTime = 0;
         
         Object obj = getLastNonConfigurationInstance();
@@ -234,10 +249,8 @@ public class Main extends MapActivity
         	textView.setText("");
         }
         
-        handler = new UpdateHandler(textView, busPicture, mapView, arrow, tooltip, busLocations, this);
         handler.setLastUpdateTime(lastUpdateTime);
-        populateHandlerSettings();
-        
+
         if (handler.getUpdateConstantly())
         {
         	handler.instantRefresh();

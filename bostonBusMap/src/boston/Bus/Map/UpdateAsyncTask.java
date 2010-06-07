@@ -65,10 +65,11 @@ public class UpdateAsyncTask extends AsyncTask<Object, String, Locations>
 	
 	private final boolean inferBusRoutes;
 	private BusOverlay busOverlay;
+	private final int routesSupportedIndex;
 	
 	public UpdateAsyncTask(TextView textView, MapView mapView, String finalMessage,
 			boolean doShowUnpredictable, boolean doRefresh, int maxOverlays,
-			boolean drawCircle, boolean inferBusRoutes, BusOverlay busOverlay, Context context)
+			boolean drawCircle, boolean inferBusRoutes, BusOverlay busOverlay, Context context, int routesSupportedIndex)
 	{
 		super();
 		
@@ -83,6 +84,7 @@ public class UpdateAsyncTask extends AsyncTask<Object, String, Locations>
 		this.busOverlay = busOverlay;
 		this.context = context;
 		this.textView = textView;
+		this.routesSupportedIndex = routesSupportedIndex;
 	}
 	
 	/**
@@ -120,13 +122,13 @@ public class UpdateAsyncTask extends AsyncTask<Object, String, Locations>
 			silenceUpdates = true;
 		}
 		
-		publishProgress("Fetching bus location data...");
+		publishProgress("Fetching data...");
 
 		if (doRefresh)
 		{
 			try
 			{
-				busLocations.Refresh(context, inferBusRoutes);
+				busLocations.Refresh(context, inferBusRoutes, routesSupportedIndex);
 			}
 			catch (FeedException e)
 			{
