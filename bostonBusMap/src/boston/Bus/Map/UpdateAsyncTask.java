@@ -124,11 +124,12 @@ public class UpdateAsyncTask extends AsyncTask<Object, String, Locations>
 		
 		publishProgress("Fetching data...");
 
+		busLocations.useRoute(routesSupportedIndex);
 		if (doRefresh)
 		{
 			try
 			{
-				busLocations.Refresh(context, inferBusRoutes, routesSupportedIndex);
+				busLocations.Refresh(context, inferBusRoutes);
 			}
 			catch (FeedException e)
 			{
@@ -228,6 +229,8 @@ public class UpdateAsyncTask extends AsyncTask<Object, String, Locations>
 		{
 			selectedBusId = busOverlay.getSelectedBusId();
 		}
+		
+		Log.i("GET_SELECTEDBUSID", selectedBusId + " ");
 		
 		busOverlay.setDrawHighlightCircle(drawCircle);
 		busOverlay.setBusLocations(busLocations);

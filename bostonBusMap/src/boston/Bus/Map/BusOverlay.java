@@ -18,6 +18,7 @@
     */
 package boston.Bus.Map;
 
+import java.security.acl.LastOwnerException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -166,6 +167,9 @@ public class BusOverlay extends BalloonItemizedOverlay<com.google.android.maps.O
 
 	public void clear() {
 		overlays.clear();
+		
+		setFocus(null);
+		setLastFocusedIndex(-1);
 	}
 
 	@Override
@@ -252,6 +256,7 @@ public class BusOverlay extends BalloonItemizedOverlay<com.google.android.maps.O
 	
 	public int getSelectedBusId() {
 		int selectedBusIndex = getLastFocusedIndex();
+		Log.i("GETSELECTEDBUSINDEX", selectedBusIndex + " ");
 		if (selectedBusIndex == -1)
 		{
 			return -1;
@@ -272,7 +277,6 @@ public class BusOverlay extends BalloonItemizedOverlay<com.google.android.maps.O
 	}
 
 	public void doPopulate() {
-		// TODO Auto-generated method stub
 		populate();
 	}
 
@@ -291,6 +295,7 @@ public class BusOverlay extends BalloonItemizedOverlay<com.google.android.maps.O
 	
 	public void setSelectedBusId(int selectedBusId)
 	{
+		selectedBusIndex = -1;
 		if (selectedBusId != -1)
 		{
 			for (int i = 0; i < locations.size(); i++)
@@ -304,10 +309,7 @@ public class BusOverlay extends BalloonItemizedOverlay<com.google.android.maps.O
 				}
 			}
 		}
-		else
-		{
-			selectedBusIndex = -1;
-		}
+		Log.i("SELECTEDBUSID", selectedBusId + " ");
 	}
 	
 }

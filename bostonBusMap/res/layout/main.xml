@@ -16,7 +16,7 @@ android:layout_alignParentRight="true" ></Spinner>
 	<com.google.android.maps.MapView
 		android:id="@+id/mapview" android:layout_width="fill_parent"
 		android:layout_height="fill_parent" android:clickable="true"
-		android:apiKey="0UeumldxhB0bPpe6UgModFrG5tLPAwclzgqJhRg" />
+		android:apiKey="04_mZq9Q_5sL2pltlDIYof4iIQimS_U5YPnRafg" />
 <!--  debug key: 0UeumldxhB0bPpe6UgModFrG5tLPAwclzgqJhRg -->
 <!--  release key: 04_mZq9Q_5sL2pltlDIYof4iIQimS_U5YPnRafg -->
 

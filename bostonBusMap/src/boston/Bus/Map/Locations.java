@@ -201,11 +201,10 @@ public final class Locations
 	 * @throws FactoryConfigurationError
 	 * @throws FeedException 
 	 */
-	public void Refresh(Context context, boolean inferBusRoutes, int routesSupportedIndex) throws SAXException, IOException,
+	public void Refresh(Context context, boolean inferBusRoutes) throws SAXException, IOException,
 			ParserConfigurationException, FactoryConfigurationError, FeedException 
 	{
 		updateInferRoutes(inferBusRoutes);
-		useRoute(routesSupportedIndex);
 		
 		//read data from the URL
 		URL url;
@@ -506,7 +505,7 @@ public final class Locations
 		}
 	}
 
-	private void useRoute(int position) {
+	public void useRoute(int position) {
 		Log.i("USEROUTE", position + " ");
 		if (position == -1)
 		{

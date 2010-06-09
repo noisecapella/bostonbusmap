@@ -26,7 +26,7 @@ public class Prediction implements Comparable<Prediction>
 			String ret = "Bus " + vehicleId;
 			if (directionToShow != null && directionToShow.length() != 0)
 			{
-				//ret += " " + directionToShow;
+				ret += " " + directionToShow;
 			}
 
 			if (minutes == 0)

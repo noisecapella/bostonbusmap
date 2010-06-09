@@ -89,6 +89,10 @@ import android.widget.AdapterView.OnItemSelectedListener;
  */
 public class Main extends MapActivity
 {
+	private static final String currentRoutesSupportedIndexKey = "currentRoutesSupported";
+	private static final String centerLatKey = "centerLat";
+	private static final String centerLonKey = "centerLon";
+	private static final String zoomLevelKey = "zoomLevel";
 	private MapView mapView;
 	private TextView textView;
 	
@@ -123,6 +127,7 @@ public class Main extends MapActivity
 	 */
 	private OneTimeLocationListener locationListener;
 	
+	private int currentRoutesSupportedIndex;
 	
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -197,6 +202,7 @@ public class Main extends MapActivity
 					int position, long id) {
 				if (busLocations != null && handler != null)
 				{
+					currentRoutesSupportedIndex = position;
 					handler.setRoutesSupportedIndex(position);
 					handler.triggerUpdate();
 				}
@@ -223,9 +229,13 @@ public class Main extends MapActivity
         else
         {
         	SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
-            int centerLat = prefs.getInt("centerLat", Integer.MAX_VALUE);
-            int centerLon = prefs.getInt("centerLon", Integer.MAX_VALUE);
-            int zoomLevel = prefs.getInt("zoomLevel", Integer.MAX_VALUE);
+            int centerLat = prefs.getInt(centerLatKey, Integer.MAX_VALUE);
+            int centerLon = prefs.getInt(centerLonKey, Integer.MAX_VALUE);
+            int zoomLevel = prefs.getInt(zoomLevelKey, Integer.MAX_VALUE);
+            currentRoutesSupportedIndex = prefs.getInt(currentRoutesSupportedIndexKey, 0);
+            
+            modeSpinner.setSelection(currentRoutesSupportedIndex);
+            handler.setRoutesSupportedIndex(currentRoutesSupportedIndex);
 
             if (centerLat != Integer.MAX_VALUE && centerLon != Integer.MAX_VALUE && zoomLevel != Integer.MAX_VALUE)
             {
@@ -289,9 +299,10 @@ public class Main extends MapActivity
     		SharedPreferences.Editor editor = prefs.edit();
 
     		//TODO: these strings should be stored as const strings somewhere, to avoid typos and for easy lookup
-    		editor.putInt("centerLat", point.getLatitudeE6());
-    		editor.putInt("centerLon", point.getLongitudeE6());
-    		editor.putInt("zoomLevel", mapView.getZoomLevel());
+    		editor.putInt(currentRoutesSupportedIndexKey, currentRoutesSupportedIndex);
+    		editor.putInt(centerLatKey, point.getLatitudeE6());
+    		editor.putInt(centerLonKey, point.getLongitudeE6());
+    		editor.putInt(zoomLevelKey, mapView.getZoomLevel());
     		editor.commit();
     	}
     	
@@ -423,7 +434,25 @@ public class Main extends MapActivity
 		}
 		else if (mapView != null)
 		{
-			return mapView.onKeyDown(keyCode, event);
+			if (keyCode == KeyEvent.KEYCODE_DPAD_CENTER)
+			{
+				float centerX = mapView.getWidth() / 2;
+				float centerY = mapView.getHeight() / 2;
+				
+				//make it a tap to the center of the screen
+					
+				MotionEvent downEvent = MotionEvent.obtain(SystemClock.uptimeMillis(), SystemClock.uptimeMillis(),
+						MotionEvent.ACTION_DOWN, centerX, centerY, 0);
+				
+				
+				return mapView.onTouchEvent(downEvent);
+				
+				
+			}
+			else
+			{
+				return mapView.onKeyDown(keyCode, event);
+			}
 		}
 		else
 		{
@@ -466,14 +495,13 @@ public class Main extends MapActivity
 				
 				//make it a tap to the center of the screen
 					
-				MotionEvent downEvent = MotionEvent.obtain(SystemClock.uptimeMillis(), SystemClock.uptimeMillis(),
-						MotionEvent.ACTION_DOWN, centerX, centerY, 0);
 				MotionEvent upEvent = MotionEvent.obtain(SystemClock.uptimeMillis(), SystemClock.uptimeMillis(),
 						MotionEvent.ACTION_UP, centerX, centerY, 0);
 				
 				
-				mapView.onTouchEvent(downEvent);
 				return mapView.onTouchEvent(upEvent);
+				
+				
 			}
 			else
 			{

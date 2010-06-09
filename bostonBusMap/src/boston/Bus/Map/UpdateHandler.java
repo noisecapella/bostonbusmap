@@ -1,5 +1,7 @@
 package boston.Bus.Map;
 
+import org.apache.http.impl.conn.tsccm.RouteSpecificPool;
+
 import com.google.android.maps.MapView;
 
 import android.content.Context;
@@ -34,7 +36,9 @@ public class UpdateHandler extends Handler {
 	 * The minimum time in milliseconds between updates. The XML feed requires a minimum of 10 seconds,
 	 * I'm doing 13 just in case
 	 */
-	public final static int fetchDelay = 13000;
+	public final static int busLocationsFetchDelay = 13000;
+	
+	public final static int predictionsFetchDelay = 24000;
 	
 	private final int maxOverlays = 15;
 	
@@ -46,10 +50,7 @@ public class UpdateHandler extends Handler {
 	private UpdateAsyncTask minorUpdate;
 	
 	private final TextView textView;
-	private final Drawable busPicture;
 	private final MapView mapView;
-	private final Drawable arrow;
-	private final Drawable tooltip;
 	private boolean inferBusRoutes;
 	private final Locations busLocations;
 	private OneTimeLocationListener oneTimeLocationListener;
@@ -60,10 +61,7 @@ public class UpdateHandler extends Handler {
 			Drawable arrow, Drawable tooltip, Locations busLocations, Context context)
 	{
 		this.textView = textView;
-		this.busPicture = busPicture;
 		this.mapView = mapView;
-		this.arrow = arrow;
-		this.tooltip = tooltip;
 		this.busLocations = busLocations;
 		this.context = context;
 		this.busOverlay = new BusOverlay(busPicture, context, this, mapView);
@@ -80,10 +78,12 @@ public class UpdateHandler extends Handler {
 			//remove duplicates
 			double currentTime = System.currentTimeMillis();
 			
+			int fetchDelay = getCurrentFetchDelay();
+			
 			if (currentTime - lastUpdateTime > fetchDelay)
 			{
 				//if not too soon, do the update
-				runUpdateTask("Finished update!", currentRoutesSupportedIndex);
+				runUpdateTask("Finished update!");
 			}
 
 			//make updateBuses execute every 10 seconds (or whatever fetchDelay is)
@@ -101,7 +101,6 @@ public class UpdateHandler extends Handler {
 				{
 					//task is not finished yet
 					Log.i("MINOR", "not finished yet");
-					sendEmptyMessageDelayed(MINOR, 200);
 					return;
 				}
 				
@@ -150,6 +149,19 @@ public class UpdateHandler extends Handler {
 
 
 
+	private int getCurrentFetchDelay() {
+		if (currentRoutesSupportedIndex == 0)
+		{
+			return busLocationsFetchDelay;
+		}
+		else
+		{
+			return predictionsFetchDelay;
+		}
+	}
+
+
+
 	public void removeAllMessages() {
 		removeMessages(MAJOR);
 		removeMessages(MINOR);
@@ -161,7 +173,7 @@ public class UpdateHandler extends Handler {
 	/**
 	 * executes the update
 	 */
-	private void runUpdateTask(String finalMessage, int routesSupportedIndex) {
+	private void runUpdateTask(String finalMessage) {
 		//make sure we don't update too often
 		lastUpdateTime = System.currentTimeMillis();
 
@@ -179,12 +191,14 @@ public class UpdateHandler extends Handler {
 		
 		updateAsyncTask = new UpdateAsyncTask(textView, mapView, finalMessage,
 				getShowUnpredictable(), true, maxOverlays,
-				getHideHighlightCircle() == false, getInferBusRoutes(), busOverlay, context, routesSupportedIndex);
+				getHideHighlightCircle() == false, getInferBusRoutes(), busOverlay, context, currentRoutesSupportedIndex);
 		updateAsyncTask.runUpdate(busLocations);
 	}
 
 	public boolean instantRefresh() {
 		//removeAllMessages();
+		
+		int fetchDelay = getCurrentFetchDelay();
 		
 		if(getUpdateConstantly())
 		{
@@ -197,7 +211,7 @@ public class UpdateHandler extends Handler {
 			return false;
 		}
 
-		runUpdateTask("Finished update!", Locations.NO_CHANGE);
+		runUpdateTask("Finished update!");
 		return true;
 
 	}
