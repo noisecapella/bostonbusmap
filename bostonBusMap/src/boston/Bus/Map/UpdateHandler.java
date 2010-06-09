@@ -38,7 +38,7 @@ public class UpdateHandler extends Handler {
 	 */
 	public final static int busLocationsFetchDelay = 13000;
 	
-	public final static int predictionsFetchDelay = 24000;
+	public final static int predictionsFetchDelay = 15000;
 	
 	private final int maxOverlays = 15;
 	
