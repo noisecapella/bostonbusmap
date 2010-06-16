@@ -56,6 +56,7 @@ public class UpdateAsyncTask extends AsyncTask<Object, String, Locations>
 	private final String finalMessage;
 	private final boolean doShowUnpredictable;
 	private final boolean doRefresh;
+	private final boolean doInit;
 	private final int maxOverlays;
 	private final boolean drawCircle;
 	private final Context context;
@@ -69,7 +70,8 @@ public class UpdateAsyncTask extends AsyncTask<Object, String, Locations>
 	
 	public UpdateAsyncTask(TextView textView, MapView mapView, String finalMessage,
 			boolean doShowUnpredictable, boolean doRefresh, int maxOverlays,
-			boolean drawCircle, boolean inferBusRoutes, BusOverlay busOverlay, Context context, int routesSupportedIndex)
+			boolean drawCircle, boolean inferBusRoutes, BusOverlay busOverlay, Context context, int routesSupportedIndex,
+			boolean doInit)
 	{
 		super();
 		
@@ -85,6 +87,7 @@ public class UpdateAsyncTask extends AsyncTask<Object, String, Locations>
 		this.context = context;
 		this.textView = textView;
 		this.routesSupportedIndex = routesSupportedIndex;
+		this.doInit = doInit;
 	}
 	
 	/**
@@ -129,6 +132,10 @@ public class UpdateAsyncTask extends AsyncTask<Object, String, Locations>
 		{
 			try
 			{
+				if (doInit)
+				{
+					busLocations.initializeAllRoutes(context);
+				}
 				busLocations.Refresh(context, inferBusRoutes);
 			}
 			catch (FeedException e)

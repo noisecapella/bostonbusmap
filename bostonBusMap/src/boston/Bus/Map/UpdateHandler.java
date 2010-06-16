@@ -57,6 +57,8 @@ public class UpdateHandler extends Handler {
 	private final Context context;
 	private final BusOverlay busOverlay; 
 	
+	private boolean isFirstRefresh = true;
+	
 	public UpdateHandler(TextView textView, Drawable busPicture, MapView mapView,
 			Drawable arrow, Drawable tooltip, Locations busLocations, Context context)
 	{
@@ -83,7 +85,8 @@ public class UpdateHandler extends Handler {
 			if (currentTime - lastUpdateTime > fetchDelay)
 			{
 				//if not too soon, do the update
-				runUpdateTask("Finished update!");
+				runUpdateTask("Finished update!", isFirstRefresh);
+				isFirstRefresh = false;
 			}
 
 			//make updateBuses execute every 10 seconds (or whatever fetchDelay is)
@@ -110,7 +113,7 @@ public class UpdateHandler extends Handler {
 			removeMessages(MINOR);
 			
 			minorUpdate = new UpdateAsyncTask(textView, mapView, null, getShowUnpredictable(), false, maxOverlays,
-					getHideHighlightCircle() == false, getInferBusRoutes(), busOverlay, context, currentRoutesSupportedIndex);
+					getHideHighlightCircle() == false, getInferBusRoutes(), busOverlay, context, currentRoutesSupportedIndex, false);
 			
 
 			minorUpdate.runUpdate(busLocations);
@@ -173,7 +176,7 @@ public class UpdateHandler extends Handler {
 	/**
 	 * executes the update
 	 */
-	private void runUpdateTask(String finalMessage) {
+	private void runUpdateTask(String finalMessage, boolean isFirstTime) {
 		//make sure we don't update too often
 		lastUpdateTime = System.currentTimeMillis();
 
@@ -191,7 +194,7 @@ public class UpdateHandler extends Handler {
 		
 		updateAsyncTask = new UpdateAsyncTask(textView, mapView, finalMessage,
 				getShowUnpredictable(), true, maxOverlays,
-				getHideHighlightCircle() == false, getInferBusRoutes(), busOverlay, context, currentRoutesSupportedIndex);
+				getHideHighlightCircle() == false, getInferBusRoutes(), busOverlay, context, currentRoutesSupportedIndex, isFirstTime);
 		updateAsyncTask.runUpdate(busLocations);
 	}
 
@@ -211,7 +214,8 @@ public class UpdateHandler extends Handler {
 			return false;
 		}
 
-		runUpdateTask("Finished update!");
+		runUpdateTask("Finished update!", isFirstRefresh);
+		isFirstRefresh = false;
 		return true;
 
 	}

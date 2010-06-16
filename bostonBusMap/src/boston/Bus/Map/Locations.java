@@ -124,7 +124,8 @@ public final class Locations
 		this.focusedRoute = null;
 	}
 	
-	private void initializeStopInfo(String route, InputStream inputStream, DatabaseHelper helper) throws ParserConfigurationException, FactoryConfigurationError, SAXException, IOException 
+	private void initializeStopInfo(String route, InputStream inputStream, DatabaseHelper helper) 
+		throws ParserConfigurationException, FactoryConfigurationError, SAXException, IOException
 	{
 		DocumentBuilder builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
 		
@@ -189,6 +190,37 @@ public final class Locations
 		
 		helper.saveMapping(route, stopLocations);
 	}
+
+	/**
+	 * Download all stop locations
+	 * 
+	 * @param context
+	 * @throws ParserConfigurationException
+	 * @throws FactoryConfigurationError
+	 * @throws SAXException
+	 * @throws IOException
+	 */
+	public void initializeAllRoutes(Context context)
+		throws ParserConfigurationException, FactoryConfigurationError, SAXException, IOException
+	{
+		for (int i = 1; i < routesSupported.length; i++)
+		{
+			String route = routesSupported[i];
+			
+			if (stopMapping.containsKey(route) == false)
+			{
+
+				//populate stops
+				final String urlString = mbtaRouteConfigDataUrl + focusedRoute;
+				URL url = new URL(urlString);
+
+				//just initialize the route and then end for this round
+				InputStream stream = url.openStream();
+				initializeStopInfo(route, stream, new DatabaseHelper(context));
+			}
+
+		}
+	}
 	
 	/**
 	 * Update the bus locations based on data from the XML feed 
@@ -231,7 +263,7 @@ public final class Locations
 				}
 				else
 				{
-					//populate stops
+					//populate stops (just in case we didn't already)
 					final String urlString = mbtaRouteConfigDataUrl + focusedRoute;
 					url = new URL(urlString);
 
@@ -243,7 +275,7 @@ public final class Locations
 			}
 			else
 			{
-				//populate stops
+				//populate stops (just in case we didn't already)
 				final String urlString = mbtaRouteConfigDataUrl + focusedRoute;
 				url = new URL(urlString);
 
