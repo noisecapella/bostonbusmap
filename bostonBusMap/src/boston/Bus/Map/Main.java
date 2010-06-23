@@ -205,6 +205,7 @@ public class Main extends MapActivity
 					currentRoutesSupportedIndex = position;
 					handler.setRoutesSupportedIndex(position);
 					handler.triggerUpdate();
+					handler.immediateRefresh();
 				}
 			}
 

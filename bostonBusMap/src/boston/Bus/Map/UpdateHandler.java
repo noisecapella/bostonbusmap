@@ -40,8 +40,9 @@ public class UpdateHandler extends Handler {
 	
 	public final static int predictionsFetchDelay = 15000;
 	
-	private final int maxOverlays = 15;
-	
+	private final int maxOverlays = 23;
+
+	private final int IMMEDIATE_REFRESH = 1;
 
 	private boolean updateConstantly;
 	private boolean hideHighlightCircle;
@@ -84,7 +85,7 @@ public class UpdateHandler extends Handler {
 			
 			int fetchDelay = getCurrentFetchDelay();
 			
-			if (currentTime - lastUpdateTime > fetchDelay)
+			if (currentTime - lastUpdateTime > fetchDelay || msg.arg1 == IMMEDIATE_REFRESH)
 			{
 				//if not too soon, do the update
 				runUpdateTask("Finished update!", isFirstRefresh);
@@ -313,5 +314,14 @@ public class UpdateHandler extends Handler {
 	public void setRoutesSupportedIndex(int index)
 	{
 		currentRoutesSupportedIndex = index;
+	}
+
+
+
+	public void immediateRefresh() {
+		Message msg = new Message();
+		msg.arg1 = IMMEDIATE_REFRESH;
+		msg.what = MAJOR;
+		sendMessage(msg);
 	}
 }
