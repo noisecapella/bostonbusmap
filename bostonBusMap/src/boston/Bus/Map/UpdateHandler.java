@@ -57,7 +57,7 @@ public class UpdateHandler extends Handler {
 	private final Context context;
 	private final BusOverlay busOverlay; 
 	
-	private boolean isFirstRefresh = true;
+	private boolean isFirstRefresh;
 	
 	public UpdateHandler(TextView textView, Drawable busPicture, MapView mapView,
 			Drawable arrow, Drawable tooltip, Locations busLocations, Context context)
@@ -68,6 +68,8 @@ public class UpdateHandler extends Handler {
 		this.context = context;
 		this.busOverlay = new BusOverlay(busPicture, context, this, mapView);
 		lastUpdateTime = System.currentTimeMillis();
+		
+		
 	}
 	
 	private int currentRoutesSupportedIndex = Locations.NO_CHANGE;
@@ -267,6 +269,16 @@ public class UpdateHandler extends Handler {
 	public boolean getInferBusRoutes()
 	{
 		return inferBusRoutes;
+	}
+	
+	public void setInitAllRouteInfo(boolean b)
+	{
+		isFirstRefresh = b;
+	}
+	
+	public boolean getInitAllRouteInfo()
+	{
+		return isFirstRefresh;
 	}
 	
 	public void triggerUpdate(int millis) {

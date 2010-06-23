@@ -56,6 +56,9 @@ public class UpdateAsyncTask extends AsyncTask<Object, String, Locations>
 	private final String finalMessage;
 	private final boolean doShowUnpredictable;
 	private final boolean doRefresh;
+	/**
+	 * For now this is always false. I need to figure out how to download a 1 megabyte file gracefully
+	 */
 	private final boolean doInit;
 	private final int maxOverlays;
 	private final boolean drawCircle;
@@ -125,8 +128,6 @@ public class UpdateAsyncTask extends AsyncTask<Object, String, Locations>
 			silenceUpdates = true;
 		}
 		
-		publishProgress("Fetching data...");
-
 		busLocations.useRoute(routesSupportedIndex);
 		if (doRefresh)
 		{
@@ -134,8 +135,11 @@ public class UpdateAsyncTask extends AsyncTask<Object, String, Locations>
 			{
 				if (doInit)
 				{
+					publishProgress("Downloading route info (this may take a short while)");
 					busLocations.initializeAllRoutes(context);
 				}
+				publishProgress("Fetching data...");
+
 				busLocations.Refresh(context, inferBusRoutes);
 			}
 			catch (FeedException e)

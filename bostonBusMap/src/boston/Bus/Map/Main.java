@@ -464,10 +464,11 @@ public class Main extends MapActivity
     private void populateHandlerSettings() {
     	SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
     	
-    	handler.setUpdateConstantly(prefs.getBoolean(getString(R.string.runInBackgroundCheckbox), false));
+    	handler.setUpdateConstantly(prefs.getBoolean(getString(R.string.runInBackgroundCheckbox), true));
     	handler.setShowUnpredictable(prefs.getBoolean(getString(R.string.showUnpredictableBusesCheckbox), false));
     	handler.setHideHighlightCircle(prefs.getBoolean(getString(R.string.hideCircleCheckbox), false));
     	handler.setInferBusRoutes(prefs.getBoolean(getString(R.string.inferVehicleRouteCheckbox), false));
+    	handler.setInitAllRouteInfo(prefs.getBoolean(getString(R.string.initAllRouteInfoCheckbox), false));
 	}
 
 	@Override

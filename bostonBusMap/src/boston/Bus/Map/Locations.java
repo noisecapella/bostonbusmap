@@ -78,6 +78,7 @@ public final class Locations
 	private final String mbtaLocationsDataUrl = "http://webservices.nextbus.com/service/publicXMLFeed?command=vehicleLocations&a=mbta&t=";
 
 	private final String mbtaRouteConfigDataUrl = "http://webservices.nextbus.com/service/publicXMLFeed?command=routeConfig&a=mbta&r=";
+	private final String mbtaRouteConfigDataUrlAllRoutes = "http://webservices.nextbus.com/service/publicXMLFeed?command=routeConfig&a=mbta";
 	
 	private final String mbtaPredictionsDataUrl = "http://webservices.nextbus.com/service/publicXMLFeed?command=predictionsForMultiStops&a=mbta";
 
@@ -124,9 +125,76 @@ public final class Locations
 		this.focusedRoute = null;
 	}
 	
+	private void initializeAllStopInfo(InputStream inputStream, DatabaseHelper helper)
+	throws ParserConfigurationException, FactoryConfigurationError, SAXException, IOException
+	{
+		DocumentBuilder builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
+
+
+		Document document = builder.parse(inputStream);
+
+		//first check for errors
+		if (document.getElementsByTagName("Error").getLength() != 0)
+		{
+			throw new RuntimeException("The feed is reporting an error"); 
+
+		}
+
+		NodeList routeList = document.getElementsByTagName("route");
+		for (int routeIndex = 0; routeIndex < routeList.getLength(); routeIndex++)
+		{
+			Element routeElement = (Element)routeList.item(routeIndex);
+			
+			String route = routeElement.getAttribute("tag");
+			
+			RouteConfig stopLocations = new RouteConfig(route);
+
+
+
+			NodeList stopList = routeElement.getChildNodes();
+			for (int i = 0; i < stopList.getLength(); i++)
+			{
+				Node node = stopList.item(i);
+				if (node.getNodeType() != Node.ELEMENT_NODE)
+				{
+					continue;
+				}
+
+				Element stop = (Element)node;
+
+				if ("stop".equals(stop.getTagName()))
+				{
+					float latitudeAsDegrees = Float.parseFloat(stop.getAttribute("lat"));
+					float longitudeAsDegrees = Float.parseFloat(stop.getAttribute("lon"));
+					int id = Integer.parseInt(stop.getAttribute("stopId"));
+					String title = stop.getAttribute("title");
+
+					String dirTag = stop.getAttribute("dirTag");
+
+
+					StopLocation stopLocation = new StopLocation(latitudeAsDegrees, longitudeAsDegrees, 
+							busStop, id, title, dirTag, stopLocations);
+					stopLocations.addStop(id, stopLocation);
+				}
+				else if ("direction".equals(stop.getTagName()))
+				{
+
+					stopLocations.addDirection(stop.getAttribute("tag"), stop.getAttribute("name"));
+				}
+				//TODO: handle path
+			}
+
+			stopMapping.put(route, stopLocations);
+
+			helper.saveMapping(route, stopLocations);
+		}
+
+	}
+	
 	private void initializeStopInfo(String route, InputStream inputStream, DatabaseHelper helper) 
 		throws ParserConfigurationException, FactoryConfigurationError, SAXException, IOException
 	{
+		Log.i("STOPINFO", "attempting to get route information for route " + route);
 		DocumentBuilder builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
 		
 		
@@ -144,7 +212,6 @@ public final class Locations
 		Element routeElement = (Element)document.getElementsByTagName("route").item(0);
 		
 		
-		//TODO: there are many different stop tags
 		NodeList stopList = routeElement.getChildNodes();
 		for (int i = 0; i < stopList.getLength(); i++)
 		{
@@ -160,16 +227,7 @@ public final class Locations
 			{
 				float latitudeAsDegrees = Float.parseFloat(stop.getAttribute("lat"));
 				float longitudeAsDegrees = Float.parseFloat(stop.getAttribute("lon"));
-				int id = 0;
-				try
-				{
-					id = Integer.parseInt(stop.getAttribute("stopId"));
-
-				}
-				catch (Exception e)
-				{
-					e.printStackTrace();
-				}
+				int id = Integer.parseInt(stop.getAttribute("stopId"));
 				String title = stop.getAttribute("title");
 
 				String dirTag = stop.getAttribute("dirTag");
@@ -184,6 +242,7 @@ public final class Locations
 				
 				stopLocations.addDirection(stop.getAttribute("tag"), stop.getAttribute("name"));
 			}
+			//TODO: handle path
 		}
 		
 		stopMapping.put(route, stopLocations);
@@ -203,22 +262,36 @@ public final class Locations
 	public void initializeAllRoutes(Context context)
 		throws ParserConfigurationException, FactoryConfigurationError, SAXException, IOException
 	{
-		for (int i = 1; i < routesSupported.length; i++)
+		if (stopMapping.size() == 0)
 		{
-			String route = routesSupported[i];
+			//download everything at once
+			final String urlString = mbtaRouteConfigDataUrlAllRoutes;
+			URL url = new URL(urlString);
 			
-			if (stopMapping.containsKey(route) == false)
+			InputStream stream = url.openStream();
+			initializeAllStopInfo(stream, new DatabaseHelper(context));
+		}
+		else
+		{
+		
+
+			for (int i = 1; i < routesSupported.length; i++)
 			{
+				String route = routesSupported[i];
 
-				//populate stops
-				final String urlString = mbtaRouteConfigDataUrl + focusedRoute;
-				URL url = new URL(urlString);
+				if (stopMapping.containsKey(route) == false || stopMapping.get(route).getStops().size() == 0)
+				{
+					//populate stops
+					final String urlString = mbtaRouteConfigDataUrl + route;
+					URL url = new URL(urlString);
 
-				//just initialize the route and then end for this round
-				InputStream stream = url.openStream();
-				initializeStopInfo(route, stream, new DatabaseHelper(context));
+					//just initialize the route and then end for this round
+					InputStream stream = url.openStream();
+					initializeStopInfo(route, stream, new DatabaseHelper(context));
+				}
+
+
 			}
-
 		}
 	}
 	
