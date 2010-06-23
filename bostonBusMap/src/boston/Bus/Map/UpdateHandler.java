@@ -94,7 +94,10 @@ public class UpdateHandler extends Handler {
 
 			//make updateBuses execute every 10 seconds (or whatever fetchDelay is)
 			//to disable this, the user should go into the settings and uncheck 'Run in background'
-			sendEmptyMessageDelayed(MAJOR, fetchDelay);
+			if (msg.arg1 != IMMEDIATE_REFRESH)
+			{
+				sendEmptyMessageDelayed(MAJOR, fetchDelay);
+			}
 
 
 			break;
