@@ -314,5 +314,9 @@ public class BusLocation implements Location
 		return longitudeAsDegrees;
 	}
 	
+	@Override
+	public int getIsFavorite() {
+		return 0;
+	}
 }
 

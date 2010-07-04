@@ -31,4 +31,6 @@ public interface Location {
 	double distanceFrom(double centerLatitude, double centerLongitude);
 
 	String makeSnippet();
+
+	int getIsFavorite();
 }

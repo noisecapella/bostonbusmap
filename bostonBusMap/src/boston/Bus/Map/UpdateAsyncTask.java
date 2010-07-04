@@ -260,6 +260,8 @@ public class UpdateAsyncTask extends AsyncTask<Object, String, Locations>
         	String title = busLocation.makeTitle();
         	String snippet = busLocation.makeSnippet();
         	
+        	int isFavorite = busLocation.getIsFavorite();
+        	
         	//the title is displayed when someone taps on the icon
         	OverlayItem overlay = new OverlayItem(point, title, snippet);
         	busOverlay.addOverlay(overlay);

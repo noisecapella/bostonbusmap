@@ -26,6 +26,8 @@ public class StopLocation implements Location
 	
 	private final SortedSet<Prediction> predictions = new TreeSet<Prediction>();
 	
+	private boolean isFavorite;
+	
 	private static final int LOCATIONTYPE = 3; 
 	
 	public StopLocation(double latitudeAsDegrees, double longitudeAsDegrees,
@@ -128,6 +130,19 @@ public class StopLocation implements Location
 
 	public String getDirtag() {
 		return inBound;
+	}
+	
+	private static final int IS_FAVORITE = 1;
+	private static final int IS_NOT_FAVORITE = 2;
+	
+	public void setIsFavorite(boolean b)
+	{
+		this.isFavorite = b;
+	}
+	
+	@Override
+	public int getIsFavorite() {
+		return isFavorite ? IS_FAVORITE : IS_NOT_FAVORITE;
 	}
 
 }

@@ -75,4 +75,8 @@ public class CurrentLocation implements Location
 		return LocationComparator.computeDistance(latitude, longitude, centerLatitude, centerLongitude);
 	}
 
+	@Override
+	public int getIsFavorite() {
+		return 0;
+	}
 }
