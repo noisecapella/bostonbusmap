@@ -237,7 +237,7 @@ public class BusLocation implements Location
     	{
     		title += "\nHeading: " + heading + " deg (" + convertHeadingToCardinal(Integer.parseInt(heading)) + ")";
 
-    		String directionName = route.getDirection(dirTag);
+    		String directionName = route.getDirectionTitle(dirTag);
     		if (directionName != null && directionName.length() != 0)
     		{
     			title += "\n" + directionName;

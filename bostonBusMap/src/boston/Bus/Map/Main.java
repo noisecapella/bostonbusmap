@@ -152,7 +152,9 @@ public class Main extends MapActivity
         Drawable busStop = resources.getDrawable(R.drawable.busstop_statelist);
         
 
-        String[] routesSupported = resources.getStringArray(R.array.modes);
+        DatabaseHelper helper = new DatabaseHelper(this);
+        
+        String[] routesSupported = getOrObtainRoutes(helper);
         
         final ArrayList<HashMap<String, String>> routeList = new ArrayList<HashMap<String, String>>();
         
@@ -189,10 +191,10 @@ public class Main extends MapActivity
         	//leave the first one null to indicate bus locations option
         	
         	busLocations = new Locations(busPicture, arrow, locationDrawable, busStop,
-        			getOrMakeRouteConfigs(busStop, routesSupported), routesSupportedAndBusLocations);
+        			getOrMakeRouteConfigs(busStop, routesSupported, helper), routesSupportedAndBusLocations);
         }
 
-        handler = new UpdateHandler(textView, busPicture, mapView, arrow, tooltip, busLocations, this);
+        handler = new UpdateHandler(textView, busPicture, mapView, arrow, tooltip, busLocations, this, helper);
         populateHandlerSettings();
         
         modeSpinner.setOnItemSelectedListener(new OnItemSelectedListener() {
@@ -274,10 +276,20 @@ public class Main extends MapActivity
 		
 
 
-	private HashMap<String, RouteConfig> getOrMakeRouteConfigs(Drawable busStop, String[] routesSupported) {
+
+
+	private String[] getOrObtainRoutes(DatabaseHelper helper) {
+		//TODO: download it from the xml feed and store it in the database. For now it's just a resource
+		return getResources().getStringArray(R.array.modes);
+	}
+
+
+
+
+
+	private HashMap<String, RouteConfig> getOrMakeRouteConfigs(Drawable busStop, String[] routesSupported, DatabaseHelper helper) {
 		HashMap<String, RouteConfig> map = new HashMap<String, RouteConfig>();
 		
-		DatabaseHelper helper = new DatabaseHelper(this);
 		SQLiteDatabase database = helper.getWritableDatabase();
 		synchronized (database)
 		{
@@ -299,7 +311,6 @@ public class Main extends MapActivity
     		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
     		SharedPreferences.Editor editor = prefs.edit();
 
-    		//TODO: these strings should be stored as const strings somewhere, to avoid typos and for easy lookup
     		editor.putInt(currentRoutesSupportedIndexKey, currentRoutesSupportedIndex);
     		editor.putInt(centerLatKey, point.getLatitudeE6());
     		editor.putInt(centerLonKey, point.getLongitudeE6());
@@ -469,12 +480,12 @@ public class Main extends MapActivity
     	handler.setShowUnpredictable(prefs.getBoolean(getString(R.string.showUnpredictableBusesCheckbox), false));
     	handler.setHideHighlightCircle(prefs.getBoolean(getString(R.string.hideCircleCheckbox), false));
     	handler.setInferBusRoutes(prefs.getBoolean(getString(R.string.inferVehicleRouteCheckbox), false));
-    	handler.setInitAllRouteInfo(prefs.getBoolean(getString(R.string.initAllRouteInfoCheckbox), false));
+    	//handler.setInitAllRouteInfo(prefs.getBoolean(getString(R.string.initAllRouteInfoCheckbox2), true));
+    	handler.setInitAllRouteInfo(true);
 	}
 
 	@Override
 	public Object onRetainNonConfigurationInstance() {
-		// TODO Auto-generated method stub
 		
 		return new CurrentState(textView, mapView, busLocations, handler.getLastUpdateTime());
 	}

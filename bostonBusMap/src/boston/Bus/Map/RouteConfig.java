@@ -6,7 +6,8 @@ import java.util.HashMap;
 public class RouteConfig {
 
 	private final HashMap<Integer, StopLocation> stops = new HashMap<Integer, StopLocation>();
-	private final HashMap<String, String> directions = new HashMap<String, String>();
+	private final HashMap<String, String> directionTitles = new HashMap<String, String>();
+	private final HashMap<String, String> directionNames = new HashMap<String, String>();
 	
 	private final String route;
 	
@@ -27,11 +28,11 @@ public class RouteConfig {
 	}
 
 	
-	public String getDirection(String dirTag)
+	public String getDirectionTitle(String dirTag)
 	{
-		if (directions.containsKey(dirTag))
+		if (directionTitles.containsKey(dirTag))
 		{
-			return directions.get(dirTag);
+			return directionTitles.get(dirTag);
 		}
 		else
 		{
@@ -39,13 +40,27 @@ public class RouteConfig {
 		}
 	}
 
+	public String getDirectionName(String dirTag)
+	{
+		if (directionNames.containsKey(dirTag))
+		{
+			return directionNames.get(dirTag);
+		}
+		else
+		{
+			return "";
+		}
+	}
+
+	
+	
 	public Collection<StopLocation> getStops() {
 		return stops.values();
 	}
 
-	public void addDirection(String tag, String name) {
-		directions.put(tag, name);
-		
+	public void addDirection(String tag, String title, String name) {
+		directionTitles.put(tag, title);
+		directionNames.put(tag, name);
 	}
 
 
@@ -57,7 +72,7 @@ public class RouteConfig {
 
 
 	public Collection<String> getDirtags() {
-		return directions.keySet();
+		return directionTitles.keySet();
 	}
 			
 }

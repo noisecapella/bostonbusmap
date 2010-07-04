@@ -7,6 +7,11 @@ import android.widget.TextView;
 import com.google.android.maps.MapView;
 import com.google.android.maps.Overlay;
 
+/**
+ * Stores state when MainActivity pauses temporarily
+ * @author schneg
+ *
+ */
 public class CurrentState {
 	private final CharSequence textViewStatus;
 	private final double lastUpdateTime;

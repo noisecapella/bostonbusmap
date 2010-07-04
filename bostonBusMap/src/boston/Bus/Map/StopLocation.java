@@ -84,7 +84,7 @@ public class StopLocation implements Location
 
 	@Override
 	public String makeTitle() {
-		String directionToShow = route.getDirection(inBound);
+		String directionToShow = route.getDirectionTitle(inBound);
 		
 		String ret = "Route: " + route.getRouteName() + ", stop: " + id + "\n" + directionToShow + "\nTitle: " + title;
 		
@@ -119,7 +119,7 @@ public class StopLocation implements Location
 	
 	public void addPrediction(int minutes, long epochTime, int vehicleId,
 			String direction) {
-		String directionToShow = route.getDirection(direction);
+		String directionToShow = route.getDirectionTitle(direction);
 		predictions.add(new Prediction(minutes, epochTime, vehicleId, directionToShow));
 		
 	}

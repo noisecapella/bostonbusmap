@@ -62,7 +62,7 @@ public class UpdateAsyncTask extends AsyncTask<Object, String, Locations>
 	private final boolean doInit;
 	private final int maxOverlays;
 	private final boolean drawCircle;
-	private final Context context;
+	private final DatabaseHelper helper;
 	private final TextView textView;
 	
 	private boolean silenceUpdates;
@@ -73,7 +73,7 @@ public class UpdateAsyncTask extends AsyncTask<Object, String, Locations>
 	
 	public UpdateAsyncTask(TextView textView, MapView mapView, String finalMessage,
 			boolean doShowUnpredictable, boolean doRefresh, int maxOverlays,
-			boolean drawCircle, boolean inferBusRoutes, BusOverlay busOverlay, Context context, int routesSupportedIndex,
+			boolean drawCircle, boolean inferBusRoutes, BusOverlay busOverlay, DatabaseHelper helper, int routesSupportedIndex,
 			boolean doInit)
 	{
 		super();
@@ -87,7 +87,7 @@ public class UpdateAsyncTask extends AsyncTask<Object, String, Locations>
 		this.drawCircle = drawCircle;
 		this.inferBusRoutes = inferBusRoutes;
 		this.busOverlay = busOverlay;
-		this.context = context;
+		this.helper = helper;
 		this.textView = textView;
 		this.routesSupportedIndex = routesSupportedIndex;
 		this.doInit = doInit;
@@ -136,11 +136,11 @@ public class UpdateAsyncTask extends AsyncTask<Object, String, Locations>
 				if (doInit)
 				{
 					publishProgress("Downloading route info (this may take a short while)");
-					busLocations.initializeAllRoutes(context);
+					busLocations.initializeAllRoutes(helper, this);
 				}
 				publishProgress("Fetching data...");
 
-				busLocations.Refresh(context, inferBusRoutes);
+				busLocations.Refresh(helper, inferBusRoutes);
 			}
 			catch (FeedException e)
 			{
@@ -293,5 +293,14 @@ public class UpdateAsyncTask extends AsyncTask<Object, String, Locations>
         {
         	publishProgress(finalMessage);
         }
+	}
+	
+	/**
+	 * public method exposing protected publishProgress()
+	 * @param msg
+	 */
+	public void publish(String msg)
+	{
+		publishProgress(msg);
 	}
 }

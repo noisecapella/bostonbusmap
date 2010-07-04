@@ -55,22 +55,23 @@ public class UpdateHandler extends Handler {
 	private boolean inferBusRoutes;
 	private final Locations busLocations;
 	private OneTimeLocationListener oneTimeLocationListener;
+	private final DatabaseHelper helper;
 	private final Context context;
 	private final BusOverlay busOverlay; 
 	
 	private boolean isFirstRefresh;
 	
 	public UpdateHandler(TextView textView, Drawable busPicture, MapView mapView,
-			Drawable arrow, Drawable tooltip, Locations busLocations, Context context)
+			Drawable arrow, Drawable tooltip, Locations busLocations, Context context, DatabaseHelper helper)
 	{
 		this.textView = textView;
 		this.mapView = mapView;
 		this.busLocations = busLocations;
-		this.context = context;
+		this.helper = helper;
 		this.busOverlay = new BusOverlay(busPicture, context, this, mapView);
 		lastUpdateTime = System.currentTimeMillis();
 		
-		
+		this.context = context;
 	}
 	
 	private int currentRoutesSupportedIndex = Locations.NO_CHANGE;
@@ -119,7 +120,7 @@ public class UpdateHandler extends Handler {
 			removeMessages(MINOR);
 			
 			minorUpdate = new UpdateAsyncTask(textView, mapView, null, getShowUnpredictable(), false, maxOverlays,
-					getHideHighlightCircle() == false, getInferBusRoutes(), busOverlay, context, currentRoutesSupportedIndex, false);
+					getHideHighlightCircle() == false, getInferBusRoutes(), busOverlay, helper, currentRoutesSupportedIndex, false);
 			
 
 			minorUpdate.runUpdate(busLocations);
@@ -200,7 +201,7 @@ public class UpdateHandler extends Handler {
 		
 		updateAsyncTask = new UpdateAsyncTask(textView, mapView, finalMessage,
 				getShowUnpredictable(), true, maxOverlays,
-				getHideHighlightCircle() == false, getInferBusRoutes(), busOverlay, context, currentRoutesSupportedIndex, isFirstTime);
+				getHideHighlightCircle() == false, getInferBusRoutes(), busOverlay, helper, currentRoutesSupportedIndex, isFirstTime);
 		updateAsyncTask.runUpdate(busLocations);
 	}
 

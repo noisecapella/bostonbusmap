@@ -27,6 +27,7 @@ import java.io.InputStream;
 import java.io.StringReader;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -125,154 +126,47 @@ public final class Locations
 		this.focusedRoute = null;
 	}
 	
-	private void initializeAllStopInfo(InputStream inputStream, DatabaseHelper helper)
-	throws ParserConfigurationException, FactoryConfigurationError, SAXException, IOException
-	{
-		DocumentBuilder builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
-
-
-		Document document = builder.parse(inputStream);
-
-		//first check for errors
-		if (document.getElementsByTagName("Error").getLength() != 0)
-		{
-			throw new RuntimeException("The feed is reporting an error"); 
-
-		}
-
-		NodeList routeList = document.getElementsByTagName("route");
-		for (int routeIndex = 0; routeIndex < routeList.getLength(); routeIndex++)
-		{
-			Element routeElement = (Element)routeList.item(routeIndex);
-			
-			String route = routeElement.getAttribute("tag");
-			
-			RouteConfig stopLocations = new RouteConfig(route);
-
-
-
-			NodeList stopList = routeElement.getChildNodes();
-			for (int i = 0; i < stopList.getLength(); i++)
-			{
-				Node node = stopList.item(i);
-				if (node.getNodeType() != Node.ELEMENT_NODE)
-				{
-					continue;
-				}
-
-				Element stop = (Element)node;
-
-				if ("stop".equals(stop.getTagName()))
-				{
-					float latitudeAsDegrees = Float.parseFloat(stop.getAttribute("lat"));
-					float longitudeAsDegrees = Float.parseFloat(stop.getAttribute("lon"));
-					int id = Integer.parseInt(stop.getAttribute("stopId"));
-					String title = stop.getAttribute("title");
-
-					String dirTag = stop.getAttribute("dirTag");
-
-
-					StopLocation stopLocation = new StopLocation(latitudeAsDegrees, longitudeAsDegrees, 
-							busStop, id, title, dirTag, stopLocations);
-					stopLocations.addStop(id, stopLocation);
-				}
-				else if ("direction".equals(stop.getTagName()))
-				{
-
-					stopLocations.addDirection(stop.getAttribute("tag"), stop.getAttribute("name"));
-				}
-				//TODO: handle path
-			}
-
-			stopMapping.put(route, stopLocations);
-
-			helper.saveMapping(route, stopLocations);
-		}
-
-	}
-	
-	private void initializeStopInfo(String route, InputStream inputStream, DatabaseHelper helper) 
-		throws ParserConfigurationException, FactoryConfigurationError, SAXException, IOException
-	{
-		Log.i("STOPINFO", "attempting to get route information for route " + route);
-		DocumentBuilder builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
-		
-		
-		Document document = builder.parse(inputStream);
-		
-		//first check for errors
-		if (document.getElementsByTagName("Error").getLength() != 0)
-		{
-			throw new RuntimeException("The feed is reporting an error"); 
-			
-		}
-		
-		RouteConfig stopLocations = new RouteConfig(route);
-		
-		Element routeElement = (Element)document.getElementsByTagName("route").item(0);
-		
-		
-		NodeList stopList = routeElement.getChildNodes();
-		for (int i = 0; i < stopList.getLength(); i++)
-		{
-			Node node = stopList.item(i);
-			if (node.getNodeType() != Node.ELEMENT_NODE)
-			{
-				continue;
-			}
-			
-			Element stop = (Element)node;
-			
-			if ("stop".equals(stop.getTagName()))
-			{
-				float latitudeAsDegrees = Float.parseFloat(stop.getAttribute("lat"));
-				float longitudeAsDegrees = Float.parseFloat(stop.getAttribute("lon"));
-				int id = Integer.parseInt(stop.getAttribute("stopId"));
-				String title = stop.getAttribute("title");
-
-				String dirTag = stop.getAttribute("dirTag");
-
-
-				StopLocation stopLocation = new StopLocation(latitudeAsDegrees, longitudeAsDegrees, 
-						busStop, id, title, dirTag, stopLocations);
-				stopLocations.addStop(id, stopLocation);
-			}
-			else if ("direction".equals(stop.getTagName()))
-			{
-				
-				stopLocations.addDirection(stop.getAttribute("tag"), stop.getAttribute("name"));
-			}
-			//TODO: handle path
-		}
-		
-		stopMapping.put(route, stopLocations);
-		
-		helper.saveMapping(route, stopLocations);
-	}
-
 	/**
 	 * Download all stop locations
 	 * 
-	 * @param context
 	 * @throws ParserConfigurationException
 	 * @throws FactoryConfigurationError
 	 * @throws SAXException
 	 * @throws IOException
 	 */
-	public void initializeAllRoutes(Context context)
+	public void initializeAllRoutes(DatabaseHelper helper, UpdateAsyncTask task)
 		throws ParserConfigurationException, FactoryConfigurationError, SAXException, IOException
 	{
-		if (stopMapping.size() == 0)
+		boolean hasNoStops = true;
+		for (String key : stopMapping.keySet())
 		{
+			RouteConfig config = stopMapping.get(key);
+			if (config != null && config.getStops().size() != 0)
+			{
+				hasNoStops = false;
+				break;
+			}
+		}
+		
+		if (hasNoStops)
+		{
+			final String prepend = "Downloading route info (this may take a short while): ";
+			
 			//download everything at once
 			final String urlString = mbtaRouteConfigDataUrlAllRoutes;
 			URL url = new URL(urlString);
 			
-			InputStream stream = url.openStream();
-			initializeAllStopInfo(stream, new DatabaseHelper(context));
+			InputStream stream = downloadStream(url, task, prepend, "of approx 1MB");
+			
+			RouteConfigFeedParser parser = new RouteConfigFeedParser(stream, busStop);
+			
+			parser.fillMapping(stopMapping);
+			
+			helper.saveMapping(stopMapping);
 		}
 		else
 		{
+			
 		
 
 			for (int i = 1; i < routesSupported.length; i++)
@@ -281,13 +175,19 @@ public final class Locations
 
 				if (stopMapping.containsKey(route) == false || stopMapping.get(route).getStops().size() == 0)
 				{
+					final String prepend = "Downloading route info for " + route + " (this may take a short while): ";
+
 					//populate stops
 					final String urlString = mbtaRouteConfigDataUrl + route;
 					URL url = new URL(urlString);
 
 					//just initialize the route and then end for this round
-					InputStream stream = url.openStream();
-					initializeStopInfo(route, stream, new DatabaseHelper(context));
+					InputStream stream = downloadStream(url, task, prepend, null);
+					RouteConfigFeedParser parser = new RouteConfigFeedParser(stream, busStop);
+					
+					parser.fillMapping(stopMapping);
+					
+					helper.saveMapping(stopMapping);
 				}
 
 
@@ -295,6 +195,14 @@ public final class Locations
 		}
 	}
 	
+	private InputStream downloadStream(URL url, UpdateAsyncTask task, String prepend, String ifContentLengthMissing) throws IOException {
+		URLConnection connection = url.openConnection();
+		int totalDownloadSize = connection.getContentLength();
+		InputStream inputStream = connection.getInputStream();
+
+		return new StreamCounter(inputStream, task, totalDownloadSize, ifContentLengthMissing, prepend);
+	}
+
 	/**
 	 * Update the bus locations based on data from the XML feed 
 	 * 
@@ -306,7 +214,7 @@ public final class Locations
 	 * @throws FactoryConfigurationError
 	 * @throws FeedException 
 	 */
-	public void Refresh(Context context, boolean inferBusRoutes) throws SAXException, IOException,
+	public void Refresh(DatabaseHelper helper, boolean inferBusRoutes) throws SAXException, IOException,
 			ParserConfigurationException, FactoryConfigurationError, FeedException 
 	{
 		updateInferRoutes(inferBusRoutes);
@@ -342,7 +250,11 @@ public final class Locations
 
 					//just initialize the route and then end for this round
 					InputStream stream = url.openStream();
-					initializeStopInfo(focusedRoute, stream, new DatabaseHelper(context));
+					RouteConfigFeedParser parser = new RouteConfigFeedParser(stream, busStop);
+					
+					parser.fillMapping(stopMapping);
+					
+					helper.saveMapping(stopMapping);
 					return;
 				}
 			}
@@ -354,7 +266,11 @@ public final class Locations
 
 				//just initialize the route and then end for this round
 				InputStream stream = url.openStream();
-				initializeStopInfo(focusedRoute, stream, new DatabaseHelper(context));
+				RouteConfigFeedParser parser = new RouteConfigFeedParser(stream, busStop);
+				
+				parser.fillMapping(stopMapping);
+				
+				helper.saveMapping(stopMapping);
 				return;
 			}
 		}

@@ -1,5 +1,6 @@
 package boston.Bus.Map;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 
 import android.content.ContentValues;
@@ -12,11 +13,34 @@ import android.graphics.drawable.Drawable;
 import android.net.wifi.WifiConfiguration.PairwiseCipher;
 import android.util.Log;
 
+/**
+ * Handles the database which stores route information
+ * 
+ * @author schneg
+ *
+ */
 public class DatabaseHelper extends SQLiteOpenHelper
 {
 	private final static String dbName = "bostonBusMap";
 	 
+	private final static String directionsTable = "directions";
+	private final static String stopsTable = "stops";
+	private final static String routesTable = "routes";
+	
+	private final static String routeKey = "route";
+	private final static String stopIdKey = "stopId";
+	private final static String tagKey = "tag";
+	private final static String latitudeKey = "lat";
+	private final static String longitudeKey = "lon";
+	private final static String titleKey = "title";
+	private final static String dirtagKey = "dirtag";
+	private final static String nameKey = "name";
+	
 
+	private final static int tagIndex = 1;
+	private final static int nameIndex = 2;
+	private final static int titleIndex = 3;
+	
 	public DatabaseHelper(Context context) {
 		super(context, dbName, null, 3);
 		// TODO Auto-generated constructor stub
@@ -24,19 +48,54 @@ public class DatabaseHelper extends SQLiteOpenHelper
 
 	@Override
 	public void onCreate(SQLiteDatabase db) {
-		db.execSQL("CREATE TABLE IF NOT EXISTS directions (route STRING, tag STRING, name STRING)");
-		db.execSQL("CREATE TABLE IF NOT EXISTS stops (route STRING, stopId INTEGER PRIMARY KEY, lat FLOAT, lon FLOAT, title STRING, dirtag STRING)");
-		
+		db.execSQL("CREATE TABLE IF NOT EXISTS " + directionsTable + " (" + routeKey + " STRING, " + tagKey + " STRING, "
+				+ nameKey + " STRING, " + titleKey + " STRING)");
+		db.execSQL("CREATE TABLE IF NOT EXISTS " + stopsTable + " (" + routeKey + " STRING, " +
+				stopIdKey + " INTEGER PRIMARY KEY, " + latitudeKey + " FLOAT, " + longitudeKey +
+				" FLOAT, " + titleKey + " STRING, " + dirtagKey + " STRING)");
+		db.execSQL("CREATE TABLE IF NOT EXISTS " + routesTable + " (" + routeKey + " STRING)");
 	}
 
 	@Override
 	public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
 		// TODO Auto-generated method stub
-		db.execSQL("DROP TABLE IF EXISTS directions");
-		db.execSQL("DROP TABLE IF EXISTS stops");
+		db.execSQL("DROP TABLE IF EXISTS " + directionsTable);
+		db.execSQL("DROP TABLE IF EXISTS " + stopsTable);
+		db.execSQL("DROP TABLE IF EXISTS " + routesTable);
+		
 		onCreate(db);
 	}
 
+	public String[] getRoutes()
+	{
+		SQLiteDatabase database = getReadableDatabase();
+		Cursor cursor = null;
+		ArrayList<String> routes = new ArrayList<String>();
+		try
+		{
+			cursor = database.query(routesTable, new String[] {routeKey}, null, null, null, null, null);
+			cursor.moveToFirst();
+			
+			while (cursor.isAfterLast() == false)
+			{
+				String route = cursor.getString(0);
+				routes.add(route);
+				
+				cursor.moveToNext();
+			}
+		}
+		finally
+		{
+			database.close();
+			if (cursor != null)
+			{
+				cursor.close();
+			}
+		}
+	
+		return routes.toArray(new String[0]);
+	}
+	
 	public void populateMap(HashMap<String, RouteConfig> map, Drawable busStop, String[] routes) {
 
 		SQLiteDatabase database = getReadableDatabase();
@@ -49,21 +108,22 @@ public class DatabaseHelper extends SQLiteOpenHelper
 
 				
 				
-				cursor = database.query("directions", new String[] {"route", "tag", "name"},
-						"route=?", new String[]{route}, null, null, null);
+				cursor = database.query(directionsTable, new String[] {routeKey, tagKey, nameKey, titleKey},
+						routeKey + "=?", new String[]{route}, null, null, null);
 				cursor.moveToFirst();
 				while (cursor.isAfterLast() == false)
 				{
-					String tag = cursor.getString(1);
-					String name = cursor.getString(2);
-					routeConfig.addDirection(tag, name);
+					String tag = cursor.getString(tagIndex);
+					String name = cursor.getString(nameIndex);
+					String title = cursor.getString(titleIndex);
+					routeConfig.addDirection(tag, title, name);
 
 					cursor.moveToNext();
 				}
 				cursor.close();
 				
-				cursor = database.query("stops", new String[] {"route", "stopId", "lat", "lon", "title", "dirtag"}, 
-						"route=?", new String[]{route}, null, null, null);
+				cursor = database.query("stops", new String[] {routeKey, stopIdKey, latitudeKey, longitudeKey, titleKey, dirtagKey}, 
+						routeKey + "=?", new String[]{route}, null, null, null);
 				cursor.moveToFirst();
 				while (cursor.isAfterLast() == false)
 				{
@@ -93,6 +153,90 @@ public class DatabaseHelper extends SQLiteOpenHelper
 		}
 	}
 
+	public void saveRoutes(String[] routes)
+	{
+		SQLiteDatabase database = getWritableDatabase();
+		synchronized (database) {
+		
+			try
+			{
+				database.beginTransaction();
+				
+				database.delete(routesTable, null, null);
+				
+				ContentValues values = new ContentValues();
+				for (String route : routes)
+				{
+					values.put(routeKey, route);
+					database.insert(routesTable, null, values);
+				}
+				
+				database.setTransactionSuccessful();
+				database.endTransaction();
+			}
+			finally
+			{
+				database.close();
+			}
+		}
+		
+	}
+	
+	public void saveMapping(HashMap<String, RouteConfig> mapping)
+	{
+		SQLiteDatabase database = getWritableDatabase();
+		synchronized (database) {
+			try
+			{
+				database.beginTransaction();
+			
+				for (String route : mapping.keySet())
+				{
+					saveMappingKernel(database, route, mapping.get(route));
+				}
+				
+				database.setTransactionSuccessful();
+				database.endTransaction();
+				
+			}
+			finally
+			{
+				database.close();
+			}
+		}
+		
+	}
+	
+	private void saveMappingKernel(SQLiteDatabase database, String route, RouteConfig routeConfig)
+	{
+		for (StopLocation location : routeConfig.getStops())
+		{
+			ContentValues values = new ContentValues();
+			int stopId = location.getStopNumber();
+			values.put(routeKey, route);
+			values.put(stopIdKey, stopId);
+			values.put(latitudeKey, (float)location.getLatitudeAsDegrees());
+			values.put(longitudeKey, (float)location.getLongitudeAsDegrees());
+			values.put(titleKey, location.getTitle());
+			values.put(dirtagKey, location.getDirtag());
+
+			database.replace("stops", null, values);
+		}
+
+		for (String dirtag : routeConfig.getDirtags())
+		{
+			ContentValues values = new ContentValues();
+			values.put(routeKey, route);
+			values.put(tagKey, dirtag);
+			values.put(nameKey, routeConfig.getDirectionName(dirtag));
+			values.put(titleKey, routeConfig.getDirectionTitle(dirtag));
+			
+
+			database.replace(directionsTable, null, values);
+		}
+
+	}
+	
 	public void saveMapping(String route, RouteConfig routeConfig) {
 		SQLiteDatabase database = getWritableDatabase();
 		synchronized (database) {
@@ -101,39 +245,8 @@ public class DatabaseHelper extends SQLiteOpenHelper
 
 				database.beginTransaction();
 
-				for (StopLocation location : routeConfig.getStops())
-				{
-					ContentValues values = new ContentValues();
-					int stopId = location.getStopNumber();
-					values.put("route", route);
-					values.put("stopId", stopId);
-					values.put("lat", (float)location.getLatitudeAsDegrees());
-					values.put("lon", (float)location.getLongitudeAsDegrees());
-					values.put("title", location.getTitle());
-					values.put("dirtag", location.getDirtag());
-
-					long numUpdated = database.replace("stops", null, values);
-					if (numUpdated != 0)
-					{
-						//Log.i("NUMUPDATED", numUpdated + " ");
-					}
-					else
-					{
-						//Log.i("NUMUPDATED", numUpdated + " ");
-					}
-				}
-
-				for (String dirtag : routeConfig.getDirtags())
-				{
-					ContentValues values = new ContentValues();
-					values.put("route", route);
-					values.put("tag", dirtag);
-					values.put("name", routeConfig.getDirection(dirtag));
-					//values.put("title", title);
-
-					database.replace("directions", null, values);
-				}
-
+				saveMappingKernel(database, route, routeConfig);
+				
 				database.setTransactionSuccessful();
 				database.endTransaction();
 			}
