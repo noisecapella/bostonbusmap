@@ -16,7 +16,9 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
     */
-package boston.Bus.Map;
+package boston.Bus.Map.util;
+
+import boston.Bus.Map.main.UpdateHandler;
 
 import com.google.android.maps.GeoPoint;
 import com.google.android.maps.MapView;

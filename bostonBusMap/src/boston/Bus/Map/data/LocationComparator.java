@@ -1,4 +1,4 @@
-package boston.Bus.Map;
+package boston.Bus.Map.data;
 
 import java.util.Comparator;
 

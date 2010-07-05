@@ -16,7 +16,7 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
     */
-package boston.Bus.Map;
+package boston.Bus.Map.main;
 
 import boston.Bus.Map.R;
 import android.content.Intent;

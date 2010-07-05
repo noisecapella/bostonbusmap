@@ -1,6 +1,11 @@
-package boston.Bus.Map;
+package boston.Bus.Map.main;
 
 import org.apache.http.impl.conn.tsccm.RouteSpecificPool;
+
+import boston.Bus.Map.data.Locations;
+import boston.Bus.Map.database.DatabaseHelper;
+import boston.Bus.Map.ui.BusOverlay;
+import boston.Bus.Map.util.OneTimeLocationListener;
 
 import com.google.android.maps.MapView;
 

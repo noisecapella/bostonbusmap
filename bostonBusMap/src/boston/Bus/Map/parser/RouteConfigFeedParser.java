@@ -1,4 +1,4 @@
-package boston.Bus.Map;
+package boston.Bus.Map.parser;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -16,6 +16,11 @@ import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 import org.xml.sax.XMLReader;
 import org.xml.sax.helpers.DefaultHandler;
+
+import boston.Bus.Map.data.RouteConfig;
+import boston.Bus.Map.data.StopLocation;
+import boston.Bus.Map.util.FeedException;
+
 
 import android.graphics.drawable.Drawable;
 
@@ -111,6 +116,7 @@ public class RouteConfigFeedParser extends DefaultHandler
 		}
 		else if (localName.equals("Error"))
 		{
+			//i hate checked exceptions
 			throw new RuntimeException(new FeedException());
 		}
 		

@@ -16,12 +16,17 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
     */
-package boston.Bus.Map;
+package boston.Bus.Map.ui;
 
 import java.security.acl.LastOwnerException;
 import java.util.ArrayList;
 import java.util.List;
 
+
+import boston.Bus.Map.data.BusLocation;
+import boston.Bus.Map.data.CurrentLocation;
+import boston.Bus.Map.data.Location;
+import boston.Bus.Map.main.UpdateHandler;
 
 import com.google.android.maps.GeoPoint;
 import com.google.android.maps.ItemizedOverlay;

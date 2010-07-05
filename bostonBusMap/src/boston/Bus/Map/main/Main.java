@@ -16,7 +16,7 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
     */
-package boston.Bus.Map;
+package boston.Bus.Map.main;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -31,6 +31,10 @@ import javax.xml.parsers.ParserConfigurationException;
 import org.xml.sax.SAXException;
 
 import boston.Bus.Map.R;
+import boston.Bus.Map.data.Locations;
+import boston.Bus.Map.data.RouteConfig;
+import boston.Bus.Map.database.DatabaseHelper;
+import boston.Bus.Map.util.OneTimeLocationListener;
 
 import com.google.android.maps.GeoPoint;
 import com.google.android.maps.MapActivity;

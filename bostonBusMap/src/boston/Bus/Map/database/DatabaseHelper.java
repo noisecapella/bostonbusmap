@@ -1,7 +1,10 @@
-package boston.Bus.Map;
+package boston.Bus.Map.database;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+
+import boston.Bus.Map.data.RouteConfig;
+import boston.Bus.Map.data.StopLocation;
 
 import android.content.ContentValues;
 import android.content.Context;

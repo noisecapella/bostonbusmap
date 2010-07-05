@@ -16,7 +16,7 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
     */
-package boston.Bus.Map;
+package boston.Bus.Map.main;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -28,6 +28,13 @@ import javax.xml.parsers.ParserConfigurationException;
 import org.apache.http.client.CircularRedirectException;
 import org.xml.sax.SAXException;
 
+
+import boston.Bus.Map.data.CurrentLocation;
+import boston.Bus.Map.data.Location;
+import boston.Bus.Map.data.Locations;
+import boston.Bus.Map.database.DatabaseHelper;
+import boston.Bus.Map.ui.BusOverlay;
+import boston.Bus.Map.util.FeedException;
 
 import com.google.android.maps.GeoPoint;
 import com.google.android.maps.MapView;
@@ -41,6 +48,7 @@ import android.graphics.Paint;
 import android.graphics.Point;
 import android.graphics.PorterDuff.Mode;
 import android.graphics.drawable.Drawable;
+
 import android.os.AsyncTask;
 import android.os.Handler;
 import android.util.Log;
@@ -140,12 +148,7 @@ public class UpdateAsyncTask extends AsyncTask<Object, String, Locations>
 				}
 				publishProgress("Fetching data...");
 
-				busLocations.Refresh(helper, inferBusRoutes);
-			}
-			catch (FeedException e)
-			{
-				publishProgress("The feed is reporting an error");
-				return null;
+				busLocations.Refresh(helper, inferBusRoutes, routesSupportedIndex);
 			}
 			catch (IOException e)
 			{
@@ -168,6 +171,18 @@ public class UpdateAsyncTask extends AsyncTask<Object, String, Locations>
 				publishProgress("XML parser factory configuration exception; cannot update");
 				e.printStackTrace();
 				return null;
+			}
+			catch (RuntimeException e)
+			{
+				if (e.getCause() instanceof FeedException)
+				{
+					publishProgress("The feed is reporting an error");
+					return null;
+				}
+				else
+				{
+					throw e;
+				}
 			}
 			catch (Exception e)
 			{

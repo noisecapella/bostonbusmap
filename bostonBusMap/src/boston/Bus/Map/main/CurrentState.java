@@ -1,8 +1,9 @@
-package boston.Bus.Map;
+package boston.Bus.Map.main;
 
 import java.util.List;
 
 import android.widget.TextView;
+import boston.Bus.Map.data.Locations;
 
 import com.google.android.maps.MapView;
 import com.google.android.maps.Overlay;

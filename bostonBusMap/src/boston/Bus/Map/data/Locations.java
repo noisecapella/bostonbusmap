@@ -16,7 +16,7 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
     */
-package boston.Bus.Map;
+package boston.Bus.Map.data;
 
 import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
@@ -50,6 +50,11 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
+
+import boston.Bus.Map.database.DatabaseHelper;
+import boston.Bus.Map.main.UpdateAsyncTask;
+import boston.Bus.Map.parser.RouteConfigFeedParser;
+import boston.Bus.Map.util.StreamCounter;
 
 
 import android.content.Context;
@@ -214,23 +219,25 @@ public final class Locations
 	 * @throws FactoryConfigurationError
 	 * @throws FeedException 
 	 */
-	public void Refresh(DatabaseHelper helper, boolean inferBusRoutes) throws SAXException, IOException,
-			ParserConfigurationException, FactoryConfigurationError, FeedException 
+	public void Refresh(DatabaseHelper helper, boolean inferBusRoutes, int routeIndexToUpdate) throws SAXException, IOException,
+			ParserConfigurationException, FactoryConfigurationError 
 	{
+		String routeToUpdate = routesSupported[routeIndexToUpdate];
+		
 		updateInferRoutes(inferBusRoutes);
 		
 		//read data from the URL
 		URL url;
-		if (focusedRoute == null)
+		if (routeToUpdate == null)
 		{
 			final String urlString = mbtaLocationsDataUrl + (long)lastUpdateTime;
 			url = new URL(urlString);
 		}
 		else
 		{
-			if (stopMapping.containsKey(focusedRoute))
+			if (stopMapping.containsKey(routeToUpdate))
 			{
-				RouteConfig routeConfig = stopMapping.get(focusedRoute);
+				RouteConfig routeConfig = stopMapping.get(routeToUpdate);
 				if (routeConfig.getStops().size() != 0)
 				{
 					//ok, do predictions now
@@ -238,14 +245,14 @@ public final class Locations
 
 					for (StopLocation location : routeConfig.getStops())
 					{
-						urlString.append("&stops=").append(focusedRoute).append("|null|").append(location.getStopNumber());
+						urlString.append("&stops=").append(routeToUpdate).append("|null|").append(location.getStopNumber());
 					}
 					url = new URL(urlString.toString());
 				}
 				else
 				{
 					//populate stops (just in case we didn't already)
-					final String urlString = mbtaRouteConfigDataUrl + focusedRoute;
+					final String urlString = mbtaRouteConfigDataUrl + routeToUpdate;
 					url = new URL(urlString);
 
 					//just initialize the route and then end for this round
@@ -261,7 +268,7 @@ public final class Locations
 			else
 			{
 				//populate stops (just in case we didn't already)
-				final String urlString = mbtaRouteConfigDataUrl + focusedRoute;
+				final String urlString = mbtaRouteConfigDataUrl + routeToUpdate;
 				url = new URL(urlString);
 
 				//just initialize the route and then end for this round
@@ -290,8 +297,10 @@ public final class Locations
 			
 		}
 		
-		if (focusedRoute != null)
+		if (routeToUpdate != null)
 		{
+			//bus prediction
+			
 			RouteConfig stopLocations = stopMapping.get(focusedRoute);
 			
 			NodeList predictionsList = document.getElementsByTagName("predictions");
@@ -328,6 +337,9 @@ public final class Locations
 		}
 		else
 		{
+			//vehicle locations
+			
+			
 			//get the time that this information is valid until
 			Element lastTimeElement = (Element)document.getElementsByTagName("lastTime").item(0);
 			lastUpdateTime = Double.parseDouble(lastTimeElement.getAttribute("time"));
@@ -548,10 +560,6 @@ public final class Locations
 		}
 	}
 	
-	public void useBusLocations()
-	{
-		focusedRoute = null;
-	}
 
 	public boolean isUsingBusLocations() {
 		return focusedRoute == null;

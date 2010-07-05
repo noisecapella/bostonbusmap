@@ -1,7 +1,9 @@
-package boston.Bus.Map;
+package boston.Bus.Map.util;
 
 import java.io.IOException;
 import java.io.InputStream;
+
+import boston.Bus.Map.main.UpdateAsyncTask;
 
 public class StreamCounter extends InputStream
 {

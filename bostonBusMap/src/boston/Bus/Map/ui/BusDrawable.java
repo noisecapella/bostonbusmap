@@ -1,4 +1,4 @@
-package boston.Bus.Map;
+package boston.Bus.Map.ui;
 
 import java.io.IOException;
 

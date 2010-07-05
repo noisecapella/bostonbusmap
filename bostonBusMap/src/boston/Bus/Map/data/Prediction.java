@@ -1,4 +1,4 @@
-package boston.Bus.Map;
+package boston.Bus.Map.data;
 
 public class Prediction implements Comparable<Prediction>
 {
@@ -31,11 +31,11 @@ public class Prediction implements Comparable<Prediction>
 
 			if (minutes == 0)
 			{
-				return ret + " arriving now!";
+				return ret + "\narriving now!";
 			}
 			else
 			{
-				return ret + " arriving in " + minutes + " min";
+				return ret + "\narriving in " + minutes + " min";
 			}
 		}			
 	}
