@@ -164,7 +164,9 @@ public final class Locations
 			
 			InputStream stream = downloadStream(url, task, prepend, "of approx 1MB");
 			
-			RouteConfigFeedParser parser = new RouteConfigFeedParser(stream, busStop);
+			RouteConfigFeedParser parser = new RouteConfigFeedParser(busStop);
+			
+			parser.runParse(stream);
 			
 			parser.fillMapping(stopMapping);
 			
@@ -189,7 +191,9 @@ public final class Locations
 
 					//just initialize the route and then end for this round
 					InputStream stream = downloadStream(url, task, prepend, null);
-					RouteConfigFeedParser parser = new RouteConfigFeedParser(stream, busStop);
+					RouteConfigFeedParser parser = new RouteConfigFeedParser(busStop);
+					
+					parser.runParse(stream);
 					
 					parser.fillMapping(stopMapping);
 					
@@ -258,7 +262,9 @@ public final class Locations
 
 					//just initialize the route and then end for this round
 					InputStream stream = url.openStream();
-					RouteConfigFeedParser parser = new RouteConfigFeedParser(stream, busStop);
+					RouteConfigFeedParser parser = new RouteConfigFeedParser(busStop);
+					
+					parser.runParse(stream); 
 					
 					parser.fillMapping(stopMapping);
 					
@@ -274,7 +280,9 @@ public final class Locations
 
 				//just initialize the route and then end for this round
 				InputStream stream = url.openStream();
-				RouteConfigFeedParser parser = new RouteConfigFeedParser(stream, busStop);
+				RouteConfigFeedParser parser = new RouteConfigFeedParser(busStop);
+				
+				parser.runParse(stream);
 				
 				parser.fillMapping(stopMapping);
 				

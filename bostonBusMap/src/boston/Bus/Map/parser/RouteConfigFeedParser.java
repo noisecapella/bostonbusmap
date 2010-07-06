@@ -28,15 +28,18 @@ public class RouteConfigFeedParser extends DefaultHandler
 {
 	private final HashMap<String, RouteConfig> map = new HashMap<String, RouteConfig>();
 	
-	public RouteConfigFeedParser(InputStream inputStream, Drawable busStop) throws ParserConfigurationException, SAXException, IOException
+	public RouteConfigFeedParser(Drawable busStop)
+	{
+		this.busStop = busStop;
+	}
+
+	public void runParse(InputStream inputStream)  throws ParserConfigurationException, SAXException, IOException
 	{
 		SAXParserFactory saxParserFactory = SAXParserFactory.newInstance();
 		SAXParser saxParser = saxParserFactory.newSAXParser();
 		XMLReader xmlReader = saxParser.getXMLReader();
 		xmlReader.setContentHandler(this);
 		xmlReader.parse(new InputSource(inputStream));
-		
-		this.busStop = busStop;
 	}
 	
 	private final Drawable busStop;
