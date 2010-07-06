@@ -6,6 +6,7 @@
 <CheckBoxPreference android:key="@string/inferVehicleRouteCheckbox" android:title="Infer vehicle route numbers"
  android:summary="(EXPERIMENTAL / UNRELIABLE) See website for info about this" />
 
+
 <Preference android:title="About BostonBusMap" android:key="about"></Preference>
 
 

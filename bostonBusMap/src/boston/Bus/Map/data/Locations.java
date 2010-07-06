@@ -54,6 +54,7 @@ import org.xml.sax.SAXException;
 import boston.Bus.Map.database.DatabaseHelper;
 import boston.Bus.Map.main.UpdateAsyncTask;
 import boston.Bus.Map.parser.RouteConfigFeedParser;
+import boston.Bus.Map.parser.VehicleLocationsFeedParser;
 import boston.Bus.Map.util.StreamCounter;
 
 
@@ -338,7 +339,12 @@ public final class Locations
 		else
 		{
 			//vehicle locations
+			//VehicleLocationsFeedParser parser = new VehicleLocationsFeedParser(stream);
 			
+			//lastUpdateTime = parser.getLastUpdateTime();
+			
+			
+			////////
 			
 			//get the time that this information is valid until
 			Element lastTimeElement = (Element)document.getElementsByTagName("lastTime").item(0);
