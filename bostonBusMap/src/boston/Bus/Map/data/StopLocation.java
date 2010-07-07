@@ -100,9 +100,17 @@ public class StopLocation implements Location
 		
 		
 		String ret = "";
+		final int max = 3;
+		int count = 0;
 		for (Prediction prediction : predictions)
 		{
 			ret += "\n" + prediction.toString();
+			
+			count++;
+			if (count >= max)
+			{
+				break;
+			}
 		}
 		
 		return ret;

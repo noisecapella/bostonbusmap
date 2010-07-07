@@ -78,6 +78,7 @@ public class UpdateAsyncTask extends AsyncTask<Object, String, Locations>
 	private final boolean inferBusRoutes;
 	private BusOverlay busOverlay;
 	private final int routesSupportedIndex;
+	private Handler uiHandler;
 	
 	public UpdateAsyncTask(TextView textView, MapView mapView, String finalMessage,
 			boolean doShowUnpredictable, boolean doRefresh, int maxOverlays,
@@ -99,6 +100,8 @@ public class UpdateAsyncTask extends AsyncTask<Object, String, Locations>
 		this.textView = textView;
 		this.routesSupportedIndex = routesSupportedIndex;
 		this.doInit = doInit;
+		
+		this.uiHandler = new Handler();
 	}
 	
 	/**
@@ -250,10 +253,14 @@ public class UpdateAsyncTask extends AsyncTask<Object, String, Locations>
 			return;
 		}
 		
-		int selectedBusId = -1;
+		final int selectedBusId;
 		if (busOverlay != null)
 		{
 			selectedBusId = busOverlay.getSelectedBusId();
+		}
+		else
+		{
+			selectedBusId = -1;
 		}
 		
 		Log.i("GET_SELECTEDBUSID", selectedBusId + " ");
@@ -261,6 +268,19 @@ public class UpdateAsyncTask extends AsyncTask<Object, String, Locations>
 		busOverlay.setDrawHighlightCircle(drawCircle);
 		busOverlay.setBusLocations(busLocations);
 		
+        
+        uiHandler.post(new Runnable() {
+			
+			@Override
+			public void run() {
+				// TODO Auto-generated method stub
+				displayIcons(busOverlay, latitude, longitude, busLocations, selectedBusId);
+			}
+		});
+	}
+	
+	private void displayIcons(BusOverlay busOverlay, double latitude, double longitude, ArrayList<Location> busLocations, int selectedBusId)
+	{
     	//we need to run populate even if there are 0 busLocations. See this link:
     	//http://groups.google.com/group/android-beginners/browse_thread/thread/6d75c084681f943e?pli=1
     	busOverlay.clear();
@@ -284,19 +304,8 @@ public class UpdateAsyncTask extends AsyncTask<Object, String, Locations>
 
         busOverlay.setSelectedBusId(selectedBusId);
         busOverlay.refreshBalloons();
-        
-        uiHandler.post(new Runnable() {
-			
-			@Override
-			public void run() {
-				// TODO Auto-generated method stub
-				displayIcons(busOverlay, latitude, longitude);
-			}
-		});
-	}
-	private void displayIcons(BusOverlay busOverlay, double latitude, double longitude)
-	{
-		if (mapView.getOverlays().contains(busOverlay) == false)
+
+        if (mapView.getOverlays().contains(busOverlay) == false)
 		{
 			mapView.getOverlays().add(busOverlay);
 		}
