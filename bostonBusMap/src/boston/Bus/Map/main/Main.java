@@ -133,10 +133,18 @@ public class Main extends MapActivity
 	
 	private int currentRoutesSupportedIndex;
 	
+	/**
+	 * This is used to indicate to the mode spinner to ignore the first time we set it, so we don't update every time the screen changes
+	 */
+	private boolean firstRun;
+
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
+        
+        firstRun = true;
         
         //get widgets
         mapView = (MapView)findViewById(R.id.mapview);
@@ -206,7 +214,11 @@ public class Main extends MapActivity
 			@Override
 			public void onItemSelected(AdapterView<?> parent, View view,
 					int position, long id) {
-				if (busLocations != null && handler != null)
+				if (firstRun)
+				{
+					firstRun = false;
+				}
+				else if (busLocations != null && handler != null)
 				{
 					currentRoutesSupportedIndex = position;
 					handler.setRoutesSupportedIndex(position);
@@ -223,18 +235,25 @@ public class Main extends MapActivity
 		});
 
         double lastUpdateTime = 0;
+        boolean previousUpdateConstantly = false;
         
         Object obj = getLastNonConfigurationInstance();
         if (obj != null)
         {
+        	Log.v("CURRENTSTATE", "true");
         	CurrentState currentState = (CurrentState)obj;
         	currentState.restoreWidgets(textView, mapView);
         	lastUpdateTime = currentState.getLastUpdateTime();
         	busLocations = currentState.getBusLocations();
+        	previousUpdateConstantly = currentState.getUpdateConstantly();
+        	currentRoutesSupportedIndex = currentState.getCurrentRoutesSupportedIndex();
         	
+            modeSpinner.setSelection(currentRoutesSupportedIndex);
+        	handler.setRoutesSupportedIndex(currentRoutesSupportedIndex);
         }
         else
         {
+        	Log.v("CURRENTSTATE", "false");
         	SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
             int centerLat = prefs.getInt(centerLatKey, Integer.MAX_VALUE);
             int centerLon = prefs.getInt(centerLonKey, Integer.MAX_VALUE);
@@ -268,7 +287,7 @@ public class Main extends MapActivity
         
         handler.setLastUpdateTime(lastUpdateTime);
 
-        if (handler.getUpdateConstantly())
+        if (handler.getUpdateConstantly() && previousUpdateConstantly == false)
         {
         	handler.instantRefresh();
         }
@@ -490,8 +509,10 @@ public class Main extends MapActivity
 
 	@Override
 	public Object onRetainNonConfigurationInstance() {
+		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+		boolean updateConstantly = prefs.getBoolean(getString(R.string.runInBackgroundCheckbox), true);
 		
-		return new CurrentState(textView, mapView, busLocations, handler.getLastUpdateTime());
+		return new CurrentState(textView, mapView, busLocations, handler.getLastUpdateTime(), updateConstantly, currentRoutesSupportedIndex);
 	}
 
 	

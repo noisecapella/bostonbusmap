@@ -102,6 +102,7 @@ public class UpdateHandler extends Handler {
 			//to disable this, the user should go into the settings and uncheck 'Run in background'
 			if (msg.arg1 != IMMEDIATE_REFRESH)
 			{
+				removeMessages(MAJOR);
 				sendEmptyMessageDelayed(MAJOR, fetchDelay);
 			}
 
@@ -218,6 +219,7 @@ public class UpdateHandler extends Handler {
 		if(getUpdateConstantly())
 		{
 			//if the runInBackground checkbox is clicked, start the handler updating
+			removeMessages(MAJOR);
 			sendEmptyMessageDelayed(MAJOR, (long)(fetchDelay * 1.5));
 		}
 		

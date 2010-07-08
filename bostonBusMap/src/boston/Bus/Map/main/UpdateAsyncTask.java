@@ -78,7 +78,7 @@ public class UpdateAsyncTask extends AsyncTask<Object, String, Locations>
 	private final boolean inferBusRoutes;
 	private BusOverlay busOverlay;
 	private final int routesSupportedIndex;
-	private Handler uiHandler;
+	
 	
 	public UpdateAsyncTask(TextView textView, MapView mapView, String finalMessage,
 			boolean doShowUnpredictable, boolean doRefresh, int maxOverlays,
@@ -101,7 +101,7 @@ public class UpdateAsyncTask extends AsyncTask<Object, String, Locations>
 		this.routesSupportedIndex = routesSupportedIndex;
 		this.doInit = doInit;
 		
-		this.uiHandler = new Handler();
+		//this.uiHandler = new Handler();
 	}
 	
 	/**
@@ -305,10 +305,9 @@ public class UpdateAsyncTask extends AsyncTask<Object, String, Locations>
         busOverlay.setSelectedBusId(selectedBusId);
         busOverlay.refreshBalloons();
 
-        if (mapView.getOverlays().contains(busOverlay) == false)
-		{
-			mapView.getOverlays().add(busOverlay);
-		}
+        mapView.getOverlays().clear();
+		mapView.getOverlays().add(busOverlay);
+		
 
         //make sure we redraw map
         mapView.invalidate();

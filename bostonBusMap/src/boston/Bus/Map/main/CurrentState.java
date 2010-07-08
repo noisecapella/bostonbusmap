@@ -18,9 +18,11 @@ public class CurrentState {
 	private final double lastUpdateTime;
 	private final Locations busLocations;
 	private final List<Overlay> overlays;
+	private final boolean updateConstantly;
+	private int currentRoutesSupportedIndex;
 	
 	public CurrentState(TextView textView, MapView mapView,
-			Locations busLocations, double lastUpdateTime) {
+			Locations busLocations, double lastUpdateTime, boolean updateConstantly, int currentRoutesSupportedIndex) {
 		if (textView == null)
 		{
 			textViewStatus = "";
@@ -39,6 +41,8 @@ public class CurrentState {
 		}
 		this.busLocations = busLocations;
 		this.lastUpdateTime = lastUpdateTime;
+		this.updateConstantly = updateConstantly;
+		this.currentRoutesSupportedIndex = currentRoutesSupportedIndex;
 	}
 
 	public double getLastUpdateTime()
@@ -65,5 +69,13 @@ public class CurrentState {
 				mapView.getOverlays().add(overlay);
 			}
 		}
+	}
+
+	public boolean getUpdateConstantly() {
+		return updateConstantly;
+	}
+
+	public int getCurrentRoutesSupportedIndex() {
+		return currentRoutesSupportedIndex;
 	}
 }
