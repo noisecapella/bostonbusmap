@@ -310,7 +310,7 @@ public final class Locations
 		{
 			//bus prediction
 			
-			RouteConfig stopLocations = stopMapping.get(focusedRoute);
+			RouteConfig stopLocations = stopMapping.get(routeToUpdate);
 			
 			NodeList predictionsList = document.getElementsByTagName("predictions");
 			

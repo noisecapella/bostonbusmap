@@ -181,7 +181,8 @@ public class BusOverlay extends BalloonItemizedOverlay<com.google.android.maps.O
 	public void draw(Canvas canvas, MapView mapView, boolean shadow)
 	{
 		int lastFocusedIndex = getLastFocusedIndex();
-		for (int i = 0; i < overlays.size(); i++)
+		final int overlaysSize = Math.min(overlays.size(), locations.size());
+		for (int i = 0; i < overlaysSize; i++)
 		{
 			OverlayItem item = overlays.get(i);
 			Location busLocation = locations.get(i);
@@ -218,7 +219,7 @@ public class BusOverlay extends BalloonItemizedOverlay<com.google.android.maps.O
 			//these points are sorted by distance from center of screen, but we want
 			//distance from the bus closest to the center, which is not quite the same
 			int lastDistance = 0;
-			for (int i = 1; i < overlays.size(); i++)
+			for (int i = 1; i < overlaysSize; i++)
 			{
 				OverlayItem item = overlays.get(i);
 				Location location = locations.get(i);
