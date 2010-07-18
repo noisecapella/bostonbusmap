@@ -68,26 +68,56 @@ import android.widget.Toast;
  * Much of this was borrowed from the helpful tutorial at http://developer.android.com/guide/tutorials/views/hello-mapview.html
  * 
  */
-public class BusOverlay extends BalloonItemizedOverlay<com.google.android.maps.OverlayItem> {
+public class BusOverlay extends BalloonItemizedOverlay<OverlayItem> {
 
-	private final ArrayList<com.google.android.maps.OverlayItem> overlays = new ArrayList<com.google.android.maps.OverlayItem>();
-	private final Context context;
+	private final ArrayList<OverlayItem> overlays = new ArrayList<OverlayItem>();
+	private Context context;
 	private final List<Location> locations = new ArrayList<Location>();
 	private int selectedBusIndex;
-	private final UpdateHandler updateable;
+	private UpdateHandler updateable;
 	private boolean drawHighlightCircle;
 	private final int busHeight;
+	private final Drawable busPicture;
+	
+	public BusOverlay(BusOverlay busOverlay, Context context, MapView mapView)
+	{
+		this(busOverlay.busPicture, context, mapView);
+		
+		this.drawHighlightCircle = busOverlay.drawHighlightCircle;
+		
+		this.locations.addAll(busOverlay.locations);
+		
+		for (OverlayItem overlayItem : busOverlay.overlays)
+		{
+			addOverlay(overlayItem);
+		}
+		
+		populate();
+		
+		this.selectedBusIndex = busOverlay.getLastFocusedIndex();
+		
+		
+		
+		if (selectedBusIndex != -1)
+		{
+			Log.i("ONTAP", "" + selectedBusIndex);
+			onTap(selectedBusIndex);
+		}
+		
+		setLastFocusedIndex(busOverlay.getLastFocusedIndex());
+	}
 	
 	
 	public BusOverlay(Drawable busPicture, Context context, 
-			UpdateHandler updateable, MapView mapView) {
+			MapView mapView) {
 		super(boundCenterBottom(busPicture), mapView);
 
 		this.context = context;
 		this.selectedBusIndex = -1;
+		this.busPicture = busPicture;
 		this.busHeight = busPicture.getIntrinsicHeight();
 		
-		this.updateable = updateable;
+		//NOTE: remember to set updateable!
 		
 		this.setOnFocusChangeListener(new OnFocusChangeListener() {
 
@@ -109,6 +139,16 @@ public class BusOverlay extends BalloonItemizedOverlay<com.google.android.maps.O
 		setBalloonBottomOffset(40);
 	}
 
+	public void setUpdateable(UpdateHandler updateable)
+	{
+		this.updateable = updateable;
+	}
+	
+	public void setContext(Context context)
+	{
+		this.context = context;
+	}
+	
 	/**
 	 * Was there a drag between when the finger touched the touchscreen and when it released?
 	 */
@@ -316,6 +356,10 @@ public class BusOverlay extends BalloonItemizedOverlay<com.google.android.maps.O
 			}
 		}
 		Log.i("SELECTEDBUSID", selectedBusId + " ");
+	}
+
+	public Drawable getBusPicture() {
+		return busPicture;
 	}
 	
 }

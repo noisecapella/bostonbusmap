@@ -67,13 +67,13 @@ public class UpdateHandler extends Handler {
 	private boolean isFirstRefresh;
 	
 	public UpdateHandler(TextView textView, Drawable busPicture, MapView mapView,
-			Drawable arrow, Drawable tooltip, Locations busLocations, Context context, DatabaseHelper helper)
+			Drawable arrow, Drawable tooltip, Locations busLocations, Context context, DatabaseHelper helper, BusOverlay busOverlay)
 	{
 		this.textView = textView;
 		this.mapView = mapView;
 		this.busLocations = busLocations;
 		this.helper = helper;
-		this.busOverlay = new BusOverlay(busPicture, context, this, mapView);
+		this.busOverlay = busOverlay;
 		lastUpdateTime = System.currentTimeMillis();
 		
 		this.context = context;

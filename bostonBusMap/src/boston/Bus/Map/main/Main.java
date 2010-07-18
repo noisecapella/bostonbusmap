@@ -34,6 +34,7 @@ import boston.Bus.Map.R;
 import boston.Bus.Map.data.Locations;
 import boston.Bus.Map.data.RouteConfig;
 import boston.Bus.Map.database.DatabaseHelper;
+import boston.Bus.Map.ui.BusOverlay;
 import boston.Bus.Map.util.OneTimeLocationListener;
 
 import com.google.android.maps.GeoPoint;
@@ -138,6 +139,8 @@ public class Main extends MapActivity
 	 */
 	private boolean firstRun;
 
+	
+	private BusOverlay busOverlay;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -193,7 +196,34 @@ public class Main extends MapActivity
 
         modeSpinner.setAdapter(adapter);
         
+        //get the busLocations variable if it already exists. We need to do that step here since handler
+        double lastUpdateTime = 0;
+        boolean previousUpdateConstantly = false;
 
+        
+        Object lastNonConfigurationInstance = getLastNonConfigurationInstance();
+        if (lastNonConfigurationInstance != null)
+        {
+        	Log.i("BUSOVERLAY", "RESTORE");
+        	CurrentState currentState = (CurrentState)lastNonConfigurationInstance;
+        	currentState.restoreWidgets(textView);
+        	busOverlay = currentState.cloneBusOverlay(this, mapView);
+        	mapView.getOverlays().clear();
+        	mapView.getOverlays().add(busOverlay);
+        	
+        	busOverlay.refreshBalloons();
+        	
+        	busLocations = currentState.getBusLocations();
+
+        	lastUpdateTime = currentState.getLastUpdateTime();
+        	previousUpdateConstantly = currentState.getUpdateConstantly();
+        	currentRoutesSupportedIndex = currentState.getCurrentRoutesSupportedIndex();
+        }
+        else
+        {
+        	Log.i("BUSOVERLAY", "CREATE");
+        	busOverlay = new BusOverlay(busPicture, this, mapView);
+        }
         
         if (busLocations == null)
         {
@@ -206,9 +236,10 @@ public class Main extends MapActivity
         			getOrMakeRouteConfigs(busStop, routesSupported, helper), routesSupportedAndBusLocations);
         }
 
-        handler = new UpdateHandler(textView, busPicture, mapView, arrow, tooltip, busLocations, this, helper);
-        populateHandlerSettings();
+        handler = new UpdateHandler(textView, busPicture, mapView, arrow, tooltip, busLocations, this, helper, busOverlay);
+        busOverlay.setUpdateable(handler);
         
+        populateHandlerSettings();
         modeSpinner.setOnItemSelectedListener(new OnItemSelectedListener() {
 
 			@Override
@@ -234,26 +265,14 @@ public class Main extends MapActivity
 			}
 		});
 
-        double lastUpdateTime = 0;
-        boolean previousUpdateConstantly = false;
         
-        Object obj = getLastNonConfigurationInstance();
-        if (obj != null)
+        if (lastNonConfigurationInstance != null)
         {
-        	Log.v("CURRENTSTATE", "true");
-        	CurrentState currentState = (CurrentState)obj;
-        	currentState.restoreWidgets(textView, mapView);
-        	lastUpdateTime = currentState.getLastUpdateTime();
-        	busLocations = currentState.getBusLocations();
-        	previousUpdateConstantly = currentState.getUpdateConstantly();
-        	currentRoutesSupportedIndex = currentState.getCurrentRoutesSupportedIndex();
-        	
-            modeSpinner.setSelection(currentRoutesSupportedIndex);
+        	modeSpinner.setSelection(currentRoutesSupportedIndex);
         	handler.setRoutesSupportedIndex(currentRoutesSupportedIndex);
         }
         else
         {
-        	Log.v("CURRENTSTATE", "false");
         	SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
             int centerLat = prefs.getInt(centerLatKey, Integer.MAX_VALUE);
             int centerLon = prefs.getInt(centerLonKey, Integer.MAX_VALUE);
@@ -294,7 +313,6 @@ public class Main extends MapActivity
         
     	//enable plus/minus zoom buttons in map
         mapView.setBuiltInZoomControls(true);
-
     }
 		
 
@@ -512,7 +530,8 @@ public class Main extends MapActivity
 		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
 		boolean updateConstantly = prefs.getBoolean(getString(R.string.runInBackgroundCheckbox), true);
 		
-		return new CurrentState(textView, mapView, busLocations, handler.getLastUpdateTime(), updateConstantly, currentRoutesSupportedIndex);
+		return new CurrentState(textView, busLocations, handler.getLastUpdateTime(), updateConstantly,
+				currentRoutesSupportedIndex, busOverlay);
 	}
 
 	

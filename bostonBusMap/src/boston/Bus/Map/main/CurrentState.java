@@ -2,8 +2,11 @@ package boston.Bus.Map.main;
 
 import java.util.List;
 
+import android.content.Context;
+import android.view.KeyEvent;
 import android.widget.TextView;
 import boston.Bus.Map.data.Locations;
+import boston.Bus.Map.ui.BusOverlay;
 
 import com.google.android.maps.MapView;
 import com.google.android.maps.Overlay;
@@ -17,12 +20,13 @@ public class CurrentState {
 	private final CharSequence textViewStatus;
 	private final double lastUpdateTime;
 	private final Locations busLocations;
-	private final List<Overlay> overlays;
 	private final boolean updateConstantly;
 	private int currentRoutesSupportedIndex;
+	private final BusOverlay busOverlay;
 	
-	public CurrentState(TextView textView, MapView mapView,
-			Locations busLocations, double lastUpdateTime, boolean updateConstantly, int currentRoutesSupportedIndex) {
+	public CurrentState(TextView textView,
+			Locations busLocations, double lastUpdateTime, boolean updateConstantly,
+			int currentRoutesSupportedIndex, BusOverlay busOverlay) {
 		if (textView == null)
 		{
 			textViewStatus = "";
@@ -31,18 +35,11 @@ public class CurrentState {
 		{
 			textViewStatus = textView.getText();
 		}
-		if (mapView == null)
-		{
-			overlays = null;
-		}
-		else
-		{
-			overlays = mapView.getOverlays();
-		}
 		this.busLocations = busLocations;
 		this.lastUpdateTime = lastUpdateTime;
 		this.updateConstantly = updateConstantly;
 		this.currentRoutesSupportedIndex = currentRoutesSupportedIndex;
+		this.busOverlay = busOverlay;
 	}
 
 	public double getLastUpdateTime()
@@ -55,19 +52,11 @@ public class CurrentState {
 		return busLocations;
 	}
 	
-	public void restoreWidgets(TextView textView, MapView mapView)
+	public void restoreWidgets(TextView textView)
 	{
 		if (textView != null && textViewStatus.length() != 0)
 		{
 			textView.setText(textViewStatus);
-		}
-		
-		if (mapView != null && overlays != null)
-		{
-			for (Overlay overlay : overlays)
-			{
-				mapView.getOverlays().add(overlay);
-			}
 		}
 	}
 
@@ -77,5 +66,17 @@ public class CurrentState {
 
 	public int getCurrentRoutesSupportedIndex() {
 		return currentRoutesSupportedIndex;
+	}
+
+	public BusOverlay getBusOverlay() {
+		return busOverlay;
+	}
+
+	public BusOverlay cloneBusOverlay(Context context, MapView mapView) {
+		BusOverlay ret = new BusOverlay(busOverlay, context, mapView);
+		
+		
+		
+		return ret;
 	}
 }
