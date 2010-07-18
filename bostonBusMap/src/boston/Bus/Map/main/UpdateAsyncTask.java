@@ -78,13 +78,13 @@ public class UpdateAsyncTask extends AsyncTask<Object, String, Locations>
 	private final boolean inferBusRoutes;
 	private BusOverlay busOverlay;
 	private final int selectedRouteIndex;
-	private final boolean selectedBusPredictions;
+	private final int selectedBusPredictions;
 	
 	
 	public UpdateAsyncTask(TextView textView, MapView mapView, String finalMessage,
 			boolean doShowUnpredictable, boolean doRefresh, int maxOverlays,
 			boolean drawCircle, boolean inferBusRoutes, BusOverlay busOverlay, DatabaseHelper helper, int selectedRouteIndex,
-			boolean selectedBusPredictions,
+			int selectedBusPredictions,
 			boolean doInit)
 	{
 		super();

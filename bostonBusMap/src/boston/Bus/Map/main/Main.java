@@ -145,8 +145,13 @@ public class Main extends MapActivity
 	private BusOverlay busOverlay;
 	private ImageButton toggleButton;
 	private Drawable busStopDrawable;
-	private Drawable busDrawable;
+	private Drawable busDrawableOne;
+	private Drawable busDrawableAll;
 
+	public static final int VEHICLE_LOCATIONS_ALL = 1;
+	public static final int BUS_PREDICTIONS_ONE = 2;
+	public static final int VEHICLE_LOCATIONS_ONE = 3;
+	
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -171,7 +176,8 @@ public class Main extends MapActivity
         
         Drawable busStop = resources.getDrawable(R.drawable.busstop_statelist);
         
-        busDrawable = resources.getDrawable(R.drawable.bus);
+        busDrawableOne = resources.getDrawable(R.drawable.bus_one);
+        busDrawableAll = resources.getDrawable(R.drawable.bus_all);
         busStopDrawable = resources.getDrawable(R.drawable.busstop);
         
         toggleButton.setOnClickListener(new OnClickListener() {
@@ -179,19 +185,22 @@ public class Main extends MapActivity
 			@Override
 			public void onClick(View v) {
 				
-				boolean newValue;
-				if (toggleButton.getDrawable() == busStopDrawable)
+				int newValue = getSelectedBusPredictions();
+				switch (newValue)
 				{
-					toggleButton.setImageDrawable(busDrawable);
-					newValue = false;
-				}
-				else
-				{
-					toggleButton.setImageDrawable(busStopDrawable);
-					newValue = true;
+				case BUS_PREDICTIONS_ONE:
+					newValue = VEHICLE_LOCATIONS_ONE;
+					break;
+				case VEHICLE_LOCATIONS_ONE:
+					newValue = VEHICLE_LOCATIONS_ALL;
+					break;
+				case VEHICLE_LOCATIONS_ALL:
+					newValue = BUS_PREDICTIONS_ONE;
+					break;
 				}
 				
-				
+				setSelectedBusPredictions(newValue);
+								
 				if (busLocations != null && handler != null)
 				{
 					handler.setSelectedBusPredictions(newValue);
@@ -289,7 +298,7 @@ public class Main extends MapActivity
         if (lastNonConfigurationInstance != null)
         {
         	modeSpinner.setSelection(selectedRouteIndex);
-        	handler.setSelectedBusPredictions(isSelectedBusPredictions());
+        	handler.setSelectedBusPredictions(getSelectedBusPredictions());
         	handler.setRouteIndex(selectedRouteIndex);
         }
         else
@@ -299,11 +308,11 @@ public class Main extends MapActivity
             int centerLon = prefs.getInt(centerLonKey, Integer.MAX_VALUE);
             int zoomLevel = prefs.getInt(zoomLevelKey, Integer.MAX_VALUE);
             selectedRouteIndex = prefs.getInt(selectedRouteIndexKey, 0);
-            setSelectedBusPredictions(prefs.getBoolean(selectedBusPredictionsKey, false));
+            setSelectedBusPredictions(prefs.getInt(selectedBusPredictionsKey, VEHICLE_LOCATIONS_ALL));
             
             modeSpinner.setSelection(selectedRouteIndex);
             handler.setRouteIndex(selectedRouteIndex);
-            handler.setSelectedBusPredictions(isSelectedBusPredictions());
+            handler.setSelectedBusPredictions(getSelectedBusPredictions());
 
             if (centerLat != Integer.MAX_VALUE && centerLon != Integer.MAX_VALUE && zoomLevel != Integer.MAX_VALUE)
             {
@@ -341,20 +350,36 @@ public class Main extends MapActivity
     }
 		
 
-    private boolean isSelectedBusPredictions()
+    private int getSelectedBusPredictions()
     {
-    	return toggleButton.getDrawable() == busStopDrawable;
-    }
-
-    private void setSelectedBusPredictions(boolean isSelectedBusPredictions)
-    {
-    	if (isSelectedBusPredictions)
+    	Drawable drawable = toggleButton.getDrawable();
+    	if (drawable == busStopDrawable)
     	{
-    		toggleButton.setImageDrawable(busStopDrawable);
+    		return BUS_PREDICTIONS_ONE;
+    	}
+    	else if (drawable == busDrawableOne)
+    	{
+    		return VEHICLE_LOCATIONS_ONE;
     	}
     	else
     	{
-    		toggleButton.setImageDrawable(busDrawable);
+    		return VEHICLE_LOCATIONS_ALL;
+    	}
+    }
+
+    private void setSelectedBusPredictions(int isSelectedBusPredictions)
+    {
+    	if (isSelectedBusPredictions == Main.BUS_PREDICTIONS_ONE)
+    	{
+    		toggleButton.setImageDrawable(busStopDrawable);
+    	}
+    	else if (isSelectedBusPredictions == Main.VEHICLE_LOCATIONS_ONE)
+    	{
+    		toggleButton.setImageDrawable(busDrawableOne);
+    	}
+    	else
+    	{
+    		toggleButton.setImageDrawable(busDrawableAll);
     	}
     }
 
@@ -391,7 +416,7 @@ public class Main extends MapActivity
     		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
     		SharedPreferences.Editor editor = prefs.edit();
 
-    		editor.putBoolean(selectedBusPredictionsKey, isSelectedBusPredictions());
+    		editor.putInt(selectedBusPredictionsKey, getSelectedBusPredictions());
     		editor.putInt(selectedRouteIndexKey, selectedRouteIndex);
     		editor.putInt(centerLatKey, point.getLatitudeE6());
     		editor.putInt(centerLonKey, point.getLongitudeE6());
@@ -571,7 +596,7 @@ public class Main extends MapActivity
 		boolean updateConstantly = prefs.getBoolean(getString(R.string.runInBackgroundCheckbox), true);
 		
 		return new CurrentState(textView, busLocations, handler.getLastUpdateTime(), updateConstantly,
-				selectedRouteIndex, isSelectedBusPredictions(), busOverlay);
+				selectedRouteIndex, getSelectedBusPredictions(), busOverlay);
 	}
 
 	

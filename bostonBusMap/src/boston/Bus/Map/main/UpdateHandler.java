@@ -80,7 +80,7 @@ public class UpdateHandler extends Handler {
 	}
 	
 	private int selectedRouteIndex = Locations.NO_CHANGE;
-	private boolean selectedBusPredictions;
+	private int selectedBusPredictions;
 	
 	@Override
 	public void handleMessage(Message msg) {
@@ -328,7 +328,7 @@ public class UpdateHandler extends Handler {
 		this.selectedRouteIndex = selectedRouteIndex;
 	}
 
-	public void setSelectedBusPredictions(boolean b)
+	public void setSelectedBusPredictions(int b)
 	{
 		selectedBusPredictions = b; 
 	}

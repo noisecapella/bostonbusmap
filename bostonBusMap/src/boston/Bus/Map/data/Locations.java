@@ -52,6 +52,7 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 import boston.Bus.Map.database.DatabaseHelper;
+import boston.Bus.Map.main.Main;
 import boston.Bus.Map.main.UpdateAsyncTask;
 import boston.Bus.Map.parser.RouteConfigFeedParser;
 import boston.Bus.Map.parser.VehicleLocationsFeedParser;
@@ -117,7 +118,7 @@ public final class Locations
 	private final String[] supportedRoutes;
 	
 	private String selectedRoute;
-	private boolean selectedBusPredictions;
+	private int selectedBusPredictions;
 	
 	public Locations(Drawable bus, Drawable arrow, Drawable locationDrawable,
 			Drawable busStop, HashMap<String, RouteConfig> stopMapping, String[] supportedRoutes)
@@ -223,7 +224,8 @@ public final class Locations
 	 * @throws FactoryConfigurationError
 	 * @throws FeedException 
 	 */
-	public void Refresh(DatabaseHelper helper, boolean inferBusRoutes, int routeIndexToUpdate, boolean selectedBusPredictions) throws SAXException, IOException,
+	public void Refresh(DatabaseHelper helper, boolean inferBusRoutes, int routeIndexToUpdate,
+			int selectedBusPredictions) throws SAXException, IOException,
 			ParserConfigurationException, FactoryConfigurationError 
 	{
 		String routeToUpdate = supportedRoutes[routeIndexToUpdate];
@@ -232,8 +234,10 @@ public final class Locations
 		
 		//read data from the URL
 		URL url;
-		if (selectedBusPredictions == false)
+		if (selectedBusPredictions != Main.BUS_PREDICTIONS_ONE)
 		{
+			//for now, we download and update all buses, whether the user chooses one route or all routes
+			//we only make the distinction when we display the icons
 			final String urlString = mbtaLocationsDataUrl + (long)lastUpdateTime;
 			url = new URL(urlString);
 		}
@@ -305,7 +309,7 @@ public final class Locations
 			
 		}
 		
-		if (selectedBusPredictions)
+		if (selectedBusPredictions == Main.BUS_PREDICTIONS_ONE)
 		{
 			//bus prediction
 			
@@ -343,7 +347,7 @@ public final class Locations
 				}
 			}
 		}
-		else
+		else 
 		{
 			//vehicle locations
 			//VehicleLocationsFeedParser parser = new VehicleLocationsFeedParser(stream);
@@ -487,22 +491,45 @@ public final class Locations
 
 		ArrayList<Location> newLocations = new ArrayList<Location>();
 
-		if (selectedBusPredictions == false)
+		if (selectedBusPredictions != Main.BUS_PREDICTIONS_ONE)
 		{
-
+			
 			if (doShowUnpredictable == false)
 			{
 				for (BusLocation busLocation : busMapping.values())
 				{
 					if (busLocation.predictable == true)
 					{
-						newLocations.add(busLocation);
+						if (selectedBusPredictions == Main.VEHICLE_LOCATIONS_ONE)
+						{
+							if (busLocation.route != null && busLocation.route.getRouteName().equals(selectedRoute))
+							{
+								newLocations.add(busLocation);
+							}
+						}
+						else
+						{
+							newLocations.add(busLocation);
+						}
 					}
 				}
 			}
 			else
 			{
-				newLocations.addAll(busMapping.values());
+				if (selectedBusPredictions == Main.VEHICLE_LOCATIONS_ALL)
+				{
+					newLocations.addAll(busMapping.values());
+				}
+				else
+				{
+					for (BusLocation location : busMapping.values())
+					{
+						if (location.route != null && location.route.getRouteName().equals(selectedRoute))
+						{
+							newLocations.add(location);
+						}
+					}
+				}
 			}
 		}
 		else
@@ -553,7 +580,7 @@ public final class Locations
 		}
 	}
 
-	public void select(int position, boolean busPredictions) {
+	public void select(int position, int busPredictions) {
 		if (position == Locations.NO_CHANGE)
 		{
 			//-1 means don't change this

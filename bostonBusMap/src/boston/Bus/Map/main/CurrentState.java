@@ -22,12 +22,12 @@ public class CurrentState {
 	private final Locations busLocations;
 	private final boolean updateConstantly;
 	private int selectedRouteIndex;
-	private boolean selectedBusPredictions;
+	private int selectedBusPredictions;
 	private final BusOverlay busOverlay;
 	
 	public CurrentState(TextView textView,
 			Locations busLocations, double lastUpdateTime, boolean updateConstantly,
-			int selectedRouteIndex, boolean selectedBusPredictions, BusOverlay busOverlay) {
+			int selectedRouteIndex, int selectedBusPredictions, BusOverlay busOverlay) {
 		if (textView == null)
 		{
 			textViewStatus = "";
@@ -81,7 +81,7 @@ public class CurrentState {
 		return selectedRouteIndex;
 	}
 	
-	public boolean getSelectedBusPredictions() {
+	public int getSelectedBusPredictions() {
 		return selectedBusPredictions;
 	}
 }
