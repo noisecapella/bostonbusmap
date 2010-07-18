@@ -21,12 +21,13 @@ public class CurrentState {
 	private final double lastUpdateTime;
 	private final Locations busLocations;
 	private final boolean updateConstantly;
-	private int currentRoutesSupportedIndex;
+	private int selectedRouteIndex;
+	private boolean selectedBusPredictions;
 	private final BusOverlay busOverlay;
 	
 	public CurrentState(TextView textView,
 			Locations busLocations, double lastUpdateTime, boolean updateConstantly,
-			int currentRoutesSupportedIndex, BusOverlay busOverlay) {
+			int selectedRouteIndex, boolean selectedBusPredictions, BusOverlay busOverlay) {
 		if (textView == null)
 		{
 			textViewStatus = "";
@@ -38,7 +39,8 @@ public class CurrentState {
 		this.busLocations = busLocations;
 		this.lastUpdateTime = lastUpdateTime;
 		this.updateConstantly = updateConstantly;
-		this.currentRoutesSupportedIndex = currentRoutesSupportedIndex;
+		this.selectedRouteIndex = selectedRouteIndex;
+		this.selectedBusPredictions = selectedBusPredictions;
 		this.busOverlay = busOverlay;
 	}
 
@@ -64,10 +66,6 @@ public class CurrentState {
 		return updateConstantly;
 	}
 
-	public int getCurrentRoutesSupportedIndex() {
-		return currentRoutesSupportedIndex;
-	}
-
 	public BusOverlay getBusOverlay() {
 		return busOverlay;
 	}
@@ -75,8 +73,15 @@ public class CurrentState {
 	public BusOverlay cloneBusOverlay(Context context, MapView mapView) {
 		BusOverlay ret = new BusOverlay(busOverlay, context, mapView);
 		
-		
-		
 		return ret;
+	}
+
+	public int getSelectedRouteIndex()
+	{
+		return selectedRouteIndex;
+	}
+	
+	public boolean getSelectedBusPredictions() {
+		return selectedBusPredictions;
 	}
 }

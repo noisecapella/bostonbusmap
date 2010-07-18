@@ -90,8 +90,6 @@ public final class Locations
 	private final String mbtaPredictionsDataUrl = "http://webservices.nextbus.com/service/publicXMLFeed?command=predictionsForMultiStops&a=mbta";
 
 	
-	private String focusedRoute;
-	
 	private final HashMap<Integer, String> vehiclesToRouteNames = new HashMap<Integer, String>();
 
 	private double lastInferBusRoutesTime = 0;
@@ -116,20 +114,21 @@ public final class Locations
 	private final Drawable locationDrawable;
 	private final Drawable busStop;
 	
-	private final String[] routesSupported;
+	private final String[] supportedRoutes;
+	
+	private String selectedRoute;
+	private boolean selectedBusPredictions;
 	
 	public Locations(Drawable bus, Drawable arrow, Drawable locationDrawable,
-			Drawable busStop, HashMap<String, RouteConfig> stopMapping, String[] routesSupported)
+			Drawable busStop, HashMap<String, RouteConfig> stopMapping, String[] supportedRoutes)
 	{
 		this.bus = bus;
 		this.arrow = arrow;
 		this.locationDrawable = locationDrawable;
 		this.busStop = busStop;
-		this.routesSupported = routesSupported;
+		this.supportedRoutes = supportedRoutes;
 		
 		this.stopMapping = stopMapping;
-		
-		this.focusedRoute = null;
 	}
 	
 	/**
@@ -177,9 +176,9 @@ public final class Locations
 			
 		
 
-			for (int i = 1; i < routesSupported.length; i++)
+			for (int i = 0; i < supportedRoutes.length; i++)
 			{
-				String route = routesSupported[i];
+				String route = supportedRoutes[i];
 
 				if (stopMapping.containsKey(route) == false || stopMapping.get(route).getStops().size() == 0)
 				{
@@ -224,16 +223,16 @@ public final class Locations
 	 * @throws FactoryConfigurationError
 	 * @throws FeedException 
 	 */
-	public void Refresh(DatabaseHelper helper, boolean inferBusRoutes, int routeIndexToUpdate) throws SAXException, IOException,
+	public void Refresh(DatabaseHelper helper, boolean inferBusRoutes, int routeIndexToUpdate, boolean selectedBusPredictions) throws SAXException, IOException,
 			ParserConfigurationException, FactoryConfigurationError 
 	{
-		String routeToUpdate = routesSupported[routeIndexToUpdate];
+		String routeToUpdate = supportedRoutes[routeIndexToUpdate];
 		
 		updateInferRoutes(inferBusRoutes);
 		
 		//read data from the URL
 		URL url;
-		if (routeToUpdate == null)
+		if (selectedBusPredictions == false)
 		{
 			final String urlString = mbtaLocationsDataUrl + (long)lastUpdateTime;
 			url = new URL(urlString);
@@ -306,7 +305,7 @@ public final class Locations
 			
 		}
 		
-		if (routeToUpdate != null)
+		if (selectedBusPredictions)
 		{
 			//bus prediction
 			
@@ -351,6 +350,8 @@ public final class Locations
 			
 			//lastUpdateTime = parser.getLastUpdateTime();
 			
+			
+			//TODO: show by bus route
 			
 			////////
 			
@@ -486,7 +487,7 @@ public final class Locations
 
 		ArrayList<Location> newLocations = new ArrayList<Location>();
 
-		if (focusedRoute == null)
+		if (selectedBusPredictions == false)
 		{
 
 			if (doShowUnpredictable == false)
@@ -506,9 +507,9 @@ public final class Locations
 		}
 		else
 		{
-			if (stopMapping.containsKey(focusedRoute))
+			if (stopMapping.containsKey(selectedRoute))
 			{
-				newLocations.addAll(stopMapping.get(focusedRoute).getStops());
+				newLocations.addAll(stopMapping.get(selectedRoute).getStops());
 			}
 		}
 		
@@ -552,30 +553,17 @@ public final class Locations
 		}
 	}
 
-	public void useRoute(int position) {
-		Log.i("USEROUTE", position + " ");
-		if (position == -1)
+	public void select(int position, boolean busPredictions) {
+		if (position == Locations.NO_CHANGE)
 		{
 			//-1 means don't change this
 			Log.i("USEROUTE", "NOCHANGE");
 		}
 		else
 		{
-			if (position == 0)
-			{
-				Log.i("USEROUTE", "null");
-			}
-			else
-			{
-				Log.i("USEROUTE", routesSupported[position]);
-			}
-			focusedRoute = routesSupported[position];
-			
-		}
-	}
-	
+			selectedRoute = supportedRoutes[position];
 
-	public boolean isUsingBusLocations() {
-		return focusedRoute == null;
+			selectedBusPredictions = busPredictions;
+		}
 	}
 }

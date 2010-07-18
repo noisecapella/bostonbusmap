@@ -80,6 +80,7 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CheckBox;
+import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.SimpleAdapter;
 import android.widget.Spinner;
@@ -94,7 +95,8 @@ import android.widget.AdapterView.OnItemSelectedListener;
  */
 public class Main extends MapActivity
 {
-	private static final String currentRoutesSupportedIndexKey = "currentRoutesSupported";
+	private static final String selectedRouteIndexKey = "selectedRouteIndex";
+	private static final String selectedBusPredictionsKey = "selectedBusPredictions";
 	private static final String centerLatKey = "centerLat";
 	private static final String centerLonKey = "centerLon";
 	private static final String zoomLevelKey = "zoomLevel";
@@ -132,7 +134,7 @@ public class Main extends MapActivity
 	 */
 	private OneTimeLocationListener locationListener;
 	
-	private int currentRoutesSupportedIndex;
+	private int selectedRouteIndex;
 	
 	/**
 	 * This is used to indicate to the mode spinner to ignore the first time we set it, so we don't update every time the screen changes
@@ -141,6 +143,9 @@ public class Main extends MapActivity
 
 	
 	private BusOverlay busOverlay;
+	private ImageButton toggleButton;
+	private Drawable busStopDrawable;
+	private Drawable busDrawable;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -152,7 +157,7 @@ public class Main extends MapActivity
         //get widgets
         mapView = (MapView)findViewById(R.id.mapview);
         textView = (TextView)findViewById(R.id.statusView);
-        
+        toggleButton = (ImageButton)findViewById(R.id.predictionsOrLocations);
         Spinner modeSpinner = (Spinner)findViewById(R.id.modeSpinner);
         
         Resources resources = getResources();
@@ -166,6 +171,36 @@ public class Main extends MapActivity
         
         Drawable busStop = resources.getDrawable(R.drawable.busstop_statelist);
         
+        busDrawable = resources.getDrawable(R.drawable.bus);
+        busStopDrawable = resources.getDrawable(R.drawable.busstop);
+        
+        toggleButton.setOnClickListener(new OnClickListener() {
+			
+			@Override
+			public void onClick(View v) {
+				
+				boolean newValue;
+				if (toggleButton.getDrawable() == busStopDrawable)
+				{
+					toggleButton.setImageDrawable(busDrawable);
+					newValue = false;
+				}
+				else
+				{
+					toggleButton.setImageDrawable(busStopDrawable);
+					newValue = true;
+				}
+				
+				
+				if (busLocations != null && handler != null)
+				{
+					handler.setSelectedBusPredictions(newValue);
+					handler.triggerUpdate();
+					handler.immediateRefresh();
+				}
+			}
+		});
+        
 
         DatabaseHelper helper = new DatabaseHelper(this);
         
@@ -173,17 +208,10 @@ public class Main extends MapActivity
         
         final ArrayList<HashMap<String, String>> routeList = new ArrayList<HashMap<String, String>>();
         
-        {
-        	HashMap<String, String> map = new HashMap<String, String>();
-        	map.put("name", "Bus Locations");
-        	map.put("key", null);
-        	routeList.add(map);
-        }
-
         for (String route : routesSupported)
         {
         	HashMap<String, String> map = new HashMap<String, String>();
-        	map.put("name", "Route " + route);
+        	map.put("name", "" + route);
         	map.put("key", route);
         	routeList.add(map);
         }
@@ -204,7 +232,6 @@ public class Main extends MapActivity
         Object lastNonConfigurationInstance = getLastNonConfigurationInstance();
         if (lastNonConfigurationInstance != null)
         {
-        	Log.i("BUSOVERLAY", "RESTORE");
         	CurrentState currentState = (CurrentState)lastNonConfigurationInstance;
         	currentState.restoreWidgets(textView);
         	busOverlay = currentState.cloneBusOverlay(this, mapView);
@@ -217,23 +244,18 @@ public class Main extends MapActivity
 
         	lastUpdateTime = currentState.getLastUpdateTime();
         	previousUpdateConstantly = currentState.getUpdateConstantly();
-        	currentRoutesSupportedIndex = currentState.getCurrentRoutesSupportedIndex();
+        	selectedRouteIndex = currentState.getSelectedRouteIndex();
+        	setSelectedBusPredictions(currentState.getSelectedBusPredictions());
         }
         else
         {
-        	Log.i("BUSOVERLAY", "CREATE");
         	busOverlay = new BusOverlay(busPicture, this, mapView);
         }
         
         if (busLocations == null)
         {
-        	String[] routesSupportedAndBusLocations = new String[routesSupported.length + 1];
-        	System.arraycopy(routesSupported, 0, routesSupportedAndBusLocations, 1, routesSupported.length);
-        	
-        	//leave the first one null to indicate bus locations option
-        	
         	busLocations = new Locations(busPicture, arrow, locationDrawable, busStop,
-        			getOrMakeRouteConfigs(busStop, routesSupported, helper), routesSupportedAndBusLocations);
+        			getOrMakeRouteConfigs(busStop, routesSupported, helper), routesSupported);
         }
 
         handler = new UpdateHandler(textView, busPicture, mapView, arrow, tooltip, busLocations, this, helper, busOverlay);
@@ -251,8 +273,8 @@ public class Main extends MapActivity
 				}
 				else if (busLocations != null && handler != null)
 				{
-					currentRoutesSupportedIndex = position;
-					handler.setRoutesSupportedIndex(position);
+					selectedRouteIndex = position;
+					handler.setRouteIndex(position);
 					handler.triggerUpdate();
 					handler.immediateRefresh();
 				}
@@ -260,16 +282,15 @@ public class Main extends MapActivity
 
 			@Override
 			public void onNothingSelected(AdapterView<?> parent) {
-				// TODO Auto-generated method stub
-				Log.i("SELECTED", "NONE");
 			}
 		});
 
         
         if (lastNonConfigurationInstance != null)
         {
-        	modeSpinner.setSelection(currentRoutesSupportedIndex);
-        	handler.setRoutesSupportedIndex(currentRoutesSupportedIndex);
+        	modeSpinner.setSelection(selectedRouteIndex);
+        	handler.setSelectedBusPredictions(isSelectedBusPredictions());
+        	handler.setRouteIndex(selectedRouteIndex);
         }
         else
         {
@@ -277,10 +298,12 @@ public class Main extends MapActivity
             int centerLat = prefs.getInt(centerLatKey, Integer.MAX_VALUE);
             int centerLon = prefs.getInt(centerLonKey, Integer.MAX_VALUE);
             int zoomLevel = prefs.getInt(zoomLevelKey, Integer.MAX_VALUE);
-            currentRoutesSupportedIndex = prefs.getInt(currentRoutesSupportedIndexKey, 0);
+            selectedRouteIndex = prefs.getInt(selectedRouteIndexKey, 0);
+            setSelectedBusPredictions(prefs.getBoolean(selectedBusPredictionsKey, false));
             
-            modeSpinner.setSelection(currentRoutesSupportedIndex);
-            handler.setRoutesSupportedIndex(currentRoutesSupportedIndex);
+            modeSpinner.setSelection(selectedRouteIndex);
+            handler.setRouteIndex(selectedRouteIndex);
+            handler.setSelectedBusPredictions(isSelectedBusPredictions());
 
             if (centerLat != Integer.MAX_VALUE && centerLon != Integer.MAX_VALUE && zoomLevel != Integer.MAX_VALUE)
             {
@@ -313,11 +336,27 @@ public class Main extends MapActivity
         
     	//enable plus/minus zoom buttons in map
         mapView.setBuiltInZoomControls(true);
+        
+        
     }
 		
 
+    private boolean isSelectedBusPredictions()
+    {
+    	return toggleButton.getDrawable() == busStopDrawable;
+    }
 
-
+    private void setSelectedBusPredictions(boolean isSelectedBusPredictions)
+    {
+    	if (isSelectedBusPredictions)
+    	{
+    		toggleButton.setImageDrawable(busStopDrawable);
+    	}
+    	else
+    	{
+    		toggleButton.setImageDrawable(busDrawable);
+    	}
+    }
 
 	private String[] getOrObtainRoutes(DatabaseHelper helper) {
 		//TODO: download it from the xml feed and store it in the database. For now it's just a resource
@@ -352,7 +391,8 @@ public class Main extends MapActivity
     		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
     		SharedPreferences.Editor editor = prefs.edit();
 
-    		editor.putInt(currentRoutesSupportedIndexKey, currentRoutesSupportedIndex);
+    		editor.putBoolean(selectedBusPredictionsKey, isSelectedBusPredictions());
+    		editor.putInt(selectedRouteIndexKey, selectedRouteIndex);
     		editor.putInt(centerLatKey, point.getLatitudeE6());
     		editor.putInt(centerLonKey, point.getLongitudeE6());
     		editor.putInt(zoomLevelKey, mapView.getZoomLevel());
@@ -531,7 +571,7 @@ public class Main extends MapActivity
 		boolean updateConstantly = prefs.getBoolean(getString(R.string.runInBackgroundCheckbox), true);
 		
 		return new CurrentState(textView, busLocations, handler.getLastUpdateTime(), updateConstantly,
-				currentRoutesSupportedIndex, busOverlay);
+				selectedRouteIndex, isSelectedBusPredictions(), busOverlay);
 	}
 
 	

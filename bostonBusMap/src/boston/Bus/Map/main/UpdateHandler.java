@@ -79,7 +79,8 @@ public class UpdateHandler extends Handler {
 		this.context = context;
 	}
 	
-	private int currentRoutesSupportedIndex = Locations.NO_CHANGE;
+	private int selectedRouteIndex = Locations.NO_CHANGE;
+	private boolean selectedBusPredictions;
 	
 	@Override
 	public void handleMessage(Message msg) {
@@ -110,13 +111,11 @@ public class UpdateHandler extends Handler {
 			break;
 		case MINOR:
 			//don't do two updates at once
-			Log.i("MINOR", "started");
 			if (minorUpdate != null)
 			{
 				if (minorUpdate.getStatus().equals(UpdateAsyncTask.Status.FINISHED) == false)
 				{
 					//task is not finished yet
-					Log.i("MINOR", "not finished yet");
 					return;
 				}
 				
@@ -126,13 +125,12 @@ public class UpdateHandler extends Handler {
 			removeMessages(MINOR);
 			
 			minorUpdate = new UpdateAsyncTask(textView, mapView, null, getShowUnpredictable(), false, maxOverlays,
-					getHideHighlightCircle() == false, getInferBusRoutes(), busOverlay, helper, currentRoutesSupportedIndex, false);
+					getHideHighlightCircle() == false, getInferBusRoutes(), busOverlay, helper,
+					selectedRouteIndex, selectedBusPredictions, false);
 			
 
 			minorUpdate.runUpdate(busLocations);
 			
-			Log.i("MINOR", "done currentRoutesSupportedIndex == " + currentRoutesSupportedIndex);
-
 			break;
 		case LOCATION_NOT_FOUND:
 			Toast.makeText(context, "Cannot find location, try again later", Toast.LENGTH_LONG).show();
@@ -166,14 +164,7 @@ public class UpdateHandler extends Handler {
 
 
 	private int getCurrentFetchDelay() {
-		if (currentRoutesSupportedIndex == 0)
-		{
-			return busLocationsFetchDelay;
-		}
-		else
-		{
-			return predictionsFetchDelay;
-		}
+		return busLocationsFetchDelay;
 	}
 
 
@@ -207,7 +198,8 @@ public class UpdateHandler extends Handler {
 		
 		updateAsyncTask = new UpdateAsyncTask(textView, mapView, finalMessage,
 				getShowUnpredictable(), true, maxOverlays,
-				getHideHighlightCircle() == false, getInferBusRoutes(), busOverlay, helper, currentRoutesSupportedIndex, isFirstTime);
+				getHideHighlightCircle() == false, getInferBusRoutes(), busOverlay, helper,
+				selectedRouteIndex, selectedBusPredictions, isFirstTime);
 		updateAsyncTask.runUpdate(busLocations);
 	}
 
@@ -322,12 +314,6 @@ public class UpdateHandler extends Handler {
 		
 	}
 	
-	public void setRoutesSupportedIndex(int index)
-	{
-		currentRoutesSupportedIndex = index;
-	}
-
-
 
 	public void immediateRefresh() {
 		Message msg = new Message();
@@ -335,4 +321,16 @@ public class UpdateHandler extends Handler {
 		msg.what = MAJOR;
 		sendMessage(msg);
 	}
+
+
+
+	public void setRouteIndex(int selectedRouteIndex) {
+		this.selectedRouteIndex = selectedRouteIndex;
+	}
+
+	public void setSelectedBusPredictions(boolean b)
+	{
+		selectedBusPredictions = b; 
+	}
+
 }

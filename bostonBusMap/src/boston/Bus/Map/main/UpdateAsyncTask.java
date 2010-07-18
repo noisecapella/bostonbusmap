@@ -77,12 +77,14 @@ public class UpdateAsyncTask extends AsyncTask<Object, String, Locations>
 	
 	private final boolean inferBusRoutes;
 	private BusOverlay busOverlay;
-	private final int routesSupportedIndex;
+	private final int selectedRouteIndex;
+	private final boolean selectedBusPredictions;
 	
 	
 	public UpdateAsyncTask(TextView textView, MapView mapView, String finalMessage,
 			boolean doShowUnpredictable, boolean doRefresh, int maxOverlays,
-			boolean drawCircle, boolean inferBusRoutes, BusOverlay busOverlay, DatabaseHelper helper, int routesSupportedIndex,
+			boolean drawCircle, boolean inferBusRoutes, BusOverlay busOverlay, DatabaseHelper helper, int selectedRouteIndex,
+			boolean selectedBusPredictions,
 			boolean doInit)
 	{
 		super();
@@ -98,7 +100,8 @@ public class UpdateAsyncTask extends AsyncTask<Object, String, Locations>
 		this.busOverlay = busOverlay;
 		this.helper = helper;
 		this.textView = textView;
-		this.routesSupportedIndex = routesSupportedIndex;
+		this.selectedRouteIndex = selectedRouteIndex;
+		this.selectedBusPredictions = selectedBusPredictions;
 		this.doInit = doInit;
 		
 		//this.uiHandler = new Handler();
@@ -139,7 +142,8 @@ public class UpdateAsyncTask extends AsyncTask<Object, String, Locations>
 			silenceUpdates = true;
 		}
 		
-		busLocations.useRoute(routesSupportedIndex);
+		busLocations.select(selectedRouteIndex, selectedBusPredictions);
+
 		if (doRefresh)
 		{
 			try
@@ -151,7 +155,7 @@ public class UpdateAsyncTask extends AsyncTask<Object, String, Locations>
 				}
 				publishProgress("Fetching data...");
 
-				busLocations.Refresh(helper, inferBusRoutes, routesSupportedIndex);
+				busLocations.Refresh(helper, inferBusRoutes, selectedRouteIndex, selectedBusPredictions);
 			}
 			catch (IOException e)
 			{
