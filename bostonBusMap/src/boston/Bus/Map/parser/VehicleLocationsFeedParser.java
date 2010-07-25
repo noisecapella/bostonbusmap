@@ -57,6 +57,8 @@ public class VehicleLocationsFeedParser extends DefaultHandler
 	private static final String headingKey = "heading";
 	private static final String predictableKey = "predictable";
 	private static final String dirTagKey = "dirTag";
+	private static final String lastTimeKey = "lastTime";
+	private static final String timeKey = "time";
 	
 	@Override
 	public void startElement(String uri, String localName, String qName,
@@ -74,38 +76,47 @@ public class VehicleLocationsFeedParser extends DefaultHandler
 			String dirTag = attributes.getValue(dirTagKey);
 
 
-		String inferBusRoute = null;
-		if (vehiclesToRouteNames.containsKey(id))
-		{
-			String value = vehiclesToRouteNames.get(id);
-			if (value != null && value.length() != 0)
+			String inferBusRoute = null;
+			if (vehiclesToRouteNames.containsKey(id))
 			{
-				inferBusRoute = value;
+				String value = vehiclesToRouteNames.get(id);
+				if (value != null && value.length() != 0)
+				{
+					inferBusRoute = value;
+				}
 			}
-		}
 
-		RouteConfig routeConfig;
-		if (stopMapping.containsKey(route))
+			RouteConfig routeConfig;
+			if (stopMapping.containsKey(route))
+			{
+				routeConfig = stopMapping.get(route);
+			}
+			else
+			{
+				routeConfig = new RouteConfig(route);
+			}
+
+
+			BusLocation newBusLocation = new BusLocation(lat, lon, id, routeConfig, seconds, lastUpdateTime, 
+					heading, predictable, dirTag, inferBusRoute, bus, arrow);
+
+			Integer idInt = new Integer(id);
+			if (busMapping.containsKey(idInt))
+			{
+				//calculate the direction of the bus from the current and previous locations
+				newBusLocation.movedFrom(busMapping.get(idInt));
+			}
+
+			busMapping.put(idInt, newBusLocation);
+		}
+		else if (localName.equals(lastTimeKey))
 		{
-			routeConfig = stopMapping.get(route);
-		}
-		else
-		{
-			routeConfig = new RouteConfig(route);
-		}
-		
-
-		BusLocation newBusLocation = new BusLocation(lat, lon, id, routeConfig, seconds, lastUpdateTime, 
-				heading, predictable, dirTag, inferBusRoute, bus, arrow);
-
-		Integer idInt = new Integer(id);
-		if (busMapping.containsKey(idInt))
-		{
-			//calculate the direction of the bus from the current and previous locations
-			newBusLocation.movedFrom(busMapping.get(idInt));
-		}
-
-		busMapping.put(idInt, newBusLocation);
+			lastUpdateTime = Double.parseDouble(attributes.getValue(timeKey));
+			
+			for (Integer key : busMapping.keySet())
+			{
+				busMapping.get(key).lastUpdateInMillis = lastUpdateTime;
+			}
 		}
 
 	}

@@ -45,7 +45,7 @@ public class BusLocation implements Location
 	/**
 	 * Creation time of this bus object
 	 */
-	public final double lastUpdateInMillis;
+	public double lastUpdateInMillis;
 	
 	/**
 	 * Distance in miles of the bus from its previous location, in the x dimension, squared

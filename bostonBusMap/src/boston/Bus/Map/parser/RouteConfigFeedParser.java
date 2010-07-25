@@ -54,11 +54,14 @@ public class RouteConfigFeedParser extends DefaultHandler
 	private static final String titleKey = "title";
 	private static final String dirTagKey = "dirTag";
 	private static final String nameKey = "name";
+	private static final String pathKey = "path";
+	private static final String pointKey = "point";
 	
 	
 	private boolean inRoute;
 	private boolean inDirection;
 	private boolean inStop;
+	private boolean inPath;
 	
 	private RouteConfig currentRouteConfig;
 	private String currentRoute;
@@ -117,6 +120,10 @@ public class RouteConfigFeedParser extends DefaultHandler
 			currentRoute = attributes.getValue(tagKey);
 			currentRouteConfig = new RouteConfig(currentRoute);
 		}
+		else if (pathKey.equals(localName))
+		{
+			inPath = true;
+		}
 		else if (localName.equals("Error"))
 		{
 			//i hate checked exceptions
@@ -146,7 +153,10 @@ public class RouteConfigFeedParser extends DefaultHandler
 			currentRoute = null;
 			currentRouteConfig = null;
 		}
-		
+		else if (pathKey.equals(localName))
+		{
+			inPath = false;
+		}
 		
 	}
 	
