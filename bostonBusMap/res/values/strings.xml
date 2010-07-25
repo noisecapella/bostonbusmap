@@ -11,5 +11,6 @@
 <string name="numOverlaysPreference">numOverlaysPreference</string>
 <string name="inferVehicleRouteCheckbox">inferVehicleRoute</string>
 <string name="showRouteLineCheckbox">showRouteLine</string>
+<string name="showCoarseRouteLineCheckbox">showCoarseRouteLine</string>
 <string name="initAllRouteInfoCheckbox2">initAllRouteInfo</string>
 </resources>

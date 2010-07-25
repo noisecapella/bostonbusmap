@@ -175,7 +175,7 @@ public final class Locations
 			
 			parser.fillMapping(stopMapping);
 			
-			helper.saveMapping(stopMapping);
+			helper.saveMapping(stopMapping, true);
 		}
 		else
 		{
@@ -202,7 +202,7 @@ public final class Locations
 					
 					parser.fillMapping(stopMapping);
 					
-					helper.saveMapping(stopMapping);
+					helper.saveMapping(stopMapping, false);
 				}
 
 
@@ -284,7 +284,7 @@ public final class Locations
 					
 					parser.fillMapping(stopMapping);
 					
-					helper.saveMapping(stopMapping);
+					helper.saveMapping(stopMapping, false);
 					return;
 				}
 			}
@@ -302,7 +302,7 @@ public final class Locations
 				
 				parser.fillMapping(stopMapping);
 				
-				helper.saveMapping(stopMapping);
+				helper.saveMapping(stopMapping, false);
 				return;
 			}
 		}

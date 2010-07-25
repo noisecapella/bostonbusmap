@@ -67,7 +67,6 @@ public class RouteConfigFeedParser extends DefaultHandler
 	private boolean inPath;
 	
 	private int pathIndex;
-	private int pointIndex;
 	
 	private RouteConfig currentRouteConfig;
 	private String currentRoute;
@@ -138,9 +137,7 @@ public class RouteConfigFeedParser extends DefaultHandler
 		{
 			double lat = Double.parseDouble(attributes.getValue(latKey));
 			double lon = Double.parseDouble(attributes.getValue(lonKey));
-			currentPath.addPoint(pointIndex, lat, lon);
-			
-			pointIndex++;
+			currentPath.addPoint(lat, lon);
 		}
 		else if (localName.equals("Error"))
 		{
@@ -177,10 +174,10 @@ public class RouteConfigFeedParser extends DefaultHandler
 			
 			if (currentRouteConfig != null)
 			{
+				currentPath.condense();
 				currentRouteConfig.addPath(pathIndex, currentPath);
 			}
 			currentPath = null;
-			pointIndex = 0;
 			pathIndex++;
 		}
 		

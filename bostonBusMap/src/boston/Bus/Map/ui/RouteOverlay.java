@@ -160,7 +160,7 @@ public class RouteOverlay extends Overlay
 		this.showRouteLine = showRouteLine;
 	}
 
-	public void setDrawCoarseLine(boolean showCoarseRouteLine) {
+	/*public void setDrawCoarseLine(boolean showCoarseRouteLine) {
 		if (showCoarseRouteLine)
 		{
 			increment = COARSE_INCREMENT;
@@ -170,5 +170,5 @@ public class RouteOverlay extends Overlay
 			increment = FINE_INCREMENT;
 		}
 		
-	}
+	}*/
 }

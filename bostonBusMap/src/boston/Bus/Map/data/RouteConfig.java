@@ -85,26 +85,21 @@ public class RouteConfig {
 		
 	}
 
-
-
 	public SortedMap<Integer, Path> getPaths() {
 		return paths;
 	}
 
 
 
-	public void addPath(int pathId, int pointId, float lat, float lon) {
-		Path path;
-		if (paths.containsKey(pathId) == false)
+	public void addPath(int pathId, float lat, float lon) {
+		Path path = paths.get(pathId);
+		if (path == null)
 		{
 			path = new Path(pathId);
 			paths.put(pathId, path);
 		}
-		else
-		{
-			path = paths.get(pathId);
-		}
-		path.addPoint(pointId, lat, lon);
+
+		path.addPoint(lat, lon);
 		
 	}
 			

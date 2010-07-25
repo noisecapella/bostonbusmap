@@ -284,7 +284,7 @@ public class UpdateAsyncTask extends AsyncTask<Object, String, Locations>
 		busOverlay.setBusLocations(busLocations);
 		
 		routeOverlay.setDrawLine(showRouteLine);
-		routeOverlay.setDrawCoarseLine(showCoarseRouteLine);
+		//routeOverlay.setDrawCoarseLine(showCoarseRouteLine);
 		
         final ArrayList<Path> paths = busLocationsObject.getSelectedPaths();
 		

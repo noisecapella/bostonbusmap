@@ -16,6 +16,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 import android.database.sqlite.SQLiteDatabase.CursorFactory;
 import android.graphics.drawable.Drawable;
 import android.net.wifi.WifiConfiguration.PairwiseCipher;
+import android.os.Debug;
 import android.util.Log;
 
 /**
@@ -42,7 +43,6 @@ public class DatabaseHelper extends SQLiteOpenHelper
 	private final static String dirtagKey = "dirtag";
 	private final static String nameKey = "name";
 	private final static String pathIdKey = "pathid";
-	private final static String pointIdKey = "pointId";
 
 	private final static int tagIndex = 1;
 	private final static int nameIndex = 2;
@@ -62,7 +62,7 @@ public class DatabaseHelper extends SQLiteOpenHelper
 				" FLOAT, " + titleKey + " STRING, " + dirtagKey + " STRING)");
 		db.execSQL("CREATE TABLE IF NOT EXISTS " + routesTable + " (" + routeKey + " STRING)");
 		db.execSQL("CREATE TABLE IF NOT EXISTS " + pathsTable + " (" + pathIdKey + " INTEGER, "
-				+ pointIdKey + " INTEGER, " + routeKey + " STRING, "
+				 + routeKey + " STRING, "
 				+ latitudeKey + " FLOAT, " + longitudeKey + " FLOAT)");
 	}
 
@@ -113,6 +113,7 @@ public class DatabaseHelper extends SQLiteOpenHelper
 		Cursor cursor = null;
 		try
 		{
+			//Debug.startMethodTracing("database");
 			for (String route : routes)
 			{
 				RouteConfig routeConfig = new RouteConfig(route);
@@ -151,17 +152,16 @@ public class DatabaseHelper extends SQLiteOpenHelper
 				}
 				cursor.close();
 				
-				cursor = database.query(pathsTable, new String[] {pathIdKey, pointIdKey, routeKey, latitudeKey, longitudeKey},
+				cursor = database.query(pathsTable, new String[] {pathIdKey, routeKey, latitudeKey, longitudeKey},
 						routeKey + "=?", new String[]{route}, null, null, null);
 				cursor.moveToFirst();
 				while (cursor.isAfterLast() == false)
 				{
 					int pathId = cursor.getInt(0);
-					int pointId = cursor.getInt(1);
-					float lat = cursor.getFloat(3);
-					float lon = cursor.getFloat(4);
+					float lat = cursor.getFloat(2);
+					float lon = cursor.getFloat(3);
 					
-					routeConfig.addPath(pathId, pointId, lat, lon);
+					routeConfig.addPath(pathId, lat, lon);
 					cursor.moveToNext();
 				}
 				cursor.close();
@@ -169,6 +169,7 @@ public class DatabaseHelper extends SQLiteOpenHelper
 				
 				map.put(route, routeConfig);
 			}
+			//Debug.stopMethodTracing();
 		}
 		finally
 		{
@@ -209,7 +210,7 @@ public class DatabaseHelper extends SQLiteOpenHelper
 		
 	}
 	
-	public void saveMapping(HashMap<String, RouteConfig> mapping)
+	public void saveMapping(HashMap<String, RouteConfig> mapping, boolean wipe)
 	{
 		SQLiteDatabase database = getWritableDatabase();
 		synchronized (database) {
@@ -217,9 +218,16 @@ public class DatabaseHelper extends SQLiteOpenHelper
 			{
 				database.beginTransaction();
 			
+				if (wipe)
+				{
+					database.delete(stopsTable, null, null);
+					database.delete(directionsTable, null, null);
+					database.delete(pathsTable, null, null);
+				}
+				
 				for (String route : mapping.keySet())
 				{
-					saveMappingKernel(database, route, mapping.get(route));
+					saveMappingKernel(database, route, mapping.get(route), wipe);
 				}
 				
 				database.setTransactionSuccessful();
@@ -234,7 +242,14 @@ public class DatabaseHelper extends SQLiteOpenHelper
 		
 	}
 	
-	private void saveMappingKernel(SQLiteDatabase database, String route, RouteConfig routeConfig)
+	/**
+	 * 
+	 * @param database
+	 * @param route
+	 * @param routeConfig
+	 * @param useInsert insert all rows, don't replace them. I assume this is faster since there's no lookup involved
+	 */
+	private void saveMappingKernel(SQLiteDatabase database, String route, RouteConfig routeConfig, boolean useInsert)
 	{
 		for (StopLocation location : routeConfig.getStops())
 		{
@@ -247,7 +262,14 @@ public class DatabaseHelper extends SQLiteOpenHelper
 			values.put(titleKey, location.getTitle());
 			values.put(dirtagKey, location.getDirtag());
 
-			database.replace(stopsTable, null, values);
+			if (useInsert)
+			{
+				database.insert(stopsTable, null, values);
+			}
+			else
+			{
+				database.replace(stopsTable, null, values);
+			}
 		}
 
 		for (String dirtag : routeConfig.getDirtags())
@@ -258,45 +280,38 @@ public class DatabaseHelper extends SQLiteOpenHelper
 			values.put(nameKey, routeConfig.getDirectionName(dirtag));
 			values.put(titleKey, routeConfig.getDirectionTitle(dirtag));
 			
-
-			database.replace(directionsTable, null, values);
+			if (useInsert)
+			{
+				database.insert(directionsTable, null, values);
+			}
+			else
+			{
+				database.replace(directionsTable, null, values);
+			}
 		}
 
 		for (Integer pathId : routeConfig.getPaths().keySet())
 		{
 			Path path = routeConfig.getPaths().get(pathId);
-			for (Integer pointId : path.getPoints().keySet())
+			for (Point point : path.getPoints())
 			{
-				Point point = path.getPoints().get(pointId);
-				
 				ContentValues values = new ContentValues();
 				values.put(pathIdKey, pathId);
-				values.put(pointIdKey, pointId);
 				values.put(routeKey, route);
 				values.put(latitudeKey, point.lat);
 				values.put(longitudeKey, point.lon);
-				database.replace(pathsTable, null, values);
-			}
-		}
-	}
-	
-	public void saveMapping(String route, RouteConfig routeConfig) {
-		SQLiteDatabase database = getWritableDatabase();
-		synchronized (database) {
-			try
-			{
-
-				database.beginTransaction();
-
-				saveMappingKernel(database, route, routeConfig);
 				
-				database.setTransactionSuccessful();
-				database.endTransaction();
-			}
-			finally
-			{
-				database.close();
+				if (useInsert)
+				{
+					database.insert(pathsTable, null, values);
+				}
+				else
+				{
+					database.replace(pathsTable, null, values);
+				}
 			}
 		}
 	}
+
+
 }
