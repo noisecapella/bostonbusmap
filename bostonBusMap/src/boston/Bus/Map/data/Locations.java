@@ -54,6 +54,7 @@ import org.xml.sax.SAXException;
 import boston.Bus.Map.database.DatabaseHelper;
 import boston.Bus.Map.main.Main;
 import boston.Bus.Map.main.UpdateAsyncTask;
+import boston.Bus.Map.parser.BusPredictionsFeedParser;
 import boston.Bus.Map.parser.RouteConfigFeedParser;
 import boston.Bus.Map.parser.VehicleLocationsFeedParser;
 import boston.Bus.Map.util.DownloadHelper;
@@ -79,6 +80,9 @@ public final class Locations
 	 */
 	private HashMap<Integer, BusLocation> busMapping = new HashMap<Integer, BusLocation>();
 	
+	/**
+	 * A mapping of a route id to a RouteConfig object. This should probably be renamed routeMapping
+	 */
 	private final HashMap<String, RouteConfig> stopMapping;
 	
 	/**
@@ -311,41 +315,10 @@ public final class Locations
 		{
 			//bus prediction
 			
-			RouteConfig stopLocations = stopMapping.get(routeToUpdate);
+			BusPredictionsFeedParser parser = new BusPredictionsFeedParser(stopMapping);
 			
-			DocumentBuilder builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
-			Document document = builder.parse(new ByteArrayInputStream(data.getBytes()));
-			NodeList predictionsList = document.getElementsByTagName("predictions");
+			parser.runParse(data);
 			
-			for (int i = 0; i < predictionsList.getLength(); i++)
-			{
-				Element predictionsElement = (Element)predictionsList.item(i);
-
-				int stopId = Integer.parseInt(predictionsElement.getAttribute("stopTag"));
-				StopLocation location = stopLocations.getStop(stopId);
-
-				if (location != null)
-				{
-					location.clearPredictions();
-
-					NodeList predictionList = predictionsElement.getElementsByTagName("prediction");
-
-					for (int j = 0; j < predictionList.getLength(); j++)
-					{
-						Element predictionElement = (Element)predictionList.item(j);
-						int minutes = Integer.parseInt(predictionElement.getAttribute("minutes"));
-
-						long epochTime = Long.parseLong(predictionElement.getAttribute("epochTime"));
-
-						int vehicleId = Integer.parseInt(predictionElement.getAttribute("vehicle"));
-
-
-						String dirTag = predictionElement.getAttribute("dirTag");
-
-						location.addPrediction(minutes, epochTime, vehicleId, dirTag);
-					}
-				}
-			}
 		}
 		else 
 		{
