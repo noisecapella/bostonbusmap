@@ -24,10 +24,12 @@ public class CurrentState {
 	private int selectedRouteIndex;
 	private int selectedBusPredictions;
 	private final BusOverlay busOverlay;
+	private final UpdateAsyncTask majorHandler;
 	
 	public CurrentState(TextView textView,
 			Locations busLocations, double lastUpdateTime, boolean updateConstantly,
-			int selectedRouteIndex, int selectedBusPredictions, BusOverlay busOverlay) {
+			int selectedRouteIndex, int selectedBusPredictions, BusOverlay busOverlay, UpdateAsyncTask majorHandler) 
+	{
 		if (textView == null)
 		{
 			textViewStatus = "";
@@ -42,6 +44,7 @@ public class CurrentState {
 		this.selectedRouteIndex = selectedRouteIndex;
 		this.selectedBusPredictions = selectedBusPredictions;
 		this.busOverlay = busOverlay;
+		this.majorHandler = majorHandler;
 	}
 
 	public double getLastUpdateTime()
@@ -83,5 +86,9 @@ public class CurrentState {
 	
 	public int getSelectedBusPredictions() {
 		return selectedBusPredictions;
+	}
+
+	public UpdateAsyncTask getMajorHandler() {
+		return majorHandler;
 	}
 }

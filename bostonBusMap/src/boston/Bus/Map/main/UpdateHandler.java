@@ -67,7 +67,8 @@ public class UpdateHandler extends Handler {
 	private boolean isFirstRefresh;
 	
 	public UpdateHandler(TextView textView, Drawable busPicture, MapView mapView,
-			Drawable arrow, Drawable tooltip, Locations busLocations, Context context, DatabaseHelper helper, BusOverlay busOverlay)
+			Drawable arrow, Drawable tooltip, Locations busLocations, Context context, DatabaseHelper helper, BusOverlay busOverlay,
+			UpdateAsyncTask majorHandler)
 	{
 		this.textView = textView;
 		this.mapView = mapView;
@@ -77,6 +78,7 @@ public class UpdateHandler extends Handler {
 		lastUpdateTime = System.currentTimeMillis();
 		
 		this.context = context;
+		this.updateAsyncTask = majorHandler;
 	}
 	
 	private int selectedRouteIndex = Locations.NO_CHANGE;
@@ -331,6 +333,12 @@ public class UpdateHandler extends Handler {
 	public void setSelectedBusPredictions(int b)
 	{
 		selectedBusPredictions = b; 
+	}
+
+
+
+	public UpdateAsyncTask getMajorHandler() {
+		return updateAsyncTask;
 	}
 
 }

@@ -71,7 +71,7 @@ public class UpdateAsyncTask extends AsyncTask<Object, String, Locations>
 	private final int maxOverlays;
 	private final boolean drawCircle;
 	private final DatabaseHelper helper;
-	private final TextView textView;
+	private TextView textView;
 	
 	private boolean silenceUpdates;
 	
@@ -161,22 +161,24 @@ public class UpdateAsyncTask extends AsyncTask<Object, String, Locations>
 			{
 				//this probably means that there is no Internet available, or there's something wrong with the feed
 				publishProgress("Bus feed is inaccessible; try again later");
-				
+				Log.e("BostonBusMap", e.toString());
 				return null;
 
 			} catch (SAXException e) {
 				publishProgress("XML parsing exception; cannot update. Maybe there was a hiccup in the feed?");
+				Log.e("BostonBusMap", e.toString());
 				return null;
 			} catch (NumberFormatException e) {
 				publishProgress("XML parsing exception; cannot update. Maybe there was a hiccup in the feed?");
+				Log.e("BostonBusMap", e.toString());
 				return null;
 			} catch (ParserConfigurationException e) {
 				publishProgress("XML parser configuration exception; cannot update");
-				e.printStackTrace();
+				Log.e("BostonBusMap", e.toString());
 				return null;
 			} catch (FactoryConfigurationError e) {
 				publishProgress("XML parser factory configuration exception; cannot update");
-				e.printStackTrace();
+				Log.e("BostonBusMap", e.toString());
 				return null;
 			}
 			catch (RuntimeException e)
@@ -184,6 +186,7 @@ public class UpdateAsyncTask extends AsyncTask<Object, String, Locations>
 				if (e.getCause() instanceof FeedException)
 				{
 					publishProgress("The feed is reporting an error");
+					Log.e("BostonBusMap", e.toString());
 					return null;
 				}
 				else
@@ -194,7 +197,7 @@ public class UpdateAsyncTask extends AsyncTask<Object, String, Locations>
 			catch (Exception e)
 			{
 				publishProgress("Unknown exception occurred");
-				e.printStackTrace();
+				Log.e("BostonBusMap", e.toString());
 				return null;
 			}
 		}
@@ -329,5 +332,14 @@ public class UpdateAsyncTask extends AsyncTask<Object, String, Locations>
 	public void publish(String msg)
 	{
 		publishProgress(msg);
+	}
+	
+	/**
+	 * This should be run in the UI thread so that we don't change the textView object while it's being used
+	 * @param textView
+	 */
+	public void setTextView(TextView textView)
+	{
+		this.textView = textView;
 	}
 }

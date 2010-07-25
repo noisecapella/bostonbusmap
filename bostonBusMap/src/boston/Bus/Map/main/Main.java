@@ -237,6 +237,7 @@ public class Main extends MapActivity
         double lastUpdateTime = 0;
         boolean previousUpdateConstantly = false;
 
+        UpdateAsyncTask majorHandler = null;
         
         Object lastNonConfigurationInstance = getLastNonConfigurationInstance();
         if (lastNonConfigurationInstance != null)
@@ -255,6 +256,10 @@ public class Main extends MapActivity
         	previousUpdateConstantly = currentState.getUpdateConstantly();
         	selectedRouteIndex = currentState.getSelectedRouteIndex();
         	setSelectedBusPredictions(currentState.getSelectedBusPredictions());
+        	
+        	majorHandler = currentState.getMajorHandler();
+        	//continue posting status updates on new textView
+        	majorHandler.setTextView(textView);
         }
         else
         {
@@ -267,7 +272,7 @@ public class Main extends MapActivity
         			getOrMakeRouteConfigs(busStop, routesSupported, helper), routesSupported);
         }
 
-        handler = new UpdateHandler(textView, busPicture, mapView, arrow, tooltip, busLocations, this, helper, busOverlay);
+        handler = new UpdateHandler(textView, busPicture, mapView, arrow, tooltip, busLocations, this, helper, busOverlay, majorHandler);
         busOverlay.setUpdateable(handler);
         
         populateHandlerSettings();
@@ -596,7 +601,7 @@ public class Main extends MapActivity
 		boolean updateConstantly = prefs.getBoolean(getString(R.string.runInBackgroundCheckbox), true);
 		
 		return new CurrentState(textView, busLocations, handler.getLastUpdateTime(), updateConstantly,
-				selectedRouteIndex, getSelectedBusPredictions(), busOverlay);
+				selectedRouteIndex, getSelectedBusPredictions(), busOverlay, handler.getMajorHandler());
 	}
 
 	
