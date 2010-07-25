@@ -587,13 +587,17 @@ public class Main extends MapActivity
     private void populateHandlerSettings() {
     	SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
     	
-    	handler.setUpdateConstantly(prefs.getBoolean(getString(R.string.runInBackgroundCheckbox), true));
+    	boolean runInBackgroundCheckboxValue = prefs.getBoolean(getString(R.string.runInBackgroundCheckbox), true);
+    	handler.setUpdateConstantly(runInBackgroundCheckboxValue);
     	handler.setShowUnpredictable(prefs.getBoolean(getString(R.string.showUnpredictableBusesCheckbox), false));
     	handler.setHideHighlightCircle(prefs.getBoolean(getString(R.string.hideCircleCheckbox), false));
     	handler.setInferBusRoutes(prefs.getBoolean(getString(R.string.inferVehicleRouteCheckbox), false));
     	//handler.setInitAllRouteInfo(prefs.getBoolean(getString(R.string.initAllRouteInfoCheckbox2), true));
     	handler.setInitAllRouteInfo(true);
-	}
+
+    	//since the default value for this flag is true, make sure we let the preferences know of this
+    	prefs.edit().putBoolean(getString(R.string.runInBackgroundCheckbox), runInBackgroundCheckboxValue).commit();
+    }
 
 	@Override
 	public Object onRetainNonConfigurationInstance() {
