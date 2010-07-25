@@ -32,8 +32,10 @@ import org.xml.sax.SAXException;
 import boston.Bus.Map.data.CurrentLocation;
 import boston.Bus.Map.data.Location;
 import boston.Bus.Map.data.Locations;
+import boston.Bus.Map.data.Path;
 import boston.Bus.Map.database.DatabaseHelper;
 import boston.Bus.Map.ui.BusOverlay;
+import boston.Bus.Map.ui.RouteOverlay;
 import boston.Bus.Map.util.FeedException;
 
 import com.google.android.maps.GeoPoint;
@@ -77,15 +79,17 @@ public class UpdateAsyncTask extends AsyncTask<Object, String, Locations>
 	
 	private final boolean inferBusRoutes;
 	private BusOverlay busOverlay;
+	private RouteOverlay routeOverlay;
 	private final int selectedRouteIndex;
 	private final int selectedBusPredictions;
+	private final boolean showRouteLine;
 	
 	
 	public UpdateAsyncTask(TextView textView, MapView mapView, String finalMessage,
 			boolean doShowUnpredictable, boolean doRefresh, int maxOverlays,
-			boolean drawCircle, boolean inferBusRoutes, BusOverlay busOverlay, DatabaseHelper helper, int selectedRouteIndex,
-			int selectedBusPredictions,
-			boolean doInit)
+			boolean drawCircle, boolean inferBusRoutes, BusOverlay busOverlay, RouteOverlay routeOverlay, 
+			DatabaseHelper helper, int selectedRouteIndex,
+			int selectedBusPredictions, boolean doInit, boolean showRouteLine)
 	{
 		super();
 		
@@ -98,11 +102,13 @@ public class UpdateAsyncTask extends AsyncTask<Object, String, Locations>
 		this.drawCircle = drawCircle;
 		this.inferBusRoutes = inferBusRoutes;
 		this.busOverlay = busOverlay;
+		this.routeOverlay = routeOverlay;
 		this.helper = helper;
 		this.textView = textView;
 		this.selectedRouteIndex = selectedRouteIndex;
 		this.selectedBusPredictions = selectedBusPredictions;
 		this.doInit = doInit;
+		this.showRouteLine = showRouteLine;
 		
 		//this.uiHandler = new Handler();
 	}
@@ -218,8 +224,9 @@ public class UpdateAsyncTask extends AsyncTask<Object, String, Locations>
 		}
 		
 		GeoPoint center = mapView.getMapCenter();
-		final double latitude = center.getLatitudeE6() / 1000000.0;
-		final double longitude = center.getLongitudeE6() / 1000000.0;
+		final double e6 = Main.E6;
+		final double latitude = center.getLatitudeE6() / e6;
+		final double longitude = center.getLongitudeE6() / e6;
 		
 		
 		final Handler uiHandler = new Handler();
@@ -270,24 +277,30 @@ public class UpdateAsyncTask extends AsyncTask<Object, String, Locations>
 			selectedBusId = -1;
 		}
 		
-		Log.i("GET_SELECTEDBUSID", selectedBusId + " ");
+		Log.v("BostonBusMap", "selectedBusId is " + selectedBusId);
 		
 		busOverlay.setDrawHighlightCircle(drawCircle);
 		busOverlay.setBusLocations(busLocations);
 		
-        
+		routeOverlay.setDrawLine(showRouteLine);
+		
+        final ArrayList<Path> paths = busLocationsObject.getSelectedPaths();
+		
         uiHandler.post(new Runnable() {
 			
 			@Override
 			public void run() {
 				// TODO Auto-generated method stub
-				displayIcons(busOverlay, latitude, longitude, busLocations, selectedBusId);
+				displayIcons(busOverlay, routeOverlay, paths, latitude, longitude, busLocations, selectedBusId);
 			}
 		});
 	}
 	
-	private void displayIcons(BusOverlay busOverlay, double latitude, double longitude, ArrayList<Location> busLocations, int selectedBusId)
+	private void displayIcons(BusOverlay busOverlay, RouteOverlay routeOverlay, ArrayList<Path> paths,
+			double latitude, double longitude, ArrayList<Location> busLocations, int selectedBusId)
 	{
+		routeOverlay.setPaths(paths);
+		
     	//we need to run populate even if there are 0 busLocations. See this link:
     	//http://groups.google.com/group/android-beginners/browse_thread/thread/6d75c084681f943e?pli=1
     	busOverlay.clear();
@@ -297,12 +310,13 @@ public class UpdateAsyncTask extends AsyncTask<Object, String, Locations>
     	//draw the buses on the map
         for (Location busLocation : busLocations)
         {
-        	GeoPoint point = new GeoPoint((int)(busLocation.getLatitudeAsDegrees() * 1000000), (int)(busLocation.getLongitudeAsDegrees() * 1000000));
+        	GeoPoint point = new GeoPoint((int)(busLocation.getLatitudeAsDegrees() * Main.E6),
+        			(int)(busLocation.getLongitudeAsDegrees() * Main.E6));
         	
         	String title = busLocation.makeTitle();
         	String snippet = busLocation.makeSnippet();
         	
-        	int isFavorite = busLocation.getIsFavorite();
+        	//int isFavorite = busLocation.getIsFavorite();
         	
         	//the title is displayed when someone taps on the icon
         	OverlayItem overlay = new OverlayItem(point, title, snippet);
@@ -313,6 +327,7 @@ public class UpdateAsyncTask extends AsyncTask<Object, String, Locations>
         busOverlay.refreshBalloons();
 
         mapView.getOverlays().clear();
+		mapView.getOverlays().add(routeOverlay);
 		mapView.getOverlays().add(busOverlay);
 		
 

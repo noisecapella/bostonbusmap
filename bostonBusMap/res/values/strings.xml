@@ -10,5 +10,6 @@
 <string name="hideCircleCheckbox">hideCircleCheckboxKey</string>
 <string name="numOverlaysPreference">numOverlaysPreference</string>
 <string name="inferVehicleRouteCheckbox">inferVehicleRoute</string>
+<string name="showRouteLineCheckbox">showRouteLine</string>
 <string name="initAllRouteInfoCheckbox2">initAllRouteInfo</string>
 </resources>

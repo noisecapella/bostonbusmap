@@ -18,6 +18,7 @@
     */
 package boston.Bus.Map.util;
 
+import boston.Bus.Map.main.Main;
 import boston.Bus.Map.main.UpdateHandler;
 
 import com.google.android.maps.GeoPoint;
@@ -98,10 +99,8 @@ public class OneTimeLocationListener implements LocationListener {
 		latitude = location.getLatitude();
 		longitude = location.getLongitude();
 		
-		final int e6 = 1000000;
-		
-		int latAsInt = (int)(latitude * e6);
-		int lonAsInt = (int)(longitude * e6);
+		int latAsInt = (int)(latitude * Main.E6);
+		int lonAsInt = (int)(longitude * Main.E6);
 		
 		//TODO: is there some way we can communicate a radius too?
 		

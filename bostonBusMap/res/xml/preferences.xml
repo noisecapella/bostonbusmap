@@ -7,7 +7,8 @@
  android:summary="(EXPERIMENTAL / UNRELIABLE) See website for info about this" />
 
 
-<Preference android:title="About BostonBusMap" android:key="about"></Preference>
+<CheckBoxPreference android:title="Show route path?" android:key="@string/showRouteLineCheckbox" android:summary="Draws a line along the selected route"></CheckBoxPreference><Preference android:title="About BostonBusMap" android:key="about"></Preference>
+
 
 
 

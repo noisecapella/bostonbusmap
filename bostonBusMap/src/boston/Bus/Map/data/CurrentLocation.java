@@ -1,5 +1,6 @@
 package boston.Bus.Map.data;
 
+import boston.Bus.Map.main.Main;
 import android.content.Context;
 import android.graphics.drawable.Drawable;
 
@@ -18,7 +19,7 @@ public class CurrentLocation implements Location
 	public CurrentLocation(Drawable drawable, int latitudeAsDegreesE6, int longitudeAsDegreesE6)
 	{
 		this.drawable = drawable;
-		final double e6 = 1000000.0;
+		final double e6 = Main.E6;
 		this.latitudeAsDegrees = latitudeAsDegreesE6 / e6; 
 		this.longitudeAsDegrees = longitudeAsDegreesE6 / e6;
 		this.latitude = latitudeAsDegrees * LocationComparator.degreesToRadians;

@@ -7,9 +7,11 @@ import android.view.KeyEvent;
 import android.widget.TextView;
 import boston.Bus.Map.data.Locations;
 import boston.Bus.Map.ui.BusOverlay;
+import boston.Bus.Map.ui.RouteOverlay;
 
 import com.google.android.maps.MapView;
 import com.google.android.maps.Overlay;
+import com.google.android.maps.Projection;
 
 /**
  * Stores state when MainActivity pauses temporarily
@@ -24,11 +26,13 @@ public class CurrentState {
 	private int selectedRouteIndex;
 	private int selectedBusPredictions;
 	private final BusOverlay busOverlay;
+	private final RouteOverlay routeOverlay;
 	private final UpdateAsyncTask majorHandler;
 	
 	public CurrentState(TextView textView,
 			Locations busLocations, double lastUpdateTime, boolean updateConstantly,
-			int selectedRouteIndex, int selectedBusPredictions, BusOverlay busOverlay, UpdateAsyncTask majorHandler) 
+			int selectedRouteIndex, int selectedBusPredictions, BusOverlay busOverlay, RouteOverlay routeOverlay, 
+			UpdateAsyncTask majorHandler) 
 	{
 		if (textView == null)
 		{
@@ -44,6 +48,7 @@ public class CurrentState {
 		this.selectedRouteIndex = selectedRouteIndex;
 		this.selectedBusPredictions = selectedBusPredictions;
 		this.busOverlay = busOverlay;
+		this.routeOverlay = routeOverlay;
 		this.majorHandler = majorHandler;
 	}
 
@@ -90,5 +95,11 @@ public class CurrentState {
 
 	public UpdateAsyncTask getMajorHandler() {
 		return majorHandler;
+	}
+
+	public RouteOverlay cloneRouteOverlay(Projection projection) {
+		RouteOverlay ret = new RouteOverlay(routeOverlay, projection);
+		
+		return ret;
 	}
 }

@@ -5,6 +5,7 @@ import org.apache.http.impl.conn.tsccm.RouteSpecificPool;
 import boston.Bus.Map.data.Locations;
 import boston.Bus.Map.database.DatabaseHelper;
 import boston.Bus.Map.ui.BusOverlay;
+import boston.Bus.Map.ui.RouteOverlay;
 import boston.Bus.Map.util.OneTimeLocationListener;
 
 import com.google.android.maps.MapView;
@@ -63,11 +64,14 @@ public class UpdateHandler extends Handler {
 	private final DatabaseHelper helper;
 	private final Context context;
 	private final BusOverlay busOverlay; 
+	private final RouteOverlay routeOverlay;
 	
 	private boolean isFirstRefresh;
+	private boolean showRouteLine;
 	
 	public UpdateHandler(TextView textView, Drawable busPicture, MapView mapView,
 			Drawable arrow, Drawable tooltip, Locations busLocations, Context context, DatabaseHelper helper, BusOverlay busOverlay,
+			RouteOverlay routeOverlay, 
 			UpdateAsyncTask majorHandler)
 	{
 		this.textView = textView;
@@ -75,6 +79,7 @@ public class UpdateHandler extends Handler {
 		this.busLocations = busLocations;
 		this.helper = helper;
 		this.busOverlay = busOverlay;
+		this.routeOverlay = routeOverlay;
 		lastUpdateTime = System.currentTimeMillis();
 		
 		this.context = context;
@@ -127,8 +132,8 @@ public class UpdateHandler extends Handler {
 			removeMessages(MINOR);
 			
 			minorUpdate = new UpdateAsyncTask(textView, mapView, null, getShowUnpredictable(), false, maxOverlays,
-					getHideHighlightCircle() == false, getInferBusRoutes(), busOverlay, helper,
-					selectedRouteIndex, selectedBusPredictions, false);
+					getHideHighlightCircle() == false, getInferBusRoutes(), busOverlay, routeOverlay, helper,
+					selectedRouteIndex, selectedBusPredictions, false, getShowRouteLine());
 			
 
 			minorUpdate.runUpdate(busLocations);
@@ -200,8 +205,8 @@ public class UpdateHandler extends Handler {
 		
 		updateAsyncTask = new UpdateAsyncTask(textView, mapView, finalMessage,
 				getShowUnpredictable(), true, maxOverlays,
-				getHideHighlightCircle() == false, getInferBusRoutes(), busOverlay, helper,
-				selectedRouteIndex, selectedBusPredictions, isFirstTime);
+				getHideHighlightCircle() == false, getInferBusRoutes(), busOverlay, routeOverlay, helper,
+				selectedRouteIndex, selectedBusPredictions, isFirstTime, showRouteLine);
 		updateAsyncTask.runUpdate(busLocations);
 	}
 
@@ -287,6 +292,16 @@ public class UpdateHandler extends Handler {
 		return isFirstRefresh;
 	}
 	
+
+	public void setShowRouteLine(boolean b) {
+		showRouteLine = b;
+	}
+
+	public boolean getShowRouteLine()
+	{
+		return showRouteLine;
+	}
+	
 	public void triggerUpdate(int millis) {
 		Log.i("TRIGGER", "UPDATE, " + millis);
 		sendEmptyMessageDelayed(MINOR, millis);
@@ -340,5 +355,6 @@ public class UpdateHandler extends Handler {
 	public UpdateAsyncTask getMajorHandler() {
 		return updateAsyncTask;
 	}
+
 
 }

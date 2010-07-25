@@ -3,6 +3,8 @@ package boston.Bus.Map.database;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import boston.Bus.Map.data.Path;
+import boston.Bus.Map.data.Point;
 import boston.Bus.Map.data.RouteConfig;
 import boston.Bus.Map.data.StopLocation;
 
@@ -29,6 +31,7 @@ public class DatabaseHelper extends SQLiteOpenHelper
 	private final static String directionsTable = "directions";
 	private final static String stopsTable = "stops";
 	private final static String routesTable = "routes";
+	private final static String pathsTable = "paths";
 	
 	private final static String routeKey = "route";
 	private final static String stopIdKey = "stopId";
@@ -38,14 +41,15 @@ public class DatabaseHelper extends SQLiteOpenHelper
 	private final static String titleKey = "title";
 	private final static String dirtagKey = "dirtag";
 	private final static String nameKey = "name";
-	
+	private final static String pathIdKey = "pathid";
+	private final static String pointIdKey = "pointId";
 
 	private final static int tagIndex = 1;
 	private final static int nameIndex = 2;
 	private final static int titleIndex = 3;
 	
 	public DatabaseHelper(Context context) {
-		super(context, dbName, null, 3);
+		super(context, dbName, null, 4);
 		// TODO Auto-generated constructor stub
 	}
 
@@ -57,6 +61,9 @@ public class DatabaseHelper extends SQLiteOpenHelper
 				stopIdKey + " INTEGER PRIMARY KEY, " + latitudeKey + " FLOAT, " + longitudeKey +
 				" FLOAT, " + titleKey + " STRING, " + dirtagKey + " STRING)");
 		db.execSQL("CREATE TABLE IF NOT EXISTS " + routesTable + " (" + routeKey + " STRING)");
+		db.execSQL("CREATE TABLE IF NOT EXISTS " + pathsTable + " (" + pathIdKey + " INTEGER, "
+				+ pointIdKey + " INTEGER, " + routeKey + " STRING, "
+				+ latitudeKey + " FLOAT, " + longitudeKey + " FLOAT)");
 	}
 
 	@Override
@@ -65,6 +72,7 @@ public class DatabaseHelper extends SQLiteOpenHelper
 		db.execSQL("DROP TABLE IF EXISTS " + directionsTable);
 		db.execSQL("DROP TABLE IF EXISTS " + stopsTable);
 		db.execSQL("DROP TABLE IF EXISTS " + routesTable);
+		db.execSQL("DROP TABLE IF EXISTS " + pathsTable);
 		
 		onCreate(db);
 	}
@@ -125,7 +133,7 @@ public class DatabaseHelper extends SQLiteOpenHelper
 				}
 				cursor.close();
 				
-				cursor = database.query("stops", new String[] {routeKey, stopIdKey, latitudeKey, longitudeKey, titleKey, dirtagKey}, 
+				cursor = database.query(stopsTable, new String[] {routeKey, stopIdKey, latitudeKey, longitudeKey, titleKey, dirtagKey}, 
 						routeKey + "=?", new String[]{route}, null, null, null);
 				cursor.moveToFirst();
 				while (cursor.isAfterLast() == false)
@@ -142,6 +150,22 @@ public class DatabaseHelper extends SQLiteOpenHelper
 					cursor.moveToNext();
 				}
 				cursor.close();
+				
+				cursor = database.query(pathsTable, new String[] {pathIdKey, pointIdKey, routeKey, latitudeKey, longitudeKey},
+						routeKey + "=?", new String[]{route}, null, null, null);
+				cursor.moveToFirst();
+				while (cursor.isAfterLast() == false)
+				{
+					int pathId = cursor.getInt(0);
+					int pointId = cursor.getInt(1);
+					float lat = cursor.getFloat(3);
+					float lon = cursor.getFloat(4);
+					
+					routeConfig.addPath(pathId, pointId, lat, lon);
+					cursor.moveToNext();
+				}
+				cursor.close();
+				
 				
 				map.put(route, routeConfig);
 			}
@@ -223,7 +247,7 @@ public class DatabaseHelper extends SQLiteOpenHelper
 			values.put(titleKey, location.getTitle());
 			values.put(dirtagKey, location.getDirtag());
 
-			database.replace("stops", null, values);
+			database.replace(stopsTable, null, values);
 		}
 
 		for (String dirtag : routeConfig.getDirtags())
@@ -238,6 +262,22 @@ public class DatabaseHelper extends SQLiteOpenHelper
 			database.replace(directionsTable, null, values);
 		}
 
+		for (Integer pathId : routeConfig.getPaths().keySet())
+		{
+			Path path = routeConfig.getPaths().get(pathId);
+			for (Integer pointId : path.getPoints().keySet())
+			{
+				Point point = path.getPoints().get(pointId);
+				
+				ContentValues values = new ContentValues();
+				values.put(pathIdKey, pathId);
+				values.put(pointIdKey, pointId);
+				values.put(routeKey, route);
+				values.put(latitudeKey, point.lat);
+				values.put(longitudeKey, point.lon);
+				database.replace(pathsTable, null, values);
+			}
+		}
 	}
 	
 	public void saveMapping(String route, RouteConfig routeConfig) {

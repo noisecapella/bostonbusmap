@@ -17,6 +17,7 @@ import org.xml.sax.SAXException;
 import org.xml.sax.XMLReader;
 import org.xml.sax.helpers.DefaultHandler;
 
+import boston.Bus.Map.data.Path;
 import boston.Bus.Map.data.RouteConfig;
 import boston.Bus.Map.data.StopLocation;
 import boston.Bus.Map.util.FeedException;
@@ -56,6 +57,8 @@ public class RouteConfigFeedParser extends DefaultHandler
 	private static final String nameKey = "name";
 	private static final String pathKey = "path";
 	private static final String pointKey = "point";
+	private static final String latKey = "lat";
+	private static final String lonKey = "lon";
 	
 	
 	private boolean inRoute;
@@ -63,8 +66,13 @@ public class RouteConfigFeedParser extends DefaultHandler
 	private boolean inStop;
 	private boolean inPath;
 	
+	private int pathIndex;
+	private int pointIndex;
+	
 	private RouteConfig currentRouteConfig;
 	private String currentRoute;
+	
+	private Path currentPath;
 	
 	@Override
 	public void startElement(String uri, String localName, String qName,
@@ -123,6 +131,16 @@ public class RouteConfigFeedParser extends DefaultHandler
 		else if (pathKey.equals(localName))
 		{
 			inPath = true;
+			
+			currentPath = new Path(pathIndex);
+		}
+		else if (pointKey.equals(localName))
+		{
+			double lat = Double.parseDouble(attributes.getValue(latKey));
+			double lon = Double.parseDouble(attributes.getValue(lonKey));
+			currentPath.addPoint(pointIndex, lat, lon);
+			
+			pointIndex++;
 		}
 		else if (localName.equals("Error"))
 		{
@@ -156,6 +174,14 @@ public class RouteConfigFeedParser extends DefaultHandler
 		else if (pathKey.equals(localName))
 		{
 			inPath = false;
+			
+			if (currentRouteConfig != null)
+			{
+				currentRouteConfig.addPath(pathIndex, currentPath);
+			}
+			currentPath = null;
+			pointIndex = 0;
+			pathIndex++;
 		}
 		
 	}

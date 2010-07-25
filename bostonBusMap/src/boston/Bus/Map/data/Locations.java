@@ -504,7 +504,6 @@ public final class Locations
 		if (position == Locations.NO_CHANGE)
 		{
 			//-1 means don't change this
-			Log.i("USEROUTE", "NOCHANGE");
 		}
 		else
 		{
@@ -512,5 +511,17 @@ public final class Locations
 
 			selectedBusPredictions = busPredictions;
 		}
+	}
+
+	public ArrayList<Path> getSelectedPaths() {
+		ArrayList<Path> ret = new ArrayList<Path>();
+
+		RouteConfig routeConfig = stopMapping.get(selectedRoute);
+		if (routeConfig != null)
+		{
+			ret.addAll(routeConfig.getPaths().values());
+		}
+		
+		return ret;
 	}
 }

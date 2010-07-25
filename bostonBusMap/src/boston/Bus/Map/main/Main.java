@@ -35,6 +35,7 @@ import boston.Bus.Map.data.Locations;
 import boston.Bus.Map.data.RouteConfig;
 import boston.Bus.Map.database.DatabaseHelper;
 import boston.Bus.Map.ui.BusOverlay;
+import boston.Bus.Map.ui.RouteOverlay;
 import boston.Bus.Map.util.OneTimeLocationListener;
 
 import com.google.android.maps.GeoPoint;
@@ -104,16 +105,17 @@ public class Main extends MapActivity
 	private TextView textView;
 	
 	
-	private final double bostonLatitude = 42.3583333;
-	private final double bostonLongitude = -71.0602778;
-	private final int bostonLatitudeAsInt = (int)(bostonLatitude * 1000000);
-	private final int bostonLongitudeAsInt = (int)(bostonLongitude * 1000000);
+	private static final double bostonLatitude = 42.3583333;
+	private static final double bostonLongitude = -71.0602778;
+	public static final int E6 = 1000000; 
+	private static final int bostonLatitudeAsInt = (int)(bostonLatitude * E6);
+	private static final int bostonLongitudeAsInt = (int)(bostonLongitude * E6);
 	
 	//watertown is slightly north and west of boston
-	private final double watertownLatitude = 42.37;
-	private final double watertownLongitude = -71.183;
-	private final int watertownLatitudeAsInt = (int)(watertownLatitude * 1000000);
-	private final int watertownLongitudeAsInt = (int)(watertownLongitude * 1000000);
+	private static final double watertownLatitude = 42.37;
+	private static final double watertownLongitude = -71.183;
+	private static final int watertownLatitudeAsInt = (int)(watertownLatitude * E6);
+	private static final int watertownLongitudeAsInt = (int)(watertownLongitude * E6);
 	
 	
 	
@@ -143,6 +145,7 @@ public class Main extends MapActivity
 
 	
 	private BusOverlay busOverlay;
+	private RouteOverlay routeOverlay;
 	private ImageButton toggleButton;
 	private Drawable busStopDrawable;
 	private Drawable busDrawableOne;
@@ -245,7 +248,9 @@ public class Main extends MapActivity
         	CurrentState currentState = (CurrentState)lastNonConfigurationInstance;
         	currentState.restoreWidgets(textView);
         	busOverlay = currentState.cloneBusOverlay(this, mapView);
+        	routeOverlay = currentState.cloneRouteOverlay(mapView.getProjection());
         	mapView.getOverlays().clear();
+        	mapView.getOverlays().add(routeOverlay);
         	mapView.getOverlays().add(busOverlay);
         	
         	busOverlay.refreshBalloons();
@@ -264,6 +269,7 @@ public class Main extends MapActivity
         else
         {
         	busOverlay = new BusOverlay(busPicture, this, mapView);
+        	routeOverlay = new RouteOverlay(mapView.getProjection());
         }
         
         if (busLocations == null)
@@ -272,7 +278,8 @@ public class Main extends MapActivity
         			getOrMakeRouteConfigs(busStop, routesSupported, helper), routesSupported);
         }
 
-        handler = new UpdateHandler(textView, busPicture, mapView, arrow, tooltip, busLocations, this, helper, busOverlay, majorHandler);
+        handler = new UpdateHandler(textView, busPicture, mapView, arrow, tooltip, busLocations, 
+        		this, helper, busOverlay, routeOverlay, majorHandler);
         busOverlay.setUpdateable(handler);
         
         populateHandlerSettings();
@@ -592,6 +599,7 @@ public class Main extends MapActivity
     	handler.setShowUnpredictable(prefs.getBoolean(getString(R.string.showUnpredictableBusesCheckbox), false));
     	handler.setHideHighlightCircle(prefs.getBoolean(getString(R.string.hideCircleCheckbox), false));
     	handler.setInferBusRoutes(prefs.getBoolean(getString(R.string.inferVehicleRouteCheckbox), false));
+    	handler.setShowRouteLine(prefs.getBoolean(getString(R.string.showRouteLineCheckbox), false));
     	//handler.setInitAllRouteInfo(prefs.getBoolean(getString(R.string.initAllRouteInfoCheckbox2), true));
     	handler.setInitAllRouteInfo(true);
 
@@ -605,7 +613,7 @@ public class Main extends MapActivity
 		boolean updateConstantly = prefs.getBoolean(getString(R.string.runInBackgroundCheckbox), true);
 		
 		return new CurrentState(textView, busLocations, handler.getLastUpdateTime(), updateConstantly,
-				selectedRouteIndex, getSelectedBusPredictions(), busOverlay, handler.getMajorHandler());
+				selectedRouteIndex, getSelectedBusPredictions(), busOverlay, routeOverlay, handler.getMajorHandler());
 	}
 
 	

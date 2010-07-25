@@ -1,14 +1,17 @@
 package boston.Bus.Map.data;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.SortedMap;
+import java.util.TreeMap;
 
 public class RouteConfig {
 
 	private final HashMap<Integer, StopLocation> stops = new HashMap<Integer, StopLocation>();
 	private final HashMap<String, String> directionTitles = new HashMap<String, String>();
 	private final HashMap<String, String> directionNames = new HashMap<String, String>();
-	
+	private final TreeMap<Integer, Path> paths = new TreeMap<Integer, Path>();
 	private final String route;
 	
 	public RouteConfig(String route)
@@ -73,6 +76,36 @@ public class RouteConfig {
 
 	public Collection<String> getDirtags() {
 		return directionTitles.keySet();
+	}
+
+
+
+	public void addPath(int id, Path currentPath) {
+		paths.put(id, currentPath);
+		
+	}
+
+
+
+	public SortedMap<Integer, Path> getPaths() {
+		return paths;
+	}
+
+
+
+	public void addPath(int pathId, int pointId, float lat, float lon) {
+		Path path;
+		if (paths.containsKey(pathId) == false)
+		{
+			path = new Path(pathId);
+			paths.put(pathId, path);
+		}
+		else
+		{
+			path = paths.get(pathId);
+		}
+		path.addPoint(pointId, lat, lon);
+		
 	}
 			
 }
