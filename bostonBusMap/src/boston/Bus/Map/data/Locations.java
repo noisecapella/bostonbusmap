@@ -56,6 +56,7 @@ import boston.Bus.Map.main.Main;
 import boston.Bus.Map.main.UpdateAsyncTask;
 import boston.Bus.Map.parser.RouteConfigFeedParser;
 import boston.Bus.Map.parser.VehicleLocationsFeedParser;
+import boston.Bus.Map.util.DownloadHelper;
 import boston.Bus.Map.util.StreamCounter;
 
 
@@ -241,13 +242,13 @@ public final class Locations
 		}
 		
 		//read data from the URL
-		URL url;
+		DownloadHelper downloadHelper;
 		if (selectedBusPredictions != Main.BUS_PREDICTIONS_ONE)
 		{
 			//for now, we download and update all buses, whether the user chooses one route or all routes
 			//we only make the distinction when we display the icons
 			final String urlString = mbtaLocationsDataUrl + (long)lastUpdateTime;
-			url = new URL(urlString);
+			downloadHelper = new DownloadHelper(urlString);
 		}
 		else
 		{
@@ -261,15 +262,15 @@ public final class Locations
 
 					for (StopLocation location : routeConfig.getStops())
 					{
-						urlString.append("&stops=").append(routeToUpdate).append("|null|").append(location.getStopNumber());
+						urlString.append("&stops=").append(routeToUpdate).append("%7Cnull%7C").append(location.getStopNumber());
 					}
-					url = new URL(urlString.toString());
+					downloadHelper = new DownloadHelper(urlString.toString());
 				}
 				else
 				{
 					//populate stops (just in case we didn't already)
 					final String urlString = mbtaRouteConfigDataUrl + routeToUpdate;
-					url = new URL(urlString);
+					URL url = new URL(urlString);
 
 					//just initialize the route and then end for this round
 					InputStream stream = url.openStream();
@@ -287,7 +288,7 @@ public final class Locations
 			{
 				//populate stops (just in case we didn't already)
 				final String urlString = mbtaRouteConfigDataUrl + routeToUpdate;
-				url = new URL(urlString);
+				URL url = new URL(urlString);
 
 				//just initialize the route and then end for this round
 				InputStream stream = url.openStream();
@@ -302,20 +303,9 @@ public final class Locations
 			}
 		}
 		
-		DocumentBuilder builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
-			
-		InputStream stream = url.openStream();
+		downloadHelper.connect();
 		
-		//parse the data into an XML document
-		Document document = builder.parse(stream);
-		
-		//first check for errors
-		if (document.getElementsByTagName("Error").getLength() != 0)
-		{
-			Log.e("FEEDERROR", url.toString());
-			//throw new FeedException(); 
-			
-		}
+		String data = downloadHelper.getResponseData();
 		
 		if (selectedBusPredictions == Main.BUS_PREDICTIONS_ONE)
 		{
@@ -323,6 +313,8 @@ public final class Locations
 			
 			RouteConfig stopLocations = stopMapping.get(routeToUpdate);
 			
+			DocumentBuilder builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
+			Document document = builder.parse(new ByteArrayInputStream(data.getBytes()));
 			NodeList predictionsList = document.getElementsByTagName("predictions");
 			
 			for (int i = 0; i < predictionsList.getLength(); i++)
@@ -362,66 +354,13 @@ public final class Locations
 			
 			//lastUpdateTime = parser.getLastUpdateTime();
 			
-			
-			//TODO: show by bus route
-			
-			////////
+			VehicleLocationsFeedParser parser = new VehicleLocationsFeedParser(vehiclesToRouteNames, stopMapping, bus, arrow);
+			parser.runParse(data);
 			
 			//get the time that this information is valid until
-			Element lastTimeElement = (Element)document.getElementsByTagName("lastTime").item(0);
-			lastUpdateTime = Double.parseDouble(lastTimeElement.getAttribute("time"));
+			lastUpdateTime = parser.getLastUpdateTime();
 
-			//iterate through each vehicle mentioned
-			NodeList nodeList = document.getElementsByTagName("vehicle");
-
-			for (int i = 0; i < nodeList.getLength(); i++)
-			{
-				Element element = (Element)nodeList.item(i);
-
-				double lat = Double.parseDouble(element.getAttribute("lat"));
-				double lon = Double.parseDouble(element.getAttribute("lon"));
-				int id = Integer.parseInt(element.getAttribute("id"));
-				String route = element.getAttribute("routeTag");
-				int seconds = Integer.parseInt(element.getAttribute("secsSinceReport"));
-				String heading = element.getAttribute("heading");
-				boolean predictable = Boolean.parseBoolean(element.getAttribute("predictable")); 
-				String dirTag = element.getAttribute("dirTag");
-
-
-				String inferBusRoute = null;
-				if (vehiclesToRouteNames.containsKey(id))
-				{
-					String value = vehiclesToRouteNames.get(id);
-					if (value != null && value.length() != 0)
-					{
-						inferBusRoute = value;
-					}
-				}
-
-				RouteConfig routeConfig;
-				if (stopMapping.containsKey(route))
-				{
-					routeConfig = stopMapping.get(route);
-				}
-				else
-				{
-					routeConfig = new RouteConfig(route);
-				}
-				
-
-				BusLocation newBusLocation = new BusLocation(lat, lon, id, routeConfig, seconds, lastUpdateTime, 
-						heading, predictable, dirTag, inferBusRoute, bus, arrow);
-
-				Integer idInt = new Integer(id);
-				if (busMapping.containsKey(idInt))
-				{
-					//calculate the direction of the bus from the current and previous locations
-					newBusLocation.movedFrom(busMapping.get(idInt));
-				}
-
-				busMapping.put(idInt, newBusLocation);
-			}
-
+			parser.fillMapping(busMapping);
 
 			//delete old buses
 			List<Integer> busesToBeDeleted = new ArrayList<Integer>();
