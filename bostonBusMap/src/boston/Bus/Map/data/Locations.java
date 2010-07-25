@@ -230,7 +230,15 @@ public final class Locations
 	{
 		String routeToUpdate = supportedRoutes[routeIndexToUpdate];
 		
-		updateInferRoutes(inferBusRoutes);
+		try
+		{
+			updateInferRoutes(inferBusRoutes);
+		}
+		catch (IOException e)
+		{
+			//don't let a problem with the mit website stop everything from working
+			Log.e("BostonBusMap", e.toString());
+		}
 		
 		//read data from the URL
 		URL url;
