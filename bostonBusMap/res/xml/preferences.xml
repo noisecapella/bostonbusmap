@@ -4,10 +4,11 @@
 <CheckBoxPreference android:key="@string/hideCircleCheckbox" android:title="Hide blue circle?" android:summary="This shows what buses are being viewed"/>
 
 <CheckBoxPreference android:key="@string/inferVehicleRouteCheckbox" android:title="Infer vehicle route numbers"
- android:summary="(EXPERIMENTAL / UNRELIABLE) See website for info about this" />
+ android:summary="(EXPERIMENTAL / UNRELIABLE) See website for info about this" /><CheckBoxPreference android:title="Show route path?" android:key="@string/showRouteLineCheckbox" android:summary="Draws a line along the selected route"></CheckBoxPreference>
 
 
-<CheckBoxPreference android:title="Show route path?" android:key="@string/showRouteLineCheckbox" android:summary="Draws a line along the selected route"></CheckBoxPreference><Preference android:title="About BostonBusMap" android:key="about"></Preference>
+<CheckBoxPreference android:key="@string/showCoarseRouteLineCheckbox" android:summary="Unchecking this may make things slow" android:title="Show coarse route path?"></CheckBoxPreference><Preference android:title="About BostonBusMap" android:key="about"></Preference>
+
 
 
 

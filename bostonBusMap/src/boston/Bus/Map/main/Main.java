@@ -600,11 +600,14 @@ public class Main extends MapActivity
     	handler.setHideHighlightCircle(prefs.getBoolean(getString(R.string.hideCircleCheckbox), false));
     	handler.setInferBusRoutes(prefs.getBoolean(getString(R.string.inferVehicleRouteCheckbox), false));
     	handler.setShowRouteLine(prefs.getBoolean(getString(R.string.showRouteLineCheckbox), false));
+    	boolean showCoarseRouteLineCheckboxValue = prefs.getBoolean(getString(R.string.showCoarseRouteLineCheckbox), true); 
+    	handler.setShowCoarseRouteLine(showCoarseRouteLineCheckboxValue);
     	//handler.setInitAllRouteInfo(prefs.getBoolean(getString(R.string.initAllRouteInfoCheckbox2), true));
     	handler.setInitAllRouteInfo(true);
 
     	//since the default value for this flag is true, make sure we let the preferences know of this
-    	prefs.edit().putBoolean(getString(R.string.runInBackgroundCheckbox), runInBackgroundCheckboxValue).commit();
+    	prefs.edit().putBoolean(getString(R.string.runInBackgroundCheckbox), runInBackgroundCheckboxValue).
+    		putBoolean(getString(R.string.showCoarseRouteLineCheckbox), showCoarseRouteLineCheckboxValue).commit();
     }
 
 	@Override

@@ -68,6 +68,7 @@ public class UpdateHandler extends Handler {
 	
 	private boolean isFirstRefresh;
 	private boolean showRouteLine;
+	private boolean showCoarseRouteLine;
 	
 	public UpdateHandler(TextView textView, Drawable busPicture, MapView mapView,
 			Drawable arrow, Drawable tooltip, Locations busLocations, Context context, DatabaseHelper helper, BusOverlay busOverlay,
@@ -133,7 +134,7 @@ public class UpdateHandler extends Handler {
 			
 			minorUpdate = new UpdateAsyncTask(textView, mapView, null, getShowUnpredictable(), false, maxOverlays,
 					getHideHighlightCircle() == false, getInferBusRoutes(), busOverlay, routeOverlay, helper,
-					selectedRouteIndex, selectedBusPredictions, false, getShowRouteLine());
+					selectedRouteIndex, selectedBusPredictions, false, getShowRouteLine(), getShowCoarseRouteLine());
 			
 
 			minorUpdate.runUpdate(busLocations);
@@ -206,7 +207,7 @@ public class UpdateHandler extends Handler {
 		updateAsyncTask = new UpdateAsyncTask(textView, mapView, finalMessage,
 				getShowUnpredictable(), true, maxOverlays,
 				getHideHighlightCircle() == false, getInferBusRoutes(), busOverlay, routeOverlay, helper,
-				selectedRouteIndex, selectedBusPredictions, isFirstTime, showRouteLine);
+				selectedRouteIndex, selectedBusPredictions, isFirstTime, showRouteLine, showCoarseRouteLine);
 		updateAsyncTask.runUpdate(busLocations);
 	}
 
@@ -301,6 +302,17 @@ public class UpdateHandler extends Handler {
 	{
 		return showRouteLine;
 	}
+	
+	public void setShowCoarseRouteLine(boolean b) {
+		showCoarseRouteLine = b;
+	}
+
+	public boolean getShowCoarseRouteLine()
+	{
+		return showCoarseRouteLine;
+	}
+	
+	
 	
 	public void triggerUpdate(int millis) {
 		Log.i("TRIGGER", "UPDATE, " + millis);

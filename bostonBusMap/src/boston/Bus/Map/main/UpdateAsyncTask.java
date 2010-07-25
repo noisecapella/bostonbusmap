@@ -83,13 +83,14 @@ public class UpdateAsyncTask extends AsyncTask<Object, String, Locations>
 	private final int selectedRouteIndex;
 	private final int selectedBusPredictions;
 	private final boolean showRouteLine;
+	private final boolean showCoarseRouteLine;
 	
 	
 	public UpdateAsyncTask(TextView textView, MapView mapView, String finalMessage,
 			boolean doShowUnpredictable, boolean doRefresh, int maxOverlays,
 			boolean drawCircle, boolean inferBusRoutes, BusOverlay busOverlay, RouteOverlay routeOverlay, 
 			DatabaseHelper helper, int selectedRouteIndex,
-			int selectedBusPredictions, boolean doInit, boolean showRouteLine)
+			int selectedBusPredictions, boolean doInit, boolean showRouteLine, boolean showCoarseRouteLine)
 	{
 		super();
 		
@@ -109,7 +110,7 @@ public class UpdateAsyncTask extends AsyncTask<Object, String, Locations>
 		this.selectedBusPredictions = selectedBusPredictions;
 		this.doInit = doInit;
 		this.showRouteLine = showRouteLine;
-		
+		this.showCoarseRouteLine = showCoarseRouteLine;
 		//this.uiHandler = new Handler();
 	}
 	
@@ -283,6 +284,7 @@ public class UpdateAsyncTask extends AsyncTask<Object, String, Locations>
 		busOverlay.setBusLocations(busLocations);
 		
 		routeOverlay.setDrawLine(showRouteLine);
+		routeOverlay.setDrawCoarseLine(showCoarseRouteLine);
 		
         final ArrayList<Path> paths = busLocationsObject.getSelectedPaths();
 		
