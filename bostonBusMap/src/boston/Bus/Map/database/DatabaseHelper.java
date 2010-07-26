@@ -93,22 +93,22 @@ public class DatabaseHelper extends SQLiteOpenHelper
 		Cursor cursor = null;
 		try
 		{
-			for (String route : routes)
+			cursor = database.query(blobsTable, new String[] {routeKey, blobKey},
+					null, null, null, null, null);
+			cursor.moveToFirst();
+			while (cursor.isAfterLast() == false)
 			{
-				cursor = database.query(blobsTable, new String[] {routeKey, blobKey},
-						routeKey + "=?", new String[]{route}, null, null, null);
-				cursor.moveToFirst();
-				while (cursor.isAfterLast() == false)
-				{
-					byte[] blob = cursor.getBlob(1);
-					
-					RouteConfig routeConfig = new RouteConfig(new Box(blob), busStop);
+				String route = cursor.getString(0);
+				byte[] blob = cursor.getBlob(1);
+
+				Log.v("BostonBusMap", "populating route " + route);
+				RouteConfig routeConfig = new RouteConfig(new Box(blob), busStop);
 
 
-					map.put(route, routeConfig);
-				}
-				cursor.close();
+				map.put(route, routeConfig);
+				cursor.moveToNext();
 			}
+			cursor.close();
 		}
 		finally
 		{

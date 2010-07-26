@@ -1,6 +1,10 @@
+package boston.Bus.Map.test;
+
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.SortedSet;
+import java.util.TreeSet;
 
 import boston.Bus.Map.data.Path;
 import boston.Bus.Map.data.Prediction;
@@ -168,8 +172,10 @@ public class TestSerialization extends TestCase {
 		
 		assertEquals(newMapping.size(), mapping.size());
 		
-		Iterator<String> iterator1 = mapping.keySet().iterator();
-		Iterator<String> iterator2 = newMapping.keySet().iterator();
+		SortedSet<String> list1 = new TreeSet<String>(mapping.keySet());
+		SortedSet<String> list2 = new TreeSet<String>(newMapping.keySet());
+		Iterator<String> iterator1 = list1.iterator();
+		Iterator<String> iterator2 = list2.iterator();
 		
 		while (iterator1.hasNext())
 		{

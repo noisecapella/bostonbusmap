@@ -83,7 +83,7 @@ public final class Locations
 	/**
 	 * A mapping of a route id to a RouteConfig object. This should probably be renamed routeMapping
 	 */
-	private final HashMap<String, RouteConfig> stopMapping;
+	private final HashMap<String, RouteConfig> stopMapping = new HashMap<String, RouteConfig>();
 	
 	/**
 	 * The XML feed URL
@@ -126,7 +126,7 @@ public final class Locations
 	private int selectedBusPredictions;
 	
 	public Locations(Drawable bus, Drawable arrow, Drawable locationDrawable,
-			Drawable busStop, HashMap<String, RouteConfig> stopMapping, String[] supportedRoutes)
+			Drawable busStop, String[] supportedRoutes)
 	{
 		this.bus = bus;
 		this.arrow = arrow;
@@ -134,7 +134,7 @@ public final class Locations
 		this.busStop = busStop;
 		this.supportedRoutes = supportedRoutes;
 		
-		this.stopMapping = stopMapping;
+		
 	}
 	
 	/**
@@ -527,5 +527,48 @@ public final class Locations
 		}
 		
 		return ret;
+	}
+
+	/**
+	 * Fills stopMapping with information from the database
+	 * @param helper
+	 * @param updateAsyncTask
+	 * @return
+	 * @throws IOException 
+	 */
+	public void getRouteDataFromDatabase(DatabaseHelper helper,
+			UpdateAsyncTask updateAsyncTask) throws IOException {
+		boolean needsUpdating = false;
+		for (String route : supportedRoutes)
+		{
+			if (stopMapping.get(route) == null || stopMapping.get(route).getStops().size() == 0)
+			{
+				needsUpdating = true;
+				break;
+			}
+		}
+		
+		if (needsUpdating == false)
+		{
+			return;
+		}
+		
+		final HashMap<String, RouteConfig> map = new HashMap<String, RouteConfig>();
+		
+		for (String route : supportedRoutes)
+		{
+			map.put(route, null);
+		}
+		
+		try
+		{
+			helper.populateMap(map, busStop, supportedRoutes);
+		}
+		catch (IOException e)
+		{
+			Log.e("BostonBusMap", e.toString());
+		}
+
+		stopMapping.putAll(map);
 	}
 }

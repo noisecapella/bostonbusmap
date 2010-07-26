@@ -160,6 +160,8 @@ public class Main extends MapActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
         
+        
+        
         firstRun = true;
         
         //get widgets
@@ -282,7 +284,7 @@ public class Main extends MapActivity
         if (busLocations == null)
         {
         	busLocations = new Locations(busPicture, arrow, locationDrawable, busStop,
-        			getOrMakeRouteConfigs(busStop, routesSupported, helper), routesSupported);
+        			routesSupported);
         }
 
         handler = new UpdateHandler(textView, busPicture, mapView, arrow, tooltip, busLocations, 
@@ -409,28 +411,6 @@ public class Main extends MapActivity
 
 
 
-
-
-	private HashMap<String, RouteConfig> getOrMakeRouteConfigs(Drawable busStop, String[] routesSupported, DatabaseHelper helper) {
-		HashMap<String, RouteConfig> map = new HashMap<String, RouteConfig>();
-		
-		for (String route : routesSupported)
-		{
-			map.put(route, null);
-		}
-		
-		try
-		{
-			helper.populateMap(map, busStop, routesSupported);
-		}
-		catch (IOException e)
-		{
-			Log.e("BostonBusMap", e.toString());
-		}
-		
-		
-		return map;
-	}
 
 
 

@@ -274,14 +274,14 @@ public class Box {
 	}
 
 	private void showProgress(String string) {
-		if (outputStream != null)
+		/*if (outputStream != null)
 		{
 			progress.add(string + " " + outputStream.size());
 		}
 		else
 		{
 			progress.add(string);
-		}
+		}*/
 		
 	}
 

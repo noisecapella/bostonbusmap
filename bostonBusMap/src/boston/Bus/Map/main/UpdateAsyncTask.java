@@ -157,8 +157,12 @@ public class UpdateAsyncTask extends AsyncTask<Object, String, Locations>
 			{
 				if (doInit)
 				{
-					publishProgress("Downloading route info (this may take a short while)");
+					publishProgress("Retrieving route info from database...");
+					busLocations.getRouteDataFromDatabase(helper, this);
+					
+					publishProgress("Did not find route info in database, downloading it now...");
 					busLocations.initializeAllRoutes(helper, this);
+					
 				}
 				publishProgress("Fetching data...");
 
