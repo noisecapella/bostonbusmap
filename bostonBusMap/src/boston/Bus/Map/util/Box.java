@@ -67,7 +67,7 @@ public class Box {
 	
 	public void writeString(String route) throws IOException {
 		showProgress("writeString");
-		writeBytes(route != null ? route.getBytes() : null);
+		outputStream.writeUTF(route);
 		
 	}
 
@@ -99,15 +99,7 @@ public class Box {
 	public String readString() throws IOException
 	{
 		showProgress("readString");
-		byte[] b = readBytes();
-		if (b == null)
-		{
-			return null;
-		}
-		else
-		{
-			return new String(b);
-		}
+		return inputStream.readUTF();
 	}
 
 	public byte readByte() throws IOException
