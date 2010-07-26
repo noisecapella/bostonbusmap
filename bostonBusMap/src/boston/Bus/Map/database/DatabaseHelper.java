@@ -15,12 +15,15 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteDiskIOException;
+import android.database.sqlite.SQLiteException;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.database.sqlite.SQLiteDatabase.CursorFactory;
 import android.graphics.drawable.Drawable;
 import android.net.wifi.WifiConfiguration.PairwiseCipher;
 import android.os.Debug;
 import android.os.Parcel;
+import android.os.StatFs;
 import android.util.Log;
 
 /**
@@ -93,6 +96,7 @@ public class DatabaseHelper extends SQLiteOpenHelper
 		Cursor cursor = null;
 		try
 		{
+			
 			cursor = database.query(blobsTable, new String[] {routeKey, blobKey},
 					null, null, null, null, null);
 			cursor.moveToFirst();
@@ -102,8 +106,9 @@ public class DatabaseHelper extends SQLiteOpenHelper
 				byte[] blob = cursor.getBlob(1);
 
 				Log.v("BostonBusMap", "populating route " + route);
+				//Debug.startMethodTracing("db");
 				RouteConfig routeConfig = new RouteConfig(new Box(blob), busStop);
-
+				//Debug.stopMethodTracing();
 
 				map.put(route, routeConfig);
 				cursor.moveToNext();
@@ -183,6 +188,24 @@ public class DatabaseHelper extends SQLiteOpenHelper
 			database.replace(blobsTable, null, values);
 		}
 
+	}
+
+	public boolean checkFreeSpace() {
+		String path = getReadableDatabase().getPath();
+		
+		try
+		{
+			StatFs statFs = new StatFs(path);
+			int freeSpace = statFs.getAvailableBlocks() * statFs.getBlockSize(); 
+		
+			Log.v("BostonBusMap", "free database space: " + freeSpace);
+			return freeSpace >= 1024 * 1024 * 2;
+		}
+		catch (Exception e)
+		{
+			//if for some reason we don't have permission to check free space available, just hope that everything's ok
+			return true;
+		}
 	}
 
 

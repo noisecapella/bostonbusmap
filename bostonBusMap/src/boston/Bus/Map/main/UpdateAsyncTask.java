@@ -158,12 +158,26 @@ public class UpdateAsyncTask extends AsyncTask<Object, String, Locations>
 				if (doInit)
 				{
 					publishProgress("Retrieving route info from database...");
-					busLocations.getRouteDataFromDatabase(helper, this);
-					
-					publishProgress("Did not find route info in database, downloading it now...");
-					busLocations.initializeAllRoutes(helper, this);
-					
 				}
+				busLocations.getRouteDataFromDatabase(helper, this);
+					
+				if (doInit)
+				{
+					publishProgress("Did not find route info in database, checking if there's free space to download it...");
+				}
+				if (busLocations.checkFreeSpace(helper) == false)
+				{
+					publishProgress("There is not enough free space to download the route info. About 2MB free is required");
+					return null;
+				}
+				
+				if (doInit)
+				{
+					publishProgress("Did not find route info in database, downloading it now...");
+				}
+				busLocations.initializeAllRoutes(helper, this);
+					
+				
 				publishProgress("Fetching data...");
 
 				busLocations.Refresh(helper, inferBusRoutes, selectedRouteIndex, selectedBusPredictions);

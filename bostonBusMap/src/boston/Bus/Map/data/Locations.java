@@ -62,6 +62,8 @@ import boston.Bus.Map.util.StreamCounter;
 
 
 import android.content.Context;
+import android.database.SQLException;
+import android.database.sqlite.SQLiteException;
 import android.graphics.drawable.Drawable;
 import android.location.LocationListener;
 import android.util.Log;
@@ -148,17 +150,7 @@ public final class Locations
 	public void initializeAllRoutes(DatabaseHelper helper, UpdateAsyncTask task)
 		throws ParserConfigurationException, FactoryConfigurationError, SAXException, IOException
 	{
-		boolean hasMissingData = false;
-		for (String key : stopMapping.keySet())
-		{
-			RouteConfig config = stopMapping.get(key);
-			if (config == null || config.getStops().size() == 0)
-			{
-				Log.v("BostonBusMap", key + " is missing data");
-				hasMissingData = true;
-				break;
-			}
-		}
+		boolean hasMissingData = routeInfoNeedsUpdating();
 		
 		if (hasMissingData)
 		{
@@ -538,17 +530,7 @@ public final class Locations
 	 */
 	public void getRouteDataFromDatabase(DatabaseHelper helper,
 			UpdateAsyncTask updateAsyncTask) throws IOException {
-		boolean needsUpdating = false;
-		for (String route : supportedRoutes)
-		{
-			if (stopMapping.get(route) == null || stopMapping.get(route).getStops().size() == 0)
-			{
-				needsUpdating = true;
-				break;
-			}
-		}
-		
-		if (needsUpdating == false)
+		if (routeInfoNeedsUpdating() == false)
 		{
 			return;
 		}
@@ -570,5 +552,36 @@ public final class Locations
 		}
 
 		stopMapping.putAll(map);
+	}
+	
+	private boolean routeInfoNeedsUpdating()
+	{
+		boolean needsUpdating = false;
+		for (String route : supportedRoutes)
+		{
+			if (stopMapping.get(route) == null || stopMapping.get(route).getStops().size() == 0)
+			{
+				needsUpdating = true;
+				break;
+			}
+		}
+		
+		return needsUpdating;
+	}
+
+	/**
+	 * Is there enough space available, if we need any?
+	 * @return
+	 */
+	public boolean checkFreeSpace(DatabaseHelper helper) {
+		if (routeInfoNeedsUpdating() == false)
+		{
+			//everything is already in the database
+			return true;
+		}
+		else
+		{
+			return helper.checkFreeSpace();
+		}
 	}
 }
