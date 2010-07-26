@@ -148,18 +148,19 @@ public final class Locations
 	public void initializeAllRoutes(DatabaseHelper helper, UpdateAsyncTask task)
 		throws ParserConfigurationException, FactoryConfigurationError, SAXException, IOException
 	{
-		boolean hasNoStops = true;
+		boolean hasMissingData = false;
 		for (String key : stopMapping.keySet())
 		{
 			RouteConfig config = stopMapping.get(key);
-			if (config != null && config.getStops().size() != 0)
+			if (config == null || config.getStops().size() == 0)
 			{
-				hasNoStops = false;
+				Log.v("BostonBusMap", key + " is missing data");
+				hasMissingData = true;
 				break;
 			}
 		}
 		
-		if (hasNoStops)
+		if (hasMissingData)
 		{
 			final String prepend = "Downloading route info (this may take a short while): ";
 			
@@ -167,15 +168,18 @@ public final class Locations
 			final String urlString = mbtaRouteConfigDataUrlAllRoutes;
 			URL url = new URL(urlString);
 			
-			InputStream stream = downloadStream(url, task, prepend, "of approx 1MB");
+			InputStream stream = downloadStream(url, task, prepend, "of approx 7.5MB");
 			
 			RouteConfigFeedParser parser = new RouteConfigFeedParser(busStop);
 			
 			parser.runParse(stream);
 			
+			task.publish("Parsing route data...");
 			parser.fillMapping(stopMapping);
 			
+			task.publish("Saving route data to database...");
 			helper.saveMapping(stopMapping, true);
+			task.publish("Done!");
 		}
 		else
 		{

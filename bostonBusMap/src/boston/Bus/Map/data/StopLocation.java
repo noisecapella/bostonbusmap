@@ -1,15 +1,22 @@
 package boston.Bus.Map.data;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
+import boston.Bus.Map.util.Box;
+
+import boston.Bus.Map.util.CanBeSerialized;
+
 import android.content.Context;
 import android.graphics.drawable.Drawable;
+import android.os.Parcel;
+import android.os.Parcelable;
 import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
-public class StopLocation implements Location
+public class StopLocation implements Location, CanBeSerialized
 {
 	private final double latitude;
 	private final double longitude;
@@ -43,6 +50,7 @@ public class StopLocation implements Location
 		this.inBound = inBound;
 		this.route = route;
 	}
+	
 	
 	@Override
 	public double distanceFrom(double centerLatitude, double centerLongitude) {
@@ -153,4 +161,38 @@ public class StopLocation implements Location
 		return isFavorite ? IS_FAVORITE : IS_NOT_FAVORITE;
 	}
 
+	@Override
+	public void serialize(Box dest) throws IOException {
+		dest.writeDouble(latitudeAsDegrees);
+		dest.writeDouble(longitudeAsDegrees);
+		dest.writeInt(id);
+		dest.writeString(title);
+		dest.writeString(inBound);
+		
+		
+		dest.writePredictions(predictions);
+	}
+
+	
+	public StopLocation(Box source, RouteConfig routeConfig, Drawable busStop) throws IOException {
+
+
+		latitudeAsDegrees = source.readDouble();
+		longitudeAsDegrees = source.readDouble();
+		this.latitude = latitudeAsDegrees * LocationComparator.degreesToRadians;
+		this.longitude = longitudeAsDegrees * LocationComparator.degreesToRadians;
+		
+		
+
+		id = source.readInt();
+
+		title = source.readString();
+		inBound = source.readString();
+
+		route = routeConfig;
+		
+		this.busStop = busStop;
+
+		source.readPredictions(predictions);
+	}
 }

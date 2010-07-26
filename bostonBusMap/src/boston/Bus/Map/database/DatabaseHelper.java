@@ -1,12 +1,15 @@
 package boston.Bus.Map.database;
 
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 
 import boston.Bus.Map.data.Path;
-import boston.Bus.Map.data.Point;
+
 import boston.Bus.Map.data.RouteConfig;
 import boston.Bus.Map.data.StopLocation;
+import boston.Bus.Map.util.Box;
 
 import android.content.ContentValues;
 import android.content.Context;
@@ -17,6 +20,7 @@ import android.database.sqlite.SQLiteDatabase.CursorFactory;
 import android.graphics.drawable.Drawable;
 import android.net.wifi.WifiConfiguration.PairwiseCipher;
 import android.os.Debug;
+import android.os.Parcel;
 import android.util.Log;
 
 /**
@@ -33,6 +37,8 @@ public class DatabaseHelper extends SQLiteOpenHelper
 	private final static String stopsTable = "stops";
 	private final static String routesTable = "routes";
 	private final static String pathsTable = "paths";
+	private final static String blobsTable = "blobs";
+	
 	
 	private final static String routeKey = "route";
 	private final static String stopIdKey = "stopId";
@@ -43,19 +49,20 @@ public class DatabaseHelper extends SQLiteOpenHelper
 	private final static String dirtagKey = "dirtag";
 	private final static String nameKey = "name";
 	private final static String pathIdKey = "pathid";
+	private final static String blobKey = "blob";
 
 	private final static int tagIndex = 1;
 	private final static int nameIndex = 2;
 	private final static int titleIndex = 3;
 	
 	public DatabaseHelper(Context context) {
-		super(context, dbName, null, 4);
+		super(context, dbName, null, 5);
 		// TODO Auto-generated constructor stub
 	}
 
 	@Override
 	public void onCreate(SQLiteDatabase db) {
-		db.execSQL("CREATE TABLE IF NOT EXISTS " + directionsTable + " (" + routeKey + " STRING, " + tagKey + " STRING, "
+		/*db.execSQL("CREATE TABLE IF NOT EXISTS " + directionsTable + " (" + routeKey + " STRING, " + tagKey + " STRING, "
 				+ nameKey + " STRING, " + titleKey + " STRING)");
 		db.execSQL("CREATE TABLE IF NOT EXISTS " + stopsTable + " (" + routeKey + " STRING, " +
 				stopIdKey + " INTEGER PRIMARY KEY, " + latitudeKey + " FLOAT, " + longitudeKey +
@@ -63,7 +70,9 @@ public class DatabaseHelper extends SQLiteOpenHelper
 		db.execSQL("CREATE TABLE IF NOT EXISTS " + routesTable + " (" + routeKey + " STRING)");
 		db.execSQL("CREATE TABLE IF NOT EXISTS " + pathsTable + " (" + pathIdKey + " INTEGER, "
 				 + routeKey + " STRING, "
-				+ latitudeKey + " FLOAT, " + longitudeKey + " FLOAT)");
+				+ latitudeKey + " FLOAT, " + longitudeKey + " FLOAT)");*/
+		
+		db.execSQL("CREATE TABLE IF NOT EXISTS " + blobsTable + " (" + routeKey + " STRING, " + blobKey + " BLOB)");
 	}
 
 	@Override
@@ -73,103 +82,33 @@ public class DatabaseHelper extends SQLiteOpenHelper
 		db.execSQL("DROP TABLE IF EXISTS " + stopsTable);
 		db.execSQL("DROP TABLE IF EXISTS " + routesTable);
 		db.execSQL("DROP TABLE IF EXISTS " + pathsTable);
+		db.execSQL("DROP TABLE IF EXISTS " + blobsTable);
 		
 		onCreate(db);
 	}
 
-	public String[] getRoutes()
-	{
-		SQLiteDatabase database = getReadableDatabase();
-		Cursor cursor = null;
-		ArrayList<String> routes = new ArrayList<String>();
-		try
-		{
-			cursor = database.query(routesTable, new String[] {routeKey}, null, null, null, null, null);
-			cursor.moveToFirst();
-			
-			while (cursor.isAfterLast() == false)
-			{
-				String route = cursor.getString(0);
-				routes.add(route);
-				
-				cursor.moveToNext();
-			}
-		}
-		finally
-		{
-			database.close();
-			if (cursor != null)
-			{
-				cursor.close();
-			}
-		}
-	
-		return routes.toArray(new String[0]);
-	}
-	
-	public void populateMap(HashMap<String, RouteConfig> map, Drawable busStop, String[] routes) {
+	public void populateMap(HashMap<String, RouteConfig> map, Drawable busStop, String[] routes) throws IOException {
 
 		SQLiteDatabase database = getReadableDatabase();
 		Cursor cursor = null;
 		try
 		{
-			//Debug.startMethodTracing("database");
 			for (String route : routes)
 			{
-				RouteConfig routeConfig = new RouteConfig(route);
-
-				
-				
-				cursor = database.query(directionsTable, new String[] {routeKey, tagKey, nameKey, titleKey},
+				cursor = database.query(blobsTable, new String[] {routeKey, blobKey},
 						routeKey + "=?", new String[]{route}, null, null, null);
 				cursor.moveToFirst();
 				while (cursor.isAfterLast() == false)
 				{
-					String tag = cursor.getString(tagIndex);
-					String name = cursor.getString(nameIndex);
-					String title = cursor.getString(titleIndex);
-					routeConfig.addDirection(tag, title, name);
-
-					cursor.moveToNext();
-				}
-				cursor.close();
-				
-				cursor = database.query(stopsTable, new String[] {routeKey, stopIdKey, latitudeKey, longitudeKey, titleKey, dirtagKey}, 
-						routeKey + "=?", new String[]{route}, null, null, null);
-				cursor.moveToFirst();
-				while (cursor.isAfterLast() == false)
-				{
-					int stopId = cursor.getInt(1);
-					float lat = cursor.getFloat(2);
-					float lon = cursor.getFloat(3);
-					String title = cursor.getString(4);
-					String dirtag = cursor.getString(5);
-
-					StopLocation location = new StopLocation(lat, lon, busStop, stopId, title, dirtag, routeConfig);
-
-					routeConfig.addStop(stopId, location);
-					cursor.moveToNext();
-				}
-				cursor.close();
-				
-				cursor = database.query(pathsTable, new String[] {pathIdKey, routeKey, latitudeKey, longitudeKey},
-						routeKey + "=?", new String[]{route}, null, null, null);
-				cursor.moveToFirst();
-				while (cursor.isAfterLast() == false)
-				{
-					int pathId = cursor.getInt(0);
-					float lat = cursor.getFloat(2);
-					float lon = cursor.getFloat(3);
+					byte[] blob = cursor.getBlob(1);
 					
-					routeConfig.addPath(pathId, lat, lon);
-					cursor.moveToNext();
+					RouteConfig routeConfig = new RouteConfig(new Box(blob), busStop);
+
+
+					map.put(route, routeConfig);
 				}
 				cursor.close();
-				
-				
-				map.put(route, routeConfig);
 			}
-			//Debug.stopMethodTracing();
 		}
 		finally
 		{
@@ -181,36 +120,7 @@ public class DatabaseHelper extends SQLiteOpenHelper
 		}
 	}
 
-	public void saveRoutes(String[] routes)
-	{
-		SQLiteDatabase database = getWritableDatabase();
-		synchronized (database) {
-		
-			try
-			{
-				database.beginTransaction();
-				
-				database.delete(routesTable, null, null);
-				
-				ContentValues values = new ContentValues();
-				for (String route : routes)
-				{
-					values.put(routeKey, route);
-					database.insert(routesTable, null, values);
-				}
-				
-				database.setTransactionSuccessful();
-				database.endTransaction();
-			}
-			finally
-			{
-				database.close();
-			}
-		}
-		
-	}
-	
-	public void saveMapping(HashMap<String, RouteConfig> mapping, boolean wipe)
+	public void saveMapping(HashMap<String, RouteConfig> mapping, boolean wipe) throws IOException
 	{
 		SQLiteDatabase database = getWritableDatabase();
 		synchronized (database) {
@@ -220,9 +130,10 @@ public class DatabaseHelper extends SQLiteOpenHelper
 			
 				if (wipe)
 				{
-					database.delete(stopsTable, null, null);
-					database.delete(directionsTable, null, null);
-					database.delete(pathsTable, null, null);
+					//database.delete(stopsTable, null, null);
+					//database.delete(directionsTable, null, null);
+					//database.delete(pathsTable, null, null);
+					database.delete(blobsTable, null, null);
 				}
 				
 				for (String route : mapping.keySet())
@@ -248,69 +159,30 @@ public class DatabaseHelper extends SQLiteOpenHelper
 	 * @param route
 	 * @param routeConfig
 	 * @param useInsert insert all rows, don't replace them. I assume this is faster since there's no lookup involved
+	 * @throws IOException 
 	 */
-	private void saveMappingKernel(SQLiteDatabase database, String route, RouteConfig routeConfig, boolean useInsert)
+	private void saveMappingKernel(SQLiteDatabase database, String route, RouteConfig routeConfig, boolean useInsert) throws IOException
 	{
-		for (StopLocation location : routeConfig.getStops())
-		{
-			ContentValues values = new ContentValues();
-			int stopId = location.getStopNumber();
-			values.put(routeKey, route);
-			values.put(stopIdKey, stopId);
-			values.put(latitudeKey, (float)location.getLatitudeAsDegrees());
-			values.put(longitudeKey, (float)location.getLongitudeAsDegrees());
-			values.put(titleKey, location.getTitle());
-			values.put(dirtagKey, location.getDirtag());
-
-			if (useInsert)
-			{
-				database.insert(stopsTable, null, values);
-			}
-			else
-			{
-				database.replace(stopsTable, null, values);
-			}
-		}
-
-		for (String dirtag : routeConfig.getDirtags())
-		{
-			ContentValues values = new ContentValues();
-			values.put(routeKey, route);
-			values.put(tagKey, dirtag);
-			values.put(nameKey, routeConfig.getDirectionName(dirtag));
-			values.put(titleKey, routeConfig.getDirectionTitle(dirtag));
+		Box box = new Box(null);
+		
+		routeConfig.serialize(box);
+		
+		byte[] blob = box.getBlob();
+		
+		ContentValues values = new ContentValues();
+		values.put(routeKey, route);
+		values.put(blobKey, blob);
 			
-			if (useInsert)
-			{
-				database.insert(directionsTable, null, values);
-			}
-			else
-			{
-				database.replace(directionsTable, null, values);
-			}
+			
+		if (useInsert)
+		{
+			database.insert(blobsTable, null, values);
+		}
+		else
+		{
+			database.replace(blobsTable, null, values);
 		}
 
-		for (Integer pathId : routeConfig.getPaths().keySet())
-		{
-			Path path = routeConfig.getPaths().get(pathId);
-			for (Point point : path.getPoints())
-			{
-				ContentValues values = new ContentValues();
-				values.put(pathIdKey, pathId);
-				values.put(routeKey, route);
-				values.put(latitudeKey, point.lat);
-				values.put(longitudeKey, point.lon);
-				
-				if (useInsert)
-				{
-					database.insert(pathsTable, null, values);
-				}
-				else
-				{
-					database.replace(pathsTable, null, values);
-				}
-			}
-		}
 	}
 
 

@@ -70,7 +70,7 @@ public class RouteOverlay extends Overlay
 		int floatCount = 0;
 		for (Path path : paths)
 		{
-			int size = path.getPoints().size();
+			int size = path.getPointsSize();
 			
 			if (size > 0)
 			{
@@ -94,14 +94,14 @@ public class RouteOverlay extends Overlay
 		
 		for (Path path : paths)
 		{
-			int pointsSize = path.getPoints().size();
+			int pointsSize = path.getPointsSize();
 
 			Point previousPoint = null;
 			
 			//skip over some points for efficiency's sake
 			for (int i = 0; i < pointsSize; i += increment)
 			{
-				boston.Bus.Map.data.Point point = path.getPoints().get(i);
+				
 				
 				Point pixelPoint;
 				if (pixelPoint1 == previousPoint)
@@ -113,7 +113,10 @@ public class RouteOverlay extends Overlay
 					pixelPoint = pixelPoint1;
 				}
 
-				GeoPoint geoPoint = new GeoPoint((int)(point.lat * Main.E6), (int)(point.lon * Main.E6));
+				double pointLat = path.getPointLat(i);
+				double pointLon = path.getPointLon(i);
+				
+				GeoPoint geoPoint = new GeoPoint((int)(pointLat * Main.E6), (int)(pointLon * Main.E6));
 				
 				projection.toPixels(geoPoint, pixelPoint);
 
@@ -135,8 +138,9 @@ public class RouteOverlay extends Overlay
 				//if we didn't already draw a line to the last point, make sure we do that to make things go together
 				Point pixelPoint = new Point();
 				
-				boston.Bus.Map.data.Point point = path.getPoints().get(pointsSize - 1);
-				GeoPoint geoPoint = new GeoPoint((int)(point.lat * Main.E6), (int)(point.lon * Main.E6));
+				double pointLat = path.getPointLat(pointsSize - 1);
+				double pointLon = path.getPointLon(pointsSize - 1);
+				GeoPoint geoPoint = new GeoPoint((int)(pointLat * Main.E6), (int)(pointLon * Main.E6));
 				projection.toPixels(geoPoint, pixelPoint);
 				
 				if (previousPoint != null)

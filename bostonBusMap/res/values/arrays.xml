@@ -14,22 +14,123 @@
 	</integer-array>
 
 	<string-array name="modes">
- 		<item>1</item>
-		<item>4</item>
-		<item>15</item>
-		<item>22</item>
-		<item>23</item>
-		<item>28</item>
-		<item>32</item>
-		<item>39</item>
-		<item>57</item>
-		<item>66</item>
-		<item>71</item>
-		<item>73</item>
-		<item>77</item>
-		<item>111</item>
-		<item>114</item>
-		<item>116</item>
-		<item>117</item>
+<item>CT1</item>
+<item>CT2</item>
+<item>CT3</item>
+<item>1</item>
+<item>4</item>
+<item>5</item>
+<item>7</item>
+<item>8</item>
+<item>9</item>
+<item>10</item>
+<item>11</item>
+<item>14</item>
+<item>15</item>
+<item>17</item>
+<item>18</item>
+<item>19</item>
+<item>21</item>
+<item>22</item>
+<item>23</item>
+<item>24</item>
+<item>26</item>
+<item>27</item>
+<item>28</item>
+<item>29</item>
+<item>30</item>
+<item>31</item>
+<item>32</item>
+<item>33</item>
+<item>34</item>
+<item>34E</item>
+<item>35</item>
+<item>36</item>
+<item>38</item>
+<item>39</item>
+<item>40</item>
+<item>41</item>
+<item>42</item>
+<item>44</item>
+<item>45</item>
+<item>47</item>
+<item>48</item>
+<item>50</item>
+<item>51</item>
+<item>52</item>
+<item>55</item>
+<item>57</item>
+<item>60</item>
+<item>62</item>
+<item>64</item>
+<item>65</item>
+<item>66</item>
+<item>67</item>
+<item>68</item>
+<item>69</item>
+<item>70</item>
+<item>70A</item>
+<item>71</item>
+<item>72</item>
+<item>73</item>
+<item>74</item>
+<item>75</item>
+<item>76</item>
+<item>77</item>
+<item>78</item>
+<item>79</item>
+<item>80</item>
+<item>83</item>
+<item>84</item>
+<item>85</item>
+<item>86</item>
+<item>87</item>
+<item>88</item>
+<item>90</item>
+<item>91</item>
+<item>92</item>
+<item>93</item>
+<item>94</item>
+<item>95</item>
+<item>96</item>
+<item>97</item>
+<item>99</item>
+<item>100</item>
+<item>104</item>
+<item>105</item>
+<item>106</item>
+<item>109</item>
+<item>110</item>
+<item>111</item>
+<item>112</item>
+<item>114</item>
+<item>116</item>
+<item>117</item>
+<item>132</item>
+<item>134</item>
+<item>136</item>
+<item>137</item>
+<item>170</item>
+<item>171</item>
+<item>191</item>
+<item>192</item>
+<item>193</item>
+<item>194</item>
+<item>245</item>
+<item>325</item>
+<item>326</item>
+<item>350</item>
+<item>351</item>
+<item>352</item>
+<item>355</item>
+<item>501</item>
+<item>502</item>
+<item>503</item>
+<item>504</item>
+<item>554</item>
+<item>555</item>
+<item>556</item>
+<item>558</item>
+<item>751</item>
 	</string-array>
 </resources>

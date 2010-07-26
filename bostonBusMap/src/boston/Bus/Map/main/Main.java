@@ -223,7 +223,14 @@ public class Main extends MapActivity
         for (String route : routesSupported)
         {
         	HashMap<String, String> map = new HashMap<String, String>();
-        	map.put("name", "" + route);
+        	if ("751".equals(route))
+        	{
+        		map.put("name", "SL4");
+        	}
+        	else
+        	{
+        		map.put("name", "" + route);
+        	}
         	map.put("key", route);
         	routeList.add(map);
         }
@@ -407,10 +414,18 @@ public class Main extends MapActivity
 	private HashMap<String, RouteConfig> getOrMakeRouteConfigs(Drawable busStop, String[] routesSupported, DatabaseHelper helper) {
 		HashMap<String, RouteConfig> map = new HashMap<String, RouteConfig>();
 		
-		SQLiteDatabase database = helper.getWritableDatabase();
-		synchronized (database)
+		for (String route : routesSupported)
+		{
+			map.put(route, null);
+		}
+		
+		try
 		{
 			helper.populateMap(map, busStop, routesSupported);
+		}
+		catch (IOException e)
+		{
+			Log.e("BostonBusMap", e.toString());
 		}
 		
 		

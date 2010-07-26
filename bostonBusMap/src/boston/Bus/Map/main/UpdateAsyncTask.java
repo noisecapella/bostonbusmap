@@ -292,7 +292,6 @@ public class UpdateAsyncTask extends AsyncTask<Object, String, Locations>
 			
 			@Override
 			public void run() {
-				// TODO Auto-generated method stub
 				displayIcons(busOverlay, routeOverlay, paths, latitude, longitude, busLocations, selectedBusId);
 			}
 		});
