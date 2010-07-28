@@ -182,7 +182,8 @@ public final class Locations
 			{
 				String route = supportedRoutes[i];
 
-				if (stopMapping.containsKey(route) == false || stopMapping.get(route).getStops().size() == 0)
+				if (stopMapping.containsKey(route) == false || stopMapping.get(route) == null || 
+						stopMapping.get(route).getStops().size() == 0)
 				{
 					final String prepend = "Downloading route info for " + route + " (this may take a short while): ";
 
