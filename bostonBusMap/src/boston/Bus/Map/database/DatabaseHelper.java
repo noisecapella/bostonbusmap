@@ -196,7 +196,7 @@ public class DatabaseHelper extends SQLiteOpenHelper
 		try
 		{
 			StatFs statFs = new StatFs(path);
-			int freeSpace = statFs.getAvailableBlocks() * statFs.getBlockSize(); 
+			long freeSpace = (long)statFs.getAvailableBlocks() * (long)statFs.getBlockSize(); 
 		
 			Log.v("BostonBusMap", "free database space: " + freeSpace);
 			return freeSpace >= 1024 * 1024 * 2;
