@@ -32,9 +32,17 @@ public class RouteOverlay extends Overlay
 	 */
 	private int increment = FINE_INCREMENT;
 	
+	private final Paint paint;
+	
 	public RouteOverlay(Projection projection)
 	{
 		this.projection = projection;
+		
+		paint = new Paint();
+		paint.setColor(Color.argb(0x99, 0x00, 0x00, 0xff));
+		paint.setStrokeWidth(5);
+		paint.setAntiAlias(true);
+
 	}
 	
 	public RouteOverlay(RouteOverlay routeOverlay, Projection projection)
@@ -62,10 +70,6 @@ public class RouteOverlay extends Overlay
 			return;
 		}
 		
-		Paint paint = new Paint();
-		paint.setColor(Color.argb(0x99, 0x00, 0x00, 0xff));
-		paint.setStrokeWidth(5);
-		paint.setAntiAlias(true);
 
 		int floatCount = 0;
 		for (Path path : paths)

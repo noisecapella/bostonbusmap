@@ -1,6 +1,7 @@
 package boston.Bus.Map.parser;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.StringReader;
 import java.util.HashMap;
 
@@ -37,13 +38,13 @@ public class BusPredictionsFeedParser extends DefaultHandler
 		this.stopMapping = stopMapping;
 	}
 
-	public void runParse(String data) throws ParserConfigurationException, SAXException, IOException
+	public void runParse(InputStream data) throws ParserConfigurationException, SAXException, IOException
 	{
 		SAXParserFactory saxParserFactory = SAXParserFactory.newInstance();
 		SAXParser saxParser = saxParserFactory.newSAXParser();
 		XMLReader xmlReader = saxParser.getXMLReader();
 		xmlReader.setContentHandler(this);
-		xmlReader.parse(new InputSource(new StringReader(data)));
+		xmlReader.parse(new InputSource(data));
 		
 	}
 	

@@ -35,14 +35,16 @@ public class VehicleLocationsFeedParser extends DefaultHandler
 		this.arrow = arrow;
 	}
 	
-	public void runParse(String data)
+	public void runParse(InputStream data)
 		throws SAXException, ParserConfigurationException, IOException
 	{
 		SAXParserFactory saxParserFactory = SAXParserFactory.newInstance();
 		SAXParser saxParser = saxParserFactory.newSAXParser();
 		XMLReader xmlReader = saxParser.getXMLReader();
 		xmlReader.setContentHandler(this);
-		xmlReader.parse(new InputSource(new StringReader(data)));
+		InputSource source = new InputSource(data);
+		xmlReader.parse(source);
+		data.close();
 	}
 
 	private double lastUpdateTime;
@@ -126,10 +128,7 @@ public class VehicleLocationsFeedParser extends DefaultHandler
 	}
 
 	public void fillMapping(HashMap<Integer, BusLocation> outputBusMapping) {
-		for (Integer key : busMapping.keySet())
-		{
-			outputBusMapping.put(key, busMapping.get(key));
-		}
+		outputBusMapping.putAll(busMapping);
 	}
 	
 	

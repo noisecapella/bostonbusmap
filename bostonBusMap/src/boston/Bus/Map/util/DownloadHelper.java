@@ -1,7 +1,11 @@
 package boston.Bus.Map.util;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.nio.CharBuffer;
 
+import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.ResponseHandler;
@@ -21,7 +25,7 @@ public class DownloadHelper {
 	private final String url;
 	
 	private final HttpGet httpGet;
-	private String httpResponse;
+	private InputStream inputStream;
 	
 	private final DefaultHttpClient httpClient = new DefaultHttpClient();
 	
@@ -32,13 +36,14 @@ public class DownloadHelper {
 	}
 
 	public void connect() throws ClientProtocolException, IOException {
-		httpResponse = httpClient.execute(httpGet, new BasicResponseHandler());
-		
+		HttpResponse httpResponse = httpClient.execute(httpGet);
+		HttpEntity entity = httpResponse.getEntity();
+		inputStream = entity.getContent();
 	}
 
-	public String getResponseData()
+	public InputStream getResponseData()
 	{
-		return httpResponse;
+		return inputStream;
 	}
 	
 	@Override

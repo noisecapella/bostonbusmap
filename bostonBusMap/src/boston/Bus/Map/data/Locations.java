@@ -306,27 +306,26 @@ public final class Locations
 		
 		downloadHelper.connect();
 		
-		String data = downloadHelper.getResponseData();
+		InputStream data = downloadHelper.getResponseData();
 		
 		if (selectedBusPredictions == Main.BUS_PREDICTIONS_ONE)
 		{
 			//bus prediction
-			
+
 			BusPredictionsFeedParser parser = new BusPredictionsFeedParser(stopMapping);
-			
+
 			parser.runParse(data);
-			
 		}
 		else 
 		{
 			//vehicle locations
 			//VehicleLocationsFeedParser parser = new VehicleLocationsFeedParser(stream);
-			
+
 			//lastUpdateTime = parser.getLastUpdateTime();
-			
+
 			VehicleLocationsFeedParser parser = new VehicleLocationsFeedParser(vehiclesToRouteNames, stopMapping, bus, arrow);
 			parser.runParse(data);
-			
+
 			//get the time that this information is valid until
 			lastUpdateTime = parser.getLastUpdateTime();
 

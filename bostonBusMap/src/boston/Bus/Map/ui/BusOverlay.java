@@ -78,6 +78,7 @@ public class BusOverlay extends BalloonItemizedOverlay<OverlayItem> {
 	private boolean drawHighlightCircle;
 	private final int busHeight;
 	private final Drawable busPicture;
+	private final Paint paint;
 	
 	public BusOverlay(BusOverlay busOverlay, Context context, MapView mapView)
 	{
@@ -116,6 +117,14 @@ public class BusOverlay extends BalloonItemizedOverlay<OverlayItem> {
 		this.selectedBusIndex = -1;
 		this.busPicture = busPicture;
 		this.busHeight = busPicture.getIntrinsicHeight();
+		this.paint = new Paint();
+		paint.setColor(Color.rgb(0x77, 0x77, 0xff));
+		paint.setStyle(Style.STROKE);
+		paint.setStrokeWidth(2);
+		paint.setAntiAlias(true);
+		paint.setAlpha(0x70);
+
+
 		
 		//NOTE: remember to set updateable!
 		
@@ -284,13 +293,6 @@ public class BusOverlay extends BalloonItemizedOverlay<OverlayItem> {
 			float radius = (float)Math.sqrt(lastDistance);
 
 			//draw a circle showing which buses are currently displayed
-			Paint paint = new Paint();
-			paint.setColor(Color.rgb(0x77, 0x77, 0xff));
-			paint.setStyle(Style.STROKE);
-			paint.setStrokeWidth(2);
-			paint.setAntiAlias(true);
-			paint.setAlpha(0x70);
-
 			float circleCenterX = circleCenter.x;
 			float circleCenterY = circleCenter.y - busHeight / 2; 
 			canvas.drawCircle(circleCenterX, circleCenterY, radius, paint);
