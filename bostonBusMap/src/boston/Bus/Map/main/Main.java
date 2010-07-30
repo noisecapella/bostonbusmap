@@ -265,6 +265,11 @@ public class Main extends MapActivity
         	busOverlay.refreshBalloons();
         	
         	busLocations = currentState.getBusLocations();
+        	if (busLocations != null && busLocations.getRecreateFlag())
+        	{
+        		//the copy says it's worthless, so make a new one
+        		busLocations = null;
+        	}
 
         	lastUpdateTime = currentState.getLastUpdateTime();
         	previousUpdateConstantly = currentState.getUpdateConstantly();
@@ -441,11 +446,18 @@ public class Main extends MapActivity
 		{
 			handler.removeAllMessages();
 		}
+		
+		if (busOverlay != null)
+		{
+			busOverlay.setUpdateable(null);
+		}
+		
 		super.onPause();
     }
 
-
-    @Override
+	
+	
+	@Override
     public boolean onOptionsItemSelected(MenuItem item)
     {
     	//when the menu button is clicked, a menu comes up

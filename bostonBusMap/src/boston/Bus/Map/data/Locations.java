@@ -127,6 +127,11 @@ public final class Locations
 	private String selectedRoute;
 	private int selectedBusPredictions;
 	
+	/**
+	 * Is this object garbage? Should we just recreate it?
+	 */
+	private boolean recreateFlag;
+	
 	public Locations(Drawable bus, Drawable arrow, Drawable locationDrawable,
 			Drawable busStop, String[] supportedRoutes)
 	{
@@ -583,5 +588,24 @@ public final class Locations
 		{
 			return helper.checkFreeSpace();
 		}
+	}
+
+	public void becomeWeak() {
+		for (RouteConfig routeConfig : stopMapping.values())
+		{
+			if (routeConfig != null)
+			{
+				routeConfig.becomeWeak();
+			}
+		}
+		
+		stopMapping.clear();
+		
+		recreateFlag = true;
+	}
+	
+	public boolean getRecreateFlag()
+	{
+		return recreateFlag;
 	}
 }

@@ -25,6 +25,8 @@ public class Box {
 	private static final byte IS_NULL = 1;
 	private static final byte IS_NOT_NULL = 0;
 	
+	private final byte[] single = new byte[1];
+	
 	private final ArrayList<String> progress = new ArrayList<String>();
 	
 	public Box(byte[] input)
@@ -105,13 +107,39 @@ public class Box {
 	public byte readByte() throws IOException
 	{
 		showProgress("readByte");
-		return (byte)inputStream.read();
+		inputStream.read(single, 0, 1);
+		return single[0];
 	}
 	
 	public void writeByte(byte b) throws IOException
 	{
 		showProgress("writeByte");
-		outputStream.write(new byte[]{b});
+		single[0] = b;
+		outputStream.write(single, 0, 1);
+	}
+	
+	/**
+	 * Pretend to write out a map
+	 * @throws IOException 
+	 */
+	public void writeFakeStringMap() throws IOException {
+		writeByte(IS_NOT_NULL);
+		writeInt(0);
+	}
+
+	public void readFakeStringMap() throws IOException
+	{
+		byte b = readByte();
+		if (b == IS_NOT_NULL)
+		{
+			int size = readInt();
+			for (int i = 0; i < size; i++)
+			{
+			
+				readString();
+				readString();
+			}
+		}
 	}
 	
 	public void writeStringMap(Map<String, String> map) throws IOException
@@ -282,5 +310,6 @@ public class Box {
 		outputStream.close();
 		return innerOutputStream.toByteArray();
 	}
+
 	
 }

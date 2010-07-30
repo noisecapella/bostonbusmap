@@ -195,4 +195,9 @@ public class StopLocation implements Location, CanBeSerialized
 
 		source.readPredictions(predictions);
 	}
+
+
+	public void becomeWeak() {
+		predictions.clear();
+	}
 }

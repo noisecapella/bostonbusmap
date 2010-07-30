@@ -134,10 +134,10 @@ public class UpdateHandler extends Handler {
 			
 			minorUpdate = new UpdateAsyncTask(textView, mapView, null, getShowUnpredictable(), false, maxOverlays,
 					getHideHighlightCircle() == false, getInferBusRoutes(), busOverlay, routeOverlay, helper,
-					selectedRouteIndex, selectedBusPredictions, false, getShowRouteLine(), getShowCoarseRouteLine());
+					selectedRouteIndex, selectedBusPredictions, false, getShowRouteLine(), getShowCoarseRouteLine(), busLocations);
 			
 
-			minorUpdate.runUpdate(busLocations);
+			minorUpdate.runUpdate();
 			
 			break;
 		case LOCATION_NOT_FOUND:
@@ -184,6 +184,20 @@ public class UpdateHandler extends Handler {
 		removeMessages(LOCATION_FOUND);
 	}
 
+	
+	public void kill()
+	{
+		removeAllMessages();
+		if (updateAsyncTask != null)
+		{
+			updateAsyncTask.cancel(true);
+		}
+
+		if (minorUpdate != null)
+		{
+			minorUpdate.cancel(true);
+		}
+	}
 
 	/**
 	 * executes the update
@@ -207,8 +221,8 @@ public class UpdateHandler extends Handler {
 		updateAsyncTask = new UpdateAsyncTask(textView, mapView, finalMessage,
 				getShowUnpredictable(), true, maxOverlays,
 				getHideHighlightCircle() == false, getInferBusRoutes(), busOverlay, routeOverlay, helper,
-				selectedRouteIndex, selectedBusPredictions, isFirstTime, showRouteLine, showCoarseRouteLine);
-		updateAsyncTask.runUpdate(busLocations);
+				selectedRouteIndex, selectedBusPredictions, isFirstTime, showRouteLine, showCoarseRouteLine, busLocations);
+		updateAsyncTask.runUpdate();
 	}
 
 	public boolean instantRefresh() {

@@ -127,12 +127,23 @@ public class RouteConfig implements CanBeSerialized
 	public RouteConfig(Box source, Drawable busStop) throws IOException {
 		route = source.readString();
 
-		
-
 		source.readStringMap(directionTitles);
 		source.readStringMap(directionNames);
 		source.readStopsMap(stops, this, busStop);
 		source.readPathsMap(paths);
+	}
+
+
+
+	public void becomeWeak() {
+		directionNames.clear();
+		directionTitles.clear();
+		for (StopLocation stopLocation : stops.values())
+		{
+			stopLocation.becomeWeak();
+		}
+		stops.clear();
+		paths.clear();
 	}
 
 }

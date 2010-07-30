@@ -188,7 +188,7 @@ public class BusOverlay extends BalloonItemizedOverlay<OverlayItem> {
 		}
 		else if (event.getAction() == MotionEvent.ACTION_UP)
 		{
-			if (mapMoved)
+			if (mapMoved && updateable != null)
 			{
 				updateable.triggerUpdate(250);
 			}

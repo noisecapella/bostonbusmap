@@ -84,13 +84,15 @@ public class UpdateAsyncTask extends AsyncTask<Object, String, Locations>
 	private final int selectedBusPredictions;
 	private final boolean showRouteLine;
 	private final boolean showCoarseRouteLine;
+	private final Locations busLocations;
 	
 	
 	public UpdateAsyncTask(TextView textView, MapView mapView, String finalMessage,
 			boolean doShowUnpredictable, boolean doRefresh, int maxOverlays,
 			boolean drawCircle, boolean inferBusRoutes, BusOverlay busOverlay, RouteOverlay routeOverlay, 
 			DatabaseHelper helper, int selectedRouteIndex,
-			int selectedBusPredictions, boolean doInit, boolean showRouteLine, boolean showCoarseRouteLine)
+			int selectedBusPredictions, boolean doInit, boolean showRouteLine, boolean showCoarseRouteLine,
+			Locations busLocations)
 	{
 		super();
 		
@@ -111,6 +113,7 @@ public class UpdateAsyncTask extends AsyncTask<Object, String, Locations>
 		this.doInit = doInit;
 		this.showRouteLine = showRouteLine;
 		this.showCoarseRouteLine = showCoarseRouteLine;
+		this.busLocations = busLocations;
 		//this.uiHandler = new Handler();
 	}
 	
@@ -118,16 +121,14 @@ public class UpdateAsyncTask extends AsyncTask<Object, String, Locations>
 	 * A type safe wrapper around execute
 	 * @param busLocations
 	 */
-	public void runUpdate(Locations busLocations)
+	public void runUpdate()
 	{
-		execute(busLocations);
+		execute();
 	}
 
 	@Override
 	protected Locations doInBackground(Object... args) {
 		//number of bus pictures to draw. Too many will make things slow
-		Locations busLocations = (Locations)args[0];
-		
 		return updateBusLocations(busLocations);
 	}
 
@@ -250,17 +251,7 @@ public class UpdateAsyncTask extends AsyncTask<Object, String, Locations>
 		
 		final Handler uiHandler = new Handler();
 		
-		//make sure resorting of bus icons doesn't block the ui thread
-		new Thread(new Runnable() {
-			
-			@Override
-			public void run() {
-				// TODO Auto-generated method stub
-				sortBuses(busLocationsObject, latitude, longitude, uiHandler);
-				
-			}
-		}).run();
-        
+		sortBuses(busLocationsObject, latitude, longitude, uiHandler);
 	}
 
 	private void sortBuses(Locations busLocationsObject, final double latitude,
@@ -306,13 +297,7 @@ public class UpdateAsyncTask extends AsyncTask<Object, String, Locations>
 		
         final ArrayList<Path> paths = busLocationsObject.getSelectedPaths();
 		
-        uiHandler.post(new Runnable() {
-			
-			@Override
-			public void run() {
-				displayIcons(busOverlay, routeOverlay, paths, latitude, longitude, busLocations, selectedBusId);
-			}
-		});
+		displayIcons(busOverlay, routeOverlay, paths, latitude, longitude, busLocations, selectedBusId);
 	}
 	
 	private void displayIcons(BusOverlay busOverlay, RouteOverlay routeOverlay, ArrayList<Path> paths,
