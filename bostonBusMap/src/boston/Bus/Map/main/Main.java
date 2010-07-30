@@ -417,8 +417,6 @@ public class Main extends MapActivity
 
 
 
-
-
 	@Override
     protected void onPause() {
     	if (mapView != null)

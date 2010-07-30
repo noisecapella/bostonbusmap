@@ -187,7 +187,6 @@ public class UpdateHandler extends Handler {
 	
 	public void kill()
 	{
-		removeAllMessages();
 		if (updateAsyncTask != null)
 		{
 			updateAsyncTask.cancel(true);
