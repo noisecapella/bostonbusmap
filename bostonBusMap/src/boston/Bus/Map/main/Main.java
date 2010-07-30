@@ -445,10 +445,6 @@ public class Main extends MapActivity
 			handler.removeAllMessages();
 		}
 		
-		if (busOverlay != null)
-		{
-			busOverlay.setUpdateable(null);
-		}
 		
 		super.onPause();
     }
