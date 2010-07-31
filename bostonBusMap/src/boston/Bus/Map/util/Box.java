@@ -34,7 +34,7 @@ public class Box {
 	 */
 	private final int versionNumber;
 	
-	public Box(byte[] input, int versionNumber)
+	public Box(byte[] input, int versionNumber, HashMap<Integer, StopLocation> sharedStops)
 	{
 		this.versionNumber = versionNumber;
 		if (input == null)
@@ -49,6 +49,8 @@ public class Box {
 			innerOutputStream = null;
 			inputStream = new DataInputStream(new ByteArrayInputStream(input));
 		}
+		
+		this.stopMap = sharedStops;
 	}
 	
 	public void writeBytes(byte[] b) throws IOException
@@ -205,9 +207,9 @@ public class Box {
 		}
 	}
 
-	private final HashMap<Integer, StopLocation> stopMap = new HashMap<Integer, StopLocation>();
+	private final HashMap<Integer, StopLocation> stopMap;
 	
-	public void readStopsMap(HashMap<Integer, StopLocation> stops, Drawable busStop) throws IOException {
+	public void readStopsMap(HashMap<Integer, StopLocation> stops, RouteConfig routeConfig, Drawable busStop) throws IOException {
 		showProgress("readStopsMap");
 		int size = readInt();
 		
@@ -224,6 +226,8 @@ public class Box {
 				stops.put(key, value);
 				stopMap.put(key, value);
 			}
+			
+			stopMap.get(key).addRoute(routeConfig);
 		}
 	}
 

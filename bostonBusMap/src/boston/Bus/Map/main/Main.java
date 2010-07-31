@@ -740,8 +740,16 @@ public class Main extends MapActivity
 	public void setFavoriteStatus(int drawable) {
 		if (favoriteMenuItem != null)
 		{
-			Log.v("BostonBusMap", "setting favorite icon now!");
+			//Log.v("BostonBusMap", "setting favorite icon now!");
 			favoriteMenuItem.setIcon(drawable);
+			if (drawable == R.drawable.full_star)
+			{
+				favoriteMenuItem.setTitle(getResources().getString(R.string.addToFavorites));
+			}
+			else
+			{
+				favoriteMenuItem.setTitle(getResources().getString(R.string.removeFromFavorites));
+			}
 		}
 		
 		currentFavoriteStatus = drawable;

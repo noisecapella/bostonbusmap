@@ -33,12 +33,14 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeSet;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -453,8 +455,10 @@ public final class Locations
 	 */
 	public List<Location> getLocations(int maxLocations, double centerLatitude, double centerLongitude, boolean doShowUnpredictable) {
 
-		ArrayList<Location> newLocations = new ArrayList<Location>();
+		TreeSet<Location> newLocations = new TreeSet<Location>(new LocationComparator(centerLatitude, centerLongitude));
 
+		HashSet<Integer> locationKeys = new HashSet<Integer>();
+		
 		if (selectedBusPredictions == Main.VEHICLE_LOCATIONS_ALL || selectedBusPredictions == Main.VEHICLE_LOCATIONS_ONE)
 		{
 			
@@ -507,15 +511,18 @@ public final class Locations
 		{
 			//Log.v("BostonBusMap", "allStops size is " + allStops.size());
 			
-			newLocations.addAll(allStops);
-			/*for (StopLocation location : allStops)
+			for (StopLocation location : allStops)
 			{
 				if (location.distanceFrom(centerLatitude * LocationComparator.degreesToRadians,
 						centerLongitude * LocationComparator.degreesToRadians) < 1)
 				{
-					newLocations.add(location);
+					if (locationKeys.contains(location.getId()) == false)
+					{
+						newLocations.add(location);
+						locationKeys.add(location.getId());
+					}
 				}
-			}*/
+			}
 		}
 		else if (selectedBusPredictions == Main.BUS_PREDICTIONS_STAR)
 		{
@@ -523,7 +530,11 @@ public final class Locations
 			{
 				if (location.getIsFavorite() == Location.IS_FAVORITE)
 				{
-					newLocations.add(location);
+					if (locationKeys.contains(location.getId()) == false)
+					{
+						newLocations.add(location);
+						locationKeys.add(location.getId());
+					}
 				}
 			}
 		}
@@ -535,9 +546,7 @@ public final class Locations
 		
 		
 		
-		Collections.sort(newLocations, new LocationComparator(centerLatitude, centerLongitude));
-		
-		return newLocations.subList(0, maxLocations);
+		return new ArrayList<Location>(newLocations).subList(0, maxLocations);
 	}
 
 	private int latitudeAsDegreesE6;

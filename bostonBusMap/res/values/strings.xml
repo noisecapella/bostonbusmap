@@ -13,4 +13,10 @@
 <string name="showRouteLineCheckbox">showRouteLine</string>
 <string name="showCoarseRouteLineCheckbox">showCoarseRouteLine</string>
 <string name="initAllRouteInfoCheckbox2">initAllRouteInfo</string>
+<string name="addToFavorites">Add to Favorites</string>
+<string name="removeFromFavorites">Remove from Favorites</string>
+<string name="refresh">Refresh</string>
+<string name="bostonsLocation">Boston\'s Location</string>
+<string name="myLocation">My Location</string>
+<string name="settings">Settings</string>
 </resources>

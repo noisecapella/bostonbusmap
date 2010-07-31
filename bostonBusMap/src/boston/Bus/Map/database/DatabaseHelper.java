@@ -118,6 +118,7 @@ public class DatabaseHelper extends SQLiteOpenHelper
 		Cursor cursor = null;
 		try
 		{
+			HashMap<Integer, StopLocation> sharedStops = new HashMap<Integer, StopLocation>();
 			
 			cursor = database.query(blobsTable, new String[] {routeKey, blobKey}, null, null, null, null, null);
 			cursor.moveToFirst();
@@ -127,8 +128,8 @@ public class DatabaseHelper extends SQLiteOpenHelper
 				byte[] blob = cursor.getBlob(1);
 				
 				Log.v("BostonBusMap", "converting over route " + route);
-				RouteConfig routeConfig = new RouteConfig(new Box(blob, oldVersion), busStop);
-				Box outputBox = new Box(null, newVersion);
+				RouteConfig routeConfig = new RouteConfig(new Box(blob, oldVersion, sharedStops), busStop);
+				Box outputBox = new Box(null, newVersion, sharedStops);
 				routeConfig.serialize(outputBox);
 				
 				routesToWrite.put(route, outputBox.getBlob());
@@ -169,7 +170,7 @@ public class DatabaseHelper extends SQLiteOpenHelper
 		Cursor cursor = null;
 		try
 		{
-			
+			HashMap<Integer, StopLocation> sharedStops = new HashMap<Integer, StopLocation>();
 			cursor = database.query(blobsTable, new String[] {routeKey, blobKey},
 					null, null, null, null, null);
 			cursor.moveToFirst();
@@ -180,7 +181,7 @@ public class DatabaseHelper extends SQLiteOpenHelper
 
 				Log.v("BostonBusMap", "populating route " + route);
 				//Debug.startMethodTracing("db");
-				RouteConfig routeConfig = new RouteConfig(new Box(blob, CURRENT_DB_VERSION), busStop);
+				RouteConfig routeConfig = new RouteConfig(new Box(blob, CURRENT_DB_VERSION, sharedStops), busStop);
 				//Debug.stopMethodTracing();
 
 				map.put(route, routeConfig);
@@ -226,9 +227,11 @@ public class DatabaseHelper extends SQLiteOpenHelper
 					database.delete(blobsTable, null, null);
 				}
 				
+				HashMap<Integer, StopLocation> sharedStops = new HashMap<Integer, StopLocation>();
+				
 				for (String route : mapping.keySet())
 				{
-					saveMappingKernel(database, route, mapping.get(route), wipe);
+					saveMappingKernel(database, route, mapping.get(route), wipe, sharedStops);
 				}
 				
 				database.setTransactionSuccessful();
@@ -251,9 +254,9 @@ public class DatabaseHelper extends SQLiteOpenHelper
 	 * @param useInsert insert all rows, don't replace them. I assume this is faster since there's no lookup involved
 	 * @throws IOException 
 	 */
-	private void saveMappingKernel(SQLiteDatabase database, String route, RouteConfig routeConfig, boolean useInsert) throws IOException
+	private void saveMappingKernel(SQLiteDatabase database, String route, RouteConfig routeConfig, boolean useInsert, HashMap<Integer, StopLocation> sharedStops) throws IOException
 	{
-		Box box = new Box(null, CURRENT_DB_VERSION);
+		Box box = new Box(null, CURRENT_DB_VERSION, sharedStops);
 		
 		routeConfig.serialize(box);
 		
@@ -294,10 +297,13 @@ public class DatabaseHelper extends SQLiteOpenHelper
 	}
 
 	public void saveFavorite(int id, boolean isFavorite) {
+		Log.v("BostonBusMap", "Saving favorite " + id + " as " + isFavorite);
 		SQLiteDatabase database = getWritableDatabase();
 		synchronized (database) {
 			try
 			{
+				database.beginTransaction();
+				
 				if (isFavorite)
 				{
 					ContentValues values = new ContentValues();
@@ -308,6 +314,10 @@ public class DatabaseHelper extends SQLiteOpenHelper
 				{
 					database.delete(favoritesTable, idKey + "=?", new String[] {new Integer(id).toString()});					
 				}
+				
+				database.setTransactionSuccessful();
+				database.endTransaction();
+				
 			}
 			finally
 			{

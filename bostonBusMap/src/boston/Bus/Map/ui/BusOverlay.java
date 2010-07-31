@@ -144,6 +144,7 @@ public class BusOverlay extends BalloonItemizedOverlay<OverlayItem> {
 				if (newFocus == null)
 				{
 					hideBalloon();
+					BusOverlay.this.context.setFavoriteStatus(R.drawable.empty_star);
 				}
 				else
 				{

@@ -13,13 +13,15 @@ public class Prediction implements Comparable<Prediction>
 	private final long epochTime;
 	private final int vehicleId;
 	private final String directionToShow;
+	private final RouteConfig routeConfig;
 	
 	public Prediction(int minutes, long epochTime, int vehicleId,
-			String directionToShow) {
+			String directionToShow, RouteConfig routeConfig) {
 		this.minutes = minutes;
 		this.epochTime = epochTime;
 		this.vehicleId = vehicleId;
 		this.directionToShow = directionToShow;
+		this.routeConfig = routeConfig;
 	}
 
 	@Override
@@ -31,11 +33,16 @@ public class Prediction implements Comparable<Prediction>
 		else
 		{
 			String ret = "Bus " + vehicleId;
+			
+			ret += ", Route " + routeConfig.getRouteName();
+			
 			if (directionToShow != null && directionToShow.length() != 0)
 			{
 				ret += " " + directionToShow;
 			}
 
+			
+			
 			if (minutes == 0)
 			{
 				return ret + "\narriving now!";
@@ -51,5 +58,9 @@ public class Prediction implements Comparable<Prediction>
 	public int compareTo(Prediction another) {
 		return new Integer(minutes).compareTo(another.minutes);
 		
+	}
+
+	public RouteConfig getRoute() {
+		return routeConfig;
 	}
 }

@@ -129,7 +129,7 @@ public class RouteConfig implements CanBeSerialized
 
 		source.readStringMap(directionTitles);
 		source.readStringMap(directionNames);
-		source.readStopsMap(stops, busStop);
+		source.readStopsMap(stops, this, busStop);
 		source.readPathsMap(paths);
 	}
 }

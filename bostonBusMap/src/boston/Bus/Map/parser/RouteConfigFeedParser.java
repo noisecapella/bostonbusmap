@@ -106,6 +106,7 @@ public class RouteConfigFeedParser extends DefaultHandler
 					}
 
 					currentRouteConfig.addStop(id, stopLocation);
+					stopLocation.addRoute(currentRouteConfig);
 				}
 				else
 				{

@@ -7,6 +7,7 @@ import java.util.TreeSet;
 
 import boston.Bus.Map.database.DatabaseHelper;
 import boston.Bus.Map.util.Box;
+import boston.Bus.Map.util.RouteComparator;
 
 import boston.Bus.Map.util.CanBeSerialized;
 
@@ -34,7 +35,7 @@ public class StopLocation implements Location, CanBeSerialized
 	
 	private boolean isFavorite;
 	
-	private final ArrayList<RouteConfig> routes = new ArrayList<RouteConfig>();
+	private final TreeSet<RouteConfig> routes = new TreeSet<RouteConfig>(new RouteComparator());
 	
 	private static final int LOCATIONTYPE = 3; 
 	
@@ -51,6 +52,10 @@ public class StopLocation implements Location, CanBeSerialized
 		this.inBound = inBound;
 	}
 	
+	public void addRoute(RouteConfig route)
+	{
+		this.routes.add(route);
+	}
 	
 	@Override
 	public double distanceFrom(double centerLatitude, double centerLongitude) {
@@ -92,7 +97,23 @@ public class StopLocation implements Location, CanBeSerialized
 
 	@Override
 	public String makeTitle() {
-		String ret = "Stop: " + id + "\n" + "Title: " + title;
+		String ret = "Stop: " + id + ", Routes: ";
+
+		//java doesn't have a join function? seriously?
+		int index = 0;
+		for (RouteConfig route : routes)
+		{
+			ret += route.getRouteName();
+			
+			if (index != routes.size() - 1)
+			{
+				ret += ", ";
+			}
+			
+			index++;
+		}
+		
+		ret += "\n" + "Title: " + title;
 		
 		return ret;
 	}
@@ -126,15 +147,24 @@ public class StopLocation implements Location, CanBeSerialized
 		return id;
 	}
 
-	public void clearPredictions()
+	public void clearPredictions(RouteConfig routeConfig)
 	{
+		ArrayList<Prediction> newPredictions = new ArrayList<Prediction>();
+		for (Prediction prediction : predictions)
+		{
+			if (prediction.getRoute() != routeConfig)
+			{
+				newPredictions.add(prediction);
+			}
+		}
 		predictions.clear();
+		predictions.addAll(newPredictions);
 	}
 	
 	public void addPrediction(int minutes, long epochTime, int vehicleId,
 			String direction, RouteConfig route) {
 		String directionToShow = route.getDirectionTitle(direction);
-		predictions.add(new Prediction(minutes, epochTime, vehicleId, directionToShow));
+		predictions.add(new Prediction(minutes, epochTime, vehicleId, directionToShow, route));
 		
 	}
 
@@ -191,7 +221,7 @@ public class StopLocation implements Location, CanBeSerialized
 	}
 
 
-	public ArrayList<RouteConfig> getRoutes() {
+	public TreeSet<RouteConfig> getRoutes() {
 		return routes;
 	}
 }
