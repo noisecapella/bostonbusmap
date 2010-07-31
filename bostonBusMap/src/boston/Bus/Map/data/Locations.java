@@ -232,11 +232,11 @@ public final class Locations
 	 * @throws FeedException 
 	 */
 	public void Refresh(DatabaseHelper helper, boolean inferBusRoutes, int routeIndexToUpdate,
-			int selectedBusPredictions) throws SAXException, IOException,
+			int selectedBusPredictions, double centerLatitude, double centerLongitude) throws SAXException, IOException,
 			ParserConfigurationException, FactoryConfigurationError 
-	{
+			{
 		String routeToUpdate = supportedRoutes[routeIndexToUpdate];
-		
+
 		try
 		{
 			updateInferRoutes(inferBusRoutes);
@@ -246,17 +246,12 @@ public final class Locations
 			//don't let a problem with the mit website stop everything from working
 			Log.e("BostonBusMap", e.toString());
 		}
-		
+
 		//read data from the URL
 		DownloadHelper downloadHelper;
-		if (selectedBusPredictions != Main.BUS_PREDICTIONS_ONE)
+		switch (selectedBusPredictions)
 		{
-			//for now, we download and update all buses, whether the user chooses one route or all routes
-			//we only make the distinction when we display the icons
-			final String urlString = mbtaLocationsDataUrl + (long)lastUpdateTime;
-			downloadHelper = new DownloadHelper(urlString);
-		}
-		else
+		case  Main.BUS_PREDICTIONS_ONE:
 		{
 			if (stopMapping.containsKey(routeToUpdate))
 			{
@@ -264,7 +259,7 @@ public final class Locations
 				if (routeConfig.getStops().size() != 0)
 				{
 					//ok, do predictions now
-					StringBuffer urlString = new StringBuffer(mbtaPredictionsDataUrl);// + "&stops=39|null|6570&stops=39|null|6571";
+					StringBuilder urlString = new StringBuilder(mbtaPredictionsDataUrl);// + "&stops=39|null|6570&stops=39|null|6571";
 
 					for (StopLocation location : routeConfig.getStops())
 					{
@@ -275,44 +270,52 @@ public final class Locations
 				else
 				{
 					//populate stops (just in case we didn't already)
-					final String urlString = mbtaRouteConfigDataUrl + routeToUpdate;
-					URL url = new URL(urlString);
-
-					//just initialize the route and then end for this round
-					InputStream stream = url.openStream();
-					RouteConfigFeedParser parser = new RouteConfigFeedParser(busStop);
-					
-					parser.runParse(stream); 
-					
-					parser.fillMapping(stopMapping);
-					
-					helper.saveMapping(stopMapping, false);
+					populateStops(routeToUpdate, helper);
 					return;
 				}
 			}
 			else
 			{
 				//populate stops (just in case we didn't already)
-				final String urlString = mbtaRouteConfigDataUrl + routeToUpdate;
-				URL url = new URL(urlString);
-
-				//just initialize the route and then end for this round
-				InputStream stream = url.openStream();
-				RouteConfigFeedParser parser = new RouteConfigFeedParser(busStop);
-				
-				parser.runParse(stream);
-				
-				parser.fillMapping(stopMapping);
-				
-				helper.saveMapping(stopMapping, false);
+				populateStops(routeToUpdate, helper);
 				return;
 			}
 		}
-		
+		break;
+		case Main.BUS_PREDICTIONS_ALL:
+		case Main.BUS_PREDICTIONS_STAR:
+		{
+			StringBuilder urlString = new StringBuilder(mbtaPredictionsDataUrl);
+			
+			List<Location> locations = getLocations(35, centerLatitude, centerLongitude, false);
+			for (Location location : locations)
+			{
+				if (location instanceof StopLocation)
+				{
+					StopLocation stopLocation = (StopLocation)location;
+					urlString.append("&stops=").append(stopLocation.getRoute()).append("%7Cnull%7C").append(stopLocation.getStopNumber());
+				}
+			}
+			downloadHelper = new DownloadHelper(urlString.toString());
+		}
+		break;
+
+		case Main.VEHICLE_LOCATIONS_ALL:
+		case Main.VEHICLE_LOCATIONS_ONE:
+		default:
+		{
+			//for now, we download and update all buses, whether the user chooses one route or all routes
+			//we only make the distinction when we display the icons
+			final String urlString = mbtaLocationsDataUrl + (long)lastUpdateTime;
+			downloadHelper = new DownloadHelper(urlString);
+		}
+		break;
+		}
+
 		downloadHelper.connect();
-		
+
 		InputStream data = downloadHelper.getResponseData();
-		
+
 		if (selectedBusPredictions == Main.BUS_PREDICTIONS_ONE)
 		{
 			//bus prediction
@@ -353,6 +356,24 @@ public final class Locations
 				busMapping.remove(id);
 			}
 		}
+	}
+
+	
+	private void populateStops(String routeToUpdate, DatabaseHelper helper) 
+		throws IOException, ParserConfigurationException, SAXException
+	{
+		final String urlString = mbtaRouteConfigDataUrl + routeToUpdate;
+		URL url = new URL(urlString);
+
+		//just initialize the route and then end for this round
+		InputStream stream = url.openStream();
+		RouteConfigFeedParser parser = new RouteConfigFeedParser(busStop);
+
+		parser.runParse(stream); 
+
+		parser.fillMapping(stopMapping);
+
+		helper.saveMapping(stopMapping, false);
 	}
 
 	private void updateInferRoutes(boolean inferBusRoutes)
@@ -412,7 +433,7 @@ public final class Locations
 
 		ArrayList<Location> newLocations = new ArrayList<Location>();
 
-		if (selectedBusPredictions != Main.BUS_PREDICTIONS_ONE)
+		if (selectedBusPredictions == Main.VEHICLE_LOCATIONS_ALL || selectedBusPredictions == Main.VEHICLE_LOCATIONS_ONE)
 		{
 			
 			if (doShowUnpredictable == false)
@@ -453,11 +474,33 @@ public final class Locations
 				}
 			}
 		}
-		else
+		else if (selectedBusPredictions == Main.BUS_PREDICTIONS_ONE)
 		{
 			if (stopMapping.containsKey(selectedRoute))
 			{
 				newLocations.addAll(stopMapping.get(selectedRoute).getStops());
+			}
+		}
+		else if (selectedBusPredictions == Main.BUS_PREDICTIONS_ALL || selectedBusPredictions == Main.BUS_PREDICTIONS_STAR)
+		{
+			for (String route : stopMapping.keySet())
+			{
+				RouteConfig routeConfig = stopMapping.get(route);
+				
+				if (selectedBusPredictions == Main.BUS_PREDICTIONS_ALL)
+				{
+					newLocations.addAll(routeConfig.getStops());
+				}
+				else
+				{
+					for (StopLocation location : routeConfig.getStops())
+					{
+						if (location.getIsFavorite() == Location.IS_FAVORITE)
+						{
+							newLocations.add(location);
+						}
+					}
+				}
 			}
 		}
 		

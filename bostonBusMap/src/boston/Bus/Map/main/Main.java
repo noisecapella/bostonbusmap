@@ -147,7 +147,9 @@ public class Main extends MapActivity
 	private BusOverlay busOverlay;
 	private RouteOverlay routeOverlay;
 	private ImageButton toggleButton;
-	private Drawable busStopDrawable;
+	private Drawable busStopDrawableOne;
+	private Drawable busStopDrawableAll;
+	private Drawable busStopDrawableStar;
 	private Drawable busDrawableOne;
 	private Drawable busDrawableAll;
 	private Drawable busStop;
@@ -158,6 +160,8 @@ public class Main extends MapActivity
 	public static final int VEHICLE_LOCATIONS_ALL = 1;
 	public static final int BUS_PREDICTIONS_ONE = 2;
 	public static final int VEHICLE_LOCATIONS_ONE = 3;
+	public static final int BUS_PREDICTIONS_ALL = 4;
+	public static final int BUS_PREDICTIONS_STAR = 5;
 	
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -187,7 +191,9 @@ public class Main extends MapActivity
         
         busDrawableOne = resources.getDrawable(R.drawable.bus_one);
         busDrawableAll = resources.getDrawable(R.drawable.bus_all);
-        busStopDrawable = resources.getDrawable(R.drawable.busstop);
+        busStopDrawableOne = resources.getDrawable(R.drawable.busstop_one);
+        busStopDrawableAll = resources.getDrawable(R.drawable.busstop_all);
+        busStopDrawableStar = resources.getDrawable(R.drawable.busstop_star);
         
         toggleButton.setOnClickListener(new OnClickListener() {
 			
@@ -198,6 +204,12 @@ public class Main extends MapActivity
 				switch (newValue)
 				{
 				case BUS_PREDICTIONS_ONE:
+					newValue = BUS_PREDICTIONS_ALL;
+					break;
+				case BUS_PREDICTIONS_ALL:
+					newValue = BUS_PREDICTIONS_STAR;
+					break;
+				case BUS_PREDICTIONS_STAR:
 					newValue = VEHICLE_LOCATIONS_ONE;
 					break;
 				case VEHICLE_LOCATIONS_ONE:
@@ -385,13 +397,21 @@ public class Main extends MapActivity
     private int getSelectedBusPredictions()
     {
     	Drawable drawable = toggleButton.getDrawable();
-    	if (drawable == busStopDrawable)
+    	if (drawable == busStopDrawableOne)
     	{
     		return BUS_PREDICTIONS_ONE;
     	}
     	else if (drawable == busDrawableOne)
     	{
     		return VEHICLE_LOCATIONS_ONE;
+    	}
+    	else if (drawable == busStopDrawableAll)
+    	{
+    		return BUS_PREDICTIONS_ALL;
+    	}
+    	else if (drawable == busStopDrawableStar)
+    	{
+    		return BUS_PREDICTIONS_STAR;
     	}
     	else
     	{
@@ -403,11 +423,19 @@ public class Main extends MapActivity
     {
     	if (isSelectedBusPredictions == Main.BUS_PREDICTIONS_ONE)
     	{
-    		toggleButton.setImageDrawable(busStopDrawable);
+    		toggleButton.setImageDrawable(busStopDrawableOne);
     	}
     	else if (isSelectedBusPredictions == Main.VEHICLE_LOCATIONS_ONE)
     	{
     		toggleButton.setImageDrawable(busDrawableOne);
+    	}
+    	else if (isSelectedBusPredictions == Main.BUS_PREDICTIONS_ALL)
+    	{
+    		toggleButton.setImageDrawable(busStopDrawableAll);
+    	}
+    	else if (isSelectedBusPredictions == Main.BUS_PREDICTIONS_STAR)
+    	{
+    		toggleButton.setImageDrawable(busStopDrawableStar);
     	}
     	else
     	{

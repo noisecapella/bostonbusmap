@@ -8,6 +8,7 @@ import boston.Bus.Map.ui.BusOverlay;
 import boston.Bus.Map.ui.RouteOverlay;
 import boston.Bus.Map.util.OneTimeLocationListener;
 
+import com.google.android.maps.GeoPoint;
 import com.google.android.maps.MapView;
 
 import android.content.Context;
@@ -129,15 +130,19 @@ public class UpdateHandler extends Handler {
 				
 			}
 
+			GeoPoint geoPoint = mapView.getMapCenter();
+			double centerLatitude = geoPoint.getLatitudeE6() / (float)Main.E6;
+			double centerLongitude = geoPoint.getLongitudeE6() / (float)Main.E6;
+			
 			//remove duplicate messages
 			removeMessages(MINOR);
 			
 			minorUpdate = new UpdateAsyncTask(textView, mapView, null, getShowUnpredictable(), false, maxOverlays,
 					getHideHighlightCircle() == false, getInferBusRoutes(), busOverlay, routeOverlay, helper,
-					selectedRouteIndex, selectedBusPredictions, false, getShowRouteLine(), getShowCoarseRouteLine(), busLocations);
+					selectedRouteIndex, selectedBusPredictions, false, getShowRouteLine(), getShowCoarseRouteLine());
 			
 
-			minorUpdate.runUpdate();
+			minorUpdate.runUpdate(busLocations, centerLatitude, centerLongitude);
 			
 			break;
 		case LOCATION_NOT_FOUND:
@@ -216,12 +221,16 @@ public class UpdateHandler extends Handler {
 			
 		}
 		
+		GeoPoint geoPoint = mapView.getMapCenter();
+		double centerLatitude = geoPoint.getLatitudeE6() / (float)Main.E6;
+		double centerLongitude = geoPoint.getLongitudeE6() / (float)Main.E6;
+
 		
 		updateAsyncTask = new UpdateAsyncTask(textView, mapView, finalMessage,
 				getShowUnpredictable(), true, maxOverlays,
 				getHideHighlightCircle() == false, getInferBusRoutes(), busOverlay, routeOverlay, helper,
-				selectedRouteIndex, selectedBusPredictions, isFirstTime, showRouteLine, showCoarseRouteLine, busLocations);
-		updateAsyncTask.runUpdate();
+				selectedRouteIndex, selectedBusPredictions, isFirstTime, showRouteLine, showCoarseRouteLine);
+		updateAsyncTask.runUpdate(busLocations, centerLatitude, centerLongitude);
 	}
 
 	public boolean instantRefresh() {

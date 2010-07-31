@@ -200,4 +200,9 @@ public class StopLocation implements Location, CanBeSerialized
 	public void becomeWeak() {
 		predictions.clear();
 	}
+
+
+	public String getRoute() {
+		return route.getRouteName();
+	}
 }

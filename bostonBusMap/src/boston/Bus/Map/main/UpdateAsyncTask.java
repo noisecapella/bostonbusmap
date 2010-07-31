@@ -84,14 +84,12 @@ public class UpdateAsyncTask extends AsyncTask<Object, String, Locations>
 	private final int selectedBusPredictions;
 	private final boolean showRouteLine;
 	private final boolean showCoarseRouteLine;
-	private final Locations busLocations;
 	
 	public UpdateAsyncTask(TextView textView, MapView mapView, String finalMessage,
 			boolean doShowUnpredictable, boolean doRefresh, int maxOverlays,
 			boolean drawCircle, boolean inferBusRoutes, BusOverlay busOverlay, RouteOverlay routeOverlay, 
 			DatabaseHelper helper, int selectedRouteIndex,
-			int selectedBusPredictions, boolean doInit, boolean showRouteLine, boolean showCoarseRouteLine,
-			Locations busLocations)
+			int selectedBusPredictions, boolean doInit, boolean showRouteLine, boolean showCoarseRouteLine)
 	{
 		super();
 		
@@ -112,7 +110,6 @@ public class UpdateAsyncTask extends AsyncTask<Object, String, Locations>
 		this.doInit = doInit;
 		this.showRouteLine = showRouteLine;
 		this.showCoarseRouteLine = showCoarseRouteLine;
-		this.busLocations = busLocations;
 		//this.uiHandler = new Handler();
 	}
 	
@@ -120,15 +117,15 @@ public class UpdateAsyncTask extends AsyncTask<Object, String, Locations>
 	 * A type safe wrapper around execute
 	 * @param busLocations
 	 */
-	public void runUpdate()
+	public void runUpdate(Locations locations, double centerLatitude, double centerLongitude)
 	{
-		execute();
+		execute(locations, centerLatitude, centerLongitude);
 	}
 
 	@Override
 	protected Locations doInBackground(Object... args) {
 		//number of bus pictures to draw. Too many will make things slow
-		return updateBusLocations(busLocations);
+		return updateBusLocations((Locations)args[0], (Double)args[1], (Double)args[2]);
 	}
 
 	@Override
@@ -141,7 +138,7 @@ public class UpdateAsyncTask extends AsyncTask<Object, String, Locations>
 		
 	}
 
-	public Locations updateBusLocations(Locations busLocations)
+	public Locations updateBusLocations(Locations busLocations, double centerLatitude, double centerLongitude)
 	{
 		if (doRefresh == false)
 		{
@@ -180,7 +177,7 @@ public class UpdateAsyncTask extends AsyncTask<Object, String, Locations>
 				
 				publishProgress("Fetching data...");
 
-				busLocations.Refresh(helper, inferBusRoutes, selectedRouteIndex, selectedBusPredictions);
+				busLocations.Refresh(helper, inferBusRoutes, selectedRouteIndex, selectedBusPredictions, centerLatitude, centerLongitude);
 			}
 			catch (IOException e)
 			{
