@@ -450,6 +450,18 @@ public class Main extends MapActivity
     }
 
 	
+	@Override
+	protected void onDestroy() {
+		handler = null;
+		busLocations = null;
+		if (busOverlay != null)
+		{
+			busOverlay.setUpdateable(null);
+			busOverlay = null;
+		}
+		
+		super.onDestroy();
+	}
 	
 	@Override
     public boolean onOptionsItemSelected(MenuItem item)
