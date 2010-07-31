@@ -1,11 +1,17 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
-	<item android:id="@+id/centerOnLocationMenuItem" android:titleCondensed="Center on your location">
-	</item><item android:id="@+id/centerOnBostonMenuItem" android:title="Center on Boston">
+	<item android:id="@+id/centerOnLocationMenuItem" android:titleCondensed="My Location" 
+	android:icon="@android:drawable/ic_menu_mylocation">
+	</item><item android:id="@+id/centerOnBostonMenuItem" android:title="Boston's Location" android:icon="@android:drawable/ic_menu_mylocation">
 	</item>
 	
-	<item android:id="@+id/settingsMenuItem" android:title="Settings">
+	<item android:id="@+id/settingsMenuItem" android:title="Settings"
+	android:icon="@android:drawable/ic_menu_preferences">
 	</item>
+<item android:id="@+id/favoriteItem" android:title="Add to favorites" android:icon="@drawable/empty_star"></item>
 
-<item android:id="@+id/refreshItem" android:title="Refresh"></item>
+<item android:id="@+id/refreshItem" android:title="Refresh"
+android:icon="@android:drawable/ic_menu_rotate"></item>
+
+
 </menu>
 

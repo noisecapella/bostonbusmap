@@ -80,4 +80,10 @@ public class CurrentLocation implements Location
 	public int getIsFavorite() {
 		return 0;
 	}
+
+	@Override
+	public void toggleFavorite() {
+		//do nothing
+		
+	}
 }

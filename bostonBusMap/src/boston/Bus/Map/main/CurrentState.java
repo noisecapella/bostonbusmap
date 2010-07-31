@@ -78,7 +78,7 @@ public class CurrentState {
 		return busOverlay;
 	}
 
-	public BusOverlay cloneBusOverlay(Context context, MapView mapView) {
+	public BusOverlay cloneBusOverlay(Main context, MapView mapView) {
 		BusOverlay ret = new BusOverlay(busOverlay, context, mapView);
 		
 		return ret;

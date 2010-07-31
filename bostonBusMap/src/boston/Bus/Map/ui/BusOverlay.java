@@ -23,9 +23,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 
+import boston.Bus.Map.R;
 import boston.Bus.Map.data.BusLocation;
 import boston.Bus.Map.data.CurrentLocation;
 import boston.Bus.Map.data.Location;
+import boston.Bus.Map.main.Main;
 import boston.Bus.Map.main.UpdateHandler;
 
 import com.google.android.maps.GeoPoint;
@@ -71,7 +73,7 @@ import android.widget.Toast;
 public class BusOverlay extends BalloonItemizedOverlay<OverlayItem> {
 
 	private final ArrayList<OverlayItem> overlays = new ArrayList<OverlayItem>();
-	private Context context;
+	private Main context;
 	private final List<Location> locations = new ArrayList<Location>();
 	private int selectedBusIndex;
 	private UpdateHandler updateable;
@@ -80,7 +82,7 @@ public class BusOverlay extends BalloonItemizedOverlay<OverlayItem> {
 	private final Drawable busPicture;
 	private final Paint paint;
 	
-	public BusOverlay(BusOverlay busOverlay, Context context, MapView mapView)
+	public BusOverlay(BusOverlay busOverlay, Main context, MapView mapView)
 	{
 		this(busOverlay.busPicture, context, mapView);
 		
@@ -109,7 +111,7 @@ public class BusOverlay extends BalloonItemizedOverlay<OverlayItem> {
 	}
 	
 	
-	public BusOverlay(Drawable busPicture, Context context, 
+	public BusOverlay(Drawable busPicture, Main context, 
 			MapView mapView) {
 		super(boundCenterBottom(busPicture), mapView);
 
@@ -142,6 +144,7 @@ public class BusOverlay extends BalloonItemizedOverlay<OverlayItem> {
 				{
 					hideBalloon();
 				}
+				
 			}
 		});
 		
@@ -153,7 +156,7 @@ public class BusOverlay extends BalloonItemizedOverlay<OverlayItem> {
 		this.updateable = updateable;
 	}
 	
-	public void setContext(Context context)
+	public void setContext(Main context)
 	{
 		this.context = context;
 	}
@@ -353,6 +356,13 @@ public class BusOverlay extends BalloonItemizedOverlay<OverlayItem> {
 				if (busLocation.getId() == selectedBusId)
 				{
 					selectedBusIndex = i;
+					
+					if (context != null)
+					{
+						context.setFavoriteStatus(busLocation.getIsFavorite() == Location.IS_FAVORITE ?
+								R.drawable.full_star : R.drawable.empty_star);
+					}
+					
 					break;
 				}
 			}
@@ -362,6 +372,18 @@ public class BusOverlay extends BalloonItemizedOverlay<OverlayItem> {
 
 	public Drawable getBusPicture() {
 		return busPicture;
+	}
+
+
+	public int toggleFavorite() {
+		if (selectedBusIndex >= 0 && selectedBusIndex < locations.size())
+		{
+			Location location = locations.get(selectedBusIndex);
+			location.toggleFavorite();
+			
+			return location.getIsFavorite() == Location.IS_FAVORITE ? R.drawable.full_star : R.drawable.empty_star;
+		}
+		return R.drawable.empty_star;
 	}
 	
 }

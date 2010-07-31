@@ -10,6 +10,7 @@ import boston.Bus.Map.data.Path;
 import boston.Bus.Map.data.Prediction;
 import boston.Bus.Map.data.RouteConfig;
 import boston.Bus.Map.data.StopLocation;
+import boston.Bus.Map.database.DatabaseHelper;
 import boston.Bus.Map.util.Box;
 import junit.framework.TestCase;
 
@@ -18,12 +19,12 @@ public class TestSerialization extends TestCase {
 	public void testString() throws IOException
 	{
 		String x = null;
-		Box outputBox = new Box(null);
+		Box outputBox = new Box(null, DatabaseHelper.CURRENT_DB_VERSION);
 		outputBox.writeString(x);
 		
 		byte[] blob = outputBox.getBlob();
 		
-		Box inputBox = new Box(blob);
+		Box inputBox = new Box(blob, DatabaseHelper.CURRENT_DB_VERSION);
 		
 		String string2 = inputBox.readString();
 		
@@ -32,12 +33,12 @@ public class TestSerialization extends TestCase {
 	public void testString2() throws IOException
 	{
 		String x = "A quick brown fox";
-		Box outputBox = new Box(null);
+		Box outputBox = new Box(null, DatabaseHelper.CURRENT_DB_VERSION);
 		outputBox.writeString(x);
 		
 		byte[] blob = outputBox.getBlob();
 		
-		Box inputBox = new Box(blob);
+		Box inputBox = new Box(blob, DatabaseHelper.CURRENT_DB_VERSION);
 		
 		String string2 = inputBox.readString();
 		
@@ -46,12 +47,12 @@ public class TestSerialization extends TestCase {
 	public void testLong() throws IOException
 	{
 		long x = -4557498050202912686l;
-		Box outputBox = new Box(null);
+		Box outputBox = new Box(null, DatabaseHelper.CURRENT_DB_VERSION);
 		outputBox.writeLong(x);
 		
 		byte[] blob = outputBox.getBlob();
 		
-		Box inputBox = new Box(blob);
+		Box inputBox = new Box(blob, DatabaseHelper.CURRENT_DB_VERSION);
 		
 		long string2 = inputBox.readLong();
 		
@@ -60,12 +61,12 @@ public class TestSerialization extends TestCase {
 	public void testInt() throws IOException
 	{
 		int x = -8455;
-		Box outputBox = new Box(null);
+		Box outputBox = new Box(null, DatabaseHelper.CURRENT_DB_VERSION);
 		outputBox.writeInt(x);
 		
 		byte[] blob = outputBox.getBlob();
 		
-		Box inputBox = new Box(blob);
+		Box inputBox = new Box(blob, DatabaseHelper.CURRENT_DB_VERSION);
 		
 		int string2 = inputBox.readInt();
 		
@@ -75,12 +76,12 @@ public class TestSerialization extends TestCase {
 	public void testDouble() throws IOException
 	{
 		double x = -8455.34;
-		Box outputBox = new Box(null);
+		Box outputBox = new Box(null, DatabaseHelper.CURRENT_DB_VERSION);
 		outputBox.writeDouble(x);
 		
 		byte[] blob = outputBox.getBlob();
 		
-		Box inputBox = new Box(blob);
+		Box inputBox = new Box(blob, DatabaseHelper.CURRENT_DB_VERSION);
 		
 		double string2 = inputBox.readDouble();
 		
@@ -90,12 +91,12 @@ public class TestSerialization extends TestCase {
 	public void testFloat() throws IOException
 	{
 		float x = -8455.88f;
-		Box outputBox = new Box(null);
+		Box outputBox = new Box(null, DatabaseHelper.CURRENT_DB_VERSION);
 		outputBox.writeFloat(x);
 		
 		byte[] blob = outputBox.getBlob();
 		
-		Box inputBox = new Box(blob);
+		Box inputBox = new Box(blob, DatabaseHelper.CURRENT_DB_VERSION);
 		
 		float string2 = inputBox.readFloat();
 		
@@ -106,11 +107,11 @@ public class TestSerialization extends TestCase {
 	{
 		byte[] blob = outputBox.getBlob();
 		
-		Box inputBox = new Box(blob);
+		Box inputBox = new Box(blob, DatabaseHelper.CURRENT_DB_VERSION);
 		
 		RouteConfig routeConfig2 = new RouteConfig(inputBox, null);
 		
-		Box outputBox2 = new Box(null);
+		Box outputBox2 = new Box(null, DatabaseHelper.CURRENT_DB_VERSION);
 		routeConfig2.serialize(outputBox2);
 		
 		byte[] blob2 = outputBox2.getBlob();
@@ -131,7 +132,7 @@ public class TestSerialization extends TestCase {
 		routeConfig.addStop(5, new StopLocation(44.0, 55.0, null, 5, "xy", "ture", routeConfig));
 		routeConfig.addDirection("XYZSD", "akosod", "asodkosd");
 		
-		Box outputBox = new Box(null);
+		Box outputBox = new Box(null, DatabaseHelper.CURRENT_DB_VERSION);
 		
 		routeConfig.serialize(outputBox);
 
@@ -146,7 +147,7 @@ public class TestSerialization extends TestCase {
 		//routeConfig.addStop(6, new StopLocation(47.0, 56.0, null, 5, "x", "tue", routeConfig));
 		//routeConfig.addDirection("XYZSD", "akosod", "asodkosd");
 		
-		Box outputBox = new Box(null);
+		Box outputBox = new Box(null, DatabaseHelper.CURRENT_DB_VERSION);
 		
 		routeConfig.serialize(outputBox);
 
@@ -162,12 +163,12 @@ public class TestSerialization extends TestCase {
 		
 		mapping.put("sea cucumber", null);
 		
-		Box outputBox = new Box(null);
+		Box outputBox = new Box(null, DatabaseHelper.CURRENT_DB_VERSION);
 		
 		outputBox.writeStringMap(mapping);
 		HashMap<String, String> newMapping = new HashMap<String, String>();
 		
-		Box inputBox = new Box(outputBox.getBlob());
+		Box inputBox = new Box(outputBox.getBlob(), DatabaseHelper.CURRENT_DB_VERSION);
 		inputBox.readStringMap(newMapping);
 		
 		assertEquals(newMapping.size(), mapping.size());
@@ -194,8 +195,9 @@ public class TestSerialization extends TestCase {
 	public void testStopLocation() throws IOException
 	{
 		StopLocation stopLocation = new StopLocation(44.6, -45.6, null, 3, "stop", "in", null);
+		stopLocation.toggleFavorite();
 		
-		Box outputBox = new Box(null);
+		Box outputBox = new Box(null, DatabaseHelper.CURRENT_DB_VERSION);
 		
 		stopLocation.serialize(outputBox);
 		
@@ -206,7 +208,7 @@ public class TestSerialization extends TestCase {
 	{
 		Path stopLocation = new Path(3);
 		
-		Box outputBox = new Box(null);
+		Box outputBox = new Box(null, DatabaseHelper.CURRENT_DB_VERSION);
 		
 		stopLocation.serialize(outputBox);
 		
@@ -217,7 +219,7 @@ public class TestSerialization extends TestCase {
 	{
 		Prediction prediction = new Prediction(34, -3948394855l, 94, "out");
 		
-		Box outputBox = new Box(null);
+		Box outputBox = new Box(null, DatabaseHelper.CURRENT_DB_VERSION);
 		
 		prediction.serialize(outputBox);
 		
@@ -228,11 +230,11 @@ public class TestSerialization extends TestCase {
 	{
 		byte[] blob = outputBox.getBlob();
 		
-		Box inputBox = new Box(blob);
+		Box inputBox = new Box(blob, DatabaseHelper.CURRENT_DB_VERSION);
 		
 		StopLocation routeConfig2 = new StopLocation(inputBox, null, null);
 		
-		Box outputBox2 = new Box(null);
+		Box outputBox2 = new Box(null, DatabaseHelper.CURRENT_DB_VERSION);
 		routeConfig2.serialize(outputBox2);
 		
 		byte[] blob2 = outputBox2.getBlob();
@@ -249,11 +251,11 @@ public class TestSerialization extends TestCase {
 	{
 		byte[] blob = outputBox.getBlob();
 		
-		Box inputBox = new Box(blob);
+		Box inputBox = new Box(blob, DatabaseHelper.CURRENT_DB_VERSION);
 		
 		Prediction routeConfig2 = new Prediction(inputBox);
 		
-		Box outputBox2 = new Box(null);
+		Box outputBox2 = new Box(null, DatabaseHelper.CURRENT_DB_VERSION);
 		routeConfig2.serialize(outputBox2);
 		
 		byte[] blob2 = outputBox2.getBlob();
@@ -270,11 +272,11 @@ public class TestSerialization extends TestCase {
 	{
 		byte[] blob = outputBox.getBlob();
 		
-		Box inputBox = new Box(blob);
+		Box inputBox = new Box(blob, DatabaseHelper.CURRENT_DB_VERSION);
 		
 		Path routeConfig2 = new Path(inputBox);
 		
-		Box outputBox2 = new Box(null);
+		Box outputBox2 = new Box(null, DatabaseHelper.CURRENT_DB_VERSION);
 		routeConfig2.serialize(outputBox2);
 		
 		byte[] blob2 = outputBox2.getBlob();

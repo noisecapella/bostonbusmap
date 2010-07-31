@@ -29,8 +29,14 @@ public class Box {
 	
 	private final ArrayList<String> progress = new ArrayList<String>();
 	
-	public Box(byte[] input)
+	/**
+	 * The serialization version number
+	 */
+	private final int versionNumber;
+	
+	public Box(byte[] input, int versionNumber)
 	{
+		this.versionNumber = versionNumber;
 		if (input == null)
 		{
 			innerOutputStream = new ByteArrayOutputStream();
@@ -259,6 +265,18 @@ public class Box {
 		return inputStream.readFloat();
 	}
 	
+	public void writeBoolean(boolean b) throws IOException
+	{
+		showProgress("writeBoolean");
+		outputStream.writeBoolean(b);
+	}
+	
+	public boolean readBoolean() throws IOException
+	{
+		showProgress("readBoolean");
+		return inputStream.readBoolean();
+	}
+	
 	public void writeLong(long i) throws IOException {
 		showProgress("writeLong");
 		outputStream.writeLong(i);
@@ -309,6 +327,10 @@ public class Box {
 		outputStream.flush();
 		outputStream.close();
 		return innerOutputStream.toByteArray();
+	}
+
+	public int getVersionNumber() {
+		return versionNumber;
 	}
 
 	

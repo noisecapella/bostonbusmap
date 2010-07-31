@@ -549,7 +549,7 @@ public final class Locations
 		
 		try
 		{
-			helper.populateMap(map, busStop, supportedRoutes);
+			helper.populateMap(map, supportedRoutes);
 		}
 		catch (IOException e)
 		{

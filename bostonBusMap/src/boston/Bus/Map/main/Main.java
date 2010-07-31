@@ -150,6 +150,9 @@ public class Main extends MapActivity
 	private Drawable busStopDrawable;
 	private Drawable busDrawableOne;
 	private Drawable busDrawableAll;
+	
+	private MenuItem favoriteMenuItem;
+	private int currentFavoriteStatus;
 
 	public static final int VEHICLE_LOCATIONS_ALL = 1;
 	public static final int BUS_PREDICTIONS_ONE = 2;
@@ -216,7 +219,7 @@ public class Main extends MapActivity
 		});
         
 
-        DatabaseHelper helper = new DatabaseHelper(this);
+        DatabaseHelper helper = new DatabaseHelper(this, busStop);
         
         String[] routesSupported = getOrObtainRoutes(helper);
         
@@ -275,6 +278,8 @@ public class Main extends MapActivity
         	previousUpdateConstantly = currentState.getUpdateConstantly();
         	selectedRouteIndex = currentState.getSelectedRouteIndex();
         	setSelectedBusPredictions(currentState.getSelectedBusPredictions());
+        	
+        	
         	
         	majorHandler = currentState.getMajorHandler();
         	//continue posting status updates on new textView
@@ -479,6 +484,13 @@ public class Main extends MapActivity
     	case R.id.settingsMenuItem:
     		startActivity(new Intent(this, Preferences.class));
     		break;
+    	case R.id.favoriteItem:
+    		if (busLocations != null)
+    		{
+    			int id = busOverlay.toggleFavorite();
+    			item.setIcon(id);
+    		}
+    		break;
     	case R.id.centerOnBostonMenuItem:
     	
     		if (mapView != null)
@@ -550,6 +562,19 @@ public class Main extends MapActivity
     {
     	MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.options_menu, menu);
+        for (int i = 0; i < menu.size(); i++)
+        {
+        	MenuItem item = menu.getItem(i);
+        	if (item.getItemId() == R.id.favoriteItem)
+        	{
+        		if (currentFavoriteStatus != 0)
+        		{
+        			item.setIcon(currentFavoriteStatus);
+        		}
+        		break;
+        	}
+        }
+        
         return true;
     }
     
@@ -682,5 +707,15 @@ public class Main extends MapActivity
 		{
 			return false;
 		}
+	}
+
+
+	public void setFavoriteStatus(int drawable) {
+		if (favoriteMenuItem != null)
+		{
+			favoriteMenuItem.setIcon(drawable);
+		}
+		
+		currentFavoriteStatus = drawable;
 	}
 }

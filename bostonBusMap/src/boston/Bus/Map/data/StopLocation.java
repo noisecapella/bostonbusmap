@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
+import boston.Bus.Map.database.DatabaseHelper;
 import boston.Bus.Map.util.Box;
 
 import boston.Bus.Map.util.CanBeSerialized;
@@ -148,17 +149,14 @@ public class StopLocation implements Location, CanBeSerialized
 		return inBound;
 	}
 	
-	private static final int IS_FAVORITE = 1;
-	private static final int IS_NOT_FAVORITE = 2;
-	
-	public void setIsFavorite(boolean b)
+	public void toggleFavorite()
 	{
-		this.isFavorite = b;
+		this.isFavorite = !isFavorite;
 	}
 	
 	@Override
 	public int getIsFavorite() {
-		return isFavorite ? IS_FAVORITE : IS_NOT_FAVORITE;
+		return isFavorite ? IS_FAVORITE : NOT_FAVORITE;
 	}
 
 	@Override
@@ -166,6 +164,10 @@ public class StopLocation implements Location, CanBeSerialized
 		dest.writeDouble(latitudeAsDegrees);
 		dest.writeDouble(longitudeAsDegrees);
 		dest.writeInt(id);
+		if (dest.getVersionNumber() >= DatabaseHelper.ADDED_FAVORITES_DB_VERSION)
+		{
+			dest.writeBoolean(isFavorite);
+		}
 		dest.writeString(title);
 		dest.writeString(inBound);
 		
@@ -185,6 +187,10 @@ public class StopLocation implements Location, CanBeSerialized
 		
 
 		id = source.readInt();
+		if (source.getVersionNumber() >= DatabaseHelper.ADDED_FAVORITES_DB_VERSION)
+		{
+			isFavorite = source.readBoolean();
+		}
 
 		title = source.readString();
 		inBound = source.readString();

@@ -58,22 +58,24 @@ public class DatabaseHelper extends SQLiteOpenHelper
 	private final static int nameIndex = 2;
 	private final static int titleIndex = 3;
 	
-	public DatabaseHelper(Context context) {
-		super(context, dbName, null, 5);
-		// TODO Auto-generated constructor stub
+	/**
+	 * The first version where we serialize as bytes, not necessarily the first db version
+	 */
+	public final static int FIRST_DB_VERSION = 5;
+	public final static int ADDED_FAVORITES_DB_VERSION = 6;
+	
+	public final static int CURRENT_DB_VERSION = ADDED_FAVORITES_DB_VERSION;
+	
+	private final Drawable busStop;
+	
+	public DatabaseHelper(Context context, Drawable busStop) {
+		super(context, dbName, null, CURRENT_DB_VERSION);
+		
+		this.busStop = busStop;
 	}
 
 	@Override
 	public void onCreate(SQLiteDatabase db) {
-		/*db.execSQL("CREATE TABLE IF NOT EXISTS " + directionsTable + " (" + routeKey + " STRING, " + tagKey + " STRING, "
-				+ nameKey + " STRING, " + titleKey + " STRING)");
-		db.execSQL("CREATE TABLE IF NOT EXISTS " + stopsTable + " (" + routeKey + " STRING, " +
-				stopIdKey + " INTEGER PRIMARY KEY, " + latitudeKey + " FLOAT, " + longitudeKey +
-				" FLOAT, " + titleKey + " STRING, " + dirtagKey + " STRING)");
-		db.execSQL("CREATE TABLE IF NOT EXISTS " + routesTable + " (" + routeKey + " STRING)");
-		db.execSQL("CREATE TABLE IF NOT EXISTS " + pathsTable + " (" + pathIdKey + " INTEGER, "
-				 + routeKey + " STRING, "
-				+ latitudeKey + " FLOAT, " + longitudeKey + " FLOAT)");*/
 		
 		db.execSQL("CREATE TABLE IF NOT EXISTS " + blobsTable + " (" + routeKey + " STRING, " + blobKey + " BLOB)");
 	}
@@ -81,16 +83,87 @@ public class DatabaseHelper extends SQLiteOpenHelper
 	@Override
 	public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
 		// TODO Auto-generated method stub
-		db.execSQL("DROP TABLE IF EXISTS " + directionsTable);
-		db.execSQL("DROP TABLE IF EXISTS " + stopsTable);
-		db.execSQL("DROP TABLE IF EXISTS " + routesTable);
-		db.execSQL("DROP TABLE IF EXISTS " + pathsTable);
-		db.execSQL("DROP TABLE IF EXISTS " + blobsTable);
-		
-		onCreate(db);
+		if (oldVersion < FIRST_DB_VERSION)
+		{
+
+			db.execSQL("DROP TABLE IF EXISTS " + directionsTable);
+			db.execSQL("DROP TABLE IF EXISTS " + stopsTable);
+			db.execSQL("DROP TABLE IF EXISTS " + routesTable);
+			db.execSQL("DROP TABLE IF EXISTS " + pathsTable);
+			db.execSQL("DROP TABLE IF EXISTS " + blobsTable);
+
+			onCreate(db);
+		}
+		else
+		{
+			HashMap<String, byte[]> routesToWrite = new HashMap<String, byte[]>();
+
+			SQLiteDatabase database = getReadableDatabase();
+			Cursor cursor = null;
+			try
+			{
+				
+				cursor = database.query(blobsTable, new String[] {routeKey, blobKey}, null, null, null, null, null);
+				cursor.moveToFirst();
+				while (cursor.isAfterLast() == false)
+				{
+					String route = cursor.getString(0);
+					byte[] blob = cursor.getBlob(1);
+					
+					Log.v("BostonBusMap", "converting over route " + route);
+					RouteConfig routeConfig = new RouteConfig(new Box(blob, oldVersion), busStop);
+					Box outputBox = new Box(null, newVersion);
+					routeConfig.serialize(outputBox);
+					
+					routesToWrite.put(route, outputBox.getBlob());
+					cursor.moveToNext();
+				}
+				cursor.close();
+			}
+			catch (IOException e)
+			{
+				Log.e("BostonBusMap", "Exception during serialization: " + e.getMessage());
+			}
+			finally
+			{
+				database.close();
+				if (cursor != null)
+				{
+					cursor.close();
+				}
+			}
+			
+			//write out everything we just read in
+			database = getWritableDatabase();
+			synchronized (database) {
+				try
+				{
+					database.beginTransaction();
+					database.delete(blobsTable, null, null);
+
+					for (String route : routesToWrite.keySet())
+					{
+						byte[] blob = routesToWrite.get(route);
+
+						ContentValues values = new ContentValues();
+						values.put(routeKey, route);
+						values.put(blobKey, blob);
+
+						database.insert(blobsTable, null, values);
+					}
+
+					database.setTransactionSuccessful();
+					database.endTransaction();
+				}
+				finally
+				{
+					database.close();
+				}
+			}
+		}
 	}
 
-	public void populateMap(HashMap<String, RouteConfig> map, Drawable busStop, String[] routes) throws IOException {
+	public void populateMap(HashMap<String, RouteConfig> map, String[] routes) throws IOException {
 
 		SQLiteDatabase database = getReadableDatabase();
 		Cursor cursor = null;
@@ -107,7 +180,7 @@ public class DatabaseHelper extends SQLiteOpenHelper
 
 				Log.v("BostonBusMap", "populating route " + route);
 				//Debug.startMethodTracing("db");
-				RouteConfig routeConfig = new RouteConfig(new Box(blob), busStop);
+				RouteConfig routeConfig = new RouteConfig(new Box(blob, CURRENT_DB_VERSION), busStop);
 				//Debug.stopMethodTracing();
 
 				map.put(route, routeConfig);
@@ -168,7 +241,7 @@ public class DatabaseHelper extends SQLiteOpenHelper
 	 */
 	private void saveMappingKernel(SQLiteDatabase database, String route, RouteConfig routeConfig, boolean useInsert) throws IOException
 	{
-		Box box = new Box(null);
+		Box box = new Box(null, CURRENT_DB_VERSION);
 		
 		routeConfig.serialize(box);
 		
