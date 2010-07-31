@@ -73,7 +73,7 @@ public class CurrentLocation implements Location
 	@Override
 	public double distanceFrom(double centerLatitude, double centerLongitude) {
 		// TODO Auto-generated method stub
-		return LocationComparator.computeDistance(latitude, longitude, centerLatitude, centerLongitude);
+		return LocationComparator.computeCompareDistance(latitude, longitude, centerLatitude, centerLongitude);
 	}
 
 	@Override

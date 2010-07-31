@@ -160,7 +160,7 @@ public class RouteOverlay extends Overlay
 
 		}
 		
-		Log.v("BostonBusMap", "Number of floats in array drawn in RouteOverlay: " + floats.length);
+		//Log.v("BostonBusMap", "Number of floats in array drawn in RouteOverlay: " + floats.length);
 		canvas.drawLines(floats, paint);
 	}
 

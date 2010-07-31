@@ -140,6 +140,7 @@ public class UpdateAsyncTask extends AsyncTask<Object, String, Locations>
 
 	public Locations updateBusLocations(Locations busLocations, double centerLatitude, double centerLongitude)
 	{
+		Log.v("BostonBusMap", "in updateBusLocations, centerLatitude is " + centerLatitude);
 		if (doRefresh == false)
 		{
 			//if doRefresh is false, we just want to resort the overlays for a new center. Don't bother updating the text

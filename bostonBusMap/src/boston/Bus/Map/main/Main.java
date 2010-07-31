@@ -281,11 +281,6 @@ public class Main extends MapActivity
         	busOverlay.refreshBalloons();
         	
         	busLocations = currentState.getBusLocations();
-        	if (busLocations != null && busLocations.getRecreateFlag())
-        	{
-        		//the copy says it's worthless, so make a new one
-        		busLocations = null;
-        	}
 
         	lastUpdateTime = currentState.getLastUpdateTime();
         	previousUpdateConstantly = currentState.getUpdateConstantly();

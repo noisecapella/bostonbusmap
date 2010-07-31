@@ -129,7 +129,7 @@ public class TestSerialization extends TestCase {
 		RouteConfig routeConfig = new RouteConfig("x");
 		
 		routeConfig.addPath(1, 3, 4);
-		routeConfig.addStop(5, new StopLocation(44.0, 55.0, null, 5, "xy", "ture", routeConfig));
+		routeConfig.addStop(5, new StopLocation(44.0, 55.0, null, 5, "xy", "ture"));
 		routeConfig.addDirection("XYZSD", "akosod", "asodkosd");
 		
 		Box outputBox = new Box(null, DatabaseHelper.CURRENT_DB_VERSION);
@@ -143,7 +143,7 @@ public class TestSerialization extends TestCase {
 		RouteConfig routeConfig = new RouteConfig("x");
 		
 		routeConfig.addPath(1, 3, 4);
-		routeConfig.addStop(5, new StopLocation(44.0, 55.0, null, 5, "xy", "ture", routeConfig));
+		routeConfig.addStop(5, new StopLocation(44.0, 55.0, null, 5, "xy", "ture"));
 		//routeConfig.addStop(6, new StopLocation(47.0, 56.0, null, 5, "x", "tue", routeConfig));
 		//routeConfig.addDirection("XYZSD", "akosod", "asodkosd");
 		
@@ -194,7 +194,7 @@ public class TestSerialization extends TestCase {
 	
 	public void testStopLocation() throws IOException
 	{
-		StopLocation stopLocation = new StopLocation(44.6, -45.6, null, 3, "stop", "in", null);
+		StopLocation stopLocation = new StopLocation(44.6, -45.6, null, 3, "stop", "in");
 		stopLocation.toggleFavorite();
 		
 		Box outputBox = new Box(null, DatabaseHelper.CURRENT_DB_VERSION);
@@ -215,45 +215,14 @@ public class TestSerialization extends TestCase {
 		assertValidPath(outputBox);
 	}
 	
-	public void testPrediction() throws IOException
-	{
-		Prediction prediction = new Prediction(34, -3948394855l, 94, "out");
-		
-		Box outputBox = new Box(null, DatabaseHelper.CURRENT_DB_VERSION);
-		
-		prediction.serialize(outputBox);
-		
-		assertValidPrediction(outputBox);
-	}
-	
+
 	private void assertValidStopLocation(Box outputBox) throws IOException
 	{
 		byte[] blob = outputBox.getBlob();
 		
 		Box inputBox = new Box(blob, DatabaseHelper.CURRENT_DB_VERSION);
 		
-		StopLocation routeConfig2 = new StopLocation(inputBox, null, null);
-		
-		Box outputBox2 = new Box(null, DatabaseHelper.CURRENT_DB_VERSION);
-		routeConfig2.serialize(outputBox2);
-		
-		byte[] blob2 = outputBox2.getBlob();
-		
-		assertEquals(blob.length, blob2.length);
-		
-		for (int i = 0; i < blob.length; i++)
-		{
-			assertEquals(blob[i], blob2[i]);
-		}
-	}
-	
-	private void assertValidPrediction(Box outputBox) throws IOException
-	{
-		byte[] blob = outputBox.getBlob();
-		
-		Box inputBox = new Box(blob, DatabaseHelper.CURRENT_DB_VERSION);
-		
-		Prediction routeConfig2 = new Prediction(inputBox);
+		StopLocation routeConfig2 = new StopLocation(inputBox, null);
 		
 		Box outputBox2 = new Box(null, DatabaseHelper.CURRENT_DB_VERSION);
 		routeConfig2.serialize(outputBox2);

@@ -30,16 +30,16 @@ public class StopLocation implements Location, CanBeSerialized
 	private final String title;
 	private final String inBound;
 	
-	private final RouteConfig route;
-	
 	private final SortedSet<Prediction> predictions = new TreeSet<Prediction>();
 	
 	private boolean isFavorite;
 	
+	private final ArrayList<RouteConfig> routes = new ArrayList<RouteConfig>();
+	
 	private static final int LOCATIONTYPE = 3; 
 	
 	public StopLocation(double latitudeAsDegrees, double longitudeAsDegrees,
-			Drawable busStop, int id, String title, String inBound, RouteConfig route)
+			Drawable busStop, int id, String title, String inBound)
 	{
 		this.latitude = latitudeAsDegrees * LocationComparator.degreesToRadians;
 		this.latitudeAsDegrees = latitudeAsDegrees;
@@ -49,13 +49,12 @@ public class StopLocation implements Location, CanBeSerialized
 		this.id = id;
 		this.title = title;
 		this.inBound = inBound;
-		this.route = route;
 	}
 	
 	
 	@Override
 	public double distanceFrom(double centerLatitude, double centerLongitude) {
-		return LocationComparator.computeDistance(latitude, longitude, centerLatitude, centerLongitude);
+		return LocationComparator.computeCompareDistance(latitude, longitude, centerLatitude, centerLongitude);
 	}
 
 	@Override
@@ -93,9 +92,7 @@ public class StopLocation implements Location, CanBeSerialized
 
 	@Override
 	public String makeTitle() {
-		String directionToShow = route.getDirectionTitle(inBound);
-		
-		String ret = "Route: " + route.getRouteName() + ", stop: " + id + "\n" + directionToShow + "\nTitle: " + title;
+		String ret = "Stop: " + id + "\n" + "Title: " + title;
 		
 		return ret;
 	}
@@ -135,7 +132,7 @@ public class StopLocation implements Location, CanBeSerialized
 	}
 	
 	public void addPrediction(int minutes, long epochTime, int vehicleId,
-			String direction) {
+			String direction, RouteConfig route) {
 		String directionToShow = route.getDirectionTitle(direction);
 		predictions.add(new Prediction(minutes, epochTime, vehicleId, directionToShow));
 		
@@ -174,7 +171,7 @@ public class StopLocation implements Location, CanBeSerialized
 	}
 
 	
-	public StopLocation(Box source, RouteConfig routeConfig, Drawable busStop) throws IOException {
+	public StopLocation(Box source, Drawable busStop) throws IOException {
 
 
 		latitudeAsDegrees = source.readDouble();
@@ -188,21 +185,13 @@ public class StopLocation implements Location, CanBeSerialized
 
 		title = source.readString();
 		inBound = source.readString();
-
-		route = routeConfig;
-		
 		this.busStop = busStop;
 
 		source.readPredictions(predictions);
 	}
 
 
-	public void becomeWeak() {
-		predictions.clear();
-	}
-
-
-	public String getRoute() {
-		return route.getRouteName();
+	public ArrayList<RouteConfig> getRoutes() {
+		return routes;
 	}
 }

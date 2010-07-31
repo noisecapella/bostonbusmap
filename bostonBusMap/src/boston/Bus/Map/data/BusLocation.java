@@ -184,7 +184,7 @@ public class BusLocation implements Location
 
 	public double distanceFrom(double lat2, double lon2)
 	{
-		return LocationComparator.computeDistance(latitude, longitude, lat2, lon2);
+		return LocationComparator.computeCompareDistance(latitude, longitude, lat2, lon2);
 	}
 	
 	/**

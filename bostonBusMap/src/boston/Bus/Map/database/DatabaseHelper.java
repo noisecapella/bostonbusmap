@@ -81,6 +81,7 @@ public class DatabaseHelper extends SQLiteOpenHelper
 	public void onCreate(SQLiteDatabase db) {
 		
 		db.execSQL("CREATE TABLE IF NOT EXISTS " + blobsTable + " (" + routeKey + " STRING, " + blobKey + " BLOB)");
+		db.execSQL("CREATE TABLE IF NOT EXISTS " + favoritesTable + " (" + idKey + " INTEGER)");
 	}
 
 	@Override
@@ -94,6 +95,7 @@ public class DatabaseHelper extends SQLiteOpenHelper
 			db.execSQL("DROP TABLE IF EXISTS " + routesTable);
 			db.execSQL("DROP TABLE IF EXISTS " + pathsTable);
 			db.execSQL("DROP TABLE IF EXISTS " + blobsTable);
+			db.execSQL("DROP TABLE IF EXISTS " + favoritesTable);
 
 			onCreate(db);
 		}

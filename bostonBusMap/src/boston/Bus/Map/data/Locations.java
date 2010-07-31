@@ -88,6 +88,11 @@ public final class Locations
 	private final HashMap<String, RouteConfig> stopMapping = new HashMap<String, RouteConfig>();
 	
 	/**
+	 * A list of all stoplocations
+	 */
+	private final ArrayList<StopLocation> allStops = new ArrayList<StopLocation>();
+	
+	/**
 	 * The XML feed URL
 	 */
 	private final String mbtaLocationsDataUrl = "http://webservices.nextbus.com/service/publicXMLFeed?command=vehicleLocations&a=mbta&t=";
@@ -126,11 +131,6 @@ public final class Locations
 	
 	private String selectedRoute;
 	private int selectedBusPredictions;
-	
-	/**
-	 * Is this object garbage? Should we just recreate it?
-	 */
-	private boolean recreateFlag;
 	
 	public Locations(Drawable bus, Drawable arrow, Drawable locationDrawable,
 			Drawable busStop, String[] supportedRoutes)
@@ -247,6 +247,17 @@ public final class Locations
 			Log.e("BostonBusMap", e.toString());
 		}
 
+		
+		if (allStops.size() == 0)
+		{
+			for (String route : stopMapping.keySet())
+			{
+				RouteConfig routeConfig = stopMapping.get(route);
+				
+				allStops.addAll(routeConfig.getStops());
+			}
+		}
+
 		//read data from the URL
 		DownloadHelper downloadHelper;
 		switch (selectedBusPredictions)
@@ -285,17 +296,24 @@ public final class Locations
 		case Main.BUS_PREDICTIONS_ALL:
 		case Main.BUS_PREDICTIONS_STAR:
 		{
+			
 			StringBuilder urlString = new StringBuilder(mbtaPredictionsDataUrl);
 			
-			List<Location> locations = getLocations(35, centerLatitude, centerLongitude, false);
+			List<Location> locations = getLocations(30, centerLatitude, centerLongitude, false);
 			for (Location location : locations)
 			{
 				if (location instanceof StopLocation)
 				{
 					StopLocation stopLocation = (StopLocation)location;
-					urlString.append("&stops=").append(stopLocation.getRoute()).append("%7Cnull%7C").append(stopLocation.getStopNumber());
+					for (RouteConfig routeConfig : stopLocation.getRoutes())
+					{
+						urlString.append("&stops=").append(routeConfig.getRouteName()).append("%7Cnull%7C").append(stopLocation.getStopNumber());
+					}
 				}
 			}
+			
+			Log.v("BostonBusMap", "urlString for bus predictions, all: " + urlString);
+			
 			downloadHelper = new DownloadHelper(urlString.toString());
 		}
 		break;
@@ -316,7 +334,9 @@ public final class Locations
 
 		InputStream data = downloadHelper.getResponseData();
 
-		if (selectedBusPredictions == Main.BUS_PREDICTIONS_ONE)
+		if (selectedBusPredictions == Main.BUS_PREDICTIONS_ONE || 
+				selectedBusPredictions == Main.BUS_PREDICTIONS_ALL ||
+				selectedBusPredictions == Main.BUS_PREDICTIONS_STAR)
 		{
 			//bus prediction
 
@@ -426,6 +446,8 @@ public final class Locations
 	/**
 	 * Return the 20 (or whatever maxLocations is) closest buses to the center
 	 * 
+	 * NOTE: this is run in the UI thread, so be speedy
+	 * 
 	 * @param maxLocations
 	 * @return
 	 */
@@ -481,25 +503,27 @@ public final class Locations
 				newLocations.addAll(stopMapping.get(selectedRoute).getStops());
 			}
 		}
-		else if (selectedBusPredictions == Main.BUS_PREDICTIONS_ALL || selectedBusPredictions == Main.BUS_PREDICTIONS_STAR)
+		else if (selectedBusPredictions == Main.BUS_PREDICTIONS_ALL)
 		{
-			for (String route : stopMapping.keySet())
+			//Log.v("BostonBusMap", "allStops size is " + allStops.size());
+			
+			newLocations.addAll(allStops);
+			/*for (StopLocation location : allStops)
 			{
-				RouteConfig routeConfig = stopMapping.get(route);
-				
-				if (selectedBusPredictions == Main.BUS_PREDICTIONS_ALL)
+				if (location.distanceFrom(centerLatitude * LocationComparator.degreesToRadians,
+						centerLongitude * LocationComparator.degreesToRadians) < 1)
 				{
-					newLocations.addAll(routeConfig.getStops());
+					newLocations.add(location);
 				}
-				else
+			}*/
+		}
+		else if (selectedBusPredictions == Main.BUS_PREDICTIONS_STAR)
+		{
+			for (StopLocation location : allStops)
+			{
+				if (location.getIsFavorite() == Location.IS_FAVORITE)
 				{
-					for (StopLocation location : routeConfig.getStops())
-					{
-						if (location.getIsFavorite() == Location.IS_FAVORITE)
-						{
-							newLocations.add(location);
-						}
-					}
+					newLocations.add(location);
 				}
 			}
 		}
@@ -649,24 +673,5 @@ public final class Locations
 		{
 			return helper.checkFreeSpace();
 		}
-	}
-
-	public void becomeWeak() {
-		for (RouteConfig routeConfig : stopMapping.values())
-		{
-			if (routeConfig != null)
-			{
-				routeConfig.becomeWeak();
-			}
-		}
-		
-		stopMapping.clear();
-		
-		recreateFlag = true;
-	}
-	
-	public boolean getRecreateFlag()
-	{
-		return recreateFlag;
 	}
 }

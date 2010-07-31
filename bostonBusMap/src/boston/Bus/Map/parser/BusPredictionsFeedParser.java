@@ -33,6 +33,7 @@ public class BusPredictionsFeedParser extends DefaultHandler
 	
 	private final HashMap<String, RouteConfig> stopMapping;
 	private StopLocation currentLocation;
+	private RouteConfig currentRoute;
 	
 	public BusPredictionsFeedParser(HashMap<String, RouteConfig> stopMapping) {
 		this.stopMapping = stopMapping;
@@ -54,7 +55,7 @@ public class BusPredictionsFeedParser extends DefaultHandler
 		if (localName.equals(predictionsKey))
 		{
 			String currentRouteTag = attributes.getValue(routeTagKey);
-			RouteConfig currentRoute = stopMapping.get(currentRouteTag);
+			currentRoute = stopMapping.get(currentRouteTag);
 			
 			currentLocation = null;
 			if (currentRoute != null)
@@ -71,7 +72,7 @@ public class BusPredictionsFeedParser extends DefaultHandler
 		else if (localName.equals(predictionKey))
 		{
 
-			if (currentLocation != null)
+			if (currentLocation != null && currentRoute != null)
 			{
 				int minutes = Integer.parseInt(attributes.getValue(minutesKey));
 
@@ -82,7 +83,7 @@ public class BusPredictionsFeedParser extends DefaultHandler
 
 				String dirTag = attributes.getValue(dirTagKey);
 
-				currentLocation.addPrediction(minutes, epochTime, vehicleId, dirTag);
+				currentLocation.addPrediction(minutes, epochTime, vehicleId, dirTag, currentRoute);
 			}
 		}
 	}

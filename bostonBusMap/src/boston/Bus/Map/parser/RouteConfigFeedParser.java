@@ -61,6 +61,8 @@ public class RouteConfigFeedParser extends DefaultHandler
 	private static final String lonKey = "lon";
 	
 	
+	private HashMap<Integer, StopLocation> allStops = new HashMap<Integer, StopLocation>();
+	
 	private boolean inRoute;
 	private boolean inDirection;
 	private boolean inStop;
@@ -95,8 +97,13 @@ public class RouteConfigFeedParser extends DefaultHandler
 					String title = attributes.getValue(titleKey);
 					String dirTag = attributes.getValue(dirTagKey);
 
-					StopLocation stopLocation = new StopLocation(latitudeAsDegrees, longitudeAsDegrees, busStop, id,
-							title, dirTag, currentRouteConfig);
+					StopLocation stopLocation = allStops.get(id);
+					if (stopLocation == null)
+					{
+						stopLocation = new StopLocation(latitudeAsDegrees, longitudeAsDegrees, busStop, id,
+							title, dirTag);
+						allStops.put(id, stopLocation);
+					}
 
 					currentRouteConfig.addStop(id, stopLocation);
 				}

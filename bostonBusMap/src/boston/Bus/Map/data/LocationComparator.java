@@ -38,6 +38,8 @@ public class LocationComparator implements Comparator<Location>
 	private static final double radiusOfEarthInKilo = 6371.2;
 	private static final double kilometersPerMile = 1.609344;
 	
+	private static final double radiusOfEarthInMiles = radiusOfEarthInKilo / kilometersPerMile;
+	
 	public static final double degreesToRadians = Math.PI / 180.0;
 	
 
@@ -49,12 +51,12 @@ public class LocationComparator implements Comparator<Location>
 	 * @param lon2 longitude in radians
 	 * @return distance in miles
 	 */
-	public static double computeDistance(double lat1, double lon1, double lat2, double lon2)
+	public static double computeCompareDistance(double lat1, double lon1, double lat2, double lon2)
 	{
 		//great circle distance
-		double dist = Math.acos(Math.sin(lat1) * Math.sin(lat2) + Math.cos(lat1) * Math.cos(lat2) * Math.cos(lon2 - lon1));
-		dist *= radiusOfEarthInKilo;
-		dist /= kilometersPerMile;
+		//double dist = Math.acos(Math.sin(lat1) * Math.sin(lat2) + Math.cos(lat1) * Math.cos(lat2) * Math.cos(lon2 - lon1));
+		double dist = ((1 - Math.cos((lat1 - lat2))) / 2) + Math.cos(lat1) * Math.cos(lat2) * ((1 - Math.cos((lon1 - lon2))) / 2);
+		dist *= radiusOfEarthInMiles;
 		
 		return dist;
 	}

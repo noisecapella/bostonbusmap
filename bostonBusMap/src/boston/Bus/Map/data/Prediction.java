@@ -7,7 +7,7 @@ import boston.Bus.Map.util.CanBeSerialized;
 import android.os.Parcel;
 import android.os.Parcelable;
 
-public class Prediction implements Comparable<Prediction>, CanBeSerialized
+public class Prediction implements Comparable<Prediction>
 {
 	private final int minutes;
 	private final long epochTime;
@@ -51,21 +51,5 @@ public class Prediction implements Comparable<Prediction>, CanBeSerialized
 	public int compareTo(Prediction another) {
 		return new Integer(minutes).compareTo(another.minutes);
 		
-	}
-
-
-	@Override
-	public void serialize(Box dest) throws IOException {
-		dest.writeInt(minutes);
-		dest.writeLong(epochTime);
-		dest.writeInt(vehicleId);
-		dest.writeString(directionToShow);
-	}
-	
-	public Prediction(Box source) throws IOException {
-		minutes = source.readInt();
-		epochTime = source.readLong();
-		vehicleId = source.readInt();
-		directionToShow = source.readString();
 	}
 }

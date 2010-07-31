@@ -205,15 +205,25 @@ public class Box {
 		}
 	}
 
-	public void readStopsMap(HashMap<Integer, StopLocation> stops, RouteConfig routeConfig, Drawable busStop) throws IOException {
+	private final HashMap<Integer, StopLocation> stopMap = new HashMap<Integer, StopLocation>();
+	
+	public void readStopsMap(HashMap<Integer, StopLocation> stops, Drawable busStop) throws IOException {
 		showProgress("readStopsMap");
 		int size = readInt();
 		
 		for (int i = 0; i < size; i++)
 		{
 			Integer key = readInt();
-			StopLocation value = new StopLocation(this, routeConfig, busStop);
-			stops.put(key, value);
+			StopLocation value = new StopLocation(this, busStop);
+			if (stopMap.containsKey(key))
+			{
+				stops.put(key, stopMap.get(key));
+			}
+			else
+			{
+				stops.put(key, value);
+				stopMap.put(key, value);
+			}
 		}
 	}
 
@@ -292,11 +302,7 @@ public class Box {
 		showProgress("writePredictions");
 		writeInt(predictions.size());
 		
-		for (Prediction prediction : predictions)
-		{
-			prediction.serialize(this);
-		}
-		
+		//there will never be any predictions; this is here for legacy reasons
 	}
 	
 	public void readPredictions(SortedSet<Prediction> predictions) throws IOException
@@ -304,11 +310,7 @@ public class Box {
 		showProgress("readPredictions");
 		int size = readInt();
 		
-		for (int i = 0; i < size; i++)
-		{
-			Prediction prediction = new Prediction(this);
-			predictions.add(prediction);
-		}
+		//there will never be any predictions; this is here for legacy reasons
 	}
 
 	private void showProgress(String string) {
