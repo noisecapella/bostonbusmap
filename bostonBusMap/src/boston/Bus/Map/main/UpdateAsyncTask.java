@@ -86,7 +86,6 @@ public class UpdateAsyncTask extends AsyncTask<Object, String, Locations>
 	private final boolean showCoarseRouteLine;
 	private final Locations busLocations;
 	
-	
 	public UpdateAsyncTask(TextView textView, MapView mapView, String finalMessage,
 			boolean doShowUnpredictable, boolean doRefresh, int maxOverlays,
 			boolean drawCircle, boolean inferBusRoutes, BusOverlay busOverlay, RouteOverlay routeOverlay, 
@@ -160,7 +159,7 @@ public class UpdateAsyncTask extends AsyncTask<Object, String, Locations>
 				{
 					publishProgress("Retrieving route info from database...");
 				}
-				busLocations.getRouteDataFromDatabase(helper, this);
+				busLocations.getRouteDataFromDatabase(helper);
 					
 				if (doInit)
 				{

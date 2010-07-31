@@ -37,5 +37,5 @@ public interface Location {
 
 	int getIsFavorite();
 
-	void toggleFavorite();
+	boolean toggleFavorite();
 }

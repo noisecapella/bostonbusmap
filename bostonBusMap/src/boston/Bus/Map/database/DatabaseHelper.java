@@ -41,6 +41,7 @@ public class DatabaseHelper extends SQLiteOpenHelper
 	private final static String routesTable = "routes";
 	private final static String pathsTable = "paths";
 	private final static String blobsTable = "blobs";
+	private final static String favoritesTable = "favs";
 	
 	
 	private final static String routeKey = "route";
@@ -53,6 +54,7 @@ public class DatabaseHelper extends SQLiteOpenHelper
 	private final static String nameKey = "name";
 	private final static String pathIdKey = "pathid";
 	private final static String blobKey = "blob";
+	private final static String idKey = "idkey";
 
 	private final static int tagIndex = 1;
 	private final static int nameIndex = 2;
@@ -62,9 +64,10 @@ public class DatabaseHelper extends SQLiteOpenHelper
 	 * The first version where we serialize as bytes, not necessarily the first db version
 	 */
 	public final static int FIRST_DB_VERSION = 5;
-	public final static int ADDED_FAVORITES_DB_VERSION = 6;
 	
-	public final static int CURRENT_DB_VERSION = ADDED_FAVORITES_DB_VERSION;
+	public final static int ADDED_FAVORITE_DB_VERSION = 6;
+	
+	public final static int CURRENT_DB_VERSION = ADDED_FAVORITE_DB_VERSION;
 	
 	private final Drawable busStop;
 	
@@ -94,76 +97,71 @@ public class DatabaseHelper extends SQLiteOpenHelper
 
 			onCreate(db);
 		}
+		else if (oldVersion == FIRST_DB_VERSION && newVersion == ADDED_FAVORITE_DB_VERSION)
+		{
+			db.execSQL("CREATE TABLE IF NOT EXISTS " + favoritesTable + " (" + idKey + " INTEGER)");
+		}
 		else
 		{
-			HashMap<String, byte[]> routesToWrite = new HashMap<String, byte[]>();
-
-			SQLiteDatabase database = getReadableDatabase();
-			Cursor cursor = null;
-			try
-			{
-				
-				cursor = database.query(blobsTable, new String[] {routeKey, blobKey}, null, null, null, null, null);
-				cursor.moveToFirst();
-				while (cursor.isAfterLast() == false)
-				{
-					String route = cursor.getString(0);
-					byte[] blob = cursor.getBlob(1);
-					
-					Log.v("BostonBusMap", "converting over route " + route);
-					RouteConfig routeConfig = new RouteConfig(new Box(blob, oldVersion), busStop);
-					Box outputBox = new Box(null, newVersion);
-					routeConfig.serialize(outputBox);
-					
-					routesToWrite.put(route, outputBox.getBlob());
-					cursor.moveToNext();
-				}
-				cursor.close();
-			}
-			catch (IOException e)
-			{
-				Log.e("BostonBusMap", "Exception during serialization: " + e.getMessage());
-			}
-			finally
-			{
-				database.close();
-				if (cursor != null)
-				{
-					cursor.close();
-				}
-			}
+			//commenting out because this won't do anything right now
 			
-			//write out everything we just read in
-			database = getWritableDatabase();
-			synchronized (database) {
-				try
-				{
-					database.beginTransaction();
-					database.delete(blobsTable, null, null);
-
-					for (String route : routesToWrite.keySet())
-					{
-						byte[] blob = routesToWrite.get(route);
-
-						ContentValues values = new ContentValues();
-						values.put(routeKey, route);
-						values.put(blobKey, blob);
-
-						database.insert(blobsTable, null, values);
-					}
-
-					database.setTransactionSuccessful();
-					database.endTransaction();
-				}
-				finally
-				{
-					database.close();
-				}
-			}
+			//reserialize(db, oldVersion, newVersion);
 		}
 	}
 
-	public void populateMap(HashMap<String, RouteConfig> map, String[] routes) throws IOException {
+	
+	private void reserialize(SQLiteDatabase database, int oldVersion, int newVersion) {
+		HashMap<String, byte[]> routesToWrite = new HashMap<String, byte[]>();
+
+		Cursor cursor = null;
+		try
+		{
+			
+			cursor = database.query(blobsTable, new String[] {routeKey, blobKey}, null, null, null, null, null);
+			cursor.moveToFirst();
+			while (cursor.isAfterLast() == false)
+			{
+				String route = cursor.getString(0);
+				byte[] blob = cursor.getBlob(1);
+				
+				Log.v("BostonBusMap", "converting over route " + route);
+				RouteConfig routeConfig = new RouteConfig(new Box(blob, oldVersion), busStop);
+				Box outputBox = new Box(null, newVersion);
+				routeConfig.serialize(outputBox);
+				
+				routesToWrite.put(route, outputBox.getBlob());
+				cursor.moveToNext();
+			}
+			cursor.close();
+		}
+		catch (IOException e)
+		{
+			Log.e("BostonBusMap", "Exception during serialization: " + e.getMessage());
+		}
+		finally
+		{
+			if (cursor != null)
+			{
+				cursor.close();
+			}
+		}
+		
+		//write out everything we just read in
+		database.delete(blobsTable, null, null);
+
+		for (String route : routesToWrite.keySet())
+		{
+			byte[] blob = routesToWrite.get(route);
+
+			ContentValues values = new ContentValues();
+			values.put(routeKey, route);
+			values.put(blobKey, blob);
+
+			database.insert(blobsTable, null, values);
+		}
+	}
+
+	public void populateMap(HashMap<String, RouteConfig> map, ArrayList<Integer> favorites, String[] routes) throws IOException {
 
 		SQLiteDatabase database = getReadableDatabase();
 		Cursor cursor = null;
@@ -184,6 +182,18 @@ public class DatabaseHelper extends SQLiteOpenHelper
 				//Debug.stopMethodTracing();
 
 				map.put(route, routeConfig);
+				cursor.moveToNext();
+			}
+			cursor.close();
+			
+			cursor = database.query(favoritesTable, new String[] {idKey}, null, null, null, null, null);
+			cursor.moveToFirst();
+			while (cursor.isAfterLast() == false)
+			{
+				int key = cursor.getInt(0);
+			
+				favorites.add(key);
+				
 				cursor.moveToNext();
 			}
 			cursor.close();
@@ -278,6 +288,29 @@ public class DatabaseHelper extends SQLiteOpenHelper
 		{
 			//if for some reason we don't have permission to check free space available, just hope that everything's ok
 			return true;
+		}
+	}
+
+	public void saveFavorite(int id, boolean isFavorite) {
+		SQLiteDatabase database = getWritableDatabase();
+		synchronized (database) {
+			try
+			{
+				if (isFavorite)
+				{
+					ContentValues values = new ContentValues();
+					values.put(idKey, id);
+					database.replace(favoritesTable, null, values);
+				}
+				else
+				{
+					database.delete(favoritesTable, idKey + "=?", new String[] {new Integer(id).toString()});					
+				}
+			}
+			finally
+			{
+				database.close();
+			}
 		}
 	}
 

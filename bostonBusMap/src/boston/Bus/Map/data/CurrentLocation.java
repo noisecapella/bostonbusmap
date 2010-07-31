@@ -82,8 +82,8 @@ public class CurrentLocation implements Location
 	}
 
 	@Override
-	public void toggleFavorite() {
-		//do nothing
+	public boolean toggleFavorite() {
+		return false;
 		
 	}
 }

@@ -27,6 +27,7 @@ import boston.Bus.Map.R;
 import boston.Bus.Map.data.BusLocation;
 import boston.Bus.Map.data.CurrentLocation;
 import boston.Bus.Map.data.Location;
+import boston.Bus.Map.database.DatabaseHelper;
 import boston.Bus.Map.main.Main;
 import boston.Bus.Map.main.UpdateHandler;
 
@@ -144,7 +145,18 @@ public class BusOverlay extends BalloonItemizedOverlay<OverlayItem> {
 				{
 					hideBalloon();
 				}
-				
+				else
+				{
+					int index = getLastFocusedIndex();
+					Main context = BusOverlay.this.context;
+					Location location = locations.get(index);
+					if (context != null)
+					{
+						boolean b = location.getIsFavorite() == Location.IS_FAVORITE;
+						Log.v("BostonBusMap", "setting favorite status, " + b);
+						context.setFavoriteStatus(b ? R.drawable.full_star : R.drawable.empty_star);
+					}
+				}
 			}
 		});
 		
@@ -357,12 +369,6 @@ public class BusOverlay extends BalloonItemizedOverlay<OverlayItem> {
 				{
 					selectedBusIndex = i;
 					
-					if (context != null)
-					{
-						context.setFavoriteStatus(busLocation.getIsFavorite() == Location.IS_FAVORITE ?
-								R.drawable.full_star : R.drawable.empty_star);
-					}
-					
 					break;
 				}
 			}
@@ -375,11 +381,15 @@ public class BusOverlay extends BalloonItemizedOverlay<OverlayItem> {
 	}
 
 
-	public int toggleFavorite() {
+	public int toggleFavorite(DatabaseHelper helper) {
+		int selectedBusIndex = getLastFocusedIndex();
 		if (selectedBusIndex >= 0 && selectedBusIndex < locations.size())
 		{
 			Location location = locations.get(selectedBusIndex);
-			location.toggleFavorite();
+			if (location.toggleFavorite())
+			{
+				helper.saveFavorite(location.getId(), location.getIsFavorite() == Location.IS_FAVORITE);
+			}
 			
 			return location.getIsFavorite() == Location.IS_FAVORITE ? R.drawable.full_star : R.drawable.empty_star;
 		}

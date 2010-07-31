@@ -150,6 +150,7 @@ public class Main extends MapActivity
 	private Drawable busStopDrawable;
 	private Drawable busDrawableOne;
 	private Drawable busDrawableAll;
+	private Drawable busStop;
 	
 	private MenuItem favoriteMenuItem;
 	private int currentFavoriteStatus;
@@ -182,7 +183,7 @@ public class Main extends MapActivity
         Drawable arrow = resources.getDrawable(R.drawable.arrow);
         Drawable tooltip = resources.getDrawable(R.drawable.tooltip);
         
-        Drawable busStop = resources.getDrawable(R.drawable.busstop_statelist);
+        busStop = resources.getDrawable(R.drawable.busstop_statelist);
         
         busDrawableOne = resources.getDrawable(R.drawable.bus_one);
         busDrawableAll = resources.getDrawable(R.drawable.bus_all);
@@ -487,8 +488,10 @@ public class Main extends MapActivity
     	case R.id.favoriteItem:
     		if (busLocations != null)
     		{
-    			int id = busOverlay.toggleFavorite();
+    			DatabaseHelper helper = new DatabaseHelper(this, busStop);
+    			int id = busOverlay.toggleFavorite(helper);
     			item.setIcon(id);
+    			Log.v("BostonBusMap", "setting favorite icon to " + (id == R.drawable.full_star ? "full star" : "empty star"));
     		}
     		break;
     	case R.id.centerOnBostonMenuItem:
@@ -570,6 +573,7 @@ public class Main extends MapActivity
         		if (currentFavoriteStatus != 0)
         		{
         			item.setIcon(currentFavoriteStatus);
+        			favoriteMenuItem = item;
         		}
         		break;
         	}
@@ -713,6 +717,7 @@ public class Main extends MapActivity
 	public void setFavoriteStatus(int drawable) {
 		if (favoriteMenuItem != null)
 		{
+			Log.v("BostonBusMap", "setting favorite icon now!");
 			favoriteMenuItem.setIcon(drawable);
 		}
 		

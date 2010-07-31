@@ -476,7 +476,7 @@ public final class Locations
 	private int latitudeAsDegreesE6;
 	private int longitudeAsDegreesE6;
 	private boolean showCurrentLocation;
-	
+
 	public void setCurrentLocation(int latitudeAsDegreesE6, int longitudeAsDegreesE6) {
 		this.latitudeAsDegreesE6 = latitudeAsDegreesE6;
 		this.longitudeAsDegreesE6 = longitudeAsDegreesE6;
@@ -529,12 +529,11 @@ public final class Locations
 	/**
 	 * Fills stopMapping with information from the database
 	 * @param helper
-	 * @param updateAsyncTask
+	 * @param favorites
 	 * @return
 	 * @throws IOException 
 	 */
-	public void getRouteDataFromDatabase(DatabaseHelper helper,
-			UpdateAsyncTask updateAsyncTask) throws IOException {
+	public void getRouteDataFromDatabase(DatabaseHelper helper) throws IOException {
 		if (routeInfoNeedsUpdating() == false)
 		{
 			return;
@@ -549,7 +548,26 @@ public final class Locations
 		
 		try
 		{
-			helper.populateMap(map, supportedRoutes);
+			ArrayList<Integer> initialFavorites = new ArrayList<Integer>();
+			helper.populateMap(map, initialFavorites, supportedRoutes);
+			//we can skip buses since they have no favorites, so everything will be in the map
+			if (initialFavorites.size() != 0)
+			{
+				for (RouteConfig route : map.values())
+				{
+					if (route != null)
+					{
+						for (StopLocation location : route.getStops())
+						{
+							if (initialFavorites.contains(location.getId()))
+							{
+								location.toggleFavorite();
+							}
+						}
+					}
+				}
+			}
+			initialFavorites.clear();
 		}
 		catch (IOException e)
 		{

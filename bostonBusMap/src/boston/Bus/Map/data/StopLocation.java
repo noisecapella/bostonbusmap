@@ -149,9 +149,10 @@ public class StopLocation implements Location, CanBeSerialized
 		return inBound;
 	}
 	
-	public void toggleFavorite()
+	public boolean toggleFavorite()
 	{
 		this.isFavorite = !isFavorite;
+		return true;
 	}
 	
 	@Override
@@ -164,10 +165,7 @@ public class StopLocation implements Location, CanBeSerialized
 		dest.writeDouble(latitudeAsDegrees);
 		dest.writeDouble(longitudeAsDegrees);
 		dest.writeInt(id);
-		if (dest.getVersionNumber() >= DatabaseHelper.ADDED_FAVORITES_DB_VERSION)
-		{
-			dest.writeBoolean(isFavorite);
-		}
+
 		dest.writeString(title);
 		dest.writeString(inBound);
 		
@@ -187,10 +185,6 @@ public class StopLocation implements Location, CanBeSerialized
 		
 
 		id = source.readInt();
-		if (source.getVersionNumber() >= DatabaseHelper.ADDED_FAVORITES_DB_VERSION)
-		{
-			isFavorite = source.readBoolean();
-		}
 
 		title = source.readString();
 		inBound = source.readString();
