@@ -502,9 +502,10 @@ public final class Locations
 		}
 		else if (selectedBusPredictions == Main.BUS_PREDICTIONS_ONE)
 		{
-			if (stopMapping.containsKey(selectedRoute))
+			RouteConfig routeConfig = stopMapping.get(selectedRoute);
+			if (routeConfig != null)
 			{
-				newLocations.addAll(stopMapping.get(selectedRoute).getStops());
+				newLocations.addAll(routeConfig.getStops());
 			}
 		}
 		else if (selectedBusPredictions == Main.BUS_PREDICTIONS_ALL)
