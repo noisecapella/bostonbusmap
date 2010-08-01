@@ -490,6 +490,8 @@ public class Main extends MapActivity
 			busOverlay = null;
 		}
 		
+		routeOverlay = null;
+		
 		super.onDestroy();
 	}
 	
