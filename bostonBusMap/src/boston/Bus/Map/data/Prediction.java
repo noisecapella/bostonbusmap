@@ -38,7 +38,7 @@ public class Prediction implements Comparable<Prediction>
 			
 			if (directionToShow != null && directionToShow.length() != 0)
 			{
-				ret += " " + directionToShow;
+				ret += "\n" + directionToShow;
 			}
 
 			

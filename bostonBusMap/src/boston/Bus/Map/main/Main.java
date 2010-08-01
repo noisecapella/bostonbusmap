@@ -203,8 +203,9 @@ public class Main extends MapActivity
 				int newValue = getSelectedBusPredictions();
 				switch (newValue)
 				{
+				//temporarily skipping BUS_PREDICTIONS_ALL
 				case BUS_PREDICTIONS_ONE:
-					newValue = BUS_PREDICTIONS_ALL;
+					newValue = BUS_PREDICTIONS_STAR;
 					break;
 				case BUS_PREDICTIONS_ALL:
 					newValue = BUS_PREDICTIONS_STAR;
@@ -742,14 +743,6 @@ public class Main extends MapActivity
 		{
 			//Log.v("BostonBusMap", "setting favorite icon now!");
 			favoriteMenuItem.setIcon(drawable);
-			if (drawable == R.drawable.full_star)
-			{
-				favoriteMenuItem.setTitle(getResources().getString(R.string.addToFavorites));
-			}
-			else
-			{
-				favoriteMenuItem.setTitle(getResources().getString(R.string.removeFromFavorites));
-			}
 		}
 		
 		currentFavoriteStatus = drawable;
