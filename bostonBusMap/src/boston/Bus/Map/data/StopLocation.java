@@ -224,4 +224,9 @@ public class StopLocation implements Location, CanBeSerialized
 	public TreeSet<RouteConfig> getRoutes() {
 		return routes;
 	}
+
+	public void toggleFavorite(boolean b) {
+		isFavorite = b;
+		
+	}
 }

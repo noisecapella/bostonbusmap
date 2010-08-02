@@ -625,7 +625,7 @@ public final class Locations
 		
 		try
 		{
-			ArrayList<Integer> initialFavorites = new ArrayList<Integer>();
+			HashSet<Integer> initialFavorites = new HashSet<Integer>();
 			helper.populateMap(map, initialFavorites, supportedRoutes);
 			//we can skip buses since they have no favorites, so everything will be in the map
 			if (initialFavorites.size() != 0)
@@ -638,7 +638,8 @@ public final class Locations
 						{
 							if (initialFavorites.contains(location.getId()))
 							{
-								location.toggleFavorite();
+								Log.v("BostonBusMap", "toggling favorite: " + location.getId());
+								location.toggleFavorite(true);
 							}
 						}
 					}

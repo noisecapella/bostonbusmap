@@ -4,6 +4,7 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 
 import boston.Bus.Map.data.Path;
 
@@ -164,7 +165,7 @@ public class DatabaseHelper extends SQLiteOpenHelper
 		}
 	}
 
-	public void populateMap(HashMap<String, RouteConfig> map, ArrayList<Integer> favorites, String[] routes) throws IOException {
+	public void populateMap(HashMap<String, RouteConfig> map, HashSet<Integer> favorites, String[] routes) throws IOException {
 
 		SQLiteDatabase database = getReadableDatabase();
 		Cursor cursor = null;
@@ -196,6 +197,7 @@ public class DatabaseHelper extends SQLiteOpenHelper
 				int key = cursor.getInt(0);
 			
 				favorites.add(key);
+				Log.v("BostonBusMap", "adding favorite " + key);
 				
 				cursor.moveToNext();
 			}

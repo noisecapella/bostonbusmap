@@ -491,6 +491,14 @@ public class Main extends MapActivity
 		}
 		
 		routeOverlay = null;
+		if (mapView != null)
+		{
+			mapView.getOverlays().clear();
+			mapView = null;
+		}
+		
+		textView = null;
+		
 		
 		super.onDestroy();
 	}
