@@ -66,7 +66,7 @@ public class CurrentLocation implements Location
 	}
 	
 	@Override
-	public String makeSnippet() {
+	public String makeSnippet(RouteConfig routeConfig) {
 		return null;
 	}
 

@@ -33,6 +33,7 @@ import boston.Bus.Map.data.CurrentLocation;
 import boston.Bus.Map.data.Location;
 import boston.Bus.Map.data.Locations;
 import boston.Bus.Map.data.Path;
+import boston.Bus.Map.data.RouteConfig;
 import boston.Bus.Map.database.DatabaseHelper;
 import boston.Bus.Map.ui.BusOverlay;
 import boston.Bus.Map.ui.RouteOverlay;
@@ -294,11 +295,21 @@ public class UpdateAsyncTask extends AsyncTask<Object, String, Locations>
 		
         final ArrayList<Path> paths = busLocationsObject.getSelectedPaths();
 		
-		displayIcons(busOverlay, routeOverlay, paths, latitude, longitude, busLocations, selectedBusId);
+		RouteConfig selectedRouteConfig;
+		if (selectedBusPredictions == Main.BUS_PREDICTIONS_STAR)
+		{
+			selectedRouteConfig = null;
+		}
+		else
+		{
+			selectedRouteConfig = busLocationsObject.getSelectedRoute();
+		}
+		
+		displayIcons(busOverlay, routeOverlay, paths, latitude, longitude, busLocations, selectedBusId, selectedRouteConfig);
 	}
 	
 	private void displayIcons(BusOverlay busOverlay, RouteOverlay routeOverlay, ArrayList<Path> paths,
-			double latitude, double longitude, ArrayList<Location> busLocations, int selectedBusId)
+			double latitude, double longitude, ArrayList<Location> busLocations, int selectedBusId, RouteConfig selectedRoute)
 	{
 		routeOverlay.setPaths(paths);
 		
@@ -315,7 +326,7 @@ public class UpdateAsyncTask extends AsyncTask<Object, String, Locations>
         			(int)(busLocation.getLongitudeAsDegrees() * Main.E6));
         	
         	String title = busLocation.makeTitle();
-        	String snippet = busLocation.makeSnippet();
+        	String snippet = busLocation.makeSnippet(selectedRoute);
         	
         	//int isFavorite = busLocation.getIsFavorite();
         	

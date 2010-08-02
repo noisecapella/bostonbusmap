@@ -119,7 +119,7 @@ public class StopLocation implements Location, CanBeSerialized
 	}
 
 	@Override
-	public String makeSnippet() {
+	public String makeSnippet(RouteConfig routeConfig) {
 		if (predictions.size() == 0)
 		{
 			return null;
@@ -131,6 +131,11 @@ public class StopLocation implements Location, CanBeSerialized
 		int count = 0;
 		for (Prediction prediction : predictions)
 		{
+			if (routeConfig != null && routeConfig != prediction.getRoute())
+			{
+				continue;
+			}
+			
 			ret += "\n" + prediction.toString();
 			
 			count++;

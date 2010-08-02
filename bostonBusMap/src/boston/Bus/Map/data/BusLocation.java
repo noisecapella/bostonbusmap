@@ -212,7 +212,8 @@ public class BusLocation implements Location
 		}
 	}
 
-	public String makeSnippet()
+	@Override
+	public String makeSnippet(RouteConfig routeConfig)
 	{
 		return null;
 	}

@@ -33,7 +33,7 @@ public interface Location {
 	 */
 	double distanceFrom(double centerLatitude, double centerLongitude);
 
-	String makeSnippet();
+	String makeSnippet(RouteConfig selectedRoute);
 
 	int getIsFavorite();
 

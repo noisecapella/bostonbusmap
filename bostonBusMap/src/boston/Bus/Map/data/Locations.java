@@ -685,4 +685,8 @@ public final class Locations
 			return helper.checkFreeSpace();
 		}
 	}
+
+	public RouteConfig getSelectedRoute() {
+		return stopMapping.get(selectedRoute);
+	}
 }
