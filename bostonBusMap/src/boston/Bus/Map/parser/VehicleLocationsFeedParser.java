@@ -21,6 +21,9 @@ import boston.Bus.Map.data.RouteConfig;
 
 public class VehicleLocationsFeedParser extends DefaultHandler
 {
+	/**
+	 * NOTE: this is read only here
+	 */
 	private final HashMap<Integer,String> vehiclesToRouteNames;
 	private final HashMap<String, RouteConfig> stopMapping;
 	private final Drawable bus;
@@ -79,12 +82,15 @@ public class VehicleLocationsFeedParser extends DefaultHandler
 
 
 			String inferBusRoute = null;
-			if (vehiclesToRouteNames.containsKey(id))
+			synchronized (vehiclesToRouteNames)
 			{
-				String value = vehiclesToRouteNames.get(id);
-				if (value != null && value.length() != 0)
+				if (vehiclesToRouteNames.containsKey(id))
 				{
-					inferBusRoute = value;
+					String value = vehiclesToRouteNames.get(id);
+					if (value != null && value.length() != 0)
+					{
+						inferBusRoute = value;
+					}
 				}
 			}
 

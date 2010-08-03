@@ -54,7 +54,10 @@ public class StopLocation implements Location, CanBeSerialized
 	
 	public void addRoute(RouteConfig route)
 	{
-		this.routes.add(route);
+		synchronized (routes)
+		{
+			routes.add(route);
+		}
 	}
 	
 	@Override
@@ -101,16 +104,19 @@ public class StopLocation implements Location, CanBeSerialized
 
 		//java doesn't have a join function? seriously?
 		int index = 0;
-		for (RouteConfig route : routes)
+		synchronized (routes)
 		{
-			ret += route.getRouteName();
-			
-			if (index != routes.size() - 1)
+			for (RouteConfig route : routes)
 			{
-				ret += ", ";
+				ret += route.getRouteName();
+
+				if (index != routes.size() - 1)
+				{
+					ret += ", ";
+				}
+
+				index++;
 			}
-			
-			index++;
 		}
 		
 		ret += "\n" + "Title: " + title;
@@ -120,31 +126,34 @@ public class StopLocation implements Location, CanBeSerialized
 
 	@Override
 	public String makeSnippet(RouteConfig routeConfig) {
-		if (predictions.size() == 0)
-		{
-			return null;
-		}
-		
-		
 		String ret = "";
-		final int max = 3;
-		int count = 0;
-		for (Prediction prediction : predictions)
+
+		synchronized (predictions)
 		{
-			if (routeConfig != null && routeConfig != prediction.getRoute())
+			if (predictions.size() == 0)
 			{
-				continue;
+				return null;
 			}
-			
-			ret += "\n" + prediction.toString();
-			
-			count++;
-			if (count >= max)
+
+
+			final int max = 3;
+			int count = 0;
+			for (Prediction prediction : predictions)
 			{
-				break;
+				if (routeConfig != null && routeConfig != prediction.getRoute())
+				{
+					continue;
+				}
+
+				ret += "\n" + prediction.toString();
+
+				count++;
+				if (count >= max)
+				{
+					break;
+				}
 			}
 		}
-		
 		return ret;
 	}
 	
@@ -155,21 +164,28 @@ public class StopLocation implements Location, CanBeSerialized
 	public void clearPredictions(RouteConfig routeConfig)
 	{
 		ArrayList<Prediction> newPredictions = new ArrayList<Prediction>();
-		for (Prediction prediction : predictions)
+		synchronized (predictions)
 		{
-			if (prediction.getRoute() != routeConfig)
+			for (Prediction prediction : predictions)
 			{
-				newPredictions.add(prediction);
+				if (prediction.getRoute() != routeConfig)
+				{
+					newPredictions.add(prediction);
+				}
 			}
+			predictions.clear();
+			predictions.addAll(newPredictions);
 		}
-		predictions.clear();
-		predictions.addAll(newPredictions);
 	}
 	
 	public void addPrediction(int minutes, long epochTime, int vehicleId,
 			String direction, RouteConfig route) {
 		String directionToShow = route.getDirectionTitle(direction);
-		predictions.add(new Prediction(minutes, epochTime, vehicleId, directionToShow, route));
+		
+		synchronized (predictions)
+		{
+			predictions.add(new Prediction(minutes, epochTime, vehicleId, directionToShow, route));
+		}
 		
 	}
 
@@ -201,8 +217,7 @@ public class StopLocation implements Location, CanBeSerialized
 		dest.writeString(title);
 		dest.writeString(inBound);
 		
-		
-		dest.writePredictions(predictions);
+		dest.writePredictions();
 	}
 
 	
@@ -222,16 +237,26 @@ public class StopLocation implements Location, CanBeSerialized
 		inBound = source.readString();
 		this.busStop = busStop;
 
-		source.readPredictions(predictions);
+		source.readPredictions();
 	}
 
-
-	public TreeSet<RouteConfig> getRoutes() {
-		return routes;
-	}
 
 	public void toggleFavorite(boolean b) {
 		isFavorite = b;
 		
+	}
+
+	/**
+	 * This should be in Locations instead but I need to synchronize routes
+	 * @param urlString
+	 */
+	public void createPredictionsUrl(StringBuilder urlString) {
+		synchronized (routes)
+		{
+			for (RouteConfig routeConfig : routes)
+			{
+				urlString.append("&stops=").append(routeConfig.getRouteName()).append("%7Cnull%7C").append(id);
+			}
+		}
 	}
 }

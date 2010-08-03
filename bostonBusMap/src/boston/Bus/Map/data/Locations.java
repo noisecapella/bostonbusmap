@@ -307,10 +307,7 @@ public final class Locations
 				if (location instanceof StopLocation)
 				{
 					StopLocation stopLocation = (StopLocation)location;
-					for (RouteConfig routeConfig : stopLocation.getRoutes())
-					{
-						urlString.append("&stops=").append(routeConfig.getRouteName()).append("%7Cnull%7C").append(stopLocation.getStopNumber());
-					}
+					stopLocation.createPredictionsUrl(urlString);
 				}
 			}
 			
@@ -415,33 +412,38 @@ public final class Locations
 			lastInferBusRoutesTime = System.currentTimeMillis() - tenMinutes / 2;
 			
 			
-			vehiclesToRouteNames.clear();
-			
-			//thanks Nickolai Zeldovich! http://people.csail.mit.edu/nickolai/
-			final String vehicleToRouteNameUrl = "http://kk.csail.mit.edu/~nickolai/bus-infer/vehicle-to-routename.xml";
-			URL url = new URL(vehicleToRouteNameUrl);
-			
-			DocumentBuilder builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
-			
-			InputStream stream = url.openStream();
-			
-			//parse the data into an XML document
-			Document document = builder.parse(stream);
-			
-			NodeList nodeList = document.getElementsByTagName("vehicle");
-			
-			for (int i = 0; i < nodeList.getLength(); i++)
+			synchronized (vehiclesToRouteNames)
 			{
-				Element node = (Element)nodeList.item(i);
-				vehiclesToRouteNames.put(Integer.parseInt(node.getAttribute("id")), node.getAttribute("routeTag"));
+				vehiclesToRouteNames.clear();
+
+				//thanks Nickolai Zeldovich! http://people.csail.mit.edu/nickolai/
+				final String vehicleToRouteNameUrl = "http://kk.csail.mit.edu/~nickolai/bus-infer/vehicle-to-routename.xml";
+				URL url = new URL(vehicleToRouteNameUrl);
+
+				DocumentBuilder builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
+
+				InputStream stream = url.openStream();
+
+				//parse the data into an XML document
+				Document document = builder.parse(stream);
+
+				NodeList nodeList = document.getElementsByTagName("vehicle");
+
+				for (int i = 0; i < nodeList.getLength(); i++)
+				{
+					Element node = (Element)nodeList.item(i);
+					vehiclesToRouteNames.put(Integer.parseInt(node.getAttribute("id")), node.getAttribute("routeTag"));
+				}
 			}
-			
 			lastInferBusRoutesTime = System.currentTimeMillis();
 		}
 		else if (inferBusRoutes == false && lastInferBusRoutes == true)
 		{
 			//clear vehicle mapping if checkbox is false
-			vehiclesToRouteNames.clear();
+			synchronized (vehiclesToRouteNames)
+			{
+				vehiclesToRouteNames.clear();
+			}
 		}
 		
 		lastInferBusRoutes = inferBusRoutes;

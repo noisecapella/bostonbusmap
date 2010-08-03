@@ -302,14 +302,14 @@ public class Box {
 		return inputStream.readLong();
 	}
 
-	public void writePredictions(SortedSet<Prediction> predictions) throws IOException {
+	public void writePredictions() throws IOException {
 		showProgress("writePredictions");
-		writeInt(predictions.size());
+		writeInt(0);
 		
 		//there will never be any predictions; this is here for legacy reasons
 	}
 	
-	public void readPredictions(SortedSet<Prediction> predictions) throws IOException
+	public void readPredictions() throws IOException
 	{
 		showProgress("readPredictions");
 		int size = readInt();
