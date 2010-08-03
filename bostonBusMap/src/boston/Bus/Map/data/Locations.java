@@ -359,23 +359,26 @@ public final class Locations
 			//get the time that this information is valid until
 			lastUpdateTime = parser.getLastUpdateTime();
 
-			parser.fillMapping(busMapping);
-
-			//delete old buses
-			List<Integer> busesToBeDeleted = new ArrayList<Integer>();
-			for (Integer id : busMapping.keySet())
+			synchronized (busMapping)
 			{
-				BusLocation busLocation = busMapping.get(id);
-				if (busLocation.lastUpdateInMillis + 180000 < System.currentTimeMillis())
+				parser.fillMapping(busMapping);
+
+				//delete old buses
+				List<Integer> busesToBeDeleted = new ArrayList<Integer>();
+				for (Integer id : busMapping.keySet())
 				{
-					//put this old dog to sleep
-					busesToBeDeleted.add(id);
+					BusLocation busLocation = busMapping.get(id);
+					if (busLocation.lastUpdateInMillis + 180000 < System.currentTimeMillis())
+					{
+						//put this old dog to sleep
+						busesToBeDeleted.add(id);
+					}
 				}
-			}
 
-			for (Integer id : busesToBeDeleted)
-			{
-				busMapping.remove(id);
+				for (Integer id : busesToBeDeleted)
+				{
+					busMapping.remove(id);
+				}
 			}
 		}
 	}
@@ -458,43 +461,45 @@ public final class Locations
 		TreeSet<Location> newLocations = new TreeSet<Location>(new LocationComparator(centerLatitude, centerLongitude));
 
 		HashSet<Integer> locationKeys = new HashSet<Integer>();
-		
+
 		if (selectedBusPredictions == Main.VEHICLE_LOCATIONS_ALL || selectedBusPredictions == Main.VEHICLE_LOCATIONS_ONE)
 		{
-			
-			if (doShowUnpredictable == false)
+			synchronized (busMapping)
 			{
-				for (BusLocation busLocation : busMapping.values())
+				if (doShowUnpredictable == false)
 				{
-					if (busLocation.predictable == true)
+					for (BusLocation busLocation : busMapping.values())
 					{
-						if (selectedBusPredictions == Main.VEHICLE_LOCATIONS_ONE)
+						if (busLocation.predictable == true)
 						{
-							if (busLocation.route != null && busLocation.route.getRouteName().equals(selectedRoute))
+							if (selectedBusPredictions == Main.VEHICLE_LOCATIONS_ONE)
+							{
+								if (busLocation.route != null && busLocation.route.getRouteName().equals(selectedRoute))
+								{
+									newLocations.add(busLocation);
+								}
+							}
+							else
 							{
 								newLocations.add(busLocation);
 							}
 						}
-						else
-						{
-							newLocations.add(busLocation);
-						}
 					}
-				}
-			}
-			else
-			{
-				if (selectedBusPredictions == Main.VEHICLE_LOCATIONS_ALL)
-				{
-					newLocations.addAll(busMapping.values());
 				}
 				else
 				{
-					for (BusLocation location : busMapping.values())
+					if (selectedBusPredictions == Main.VEHICLE_LOCATIONS_ALL)
 					{
-						if (location.route != null && location.route.getRouteName().equals(selectedRoute))
+						newLocations.addAll(busMapping.values());
+					}
+					else
+					{
+						for (BusLocation location : busMapping.values())
 						{
-							newLocations.add(location);
+							if (location.route != null && location.route.getRouteName().equals(selectedRoute))
+							{
+								newLocations.add(location);
+							}
 						}
 					}
 				}

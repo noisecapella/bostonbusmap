@@ -71,7 +71,7 @@ public class UpdateHandler extends Handler {
 	private boolean showRouteLine;
 	private boolean showCoarseRouteLine;
 	
-	public UpdateHandler(TextView textView, Drawable busPicture, MapView mapView,
+	public UpdateHandler(TextView textView, MapView mapView,
 			Drawable arrow, Drawable tooltip, Locations busLocations, Context context, DatabaseHelper helper, BusOverlay busOverlay,
 			RouteOverlay routeOverlay, 
 			UpdateAsyncTask majorHandler)

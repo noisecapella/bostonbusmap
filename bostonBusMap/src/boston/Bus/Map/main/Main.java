@@ -306,7 +306,7 @@ public class Main extends MapActivity
         			routesSupported);
         }
 
-        handler = new UpdateHandler(textView, busPicture, mapView, arrow, tooltip, busLocations, 
+        handler = new UpdateHandler(textView, mapView, arrow, tooltip, busLocations, 
         		this, helper, busOverlay, routeOverlay, majorHandler);
         busOverlay.setUpdateable(handler);
         
