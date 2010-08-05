@@ -178,6 +178,7 @@ public final class Locations
 			
 			task.publish("Saving route data to database...");
 			helper.saveMapping(stopMapping, true);
+			
 			task.publish("Done!");
 		}
 		else
@@ -255,8 +256,11 @@ public final class Locations
 			for (String route : stopMapping.keySet())
 			{
 				RouteConfig routeConfig = stopMapping.get(route);
-				
-				allStops.addAll(routeConfig.getStops());
+
+				if (routeConfig != null)
+				{
+					allStops.addAll(routeConfig.getStops());
+				}
 			}
 		}
 
@@ -268,12 +272,10 @@ public final class Locations
 		{
 		case  Main.BUS_PREDICTIONS_ONE:
 		{
+			RouteConfig routeConfig = stopMapping.get(routeToUpdate);
 			
-			
-			if (stopMapping.containsKey(routeToUpdate))
+			if (routeConfig != null)
 			{
-				RouteConfig routeConfig = stopMapping.get(routeToUpdate);
-				
 				if (routeConfig.getStops().size() != 0)
 				{
 					List<Location> locations = getLocations(maxStops, centerLatitude, centerLongitude, false);

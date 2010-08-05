@@ -38,6 +38,8 @@ public class BusLocation implements Location
 	 */
 	public final RouteConfig route;
 	
+	private final String routeName;
+	
 	/**
 	 * seconds since the bus last sent GPS data to the server. This comes from the XML; we don't calculate this
 	 */
@@ -85,7 +87,7 @@ public class BusLocation implements Location
 	
 	public BusLocation(double latitude, double longitude, int id, RouteConfig route, int seconds, double lastUpdateInMillis,
 			String heading, boolean predictable, String dirTag, String inferBusRoute,
-			Drawable bus, Drawable arrow)
+			Drawable bus, Drawable arrow, String routeName)
 	{
 		this.latitude = latitude * LocationComparator.degreesToRadians;
 		this.longitude = longitude * LocationComparator.degreesToRadians;
@@ -101,6 +103,7 @@ public class BusLocation implements Location
 		this.inferBusRoute = inferBusRoute;
 		this.bus = bus;
 		this.arrow = arrow;
+		this.routeName = routeName;
 	}
 
 	public boolean hasHeading()
@@ -220,14 +223,19 @@ public class BusLocation implements Location
 	
 	public String makeTitle() {
     	String title = "Id: " + id + ", route: ";
-    	if (route == null || route.getRouteName() == null || route.getRouteName().equals("null"))
+    	if ((route == null || route.getRouteName() == null || route.getRouteName().equals("null")) && routeName == null)
     	{
     		title += "not mentioned";
     	}
-    	else
+    	else if (route != null)
     	{
     		title += route.getRouteName();
     	}
+    	else
+    	{
+    		title += routeName;
+    	}
+    	
     	title += "\nSeconds since update: " + (int)(seconds + (System.currentTimeMillis() - lastUpdateInMillis) / 1000);
     	String direction = getDirection();
     	if (direction.length() != 0 && predictable == false)
@@ -239,10 +247,13 @@ public class BusLocation implements Location
     	{
     		title += "\nHeading: " + heading + " deg (" + convertHeadingToCardinal(Integer.parseInt(heading)) + ")";
 
-    		String directionName = route.getDirectionTitle(dirTag);
-    		if (directionName != null && directionName.length() != 0)
+    		if (route != null)
     		{
-    			title += "\n" + directionName;
+    			String directionName = route.getDirectionTitle(dirTag);
+    			if (directionName != null && directionName.length() != 0)
+    			{
+    				title += "\n" + directionName;
+    			}
     		}
     	}
     	else

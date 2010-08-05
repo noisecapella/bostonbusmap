@@ -233,7 +233,11 @@ public class DatabaseHelper extends SQLiteOpenHelper
 				
 				for (String route : mapping.keySet())
 				{
-					saveMappingKernel(database, route, mapping.get(route), wipe, sharedStops);
+					RouteConfig routeConfig = mapping.get(route);
+					if (routeConfig != null)
+					{
+						saveMappingKernel(database, route, mapping.get(route), wipe, sharedStops);
+					}
 				}
 				
 				database.setTransactionSuccessful();

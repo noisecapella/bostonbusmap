@@ -106,7 +106,7 @@ public class VehicleLocationsFeedParser extends DefaultHandler
 
 
 			BusLocation newBusLocation = new BusLocation(lat, lon, id, routeConfig, seconds, lastUpdateTime, 
-					heading, predictable, dirTag, inferBusRoute, bus, arrow);
+					heading, predictable, dirTag, inferBusRoute, bus, arrow, route);
 
 			Integer idInt = new Integer(id);
 			if (busMapping.containsKey(idInt))
