@@ -251,18 +251,7 @@ public final class Locations
 		}
 
 		
-		if (allStops.size() == 0)
-		{
-			for (String route : stopMapping.keySet())
-			{
-				RouteConfig routeConfig = stopMapping.get(route);
-
-				if (routeConfig != null)
-				{
-					allStops.addAll(routeConfig.getStops());
-				}
-			}
-		}
+		refillAllStops();
 
 		final int maxStops = 5;
 
@@ -391,6 +380,21 @@ public final class Locations
 	}
 
 	
+	private void refillAllStops() {
+		if (allStops.size() == 0)
+		{
+			for (String route : stopMapping.keySet())
+			{
+				RouteConfig routeConfig = stopMapping.get(route);
+
+				if (routeConfig != null)
+				{
+					allStops.addAll(routeConfig.getStops());
+				}
+			}
+		}
+	}
+
 	private void populateStops(String routeToUpdate, DatabaseHelper helper) 
 		throws IOException, ParserConfigurationException, SAXException
 	{
@@ -404,6 +408,8 @@ public final class Locations
 		parser.runParse(stream); 
 
 		parser.fillMapping(stopMapping);
+		
+		refillAllStops();
 
 		helper.saveMapping(stopMapping, false);
 	}
