@@ -260,22 +260,30 @@ public final class Locations
 			}
 		}
 
+		final int maxStops = 5;
+
 		//read data from the URL
 		DownloadHelper downloadHelper;
 		switch (selectedBusPredictions)
 		{
 		case  Main.BUS_PREDICTIONS_ONE:
 		{
+			
+			
 			if (stopMapping.containsKey(routeToUpdate))
 			{
 				RouteConfig routeConfig = stopMapping.get(routeToUpdate);
+				
 				if (routeConfig.getStops().size() != 0)
 				{
+					List<Location> locations = getLocations(maxStops, centerLatitude, centerLongitude, false);
+
 					//ok, do predictions now
 					StringBuilder urlString = new StringBuilder(mbtaPredictionsDataUrl);// + "&stops=39|null|6570&stops=39|null|6571";
 
-					for (StopLocation location : routeConfig.getStops())
+					for (Location regLocation : locations)
 					{
+						StopLocation location = (StopLocation)regLocation;
 						urlString.append("&stops=").append(routeToUpdate).append("%7Cnull%7C").append(location.getStopNumber());
 					}
 					downloadHelper = new DownloadHelper(urlString.toString());
@@ -301,7 +309,7 @@ public final class Locations
 			
 			StringBuilder urlString = new StringBuilder(mbtaPredictionsDataUrl);
 			
-			List<Location> locations = getLocations(30, centerLatitude, centerLongitude, false);
+			List<Location> locations = getLocations(maxStops, centerLatitude, centerLongitude, false);
 			for (Location location : locations)
 			{
 				if (location instanceof StopLocation)
