@@ -29,7 +29,6 @@ public class StopLocation implements Location, CanBeSerialized
 	private final int id;
 	
 	private final String title;
-	private final String inBound;
 	
 	private final SortedSet<Prediction> predictions = new TreeSet<Prediction>();
 	
@@ -40,7 +39,7 @@ public class StopLocation implements Location, CanBeSerialized
 	private static final int LOCATIONTYPE = 3; 
 	
 	public StopLocation(double latitudeAsDegrees, double longitudeAsDegrees,
-			Drawable busStop, int id, String title, String inBound)
+			Drawable busStop, int id, String title)
 	{
 		this.latitude = latitudeAsDegrees * LocationComparator.degreesToRadians;
 		this.latitudeAsDegrees = latitudeAsDegrees;
@@ -49,7 +48,6 @@ public class StopLocation implements Location, CanBeSerialized
 		this.busStop = busStop;
 		this.id = id;
 		this.title = title;
-		this.inBound = inBound;
 	}
 	
 	public void addRoute(RouteConfig route)
@@ -193,10 +191,6 @@ public class StopLocation implements Location, CanBeSerialized
 		return title;
 	}
 
-	public String getDirtag() {
-		return inBound;
-	}
-	
 	public boolean toggleFavorite()
 	{
 		this.isFavorite = !isFavorite;
@@ -215,7 +209,9 @@ public class StopLocation implements Location, CanBeSerialized
 		dest.writeInt(id);
 
 		dest.writeString(title);
-		dest.writeString(inBound);
+		
+		//this used to be dirTag, but that's deprecated
+		dest.writeString("");
 		
 		dest.writePredictions();
 	}
@@ -234,7 +230,8 @@ public class StopLocation implements Location, CanBeSerialized
 		id = source.readInt();
 
 		title = source.readString();
-		inBound = source.readString();
+		//this is deprecated
+		String inBound = source.readString();
 		this.busStop = busStop;
 
 		source.readPredictions();

@@ -95,13 +95,12 @@ public class RouteConfigFeedParser extends DefaultHandler
 					double longitudeAsDegrees = Double.parseDouble(attributes.getValue(longitudeKey));
 
 					String title = attributes.getValue(titleKey);
-					String dirTag = attributes.getValue(dirTagKey);
 
 					StopLocation stopLocation = allStops.get(id);
 					if (stopLocation == null)
 					{
 						stopLocation = new StopLocation(latitudeAsDegrees, longitudeAsDegrees, busStop, id,
-							title, dirTag);
+							title);
 						allStops.put(id, stopLocation);
 					}
 
