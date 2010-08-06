@@ -247,7 +247,7 @@ public final class Locations
 		}
 
 		
-		final int maxStops = 5;
+		final int maxStops = 15;
 
 		//read data from the URL
 		DownloadHelper downloadHelper;
