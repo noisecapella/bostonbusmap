@@ -90,11 +90,6 @@ public final class Locations
 	private final HashMap<String, RouteConfig> stopMapping = new HashMap<String, RouteConfig>();
 	
 	/**
-	 * A list of all stoplocations
-	 */
-	private final ArrayList<StopLocation> allStops = new ArrayList<StopLocation>();
-	
-	/**
 	 * The XML feed URL
 	 */
 	private final String mbtaLocationsDataUrl = "http://webservices.nextbus.com/service/publicXMLFeed?command=vehicleLocations&a=mbta&t=";
@@ -235,9 +230,10 @@ public final class Locations
 	 * @throws FeedException 
 	 */
 	public void Refresh(DatabaseHelper helper, boolean inferBusRoutes, int routeIndexToUpdate,
-			int selectedBusPredictions, double centerLatitude, double centerLongitude) throws SAXException, IOException,
+			int selectedBusPredictions, double centerLatitude, double centerLongitude,
+			UpdateAsyncTask updateAsyncTask) throws SAXException, IOException,
 			ParserConfigurationException, FactoryConfigurationError 
-			{
+	{
 		String routeToUpdate = supportedRoutes[routeIndexToUpdate];
 
 		try
@@ -251,8 +247,6 @@ public final class Locations
 		}
 
 		
-		refillAllStops();
-
 		final int maxStops = 5;
 
 		//read data from the URL
@@ -282,14 +276,19 @@ public final class Locations
 				else
 				{
 					//populate stops (just in case we didn't already)
+					updateAsyncTask.publish("Downloading data for route " + routeToUpdate + "...");
 					populateStops(routeToUpdate, helper);
+					updateAsyncTask.publish("Finished download");
+					
 					return;
 				}
 			}
 			else
 			{
 				//populate stops (just in case we didn't already)
+				updateAsyncTask.publish("Downloading data for route " + routeToUpdate + "...");
 				populateStops(routeToUpdate, helper);
+				updateAsyncTask.publish("Finished download");
 				return;
 			}
 		}
@@ -379,22 +378,6 @@ public final class Locations
 		}
 	}
 
-	
-	private void refillAllStops() {
-		if (allStops.size() == 0)
-		{
-			for (String route : stopMapping.keySet())
-			{
-				RouteConfig routeConfig = stopMapping.get(route);
-
-				if (routeConfig != null)
-				{
-					allStops.addAll(routeConfig.getStops());
-				}
-			}
-		}
-	}
-
 	private void populateStops(String routeToUpdate, DatabaseHelper databaseHelper) 
 		throws IOException, ParserConfigurationException, SAXException
 	{
@@ -411,8 +394,6 @@ public final class Locations
 
 		parser.fillMapping(stopMapping);
 		
-		refillAllStops();
-
 		databaseHelper.saveMapping(stopMapping, false);
 	}
 
@@ -537,7 +518,7 @@ public final class Locations
 		{
 			//Log.v("BostonBusMap", "allStops size is " + allStops.size());
 			
-			for (StopLocation location : allStops)
+			/*for (StopLocation location : allStops)
 			{
 				if (location.distanceFrom(centerLatitude * LocationComparator.degreesToRadians,
 						centerLongitude * LocationComparator.degreesToRadians) < 1)
@@ -548,18 +529,25 @@ public final class Locations
 						locationKeys.add(location.getId());
 					}
 				}
-			}
+			}*/
 		}
 		else if (selectedBusPredictions == Main.BUS_PREDICTIONS_STAR)
 		{
-			for (StopLocation location : allStops)
+			for (String route : stopMapping.keySet())
 			{
-				if (location.getIsFavorite() == Location.IS_FAVORITE)
+				RouteConfig routeConfig = stopMapping.get(route);
+				if (routeConfig != null)
 				{
-					if (locationKeys.contains(location.getId()) == false)
+					for (StopLocation location : routeConfig.getStops())
 					{
-						newLocations.add(location);
-						locationKeys.add(location.getId());
+						if (location.getIsFavorite() == Location.IS_FAVORITE)
+						{
+							if (locationKeys.contains(location.getId()) == false)
+							{
+								newLocations.add(location);
+								locationKeys.add(location.getId());
+							}
+						}
 					}
 				}
 			}

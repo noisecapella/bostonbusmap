@@ -179,7 +179,8 @@ public class UpdateAsyncTask extends AsyncTask<Object, String, Locations>
 				
 				publishProgress("Fetching data...");
 
-				busLocations.Refresh(helper, inferBusRoutes, selectedRouteIndex, selectedBusPredictions, centerLatitude, centerLongitude);
+				busLocations.Refresh(helper, inferBusRoutes, selectedRouteIndex, selectedBusPredictions,
+						centerLatitude, centerLongitude, this);
 			}
 			catch (IOException e)
 			{
