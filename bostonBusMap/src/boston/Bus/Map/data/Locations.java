@@ -395,23 +395,25 @@ public final class Locations
 		}
 	}
 
-	private void populateStops(String routeToUpdate, DatabaseHelper helper) 
+	private void populateStops(String routeToUpdate, DatabaseHelper databaseHelper) 
 		throws IOException, ParserConfigurationException, SAXException
 	{
 		final String urlString = mbtaRouteConfigDataUrl + routeToUpdate;
-		URL url = new URL(urlString);
 
+		DownloadHelper downloadHelper = new DownloadHelper(urlString);
+		
+		downloadHelper.connect();
 		//just initialize the route and then end for this round
-		InputStream stream = url.openStream();
+		
 		RouteConfigFeedParser parser = new RouteConfigFeedParser(busStop);
 
-		parser.runParse(stream); 
+		parser.runParse(downloadHelper.getResponseData()); 
 
 		parser.fillMapping(stopMapping);
 		
 		refillAllStops();
 
-		helper.saveMapping(stopMapping, false);
+		databaseHelper.saveMapping(stopMapping, false);
 	}
 
 	private void updateInferRoutes(boolean inferBusRoutes)
