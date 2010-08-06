@@ -13,6 +13,9 @@ import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.BasicResponseHandler;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.impl.conn.DefaultClientConnection;
+import org.apache.http.params.BasicHttpParams;
+import org.apache.http.params.HttpConnectionParams;
+import org.apache.http.params.HttpParams;
 
 /**
  * The Android people really recommend using the apache HTTPClient over the URL class. Not sure why exactly but it should usually be a
@@ -27,18 +30,24 @@ public class DownloadHelper {
 	private final HttpGet httpGet;
 	private InputStream inputStream;
 	
-	private final DefaultHttpClient httpClient = new DefaultHttpClient();
+	private final DefaultHttpClient httpClient;
 	
 	public DownloadHelper(String url) {
 		this.url = url;
 		
 		httpGet = new HttpGet(url);
+		
+		HttpParams params = new BasicHttpParams();
+		HttpConnectionParams.setConnectionTimeout(params, 30000);
+		HttpConnectionParams.setSoTimeout(params, 30000);
+		httpClient = new DefaultHttpClient(params);
 	}
 
 	public void connect() throws ClientProtocolException, IOException {
 		HttpResponse httpResponse = httpClient.execute(httpGet);
 		HttpEntity entity = httpResponse.getEntity();
 		inputStream = entity.getContent();
+		
 	}
 
 	public InputStream getResponseData()
