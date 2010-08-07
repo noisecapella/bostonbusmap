@@ -670,17 +670,21 @@ public final class Locations
 	
 	private boolean routeInfoNeedsUpdating()
 	{
-		boolean needsUpdating = false;
 		for (String route : supportedRoutes)
 		{
-			if (stopMapping.get(route) == null || stopMapping.get(route).getStops().size() == 0)
+			//TODO: remember to put this back when we go back to using the whole routeConfig
+			/*if (stopMapping.get(route) == null || stopMapping.get(route).getStops().size() == 0)
 			{
 				needsUpdating = true;
 				break;
+			}*/
+			if (stopMapping.get(route) != null && stopMapping.get(route).getStops().size() != 0)
+			{
+				return false;
 			}
 		}
 		
-		return needsUpdating;
+		return true;
 	}
 
 	/**
