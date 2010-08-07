@@ -59,6 +59,7 @@ import boston.Bus.Map.main.UpdateAsyncTask;
 import boston.Bus.Map.parser.BusPredictionsFeedParser;
 import boston.Bus.Map.parser.RouteConfigFeedParser;
 import boston.Bus.Map.parser.VehicleLocationsFeedParser;
+import boston.Bus.Map.transit.TransitSystem;
 import boston.Bus.Map.util.DownloadHelper;
 import boston.Bus.Map.util.StreamCounter;
 
@@ -89,15 +90,6 @@ public final class Locations
 	 */
 	private final HashMap<String, RouteConfig> routeMapping = new HashMap<String, RouteConfig>();
 	
-	/**
-	 * The XML feed URL
-	 */
-	private final String mbtaLocationsDataUrl = "http://webservices.nextbus.com/service/publicXMLFeed?command=vehicleLocations&a=mbta&t=";
-
-	private final String mbtaRouteConfigDataUrl = "http://webservices.nextbus.com/service/publicXMLFeed?command=routeConfig&a=mbta&r=";
-	private final String mbtaRouteConfigDataUrlAllRoutes = "http://webservices.nextbus.com/service/publicXMLFeed?command=routeConfig&a=mbta";
-	
-	private final String mbtaPredictionsDataUrl = "http://webservices.nextbus.com/service/publicXMLFeed?command=predictionsForMultiStops&a=mbta";
 
 	
 	private final HashMap<Integer, String> vehiclesToRouteNames = new HashMap<Integer, String>();
@@ -159,10 +151,10 @@ public final class Locations
 			final String prepend = "Downloading route info (this may take a short while): ";
 			
 			//download everything at once
-			final String urlString = mbtaRouteConfigDataUrlAllRoutes;
+			final String urlString = TransitSystem.getRouteConfigUrl();
 			URL url = new URL(urlString);
 			
-			InputStream stream = downloadStream(url, task, prepend, "of approx 7.5MB");
+			InputStream stream = downloadStream(url, task, prepend, "of approx " + TransitSystem.getSizeOfRouteConfigUrl());
 			
 			RouteConfigFeedParser parser = new RouteConfigFeedParser(busStop);
 			
@@ -178,20 +170,15 @@ public final class Locations
 		}
 		else
 		{
-			
-		
-
-			for (int i = 0; i < supportedRoutes.length; i++)
+			for (String route : supportedRoutes)
 			{
-				String route = supportedRoutes[i];
-
 				if (routeMapping.containsKey(route) == false || routeMapping.get(route) == null || 
 						routeMapping.get(route).getStops().size() == 0)
 				{
 					final String prepend = "Downloading route info for " + route + " (this may take a short while): ";
 
 					//populate stops
-					final String urlString = mbtaRouteConfigDataUrl + route;
+					final String urlString = TransitSystem.getRouteConfigUrl(route);
 					URL url = new URL(urlString);
 
 					//just initialize the route and then end for this round
@@ -264,14 +251,9 @@ public final class Locations
 					List<Location> locations = getLocations(maxStops, centerLatitude, centerLongitude, false);
 
 					//ok, do predictions now
-					StringBuilder urlString = new StringBuilder(mbtaPredictionsDataUrl);// + "&stops=39|null|6570&stops=39|null|6571";
+					String url = TransitSystem.getPredictionsUrl(locations, maxStops, routeConfig);
 
-					for (Location regLocation : locations)
-					{
-						StopLocation location = (StopLocation)regLocation;
-						urlString.append("&stops=").append(routeToUpdate).append("%7Cnull%7C").append(location.getStopNumber());
-					}
-					downloadHelper = new DownloadHelper(urlString.toString());
+					downloadHelper = new DownloadHelper(url);
 				}
 				else
 				{
@@ -296,22 +278,11 @@ public final class Locations
 		case Main.BUS_PREDICTIONS_ALL:
 		case Main.BUS_PREDICTIONS_STAR:
 		{
-			
-			StringBuilder urlString = new StringBuilder(mbtaPredictionsDataUrl);
-			
 			List<Location> locations = getLocations(maxStops, centerLatitude, centerLongitude, false);
-			for (Location location : locations)
-			{
-				if (location instanceof StopLocation)
-				{
-					StopLocation stopLocation = (StopLocation)location;
-					stopLocation.createPredictionsUrl(urlString);
-				}
-			}
 			
-			Log.v("BostonBusMap", "urlString for bus predictions, all: " + urlString);
-			
-			downloadHelper = new DownloadHelper(urlString.toString());
+			String url = TransitSystem.getPredictionsUrl(locations, maxStops, null);
+
+			downloadHelper = new DownloadHelper(url);
 		}
 		break;
 
@@ -321,7 +292,7 @@ public final class Locations
 		{
 			//for now, we download and update all buses, whether the user chooses one route or all routes
 			//we only make the distinction when we display the icons
-			final String urlString = mbtaLocationsDataUrl + (long)lastUpdateTime;
+			final String urlString = TransitSystem.getVehicleLocationsUrl((long)lastUpdateTime);
 			downloadHelper = new DownloadHelper(urlString);
 		}
 		break;
@@ -381,7 +352,7 @@ public final class Locations
 	private void populateStops(String routeToUpdate, DatabaseHelper databaseHelper) 
 		throws IOException, ParserConfigurationException, SAXException
 	{
-		final String urlString = mbtaRouteConfigDataUrl + routeToUpdate;
+		final String urlString = TransitSystem.getRouteConfigUrl(routeToUpdate);
 
 		DownloadHelper downloadHelper = new DownloadHelper(urlString);
 		
@@ -397,6 +368,17 @@ public final class Locations
 		databaseHelper.saveMapping(routeMapping, false);
 	}
 
+	/**
+	 * This is a special feed which should hopefully become irrelevant soon. It guesses the route numbers of unpredictable buses based on
+	 * where they go
+	 * 
+	 * @param inferBusRoutes
+	 * @throws MalformedURLException
+	 * @throws ParserConfigurationException
+	 * @throws FactoryConfigurationError
+	 * @throws IOException
+	 * @throws SAXException
+	 */
 	private void updateInferRoutes(boolean inferBusRoutes)
 			throws MalformedURLException, ParserConfigurationException,
 			FactoryConfigurationError, IOException, SAXException {

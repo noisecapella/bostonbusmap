@@ -6,6 +6,7 @@ import java.util.SortedSet;
 import java.util.TreeSet;
 
 import boston.Bus.Map.database.DatabaseHelper;
+import boston.Bus.Map.transit.TransitSystem;
 import boston.Bus.Map.util.Box;
 import boston.Bus.Map.util.RouteComparator;
 
@@ -247,12 +248,21 @@ public class StopLocation implements Location, CanBeSerialized
 	 * This should be in Locations instead but I need to synchronize routes
 	 * @param urlString
 	 */
-	public void createPredictionsUrl(StringBuilder urlString) {
-		synchronized (routes)
+	public void createPredictionsUrl(StringBuilder urlString, RouteConfig routeConfig) {
+		if (routeConfig != null)
 		{
-			for (RouteConfig routeConfig : routes)
+			//only do it for the given route
+			TransitSystem.bindPredictionElementsForUrl(urlString, routeConfig, id);
+		}
+		else
+		{
+			//do it for all routes we know about
+			synchronized (routes)
 			{
-				urlString.append("&stops=").append(routeConfig.getRouteName()).append("%7Cnull%7C").append(id);
+				for (RouteConfig route : routes)
+				{
+					TransitSystem.bindPredictionElementsForUrl(urlString, route, id);
+				}
 			}
 		}
 	}
