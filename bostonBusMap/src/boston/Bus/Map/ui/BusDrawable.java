@@ -153,7 +153,8 @@ public class BusDrawable extends Drawable {
 	}
 	
 	@Override
-	public ConstantState getConstantState() {
+
+	public Drawable.ConstantState getConstantState() {
 		return bus.getConstantState();
 	}
 	
