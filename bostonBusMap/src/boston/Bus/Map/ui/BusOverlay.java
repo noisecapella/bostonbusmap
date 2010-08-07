@@ -25,7 +25,7 @@ import java.util.List;
 
 import boston.Bus.Map.R;
 import boston.Bus.Map.data.BusLocation;
-import boston.Bus.Map.data.CurrentLocation;
+
 import boston.Bus.Map.data.Location;
 import boston.Bus.Map.database.DatabaseHelper;
 import boston.Bus.Map.main.Main;
@@ -104,7 +104,7 @@ public class BusOverlay extends BalloonItemizedOverlay<OverlayItem> {
 		
 		if (selectedBusIndex != -1)
 		{
-			Log.i("ONTAP", "" + selectedBusIndex);
+			//Log.v("BostonBusMap", "calling onTap: " + selectedBusIndex);
 			onTap(selectedBusIndex);
 		}
 		
@@ -288,18 +288,16 @@ public class BusOverlay extends BalloonItemizedOverlay<OverlayItem> {
 			{
 				OverlayItem item = overlays.get(i);
 				Location location = locations.get(i);
-				if (!(location instanceof CurrentLocation))
-				{
-					GeoPoint geoPoint = item.getPoint();
-					Point point = projection.toPixels(geoPoint, null);
+				
+				GeoPoint geoPoint = item.getPoint();
+				Point point = projection.toPixels(geoPoint, null);
 
-					int dx = circleCenter.x - point.x;
-					int dy = circleCenter.y - point.y;
-					int distance = dx*dx + dy*dy;
-					if (distance > lastDistance)
-					{
-						lastDistance = distance;  
-					}
+				int dx = circleCenter.x - point.x;
+				int dy = circleCenter.y - point.y;
+				int distance = dx*dx + dy*dy;
+				if (distance > lastDistance)
+				{
+					lastDistance = distance;  
 				}
 			}
 		
@@ -320,7 +318,7 @@ public class BusOverlay extends BalloonItemizedOverlay<OverlayItem> {
 	
 	public int getSelectedBusId() {
 		int selectedBusIndex = getLastFocusedIndex();
-		Log.i("GETSELECTEDBUSINDEX", selectedBusIndex + " ");
+		//Log.v("BostonBusMap", "getLastFocusedIndex() value is " + selectedBusIndex);
 		if (selectedBusIndex == -1)
 		{
 			return -1;
@@ -374,7 +372,7 @@ public class BusOverlay extends BalloonItemizedOverlay<OverlayItem> {
 				}
 			}
 		}
-		Log.i("SELECTEDBUSID", selectedBusId + " ");
+		Log.v("BostonBusMap", "setSelectedBusId param was " + selectedBusId);
 	}
 
 	public Drawable getBusPicture() {

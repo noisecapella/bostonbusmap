@@ -35,13 +35,15 @@ import boston.Bus.Map.data.Locations;
 import boston.Bus.Map.data.RouteConfig;
 import boston.Bus.Map.database.DatabaseHelper;
 import boston.Bus.Map.ui.BusOverlay;
+import boston.Bus.Map.ui.LocationOverlay;
 import boston.Bus.Map.ui.RouteOverlay;
-import boston.Bus.Map.util.OneTimeLocationListener;
+
 
 import com.google.android.maps.GeoPoint;
 import com.google.android.maps.MapActivity;
 import com.google.android.maps.MapController;
 import com.google.android.maps.MapView;
+import com.google.android.maps.MyLocationOverlay;
 import com.google.android.maps.Overlay;
 import com.google.android.maps.OverlayItem;
 
@@ -131,11 +133,6 @@ public class Main extends MapActivity
 	 */
 	private final double timeoutInMillis = 10 * 60 * 1000; //10 minutes
 	
-	/**
-	 * What is used to figure out the current location
-	 */
-	private OneTimeLocationListener locationListener;
-	
 	private int selectedRouteIndex;
 	
 	/**
@@ -146,6 +143,8 @@ public class Main extends MapActivity
 	
 	private BusOverlay busOverlay;
 	private RouteOverlay routeOverlay;
+	private LocationOverlay myLocationOverlay;
+	
 	private ImageButton toggleButton;
 	private Drawable busStopDrawableOne;
 	private Drawable busStopDrawableAll;
@@ -273,11 +272,15 @@ public class Main extends MapActivity
         {
         	CurrentState currentState = (CurrentState)lastNonConfigurationInstance;
         	currentState.restoreWidgets(textView);
+        	
         	busOverlay = currentState.cloneBusOverlay(this, mapView);
         	routeOverlay = currentState.cloneRouteOverlay(mapView.getProjection());
+        	myLocationOverlay = currentState.cloneLocationOverlay(this, mapView);
+        	
         	mapView.getOverlays().clear();
         	mapView.getOverlays().add(routeOverlay);
         	mapView.getOverlays().add(busOverlay);
+        	mapView.getOverlays().add(myLocationOverlay);
         	
         	busOverlay.refreshBalloons();
         	
@@ -298,6 +301,7 @@ public class Main extends MapActivity
         {
         	busOverlay = new BusOverlay(busPicture, this, mapView);
         	routeOverlay = new RouteOverlay(mapView.getProjection());
+        	myLocationOverlay = new LocationOverlay(this, mapView);
         }
         
         if (busLocations == null)
@@ -307,8 +311,9 @@ public class Main extends MapActivity
         }
 
         handler = new UpdateHandler(textView, mapView, arrow, tooltip, busLocations, 
-        		this, helper, busOverlay, routeOverlay, majorHandler);
+        		this, helper, busOverlay, routeOverlay, myLocationOverlay, majorHandler);
         busOverlay.setUpdateable(handler);
+        myLocationOverlay.setUpdateable(handler);
         
         populateHandlerSettings();
         modeSpinner.setOnItemSelectedListener(new OnItemSelectedListener() {
@@ -464,11 +469,6 @@ public class Main extends MapActivity
     		editor.commit();
     	}
     	
-		if (locationListener != null)
-		{
-			locationListener.release();
-		}
-    	
 		
 		if (handler != null)
 		{
@@ -495,6 +495,12 @@ public class Main extends MapActivity
 		{
 			mapView.getOverlays().clear();
 			mapView = null;
+		}
+		
+		if (myLocationOverlay != null)
+		{
+			myLocationOverlay.disableMyLocation();
+			myLocationOverlay = null;
 		}
 		
 		textView = null;
@@ -539,9 +545,14 @@ public class Main extends MapActivity
     		break;
     	
     	case R.id.centerOnLocationMenuItem:
-    		if (mapView != null)
+    		if (myLocationOverlay != null)
     		{
-    			centerOnCurrentLocation();
+    			if (myLocationOverlay.isMyLocationEnabled() == false)
+    			{
+    				myLocationOverlay.enableMyLocation();
+    				Toast.makeText(this, getString(R.string.findingCurrentLocation), Toast.LENGTH_SHORT).show();
+    			}
+   				myLocationOverlay.updateMapViewPosition();
     		}
     		
     		break;
@@ -550,49 +561,6 @@ public class Main extends MapActivity
     	return true;
     }
 
-    /**
-     * Figure out the current location of the phone, and move the map to it
-     */
-	private void centerOnCurrentLocation() {
-		Criteria criteria = new Criteria();
-		criteria.setAccuracy(Criteria.ACCURACY_COARSE);
-		
-		String noProviders = "Cannot use any location service. \nAre any enabled (like GPS) in your system settings?";
-		
-		LocationManager locationManager = (LocationManager)getSystemService(LOCATION_SERVICE);
-		if (locationManager != null)
-		{
-			String provider = locationManager.getBestProvider(criteria, true);
-			if (provider == null)
-			{
-				Toast.makeText(this, noProviders, Toast.LENGTH_LONG).show();
-			}
-			else
-			{
-				if (locationListener != null)
-				{
-					locationManager.removeUpdates(locationListener);
-				}
-				else
-				{
-					locationListener = new OneTimeLocationListener(mapView, locationManager, this, handler);
-				}
-				
-				locationListener.start();
-				
-				locationManager.requestLocationUpdates(provider, 0, 0, locationListener, getMainLooper());
-
-				
-				//... it might take a few seconds. 
-				//TODO: make sure that it eventually shows the error message if location is never found
-			}
-		}
-		else
-		{
-			//i don't think this will happen, but just in case
-			Toast.makeText(this, noProviders, Toast.LENGTH_LONG).show();
-		}
-	}
     
     @Override
     public boolean onCreateOptionsMenu(Menu menu)
@@ -618,8 +586,15 @@ public class Main extends MapActivity
     
 	@Override
 	protected boolean isRouteDisplayed() {
-		// TODO Auto-generated method stub
-		return false;
+		//TODO: what exactly should we return here? 
+		if (mapView != null && mapView.getOverlays().size() != 0)
+		{
+			return true;
+		}
+		else
+		{
+			return false;
+		}
 	}
 
 	@Override
@@ -692,7 +667,8 @@ public class Main extends MapActivity
 		boolean updateConstantly = prefs.getBoolean(getString(R.string.runInBackgroundCheckbox), true);
 		
 		return new CurrentState(textView, busLocations, handler.getLastUpdateTime(), updateConstantly,
-				selectedRouteIndex, getSelectedBusPredictions(), busOverlay, routeOverlay, handler.getMajorHandler());
+				selectedRouteIndex, getSelectedBusPredictions(), busOverlay, routeOverlay,
+				myLocationOverlay, handler.getMajorHandler());
 	}
 
 	

@@ -7,9 +7,12 @@ import android.view.KeyEvent;
 import android.widget.TextView;
 import boston.Bus.Map.data.Locations;
 import boston.Bus.Map.ui.BusOverlay;
+import boston.Bus.Map.ui.LocationOverlay;
+
 import boston.Bus.Map.ui.RouteOverlay;
 
 import com.google.android.maps.MapView;
+import com.google.android.maps.MyLocationOverlay;
 import com.google.android.maps.Overlay;
 import com.google.android.maps.Projection;
 
@@ -27,11 +30,13 @@ public class CurrentState {
 	private int selectedBusPredictions;
 	private final BusOverlay busOverlay;
 	private final RouteOverlay routeOverlay;
+	private final LocationOverlay myLocationOverlay;
 	private final UpdateAsyncTask majorHandler;
 	
 	public CurrentState(TextView textView,
 			Locations busLocations, double lastUpdateTime, boolean updateConstantly,
-			int selectedRouteIndex, int selectedBusPredictions, BusOverlay busOverlay, RouteOverlay routeOverlay, 
+			int selectedRouteIndex, int selectedBusPredictions, BusOverlay busOverlay, RouteOverlay routeOverlay,
+			LocationOverlay myLocationOverlay,
 			UpdateAsyncTask majorHandler) 
 	{
 		if (textView == null)
@@ -49,6 +54,7 @@ public class CurrentState {
 		this.selectedBusPredictions = selectedBusPredictions;
 		this.busOverlay = busOverlay;
 		this.routeOverlay = routeOverlay;
+		this.myLocationOverlay = myLocationOverlay;
 		this.majorHandler = majorHandler;
 	}
 
@@ -78,6 +84,12 @@ public class CurrentState {
 		return busOverlay;
 	}
 
+	/**
+	 * It's probably unnecessary to clone a new object for this
+	 * @param context
+	 * @param mapView
+	 * @return
+	 */
 	public BusOverlay cloneBusOverlay(Main context, MapView mapView) {
 		BusOverlay ret = new BusOverlay(busOverlay, context, mapView);
 		
@@ -97,9 +109,25 @@ public class CurrentState {
 		return majorHandler;
 	}
 
+	/**
+	 * It's probably unnecessary to clone here 
+	 * @param projection
+	 * @return
+	 */
 	public RouteOverlay cloneRouteOverlay(Projection projection) {
 		RouteOverlay ret = new RouteOverlay(routeOverlay, projection);
 		
 		return ret;
+	}
+	
+	/**
+	 * It's probably unnecessary to clone here, do some experiments first before removing though
+	 * @param context
+	 * @param mapView
+	 * @return
+	 */
+	public LocationOverlay cloneLocationOverlay(Context context, MapView mapView)
+	{
+		return myLocationOverlay;
 	}
 }

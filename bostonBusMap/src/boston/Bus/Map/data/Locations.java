@@ -578,19 +578,6 @@ public final class Locations
 		showCurrentLocation = false;
 	}
 	
-	public CurrentLocation getCurrentLocation()
-	{
-		if (showCurrentLocation)
-		{
-			CurrentLocation location = new CurrentLocation(locationDrawable, latitudeAsDegreesE6, longitudeAsDegreesE6);
-			return location;
-		}
-		else
-		{
-			return null;
-		}
-	}
-
 	public void select(int position, int busPredictions) {
 		if (position == Locations.NO_CHANGE)
 		{

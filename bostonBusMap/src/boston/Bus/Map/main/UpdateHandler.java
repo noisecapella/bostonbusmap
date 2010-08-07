@@ -5,8 +5,8 @@ import org.apache.http.impl.conn.tsccm.RouteSpecificPool;
 import boston.Bus.Map.data.Locations;
 import boston.Bus.Map.database.DatabaseHelper;
 import boston.Bus.Map.ui.BusOverlay;
+import boston.Bus.Map.ui.LocationOverlay;
 import boston.Bus.Map.ui.RouteOverlay;
-import boston.Bus.Map.util.OneTimeLocationListener;
 
 import com.google.android.maps.GeoPoint;
 import com.google.android.maps.MapView;
@@ -29,8 +29,6 @@ public class UpdateHandler extends Handler {
 	 */
 	public static final int MINOR = 2;
 	
-	public static final int LOCATION_NOT_FOUND = 3;
-	public static final int LOCATION_FOUND = 4;
 
 	
 	/**
@@ -61,11 +59,12 @@ public class UpdateHandler extends Handler {
 	private final MapView mapView;
 	private boolean inferBusRoutes;
 	private final Locations busLocations;
-	private OneTimeLocationListener oneTimeLocationListener;
 	private final DatabaseHelper helper;
 	private final Context context;
+	
 	private final BusOverlay busOverlay; 
 	private final RouteOverlay routeOverlay;
+	private final LocationOverlay locationOverlay;
 	
 	private boolean isFirstRefresh;
 	private boolean showRouteLine;
@@ -73,7 +72,7 @@ public class UpdateHandler extends Handler {
 	
 	public UpdateHandler(TextView textView, MapView mapView,
 			Drawable arrow, Drawable tooltip, Locations busLocations, Context context, DatabaseHelper helper, BusOverlay busOverlay,
-			RouteOverlay routeOverlay, 
+			RouteOverlay routeOverlay,  LocationOverlay locationOverlay,
 			UpdateAsyncTask majorHandler)
 	{
 		this.textView = textView;
@@ -82,6 +81,7 @@ public class UpdateHandler extends Handler {
 		this.helper = helper;
 		this.busOverlay = busOverlay;
 		this.routeOverlay = routeOverlay;
+		this.locationOverlay = locationOverlay;
 		lastUpdateTime = System.currentTimeMillis();
 		
 		this.context = context;
@@ -137,7 +137,7 @@ public class UpdateHandler extends Handler {
 			//remove duplicate messages
 			removeMessages(MINOR);
 			
-			minorUpdate = new UpdateAsyncTask(textView, mapView, null, getShowUnpredictable(), false, maxOverlays,
+			minorUpdate = new UpdateAsyncTask(textView, mapView, locationOverlay, null, getShowUnpredictable(), false, maxOverlays,
 					getHideHighlightCircle() == false, getInferBusRoutes(), busOverlay, routeOverlay, helper,
 					selectedRouteIndex, selectedBusPredictions, false, getShowRouteLine(), getShowCoarseRouteLine());
 			
@@ -145,33 +145,7 @@ public class UpdateHandler extends Handler {
 			minorUpdate.runUpdate(busLocations, centerLatitude, centerLongitude);
 			
 			break;
-		case LOCATION_NOT_FOUND:
-			Toast.makeText(context, "Cannot find location, try again later", Toast.LENGTH_LONG).show();
-			
-			busLocations.clearCurrentLocation();
-			
-			if (oneTimeLocationListener != null)
-			{
-				oneTimeLocationListener.release();
-				oneTimeLocationListener = null;
-			}
-			else
-			{
-				//we normally do this in release()
-				removeMessages(LOCATION_NOT_FOUND);
-				removeMessages(LOCATION_FOUND);
-			}
-			
-			
-			break;
-		case LOCATION_FOUND:
-			busLocations.setCurrentLocation(msg.arg1, msg.arg2);
-			
-			removeMessages(LOCATION_NOT_FOUND);
-			
-			break;
-		}
-		
+		}		
 	}
 
 
@@ -185,8 +159,8 @@ public class UpdateHandler extends Handler {
 	public void removeAllMessages() {
 		removeMessages(MAJOR);
 		removeMessages(MINOR);
-		removeMessages(LOCATION_NOT_FOUND);
-		removeMessages(LOCATION_FOUND);
+		//removeMessages(LOCATION_NOT_FOUND);
+		//removeMessages(LOCATION_FOUND);
 	}
 
 	
@@ -226,7 +200,7 @@ public class UpdateHandler extends Handler {
 		double centerLongitude = geoPoint.getLongitudeE6() / (float)Main.E6;
 
 		
-		updateAsyncTask = new UpdateAsyncTask(textView, mapView, finalMessage,
+		updateAsyncTask = new UpdateAsyncTask(textView, mapView, locationOverlay, finalMessage,
 				getShowUnpredictable(), true, maxOverlays,
 				getHideHighlightCircle() == false, getInferBusRoutes(), busOverlay, routeOverlay, helper,
 				selectedRouteIndex, selectedBusPredictions, isFirstTime, showRouteLine, showCoarseRouteLine);
@@ -337,13 +311,13 @@ public class UpdateHandler extends Handler {
 	
 	
 	public void triggerUpdate(int millis) {
-		Log.i("TRIGGER", "UPDATE, " + millis);
+		//Log.v("BostonBusMap", "minor update triggered in, " + millis);
 		sendEmptyMessageDelayed(MINOR, millis);
 		
 	}
 	
 	public void triggerUpdate() {
-		Log.i("TRIGGER", "UPDATE");
+		//Log.v("BostonBusMap", "minor update triggered");
 		sendEmptyMessage(MINOR);
 		
 	}
@@ -359,12 +333,6 @@ public class UpdateHandler extends Handler {
 	}
 
 
-	public void setLocationListener(
-			OneTimeLocationListener oneTimeLocationListener) {
-		this.oneTimeLocationListener = oneTimeLocationListener;
-		
-	}
-	
 
 	public void immediateRefresh() {
 		Message msg = new Message();

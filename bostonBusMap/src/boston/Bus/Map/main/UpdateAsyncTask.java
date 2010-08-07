@@ -29,13 +29,14 @@ import org.apache.http.client.CircularRedirectException;
 import org.xml.sax.SAXException;
 
 
-import boston.Bus.Map.data.CurrentLocation;
+
 import boston.Bus.Map.data.Location;
 import boston.Bus.Map.data.Locations;
 import boston.Bus.Map.data.Path;
 import boston.Bus.Map.data.RouteConfig;
 import boston.Bus.Map.database.DatabaseHelper;
 import boston.Bus.Map.ui.BusOverlay;
+import boston.Bus.Map.ui.LocationOverlay;
 import boston.Bus.Map.ui.RouteOverlay;
 import boston.Bus.Map.util.FeedException;
 
@@ -79,14 +80,17 @@ public class UpdateAsyncTask extends AsyncTask<Object, String, Locations>
 	private boolean silenceUpdates;
 	
 	private final boolean inferBusRoutes;
+	
 	private BusOverlay busOverlay;
 	private RouteOverlay routeOverlay;
+	private LocationOverlay locationOverlay;
+	
 	private final int selectedRouteIndex;
 	private final int selectedBusPredictions;
 	private final boolean showRouteLine;
 	private final boolean showCoarseRouteLine;
 	
-	public UpdateAsyncTask(TextView textView, MapView mapView, String finalMessage,
+	public UpdateAsyncTask(TextView textView, MapView mapView, LocationOverlay locationOverlay, String finalMessage,
 			boolean doShowUnpredictable, boolean doRefresh, int maxOverlays,
 			boolean drawCircle, boolean inferBusRoutes, BusOverlay busOverlay, RouteOverlay routeOverlay, 
 			DatabaseHelper helper, int selectedRouteIndex,
@@ -104,6 +108,7 @@ public class UpdateAsyncTask extends AsyncTask<Object, String, Locations>
 		this.inferBusRoutes = inferBusRoutes;
 		this.busOverlay = busOverlay;
 		this.routeOverlay = routeOverlay;
+		this.locationOverlay = locationOverlay;
 		this.helper = helper;
 		this.textView = textView;
 		this.selectedRouteIndex = selectedRouteIndex;
@@ -259,12 +264,6 @@ public class UpdateAsyncTask extends AsyncTask<Object, String, Locations>
 		
 		busLocations.addAll(busLocationsObject.getLocations(maxOverlays, latitude, longitude, doShowUnpredictable));
 
-		CurrentLocation currentLocation = busLocationsObject.getCurrentLocation();
-		if (currentLocation != null)
-		{
-			busLocations.add(currentLocation);
-		}
-		
 		//if doRefresh is false, we should skip this, it prevents the icons from updating locations
 		if (busLocations.size() == 0 && doRefresh)
 		{
@@ -306,10 +305,10 @@ public class UpdateAsyncTask extends AsyncTask<Object, String, Locations>
 			selectedRouteConfig = busLocationsObject.getSelectedRoute();
 		}
 		
-		displayIcons(busOverlay, routeOverlay, paths, latitude, longitude, busLocations, selectedBusId, selectedRouteConfig);
+		displayIcons(busOverlay, routeOverlay, locationOverlay, paths, latitude, longitude, busLocations, selectedBusId, selectedRouteConfig);
 	}
 	
-	private void displayIcons(BusOverlay busOverlay, RouteOverlay routeOverlay, ArrayList<Path> paths,
+	private void displayIcons(BusOverlay busOverlay, RouteOverlay routeOverlay, LocationOverlay locationOverlay, ArrayList<Path> paths,
 			double latitude, double longitude, ArrayList<Location> busLocations, int selectedBusId, RouteConfig selectedRoute)
 	{
 		routeOverlay.setPaths(paths);
@@ -341,6 +340,7 @@ public class UpdateAsyncTask extends AsyncTask<Object, String, Locations>
 
         mapView.getOverlays().clear();
 		mapView.getOverlays().add(routeOverlay);
+		mapView.getOverlays().add(locationOverlay);
 		mapView.getOverlays().add(busOverlay);
 		
 
