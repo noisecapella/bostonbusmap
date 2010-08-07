@@ -285,10 +285,11 @@ public class DatabaseHelper extends SQLiteOpenHelper
 	}
 
 	public boolean checkFreeSpace() {
-		String path = getReadableDatabase().getPath();
-		
+		SQLiteDatabase database = getReadableDatabase();
 		try
 		{
+			String path = database.getPath();
+			
 			StatFs statFs = new StatFs(path);
 			long freeSpace = (long)statFs.getAvailableBlocks() * (long)statFs.getBlockSize(); 
 		
@@ -299,6 +300,10 @@ public class DatabaseHelper extends SQLiteOpenHelper
 		{
 			//if for some reason we don't have permission to check free space available, just hope that everything's ok
 			return true;
+		}
+		finally
+		{
+			database.close();
 		}
 	}
 
