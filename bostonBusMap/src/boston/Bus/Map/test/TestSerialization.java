@@ -22,15 +22,24 @@ public class TestSerialization extends TestCase {
 		
 		String x = null;
 		Box outputBox = new Box(null, DatabaseHelper.CURRENT_DB_VERSION, sharedStops);
-		outputBox.writeString(x);
 		
-		byte[] blob = outputBox.getBlob();
+		try
+		{
+			outputBox.writeString(x);
+			assertTrue(false);
 		
-		Box inputBox = new Box(blob, DatabaseHelper.CURRENT_DB_VERSION, sharedStops);
-		
-		String string2 = inputBox.readString();
-		
-		assertEquals(x, string2);
+			byte[] blob = outputBox.getBlob();
+
+			Box inputBox = new Box(blob, DatabaseHelper.CURRENT_DB_VERSION, sharedStops);
+
+			String string2 = inputBox.readString();
+
+			assertEquals(x, string2);
+		}
+		catch (NullPointerException e)
+		{
+			//good
+		}
 	}
 	public void testString2() throws IOException
 	{
@@ -182,33 +191,42 @@ public class TestSerialization extends TestCase {
 		mapping.put("avocado", "jellyfish");
 		
 		mapping.put("sea cucumber", null);
-		
+
 		Box outputBox = new Box(null, DatabaseHelper.CURRENT_DB_VERSION, sharedStops);
-		
-		outputBox.writeStringMap(mapping);
-		HashMap<String, String> newMapping = new HashMap<String, String>();
-		
-		Box inputBox = new Box(outputBox.getBlob(), DatabaseHelper.CURRENT_DB_VERSION, sharedStops);
-		inputBox.readStringMap(newMapping);
-		
-		assertEquals(newMapping.size(), mapping.size());
-		
-		SortedSet<String> list1 = new TreeSet<String>(mapping.keySet());
-		SortedSet<String> list2 = new TreeSet<String>(newMapping.keySet());
-		Iterator<String> iterator1 = list1.iterator();
-		Iterator<String> iterator2 = list2.iterator();
-		
-		while (iterator1.hasNext())
+
+		try
 		{
-			String key = iterator1.next();
-			String key2 = iterator2.next();
-			
-			assertEquals(key, key2);
-			
-			String value1 = mapping.get(key);
-			String value2 = newMapping.get(key);
-			
-			assertEquals(value1, value2);
+			outputBox.writeStringMap(mapping);
+			assertTrue(false);
+
+			HashMap<String, String> newMapping = new HashMap<String, String>();
+
+			Box inputBox = new Box(outputBox.getBlob(), DatabaseHelper.CURRENT_DB_VERSION, sharedStops);
+			inputBox.readStringMap(newMapping);
+
+			assertEquals(newMapping.size(), mapping.size());
+
+			SortedSet<String> list1 = new TreeSet<String>(mapping.keySet());
+			SortedSet<String> list2 = new TreeSet<String>(newMapping.keySet());
+			Iterator<String> iterator1 = list1.iterator();
+			Iterator<String> iterator2 = list2.iterator();
+
+			while (iterator1.hasNext())
+			{
+				String key = iterator1.next();
+				String key2 = iterator2.next();
+
+				assertEquals(key, key2);
+
+				String value1 = mapping.get(key);
+				String value2 = newMapping.get(key);
+
+				assertEquals(value1, value2);
+			}
+		}
+		catch (NullPointerException e)
+		{
+			//good
 		}
 	}
 	
