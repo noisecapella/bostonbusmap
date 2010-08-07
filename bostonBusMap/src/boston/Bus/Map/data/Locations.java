@@ -87,7 +87,7 @@ public final class Locations
 	/**
 	 * A mapping of a route id to a RouteConfig object. This should probably be renamed routeMapping
 	 */
-	private final HashMap<String, RouteConfig> stopMapping = new HashMap<String, RouteConfig>();
+	private final HashMap<String, RouteConfig> routeMapping = new HashMap<String, RouteConfig>();
 	
 	/**
 	 * The XML feed URL
@@ -169,10 +169,10 @@ public final class Locations
 			parser.runParse(stream);
 			
 			task.publish("Parsing route data...");
-			parser.fillMapping(stopMapping);
+			parser.fillMapping(routeMapping);
 			
 			task.publish("Saving route data to database...");
-			helper.saveMapping(stopMapping, true);
+			helper.saveMapping(routeMapping, true);
 			
 			task.publish("Done!");
 		}
@@ -185,8 +185,8 @@ public final class Locations
 			{
 				String route = supportedRoutes[i];
 
-				if (stopMapping.containsKey(route) == false || stopMapping.get(route) == null || 
-						stopMapping.get(route).getStops().size() == 0)
+				if (routeMapping.containsKey(route) == false || routeMapping.get(route) == null || 
+						routeMapping.get(route).getStops().size() == 0)
 				{
 					final String prepend = "Downloading route info for " + route + " (this may take a short while): ";
 
@@ -200,9 +200,9 @@ public final class Locations
 					
 					parser.runParse(stream);
 					
-					parser.fillMapping(stopMapping);
+					parser.fillMapping(routeMapping);
 					
-					helper.saveMapping(stopMapping, false);
+					helper.saveMapping(routeMapping, false);
 				}
 
 
@@ -255,7 +255,7 @@ public final class Locations
 		{
 		case  Main.BUS_PREDICTIONS_ONE:
 		{
-			RouteConfig routeConfig = stopMapping.get(routeToUpdate);
+			RouteConfig routeConfig = routeMapping.get(routeToUpdate);
 			
 			if (routeConfig != null)
 			{
@@ -337,7 +337,7 @@ public final class Locations
 		{
 			//bus prediction
 
-			BusPredictionsFeedParser parser = new BusPredictionsFeedParser(stopMapping);
+			BusPredictionsFeedParser parser = new BusPredictionsFeedParser(routeMapping);
 
 			parser.runParse(data);
 		}
@@ -348,7 +348,7 @@ public final class Locations
 
 			//lastUpdateTime = parser.getLastUpdateTime();
 
-			VehicleLocationsFeedParser parser = new VehicleLocationsFeedParser(vehiclesToRouteNames, stopMapping, bus, arrow);
+			VehicleLocationsFeedParser parser = new VehicleLocationsFeedParser(vehiclesToRouteNames, routeMapping, bus, arrow);
 			parser.runParse(data);
 
 			//get the time that this information is valid until
@@ -392,9 +392,9 @@ public final class Locations
 
 		parser.runParse(downloadHelper.getResponseData()); 
 
-		parser.fillMapping(stopMapping);
+		parser.fillMapping(routeMapping);
 		
-		databaseHelper.saveMapping(stopMapping, false);
+		databaseHelper.saveMapping(routeMapping, false);
 	}
 
 	private void updateInferRoutes(boolean inferBusRoutes)
@@ -508,7 +508,7 @@ public final class Locations
 		}
 		else if (selectedBusPredictions == Main.BUS_PREDICTIONS_ONE)
 		{
-			RouteConfig routeConfig = stopMapping.get(selectedRoute);
+			RouteConfig routeConfig = routeMapping.get(selectedRoute);
 			if (routeConfig != null)
 			{
 				newLocations.addAll(routeConfig.getStops());
@@ -533,9 +533,9 @@ public final class Locations
 		}
 		else if (selectedBusPredictions == Main.BUS_PREDICTIONS_STAR)
 		{
-			for (String route : stopMapping.keySet())
+			for (String route : routeMapping.keySet())
 			{
-				RouteConfig routeConfig = stopMapping.get(route);
+				RouteConfig routeConfig = routeMapping.get(route);
 				if (routeConfig != null)
 				{
 					for (StopLocation location : routeConfig.getStops())
@@ -594,7 +594,7 @@ public final class Locations
 	public ArrayList<Path> getSelectedPaths() {
 		ArrayList<Path> ret = new ArrayList<Path>();
 
-		RouteConfig routeConfig = stopMapping.get(selectedRoute);
+		RouteConfig routeConfig = routeMapping.get(selectedRoute);
 		if (routeConfig != null)
 		{
 			ret.addAll(routeConfig.getPaths().values());
@@ -652,7 +652,7 @@ public final class Locations
 			Log.e("BostonBusMap", e.toString());
 		}
 
-		stopMapping.putAll(map);
+		routeMapping.putAll(map);
 	}
 	
 	private boolean routeInfoNeedsUpdating()
@@ -665,7 +665,7 @@ public final class Locations
 				needsUpdating = true;
 				break;
 			}*/
-			if (stopMapping.get(route) != null && stopMapping.get(route).getStops().size() != 0)
+			if (routeMapping.get(route) != null && routeMapping.get(route).getStops().size() != 0)
 			{
 				return false;
 			}
@@ -691,6 +691,6 @@ public final class Locations
 	}
 
 	public RouteConfig getSelectedRoute() {
-		return stopMapping.get(selectedRoute);
+		return routeMapping.get(selectedRoute);
 	}
 }

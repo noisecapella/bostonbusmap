@@ -19,6 +19,7 @@
 package boston.Bus.Map.main;
 
 import boston.Bus.Map.R;
+import boston.Bus.Map.transit.TransitSystem;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
@@ -46,7 +47,7 @@ public class Preferences extends PreferenceActivity
 			Preference preference) {
 		if (preference != null && "about".equals(preference.getKey()))
 		{
-			Intent viewIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("http://www.terribleinformation.org/george/bostonbusmap"));
+			Intent viewIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(TransitSystem.getWebSite()));
 			startActivity(viewIntent);
 		}
 		

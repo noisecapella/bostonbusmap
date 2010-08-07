@@ -34,6 +34,7 @@ import boston.Bus.Map.R;
 import boston.Bus.Map.data.Locations;
 import boston.Bus.Map.data.RouteConfig;
 import boston.Bus.Map.database.DatabaseHelper;
+import boston.Bus.Map.transit.TransitSystem;
 import boston.Bus.Map.ui.BusOverlay;
 import boston.Bus.Map.ui.LocationOverlay;
 import boston.Bus.Map.ui.RouteOverlay;
@@ -107,18 +108,7 @@ public class Main extends MapActivity
 	private TextView textView;
 	
 	
-	private static final double bostonLatitude = 42.3583333;
-	private static final double bostonLongitude = -71.0602778;
 	public static final int E6 = 1000000; 
-	private static final int bostonLatitudeAsInt = (int)(bostonLatitude * E6);
-	private static final int bostonLongitudeAsInt = (int)(bostonLongitude * E6);
-	
-	//watertown is slightly north and west of boston
-	private static final double watertownLatitude = 42.37;
-	private static final double watertownLongitude = -71.183;
-	private static final int watertownLatitudeAsInt = (int)(watertownLatitude * E6);
-	private static final int watertownLongitudeAsInt = (int)(watertownLongitude * E6);
-	
 	
 	
 	/**
@@ -369,10 +359,10 @@ public class Main extends MapActivity
             }
             else
             {
-            	//move maps widget to point to boston or watertown
+            	//move maps widget to center of transit network
             	MapController controller = mapView.getController();
-            	GeoPoint bostonLocation = new GeoPoint(bostonLatitudeAsInt, bostonLongitudeAsInt);
-            	controller.setCenter(bostonLocation);
+            	GeoPoint location = new GeoPoint(TransitSystem.getCenterLatAsInt(), TransitSystem.getCenterLonAsInt());
+            	controller.setCenter(location);
 
             	//set zoom depth
             	controller.setZoom(14);
@@ -538,7 +528,7 @@ public class Main extends MapActivity
     	
     		if (mapView != null)
     		{
-    			GeoPoint point = new GeoPoint(bostonLatitudeAsInt, bostonLongitudeAsInt);
+    			GeoPoint point = new GeoPoint(TransitSystem.getCenterLatAsInt(), TransitSystem.getCenterLonAsInt());
     			mapView.getController().animateTo(point);
     			handler.triggerUpdate(1500);
     		}
