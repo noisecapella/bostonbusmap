@@ -8,6 +8,7 @@ import android.widget.Toast;
 import boston.Bus.Map.R;
 import boston.Bus.Map.main.UpdateHandler;
 
+import com.google.android.maps.GeoPoint;
 import com.google.android.maps.MapView;
 import com.google.android.maps.MyLocationOverlay;
 
@@ -15,11 +16,13 @@ public class LocationOverlay extends MyLocationOverlay {
 	private final Context context; 
 	private UpdateHandler handler;
 	private Runnable runnable;
+	private final MapView mapView;
 	
 	public LocationOverlay(Context context, MapView mapView) {
 		super(context, mapView);
 		
 		this.context = context;
+		this.mapView = mapView;
 		this.runnable = new Runnable() {
 			
 			@Override
@@ -50,7 +53,10 @@ public class LocationOverlay extends MyLocationOverlay {
 			
 			@Override
 			public void run() {
-				LocationOverlay.this.handler.triggerUpdate();
+				
+    			mapView.getController().animateTo(getMyLocation());
+    			
+    			LocationOverlay.this.handler.triggerUpdate(1500);
 			}
 		};
 		
