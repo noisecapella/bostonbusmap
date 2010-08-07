@@ -17,9 +17,9 @@
 	<uses-library android:name="android.test.runner"></uses-library>
 </application>
 
-	<supports-screens></supports-screens>
+	<!-- <supports-screens></supports-screens>-->
 	<uses-sdk android:minSdkVersion="3" ></uses-sdk>
-	<uses-sdk android:targetSdkVersion="4"></uses-sdk>
+	<!-- <uses-sdk android:targetSdkVersion="4"></uses-sdk>-->
 	<uses-permission android:name="android.permission.INTERNET"></uses-permission>
 
 	<uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"></uses-permission>
