@@ -22,7 +22,7 @@ object LocationConstants {
 	{
 		//great circle distance
 		//double dist = Math.acos(Math.sin(lat1) * Math.sin(lat2) + Math.cos(lat1) * Math.cos(lat2) * Math.cos(lon2 - lon1));
-		(((1 - Math.cos((lat1 - lat2))) / 2) + Math.cos(lat1) * Math.cos(lat2) * ((1 - Math.cos((lon1 - lon2))) / 2)) * radiusOfEarthInMiles
+		(((1 - math.cos((lat1 - lat2))) / 2) + math.cos(lat1) * math.cos(lat2) * ((1 - math.cos((lon1 - lon2))) / 2)) * radiusOfEarthInMiles
 	}
 	
 

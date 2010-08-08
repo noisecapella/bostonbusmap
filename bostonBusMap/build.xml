@@ -105,6 +105,8 @@
   <!-- folder for the 3rd party java libraries -->
   <property name="external-libs-folder" value="libs" />
 
+  <property name="scala-libs" value="tools" />
+
   <!-- folder for the native libraries -->
   <property name="native-libs-folder" value="libs" />
 
@@ -180,16 +182,6 @@
 
   <!-- Compile this project's .java files into .class files. -->
   <target name="compile" depends="resource-src, aidl">
-    <javac encoding="ascii" target="1.5" debug="true" extdirs=""
-           destdir="${out-classes}"
-           bootclasspathref="android.target.classpath">
-      <src path="${source-folder}" />
-      <src path="${gen-folder}" />
-      <classpath>
-        <fileset dir="${external-libs-folder}" includes="*.jar"/>
-        <pathelement path="${main-out-classes}"/>
-      </classpath>
-    </javac>
     		<taskdef resource="scala/tools/ant/antlib.xml"
 		   classpath="tools/scala-compiler.jar:tools/scala-library.jar" />
 		<scalac force="changed" deprecation="on"
@@ -202,6 +194,19 @@
 		        <fileset dir="tools" includes="*.jar"/>
 		    </classpath>
 		</scalac>
+
+
+    <javac encoding="ascii" target="1.5" debug="true" extdirs=""
+           destdir="${out-classes}"
+           bootclasspathref="android.target.classpath">
+      <src path="${source-folder}" />
+      <src path="${gen-folder}" />
+      <classpath>
+        <fileset dir="${external-libs-folder}" includes="*.jar"/>
+	<fileset dir="${scala-libs}" />
+        <pathelement path="${main-out-classes}"/>
+      </classpath>
+    </javac>
 
   </target>
 

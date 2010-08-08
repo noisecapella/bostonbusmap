@@ -8,6 +8,7 @@ import java.util.TreeSet;
 import boston.Bus.Map.database.DatabaseHelper;
 import boston.Bus.Map.transit.TransitSystem;
 import boston.Bus.Map.util.Box;
+import boston.Bus.Map.util.Constants;
 import boston.Bus.Map.util.RouteComparator;
 
 import boston.Bus.Map.util.CanBeSerialized;
@@ -42,9 +43,9 @@ public class StopLocation implements Location, CanBeSerialized
 	public StopLocation(double latitudeAsDegrees, double longitudeAsDegrees,
 			Drawable busStop, int id, String title)
 	{
-		this.latitude = latitudeAsDegrees * LocationConstants.degreesToRadians();
+		this.latitude = latitudeAsDegrees * Constants.degreesToRadians;
 		this.latitudeAsDegrees = latitudeAsDegrees;
-		this.longitude = longitudeAsDegrees * LocationConstants.degreesToRadians();
+		this.longitude = longitudeAsDegrees * Constants.degreesToRadians;
 		this.longitudeAsDegrees = longitudeAsDegrees;
 		this.busStop = busStop;
 		this.id = id;
@@ -223,8 +224,8 @@ public class StopLocation implements Location, CanBeSerialized
 
 		latitudeAsDegrees = source.readDouble();
 		longitudeAsDegrees = source.readDouble();
-		this.latitude = latitudeAsDegrees * LocationConstants.degreesToRadians();
-		this.longitude = longitudeAsDegrees * LocationConstants.degreesToRadians();
+		this.latitude = latitudeAsDegrees * Constants.degreesToRadians;
+		this.longitude = longitudeAsDegrees * Constants.degreesToRadians;
 		
 		
 
