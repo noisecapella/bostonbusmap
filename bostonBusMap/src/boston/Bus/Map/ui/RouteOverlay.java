@@ -11,6 +11,7 @@ import android.util.Log;
 import android.widget.PopupWindow;
 import boston.Bus.Map.data.Path;
 import boston.Bus.Map.main.Main;
+import boston.Bus.Map.util.Constants;
 
 
 import com.google.android.maps.GeoPoint;
@@ -120,7 +121,7 @@ public class RouteOverlay extends Overlay
 				double pointLat = path.getPointLat(i);
 				double pointLon = path.getPointLon(i);
 				
-				GeoPoint geoPoint = new GeoPoint((int)(pointLat * Main.E6), (int)(pointLon * Main.E6));
+				GeoPoint geoPoint = new GeoPoint((int)(pointLat * Constants.E6), (int)(pointLon * Constants.E6));
 				
 				projection.toPixels(geoPoint, pixelPoint);
 
@@ -144,7 +145,7 @@ public class RouteOverlay extends Overlay
 				
 				double pointLat = path.getPointLat(pointsSize - 1);
 				double pointLon = path.getPointLon(pointsSize - 1);
-				GeoPoint geoPoint = new GeoPoint((int)(pointLat * Main.E6), (int)(pointLon * Main.E6));
+				GeoPoint geoPoint = new GeoPoint((int)(pointLat * Constants.E6), (int)(pointLon * Constants.E6));
 				projection.toPixels(geoPoint, pixelPoint);
 				
 				if (previousPoint != null)

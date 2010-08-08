@@ -38,6 +38,7 @@ import boston.Bus.Map.database.DatabaseHelper;
 import boston.Bus.Map.ui.BusOverlay;
 import boston.Bus.Map.ui.LocationOverlay;
 import boston.Bus.Map.ui.RouteOverlay;
+import boston.Bus.Map.util.Constants;
 import boston.Bus.Map.util.FeedException;
 
 import com.google.android.maps.GeoPoint;
@@ -248,7 +249,7 @@ public class UpdateAsyncTask extends AsyncTask<Object, String, Locations>
 		}
 		
 		GeoPoint center = mapView.getMapCenter();
-		final double e6 = Main.E6;
+		final double e6 = Constants.E6;
 		final double latitude = center.getLatitudeE6() / e6;
 		final double longitude = center.getLongitudeE6() / e6;
 		
@@ -322,8 +323,8 @@ public class UpdateAsyncTask extends AsyncTask<Object, String, Locations>
     	//draw the buses on the map
         for (Location busLocation : busLocations)
         {
-        	GeoPoint point = new GeoPoint((int)(busLocation.getLatitudeAsDegrees() * Main.E6),
-        			(int)(busLocation.getLongitudeAsDegrees() * Main.E6));
+        	GeoPoint point = new GeoPoint((int)(busLocation.getLatitudeAsDegrees() * Constants.E6),
+        			(int)(busLocation.getLongitudeAsDegrees() * Constants.E6));
         	
         	String title = busLocation.makeTitle();
         	String snippet = busLocation.makeSnippet(selectedRoute);

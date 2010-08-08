@@ -8,6 +8,7 @@ import boston.Bus.Map.data.Location;
 import boston.Bus.Map.data.RouteConfig;
 import boston.Bus.Map.data.StopLocation;
 import boston.Bus.Map.main.Main;
+import boston.Bus.Map.util.Constants;
 /**
  * Any transit-system specific stuff should go here, if possible
  * @author schneg
@@ -30,12 +31,12 @@ public class TransitSystem {
 
 	public static int getCenterLatAsInt()
 	{
-		return (int)(bostonLatitude * Main.E6);
+		return (int)(bostonLatitude * Constants.E6);
 	}
 	
 	public static int getCenterLonAsInt()
 	{
-		return (int)(bostonLongitude * Main.E6);
+		return (int)(bostonLongitude * Constants.E6);
 	}
 
 	public static String getWebSite() {

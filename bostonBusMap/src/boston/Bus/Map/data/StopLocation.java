@@ -42,9 +42,9 @@ public class StopLocation implements Location, CanBeSerialized
 	public StopLocation(double latitudeAsDegrees, double longitudeAsDegrees,
 			Drawable busStop, int id, String title)
 	{
-		this.latitude = latitudeAsDegrees * LocationComparator.degreesToRadians;
+		this.latitude = latitudeAsDegrees * LocationConstants.degreesToRadians();
 		this.latitudeAsDegrees = latitudeAsDegrees;
-		this.longitude = longitudeAsDegrees * LocationComparator.degreesToRadians;
+		this.longitude = longitudeAsDegrees * LocationConstants.degreesToRadians();
 		this.longitudeAsDegrees = longitudeAsDegrees;
 		this.busStop = busStop;
 		this.id = id;
@@ -61,7 +61,7 @@ public class StopLocation implements Location, CanBeSerialized
 	
 	@Override
 	public double distanceFrom(double centerLatitude, double centerLongitude) {
-		return LocationComparator.computeCompareDistance(latitude, longitude, centerLatitude, centerLongitude);
+		return LocationConstants.computeCompareDistance(latitude, longitude, centerLatitude, centerLongitude);
 	}
 
 	@Override
@@ -223,8 +223,8 @@ public class StopLocation implements Location, CanBeSerialized
 
 		latitudeAsDegrees = source.readDouble();
 		longitudeAsDegrees = source.readDouble();
-		this.latitude = latitudeAsDegrees * LocationComparator.degreesToRadians;
-		this.longitude = longitudeAsDegrees * LocationComparator.degreesToRadians;
+		this.latitude = latitudeAsDegrees * LocationConstants.degreesToRadians();
+		this.longitude = longitudeAsDegrees * LocationConstants.degreesToRadians();
 		
 		
 

@@ -108,8 +108,6 @@ public class Main extends MapActivity
 	private TextView textView;
 	
 	
-	public static final int E6 = 1000000; 
-	
 	
 	/**
 	 * Used to make updateBuses run every 10 seconds or so

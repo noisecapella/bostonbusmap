@@ -1,6 +1,7 @@
 package boston.Bus.Map.data;
 
 import boston.Bus.Map.ui.BusDrawable;
+import boston.Bus.Map.util.Constants;
 import android.content.Context;
 import android.graphics.drawable.Drawable;
 import android.text.Html.TagHandler;
@@ -89,8 +90,8 @@ public class BusLocation implements Location
 			String heading, boolean predictable, String dirTag, String inferBusRoute,
 			Drawable bus, Drawable arrow, String routeName)
 	{
-		this.latitude = latitude * LocationComparator.degreesToRadians;
-		this.longitude = longitude * LocationComparator.degreesToRadians;
+		this.latitude = latitude * Constants.degreesToRadians;
+		this.longitude = longitude * Constants.degreesToRadians;
 		this.latitudeAsDegrees = latitude;
 		this.longitudeAsDegrees = longitude;
 		this.id = id;
@@ -187,7 +188,7 @@ public class BusLocation implements Location
 
 	public double distanceFrom(double lat2, double lon2)
 	{
-		return LocationComparator.computeCompareDistance(latitude, longitude, lat2, lon2);
+		return LocationConstants.computeCompareDistance(latitude, longitude, lat2, lon2);
 	}
 	
 	/**

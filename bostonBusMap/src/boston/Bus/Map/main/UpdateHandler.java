@@ -7,6 +7,7 @@ import boston.Bus.Map.database.DatabaseHelper;
 import boston.Bus.Map.ui.BusOverlay;
 import boston.Bus.Map.ui.LocationOverlay;
 import boston.Bus.Map.ui.RouteOverlay;
+import boston.Bus.Map.util.Constants;
 
 import com.google.android.maps.GeoPoint;
 import com.google.android.maps.MapView;
@@ -131,8 +132,8 @@ public class UpdateHandler extends Handler {
 			}
 
 			GeoPoint geoPoint = mapView.getMapCenter();
-			double centerLatitude = geoPoint.getLatitudeE6() / (float)Main.E6;
-			double centerLongitude = geoPoint.getLongitudeE6() / (float)Main.E6;
+			double centerLatitude = geoPoint.getLatitudeE6() / (float)Constants.E6;
+			double centerLongitude = geoPoint.getLongitudeE6() / (float)Constants.E6;
 			
 			//remove duplicate messages
 			removeMessages(MINOR);
@@ -196,8 +197,8 @@ public class UpdateHandler extends Handler {
 		}
 		
 		GeoPoint geoPoint = mapView.getMapCenter();
-		double centerLatitude = geoPoint.getLatitudeE6() / (float)Main.E6;
-		double centerLongitude = geoPoint.getLongitudeE6() / (float)Main.E6;
+		double centerLatitude = geoPoint.getLatitudeE6() / (float)Constants.E6;
+		double centerLongitude = geoPoint.getLongitudeE6() / (float)Constants.E6;
 
 		
 		updateAsyncTask = new UpdateAsyncTask(textView, mapView, locationOverlay, finalMessage,
