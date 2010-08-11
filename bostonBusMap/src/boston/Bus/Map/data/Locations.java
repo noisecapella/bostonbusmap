@@ -142,7 +142,10 @@ public final class Locations
 			InputStream stream = downloadStream(url, task, prepend, "of approx " + TransitSystem.getSizeOfRouteConfigUrl());
 			*/
 			task.publish("Decompressing route data. This may take a minute...");
-			InputStream in = context.getResources().openRawResource(boston.Bus.Map.R.raw.routeconfig); 
+			
+			final int contentLength = 950308;
+			
+			InputStream in = new StreamCounter(context.getResources().openRawResource(boston.Bus.Map.R.raw.routeconfig), task, contentLength, null, "Decompressing route data: "); 
 			
 			GZIPInputStream stream = new GZIPInputStream(in); 
 			
