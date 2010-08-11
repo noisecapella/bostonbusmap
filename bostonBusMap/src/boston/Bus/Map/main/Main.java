@@ -36,8 +36,11 @@ import boston.Bus.Map.data.RouteConfig;
 import boston.Bus.Map.database.DatabaseHelper;
 import boston.Bus.Map.transit.TransitSystem;
 import boston.Bus.Map.ui.BusOverlay;
+
 import boston.Bus.Map.ui.LocationOverlay;
+import boston.Bus.Map.ui.ModeAdapter;
 import boston.Bus.Map.ui.RouteOverlay;
+import boston.Bus.Map.ui.ViewingMode;
 
 
 import com.google.android.maps.GeoPoint;
@@ -81,13 +84,16 @@ import android.view.MenuItem.OnMenuItemClickListener;
 import android.view.View.OnClickListener;
 import android.view.View.OnTouchListener;
 import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CheckBox;
+import android.widget.Gallery;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.SimpleAdapter;
 import android.widget.Spinner;
+import android.widget.SpinnerAdapter;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ZoomControls;
@@ -126,14 +132,19 @@ public class Main extends MapActivity
 	/**
 	 * This is used to indicate to the mode spinner to ignore the first time we set it, so we don't update every time the screen changes
 	 */
-	private boolean firstRun;
+	private boolean firstRunMode;
+	
+	/**
+	 * This is used to indicate to the mode spinner to ignore the first time we set it, so we don't update every time the screen changes
+	 */
+	private boolean firstRunRoute;
 
 	
 	private BusOverlay busOverlay;
 	private RouteOverlay routeOverlay;
 	private LocationOverlay myLocationOverlay;
 	
-	private ImageButton toggleButton;
+	private Spinner toggleButton;
 	private Drawable busStopDrawableOne;
 	private Drawable busStopDrawableAll;
 	private Drawable busStopDrawableStar;
@@ -150,6 +161,19 @@ public class Main extends MapActivity
 	public static final int BUS_PREDICTIONS_ALL = 4;
 	public static final int BUS_PREDICTIONS_STAR = 5;
 	
+	public static final int[] modesSupported = new int[]{
+		VEHICLE_LOCATIONS_ALL, VEHICLE_LOCATIONS_ONE, BUS_PREDICTIONS_ONE, BUS_PREDICTIONS_STAR
+	};
+	
+	public static final int[] modeIconsSupported = new int[]{
+		R.drawable.bus_all, R.drawable.bus_one, R.drawable.busstop_one, R.drawable.busstop_star
+	};
+	
+	public static final String[] modeTextSupported = new String[]{
+		"All buses", "Buses on one route", "Stops and predictions on one route", "Favorite stops"
+	};
+	
+	
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -157,12 +181,13 @@ public class Main extends MapActivity
         
         
         
-        firstRun = true;
+        firstRunMode = true;
+        firstRunRoute = true;
         
         //get widgets
         mapView = (MapView)findViewById(R.id.mapview);
         textView = (TextView)findViewById(R.id.statusView);
-        toggleButton = (ImageButton)findViewById(R.id.predictionsOrLocations);
+        toggleButton = (Spinner)findViewById(R.id.predictionsOrLocations);
         Spinner modeSpinner = (Spinner)findViewById(R.id.modeSpinner);
         
         Resources resources = getResources();
@@ -182,72 +207,49 @@ public class Main extends MapActivity
         busStopDrawableAll = resources.getDrawable(R.drawable.busstop_all);
         busStopDrawableStar = resources.getDrawable(R.drawable.busstop_star);
         
-        toggleButton.setOnClickListener(new OnClickListener() {
-			
+        SpinnerAdapter modeSpinnerAdapter = makeModeSpinner(); 
+
+        toggleButton.setOnItemSelectedListener(new OnItemSelectedListener() {
+
 			@Override
-			public void onClick(View v) {
-				
-				int newValue = getSelectedBusPredictions();
-				switch (newValue)
+			public void onItemSelected(AdapterView<?> parent, View view,
+					int position, long id) {
+				if (firstRunMode)
 				{
-				//temporarily skipping BUS_PREDICTIONS_ALL
-				case BUS_PREDICTIONS_ONE:
-					newValue = BUS_PREDICTIONS_STAR;
-					break;
-				case BUS_PREDICTIONS_ALL:
-					newValue = BUS_PREDICTIONS_STAR;
-					break;
-				case BUS_PREDICTIONS_STAR:
-					newValue = VEHICLE_LOCATIONS_ONE;
-					break;
-				case VEHICLE_LOCATIONS_ONE:
-					newValue = VEHICLE_LOCATIONS_ALL;
-					break;
-				case VEHICLE_LOCATIONS_ALL:
-					newValue = BUS_PREDICTIONS_ONE;
-					break;
+					firstRunMode = false;
 				}
-				
-				setSelectedBusPredictions(newValue);
-								
-				if (busLocations != null && handler != null)
+				else if (busLocations != null && handler != null)
 				{
-					handler.setSelectedBusPredictions(newValue);
+					if (position < 0 || position >= modesSupported.length)
+					{
+						handler.setSelectedBusPredictions(VEHICLE_LOCATIONS_ALL);
+					}
+					else
+					{
+						handler.setSelectedBusPredictions(modesSupported[position]);
+					}
+
 					handler.triggerUpdate();
 					handler.immediateRefresh();
-				}
+				}				
 			}
-		});
-        
 
+			@Override
+			public void onNothingSelected(AdapterView<?> arg0) {
+				//do nothing
+			}
+			
+
+		});
+
+        toggleButton.setAdapter(modeSpinnerAdapter);
+
+        
         DatabaseHelper helper = new DatabaseHelper(this, busStop);
         
         String[] routesSupported = getOrObtainRoutes(helper);
         
-        final ArrayList<HashMap<String, String>> routeList = new ArrayList<HashMap<String, String>>();
-        
-        for (String route : routesSupported)
-        {
-        	HashMap<String, String> map = new HashMap<String, String>();
-        	if ("751".equals(route))
-        	{
-        		map.put("name", "SL4");
-        	}
-        	else
-        	{
-        		map.put("name", "" + route);
-        	}
-        	map.put("key", route);
-        	routeList.add(map);
-        }
-        
-        
-        SimpleAdapter adapter = new SimpleAdapter(this, routeList, android.R.layout.simple_spinner_item, new String[]{"name"}, 
-        		new int[]{android.R.id.text1});
-
-        adapter.setDropDownViewResource(android.R.layout.simple_dropdown_item_1line);
-
-        modeSpinner.setAdapter(adapter);
+        modeSpinner.setAdapter(makeRouteSpinnerAdapter(routesSupported));
         
         //get the busLocations variable if it already exists. We need to do that step here since handler
         double lastUpdateTime = 0;
@@ -309,9 +311,9 @@ public class Main extends MapActivity
 			@Override
 			public void onItemSelected(AdapterView<?> parent, View view,
 					int position, long id) {
-				if (firstRun)
+				if (firstRunRoute)
 				{
-					firstRun = false;
+					firstRunRoute = false;
 				}
 				else if (busLocations != null && handler != null)
 				{
@@ -383,52 +385,71 @@ public class Main extends MapActivity
     }
 		
 
-    private int getSelectedBusPredictions()
+    private SpinnerAdapter makeRouteSpinnerAdapter(String[] routesSupported) {
+    	final ArrayList<HashMap<String, String>> routeList = new ArrayList<HashMap<String, String>>();
+        
+        for (String route : routesSupported)
+        {
+        	HashMap<String, String> map = new HashMap<String, String>();
+        	if ("751".equals(route))
+        	{
+        		map.put("name", "SL4");
+        	}
+        	else
+        	{
+        		map.put("name", "" + route);
+        	}
+        	map.put("key", route);
+        	routeList.add(map);
+        }
+        
+        
+        SimpleAdapter adapter = new SimpleAdapter(this, routeList, android.R.layout.simple_spinner_item, new String[]{"name"}, 
+        		new int[]{android.R.id.text1});
+
+        adapter.setDropDownViewResource(android.R.layout.simple_dropdown_item_1line);
+        return adapter;
+	}
+
+
+	private SpinnerAdapter makeModeSpinner() {
+    	final ArrayList<ViewingMode> modes = new ArrayList<ViewingMode>();
+        
+        for (int i = 0; i < modesSupported.length; i++)
+        {
+        	ViewingMode mode = new ViewingMode(modeIconsSupported[i], modeTextSupported[i]);
+        	modes.add(mode);
+        }
+        
+        ModeAdapter adapter = new ModeAdapter(this, modes);
+        
+        return adapter;
+	}
+
+
+	private int getSelectedBusPredictions()
     {
-    	Drawable drawable = toggleButton.getDrawable();
-    	if (drawable == busStopDrawableOne)
-    	{
-    		return BUS_PREDICTIONS_ONE;
-    	}
-    	else if (drawable == busDrawableOne)
-    	{
-    		return VEHICLE_LOCATIONS_ONE;
-    	}
-    	else if (drawable == busStopDrawableAll)
-    	{
-    		return BUS_PREDICTIONS_ALL;
-    	}
-    	else if (drawable == busStopDrawableStar)
-    	{
-    		return BUS_PREDICTIONS_STAR;
-    	}
-    	else
+    	int pos = toggleButton.getSelectedItemPosition();
+    	if (pos < 0 || pos >= modesSupported.length)
     	{
     		return VEHICLE_LOCATIONS_ALL;
     	}
-    }
-
-    private void setSelectedBusPredictions(int isSelectedBusPredictions)
-    {
-    	if (isSelectedBusPredictions == Main.BUS_PREDICTIONS_ONE)
-    	{
-    		toggleButton.setImageDrawable(busStopDrawableOne);
-    	}
-    	else if (isSelectedBusPredictions == Main.VEHICLE_LOCATIONS_ONE)
-    	{
-    		toggleButton.setImageDrawable(busDrawableOne);
-    	}
-    	else if (isSelectedBusPredictions == Main.BUS_PREDICTIONS_ALL)
-    	{
-    		toggleButton.setImageDrawable(busStopDrawableAll);
-    	}
-    	else if (isSelectedBusPredictions == Main.BUS_PREDICTIONS_STAR)
-    	{
-    		toggleButton.setImageDrawable(busStopDrawableStar);
-    	}
     	else
     	{
-    		toggleButton.setImageDrawable(busDrawableAll);
+    		return modesSupported[pos];
+    	}
+    	
+    }
+
+    private void setSelectedBusPredictions(int selection)
+    {
+    	for (int i = 0; i < modesSupported.length; i++)
+    	{
+    		if (modesSupported[i] == selection)
+    		{
+    			toggleButton.setSelection(i);
+    			return;
+    		}
     	}
     }
 
