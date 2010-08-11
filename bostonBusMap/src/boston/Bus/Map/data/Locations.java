@@ -145,7 +145,8 @@ public final class Locations
 			
 			final int contentLength = 950308;
 			
-			InputStream in = new StreamCounter(context.getResources().openRawResource(boston.Bus.Map.R.raw.routeconfig), task, contentLength, null, "Decompressing route data: "); 
+			InputStream in = new StreamCounter(context.getResources().openRawResource(boston.Bus.Map.R.raw.routeconfig),
+					task, contentLength, null, "Decompressing route data, may take 1 or 2 min: "); 
 			
 			GZIPInputStream stream = new GZIPInputStream(in); 
 			
