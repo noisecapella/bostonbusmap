@@ -19,6 +19,8 @@
 package boston.Bus.Map.main;
 
 import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -124,15 +126,15 @@ public class UpdateAsyncTask extends AsyncTask<Object, String, Locations>
 	 * A type safe wrapper around execute
 	 * @param busLocations
 	 */
-	public void runUpdate(Locations locations, double centerLatitude, double centerLongitude)
+	public void runUpdate(Locations locations, double centerLatitude, double centerLongitude, Context context)
 	{
-		execute(locations, centerLatitude, centerLongitude);
+		execute(locations, centerLatitude, centerLongitude, context);
 	}
 
 	@Override
 	protected Locations doInBackground(Object... args) {
 		//number of bus pictures to draw. Too many will make things slow
-		return updateBusLocations((Locations)args[0], (Double)args[1], (Double)args[2]);
+		return updateBusLocations((Locations)args[0], (Double)args[1], (Double)args[2], (Context)args[3]);
 	}
 
 	@Override
@@ -145,7 +147,7 @@ public class UpdateAsyncTask extends AsyncTask<Object, String, Locations>
 		
 	}
 
-	public Locations updateBusLocations(Locations busLocations, double centerLatitude, double centerLongitude)
+	public Locations updateBusLocations(Locations busLocations, double centerLatitude, double centerLongitude, Context context)
 	{
 		Log.v("BostonBusMap", "in updateBusLocations, centerLatitude is " + centerLatitude);
 		if (doRefresh == false)
@@ -180,7 +182,7 @@ public class UpdateAsyncTask extends AsyncTask<Object, String, Locations>
 				{
 					publishProgress("Did not find route info in database, downloading it now...");
 				}
-				//busLocations.initializeAllRoutes(helper, this);
+				busLocations.initializeAllRoutes(helper, this, context);
 				
 				
 				publishProgress("Fetching data...");
@@ -192,24 +194,44 @@ public class UpdateAsyncTask extends AsyncTask<Object, String, Locations>
 			{
 				//this probably means that there is no Internet available, or there's something wrong with the feed
 				publishProgress("Bus feed is inaccessible; try again later");
-				Log.e("BostonBusMap", e.toString());
+
+				StringWriter writer = new StringWriter();
+				e.printStackTrace(new PrintWriter(writer));
+				Log.e("BostonBusMap", writer.toString());
+				
 				return null;
 
 			} catch (SAXException e) {
 				publishProgress("XML parsing exception; cannot update. Maybe there was a hiccup in the feed?");
-				Log.e("BostonBusMap", e.toString());
+
+				StringWriter writer = new StringWriter();
+				e.printStackTrace(new PrintWriter(writer));
+				Log.e("BostonBusMap", writer.toString());
+				
 				return null;
 			} catch (NumberFormatException e) {
 				publishProgress("XML parsing exception; cannot update. Maybe there was a hiccup in the feed?");
-				Log.e("BostonBusMap", e.toString());
+
+				StringWriter writer = new StringWriter();
+				e.printStackTrace(new PrintWriter(writer));
+				Log.e("BostonBusMap", writer.toString());
+				
 				return null;
 			} catch (ParserConfigurationException e) {
 				publishProgress("XML parser configuration exception; cannot update");
-				Log.e("BostonBusMap", e.toString());
+
+				StringWriter writer = new StringWriter();
+				e.printStackTrace(new PrintWriter(writer));
+				Log.e("BostonBusMap", writer.toString());
+				
 				return null;
 			} catch (FactoryConfigurationError e) {
 				publishProgress("XML parser factory configuration exception; cannot update");
-				Log.e("BostonBusMap", e.toString());
+
+				StringWriter writer = new StringWriter();
+				e.printStackTrace(new PrintWriter(writer));
+				Log.e("BostonBusMap", writer.toString());
+				
 				return null;
 			}
 			catch (RuntimeException e)
@@ -217,7 +239,11 @@ public class UpdateAsyncTask extends AsyncTask<Object, String, Locations>
 				if (e.getCause() instanceof FeedException)
 				{
 					publishProgress("The feed is reporting an error");
-					Log.e("BostonBusMap", e.toString());
+
+					StringWriter writer = new StringWriter();
+					e.printStackTrace(new PrintWriter(writer));
+					Log.e("BostonBusMap", writer.toString());
+					
 					return null;
 				}
 				else
@@ -228,7 +254,11 @@ public class UpdateAsyncTask extends AsyncTask<Object, String, Locations>
 			catch (Exception e)
 			{
 				publishProgress("Unknown exception occurred");
-				Log.e("BostonBusMap", e.toString());
+
+				StringWriter writer = new StringWriter();
+				e.printStackTrace(new PrintWriter(writer));
+				Log.e("BostonBusMap", writer.toString());
+				
 				return null;
 			}
 		}

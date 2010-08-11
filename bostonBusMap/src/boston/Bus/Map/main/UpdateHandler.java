@@ -143,7 +143,7 @@ public class UpdateHandler extends Handler {
 					selectedRouteIndex, selectedBusPredictions, false, getShowRouteLine(), getShowCoarseRouteLine());
 			
 
-			minorUpdate.runUpdate(busLocations, centerLatitude, centerLongitude);
+			minorUpdate.runUpdate(busLocations, centerLatitude, centerLongitude, context);
 			
 			break;
 		}		
@@ -205,7 +205,7 @@ public class UpdateHandler extends Handler {
 				getShowUnpredictable(), true, maxOverlays,
 				getHideHighlightCircle() == false, getInferBusRoutes(), busOverlay, routeOverlay, helper,
 				selectedRouteIndex, selectedBusPredictions, isFirstTime, showRouteLine, showCoarseRouteLine);
-		updateAsyncTask.runUpdate(busLocations, centerLatitude, centerLongitude);
+		updateAsyncTask.runUpdate(busLocations, centerLatitude, centerLongitude, context);
 	}
 
 	public boolean instantRefresh() {

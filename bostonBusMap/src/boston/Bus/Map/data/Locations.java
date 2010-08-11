@@ -18,30 +18,18 @@
     */
 package boston.Bus.Map.data;
 
-import java.io.BufferedInputStream;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.DataInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.StringReader;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Hashtable;
-import java.util.Iterator;
 import java.util.List;
-import java.util.ListIterator;
-import java.util.Map;
-import java.util.Set;
 import java.util.TreeSet;
-import java.util.zip.Deflater;
+import java.util.zip.GZIPInputStream;
+import java.util.zip.InflaterInputStream;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -50,10 +38,12 @@ import javax.xml.parsers.ParserConfigurationException;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
-import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
+import android.content.Context;
+import android.graphics.drawable.Drawable;
+import android.util.Log;
 import boston.Bus.Map.database.DatabaseHelper;
 import boston.Bus.Map.main.Main;
 import boston.Bus.Map.main.UpdateAsyncTask;
@@ -62,15 +52,8 @@ import boston.Bus.Map.parser.RouteConfigFeedParser;
 import boston.Bus.Map.parser.VehicleLocationsFeedParser;
 import boston.Bus.Map.transit.TransitSystem;
 import boston.Bus.Map.util.DownloadHelper;
+import boston.Bus.Map.util.FeedException;
 import boston.Bus.Map.util.StreamCounter;
-
-
-import android.content.Context;
-import android.database.SQLException;
-import android.database.sqlite.SQLiteException;
-import android.graphics.drawable.Drawable;
-import android.location.LocationListener;
-import android.util.Log;
 
 public final class Locations
 {
@@ -142,7 +125,7 @@ public final class Locations
 	 * @throws SAXException
 	 * @throws IOException
 	 */
-	public void initializeAllRoutes(DatabaseHelper helper, UpdateAsyncTask task)
+	public void initializeAllRoutes(DatabaseHelper helper, UpdateAsyncTask task, Context context)
 		throws ParserConfigurationException, FactoryConfigurationError, SAXException, IOException
 	{
 		boolean hasMissingData = routeInfoNeedsUpdating();
@@ -152,10 +135,16 @@ public final class Locations
 			final String prepend = "Downloading route info (this may take a short while): ";
 			
 			//download everything at once
-			final String urlString = TransitSystem.getRouteConfigUrl();
+			//NOTE: for now, I'm including a copy of the routeConfig with the app
+			/*final String urlString = TransitSystem.getRouteConfigUrl();
 			URL url = new URL(urlString);
 			
 			InputStream stream = downloadStream(url, task, prepend, "of approx " + TransitSystem.getSizeOfRouteConfigUrl());
+			*/
+			task.publish("Decompressing route data. This may take a minute...");
+			InputStream in = context.getResources().openRawResource(boston.Bus.Map.R.raw.routeconfig); 
+			
+			GZIPInputStream stream = new GZIPInputStream(in); 
 			
 			RouteConfigFeedParser parser = new RouteConfigFeedParser(busStop);
 			
@@ -643,18 +632,17 @@ public final class Locations
 		for (String route : supportedRoutes)
 		{
 			//TODO: remember to put this back when we go back to using the whole routeConfig
-			/*if (stopMapping.get(route) == null || stopMapping.get(route).getStops().size() == 0)
+			if (routeMapping.get(route) == null || routeMapping.get(route).getStops().size() == 0)
 			{
-				needsUpdating = true;
-				break;
-			}*/
-			if (routeMapping.get(route) != null && routeMapping.get(route).getStops().size() != 0)
+				return true;
+			}
+			/*if (routeMapping.get(route) != null && routeMapping.get(route).getStops().size() != 0)
 			{
 				return false;
-			}
+			}*/
 		}
 		
-		return true;
+		return false;
 	}
 
 	/**
