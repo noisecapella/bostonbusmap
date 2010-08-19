@@ -247,9 +247,10 @@ public class Main extends MapActivity
         
         DatabaseHelper helper = new DatabaseHelper(this, busStop);
         
-        String[] routesSupported = getOrObtainRoutes(helper);
+        String[][] routeKeyMap = getOrObtainRoutes(helper);
+        String[] routesSupported = routeKeyMap[0];
         
-        modeSpinner.setAdapter(makeRouteSpinnerAdapter(routesSupported));
+        modeSpinner.setAdapter(makeRouteSpinnerAdapter(routeKeyMap));
         
         //get the busLocations variable if it already exists. We need to do that step here since handler
         double lastUpdateTime = 0;
@@ -385,21 +386,17 @@ public class Main extends MapActivity
     }
 		
 
-    private SpinnerAdapter makeRouteSpinnerAdapter(String[] routesSupported) {
+    private SpinnerAdapter makeRouteSpinnerAdapter(String[][] routeKeyMap) {
     	final ArrayList<HashMap<String, String>> routeList = new ArrayList<HashMap<String, String>>();
         
-        for (String route : routesSupported)
+    	String[] keys = routeKeyMap[0];
+    	String[] titles = routeKeyMap[1];
+    	
+        for (int i = 0; i < keys.length; i++)
         {
         	HashMap<String, String> map = new HashMap<String, String>();
-        	if ("751".equals(route))
-        	{
-        		map.put("name", "SL4");
-        	}
-        	else
-        	{
-        		map.put("name", "" + route);
-        	}
-        	map.put("key", route);
+       		map.put("name", keys[i]);
+        	map.put("key", titles[i]);
         	routeList.add(map);
         }
         
@@ -453,9 +450,11 @@ public class Main extends MapActivity
     	}
     }
 
-	private String[] getOrObtainRoutes(DatabaseHelper helper) {
+	private String[][] getOrObtainRoutes(DatabaseHelper helper) {
 		//TODO: download it from the xml feed and store it in the database. For now it's just a resource
-		return getResources().getStringArray(R.array.modes);
+		Resources res = getResources();
+		
+		return new String[][]{res.getStringArray(R.array.modes), res.getStringArray(R.array.modeTitles)};
 	}
 
 
