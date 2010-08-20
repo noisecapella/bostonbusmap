@@ -49,6 +49,7 @@ public class RouteConfigFeedParser extends DefaultHandler
 	private static final String directionKey = "direction";
 	private static final String stopKey = "stop";
 
+	private static final String stopIdKey = "stopId";
 	private static final String tagKey = "tag";
 	private static final String latitudeKey = "lat";
 	private static final String longitudeKey = "lon";
@@ -88,8 +89,8 @@ public class RouteConfigFeedParser extends DefaultHandler
 
 				if (inDirection == false)
 				{
-					String tag = attributes.getValue(tagKey);
-					int id = Integer.parseInt(tag);
+					String stopId = attributes.getValue(stopIdKey);
+					int id = Integer.parseInt(stopId);
 
 					double latitudeAsDegrees = Double.parseDouble(attributes.getValue(latitudeKey));
 					double longitudeAsDegrees = Double.parseDouble(attributes.getValue(longitudeKey));
