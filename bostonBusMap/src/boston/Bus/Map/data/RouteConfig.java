@@ -35,9 +35,9 @@ public class RouteConfig implements CanBeSerialized
 		stops.put(id, stopLocation);
 	}
 	
-	public StopLocation getStop(int id)
+	public StopLocation getStop(String tag)
 	{
-		return stops.get(id);
+		return stops.get(tag);
 	}
 
 	
