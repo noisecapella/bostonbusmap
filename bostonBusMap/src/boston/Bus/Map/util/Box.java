@@ -34,7 +34,7 @@ public class Box {
 	 */
 	private final int versionNumber;
 	
-	public Box(byte[] input, int versionNumber, HashMap<Integer, StopLocation> sharedStops)
+	public Box(byte[] input, int versionNumber, HashMap<String, StopLocation> sharedStops)
 	{
 		this.versionNumber = versionNumber;
 		if (input == null)
@@ -194,28 +194,28 @@ public class Box {
 		}
 	}
 
-	public void writeStopsMap(Map<Integer, StopLocation> stops) throws IOException {
+	public void writeStopsMap(Map<String, StopLocation> stops) throws IOException {
 		showProgress("writeStopsMap");
 		int size = stops.size();
 		writeInt(size);
 		
-		for (Integer key : stops.keySet())
+		for (String key : stops.keySet())
 		{
-			writeInt(key);
+			writeString(key);
 			StopLocation value = stops.get(key);
 			value.serialize(this);
 		}
 	}
 
-	private final HashMap<Integer, StopLocation> stopMap;
+	private final HashMap<String, StopLocation> stopMap;
 	
-	public void readStopsMap(HashMap<Integer, StopLocation> stops, RouteConfig routeConfig, Drawable busStop) throws IOException {
+	public void readStopsMap(HashMap<String, StopLocation> stops, RouteConfig routeConfig, Drawable busStop) throws IOException {
 		showProgress("readStopsMap");
 		int size = readInt();
 		
 		for (int i = 0; i < size; i++)
 		{
-			Integer key = readInt();
+			String key = readString();
 			StopLocation value = new StopLocation(this, busStop);
 			if (stopMap.containsKey(key))
 			{
@@ -300,21 +300,6 @@ public class Box {
 	{
 		showProgress("readLong");
 		return inputStream.readLong();
-	}
-
-	public void writePredictions() throws IOException {
-		showProgress("writePredictions");
-		writeInt(0);
-		
-		//there will never be any predictions; this is here for legacy reasons
-	}
-	
-	public void readPredictions() throws IOException
-	{
-		showProgress("readPredictions");
-		int size = readInt();
-		
-		//there will never be any predictions; this is here for legacy reasons
 	}
 
 	private void showProgress(String string) {

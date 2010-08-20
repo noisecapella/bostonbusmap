@@ -38,4 +38,6 @@ public interface Location {
 	int getIsFavorite();
 
 	boolean toggleFavorite();
+
+	String getFavoriteTag();
 }

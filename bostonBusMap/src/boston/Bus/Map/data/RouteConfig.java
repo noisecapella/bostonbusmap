@@ -18,7 +18,7 @@ import android.os.Parcelable;
 public class RouteConfig implements CanBeSerialized
 {
 
-	private final HashMap<Integer, StopLocation> stops = new HashMap<Integer, StopLocation>();
+	private final HashMap<String, StopLocation> stops = new HashMap<String, StopLocation>();
 	private final HashMap<String, String> directionTitles = new HashMap<String, String>();
 	private final HashMap<String, String> directionNames = new HashMap<String, String>();
 	private final TreeMap<Integer, Path> paths = new TreeMap<Integer, Path>();
@@ -31,7 +31,7 @@ public class RouteConfig implements CanBeSerialized
 	
 	
 	
-	public void addStop(int id, StopLocation stopLocation) {
+	public void addStop(String id, StopLocation stopLocation) {
 		stops.put(id, stopLocation);
 	}
 	

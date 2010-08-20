@@ -28,7 +28,7 @@ public class StopLocation implements Location, CanBeSerialized
 	private final double longitudeAsDegrees;
 	private final Drawable busStop;
 	
-	private final int id;
+	private final String tag;
 	
 	private final String title;
 	
@@ -41,14 +41,14 @@ public class StopLocation implements Location, CanBeSerialized
 	private static final int LOCATIONTYPE = 3; 
 	
 	public StopLocation(double latitudeAsDegrees, double longitudeAsDegrees,
-			Drawable busStop, int id, String title)
+			Drawable busStop, String tag, String title)
 	{
 		this.latitude = latitudeAsDegrees * Constants.degreesToRadians;
 		this.latitudeAsDegrees = latitudeAsDegrees;
 		this.longitude = longitudeAsDegrees * Constants.degreesToRadians;
 		this.longitudeAsDegrees = longitudeAsDegrees;
 		this.busStop = busStop;
-		this.id = id;
+		this.tag = tag;
 		this.title = title;
 	}
 	
@@ -79,7 +79,7 @@ public class StopLocation implements Location, CanBeSerialized
 
 	@Override
 	public int getId() {
-		return id | LOCATIONTYPE << 16;
+		return (tag.hashCode() & 0xffffff) | LOCATIONTYPE << 24;
 	}
 
 	@Override
@@ -100,7 +100,7 @@ public class StopLocation implements Location, CanBeSerialized
 
 	@Override
 	public String makeTitle() {
-		String ret = "Stop: " + id + ", Routes: ";
+		String ret = "Stop: " + tag + ", Routes: ";
 
 		//java doesn't have a join function? seriously?
 		int index = 0;
@@ -157,8 +157,8 @@ public class StopLocation implements Location, CanBeSerialized
 		return ret;
 	}
 	
-	public int getStopNumber() {
-		return id;
+	public String getStopTag() {
+		return tag;
 	}
 
 	public void clearPredictions(RouteConfig routeConfig)
@@ -208,14 +208,9 @@ public class StopLocation implements Location, CanBeSerialized
 	public void serialize(Box dest) throws IOException {
 		dest.writeDouble(latitudeAsDegrees);
 		dest.writeDouble(longitudeAsDegrees);
-		dest.writeInt(id);
+		dest.writeString(tag);
 
 		dest.writeString(title);
-		
-		//this used to be dirTag, but that's deprecated
-		dest.writeString("");
-		
-		dest.writePredictions();
 	}
 
 	
@@ -229,14 +224,10 @@ public class StopLocation implements Location, CanBeSerialized
 		
 		
 
-		id = source.readInt();
+		tag = source.readString();
 
 		title = source.readString();
-		//this is deprecated
-		String inBound = source.readString();
 		this.busStop = busStop;
-
-		source.readPredictions();
 	}
 
 
@@ -253,7 +244,7 @@ public class StopLocation implements Location, CanBeSerialized
 		if (routeConfig != null)
 		{
 			//only do it for the given route
-			TransitSystem.bindPredictionElementsForUrl(urlString, routeConfig, id);
+			TransitSystem.bindPredictionElementsForUrl(urlString, routeConfig, tag);
 		}
 		else
 		{
@@ -262,9 +253,15 @@ public class StopLocation implements Location, CanBeSerialized
 			{
 				for (RouteConfig route : routes)
 				{
-					TransitSystem.bindPredictionElementsForUrl(urlString, route, id);
+					TransitSystem.bindPredictionElementsForUrl(urlString, route, tag);
 				}
 			}
 		}
+	}
+
+	@Override
+	public String getFavoriteTag() {
+		return tag;
+		
 	}
 }

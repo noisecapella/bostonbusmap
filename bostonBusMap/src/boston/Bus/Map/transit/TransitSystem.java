@@ -101,8 +101,8 @@ public class TransitSystem {
 	}
 
 	public static void bindPredictionElementsForUrl(StringBuilder urlString,
-			RouteConfig routeConfig, int stopId) {
-		urlString.append("&stops=").append(routeConfig.getRouteName()).append("%7Cnull%7C").append(stopId);
+			RouteConfig routeConfig, String stopId) {
+		urlString.append("&stops=").append(routeConfig.getRouteName()).append("%7C%7C").append(stopId);
 		
 	}
 }

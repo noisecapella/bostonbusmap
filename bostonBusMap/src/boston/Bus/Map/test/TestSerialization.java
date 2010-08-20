@@ -18,7 +18,7 @@ import junit.framework.TestCase;
 public class TestSerialization extends TestCase {
 	public void testString() throws IOException
 	{
-		HashMap<Integer, StopLocation> sharedStops = new HashMap<Integer, StopLocation>();
+		HashMap<String, StopLocation> sharedStops = new HashMap<String, StopLocation>();
 		
 		String x = null;
 		Box outputBox = new Box(null, DatabaseHelper.CURRENT_DB_VERSION, sharedStops);
@@ -43,7 +43,7 @@ public class TestSerialization extends TestCase {
 	}
 	public void testString2() throws IOException
 	{
-		HashMap<Integer, StopLocation> sharedStops = new HashMap<Integer, StopLocation>();
+		HashMap<String, StopLocation> sharedStops = new HashMap<String, StopLocation>();
 		
 		String x = "A quick brown fox";
 		Box outputBox = new Box(null, DatabaseHelper.CURRENT_DB_VERSION, sharedStops);
@@ -59,7 +59,7 @@ public class TestSerialization extends TestCase {
 	}
 	public void testLong() throws IOException
 	{
-		HashMap<Integer, StopLocation> sharedStops = new HashMap<Integer, StopLocation>();
+		HashMap<String, StopLocation> sharedStops = new HashMap<String, StopLocation>();
 		
 		long x = -4557498050202912686l;
 		Box outputBox = new Box(null, DatabaseHelper.CURRENT_DB_VERSION, sharedStops);
@@ -75,7 +75,7 @@ public class TestSerialization extends TestCase {
 	}
 	public void testInt() throws IOException
 	{
-		HashMap<Integer, StopLocation> sharedStops = new HashMap<Integer, StopLocation>();
+		HashMap<String, StopLocation> sharedStops = new HashMap<String, StopLocation>();
 		
 		int x = -8455;
 		Box outputBox = new Box(null, DatabaseHelper.CURRENT_DB_VERSION, sharedStops);
@@ -92,7 +92,7 @@ public class TestSerialization extends TestCase {
 	
 	public void testDouble() throws IOException
 	{
-		HashMap<Integer, StopLocation> sharedStops = new HashMap<Integer, StopLocation>();
+		HashMap<String, StopLocation> sharedStops = new HashMap<String, StopLocation>();
 		
 		double x = -8455.34;
 		Box outputBox = new Box(null, DatabaseHelper.CURRENT_DB_VERSION, sharedStops);
@@ -109,7 +109,7 @@ public class TestSerialization extends TestCase {
 	
 	public void testFloat() throws IOException
 	{
-		HashMap<Integer, StopLocation> sharedStops = new HashMap<Integer, StopLocation>();
+		HashMap<String, StopLocation> sharedStops = new HashMap<String, StopLocation>();
 		
 		float x = -8455.88f;
 		Box outputBox = new Box(null, DatabaseHelper.CURRENT_DB_VERSION, sharedStops);
@@ -126,7 +126,7 @@ public class TestSerialization extends TestCase {
 	
 	private void assertValid(Box outputBox) throws IOException
 	{
-		HashMap<Integer, StopLocation> sharedStops = new HashMap<Integer, StopLocation>();
+		HashMap<String, StopLocation> sharedStops = new HashMap<String, StopLocation>();
 		
 		byte[] blob = outputBox.getBlob();
 		
@@ -149,12 +149,12 @@ public class TestSerialization extends TestCase {
 	
 	public void testBasic() throws IOException
 	{
-		HashMap<Integer, StopLocation> sharedStops = new HashMap<Integer, StopLocation>();
+		HashMap<String, StopLocation> sharedStops = new HashMap<String, StopLocation>();
 		
 		RouteConfig routeConfig = new RouteConfig("x");
 		
 		routeConfig.addPath(1, 3, 4);
-		routeConfig.addStop(5, new StopLocation(44.0, 55.0, null, 5, "xy"));
+		routeConfig.addStop("5", new StopLocation(44.0, 55.0, null, "5", "xy"));
 		routeConfig.addDirection("XYZSD", "akosod", "asodkosd");
 		
 		Box outputBox = new Box(null, DatabaseHelper.CURRENT_DB_VERSION, sharedStops);
@@ -165,12 +165,12 @@ public class TestSerialization extends TestCase {
 	}
 	public void testBasic2() throws IOException
 	{
-		HashMap<Integer, StopLocation> sharedStops = new HashMap<Integer, StopLocation>();
+		HashMap<String, StopLocation> sharedStops = new HashMap<String, StopLocation>();
 		
 		RouteConfig routeConfig = new RouteConfig("x");
 		
 		routeConfig.addPath(1, 3, 4);
-		routeConfig.addStop(5, new StopLocation(44.0, 55.0, null, 5, "xy"));
+		routeConfig.addStop("5", new StopLocation(44.0, 55.0, null, "5", "xy"));
 		//routeConfig.addStop(6, new StopLocation(47.0, 56.0, null, 5, "x", "tue", routeConfig));
 		//routeConfig.addDirection("XYZSD", "akosod", "asodkosd");
 		
@@ -183,7 +183,7 @@ public class TestSerialization extends TestCase {
 	
 	public void testStringMap() throws IOException
 	{
-		HashMap<Integer, StopLocation> sharedStops = new HashMap<Integer, StopLocation>();
+		HashMap<String, StopLocation> sharedStops = new HashMap<String, StopLocation>();
 		
 		HashMap<String, String> mapping = new HashMap<String, String>();
 		
@@ -232,9 +232,9 @@ public class TestSerialization extends TestCase {
 	
 	public void testStopLocation() throws IOException
 	{
-		HashMap<Integer, StopLocation> sharedStops = new HashMap<Integer, StopLocation>();
+		HashMap<String, StopLocation> sharedStops = new HashMap<String, StopLocation>();
 		
-		StopLocation stopLocation = new StopLocation(44.6, -45.6, null, 3, "stop");
+		StopLocation stopLocation = new StopLocation(44.6, -45.6, null, "3", "stop");
 		stopLocation.toggleFavorite();
 		
 		Box outputBox = new Box(null, DatabaseHelper.CURRENT_DB_VERSION, sharedStops);
@@ -246,7 +246,7 @@ public class TestSerialization extends TestCase {
 	
 	public void testPath() throws IOException
 	{
-		HashMap<Integer, StopLocation> sharedStops = new HashMap<Integer, StopLocation>();
+		HashMap<String, StopLocation> sharedStops = new HashMap<String, StopLocation>();
 		
 		Path stopLocation = new Path(3);
 		
@@ -260,7 +260,7 @@ public class TestSerialization extends TestCase {
 
 	private void assertValidStopLocation(Box outputBox) throws IOException
 	{
-		HashMap<Integer, StopLocation> sharedStops = new HashMap<Integer, StopLocation>();
+		HashMap<String, StopLocation> sharedStops = new HashMap<String, StopLocation>();
 		
 		byte[] blob = outputBox.getBlob();
 		
@@ -283,7 +283,7 @@ public class TestSerialization extends TestCase {
 	
 	private void assertValidPath(Box outputBox) throws IOException
 	{
-		HashMap<Integer, StopLocation> sharedStops = new HashMap<Integer, StopLocation>();
+		HashMap<String, StopLocation> sharedStops = new HashMap<String, StopLocation>();
 		
 		byte[] blob = outputBox.getBlob();
 		

@@ -387,7 +387,7 @@ public class BusOverlay extends BalloonItemizedOverlay<OverlayItem> {
 			Location location = locations.get(selectedBusIndex);
 			if (location.toggleFavorite())
 			{
-				helper.saveFavorite(location.getId(), location.getIsFavorite() == Location.IS_FAVORITE);
+				helper.saveFavorite(location.getFavoriteTag(), location.getIsFavorite() == Location.IS_FAVORITE);
 			}
 			
 			return location.getIsFavorite() == Location.IS_FAVORITE ? R.drawable.full_star : R.drawable.empty_star;

@@ -300,7 +300,7 @@ public class BusLocation implements Location
 	@Override
 	public int getId()
 	{
-		return id | LOCATIONTYPE << 16;
+		return id | LOCATIONTYPE << 24;
 	}
 
 	public Drawable getDrawable(Context context, boolean shadow, boolean isSelected) {
@@ -336,6 +336,11 @@ public class BusLocation implements Location
 	@Override
 	public boolean toggleFavorite() {
 		return false;
+	}
+
+	@Override
+	public String getFavoriteTag() {
+		return "";
 	}
 }
 

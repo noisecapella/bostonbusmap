@@ -62,7 +62,7 @@ public class RouteConfigFeedParser extends DefaultHandler
 	private static final String lonKey = "lon";
 	
 	
-	private HashMap<Integer, StopLocation> allStops = new HashMap<Integer, StopLocation>();
+	private HashMap<String, StopLocation> allStops = new HashMap<String, StopLocation>();
 	
 	private boolean inRoute;
 	private boolean inDirection;
@@ -89,32 +89,24 @@ public class RouteConfigFeedParser extends DefaultHandler
 
 				if (inDirection == false)
 				{
-					String stopId = attributes.getValue(stopIdKey);
-					if (stopId == null)
+					String tag = attributes.getValue(tagKey);
+
+					double latitudeAsDegrees = Double.parseDouble(attributes.getValue(latitudeKey));
+					double longitudeAsDegrees = Double.parseDouble(attributes.getValue(longitudeKey));
+
+					String title = attributes.getValue(titleKey);
+
+					StopLocation stopLocation = allStops.get(tag);
+					if (stopLocation == null)
 					{
-						//hopefully it doesn't mean anything important
-						//they seem to do this with stops that have two different locations
+						stopLocation = new StopLocation(latitudeAsDegrees, longitudeAsDegrees, busStop, tag,
+								title);
+						allStops.put(tag, stopLocation);
 					}
-					else
-					{
-						int id = Integer.parseInt(stopId);
 
-						double latitudeAsDegrees = Double.parseDouble(attributes.getValue(latitudeKey));
-						double longitudeAsDegrees = Double.parseDouble(attributes.getValue(longitudeKey));
+					currentRouteConfig.addStop(tag, stopLocation);
+					stopLocation.addRoute(currentRouteConfig);
 
-						String title = attributes.getValue(titleKey);
-
-						StopLocation stopLocation = allStops.get(id);
-						if (stopLocation == null)
-						{
-							stopLocation = new StopLocation(latitudeAsDegrees, longitudeAsDegrees, busStop, id,
-									title);
-							allStops.put(id, stopLocation);
-						}
-
-						currentRouteConfig.addStop(id, stopLocation);
-						stopLocation.addRoute(currentRouteConfig);
-					}
 				}
 				else
 				{

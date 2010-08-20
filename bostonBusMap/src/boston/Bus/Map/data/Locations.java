@@ -601,7 +601,7 @@ public final class Locations
 		
 		try
 		{
-			HashSet<Integer> initialFavorites = new HashSet<Integer>();
+			HashSet<String> initialFavorites = new HashSet<String>();
 			helper.populateMap(map, initialFavorites, supportedRoutes);
 			//we can skip buses since they have no favorites, so everything will be in the map
 			if (initialFavorites.size() != 0)
