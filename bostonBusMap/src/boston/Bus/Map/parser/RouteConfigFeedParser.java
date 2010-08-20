@@ -90,23 +90,31 @@ public class RouteConfigFeedParser extends DefaultHandler
 				if (inDirection == false)
 				{
 					String stopId = attributes.getValue(stopIdKey);
-					int id = Integer.parseInt(stopId);
-
-					double latitudeAsDegrees = Double.parseDouble(attributes.getValue(latitudeKey));
-					double longitudeAsDegrees = Double.parseDouble(attributes.getValue(longitudeKey));
-
-					String title = attributes.getValue(titleKey);
-
-					StopLocation stopLocation = allStops.get(id);
-					if (stopLocation == null)
+					if (stopId == null)
 					{
-						stopLocation = new StopLocation(latitudeAsDegrees, longitudeAsDegrees, busStop, id,
-							title);
-						allStops.put(id, stopLocation);
+						//hopefully it doesn't mean anything important
+						//they seem to do this with stops that have two different locations
 					}
+					else
+					{
+						int id = Integer.parseInt(stopId);
 
-					currentRouteConfig.addStop(id, stopLocation);
-					stopLocation.addRoute(currentRouteConfig);
+						double latitudeAsDegrees = Double.parseDouble(attributes.getValue(latitudeKey));
+						double longitudeAsDegrees = Double.parseDouble(attributes.getValue(longitudeKey));
+
+						String title = attributes.getValue(titleKey);
+
+						StopLocation stopLocation = allStops.get(id);
+						if (stopLocation == null)
+						{
+							stopLocation = new StopLocation(latitudeAsDegrees, longitudeAsDegrees, busStop, id,
+									title);
+							allStops.put(id, stopLocation);
+						}
+
+						currentRouteConfig.addStop(id, stopLocation);
+						stopLocation.addRoute(currentRouteConfig);
+					}
 				}
 				else
 				{
