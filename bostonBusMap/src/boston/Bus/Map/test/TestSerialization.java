@@ -154,7 +154,7 @@ public class TestSerialization extends TestCase {
 		RouteConfig routeConfig = new RouteConfig("x");
 		
 		routeConfig.addPath(1, 3, 4);
-		routeConfig.addStop("5", new StopLocation(44.0, 55.0, null, "5", "xy"));
+		routeConfig.addStop("5", new StopLocation(44.0f, 55.0f, null, "5", "xy"));
 		routeConfig.addDirection("XYZSD", "akosod", "asodkosd");
 		
 		Box outputBox = new Box(null, DatabaseHelper.CURRENT_DB_VERSION, sharedStops);
@@ -170,7 +170,7 @@ public class TestSerialization extends TestCase {
 		RouteConfig routeConfig = new RouteConfig("x");
 		
 		routeConfig.addPath(1, 3, 4);
-		routeConfig.addStop("5", new StopLocation(44.0, 55.0, null, "5", "xy"));
+		routeConfig.addStop("5", new StopLocation(44.0f, 55.0f, null, "5", "xy"));
 		//routeConfig.addStop(6, new StopLocation(47.0, 56.0, null, 5, "x", "tue", routeConfig));
 		//routeConfig.addDirection("XYZSD", "akosod", "asodkosd");
 		
@@ -234,7 +234,7 @@ public class TestSerialization extends TestCase {
 	{
 		HashMap<String, StopLocation> sharedStops = new HashMap<String, StopLocation>();
 		
-		StopLocation stopLocation = new StopLocation(44.6, -45.6, null, "3", "stop");
+		StopLocation stopLocation = new StopLocation(44.6f, -45.6f, null, "3", "stop");
 		
 		
 		Box outputBox = new Box(null, DatabaseHelper.CURRENT_DB_VERSION, sharedStops);

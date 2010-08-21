@@ -72,7 +72,7 @@ public final class Locations
 	private HashMap<Integer, BusLocation> busMapping = new HashMap<Integer, BusLocation>();
 	
 	/**
-	 * A mapping of a route id to a RouteConfig object. This should probably be renamed routeMapping
+	 * A mapping of a route id to a RouteConfig object.
 	 */
 	private final HashMap<String, RouteConfig> routeMapping = new HashMap<String, RouteConfig>();
 	
@@ -159,10 +159,13 @@ public final class Locations
 			parser.runParse(stream);
 			
 			task.publish("Parsing route data...");
+
 			parser.fillMapping(routeMapping);
 			
 			task.publish("Saving route data to database...");
 			helper.saveMapping(routeMapping, true);
+			
+			//TODO: fill routeMapping somehow
 			
 			task.publish("Done!");
 		}

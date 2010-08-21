@@ -19,7 +19,9 @@ import org.xml.sax.helpers.DefaultHandler;
 
 import boston.Bus.Map.data.Path;
 import boston.Bus.Map.data.RouteConfig;
+import boston.Bus.Map.data.RoutePool;
 import boston.Bus.Map.data.StopLocation;
+import boston.Bus.Map.database.DatabaseHelper;
 import boston.Bus.Map.util.FeedException;
 
 
@@ -91,8 +93,8 @@ public class RouteConfigFeedParser extends DefaultHandler
 				{
 					String tag = attributes.getValue(tagKey);
 
-					double latitudeAsDegrees = Double.parseDouble(attributes.getValue(latitudeKey));
-					double longitudeAsDegrees = Double.parseDouble(attributes.getValue(longitudeKey));
+					float latitudeAsDegrees = Float.parseFloat(attributes.getValue(latitudeKey));
+					float longitudeAsDegrees = Float.parseFloat(attributes.getValue(longitudeKey));
 
 					String title = attributes.getValue(titleKey);
 
@@ -199,6 +201,10 @@ public class RouteConfigFeedParser extends DefaultHandler
 		{
 			stopMapping.put(route, map.get(route));
 		}
+	}
+
+	public void fillAndSaveMapping(RoutePool routeMapping, DatabaseHelper helper, boolean b) {
+		
 	}
 	
 }

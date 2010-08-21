@@ -22,10 +22,8 @@ import android.widget.TextView;
 
 public class StopLocation implements Location, CanBeSerialized
 {
-	private final double latitude;
-	private final double longitude;
-	private final double latitudeAsDegrees;
-	private final double longitudeAsDegrees;
+	private final float latitude;
+	private final float longitude;
 	private final Drawable busStop;
 	
 	private final String tag;
@@ -40,13 +38,11 @@ public class StopLocation implements Location, CanBeSerialized
 	
 	private static final int LOCATIONTYPE = 3; 
 	
-	public StopLocation(double latitudeAsDegrees, double longitudeAsDegrees,
+	public StopLocation(float latitudeAsDegrees, float longitudeAsDegrees,
 			Drawable busStop, String tag, String title)
 	{
 		this.latitude = latitudeAsDegrees * Constants.degreesToRadians;
-		this.latitudeAsDegrees = latitudeAsDegrees;
 		this.longitude = longitudeAsDegrees * Constants.degreesToRadians;
-		this.longitudeAsDegrees = longitudeAsDegrees;
 		this.busStop = busStop;
 		this.tag = tag;
 		this.title = title;
@@ -73,7 +69,6 @@ public class StopLocation implements Location, CanBeSerialized
 
 	@Override
 	public int getHeading() {
-		// TODO Auto-generated method stub
 		return 0;
 	}
 
@@ -84,12 +79,12 @@ public class StopLocation implements Location, CanBeSerialized
 
 	@Override
 	public double getLatitudeAsDegrees() {
-		return latitudeAsDegrees;
+		return latitude * Constants.radiansToDegrees;
 	}
 
 	@Override
 	public double getLongitudeAsDegrees() {
-		return longitudeAsDegrees;
+		return longitude * Constants.radiansToDegrees;
 	}
 
 	@Override
@@ -195,8 +190,8 @@ public class StopLocation implements Location, CanBeSerialized
 
 	@Override
 	public void serialize(Box dest) throws IOException {
-		dest.writeDouble(latitudeAsDegrees);
-		dest.writeDouble(longitudeAsDegrees);
+		dest.writeFloat(latitude);
+		dest.writeFloat(longitude);
 		dest.writeString(tag);
 
 		dest.writeString(title);
@@ -206,10 +201,8 @@ public class StopLocation implements Location, CanBeSerialized
 	public StopLocation(Box source, Drawable busStop) throws IOException {
 
 
-		latitudeAsDegrees = source.readDouble();
-		longitudeAsDegrees = source.readDouble();
-		this.latitude = latitudeAsDegrees * Constants.degreesToRadians;
-		this.longitude = longitudeAsDegrees * Constants.degreesToRadians;
+		this.latitude = source.readFloat();
+		this.longitude = source.readFloat();
 		
 		
 
