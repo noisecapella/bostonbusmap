@@ -4,10 +4,6 @@ import android.content.Context;
 import android.graphics.drawable.Drawable;
 
 public interface Location {
-	public static final int IS_FAVORITE = 1;
-	public static final int NOT_FAVORITE = 2;
-	
-
 	/**
 	 * Some unique value for the location
 	 * @return
@@ -35,9 +31,5 @@ public interface Location {
 
 	String makeSnippet(RouteConfig selectedRoute);
 
-	int getIsFavorite();
-
-	boolean toggleFavorite();
-
-	String getFavoriteTag();
+	boolean isFavorite();
 }

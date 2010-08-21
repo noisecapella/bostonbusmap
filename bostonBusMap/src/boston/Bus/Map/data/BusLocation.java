@@ -327,20 +327,10 @@ public class BusLocation implements Location
 		// TODO Auto-generated method stub
 		return longitudeAsDegrees;
 	}
-	
-	@Override
-	public int getIsFavorite() {
-		return 0;
-	}
-	
-	@Override
-	public boolean toggleFavorite() {
-		return false;
-	}
 
 	@Override
-	public String getFavoriteTag() {
-		return "";
+	public boolean isFavorite() {
+		return false;
 	}
 }
 

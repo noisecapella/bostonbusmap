@@ -34,9 +34,9 @@ public class StopLocation implements Location, CanBeSerialized
 	
 	private final SortedSet<Prediction> predictions = new TreeSet<Prediction>();
 	
-	private boolean isFavorite;
-	
 	private final TreeSet<RouteConfig> routes = new TreeSet<RouteConfig>(new RouteComparator());
+	
+	private boolean isFavorite;
 	
 	private static final int LOCATIONTYPE = 3; 
 	
@@ -193,17 +193,6 @@ public class StopLocation implements Location, CanBeSerialized
 		return title;
 	}
 
-	public boolean toggleFavorite()
-	{
-		this.isFavorite = !isFavorite;
-		return true;
-	}
-	
-	@Override
-	public int getIsFavorite() {
-		return isFavorite ? IS_FAVORITE : NOT_FAVORITE;
-	}
-
 	@Override
 	public void serialize(Box dest) throws IOException {
 		dest.writeDouble(latitudeAsDegrees);
@@ -230,12 +219,6 @@ public class StopLocation implements Location, CanBeSerialized
 		this.busStop = busStop;
 	}
 
-
-	public void toggleFavorite(boolean b) {
-		isFavorite = b;
-		
-	}
-
 	/**
 	 * This should be in Locations instead but I need to synchronize routes
 	 * @param urlString
@@ -259,9 +242,14 @@ public class StopLocation implements Location, CanBeSerialized
 		}
 	}
 
-	@Override
-	public String getFavoriteTag() {
-		return tag;
-		
+	public void setFavorite(boolean b)
+	{
+		isFavorite = b;
 	}
+	
+	@Override
+	public boolean isFavorite() {
+		return isFavorite;
+	}
+
 }

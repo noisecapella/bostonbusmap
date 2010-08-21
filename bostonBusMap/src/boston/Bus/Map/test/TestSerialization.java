@@ -235,7 +235,7 @@ public class TestSerialization extends TestCase {
 		HashMap<String, StopLocation> sharedStops = new HashMap<String, StopLocation>();
 		
 		StopLocation stopLocation = new StopLocation(44.6, -45.6, null, "3", "stop");
-		stopLocation.toggleFavorite();
+		
 		
 		Box outputBox = new Box(null, DatabaseHelper.CURRENT_DB_VERSION, sharedStops);
 		

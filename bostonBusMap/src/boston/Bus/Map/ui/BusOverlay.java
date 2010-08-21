@@ -25,6 +25,8 @@ import java.util.List;
 
 import boston.Bus.Map.R;
 import boston.Bus.Map.data.BusLocation;
+import boston.Bus.Map.data.Locations;
+import boston.Bus.Map.data.StopLocation;
 
 import boston.Bus.Map.data.Location;
 import boston.Bus.Map.database.DatabaseHelper;
@@ -153,7 +155,7 @@ public class BusOverlay extends BalloonItemizedOverlay<OverlayItem> {
 					Location location = locations.get(index);
 					if (context != null)
 					{
-						boolean b = location.getIsFavorite() == Location.IS_FAVORITE;
+						boolean b = location.isFavorite();
 						Log.v("BostonBusMap", "setting favorite status, " + b);
 						context.setFavoriteStatus(b ? R.drawable.full_star : R.drawable.empty_star);
 					}
@@ -380,17 +382,15 @@ public class BusOverlay extends BalloonItemizedOverlay<OverlayItem> {
 	}
 
 
-	public int toggleFavorite(DatabaseHelper helper) {
+	public int toggleFavorite(DatabaseHelper helper, Locations locationsObj) {
 		int selectedBusIndex = getLastFocusedIndex();
 		if (selectedBusIndex >= 0 && selectedBusIndex < locations.size())
 		{
 			Location location = locations.get(selectedBusIndex);
-			if (location.toggleFavorite())
+			if (location instanceof StopLocation)
 			{
-				helper.saveFavorite(location.getFavoriteTag(), location.getIsFavorite() == Location.IS_FAVORITE);
+				return locationsObj.toggleFavorite(helper, (StopLocation)location);
 			}
-			
-			return location.getIsFavorite() == Location.IS_FAVORITE ? R.drawable.full_star : R.drawable.empty_star;
 		}
 		return R.drawable.empty_star;
 	}

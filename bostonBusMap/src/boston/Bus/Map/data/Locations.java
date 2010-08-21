@@ -41,9 +41,11 @@ import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
+
 import android.content.Context;
 import android.graphics.drawable.Drawable;
 import android.util.Log;
+import boston.Bus.Map.R;
 import boston.Bus.Map.database.DatabaseHelper;
 import boston.Bus.Map.main.Main;
 import boston.Bus.Map.main.UpdateAsyncTask;
@@ -104,6 +106,8 @@ public final class Locations
 	
 	private String selectedRoute;
 	private int selectedBusPredictions;
+	
+	private final HashMap<String, StopLocation> favoriteStops = new HashMap<String, StopLocation>();
 	
 	public Locations(Drawable bus, Drawable arrow, Drawable locationDrawable,
 			Drawable busStop, String[] supportedRoutes)
@@ -509,23 +513,12 @@ public final class Locations
 		}
 		else if (selectedBusPredictions == Main.BUS_PREDICTIONS_STAR)
 		{
-			for (String route : routeMapping.keySet())
+			for (String location : favoriteStops.keySet())
 			{
-				RouteConfig routeConfig = routeMapping.get(route);
-				if (routeConfig != null)
-				{
-					for (StopLocation location : routeConfig.getStops())
-					{
-						if (location.getIsFavorite() == Location.IS_FAVORITE)
-						{
-							if (locationKeys.contains(location.getId()) == false)
-							{
-								newLocations.add(location);
-								locationKeys.add(location.getId());
-							}
-						}
-					}
-				}
+				StopLocation stopLocation = favoriteStops.get(location);
+				
+				newLocations.add(stopLocation);
+				locationKeys.add(stopLocation.getId());
 			}
 		}
 		
@@ -612,10 +605,11 @@ public final class Locations
 					{
 						for (StopLocation location : route.getStops())
 						{
-							if (initialFavorites.contains(location.getId()))
+							if (initialFavorites.contains(location.getStopTag()))
 							{
 								Log.v("BostonBusMap", "toggling favorite: " + location.getId());
-								location.toggleFavorite(true);
+								favoriteStops.put(location.getStopTag(), location);
+								location.setFavorite(true);
 							}
 						}
 					}
@@ -667,5 +661,25 @@ public final class Locations
 
 	public RouteConfig getSelectedRoute() {
 		return routeMapping.get(selectedRoute);
+	}
+	
+	public int toggleFavorite(DatabaseHelper helper, StopLocation location)
+	{
+		String stopTag = location.getStopTag();
+		if (favoriteStops.containsKey(stopTag))
+		{
+			location.setFavorite(false);
+			favoriteStops.remove(stopTag);
+			helper.saveFavorite(stopTag, false);
+			return R.drawable.empty_star;
+		}
+		else
+		{
+			location.setFavorite(true);
+			favoriteStops.put(stopTag, location);
+			helper.saveFavorite(stopTag, true);
+			return R.drawable.full_star;
+		}
+
 	}
 }

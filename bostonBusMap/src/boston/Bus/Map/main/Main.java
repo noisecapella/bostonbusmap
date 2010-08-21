@@ -537,7 +537,7 @@ public class Main extends MapActivity
     		if (busLocations != null)
     		{
     			DatabaseHelper helper = new DatabaseHelper(this, busStop);
-    			int id = busOverlay.toggleFavorite(helper);
+    			int id = busOverlay.toggleFavorite(helper, busLocations);
     			item.setIcon(id);
     			Log.v("BostonBusMap", "setting favorite icon to " + (id == R.drawable.full_star ? "full star" : "empty star"));
     		}
