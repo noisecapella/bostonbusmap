@@ -395,8 +395,8 @@ public class Main extends MapActivity
         for (int i = 0; i < keys.length; i++)
         {
         	HashMap<String, String> map = new HashMap<String, String>();
-       		map.put("name", keys[i]);
-        	map.put("key", titles[i]);
+       		map.put("key", keys[i]);
+        	map.put("name", titles[i]);
         	routeList.add(map);
         }
         
