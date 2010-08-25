@@ -18,7 +18,6 @@ import org.xml.sax.XMLReader;
 import org.xml.sax.helpers.DefaultHandler;
 
 import boston.Bus.Map.data.RouteConfig;
-import boston.Bus.Map.data.RoutePool;
 import boston.Bus.Map.data.StopLocation;
 
 public class BusPredictionsFeedParser extends DefaultHandler
@@ -32,11 +31,11 @@ public class BusPredictionsFeedParser extends DefaultHandler
 	private static final String predictionsKey = "predictions";
 	private static final String routeTagKey = "routeTag";
 	
-	private final RoutePool stopMapping;
+	private final HashMap<String, RouteConfig> stopMapping;
 	private StopLocation currentLocation;
 	private RouteConfig currentRoute;
 	
-	public BusPredictionsFeedParser(RoutePool stopMapping) {
+	public BusPredictionsFeedParser(HashMap<String, RouteConfig> stopMapping) {
 		this.stopMapping = stopMapping;
 	}
 
@@ -47,7 +46,7 @@ public class BusPredictionsFeedParser extends DefaultHandler
 		XMLReader xmlReader = saxParser.getXMLReader();
 		xmlReader.setContentHandler(this);
 		xmlReader.parse(new InputSource(data));
-		
+		 
 	}
 	
 	@Override

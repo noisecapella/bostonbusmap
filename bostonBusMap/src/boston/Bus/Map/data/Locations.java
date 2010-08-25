@@ -74,7 +74,7 @@ public final class Locations
 	/**
 	 * A mapping of a route id to a RouteConfig object.
 	 */
-	private final RoutePool routeMapping;
+	private final HashMap<String, RouteConfig> routeMapping = new HashMap<String, RouteConfig>();
 	
 
 	
@@ -110,7 +110,7 @@ public final class Locations
 	private final HashMap<String, StopLocation> favoriteStops = new HashMap<String, StopLocation>();
 	
 	public Locations(Drawable bus, Drawable arrow, Drawable locationDrawable,
-			Drawable busStop, String[] supportedRoutes, DatabaseHelper helper)
+			Drawable busStop, String[] supportedRoutes)
 	{
 		this.bus = bus;
 		this.arrow = arrow;
@@ -118,7 +118,7 @@ public final class Locations
 		this.busStop = busStop;
 		this.supportedRoutes = supportedRoutes;
 		
-		routeMapping = new RoutePool(helper);
+		
 	}
 	
 	/**
@@ -147,10 +147,10 @@ public final class Locations
 			*/
 			task.publish("Decompressing route data. This may take a minute...");
 			
-			final int contentLength = 407615;
+			final int contentLength = 950308;
 			
 			InputStream in = new StreamCounter(context.getResources().openRawResource(boston.Bus.Map.R.raw.routeconfig),
-					task, contentLength, null, "Decompressing route data, may take a minute: "); 
+					task, contentLength, null, "Decompressing route data, may take 1 or 2 min: "); 
 			
 			GZIPInputStream stream = new GZIPInputStream(in); 
 			
@@ -160,11 +160,10 @@ public final class Locations
 			
 			task.publish("Parsing route data...");
 
-			HashMap<String, RouteConfig> mapping = new HashMap<String, RouteConfig>();
-			parser.fillMapping(mapping);
+			parser.fillMapping(routeMapping);
 			
 			task.publish("Saving route data to database...");
-			helper.saveMapping(mapping, true);
+			helper.saveMapping(routeMapping, true);
 			
 			//TODO: fill routeMapping somehow
 			
@@ -174,7 +173,8 @@ public final class Locations
 		{
 			for (String route : supportedRoutes)
 			{
-				if (routeMapping.doesNotContain(route))
+				if (routeMapping.containsKey(route) == false || routeMapping.get(route) == null || 
+						routeMapping.get(route).getStops().size() == 0)
 				{
 					final String prepend = "Downloading route info for " + route + " (this may take a short while): ";
 
@@ -188,10 +188,9 @@ public final class Locations
 					
 					parser.runParse(stream);
 					
-					HashMap<String, RouteConfig> mapping = new HashMap<String, RouteConfig>();
-					parser.fillMapping(mapping);
+					parser.fillMapping(routeMapping);
 					
-					helper.saveMapping(mapping, false);
+					helper.saveMapping(routeMapping, false);
 				}
 
 

@@ -2,6 +2,7 @@ package boston.Bus.Map.data;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
@@ -30,9 +31,16 @@ public class StopLocation implements Location, CanBeSerialized
 	
 	private final String title;
 	
-	private final SortedSet<Prediction> predictions = new TreeSet<Prediction>();
+	private ArrayList<Prediction> predictions = null;
 	
-	private final TreeSet<RouteConfig> routes = new TreeSet<RouteConfig>(new RouteComparator());
+	private static final RouteComparator routeComparator;
+	
+	static
+	{
+		routeComparator = new RouteComparator();
+	}
+	
+	private final TreeSet<RouteConfig> routes = new TreeSet<RouteConfig>(routeComparator);
 	
 	private boolean isFavorite;
 	
@@ -122,7 +130,12 @@ public class StopLocation implements Location, CanBeSerialized
 	@Override
 	public String makeSnippet(RouteConfig routeConfig) {
 		String ret = "";
-
+		
+		if (predictions == null)
+		{
+			return ret;
+		}
+		
 		synchronized (predictions)
 		{
 			if (predictions.size() == 0)
@@ -130,6 +143,7 @@ public class StopLocation implements Location, CanBeSerialized
 				return null;
 			}
 
+			Collections.sort(predictions);
 
 			final int max = 3;
 			int count = 0;
@@ -158,6 +172,11 @@ public class StopLocation implements Location, CanBeSerialized
 
 	public void clearPredictions(RouteConfig routeConfig)
 	{
+		if (predictions == null)
+		{
+			return;
+		}
+		
 		ArrayList<Prediction> newPredictions = new ArrayList<Prediction>();
 		synchronized (predictions)
 		{
@@ -176,6 +195,11 @@ public class StopLocation implements Location, CanBeSerialized
 	public void addPrediction(int minutes, long epochTime, int vehicleId,
 			String direction, RouteConfig route) {
 		String directionToShow = route.getDirectionTitle(direction);
+		
+		if (predictions == null)
+		{
+			predictions = new ArrayList<Prediction>();
+		}
 		
 		synchronized (predictions)
 		{
