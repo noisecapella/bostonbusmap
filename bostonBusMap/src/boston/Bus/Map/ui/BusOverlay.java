@@ -384,6 +384,9 @@ public class BusOverlay extends BalloonItemizedOverlay<OverlayItem> {
 
 	public int toggleFavorite(DatabaseHelper helper, Locations locationsObj) {
 		int selectedBusIndex = getLastFocusedIndex();
+		
+		final String favoriteMsg = "You can only favorite bus stops";
+		
 		if (selectedBusIndex >= 0 && selectedBusIndex < locations.size())
 		{
 			Location location = locations.get(selectedBusIndex);
@@ -391,6 +394,14 @@ public class BusOverlay extends BalloonItemizedOverlay<OverlayItem> {
 			{
 				return locationsObj.toggleFavorite(helper, (StopLocation)location);
 			}
+			else
+			{
+				Toast.makeText(context, favoriteMsg, Toast.LENGTH_LONG).show();
+			}
+		}
+		else
+		{
+			Toast.makeText(context, favoriteMsg, Toast.LENGTH_LONG).show();			
 		}
 		return R.drawable.empty_star;
 	}
