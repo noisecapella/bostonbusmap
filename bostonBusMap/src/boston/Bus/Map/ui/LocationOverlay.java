@@ -15,7 +15,6 @@ import com.google.android.maps.MyLocationOverlay;
 public class LocationOverlay extends MyLocationOverlay {
 	private final Context context; 
 	private UpdateHandler handler;
-	private Runnable runnable;
 	private final MapView mapView;
 	
 	public LocationOverlay(Context context, MapView mapView) {
@@ -23,13 +22,6 @@ public class LocationOverlay extends MyLocationOverlay {
 		
 		this.context = context;
 		this.mapView = mapView;
-		this.runnable = new Runnable() {
-			
-			@Override
-			public void run() {
-				//do nothing; later on this will be replaced with a useful Runnable
-			}
-		};
 	}
 	
 	@Override
@@ -48,22 +40,20 @@ public class LocationOverlay extends MyLocationOverlay {
 
 	public void setUpdateable(UpdateHandler handler) {
 		this.handler = handler;
-		
-		runnable = new Runnable() {
-			
-			@Override
-			public void run() {
-				
-    			mapView.getController().animateTo(getMyLocation());
-    			
-    			LocationOverlay.this.handler.triggerUpdate(1500);
-			}
-		};
-		
 	}
 
 	public void updateMapViewPosition() {
-		runOnFirstFix(runnable);
+		if (handler != null)
+		{
+			runOnFirstFix(new Runnable() {
+				
+				@Override
+				public void run() {
+					mapView.getController().animateTo(getMyLocation());
+					LocationOverlay.this.handler.triggerUpdate(1500);
+				}
+			});
+		}
 	}
 
 

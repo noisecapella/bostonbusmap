@@ -270,8 +270,8 @@ public class Main extends MapActivity
         	
         	mapView.getOverlays().clear();
         	mapView.getOverlays().add(routeOverlay);
-        	mapView.getOverlays().add(busOverlay);
         	mapView.getOverlays().add(myLocationOverlay);
+        	mapView.getOverlays().add(busOverlay);
         	
         	busOverlay.refreshBalloons();
         	
