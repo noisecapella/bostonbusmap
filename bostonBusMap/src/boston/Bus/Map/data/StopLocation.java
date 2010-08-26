@@ -40,7 +40,7 @@ public class StopLocation implements Location, CanBeSerialized
 		routeComparator = new RouteComparator();
 	}
 	
-	private final TreeSet<RouteConfig> routes = new TreeSet<RouteConfig>(routeComparator);
+	private final ArrayList<RouteConfig> routes = new ArrayList<RouteConfig>(1);
 	
 	private boolean isFavorite;
 	
@@ -109,6 +109,7 @@ public class StopLocation implements Location, CanBeSerialized
 		int index = 0;
 		synchronized (routes)
 		{
+			Collections.sort(routes, routeComparator);
 			for (RouteConfig route : routes)
 			{
 				ret += route.getRouteName();

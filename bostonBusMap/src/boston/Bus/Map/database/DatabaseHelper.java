@@ -230,6 +230,8 @@ public class DatabaseHelper extends SQLiteOpenHelper
 			}
 			cursor.close();
 			
+			Log.v("BostonBusMap", "number of shared stops: " + sharedStops.size());
+			
 			cursor = database.query(newFavoritesTable, new String[] {newFavoritesTagKey}, null, null, null, null, null);
 			cursor.moveToFirst();
 			while (cursor.isAfterLast() == false)
