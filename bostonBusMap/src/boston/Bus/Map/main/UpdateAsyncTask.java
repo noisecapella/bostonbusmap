@@ -170,7 +170,7 @@ public class UpdateAsyncTask extends AsyncTask<Object, String, Locations>
 					
 				if (doInit)
 				{
-					publishProgress("Did not find route info in database, checking if there's free space to download it...");
+					//publishProgress("Did not find route info in database, checking if there's free space to download it...");
 				}
 				if (busLocations.checkFreeSpace(helper) == false)
 				{
@@ -180,7 +180,7 @@ public class UpdateAsyncTask extends AsyncTask<Object, String, Locations>
 				
 				if (doInit)
 				{
-					publishProgress("Did not find route info in database, downloading it now...");
+					//publishProgress("Did not find route info in database, downloading it now...");
 				}
 				busLocations.initializeAllRoutes(helper, this, context);
 				
