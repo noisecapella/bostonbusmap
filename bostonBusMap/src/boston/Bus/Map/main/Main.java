@@ -145,11 +145,6 @@ public class Main extends MapActivity
 	private LocationOverlay myLocationOverlay;
 	
 	private Spinner toggleButton;
-	private Drawable busStopDrawableOne;
-	private Drawable busStopDrawableAll;
-	private Drawable busStopDrawableStar;
-	private Drawable busDrawableOne;
-	private Drawable busDrawableAll;
 	private Drawable busStop;
 	
 	private MenuItem favoriteMenuItem;
@@ -201,11 +196,6 @@ public class Main extends MapActivity
         
         busStop = resources.getDrawable(R.drawable.busstop_statelist);
         
-        busDrawableOne = resources.getDrawable(R.drawable.bus_one);
-        busDrawableAll = resources.getDrawable(R.drawable.bus_all);
-        busStopDrawableOne = resources.getDrawable(R.drawable.busstop_one);
-        busStopDrawableAll = resources.getDrawable(R.drawable.busstop_all);
-        busStopDrawableStar = resources.getDrawable(R.drawable.busstop_star);
         
         SpinnerAdapter modeSpinnerAdapter = makeModeSpinner(); 
 
@@ -508,10 +498,15 @@ public class Main extends MapActivity
 		if (myLocationOverlay != null)
 		{
 			myLocationOverlay.disableMyLocation();
+			myLocationOverlay.setUpdateable(null);
 			myLocationOverlay = null;
 		}
 		
 		textView = null;
+		
+		busStop = null;
+		toggleButton = null;
+		favoriteMenuItem = null;
 		
 		
 		super.onDestroy();
