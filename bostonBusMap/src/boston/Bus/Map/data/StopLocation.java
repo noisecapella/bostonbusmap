@@ -60,7 +60,10 @@ public class StopLocation implements Location, CanBeSerialized
 	{
 		synchronized (routes)
 		{
-			routes.add(route);
+			if (routes.contains(route) == false)
+			{
+				routes.add(route);
+			}
 		}
 	}
 	
