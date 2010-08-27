@@ -72,8 +72,6 @@ public class RouteConfigFeedParser extends DefaultHandler
 	private boolean inStop;
 	private boolean inPath;
 	
-	private int pathIndex;
-	
 	private RouteConfig currentRouteConfig;
 	private String currentRoute;
 	
@@ -186,11 +184,9 @@ public class RouteConfigFeedParser extends DefaultHandler
 			
 			if (currentRouteConfig != null)
 			{
-				Path path = new Path(pathIndex, currentPathPoints);
-				currentRouteConfig.addPath(pathIndex, path);
+				Path path = new Path(currentPathPoints);
+				currentRouteConfig.addPath(path);
 			}
-
-			pathIndex++;
 		}
 		
 	}

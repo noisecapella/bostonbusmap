@@ -14,11 +14,9 @@ import android.os.Parcelable;
 public class Path implements CanBeSerialized
 {
 	private final float[] points;
-	private final int id;
 	
-	public Path(int id, ArrayList<Float> points)
+	public Path(ArrayList<Float> points)
 	{
-		this.id = id;
 		this.points = new float[points.size()];
 		for (int i = 0; i < points.size(); i++)
 		{
@@ -26,14 +24,8 @@ public class Path implements CanBeSerialized
 		}
 	}
 	
-	public int getId()
-	{
-		return id;
-	}
-
 	@Override
 	public void serialize(Box dest) throws IOException {
-		dest.writeInt(id);
 		dest.writeInt(points.length);
 		for (float f : points)
 		{
@@ -42,8 +34,6 @@ public class Path implements CanBeSerialized
 	}
 	
 	public Path(Box source) throws IOException {
-		id = source.readInt();
-
 		int size = source.readInt();
 		points = new float[size];
 		for (int i = 0; i < size; i++)

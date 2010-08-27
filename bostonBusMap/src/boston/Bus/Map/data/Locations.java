@@ -572,7 +572,7 @@ public final class Locations
 		RouteConfig routeConfig = routeMapping.get(selectedRoute);
 		if (routeConfig != null)
 		{
-			ret.addAll(routeConfig.getPaths().values());
+			ret.addAll(routeConfig.getPaths());
 		}
 		
 		return ret;

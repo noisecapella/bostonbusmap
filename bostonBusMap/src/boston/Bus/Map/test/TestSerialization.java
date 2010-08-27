@@ -253,7 +253,7 @@ public class TestSerialization extends TestCase {
 		floats.add(-502.3f);
 		
 		
-		Path stopLocation = new Path(3, floats);
+		Path stopLocation = new Path(floats);
 		
 		Box outputBox = new Box(null, DatabaseHelper.CURRENT_DB_VERSION, sharedStops);
 		

@@ -21,7 +21,7 @@ public class RouteConfig implements CanBeSerialized
 	private final HashMap<String, StopLocation> stops;
 	private final HashMap<String, String> directionTitles;
 	private final HashMap<String, String> directionNames;
-	private final TreeMap<Integer, Path> paths;
+	private final ArrayList<Path> paths;
 	private final String route;
 	
 	public RouteConfig(String route)
@@ -30,7 +30,7 @@ public class RouteConfig implements CanBeSerialized
 		stops = new HashMap<String, StopLocation>();
 		directionTitles = new HashMap<String, String>();
 		directionNames = new HashMap<String, String>();
-		paths = new TreeMap<Integer, Path>();
+		paths = new ArrayList<Path>();
 	}
 	
 	
@@ -94,12 +94,12 @@ public class RouteConfig implements CanBeSerialized
 
 
 
-	public void addPath(int id, Path currentPath) {
-		paths.put(id, currentPath);
+	public void addPath(Path currentPath) {
+		paths.add(currentPath);
 		
 	}
 
-	public SortedMap<Integer, Path> getPaths() {
+	public ArrayList<Path> getPaths() {
 		return paths;
 	}
 
@@ -111,7 +111,7 @@ public class RouteConfig implements CanBeSerialized
 		dest.writeStringMap(directionTitles);
 		dest.writeStringMap(directionNames);
 		dest.writeStopsMap(stops);
-		dest.writePathsMap(paths);
+		dest.writePathsList(paths);
 		
 	}
 
@@ -121,6 +121,6 @@ public class RouteConfig implements CanBeSerialized
 		directionTitles = source.readStringMap();
 		directionNames = source.readStringMap();
 		stops = source.readStopsMap(this, busStop);
-		paths = source.readPathsMap();
+		paths = source.readPathsList();
 	}
 }

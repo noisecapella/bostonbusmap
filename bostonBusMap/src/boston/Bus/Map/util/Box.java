@@ -238,30 +238,27 @@ public class Box {
 		return stops;
 	}
 
-	public void writePathsMap(Map<Integer, Path> paths) throws IOException {
+	public void writePathsList(ArrayList<Path> paths) throws IOException {
 		showProgress("writePathsMap");
 		int size = paths.size();
 		writeInt(size);
 		
-		for (Integer key : paths.keySet())
+		for (Path path : paths)
 		{
-			writeInt(key);
-			Path value = paths.get(key);
-			value.serialize(this);
+			path.serialize(this);
 		}
 	}
 
-	public TreeMap<Integer, Path> readPathsMap() throws IOException {
+	public ArrayList<Path> readPathsList() throws IOException {
 		showProgress("readPathsMap");
 		int size = readInt();
 		
-		TreeMap<Integer, Path> paths = new TreeMap<Integer, Path>();
+		ArrayList<Path> paths = new ArrayList<Path>(size);
 		
 		for (int i = 0; i < size; i++)
 		{
-			Integer key = readInt();
 			Path value = new Path(this);
-			paths.put(key, value);
+			paths.add(value);
 		}
 		
 		return paths;
