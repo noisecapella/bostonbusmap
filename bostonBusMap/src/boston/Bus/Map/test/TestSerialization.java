@@ -198,10 +198,10 @@ public class TestSerialization extends TestCase {
 			outputBox.writeStringMap(mapping);
 			assertTrue(false);
 
-			HashMap<String, String> newMapping = new HashMap<String, String>();
+			HashMap<String, String> newMapping;
 
 			Box inputBox = new Box(outputBox.getBlob(), DatabaseHelper.CURRENT_DB_VERSION, sharedStops);
-			inputBox.readStringMap(newMapping);
+			newMapping = inputBox.readStringMap();
 
 			assertEquals(newMapping.size(), mapping.size());
 

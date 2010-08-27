@@ -173,17 +173,19 @@ public class Box {
 		}
 	}
 	
-	public void readStringMap(Map<String, String> map) throws IOException
+	public HashMap<String, String> readStringMap() throws IOException
 	{
 		showProgress("readStringMap");
 		byte b = readByte();
 		if (b == IS_NULL)
 		{
 			//do nothing
+			return new HashMap<String, String>(0);
 		}
 		else
 		{
 			int size = readInt();
+			HashMap<String, String> map = new HashMap<String, String>(size);
 			for (int i = 0; i < size; i++)
 			{
 				String key = readString();
@@ -191,6 +193,8 @@ public class Box {
 				
 				map.put(key, value);
 			}
+			
+			return map;
 		}
 	}
 
@@ -209,10 +213,11 @@ public class Box {
 
 	private final HashMap<String, StopLocation> stopMap;
 	
-	public void readStopsMap(HashMap<String, StopLocation> stops, RouteConfig routeConfig, Drawable busStop) throws IOException {
+	public HashMap<String, StopLocation> readStopsMap(RouteConfig routeConfig, Drawable busStop) throws IOException {
 		showProgress("readStopsMap");
 		int size = readInt();
 		
+		HashMap<String, StopLocation> stops = new HashMap<String, StopLocation>(size);
 		for (int i = 0; i < size; i++)
 		{
 			String key = readString();
@@ -229,6 +234,8 @@ public class Box {
 			
 			stopMap.get(key).addRoute(routeConfig);
 		}
+		
+		return stops;
 	}
 
 	public void writePathsMap(Map<Integer, Path> paths) throws IOException {
@@ -244,9 +251,11 @@ public class Box {
 		}
 	}
 
-	public void readPathsMap(TreeMap<Integer, Path> paths) throws IOException {
+	public TreeMap<Integer, Path> readPathsMap() throws IOException {
 		showProgress("readPathsMap");
 		int size = readInt();
+		
+		TreeMap<Integer, Path> paths = new TreeMap<Integer, Path>();
 		
 		for (int i = 0; i < size; i++)
 		{
@@ -254,6 +263,8 @@ public class Box {
 			Path value = new Path(this);
 			paths.put(key, value);
 		}
+		
+		return paths;
 	}
 
 	public void writeDouble(double d) throws IOException {

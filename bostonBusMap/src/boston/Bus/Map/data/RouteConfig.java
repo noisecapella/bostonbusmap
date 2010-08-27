@@ -18,15 +18,19 @@ import android.os.Parcelable;
 public class RouteConfig implements CanBeSerialized
 {
 
-	private final HashMap<String, StopLocation> stops = new HashMap<String, StopLocation>();
-	private final HashMap<String, String> directionTitles = new HashMap<String, String>();
-	private final HashMap<String, String> directionNames = new HashMap<String, String>();
-	private final TreeMap<Integer, Path> paths = new TreeMap<Integer, Path>();
+	private final HashMap<String, StopLocation> stops;
+	private final HashMap<String, String> directionTitles;
+	private final HashMap<String, String> directionNames;
+	private final TreeMap<Integer, Path> paths;
 	private final String route;
 	
 	public RouteConfig(String route)
 	{
 		this.route = route;
+		stops = new HashMap<String, StopLocation>();
+		directionTitles = new HashMap<String, String>();
+		directionNames = new HashMap<String, String>();
+		paths = new TreeMap<Integer, Path>();
 	}
 	
 	
@@ -114,9 +118,9 @@ public class RouteConfig implements CanBeSerialized
 	public RouteConfig(Box source, Drawable busStop) throws IOException {
 		route = source.readString();
 
-		source.readStringMap(directionTitles);
-		source.readStringMap(directionNames);
-		source.readStopsMap(stops, this, busStop);
-		source.readPathsMap(paths);
+		directionTitles = source.readStringMap();
+		directionNames = source.readStringMap();
+		stops = source.readStopsMap(this, busStop);
+		paths = source.readPathsMap();
 	}
 }

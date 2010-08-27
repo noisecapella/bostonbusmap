@@ -237,43 +237,46 @@ public final class Locations
 		
 		final int maxStops = 15;
 
+		//see if route overlays need to be downloaded
+		RouteConfig routeConfig = routeMapping.get(routeToUpdate);
+		if (routeConfig != null)
+		{
+			if (routeConfig.getStops().size() != 0 && (showRoute == false || routeConfig.getPaths().size() != 0))
+			{
+				//everything's ok
+			}
+			else
+			{
+				//populate route overlay (just in case we didn't already)
+				updateAsyncTask.publish("Downloading data for route " + routeToUpdate + "...");
+				populateStops(routeToUpdate, helper);
+				updateAsyncTask.publish("Finished download");
+				
+				return;
+			}
+		}
+		else
+		{
+			//populate route overlay (just in case we didn't already)
+			updateAsyncTask.publish("Downloading data for route " + routeToUpdate + "...");
+			populateStops(routeToUpdate, helper);
+			updateAsyncTask.publish("Finished download");
+			return;
+		}
+
 		//read data from the URL
 		DownloadHelper downloadHelper;
 		switch (selectedBusPredictions)
 		{
 		case  Main.BUS_PREDICTIONS_ONE:
 		{
-			RouteConfig routeConfig = routeMapping.get(routeToUpdate);
-			
-			if (routeConfig != null)
-			{
-				if (routeConfig.getStops().size() != 0 && (showRoute == false || routeConfig.getPaths().size() != 0))
-				{
-					List<Location> locations = getLocations(maxStops, centerLatitude, centerLongitude, false);
 
-					//ok, do predictions now
-					String url = TransitSystem.getPredictionsUrl(locations, maxStops, routeConfig);
+			List<Location> locations = getLocations(maxStops, centerLatitude, centerLongitude, false);
 
-					downloadHelper = new DownloadHelper(url);
-				}
-				else
-				{
-					//populate stops (just in case we didn't already)
-					updateAsyncTask.publish("Downloading data for route " + routeToUpdate + "...");
-					populateStops(routeToUpdate, helper);
-					updateAsyncTask.publish("Finished download");
-					
-					return;
-				}
-			}
-			else
-			{
-				//populate stops (just in case we didn't already)
-				updateAsyncTask.publish("Downloading data for route " + routeToUpdate + "...");
-				populateStops(routeToUpdate, helper);
-				updateAsyncTask.publish("Finished download");
-				return;
-			}
+			//ok, do predictions now
+			String url = TransitSystem.getPredictionsUrl(locations, maxStops, routeConfig);
+
+			downloadHelper = new DownloadHelper(url);
 		}
 		break;
 		case Main.BUS_PREDICTIONS_ALL:
