@@ -6,6 +6,7 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.SortedSet;
@@ -150,6 +151,54 @@ public class Box {
 		}
 	}
 	
+	public void writeStringKeyValue(ArrayList<String> keys, ArrayList<String> values) throws IOException
+	{
+		showProgress("writeStringMap");
+		if (keys == null || values == null)
+		{
+			//this never happens
+			writeByte(IS_NULL);
+		}
+		else
+		{
+			writeByte(IS_NOT_NULL);
+			int size = keys.size();
+			writeInt(keys.size());
+			
+			for (int i = 0; i < size; i++)
+			{
+				writeString(keys.get(i));
+				writeString(values.get(i));
+			}
+		}
+	}
+	
+	public Object[] readStringKeyValue() throws IOException
+	{
+		showProgress("readStringMap");
+		byte b = readByte();
+		if (b == IS_NULL)
+		{
+			//do nothing
+			return new Object[]{new ArrayList<String>(), new ArrayList<String>()};
+		}
+		else
+		{
+			int size = readInt();
+			ArrayList<String> keys = new ArrayList<String>(size);
+			ArrayList<String> values = new ArrayList<String>(size);
+			for (int i = 0; i < size; i++)
+			{
+				String key = readString();
+				String value = readString();
+				
+				keys.add(key);
+				values.add(value);
+			}
+			
+			return new Object[]{keys, values};
+		}
+	}
 	public void writeStringMap(Map<String, String> map) throws IOException
 	{
 		showProgress("writeStringMap");

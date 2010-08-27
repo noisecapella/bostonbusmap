@@ -12,15 +12,15 @@ public class Prediction implements Comparable<Prediction>
 	private final int minutes;
 	private final long epochTime;
 	private final int vehicleId;
-	private final String directionToShow;
+	private final String dirTag;
 	private final RouteConfig routeConfig;
 	
 	public Prediction(int minutes, long epochTime, int vehicleId,
-			String directionToShow, RouteConfig routeConfig) {
+			String dirTag, RouteConfig routeConfig) {
 		this.minutes = minutes;
 		this.epochTime = epochTime;
 		this.vehicleId = vehicleId;
-		this.directionToShow = directionToShow;
+		this.dirTag = dirTag;
 		this.routeConfig = routeConfig;
 	}
 
@@ -36,6 +36,7 @@ public class Prediction implements Comparable<Prediction>
 			
 			ret += ", Route " + routeConfig.getRouteName();
 			
+			String directionToShow = routeConfig.getDirectionTitle(dirTag);
 			if (directionToShow != null && directionToShow.length() != 0)
 			{
 				ret += "\n" + directionToShow;

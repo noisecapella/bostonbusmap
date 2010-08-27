@@ -19,8 +19,9 @@ public class RouteConfig implements CanBeSerialized
 {
 
 	private final HashMap<String, StopLocation> stops;
-	private final HashMap<String, String> directionTitles;
-	private final HashMap<String, String> directionNames;
+	private final ArrayList<String> dirTags;
+	private final ArrayList<String> directionTitles;
+	private final ArrayList<String> directionNames;
 	private final ArrayList<Path> paths;
 	private final String route;
 	
@@ -28,8 +29,9 @@ public class RouteConfig implements CanBeSerialized
 	{
 		this.route = route;
 		stops = new HashMap<String, StopLocation>();
-		directionTitles = new HashMap<String, String>();
-		directionNames = new HashMap<String, String>();
+		directionTitles = new ArrayList<String>();
+		directionNames = new ArrayList<String>();
+		dirTags = new ArrayList<String>();
 		paths = new ArrayList<Path>();
 	}
 	
@@ -47,9 +49,10 @@ public class RouteConfig implements CanBeSerialized
 	
 	public String getDirectionTitle(String dirTag)
 	{
-		if (directionTitles.containsKey(dirTag))
+		int pos = dirTags.indexOf(dirTag);
+		if (pos != -1)
 		{
-			return directionTitles.get(dirTag);
+			return directionTitles.get(pos);
 		}
 		else
 		{
@@ -59,9 +62,10 @@ public class RouteConfig implements CanBeSerialized
 
 	public String getDirectionName(String dirTag)
 	{
-		if (directionNames.containsKey(dirTag))
+		int pos = dirTags.indexOf(dirTag);
+		if (pos != -1)
 		{
-			return directionNames.get(dirTag);
+			return directionNames.get(pos);
 		}
 		else
 		{
@@ -76,8 +80,9 @@ public class RouteConfig implements CanBeSerialized
 	}
 
 	public void addDirection(String tag, String title, String name) {
-		directionTitles.put(tag, title);
-		directionNames.put(tag, name);
+		dirTags.add(tag);
+		directionTitles.add(title);
+		directionNames.add(name);
 	}
 
 
@@ -89,7 +94,7 @@ public class RouteConfig implements CanBeSerialized
 
 
 	public Collection<String> getDirtags() {
-		return directionTitles.keySet();
+		return directionTitles;
 	}
 
 
@@ -108,8 +113,8 @@ public class RouteConfig implements CanBeSerialized
 	public void serialize(Box dest) throws IOException {
 		
 		dest.writeString(route);
-		dest.writeStringMap(directionTitles);
-		dest.writeStringMap(directionNames);
+		dest.writeStringKeyValue(dirTags, directionTitles);
+		dest.writeStringKeyValue(dirTags, directionNames);
 		dest.writeStopsMap(stops);
 		dest.writePathsList(paths);
 		
@@ -117,9 +122,13 @@ public class RouteConfig implements CanBeSerialized
 
 	public RouteConfig(Box source, Drawable busStop) throws IOException {
 		route = source.readString();
-
-		directionTitles = source.readStringMap();
-		directionNames = source.readStringMap();
+		Object[] objs = source.readStringKeyValue();
+		dirTags = (ArrayList<String>)objs[0];
+		directionTitles = (ArrayList<String>)objs[1];
+		
+		objs = source.readStringKeyValue();
+		directionNames = (ArrayList<String>)objs[1];
+		
 		stops = source.readStopsMap(this, busStop);
 		paths = source.readPathsList();
 	}
