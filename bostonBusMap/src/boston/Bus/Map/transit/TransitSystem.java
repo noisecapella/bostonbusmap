@@ -76,7 +76,7 @@ public class TransitSystem {
 		return getRouteConfigUrl(null);
 	}
 	
-	public static String getPredictionsUrl(List<Location> locations, int maxStops, RouteConfig route)
+	public static String getPredictionsUrl(List<Location> locations, int maxStops, String route)
 	{
 		StringBuilder urlString = new StringBuilder(mbtaPredictionsDataUrl);
 		
@@ -103,8 +103,8 @@ public class TransitSystem {
 	}
 
 	public static void bindPredictionElementsForUrl(StringBuilder urlString,
-			RouteConfig routeConfig, String stopId) {
-		urlString.append("&stops=").append(routeConfig.getRouteName()).append("%7C%7C").append(stopId);
+			String routeName, String stopId) {
+		urlString.append("&stops=").append(routeName).append("%7C%7C").append(stopId);
 		
 	}
 }

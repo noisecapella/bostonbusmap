@@ -274,7 +274,7 @@ public final class Locations
 			List<Location> locations = getLocations(maxStops, centerLatitude, centerLongitude, false);
 
 			//ok, do predictions now
-			String url = TransitSystem.getPredictionsUrl(locations, maxStops, routeConfig);
+			String url = TransitSystem.getPredictionsUrl(locations, maxStops, routeConfig.getRouteName());
 
 			downloadHelper = new DownloadHelper(url);
 		}

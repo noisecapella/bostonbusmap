@@ -33,14 +33,7 @@ public class StopLocation implements Location, CanBeSerialized
 	
 	private ArrayList<Prediction> predictions = null;
 	
-	private static final RouteComparator routeComparator;
-	
-	static
-	{
-		routeComparator = new RouteComparator();
-	}
-	
-	private final ArrayList<RouteConfig> routes = new ArrayList<RouteConfig>(1);
+	private final ArrayList<String> routes = new ArrayList<String>(1);
 	
 	private boolean isFavorite;
 	
@@ -60,9 +53,10 @@ public class StopLocation implements Location, CanBeSerialized
 	{
 		synchronized (routes)
 		{
-			if (routes.contains(route) == false)
+			String routeName = route.getRouteName();
+			if (routes.contains(routeName) == false)
 			{
-				routes.add(route);
+				routes.add(routeName);
 			}
 		}
 	}
@@ -112,10 +106,10 @@ public class StopLocation implements Location, CanBeSerialized
 		int index = 0;
 		synchronized (routes)
 		{
-			Collections.sort(routes, routeComparator);
-			for (RouteConfig route : routes)
+			Collections.sort(routes);
+			for (String route : routes)
 			{
-				ret += route.getRouteName();
+				ret += route;
 
 				if (index != routes.size() - 1)
 				{
@@ -242,18 +236,18 @@ public class StopLocation implements Location, CanBeSerialized
 	 * This should be in Locations instead but I need to synchronize routes
 	 * @param urlString
 	 */
-	public void createPredictionsUrl(StringBuilder urlString, RouteConfig routeConfig) {
-		if (routeConfig != null)
+	public void createPredictionsUrl(StringBuilder urlString, String routeName) {
+		if (routeName != null)
 		{
 			//only do it for the given route
-			TransitSystem.bindPredictionElementsForUrl(urlString, routeConfig, tag);
+			TransitSystem.bindPredictionElementsForUrl(urlString, routeName, tag);
 		}
 		else
 		{
 			//do it for all routes we know about
 			synchronized (routes)
 			{
-				for (RouteConfig route : routes)
+				for (String route : routes)
 				{
 					TransitSystem.bindPredictionElementsForUrl(urlString, route, tag);
 				}
