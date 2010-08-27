@@ -100,19 +100,6 @@ public class RouteConfig implements CanBeSerialized
 	}
 
 
-
-	public void addPath(int pathId, float lat, float lon) {
-		Path path = paths.get(pathId);
-		if (path == null)
-		{
-			path = new Path(pathId);
-			paths.put(pathId, path);
-		}
-
-		path.addPoint(lat, lon);
-		
-	}
-	
 	@Override
 	public void serialize(Box dest) throws IOException {
 		

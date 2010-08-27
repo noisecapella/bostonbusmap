@@ -2,6 +2,7 @@ package boston.Bus.Map.parser;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.HashMap;
 
 import javax.xml.parsers.ParserConfigurationException;
@@ -76,7 +77,7 @@ public class RouteConfigFeedParser extends DefaultHandler
 	private RouteConfig currentRouteConfig;
 	private String currentRoute;
 	
-	private Path currentPath;
+	private ArrayList<Float> currentPathPoints;
 	
 	@Override
 	public void startElement(String uri, String localName, String qName,
@@ -141,13 +142,14 @@ public class RouteConfigFeedParser extends DefaultHandler
 		{
 			inPath = true;
 			
-			currentPath = new Path(pathIndex);
+			currentPathPoints = new ArrayList<Float>();
 		}
 		else if (pointKey.equals(localName))
 		{
-			double lat = Double.parseDouble(attributes.getValue(latKey));
-			double lon = Double.parseDouble(attributes.getValue(lonKey));
-			currentPath.addPoint(lat, lon);
+			float lat = Float.parseFloat(attributes.getValue(latKey));
+			float lon = Float.parseFloat(attributes.getValue(lonKey));
+			currentPathPoints.add(lat);
+			currentPathPoints.add(lon);
 		}
 		else if (localName.equals("Error"))
 		{
@@ -184,10 +186,10 @@ public class RouteConfigFeedParser extends DefaultHandler
 			
 			if (currentRouteConfig != null)
 			{
-				currentPath.condense();
-				currentRouteConfig.addPath(pathIndex, currentPath);
+				Path path = new Path(pathIndex, currentPathPoints);
+				currentRouteConfig.addPath(pathIndex, path);
 			}
-			currentPath = null;
+
 			pathIndex++;
 		}
 		

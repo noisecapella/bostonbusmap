@@ -167,7 +167,7 @@ public class UpdateAsyncTask extends AsyncTask<Object, String, Locations>
 					publishProgress("Retrieving route info from database...");
 				}
 				busLocations.getRouteDataFromDatabase(helper);
-					
+				
 				if (doInit)
 				{
 					//publishProgress("Did not find route info in database, checking if there's free space to download it...");
@@ -188,7 +188,7 @@ public class UpdateAsyncTask extends AsyncTask<Object, String, Locations>
 				publishProgress("Fetching data...");
 
 				busLocations.Refresh(helper, inferBusRoutes, selectedRouteIndex, selectedBusPredictions,
-						centerLatitude, centerLongitude, this);
+						centerLatitude, centerLongitude, this, showRouteLine);
 			}
 			catch (IOException e)
 			{

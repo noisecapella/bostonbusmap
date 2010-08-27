@@ -1,6 +1,7 @@
 package boston.Bus.Map.test;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.SortedSet;
@@ -153,7 +154,6 @@ public class TestSerialization extends TestCase {
 		
 		RouteConfig routeConfig = new RouteConfig("x");
 		
-		routeConfig.addPath(1, 3, 4);
 		routeConfig.addStop("5", new StopLocation(44.0f, 55.0f, null, "5", "xy"));
 		routeConfig.addDirection("XYZSD", "akosod", "asodkosd");
 		
@@ -169,7 +169,6 @@ public class TestSerialization extends TestCase {
 		
 		RouteConfig routeConfig = new RouteConfig("x");
 		
-		routeConfig.addPath(1, 3, 4);
 		routeConfig.addStop("5", new StopLocation(44.0f, 55.0f, null, "5", "xy"));
 		//routeConfig.addStop(6, new StopLocation(47.0, 56.0, null, 5, "x", "tue", routeConfig));
 		//routeConfig.addDirection("XYZSD", "akosod", "asodkosd");
@@ -248,7 +247,13 @@ public class TestSerialization extends TestCase {
 	{
 		HashMap<String, StopLocation> sharedStops = new HashMap<String, StopLocation>();
 		
-		Path stopLocation = new Path(3);
+		ArrayList<Float> floats = new ArrayList<Float>();
+		floats.add(2.3f);
+		floats.add(-42.3f);
+		floats.add(-502.3f);
+		
+		
+		Path stopLocation = new Path(3, floats);
 		
 		Box outputBox = new Box(null, DatabaseHelper.CURRENT_DB_VERSION, sharedStops);
 		

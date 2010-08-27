@@ -219,7 +219,7 @@ public final class Locations
 	 */
 	public void Refresh(DatabaseHelper helper, boolean inferBusRoutes, int routeIndexToUpdate,
 			int selectedBusPredictions, double centerLatitude, double centerLongitude,
-			UpdateAsyncTask updateAsyncTask) throws SAXException, IOException,
+			UpdateAsyncTask updateAsyncTask, boolean showRoute) throws SAXException, IOException,
 			ParserConfigurationException, FactoryConfigurationError 
 	{
 		String routeToUpdate = supportedRoutes[routeIndexToUpdate];
@@ -247,7 +247,7 @@ public final class Locations
 			
 			if (routeConfig != null)
 			{
-				if (routeConfig.getStops().size() != 0)
+				if (routeConfig.getStops().size() != 0 && (showRoute == false || routeConfig.getPaths().size() != 0))
 				{
 					List<Location> locations = getLocations(maxStops, centerLatitude, centerLongitude, false);
 

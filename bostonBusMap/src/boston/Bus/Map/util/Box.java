@@ -231,20 +231,20 @@ public class Box {
 		}
 	}
 
-	public void writePathsMap(Map<Integer, Path> stops) throws IOException {
+	public void writePathsMap(Map<Integer, Path> paths) throws IOException {
 		showProgress("writePathsMap");
-		int size = stops.size();
+		int size = paths.size();
 		writeInt(size);
 		
-		for (Integer key : stops.keySet())
+		for (Integer key : paths.keySet())
 		{
 			writeInt(key);
-			Path value = stops.get(key);
+			Path value = paths.get(key);
 			value.serialize(this);
 		}
 	}
 
-	public void readPathsMap(TreeMap<Integer, Path> stops) throws IOException {
+	public void readPathsMap(TreeMap<Integer, Path> paths) throws IOException {
 		showProgress("readPathsMap");
 		int size = readInt();
 		
@@ -252,7 +252,7 @@ public class Box {
 		{
 			Integer key = readInt();
 			Path value = new Path(this);
-			stops.put(key, value);
+			paths.put(key, value);
 		}
 	}
 

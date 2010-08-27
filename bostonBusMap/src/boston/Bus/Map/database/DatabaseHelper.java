@@ -278,7 +278,7 @@ public class DatabaseHelper extends SQLiteOpenHelper
 					RouteConfig routeConfig = mapping.get(route);
 					if (routeConfig != null)
 					{
-						saveMappingKernel(database, route, mapping.get(route), wipe, sharedStops);
+						saveMappingKernel(database, route, routeConfig, wipe, sharedStops);
 					}
 				}
 				
