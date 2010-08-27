@@ -60,7 +60,7 @@ public class RouteConfig implements CanBeSerialized
 		}
 	}
 
-	public String getDirectionName(String dirTag)
+	/*public String getDirectionName(String dirTag)
 	{
 		int pos = dirTags.indexOf(dirTag);
 		if (pos != -1)
@@ -71,7 +71,7 @@ public class RouteConfig implements CanBeSerialized
 		{
 			return "";
 		}
-	}
+	}*/
 
 	
 	
@@ -118,6 +118,8 @@ public class RouteConfig implements CanBeSerialized
 		dest.writeStopsMap(stops);
 		dest.writePathsList(paths);
 		
+		//NOTE: optimization, since we don't use directionNames currently
+		directionNames.clear();
 	}
 
 	public RouteConfig(Box source, Drawable busStop) throws IOException {
@@ -131,5 +133,8 @@ public class RouteConfig implements CanBeSerialized
 		
 		stops = source.readStopsMap(this, busStop);
 		paths = source.readPathsList();
+		
+		//NOTE: optimization, since we don't use directionNames currently
+		directionNames.clear();
 	}
 }
