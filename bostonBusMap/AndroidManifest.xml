@@ -3,7 +3,7 @@
       package="boston.Bus.Map"
       android:versionCode="54"
       android:versionName="2.27">
-	<application android:label="@string/app_name" android:icon="@drawable/bus" android:theme="@android:style/Theme.NoTitleBar"
+	<application android:label="@string/app_name" android:icon="@drawable/appicon" android:theme="@android:style/Theme.NoTitleBar"
 	>
 		<activity android:label="@string/app_name" android:name=".main.Main">
 			<intent-filter>
