@@ -173,7 +173,11 @@ public class Box {
 		}
 	}
 	
-	public Object[] readStringKeyValue() throws IOException
+	private static final String inbound = "Inbound";
+	private static final String outbound = "Outbound";
+	
+	
+	public Object[] readStringKeyValue(boolean optimizeForInbound) throws IOException
 	{
 		showProgress("readStringMap");
 		byte b = readByte();
@@ -191,6 +195,18 @@ public class Box {
 			{
 				String key = readString();
 				String value = readString();
+				
+				if (optimizeForInbound)
+				{
+					if (inbound.equals(value))
+					{
+						value = inbound;
+					}
+					else if (outbound.equals(value))
+					{
+						value = outbound;
+					}
+				}
 				
 				keys.add(key);
 				values.add(value);

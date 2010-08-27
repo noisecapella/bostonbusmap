@@ -117,24 +117,18 @@ public class RouteConfig implements CanBeSerialized
 		dest.writeStringKeyValue(dirTags, directionNames);
 		dest.writeStopsMap(stops);
 		dest.writePathsList(paths);
-		
-		//NOTE: optimization, since we don't use directionNames currently
-		directionNames.clear();
 	}
 
 	public RouteConfig(Box source, Drawable busStop) throws IOException {
 		route = source.readString();
-		Object[] objs = source.readStringKeyValue();
+		Object[] objs = source.readStringKeyValue(false);
 		dirTags = (ArrayList<String>)objs[0];
 		directionTitles = (ArrayList<String>)objs[1];
 		
-		objs = source.readStringKeyValue();
+		objs = source.readStringKeyValue(true);
 		directionNames = (ArrayList<String>)objs[1];
 		
 		stops = source.readStopsMap(this, busStop);
 		paths = source.readPathsList();
-		
-		//NOTE: optimization, since we don't use directionNames currently
-		directionNames.clear();
 	}
 }
