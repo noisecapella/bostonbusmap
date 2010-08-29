@@ -276,7 +276,10 @@ public class Main extends MapActivity
         	
         	majorHandler = currentState.getMajorHandler();
         	//continue posting status updates on new textView
-        	majorHandler.setTextView(textView);
+        	if (majorHandler != null)
+        	{
+        		majorHandler.setTextView(textView);
+        	}
         }
         else
         {
