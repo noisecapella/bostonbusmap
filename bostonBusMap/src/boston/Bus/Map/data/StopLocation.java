@@ -270,4 +270,8 @@ public class StopLocation implements Location, CanBeSerialized
 		return routes;
 	}
 
+	public String getFirstRoute() {
+		return routes.get(0);
+	}
+
 }

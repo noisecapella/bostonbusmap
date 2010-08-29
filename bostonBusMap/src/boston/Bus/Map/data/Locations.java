@@ -107,8 +107,6 @@ public final class Locations
 	private String selectedRoute;
 	private int selectedBusPredictions;
 	
-	private final HashMap<String, StopLocation> favoriteStops = new HashMap<String, StopLocation>();
-	
 	public Locations(Drawable bus, Drawable arrow, Drawable locationDrawable,
 			Drawable busStop, String[] supportedRoutes, DatabaseHelper helper)
 	{
@@ -132,7 +130,8 @@ public final class Locations
 	public void initializeAllRoutes(UpdateAsyncTask task, Context context)
 		throws ParserConfigurationException, FactoryConfigurationError, SAXException, IOException
 	{
-		boolean hasMissingData = routeInfoNeedsUpdating();
+		ArrayList<String> routesThatNeedUpdating = routeInfoNeedsUpdating(); 
+		boolean hasMissingData = routesThatNeedUpdating == null || routesThatNeedUpdating.size() == 0;
 		
 		if (hasMissingData)
 		{
@@ -172,27 +171,21 @@ public final class Locations
 		}
 		else
 		{
-			HashMap<String, RouteConfig> map = new HashMap<String, RouteConfig>();
-			for (String route : supportedRoutes)
+			for (String route : routesThatNeedUpdating)
 			{
-				if (routeMapping.isMissingRouteInfo(route))
-				{
-					final String prepend = "Downloading route info for " + route + " (this may take a short while): ";
+				final String prepend = "Downloading route info for " + route + " (this may take a short while): ";
 
-					//populate stops
-					final String urlString = TransitSystem.getRouteConfigUrl(route);
-					URL url = new URL(urlString);
+				//populate stops
+				final String urlString = TransitSystem.getRouteConfigUrl(route);
+				URL url = new URL(urlString);
 
-					//just initialize the route and then end for this round
-					InputStream stream = downloadStream(url, task, prepend, null);
-					RouteConfigFeedParser parser = new RouteConfigFeedParser(busStop);
-					
-					parser.runParse(stream);
-					
-					parser.writeToDatabase(routeMapping, false);
-				}
+				//just initialize the route and then end for this round
+				InputStream stream = downloadStream(url, task, prepend, null);
+				RouteConfigFeedParser parser = new RouteConfigFeedParser(busStop);
 
+				parser.runParse(stream);
 
+				parser.writeToDatabase(routeMapping, false);
 			}
 		}
 	}
@@ -216,7 +209,7 @@ public final class Locations
 	 * @throws FactoryConfigurationError
 	 * @throws FeedException 
 	 */
-	public void Refresh(DatabaseHelper helper, boolean inferBusRoutes, int routeIndexToUpdate,
+	public void Refresh(boolean inferBusRoutes, int routeIndexToUpdate,
 			int selectedBusPredictions, double centerLatitude, double centerLongitude,
 			UpdateAsyncTask updateAsyncTask, boolean showRoute) throws SAXException, IOException,
 			ParserConfigurationException, FactoryConfigurationError 
@@ -248,7 +241,7 @@ public final class Locations
 			{
 				//populate route overlay (just in case we didn't already)
 				updateAsyncTask.publish("Downloading data for route " + routeToUpdate + "...");
-				populateStops(routeToUpdate, helper);
+				populateStops(routeToUpdate);
 				updateAsyncTask.publish("Finished download");
 				
 				return;
@@ -258,7 +251,7 @@ public final class Locations
 		{
 			//populate route overlay (just in case we didn't already)
 			updateAsyncTask.publish("Downloading data for route " + routeToUpdate + "...");
-			populateStops(routeToUpdate, helper);
+			populateStops(routeToUpdate);
 			updateAsyncTask.publish("Finished download");
 			return;
 		}
@@ -352,7 +345,7 @@ public final class Locations
 		}
 	}
 
-	private void populateStops(String routeToUpdate, DatabaseHelper databaseHelper) 
+	private void populateStops(String routeToUpdate) 
 		throws IOException, ParserConfigurationException, SAXException
 	{
 		final String urlString = TransitSystem.getRouteConfigUrl(routeToUpdate);
@@ -366,10 +359,7 @@ public final class Locations
 
 		parser.runParse(downloadHelper.getResponseData()); 
 
-		HashMap<String, RouteConfig> map = new HashMap<String, RouteConfig>();
-		parser.fillMapping(map);
-		
-		databaseHelper.saveMapping(map, false);
+		parser.writeToDatabase(routeMapping, false);
 	}
 
 	/**
@@ -520,10 +510,8 @@ public final class Locations
 		}
 		else if (selectedBusPredictions == Main.BUS_PREDICTIONS_STAR)
 		{
-			for (String location : favoriteStops.keySet())
+			for (StopLocation stopLocation : routeMapping.getFavoriteStops())
 			{
-				StopLocation stopLocation = favoriteStops.get(location);
-				
 				newLocations.add(stopLocation);
 				locationKeys.add(stopLocation.getId());
 			}
@@ -579,76 +567,10 @@ public final class Locations
 		return ret;
 	}
 
-	/**
-	 * Fills stopMapping with information from the database
-	 * @param helper
-	 * @param favorites
-	 * @return
-	 * @throws IOException 
-	 */
-	public void getRouteDataFromDatabase(DatabaseHelper helper) throws IOException {
-		if (routeInfoNeedsUpdating() == false)
-		{
-			return;
-		}
-		
-		final HashMap<String, RouteConfig> map = new HashMap<String, RouteConfig>();
-		
-		for (String route : supportedRoutes)
-		{
-			map.put(route, null);
-		}
-		
-		try
-		{
-			HashSet<String> initialFavorites = new HashSet<String>();
-			helper.populateMap(map, initialFavorites, supportedRoutes);
-			//we can skip buses since they have no favorites, so everything will be in the map
-			if (initialFavorites.size() != 0)
-			{
-				for (RouteConfig route : map.values())
-				{
-					if (route != null)
-					{
-						for (StopLocation location : route.getStops())
-						{
-							if (initialFavorites.contains(location.getStopTag()))
-							{
-								Log.v("BostonBusMap", "toggling favorite: " + location.getId());
-								favoriteStops.put(location.getStopTag(), location);
-								location.setFavorite(true);
-							}
-						}
-					}
-				}
-			}
-			initialFavorites.clear();
-		}
-		catch (IOException e)
-		{
-			Log.e("BostonBusMap", e.toString());
-		}
-
-		//TODO: prefetch route data
-		//routeMapping.putAll(map);
-	}
 	
-	private boolean routeInfoNeedsUpdating() throws IOException
+	private ArrayList<String> routeInfoNeedsUpdating() throws IOException
 	{
-		for (String route : supportedRoutes)
-		{
-			//TODO: remember to put this back when we go back to using the whole routeConfig
-			if (routeMapping.get(route) == null || routeMapping.get(route).getStops().size() == 0)
-			{
-				return true;
-			}
-			/*if (routeMapping.get(route) != null && routeMapping.get(route).getStops().size() != 0)
-			{
-				return false;
-			}*/
-		}
-		
-		return false;
+		return routeMapping.routeInfoNeedsUpdating(supportedRoutes);
 	}
 
 	/**
@@ -657,7 +579,8 @@ public final class Locations
 	 * @throws IOException 
 	 */
 	public boolean checkFreeSpace(DatabaseHelper helper) throws IOException {
-		if (routeInfoNeedsUpdating() == false)
+		ArrayList<String> routesThatNeedUpdating = routeInfoNeedsUpdating();
+		if (routesThatNeedUpdating == null || routesThatNeedUpdating.size() == 0)
 		{
 			//everything is already in the database
 			return true;
@@ -672,23 +595,8 @@ public final class Locations
 		return routeMapping.get(selectedRoute);
 	}
 	
-	public int toggleFavorite(DatabaseHelper helper, StopLocation location)
+	public int toggleFavorite(StopLocation location)
 	{
-		String stopTag = location.getStopTag();
-		if (favoriteStops.containsKey(stopTag))
-		{
-			location.setFavorite(false);
-			favoriteStops.remove(stopTag);
-			helper.saveFavorite(stopTag, false);
-			return R.drawable.empty_star;
-		}
-		else
-		{
-			location.setFavorite(true);
-			favoriteStops.put(stopTag, location);
-			helper.saveFavorite(stopTag, true);
-			return R.drawable.full_star;
-		}
-
+		return routeMapping.toggleFavorite(location);
 	}
 }

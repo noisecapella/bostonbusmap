@@ -382,7 +382,7 @@ public class BusOverlay extends BalloonItemizedOverlay<OverlayItem> {
 	}
 
 
-	public int toggleFavorite(DatabaseHelper helper, Locations locationsObj) {
+	public int toggleFavorite(Locations locationsObj) {
 		int selectedBusIndex = getLastFocusedIndex();
 		
 		if (selectedBusIndex >= 0 && selectedBusIndex < locations.size())
@@ -390,7 +390,7 @@ public class BusOverlay extends BalloonItemizedOverlay<OverlayItem> {
 			Location location = locations.get(selectedBusIndex);
 			if (location instanceof StopLocation)
 			{
-				return locationsObj.toggleFavorite(helper, (StopLocation)location);
+				return locationsObj.toggleFavorite((StopLocation)location);
 			}
 			else
 			{

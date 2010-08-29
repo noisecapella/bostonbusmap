@@ -59,6 +59,7 @@ public class DatabaseHelper extends SQLiteOpenHelper
 	private final static String pathIdKey = "pathid";
 	private final static String blobKey = "blob";
 	private final static String oldFavoritesIdKey = "idkey";
+	private final static String newFavoritesRouteKey = "route";
 
 	private final static int tagIndex = 1;
 	private final static int nameIndex = 2;
@@ -75,7 +76,7 @@ public class DatabaseHelper extends SQLiteOpenHelper
 	public final static int CURRENT_DB_VERSION = ROUTE_POOL_DB_VERSION;
 	
 	private final Drawable busStop;
-	
+
 	public DatabaseHelper(Context context, Drawable busStop) {
 		super(context, dbName, null, CURRENT_DB_VERSION);
 		
@@ -86,7 +87,8 @@ public class DatabaseHelper extends SQLiteOpenHelper
 	public void onCreate(SQLiteDatabase db) {
 		
 		db.execSQL("CREATE TABLE IF NOT EXISTS " + blobsTable + " (" + routeKey + " STRING, " + blobKey + " BLOB)");
-		db.execSQL("CREATE TABLE IF NOT EXISTS " + newFavoritesTable + " (" + newFavoritesTagKey + " STRING PRIMARY KEY)");
+		db.execSQL("CREATE TABLE IF NOT EXISTS " + newFavoritesTable + " (" + newFavoritesTagKey + " STRING PRIMARY KEY, " +
+				newFavoritesRouteKey + " STRING)");
 		db.execSQL("CREATE TABLE IF NOT EXISTS " + routePoolTable + " (" + routeKey + " STRING)");
 	}
 
@@ -100,10 +102,14 @@ public class DatabaseHelper extends SQLiteOpenHelper
 			db.execSQL("DROP TABLE IF EXISTS " + pathsTable);
 			db.execSQL("DROP TABLE IF EXISTS " + blobsTable);
 
-			HashSet<Integer> favorites = null;
+			HashSet<String> favorites = null;
 			if (oldVersion == ADDED_FAVORITE_DB_VERSION)
 			{
-				favorites = readOldFavorites(db);
+				favorites = readv6Favorites(db);
+			}
+			else if (oldVersion == NEW_ROUTES_DB_VERSION)
+			{
+				favorites = readv7Favorites(db);
 			}
 
 			db.execSQL("DROP TABLE IF EXISTS " + oldFavoritesTable);
@@ -123,18 +129,46 @@ public class DatabaseHelper extends SQLiteOpenHelper
 		
 	}
 
-	private void writeNewFavorites(SQLiteDatabase db, HashSet<Integer> favorites) {
-		for (Integer favorite : favorites) {
+	private void writeNewFavorites(SQLiteDatabase db, HashSet<String> favorites) {
+		for (String favorite : favorites) {
 			ContentValues values = new ContentValues();
-			values.put(newFavoritesTagKey, favorite.toString());
+			values.put(newFavoritesTagKey, favorite);
 			
 			db.insert(newFavoritesTable, null, values);
 		}
 	}
-
-	private HashSet<Integer> readOldFavorites(SQLiteDatabase database)
+	
+	private HashSet<String> readv7Favorites(SQLiteDatabase database)
 	{
-		HashSet<Integer> favorites = new HashSet<Integer>();
+		HashSet<String> favorites = new HashSet<String>();
+		Cursor cursor = null;
+		try
+		{
+			cursor = database.query(newFavoritesTable, new String[]{newFavoritesTagKey}, null, null, null, null, null);
+			cursor.moveToFirst();
+			while (cursor.isAfterLast() == false)
+			{
+				String key = cursor.getString(0);
+				
+				favorites.add(key);
+				cursor.moveToNext();
+			}
+		}
+		finally
+		{
+			database.close();
+			if (cursor != null)
+			{
+				cursor.close();
+			}
+		}
+		
+		return favorites;
+	}
+
+	private HashSet<String> readv6Favorites(SQLiteDatabase database)
+	{
+		HashSet<String> favorites = new HashSet<String>();
 
 		Cursor cursor = null;
 		try
@@ -146,7 +180,8 @@ public class DatabaseHelper extends SQLiteOpenHelper
 				int key = cursor.getInt(0);
 
 				//the old favorites used the public locationtype id, which it shouldn't have
-				favorites.add(key & 0xffff);
+				key = key & 0xffff;
+				favorites.add(new Integer(key).toString());
 
 				cursor.moveToNext();
 			}
@@ -215,45 +250,23 @@ public class DatabaseHelper extends SQLiteOpenHelper
 		}
 	}
 
-	public void populateMap(HashMap<String, RouteConfig> map, HashSet<String> favorites, String[] routes) throws IOException {
-
+	public void populateFavorites(HashMap<String, String> favorites)
+	{
 		SQLiteDatabase database = getReadableDatabase();
 		Cursor cursor = null;
 		try
 		{
-			HashMap<String, StopLocation> sharedStops = new HashMap<String, StopLocation>();
-			cursor = database.query(blobsTable, new String[] {routeKey, blobKey},
+			cursor = database.query(newFavoritesTable, new String[]{newFavoritesTagKey, newFavoritesRouteKey},
 					null, null, null, null, null);
 			cursor.moveToFirst();
 			while (cursor.isAfterLast() == false)
 			{
-				String route = cursor.getString(0);
-				byte[] blob = cursor.getBlob(1);
-
-				Log.v("BostonBusMap", "populating route " + route);
-				//Debug.startMethodTracing("db");
-				RouteConfig routeConfig = new RouteConfig(new Box(blob, CURRENT_DB_VERSION, sharedStops), busStop);
-				//Debug.stopMethodTracing();
-
-				map.put(route, routeConfig);
-				cursor.moveToNext();
-			}
-			cursor.close();
-			
-			Log.v("BostonBusMap", "number of shared stops: " + sharedStops.size());
-			
-			cursor = database.query(newFavoritesTable, new String[] {newFavoritesTagKey}, null, null, null, null, null);
-			cursor.moveToFirst();
-			while (cursor.isAfterLast() == false)
-			{
-				String key = cursor.getString(0);
-			
-				favorites.add(key);
-				Log.v("BostonBusMap", "adding favorite " + key);
+				String favoriteStopKey = cursor.getString(0);
+				String favoriteRouteKey = cursor.getString(1);
+				favorites.put(favoriteStopKey, favoriteRouteKey);
 				
 				cursor.moveToNext();
 			}
-			cursor.close();
 		}
 		finally
 		{
@@ -264,7 +277,7 @@ public class DatabaseHelper extends SQLiteOpenHelper
 			}
 		}
 	}
-
+	
 	public void saveMapping(HashMap<String, RouteConfig> mapping, boolean wipe) throws IOException
 	{
 		SQLiteDatabase database = getWritableDatabase();
@@ -360,8 +373,8 @@ public class DatabaseHelper extends SQLiteOpenHelper
 		}
 	}
 
-	public void saveFavorite(String tag, boolean isFavorite) {
-		Log.v("BostonBusMap", "Saving favorite " + tag + " as " + isFavorite);
+	public void saveFavorite(String stopTag, String routeTag, boolean isFavorite) {
+		Log.v("BostonBusMap", "Saving favorite " + stopTag + " as " + isFavorite);
 		SQLiteDatabase database = getWritableDatabase();
 		synchronized (database) {
 			try
@@ -371,12 +384,13 @@ public class DatabaseHelper extends SQLiteOpenHelper
 				if (isFavorite)
 				{
 					ContentValues values = new ContentValues();
-					values.put(newFavoritesTagKey, tag);
+					values.put(newFavoritesTagKey, stopTag);
+					values.put(newFavoritesRouteKey, routeTag);
 					database.replace(newFavoritesTable, null, values);
 				}
 				else
 				{
-					database.delete(newFavoritesTable, newFavoritesTagKey + "=?", new String[] {tag});					
+					database.delete(newFavoritesTable, newFavoritesTagKey + "=?", new String[] {stopTag});					
 				}
 				
 				database.setTransactionSuccessful();
