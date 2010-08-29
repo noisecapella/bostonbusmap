@@ -96,4 +96,9 @@ public class RoutePool {
 		}
 	}
 
+	public void writeToDatabase(HashMap<String, RouteConfig> map, boolean wipe) throws IOException {
+		helper.saveMapping(map, wipe);
+		
+	}
+
 }

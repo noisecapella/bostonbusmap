@@ -201,8 +201,8 @@ public class RouteConfigFeedParser extends DefaultHandler
 		}
 	}
 
-	public void fillAndSaveMapping(RoutePool routeMapping, DatabaseHelper helper, boolean b) {
-		
+	public void writeToDatabase(RoutePool routeMapping, boolean wipe) throws IOException {
+		routeMapping.writeToDatabase(map, wipe);
 	}
 	
 }

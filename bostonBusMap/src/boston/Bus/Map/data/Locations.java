@@ -129,7 +129,7 @@ public final class Locations
 	 * @throws SAXException
 	 * @throws IOException
 	 */
-	public void initializeAllRoutes(DatabaseHelper helper, UpdateAsyncTask task, Context context)
+	public void initializeAllRoutes(UpdateAsyncTask task, Context context)
 		throws ParserConfigurationException, FactoryConfigurationError, SAXException, IOException
 	{
 		boolean hasMissingData = routeInfoNeedsUpdating();
@@ -163,10 +163,7 @@ public final class Locations
 			
 			HashMap<String, RouteConfig> map = new HashMap<String, RouteConfig>();
 
-			parser.fillMapping(map);
-			
-			task.publish("Saving route data to database...");
-			helper.saveMapping(map, true);
+			parser.writeToDatabase(routeMapping, true);
 			
 			map.clear();
 			//TODO: fill routeMapping somehow
@@ -192,9 +189,7 @@ public final class Locations
 					
 					parser.runParse(stream);
 					
-					parser.fillMapping(map);
-					
-					helper.saveMapping(map, false);
+					parser.writeToDatabase(routeMapping, false);
 				}
 
 
