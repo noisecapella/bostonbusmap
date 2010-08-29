@@ -2,6 +2,7 @@ package boston.Bus.Map.data;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.SortedSet;
 import java.util.TreeSet;
@@ -263,6 +264,10 @@ public class StopLocation implements Location, CanBeSerialized
 	@Override
 	public boolean isFavorite() {
 		return isFavorite;
+	}
+
+	public Collection<String> getRoutes() {
+		return routes;
 	}
 
 }

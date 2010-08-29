@@ -45,6 +45,7 @@ public class DatabaseHelper extends SQLiteOpenHelper
 	private final static String blobsTable = "blobs";
 	private final static String oldFavoritesTable = "favs";
 	private final static String newFavoritesTable = "favs2";
+	private final static String routePoolTable = "routepool";
 	
 	
 	private final static String routeKey = "route";
@@ -69,8 +70,9 @@ public class DatabaseHelper extends SQLiteOpenHelper
 	public final static int FIRST_DB_VERSION = 5;
 	public final static int ADDED_FAVORITE_DB_VERSION = 6;
 	public final static int NEW_ROUTES_DB_VERSION = 7;	
+	public final static int ROUTE_POOL_DB_VERSION = 8;
 	
-	public final static int CURRENT_DB_VERSION = NEW_ROUTES_DB_VERSION;
+	public final static int CURRENT_DB_VERSION = ROUTE_POOL_DB_VERSION;
 	
 	private final Drawable busStop;
 	
@@ -85,30 +87,38 @@ public class DatabaseHelper extends SQLiteOpenHelper
 		
 		db.execSQL("CREATE TABLE IF NOT EXISTS " + blobsTable + " (" + routeKey + " STRING, " + blobKey + " BLOB)");
 		db.execSQL("CREATE TABLE IF NOT EXISTS " + newFavoritesTable + " (" + newFavoritesTagKey + " STRING PRIMARY KEY)");
+		db.execSQL("CREATE TABLE IF NOT EXISTS " + routePoolTable + " (" + routeKey + " STRING)");
 	}
 
 	@Override
 	public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-		db.execSQL("DROP TABLE IF EXISTS " + directionsTable);
-		db.execSQL("DROP TABLE IF EXISTS " + stopsTable);
-		db.execSQL("DROP TABLE IF EXISTS " + routesTable);
-		db.execSQL("DROP TABLE IF EXISTS " + pathsTable);
-		db.execSQL("DROP TABLE IF EXISTS " + blobsTable);
-		
-		HashSet<Integer> favorites = null;
-		if (oldVersion == ADDED_FAVORITE_DB_VERSION)
+		if (oldVersion < NEW_ROUTES_DB_VERSION)
 		{
-			favorites = readOldFavorites(db);
-		}
-		
-		db.execSQL("DROP TABLE IF EXISTS " + oldFavoritesTable);
-		db.execSQL("DROP TABLE IF EXISTS " + newFavoritesTable);
+			db.execSQL("DROP TABLE IF EXISTS " + directionsTable);
+			db.execSQL("DROP TABLE IF EXISTS " + stopsTable);
+			db.execSQL("DROP TABLE IF EXISTS " + routesTable);
+			db.execSQL("DROP TABLE IF EXISTS " + pathsTable);
+			db.execSQL("DROP TABLE IF EXISTS " + blobsTable);
 
-		onCreate(db);
-		
-		if (favorites != null)
+			HashSet<Integer> favorites = null;
+			if (oldVersion == ADDED_FAVORITE_DB_VERSION)
+			{
+				favorites = readOldFavorites(db);
+			}
+
+			db.execSQL("DROP TABLE IF EXISTS " + oldFavoritesTable);
+			db.execSQL("DROP TABLE IF EXISTS " + newFavoritesTable);
+
+			onCreate(db);
+
+			if (favorites != null)
+			{
+				writeNewFavorites(db, favorites);
+			}
+		}
+		else
 		{
-			writeNewFavorites(db, favorites);
+			onCreate(db);
 		}
 		
 	}
@@ -376,6 +386,36 @@ public class DatabaseHelper extends SQLiteOpenHelper
 			finally
 			{
 				database.close();
+			}
+		}
+	}
+
+	public RouteConfig getRoute(String routeToUpdate, HashMap<String, StopLocation> sharedStops) throws IOException {
+		SQLiteDatabase database = getReadableDatabase();
+		Cursor cursor = null;
+		try
+		{
+			cursor = database.query(blobsTable, new String[]{blobKey}, routeKey + "=?",
+					new String[]{routeToUpdate}, null, null, null);
+			if (cursor.getCount() == 0)
+			{
+				return null;
+			}
+			else
+			{
+				cursor.moveToFirst();
+				byte[] data = cursor.getBlob(0);
+				Box box = new Box(data, CURRENT_DB_VERSION, sharedStops);
+				RouteConfig routeConfig = new RouteConfig(box, busStop);
+				return routeConfig;
+			}
+		}
+		finally
+		{
+			database.close();
+			if (cursor != null)
+			{
+				cursor.close();
 			}
 		}
 	}

@@ -293,7 +293,15 @@ public class UpdateAsyncTask extends AsyncTask<Object, String, Locations>
 			final double longitude, Handler uiHandler) {
 		final ArrayList<Location> busLocations = new ArrayList<Location>();
 		
-		busLocations.addAll(busLocationsObject.getLocations(maxOverlays, latitude, longitude, doShowUnpredictable));
+		try
+		{
+			busLocations.addAll(busLocationsObject.getLocations(maxOverlays, latitude, longitude, doShowUnpredictable));
+		}
+		catch (IOException e)
+		{
+			publishProgress("Error getting route data from database");
+			return;
+		}
 
 		//if doRefresh is false, we should skip this, it prevents the icons from updating locations
 		if (busLocations.size() == 0 && doRefresh)
@@ -324,7 +332,13 @@ public class UpdateAsyncTask extends AsyncTask<Object, String, Locations>
 		routeOverlay.setDrawLine(showRouteLine);
 		//routeOverlay.setDrawCoarseLine(showCoarseRouteLine);
 		
-        final ArrayList<Path> paths = busLocationsObject.getSelectedPaths();
+        ArrayList<Path> paths;
+		try {
+			paths = busLocationsObject.getSelectedPaths();
+		} catch (IOException e) {
+			Log.e("BostonBusMap", "Exception thrown from getSelectedPaths: " + e.getMessage());
+			paths = new ArrayList<Path>();
+		}
 		
 		RouteConfig selectedRouteConfig;
 		if (selectedBusPredictions == Main.BUS_PREDICTIONS_STAR)
@@ -333,7 +347,12 @@ public class UpdateAsyncTask extends AsyncTask<Object, String, Locations>
 		}
 		else
 		{
-			selectedRouteConfig = busLocationsObject.getSelectedRoute();
+			try {
+				selectedRouteConfig = busLocationsObject.getSelectedRoute();
+			} catch (IOException e) {
+				Log.e("BostonBusMap", "Exception thrown from getSelectedRoute: " + e.getMessage());
+				selectedRouteConfig = null;
+			}
 		}
 		
 		displayIcons(busOverlay, routeOverlay, locationOverlay, paths, latitude, longitude, busLocations, selectedBusId, selectedRouteConfig);

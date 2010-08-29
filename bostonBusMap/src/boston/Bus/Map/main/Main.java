@@ -288,7 +288,7 @@ public class Main extends MapActivity
         if (busLocations == null)
         {
         	busLocations = new Locations(busPicture, arrow, locationDrawable, busStop,
-        			routesSupported);
+        			routesSupported, helper);
         }
 
         handler = new UpdateHandler(textView, mapView, arrow, tooltip, busLocations, 
@@ -658,7 +658,7 @@ public class Main extends MapActivity
     	handler.setShowCoarseRouteLine(showCoarseRouteLineCheckboxValue);
     	//handler.setInitAllRouteInfo(prefs.getBoolean(getString(R.string.initAllRouteInfoCheckbox2), true));
     	handler.setInitAllRouteInfo(true);
-
+    	
     	//since the default value for this flag is true, make sure we let the preferences know of this
     	prefs.edit().putBoolean(getString(R.string.runInBackgroundCheckbox), runInBackgroundCheckboxValue).
     		putBoolean(getString(R.string.showCoarseRouteLineCheckbox), showCoarseRouteLineCheckboxValue).commit();

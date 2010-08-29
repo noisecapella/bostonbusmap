@@ -2,7 +2,9 @@ package boston.Bus.Map.parser;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.PrintWriter;
 import java.io.StringReader;
+import java.io.StringWriter;
 import java.util.HashMap;
 
 import javax.xml.parsers.ParserConfigurationException;
@@ -16,8 +18,10 @@ import org.xml.sax.XMLReader;
 import org.xml.sax.helpers.DefaultHandler;
 
 import android.graphics.drawable.Drawable;
+import android.util.Log;
 import boston.Bus.Map.data.BusLocation;
 import boston.Bus.Map.data.RouteConfig;
+import boston.Bus.Map.data.RoutePool;
 
 public class VehicleLocationsFeedParser extends DefaultHandler
 {
@@ -25,12 +29,12 @@ public class VehicleLocationsFeedParser extends DefaultHandler
 	 * NOTE: this is read only here
 	 */
 	private final HashMap<Integer,String> vehiclesToRouteNames;
-	private final HashMap<String, RouteConfig> stopMapping;
+	private final RoutePool stopMapping;
 	private final Drawable bus;
 	private final Drawable arrow;
 	
 	public VehicleLocationsFeedParser(HashMap<Integer, String> vehiclesToRouteNames,
-			HashMap<String, RouteConfig> stopMapping, Drawable bus, Drawable arrow)
+			RoutePool stopMapping, Drawable bus, Drawable arrow)
 	{
 		this.vehiclesToRouteNames = vehiclesToRouteNames;
 		this.stopMapping = stopMapping;
@@ -94,12 +98,17 @@ public class VehicleLocationsFeedParser extends DefaultHandler
 				}
 			}
 
-			RouteConfig routeConfig;
-			if (stopMapping.containsKey(route))
-			{
+			RouteConfig routeConfig = null;
+			try {
 				routeConfig = stopMapping.get(route);
+			} catch (IOException e) {
+				StringWriter writer = new StringWriter();
+				e.printStackTrace(new PrintWriter(writer));
+				Log.e("BostonBusMap", writer.toString());
+				routeConfig = null;
 			}
-			else
+			
+			if (routeConfig == null)
 			{
 				routeConfig = new RouteConfig(route);
 			}

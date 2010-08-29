@@ -2,7 +2,9 @@ package boston.Bus.Map.parser;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.PrintWriter;
 import java.io.StringReader;
+import java.io.StringWriter;
 import java.util.HashMap;
 
 import javax.xml.parsers.ParserConfigurationException;
@@ -17,7 +19,9 @@ import org.xml.sax.SAXException;
 import org.xml.sax.XMLReader;
 import org.xml.sax.helpers.DefaultHandler;
 
+import android.util.Log;
 import boston.Bus.Map.data.RouteConfig;
+import boston.Bus.Map.data.RoutePool;
 import boston.Bus.Map.data.StopLocation;
 
 public class BusPredictionsFeedParser extends DefaultHandler
@@ -31,11 +35,11 @@ public class BusPredictionsFeedParser extends DefaultHandler
 	private static final String predictionsKey = "predictions";
 	private static final String routeTagKey = "routeTag";
 	
-	private final HashMap<String, RouteConfig> stopMapping;
+	private final RoutePool stopMapping;
 	private StopLocation currentLocation;
 	private RouteConfig currentRoute;
 	
-	public BusPredictionsFeedParser(HashMap<String, RouteConfig> stopMapping) {
+	public BusPredictionsFeedParser(RoutePool stopMapping) {
 		this.stopMapping = stopMapping;
 	}
 
@@ -55,7 +59,17 @@ public class BusPredictionsFeedParser extends DefaultHandler
 		if (localName.equals(predictionsKey))
 		{
 			String currentRouteTag = attributes.getValue(routeTagKey);
-			currentRoute = stopMapping.get(currentRouteTag);
+			try
+			{
+				currentRoute = stopMapping.get(currentRouteTag);
+			}
+			catch (IOException e)
+			{
+				StringWriter writer = new StringWriter();
+				e.printStackTrace(new PrintWriter(writer));
+				Log.e("BostonBusMap", writer.toString());
+				currentRoute = null;
+			}
 			
 			currentLocation = null;
 			if (currentRoute != null)

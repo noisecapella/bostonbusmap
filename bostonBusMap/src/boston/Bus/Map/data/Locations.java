@@ -74,7 +74,7 @@ public final class Locations
 	/**
 	 * A mapping of a route id to a RouteConfig object.
 	 */
-	private final HashMap<String, RouteConfig> routeMapping = new HashMap<String, RouteConfig>();
+	private final RoutePool routeMapping;
 	
 
 	
@@ -110,7 +110,7 @@ public final class Locations
 	private final HashMap<String, StopLocation> favoriteStops = new HashMap<String, StopLocation>();
 	
 	public Locations(Drawable bus, Drawable arrow, Drawable locationDrawable,
-			Drawable busStop, String[] supportedRoutes)
+			Drawable busStop, String[] supportedRoutes, DatabaseHelper helper)
 	{
 		this.bus = bus;
 		this.arrow = arrow;
@@ -118,7 +118,7 @@ public final class Locations
 		this.busStop = busStop;
 		this.supportedRoutes = supportedRoutes;
 		
-		
+		routeMapping = new RoutePool(helper);
 	}
 	
 	/**
@@ -160,21 +160,25 @@ public final class Locations
 			
 			task.publish("Parsing route data...");
 
-			parser.fillMapping(routeMapping);
+			
+			HashMap<String, RouteConfig> map = new HashMap<String, RouteConfig>();
+
+			parser.fillMapping(map);
 			
 			task.publish("Saving route data to database...");
-			helper.saveMapping(routeMapping, true);
+			helper.saveMapping(map, true);
 			
+			map.clear();
 			//TODO: fill routeMapping somehow
 			
 			task.publish("Done!");
 		}
 		else
 		{
+			HashMap<String, RouteConfig> map = new HashMap<String, RouteConfig>();
 			for (String route : supportedRoutes)
 			{
-				if (routeMapping.containsKey(route) == false || routeMapping.get(route) == null || 
-						routeMapping.get(route).getStops().size() == 0)
+				if (routeMapping.isMissingRouteInfo(route))
 				{
 					final String prepend = "Downloading route info for " + route + " (this may take a short while): ";
 
@@ -188,9 +192,9 @@ public final class Locations
 					
 					parser.runParse(stream);
 					
-					parser.fillMapping(routeMapping);
+					parser.fillMapping(map);
 					
-					helper.saveMapping(routeMapping, false);
+					helper.saveMapping(map, false);
 				}
 
 
@@ -367,9 +371,10 @@ public final class Locations
 
 		parser.runParse(downloadHelper.getResponseData()); 
 
-		parser.fillMapping(routeMapping);
+		HashMap<String, RouteConfig> map = new HashMap<String, RouteConfig>();
+		parser.fillMapping(map);
 		
-		databaseHelper.saveMapping(routeMapping, false);
+		databaseHelper.saveMapping(map, false);
 	}
 
 	/**
@@ -442,8 +447,9 @@ public final class Locations
 	 * 
 	 * @param maxLocations
 	 * @return
+	 * @throws IOException 
 	 */
-	public List<Location> getLocations(int maxLocations, double centerLatitude, double centerLongitude, boolean doShowUnpredictable) {
+	public List<Location> getLocations(int maxLocations, double centerLatitude, double centerLongitude, boolean doShowUnpredictable) throws IOException {
 
 		TreeSet<Location> newLocations = new TreeSet<Location>(new LocationComparator(centerLatitude, centerLongitude));
 		
@@ -566,7 +572,7 @@ public final class Locations
 		}
 	}
 
-	public ArrayList<Path> getSelectedPaths() {
+	public ArrayList<Path> getSelectedPaths() throws IOException {
 		ArrayList<Path> ret = new ArrayList<Path>();
 
 		RouteConfig routeConfig = routeMapping.get(selectedRoute);
@@ -628,10 +634,11 @@ public final class Locations
 			Log.e("BostonBusMap", e.toString());
 		}
 
-		routeMapping.putAll(map);
+		//TODO: prefetch route data
+		//routeMapping.putAll(map);
 	}
 	
-	private boolean routeInfoNeedsUpdating()
+	private boolean routeInfoNeedsUpdating() throws IOException
 	{
 		for (String route : supportedRoutes)
 		{
@@ -652,8 +659,9 @@ public final class Locations
 	/**
 	 * Is there enough space available, if we need any?
 	 * @return
+	 * @throws IOException 
 	 */
-	public boolean checkFreeSpace(DatabaseHelper helper) {
+	public boolean checkFreeSpace(DatabaseHelper helper) throws IOException {
 		if (routeInfoNeedsUpdating() == false)
 		{
 			//everything is already in the database
@@ -665,7 +673,7 @@ public final class Locations
 		}
 	}
 
-	public RouteConfig getSelectedRoute() {
+	public RouteConfig getSelectedRoute() throws IOException {
 		return routeMapping.get(selectedRoute);
 	}
 	
