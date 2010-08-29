@@ -147,7 +147,7 @@ public class StopLocation implements Location, CanBeSerialized
 			int count = 0;
 			for (Prediction prediction : predictions)
 			{
-				if (routeConfig != null && routeConfig != prediction.getRoute())
+				if (routeConfig != null && routeConfig.getRouteName().equals(prediction.getRouteName()) == false)
 				{
 					continue;
 				}
@@ -180,7 +180,7 @@ public class StopLocation implements Location, CanBeSerialized
 		{
 			for (Prediction prediction : predictions)
 			{
-				if (prediction.getRoute() != routeConfig)
+				if (prediction.getRouteName().equals(routeConfig) == false)
 				{
 					newPredictions.add(prediction);
 				}
