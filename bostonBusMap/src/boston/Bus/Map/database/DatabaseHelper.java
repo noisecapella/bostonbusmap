@@ -96,7 +96,7 @@ public class DatabaseHelper extends SQLiteOpenHelper
 		db.execSQL("DROP TABLE IF EXISTS " + blobsTable);
 		
 		HashSet<Integer> favorites = null;
-		if (oldVersion >= ADDED_FAVORITE_DB_VERSION)
+		if (oldVersion == ADDED_FAVORITE_DB_VERSION)
 		{
 			favorites = readOldFavorites(db);
 		}
