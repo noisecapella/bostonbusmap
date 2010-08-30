@@ -86,10 +86,10 @@ public class DatabaseHelper extends SQLiteOpenHelper
 	@Override
 	public void onCreate(SQLiteDatabase db) {
 		
-		db.execSQL("CREATE TABLE IF NOT EXISTS " + blobsTable + " (" + routeKey + " STRING, " + blobKey + " BLOB)");
+		db.execSQL("CREATE TABLE IF NOT EXISTS " + blobsTable + " (" + routeKey + " STRING PRIMARY KEY, " + blobKey + " BLOB)");
 		db.execSQL("CREATE TABLE IF NOT EXISTS " + newFavoritesTable + " (" + newFavoritesTagKey + " STRING PRIMARY KEY, " +
 				newFavoritesRouteKey + " STRING)");
-		db.execSQL("CREATE TABLE IF NOT EXISTS " + routePoolTable + " (" + routeKey + " STRING)");
+		db.execSQL("CREATE TABLE IF NOT EXISTS " + routePoolTable + " (" + routeKey + " STRING PRIMARY KEY)");
 	}
 
 	@Override
@@ -274,7 +274,7 @@ public class DatabaseHelper extends SQLiteOpenHelper
 		}
 	}
 	
-	public void saveMapping(HashMap<String, RouteConfig> mapping, boolean wipe) throws IOException
+	public void saveMapping(HashMap<String, RouteConfig> mapping, boolean wipe, HashMap<String, StopLocation> sharedStops) throws IOException
 	{
 		SQLiteDatabase database = getWritableDatabase();
 		synchronized (database) {
@@ -289,8 +289,6 @@ public class DatabaseHelper extends SQLiteOpenHelper
 					//database.delete(pathsTable, null, null);
 					database.delete(blobsTable, null, null);
 				}
-				
-				HashMap<String, StopLocation> sharedStops = new HashMap<String, StopLocation>();
 				
 				for (String route : mapping.keySet())
 				{
@@ -444,7 +442,7 @@ public class DatabaseHelper extends SQLiteOpenHelper
 		{
 			cursor = database.query(blobsTable, new String[]{routeKey}, null, null, null, null, null);
 			cursor.moveToFirst();
-			while (cursor.isAfterLast())
+			while (cursor.isAfterLast() == false)
 			{
 				routesInDB.add(cursor.getString(0));
 				

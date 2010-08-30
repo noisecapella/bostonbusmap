@@ -261,6 +261,39 @@ public class TestSerialization extends TestCase {
 		
 		assertValidPath(outputBox);
 	}
+
+	public void testRouteAndPath() throws IOException
+	{
+		HashMap<String, StopLocation> sharedStops = new HashMap<String, StopLocation>();
+		
+		ArrayList<Float> floats = new ArrayList<Float>();
+		floats.add(2.3f);
+		floats.add(-42.3f);
+		floats.add(-502.3f);
+		ArrayList<Float> floats2 = new ArrayList<Float>();
+		floats2.add(2.43f);
+		floats2.add(-42.53f);
+		floats2.add(-502.63f);
+		
+		
+		Path path = new Path(floats);
+		
+		RouteConfig routeConfig = new RouteConfig("6");
+		routeConfig.addPath(path);
+		routeConfig.addStop("xyz", new StopLocation(-3.4f, -6.5f, null, "s", "etwk"));
+		routeConfig.addStop("yy", new StopLocation(-4f, 5f, null, "k", "xkfowe"));
+		
+		Box outputBox = new Box(null, DatabaseHelper.CURRENT_DB_VERSION, sharedStops);
+		
+		routeConfig.addDirection("x", "y", "Inbound");
+		
+		routeConfig.addDirection("x2", "y2", "Outbound");
+		
+		
+		routeConfig.serialize(outputBox);
+		
+		assertValid(outputBox);
+	}
 	
 
 	private void assertValidStopLocation(Box outputBox) throws IOException

@@ -2,6 +2,7 @@ package boston.Bus.Map.data;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -53,6 +54,8 @@ public class RoutePool {
 	}
 
 	public RouteConfig get(String routeToUpdate) throws IOException {
+		debugStateOfPool();
+		
 		RouteConfig routeConfig = pool.get(routeToUpdate);
 		if (routeConfig != null)
 		{
@@ -71,7 +74,7 @@ public class RoutePool {
 				{
 					if (priorities.size() >= MAX_ROUTES)
 					{
-						removeARoute();
+						removeARoute(priorities.get(0));
 					}
 
 					addARoute(routeToUpdate, routeConfig);
@@ -82,18 +85,35 @@ public class RoutePool {
 		}
 	}
 
+	private void debugStateOfPool() {
+		ArrayList<String> routes = new ArrayList<String>(pool.size());
+		routes.addAll(pool.keySet());
+		Collections.sort(routes);
+		
+		StringBuffer joinable = new StringBuffer();
+		for (String route : routes)
+		{
+			joinable.append(route).append(", ");
+		}
+		
+		Log.v("BostonBusMap", "routes currently in pool: " + joinable);
+	}
+
 	private void addARoute(String routeToUpdate, RouteConfig routeConfig) {
 		priorities.add(routeToUpdate);
 		pool.put(routeToUpdate, routeConfig);
 	}
 
-	private void removeARoute() {
-		String firstRoute = priorities.removeFirst();
-		RouteConfig routeConfig = pool.get(firstRoute);
-		pool.remove(firstRoute);
+	private void removeARoute(String routeToRemove) {
+		RouteConfig routeConfig = pool.get(routeToRemove);
+		priorities.remove(routeToRemove);
+		pool.remove(routeToRemove);
 		
 		//TODO: can this be done faster?
-		
+		if (routeConfig == null)
+		{
+			return;
+		}
 		//remove all stops from sharedStops,
 		//unless that stop is owned by another route also which is currently in the pool
 		for (StopLocation stopLocation : routeConfig.getStops())
@@ -117,8 +137,17 @@ public class RoutePool {
 	}
 
 	public void writeToDatabase(HashMap<String, RouteConfig> map, boolean wipe) throws IOException {
-		helper.saveMapping(map, wipe);
-		
+		helper.saveMapping(map, wipe, sharedStops);
+		for (String route : map.keySet())
+		{
+			//TODO: we just saved to database and then reloaded from database. This is inefficient
+			refreshRoute(route);
+		}
+	}
+
+	private void refreshRoute(String route) throws IOException {
+		removeARoute(route);
+		get(route);
 	}
 
 	public ArrayList<String> routeInfoNeedsUpdating(String[] supportedRoutes) {

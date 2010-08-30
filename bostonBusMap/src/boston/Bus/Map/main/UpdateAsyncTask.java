@@ -187,7 +187,7 @@ public class UpdateAsyncTask extends AsyncTask<Object, String, Locations>
 			catch (IOException e)
 			{
 				//this probably means that there is no Internet available, or there's something wrong with the feed
-				publishProgress("Bus feed is inaccessible; try again later");
+				publishProgress("Feed is inaccessible; try again later");
 
 				StringWriter writer = new StringWriter();
 				e.printStackTrace(new PrintWriter(writer));
@@ -256,9 +256,9 @@ public class UpdateAsyncTask extends AsyncTask<Object, String, Locations>
 				return null;
 			}
 		}
-		publishProgress("Preparing to draw bus overlays...");
+		publishProgress("Preparing to draw overlays...");
 		
-		publishProgress("Adding bus overlays to map...");
+		publishProgress("Adding overlays to map...");
 		
     	return busLocations;
     }
