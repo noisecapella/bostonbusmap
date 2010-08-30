@@ -94,7 +94,7 @@ public class DatabaseHelper extends SQLiteOpenHelper
 
 	@Override
 	public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-		if (oldVersion < NEW_ROUTES_DB_VERSION)
+		if (oldVersion <= NEW_ROUTES_DB_VERSION)
 		{
 			db.execSQL("DROP TABLE IF EXISTS " + directionsTable);
 			db.execSQL("DROP TABLE IF EXISTS " + stopsTable);
@@ -103,11 +103,7 @@ public class DatabaseHelper extends SQLiteOpenHelper
 			db.execSQL("DROP TABLE IF EXISTS " + blobsTable);
 
 			HashSet<String> favorites = null;
-			if (oldVersion == ADDED_FAVORITE_DB_VERSION)
-			{
-				favorites = readv6Favorites(db);
-			}
-			else if (oldVersion == NEW_ROUTES_DB_VERSION)
+			if (oldVersion == NEW_ROUTES_DB_VERSION)
 			{
 				favorites = readv7Favorites(db);
 			}
@@ -432,5 +428,48 @@ public class DatabaseHelper extends SQLiteOpenHelper
 				cursor.close();
 			}
 		}
+	}
+
+	public void triggerDatabaseUpdate() {
+		SQLiteDatabase database = getWritableDatabase();
+		database.close();
+		
+	}
+
+	public ArrayList<String> routeInfoNeedsUpdating(String[] supportedRoutes) {
+		HashSet<String> routesInDB = new HashSet<String>();
+		SQLiteDatabase database = getReadableDatabase();
+		Cursor cursor = null;
+		try
+		{
+			cursor = database.query(blobsTable, new String[]{routeKey}, null, null, null, null, null);
+			cursor.moveToFirst();
+			while (cursor.isAfterLast())
+			{
+				routesInDB.add(cursor.getString(0));
+				
+				cursor.moveToNext();
+			}
+		}
+		finally
+		{
+			database.close();
+			if (cursor != null)
+			{
+				cursor.close();
+			}
+		}
+		
+		ArrayList<String> routesThatNeedUpdating = new ArrayList<String>();
+		
+		for (String route : supportedRoutes)
+		{
+			if (routesInDB.contains(route) == false)
+			{
+				routesThatNeedUpdating.add(route);
+			}
+		}
+		
+		return routesThatNeedUpdating;
 	}
 }

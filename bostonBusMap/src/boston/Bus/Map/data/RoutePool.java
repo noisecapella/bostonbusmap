@@ -123,7 +123,7 @@ public class RoutePool {
 
 	public ArrayList<String> routeInfoNeedsUpdating(String[] supportedRoutes) {
 		//TODO: what if another route gets added later, and we want to download it from the server and add it?
-		return null;
+		return helper.routeInfoNeedsUpdating(supportedRoutes);
 	}
 
 	public StopLocation[] getFavoriteStops() {

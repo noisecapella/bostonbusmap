@@ -181,7 +181,7 @@ public class StopLocation implements Location, CanBeSerialized
 		{
 			for (Prediction prediction : predictions)
 			{
-				if (prediction.getRouteName().equals(routeConfig) == false)
+				if (prediction.getRouteName().equals(routeConfig.getRouteName()) == false)
 				{
 					newPredictions.add(prediction);
 				}

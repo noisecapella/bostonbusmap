@@ -236,6 +236,8 @@ public class Main extends MapActivity
 
         
         DatabaseHelper helper = new DatabaseHelper(this, busStop);
+        helper.triggerDatabaseUpdate();
+        
         
         String[][] routeKeyMap = getOrObtainRoutes(helper);
         String[] routesSupported = routeKeyMap[0];

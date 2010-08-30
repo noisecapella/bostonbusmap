@@ -131,9 +131,9 @@ public final class Locations
 		throws ParserConfigurationException, FactoryConfigurationError, SAXException, IOException
 	{
 		ArrayList<String> routesThatNeedUpdating = routeInfoNeedsUpdating(); 
-		boolean hasMissingData = routesThatNeedUpdating == null || routesThatNeedUpdating.size() == 0;
+		boolean hasNoMissingData = routesThatNeedUpdating == null || routesThatNeedUpdating.size() == 0;
 		
-		if (hasMissingData)
+		if (hasNoMissingData == false)
 		{
 			final String prepend = "Downloading route info (this may take a short while): ";
 			
@@ -171,21 +171,25 @@ public final class Locations
 		}
 		else
 		{
-			for (String route : routesThatNeedUpdating)
+			if (routesThatNeedUpdating != null)
 			{
-				final String prepend = "Downloading route info for " + route + " (this may take a short while): ";
+				//this code probably isn't executed right now
+				for (String route : routesThatNeedUpdating)
+				{
+					final String prepend = "Downloading route info for " + route + " (this may take a short while): ";
 
-				//populate stops
-				final String urlString = TransitSystem.getRouteConfigUrl(route);
-				URL url = new URL(urlString);
+					//populate stops
+					final String urlString = TransitSystem.getRouteConfigUrl(route);
+					URL url = new URL(urlString);
 
-				//just initialize the route and then end for this round
-				InputStream stream = downloadStream(url, task, prepend, null);
-				RouteConfigFeedParser parser = new RouteConfigFeedParser(busStop);
+					//just initialize the route and then end for this round
+					InputStream stream = downloadStream(url, task, prepend, null);
+					RouteConfigFeedParser parser = new RouteConfigFeedParser(busStop);
 
-				parser.runParse(stream);
+					parser.runParse(stream);
 
-				parser.writeToDatabase(routeMapping, false);
+					parser.writeToDatabase(routeMapping, false);
+				}
 			}
 		}
 	}
