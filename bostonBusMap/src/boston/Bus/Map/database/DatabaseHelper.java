@@ -94,22 +94,27 @@ public class DatabaseHelper extends SQLiteOpenHelper
 
 	@Override
 	public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+		Log.v("BostonBusMap", "upgrading database from " + oldVersion + " to " + newVersion);
 		if (oldVersion <= NEW_ROUTES_DB_VERSION)
 		{
-			db.execSQL("DROP TABLE IF EXISTS " + directionsTable);
-			db.execSQL("DROP TABLE IF EXISTS " + stopsTable);
-			db.execSQL("DROP TABLE IF EXISTS " + routesTable);
-			db.execSQL("DROP TABLE IF EXISTS " + pathsTable);
-			db.execSQL("DROP TABLE IF EXISTS " + blobsTable);
-
 			HashSet<String> favorites = null;
 			if (oldVersion == NEW_ROUTES_DB_VERSION)
 			{
 				favorites = readv7Favorites(db);
 			}
 
+			db.beginTransaction();
+			db.execSQL("DROP TABLE IF EXISTS " + directionsTable);
+			db.execSQL("DROP TABLE IF EXISTS " + stopsTable);
+			db.execSQL("DROP TABLE IF EXISTS " + routesTable);
+			db.execSQL("DROP TABLE IF EXISTS " + pathsTable);
+			db.execSQL("DROP TABLE IF EXISTS " + blobsTable);
+
+			Log.v("BostonBusMap", "here database from " + oldVersion + " to " + newVersion);
+
 			db.execSQL("DROP TABLE IF EXISTS " + oldFavoritesTable);
 			db.execSQL("DROP TABLE IF EXISTS " + newFavoritesTable);
+			Log.v("BostonBusMap", "everywhere database from " + oldVersion + " to " + newVersion);
 
 			onCreate(db);
 
@@ -117,6 +122,10 @@ public class DatabaseHelper extends SQLiteOpenHelper
 			{
 				writeNewFavorites(db, favorites);
 			}
+			db.setTransactionSuccessful();
+			db.endTransaction();
+			Log.v("BostonBusMap", "there database from " + oldVersion + " to " + newVersion);
+
 		}
 		else
 		{
@@ -136,23 +145,30 @@ public class DatabaseHelper extends SQLiteOpenHelper
 	
 	private HashSet<String> readv7Favorites(SQLiteDatabase database)
 	{
+		Log.v("BostonBusMap", "readv7Favorites 0");
 		HashSet<String> favorites = new HashSet<String>();
 		Cursor cursor = null;
 		try
 		{
+			Log.v("BostonBusMap", "readv7Favorites 1");
 			cursor = database.query(newFavoritesTable, new String[]{newFavoritesTagKey}, null, null, null, null, null);
+			Log.v("BostonBusMap", "readv7Favorites 2");
 			cursor.moveToFirst();
+			Log.v("BostonBusMap", "readv7Favorites 3");
 			while (cursor.isAfterLast() == false)
 			{
+				Log.v("BostonBusMap", "readv7Favorites 4");
 				String key = cursor.getString(0);
+				Log.v("BostonBusMap", "readv7Favorites 5");
 				
 				favorites.add(key);
+				Log.v("BostonBusMap", "readv7Favorites 6");
 				cursor.moveToNext();
+				Log.v("BostonBusMap", "readv7Favorites 7");
 			}
 		}
 		finally
 		{
-			database.close();
 			if (cursor != null)
 			{
 				cursor.close();
@@ -426,12 +442,6 @@ public class DatabaseHelper extends SQLiteOpenHelper
 				cursor.close();
 			}
 		}
-	}
-
-	public void triggerDatabaseUpdate() {
-		SQLiteDatabase database = getWritableDatabase();
-		database.close();
-		
 	}
 
 	public ArrayList<String> routeInfoNeedsUpdating(String[] supportedRoutes) {

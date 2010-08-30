@@ -21,25 +21,57 @@ public class RoutePool {
 	private final HashMap<String, RouteConfig> pool = new HashMap<String, RouteConfig>();
 	private final HashMap<String, StopLocation> sharedStops = new HashMap<String, StopLocation>();
 	private final HashMap<String, String> favoriteStops = new HashMap<String, String>();
-	
 
 	private static final int MAX_ROUTES = 50;
 	
-	public RoutePool(DatabaseHelper helper) {
+	public RoutePool(DatabaseHelper helper, String[] supportedRoutes) {
 		this.helper = helper;
+		
+		ArrayList<String> stopsToRemove = new ArrayList<String>(1);
 		
 		helper.populateFavorites(favoriteStops);
 		for (String stop : favoriteStops.keySet()) {
 			String route = favoriteStops.get(stop);
+			
 			try
 			{
-				RouteConfig routeConfig = get(route);
-				sharedStops.put(stop, routeConfig.getStop(stop));
+				if (route != null)
+				{
+					//le ugh
+					for (String supportedRoute : supportedRoutes)
+					{
+						RouteConfig routeConfig = get(supportedRoute);
+						StopLocation stopLocation = routeConfig.getStop(stop);
+						if (stopLocation != null)
+						{
+							route = stopLocation.getFirstRoute();
+							break;
+						}
+					}
+				}
+				
+				if (route != null)
+				{
+					//Log.v("BostonBusMap", "getting route " + (route == null ? "null" : route) +
+					//		" because favorite stop " + stop + " requested it");
+					RouteConfig routeConfig = get(route);
+					sharedStops.put(stop, routeConfig.getStop(stop));
+				}
+				else
+				{
+					//this shouldn't happen. We can't find the route the favorite belongs to. Just remove it
+					stopsToRemove.add(stop);
+				}
 			}
 			catch (IOException e)
 			{
 				Log.e("BostonBusMap", "Error getting route " + route + ": " + e.getMessage());
 			}
+		}
+		
+		for (String stop : stopsToRemove)
+		{
+			favoriteStops.remove(stop);
 		}
 	}
 	

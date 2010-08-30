@@ -116,7 +116,7 @@ public final class Locations
 		this.busStop = busStop;
 		this.supportedRoutes = supportedRoutes;
 		
-		routeMapping = new RoutePool(helper);
+		routeMapping = new RoutePool(helper, supportedRoutes);
 	}
 	
 	/**
