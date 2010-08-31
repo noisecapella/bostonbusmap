@@ -3,12 +3,14 @@ package boston.Bus.Map.data;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import android.database.sqlite.SQLiteDatabase;
 import boston.Bus.Map.database.DatabaseHelper;
 
 public class Directions {
 	private final HashMap<String, Integer> indexes = new HashMap<String, Integer>();
 	private final ArrayList<String> names = new ArrayList<String>();
 	private final ArrayList<String> titles = new ArrayList<String>();
+	private final ArrayList<String> routes = new ArrayList<String>();
 	
 	private final DatabaseHelper helper;
 	
@@ -16,7 +18,7 @@ public class Directions {
 		this.helper = helper;
 	}
 
-	public void add(String dirTag, String name, String title)
+	public void add(String dirTag, String name, String title, String route)
 	{
 		if (indexes.containsKey(dirTag) == false)
 		{
@@ -25,6 +27,7 @@ public class Directions {
 				indexes.put(dirTag, names.size());
 				names.add(name);
 				titles.add(title);
+				routes.add(route);
 			}
 		}
 	}
@@ -36,7 +39,7 @@ public class Directions {
 		{
 			synchronized(indexes)
 			{
-				helper.refreshDirections(indexes, names, titles);
+				helper.refreshDirections(indexes, names, titles, routes);
 			}
 			
 			i = indexes.get(dirTag);
@@ -67,6 +70,10 @@ public class Directions {
 		{
 			return titles.get(i);
 		}
+	}
+
+	public void writeToDatabase(boolean wipe) {
+		helper.writeDirections(wipe, indexes, names, titles, routes);
 	}
 	
 	

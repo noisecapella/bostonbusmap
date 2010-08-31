@@ -64,6 +64,7 @@ public class DatabaseHelper extends SQLiteOpenHelper
 	private static final String dirTagKey = "dirTagKey";
 	private static final String dirNameKey = "dirNameKey";
 	private static final String dirTitleKey = "dirTitleKey";
+	private static final String dirRouteKey = "dirRouteKey";
 	
 	private final static int tagIndex = 1;
 	private final static int nameIndex = 2;
@@ -95,7 +96,7 @@ public class DatabaseHelper extends SQLiteOpenHelper
 				newFavoritesRouteKey + " STRING)");
 		db.execSQL("CREATE TABLE IF NOT EXISTS " + routePoolTable + " (" + routeKey + " STRING PRIMARY KEY)");
 		db.execSQL("CREATE TABLE IF NOT EXISTS " + directionsTable + " (" + dirTagKey + " STRING PRIMARY KEY, " + 
-				dirNameKey + " STRING, " + dirTitleKey + " STRING)");
+				dirNameKey + " STRING, " + dirTitleKey + " STRING, " + dirRouteKey + " STRING)");
 	}
 
 	@Override
@@ -484,12 +485,12 @@ public class DatabaseHelper extends SQLiteOpenHelper
 	 * @param titles
 	 */
 	public void refreshDirections(HashMap<String, Integer> indexes,
-			ArrayList<String> names, ArrayList<String> titles) {
+			ArrayList<String> names, ArrayList<String> titles, ArrayList<String> routes) {
 		SQLiteDatabase database = getReadableDatabase();
 		Cursor cursor = null;
 		try
 		{
-			cursor = database.query(directionsTable, new String[]{dirTagKey, dirNameKey, dirTitleKey},
+			cursor = database.query(directionsTable, new String[]{dirTagKey, dirNameKey, dirTitleKey, dirRouteKey},
 					null, null, null, null, null);
 			cursor.moveToFirst();
 			while (cursor.isAfterLast() == false)
@@ -497,10 +498,12 @@ public class DatabaseHelper extends SQLiteOpenHelper
 				String dirTag = cursor.getString(0);
 				String dirName = cursor.getString(1);
 				String dirTitle = cursor.getString(2);
+				String dirRoute = cursor.getString(3);
 				
 				indexes.put(dirTag, names.size());
 				names.add(dirName);
 				titles.add(dirTitle);
+				routes.add(dirRoute);
 				
 				cursor.moveToNext();
 			}
@@ -513,5 +516,47 @@ public class DatabaseHelper extends SQLiteOpenHelper
 				cursor.close();
 			}
 		}
+	}
+
+	public void writeDirections(boolean wipe, HashMap<String, Integer> indexes,
+			ArrayList<String> names, ArrayList<String> titles, ArrayList<String> routes) {
+		SQLiteDatabase database = getWritableDatabase();
+		synchronized (database) {
+			try
+			{
+				if (wipe)
+				{
+					database.delete(directionsTable, null, null);
+				}
+				
+				for (String dirTag : indexes.keySet())
+				{
+					Integer i = indexes.get(dirTag);
+					String name = names.get(i);
+					String title = titles.get(i);
+					String route = routes.get(i);
+					
+					ContentValues values = new ContentValues();
+					values.put(dirNameKey, name);
+					values.put(dirRouteKey, route);
+					values.put(dirTagKey, dirTag);
+					values.put(dirTitleKey, title);
+					
+					if (wipe)
+					{
+						database.insert(directionsTable, null, values);
+					}
+					else
+					{
+						database.replace(directionsTable, null, values);
+					}
+				}
+			}
+			finally
+			{
+				database.close();
+			}
+		}
+		
 	}
 }

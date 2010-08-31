@@ -128,7 +128,7 @@ public class RouteConfigFeedParser extends DefaultHandler
 				String title = attributes.getValue(titleKey);
 				String name = attributes.getValue(nameKey);
 				
-				directions.add(tag, name, title);
+				directions.add(tag, name, title, currentRoute);
 			}
 		}
 		else if (routeKey.equals(localName))
@@ -205,6 +205,7 @@ public class RouteConfigFeedParser extends DefaultHandler
 
 	public void writeToDatabase(RoutePool routeMapping, boolean wipe) throws IOException {
 		routeMapping.writeToDatabase(map, wipe);
+		directions.writeToDatabase(wipe);
 	}
 	
 }
