@@ -34,10 +34,6 @@ public class BusLocation implements Location
 	 * The bus id. This uniquely identifies a bus
 	 */
 	public final int id;
-	/**
-	 * The route number. This may be null if the XML says so
-	 */
-	public final RouteConfig route;
 	
 	private final String routeName;
 	
@@ -87,7 +83,7 @@ public class BusLocation implements Location
 	
 	private static final int LOCATIONTYPE = 1;
 	
-	public BusLocation(double latitude, double longitude, int id, RouteConfig route, int seconds, double lastUpdateInMillis,
+	public BusLocation(double latitude, double longitude, int id, int seconds, double lastUpdateInMillis,
 			String heading, boolean predictable, String dirTag, String inferBusRoute,
 			Drawable bus, Drawable arrow, String routeName, Directions directions)
 	{
@@ -96,7 +92,6 @@ public class BusLocation implements Location
 		this.latitudeAsDegrees = latitude;
 		this.longitudeAsDegrees = longitude;
 		this.id = id;
-		this.route = route;
 		this.seconds = seconds;
 		this.lastUpdateInMillis = lastUpdateInMillis;
 		this.heading = heading;
@@ -226,13 +221,9 @@ public class BusLocation implements Location
 	
 	public String makeTitle() {
     	String title = "Id: " + id + ", route: ";
-    	if ((route == null || route.getRouteName() == null || route.getRouteName().equals("null")) && routeName == null)
+    	if (routeName == null)
     	{
     		title += "not mentioned";
-    	}
-    	else if (route != null)
-    	{
-    		title += route.getRouteName();
     	}
     	else
     	{
@@ -250,13 +241,10 @@ public class BusLocation implements Location
     	{
     		title += "\nHeading: " + heading + " deg (" + convertHeadingToCardinal(Integer.parseInt(heading)) + ")";
 
-    		if (route != null)
+    		String directionName = directions.getTitle(dirTag);
+    		if (directionName != null && directionName.length() != 0)
     		{
-    			String directionName = directions.getTitle(dirTag);
-    			if (directionName != null && directionName.length() != 0)
-    			{
-    				title += "\n" + directionName;
-    			}
+    			title += "\n" + directionName;
     		}
     	}
     	else
@@ -264,7 +252,7 @@ public class BusLocation implements Location
     		//TODO: how should we say this?
     		//title += "\nUnpredictable";
     		
-    		if ((route == null || "null".equals(route.getRouteName())) && inferBusRoute != null)
+    		if (routeName == null && inferBusRoute != null)
     		{
     			title += "\nEstimated route number: " + inferBusRoute;
     		}
@@ -333,6 +321,10 @@ public class BusLocation implements Location
 	@Override
 	public boolean isFavorite() {
 		return false;
+	}
+
+	public String getRouteName() {
+		return routeName;
 	}
 }
 

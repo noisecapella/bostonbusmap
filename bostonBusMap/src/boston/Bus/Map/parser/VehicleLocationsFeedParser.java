@@ -101,23 +101,8 @@ public class VehicleLocationsFeedParser extends DefaultHandler
 				}
 			}
 
-			RouteConfig routeConfig = null;
-			try {
-				routeConfig = stopMapping.get(route);
-			} catch (IOException e) {
-				StringWriter writer = new StringWriter();
-				e.printStackTrace(new PrintWriter(writer));
-				Log.e("BostonBusMap", writer.toString());
-				routeConfig = null;
-			}
-			
-			if (routeConfig == null)
-			{
-				routeConfig = new RouteConfig(route);
-			}
 
-
-			BusLocation newBusLocation = new BusLocation(lat, lon, id, routeConfig, seconds, lastUpdateTime, 
+			BusLocation newBusLocation = new BusLocation(lat, lon, id, seconds, lastUpdateTime, 
 					heading, predictable, dirTag, inferBusRoute, bus, arrow, route, directions);
 
 			Integer idInt = new Integer(id);

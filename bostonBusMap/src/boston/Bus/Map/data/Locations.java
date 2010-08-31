@@ -458,7 +458,7 @@ public final class Locations
 						{
 							if (selectedBusPredictions == Main.VEHICLE_LOCATIONS_ONE)
 							{
-								if (busLocation.route != null && busLocation.route.getRouteName().equals(selectedRoute))
+								if (selectedRoute != null && selectedRoute.equals(busLocation.getRouteName()))
 								{
 									newLocations.add(busLocation);
 								}
@@ -480,7 +480,7 @@ public final class Locations
 					{
 						for (BusLocation location : busMapping.values())
 						{
-							if (location.route != null && location.route.getRouteName().equals(selectedRoute))
+							if (selectedRoute != null && selectedRoute.equals(location.getRouteName()))
 							{
 								newLocations.add(location);
 							}

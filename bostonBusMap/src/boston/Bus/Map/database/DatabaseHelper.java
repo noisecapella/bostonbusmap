@@ -524,6 +524,7 @@ public class DatabaseHelper extends SQLiteOpenHelper
 		synchronized (database) {
 			try
 			{
+				database.beginTransaction();
 				if (wipe)
 				{
 					database.delete(directionsTable, null, null);
@@ -551,6 +552,8 @@ public class DatabaseHelper extends SQLiteOpenHelper
 						database.replace(directionsTable, null, values);
 					}
 				}
+				database.setTransactionSuccessful();
+				database.endTransaction();
 			}
 			finally
 			{
