@@ -155,7 +155,6 @@ public class TestSerialization extends TestCase {
 		RouteConfig routeConfig = new RouteConfig("x");
 		
 		routeConfig.addStop("5", new StopLocation(44.0f, 55.0f, null, "5", "xy"));
-		routeConfig.addDirection("XYZSD", "akosod", "asodkosd");
 		
 		Box outputBox = new Box(null, DatabaseHelper.CURRENT_DB_VERSION, sharedStops);
 		
@@ -285,15 +284,13 @@ public class TestSerialization extends TestCase {
 		
 		Box outputBox = new Box(null, DatabaseHelper.CURRENT_DB_VERSION, sharedStops);
 		
-		routeConfig.addDirection("x", "y", "Inbound");
-		
-		routeConfig.addDirection("x2", "y2", "Outbound");
-		
 		
 		routeConfig.serialize(outputBox);
 		
 		assertValid(outputBox);
 	}
+	
+	
 	
 
 	private void assertValidStopLocation(Box outputBox) throws IOException

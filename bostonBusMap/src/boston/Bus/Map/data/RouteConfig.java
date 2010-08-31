@@ -19,9 +19,6 @@ public class RouteConfig implements CanBeSerialized
 {
 
 	private final HashMap<String, StopLocation> stops;
-	private final ArrayList<String> dirTags;
-	private final ArrayList<String> directionTitles;
-	private final ArrayList<String> directionNames;
 	private final ArrayList<Path> paths;
 	private final String route;
 	
@@ -29,9 +26,6 @@ public class RouteConfig implements CanBeSerialized
 	{
 		this.route = route;
 		stops = new HashMap<String, StopLocation>();
-		directionTitles = new ArrayList<String>();
-		directionNames = new ArrayList<String>();
-		dirTags = new ArrayList<String>();
 		paths = new ArrayList<Path>();
 	}
 	
@@ -46,55 +40,15 @@ public class RouteConfig implements CanBeSerialized
 		return stops.get(tag);
 	}
 
-	
-	public String getDirectionTitle(String dirTag)
-	{
-		int pos = dirTags.indexOf(dirTag);
-		if (pos != -1)
-		{
-			return directionTitles.get(pos);
-		}
-		else
-		{
-			return "";
-		}
-	}
-
-	/*public String getDirectionName(String dirTag)
-	{
-		int pos = dirTags.indexOf(dirTag);
-		if (pos != -1)
-		{
-			return directionNames.get(pos);
-		}
-		else
-		{
-			return "";
-		}
-	}*/
-
-	
+		
 	
 	public Collection<StopLocation> getStops() {
 		return stops.values();
 	}
 
-	public void addDirection(String tag, String title, String name) {
-		dirTags.add(tag);
-		directionTitles.add(title);
-		directionNames.add(name);
-	}
-
-
 
 	public String getRouteName() {
 		return route;
-	}
-
-
-
-	public Collection<String> getDirtags() {
-		return directionTitles;
 	}
 
 
@@ -113,21 +67,12 @@ public class RouteConfig implements CanBeSerialized
 	public void serialize(Box dest) throws IOException {
 		
 		dest.writeString(route);
-		dest.writeStringKeyValue(dirTags, directionTitles);
-		dest.writeStringKeyValue(dirTags, directionNames);
 		dest.writeStopsMap(stops);
 		dest.writePathsList(paths);
 	}
 
 	public RouteConfig(Box source, Drawable busStop) throws IOException {
 		route = source.readString();
-		Object[] objs = source.readStringKeyValue(false);
-		dirTags = (ArrayList<String>)objs[0];
-		directionTitles = (ArrayList<String>)objs[1];
-		
-		objs = source.readStringKeyValue(true);
-		directionNames = (ArrayList<String>)objs[1];
-		
 		stops = source.readStopsMap(this, busStop);
 		paths = source.readPathsList();
 	}

@@ -20,6 +20,7 @@ import org.xml.sax.helpers.DefaultHandler;
 import android.graphics.drawable.Drawable;
 import android.util.Log;
 import boston.Bus.Map.data.BusLocation;
+import boston.Bus.Map.data.Directions;
 import boston.Bus.Map.data.RouteConfig;
 import boston.Bus.Map.data.RoutePool;
 
@@ -32,14 +33,16 @@ public class VehicleLocationsFeedParser extends DefaultHandler
 	private final RoutePool stopMapping;
 	private final Drawable bus;
 	private final Drawable arrow;
+	private final Directions directions;
 	
 	public VehicleLocationsFeedParser(HashMap<Integer, String> vehiclesToRouteNames,
-			RoutePool stopMapping, Drawable bus, Drawable arrow)
+			RoutePool stopMapping, Drawable bus, Drawable arrow, Directions directions)
 	{
 		this.vehiclesToRouteNames = vehiclesToRouteNames;
 		this.stopMapping = stopMapping;
 		this.bus = bus;
 		this.arrow = arrow;
+		this.directions = directions;
 	}
 	
 	public void runParse(InputStream data)
@@ -115,7 +118,7 @@ public class VehicleLocationsFeedParser extends DefaultHandler
 
 
 			BusLocation newBusLocation = new BusLocation(lat, lon, id, routeConfig, seconds, lastUpdateTime, 
-					heading, predictable, dirTag, inferBusRoute, bus, arrow, route);
+					heading, predictable, dirTag, inferBusRoute, bus, arrow, route, directions);
 
 			Integer idInt = new Integer(id);
 			if (busMapping.containsKey(idInt))

@@ -20,6 +20,7 @@ import org.xml.sax.XMLReader;
 import org.xml.sax.helpers.DefaultHandler;
 
 import android.util.Log;
+import boston.Bus.Map.data.Directions;
 import boston.Bus.Map.data.RouteConfig;
 import boston.Bus.Map.data.RoutePool;
 import boston.Bus.Map.data.StopLocation;
@@ -38,9 +39,11 @@ public class BusPredictionsFeedParser extends DefaultHandler
 	private final RoutePool stopMapping;
 	private StopLocation currentLocation;
 	private RouteConfig currentRoute;
+	private final Directions directions;
 	
-	public BusPredictionsFeedParser(RoutePool stopMapping) {
+	public BusPredictionsFeedParser(RoutePool stopMapping, Directions directions) {
 		this.stopMapping = stopMapping;
+		this.directions = directions;
 	}
 
 	public void runParse(InputStream data) throws ParserConfigurationException, SAXException, IOException
@@ -97,7 +100,7 @@ public class BusPredictionsFeedParser extends DefaultHandler
 
 				String dirTag = attributes.getValue(dirTagKey);
 
-				currentLocation.addPrediction(minutes, epochTime, vehicleId, dirTag, currentRoute);
+				currentLocation.addPrediction(minutes, epochTime, vehicleId, dirTag, currentRoute, directions);
 			}
 		}
 	}

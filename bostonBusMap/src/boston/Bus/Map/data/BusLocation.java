@@ -80,6 +80,7 @@ public class BusLocation implements Location
 	 */
 	private final String inferBusRoute;
 	
+	private final Directions directions;
 	
 	private final Drawable bus;
 	private final Drawable arrow;
@@ -88,7 +89,7 @@ public class BusLocation implements Location
 	
 	public BusLocation(double latitude, double longitude, int id, RouteConfig route, int seconds, double lastUpdateInMillis,
 			String heading, boolean predictable, String dirTag, String inferBusRoute,
-			Drawable bus, Drawable arrow, String routeName)
+			Drawable bus, Drawable arrow, String routeName, Directions directions)
 	{
 		this.latitude = latitude * Constants.degreesToRadians;
 		this.longitude = longitude * Constants.degreesToRadians;
@@ -105,6 +106,7 @@ public class BusLocation implements Location
 		this.bus = bus;
 		this.arrow = arrow;
 		this.routeName = routeName;
+		this.directions = directions;
 	}
 
 	public boolean hasHeading()
@@ -250,7 +252,7 @@ public class BusLocation implements Location
 
     		if (route != null)
     		{
-    			String directionName = route.getDirectionTitle(dirTag);
+    			String directionName = directions.getTitle(dirTag);
     			if (directionName != null && directionName.length() != 0)
     			{
     				title += "\n" + directionName;

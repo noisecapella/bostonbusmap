@@ -192,7 +192,7 @@ public class StopLocation implements Location, CanBeSerialized
 	}
 	
 	public void addPrediction(int minutes, long epochTime, int vehicleId,
-			String direction, RouteConfig route) {
+			String direction, RouteConfig route, Directions directions) {
 		if (predictions == null)
 		{
 			predictions = new ArrayList<Prediction>();
@@ -200,7 +200,8 @@ public class StopLocation implements Location, CanBeSerialized
 		
 		synchronized (predictions)
 		{
-			predictions.add(new Prediction(minutes, epochTime, vehicleId, direction, route));
+			predictions.add(new Prediction(minutes, epochTime, vehicleId, 
+					directions.getTitle(direction), route.getRouteName()));
 		}
 		
 	}

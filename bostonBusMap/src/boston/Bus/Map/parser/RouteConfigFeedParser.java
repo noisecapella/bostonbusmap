@@ -18,6 +18,7 @@ import org.xml.sax.SAXException;
 import org.xml.sax.XMLReader;
 import org.xml.sax.helpers.DefaultHandler;
 
+import boston.Bus.Map.data.Directions;
 import boston.Bus.Map.data.Path;
 import boston.Bus.Map.data.RouteConfig;
 import boston.Bus.Map.data.RoutePool;
@@ -31,10 +32,12 @@ import android.graphics.drawable.Drawable;
 public class RouteConfigFeedParser extends DefaultHandler
 {
 	private final HashMap<String, RouteConfig> map = new HashMap<String, RouteConfig>();
+	private final Directions directions;
 	
-	public RouteConfigFeedParser(Drawable busStop)
+	public RouteConfigFeedParser(Drawable busStop, Directions directions)
 	{
 		this.busStop = busStop;
+		this.directions = directions;
 	}
 
 	public void runParse(InputStream inputStream)  throws ParserConfigurationException, SAXException, IOException
@@ -125,8 +128,7 @@ public class RouteConfigFeedParser extends DefaultHandler
 				String title = attributes.getValue(titleKey);
 				String name = attributes.getValue(nameKey);
 				
-				
-				currentRouteConfig.addDirection(tag, title, name);
+				directions.add(tag, name, title);
 			}
 		}
 		else if (routeKey.equals(localName))

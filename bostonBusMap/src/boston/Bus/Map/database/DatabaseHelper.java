@@ -61,6 +61,10 @@ public class DatabaseHelper extends SQLiteOpenHelper
 	private final static String oldFavoritesIdKey = "idkey";
 	private final static String newFavoritesRouteKey = "route";
 
+	private static final String dirTagKey = "dirTagKey";
+	private static final String dirNameKey = "dirNameKey";
+	private static final String dirTitleKey = "dirTitleKey";
+	
 	private final static int tagIndex = 1;
 	private final static int nameIndex = 2;
 	private final static int titleIndex = 3;
@@ -90,6 +94,8 @@ public class DatabaseHelper extends SQLiteOpenHelper
 		db.execSQL("CREATE TABLE IF NOT EXISTS " + newFavoritesTable + " (" + newFavoritesTagKey + " STRING PRIMARY KEY, " +
 				newFavoritesRouteKey + " STRING)");
 		db.execSQL("CREATE TABLE IF NOT EXISTS " + routePoolTable + " (" + routeKey + " STRING PRIMARY KEY)");
+		db.execSQL("CREATE TABLE IF NOT EXISTS " + directionsTable + " (" + dirTagKey + " STRING PRIMARY KEY, " + 
+				dirNameKey + " STRING, " + dirTitleKey + " STRING)");
 	}
 
 	@Override
@@ -110,11 +116,8 @@ public class DatabaseHelper extends SQLiteOpenHelper
 			db.execSQL("DROP TABLE IF EXISTS " + pathsTable);
 			db.execSQL("DROP TABLE IF EXISTS " + blobsTable);
 
-			Log.v("BostonBusMap", "here database from " + oldVersion + " to " + newVersion);
-
 			db.execSQL("DROP TABLE IF EXISTS " + oldFavoritesTable);
 			db.execSQL("DROP TABLE IF EXISTS " + newFavoritesTable);
-			Log.v("BostonBusMap", "everywhere database from " + oldVersion + " to " + newVersion);
 
 			onCreate(db);
 
@@ -124,7 +127,6 @@ public class DatabaseHelper extends SQLiteOpenHelper
 			}
 			db.setTransactionSuccessful();
 			db.endTransaction();
-			Log.v("BostonBusMap", "there database from " + oldVersion + " to " + newVersion);
 
 		}
 		else
@@ -145,26 +147,18 @@ public class DatabaseHelper extends SQLiteOpenHelper
 	
 	private HashSet<String> readv7Favorites(SQLiteDatabase database)
 	{
-		Log.v("BostonBusMap", "readv7Favorites 0");
 		HashSet<String> favorites = new HashSet<String>();
 		Cursor cursor = null;
 		try
 		{
-			Log.v("BostonBusMap", "readv7Favorites 1");
 			cursor = database.query(newFavoritesTable, new String[]{newFavoritesTagKey}, null, null, null, null, null);
-			Log.v("BostonBusMap", "readv7Favorites 2");
 			cursor.moveToFirst();
-			Log.v("BostonBusMap", "readv7Favorites 3");
 			while (cursor.isAfterLast() == false)
 			{
-				Log.v("BostonBusMap", "readv7Favorites 4");
 				String key = cursor.getString(0);
-				Log.v("BostonBusMap", "readv7Favorites 5");
 				
 				favorites.add(key);
-				Log.v("BostonBusMap", "readv7Favorites 6");
 				cursor.moveToNext();
-				Log.v("BostonBusMap", "readv7Favorites 7");
 			}
 		}
 		finally
@@ -479,5 +473,45 @@ public class DatabaseHelper extends SQLiteOpenHelper
 		}
 		
 		return routesThatNeedUpdating;
+	}
+
+	/**
+	 * Populate directions from the database
+	 * 
+	 * NOTE: these data structures are assumed to be synchronized
+	 * @param indexes
+	 * @param names
+	 * @param titles
+	 */
+	public void refreshDirections(HashMap<String, Integer> indexes,
+			ArrayList<String> names, ArrayList<String> titles) {
+		SQLiteDatabase database = getReadableDatabase();
+		Cursor cursor = null;
+		try
+		{
+			cursor = database.query(directionsTable, new String[]{dirTagKey, dirNameKey, dirTitleKey},
+					null, null, null, null, null);
+			cursor.moveToFirst();
+			while (cursor.isAfterLast() == false)
+			{
+				String dirTag = cursor.getString(0);
+				String dirName = cursor.getString(1);
+				String dirTitle = cursor.getString(2);
+				
+				indexes.put(dirTag, names.size());
+				names.add(dirName);
+				titles.add(dirTitle);
+				
+				cursor.moveToNext();
+			}
+		}
+		finally
+		{
+			database.close();
+			if (cursor != null)
+			{
+				cursor.close();
+			}
+		}
 	}
 }

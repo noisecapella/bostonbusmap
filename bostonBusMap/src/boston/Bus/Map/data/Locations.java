@@ -76,7 +76,7 @@ public final class Locations
 	 */
 	private final RoutePool routeMapping;
 	
-
+	private final Directions directions;
 	
 	private final HashMap<Integer, String> vehiclesToRouteNames = new HashMap<Integer, String>();
 
@@ -117,6 +117,7 @@ public final class Locations
 		this.supportedRoutes = supportedRoutes;
 		
 		routeMapping = new RoutePool(helper, supportedRoutes);
+		directions = new Directions(helper);
 	}
 	
 	/**
@@ -153,7 +154,7 @@ public final class Locations
 			
 			GZIPInputStream stream = new GZIPInputStream(in); 
 			
-			RouteConfigFeedParser parser = new RouteConfigFeedParser(busStop);
+			RouteConfigFeedParser parser = new RouteConfigFeedParser(busStop, directions);
 			
 			parser.runParse(stream);
 			
@@ -184,7 +185,7 @@ public final class Locations
 
 					//just initialize the route and then end for this round
 					InputStream stream = downloadStream(url, task, prepend, null);
-					RouteConfigFeedParser parser = new RouteConfigFeedParser(busStop);
+					RouteConfigFeedParser parser = new RouteConfigFeedParser(busStop, directions);
 
 					parser.runParse(stream);
 
@@ -308,7 +309,7 @@ public final class Locations
 		{
 			//bus prediction
 
-			BusPredictionsFeedParser parser = new BusPredictionsFeedParser(routeMapping);
+			BusPredictionsFeedParser parser = new BusPredictionsFeedParser(routeMapping, directions);
 
 			parser.runParse(data);
 		}
@@ -319,7 +320,8 @@ public final class Locations
 
 			//lastUpdateTime = parser.getLastUpdateTime();
 
-			VehicleLocationsFeedParser parser = new VehicleLocationsFeedParser(vehiclesToRouteNames, routeMapping, bus, arrow);
+			VehicleLocationsFeedParser parser = new VehicleLocationsFeedParser(vehiclesToRouteNames, routeMapping,
+					bus, arrow, directions);
 			parser.runParse(data);
 
 			//get the time that this information is valid until
@@ -359,7 +361,7 @@ public final class Locations
 		downloadHelper.connect();
 		//just initialize the route and then end for this round
 		
-		RouteConfigFeedParser parser = new RouteConfigFeedParser(busStop);
+		RouteConfigFeedParser parser = new RouteConfigFeedParser(busStop, directions);
 
 		parser.runParse(downloadHelper.getResponseData()); 
 

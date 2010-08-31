@@ -16,12 +16,12 @@ public class Prediction implements Comparable<Prediction>
 	private final String routeName;
 	
 	public Prediction(int minutes, long epochTime, int vehicleId,
-			String dirTag, RouteConfig routeConfig) {
+			String directionTitle, String routeName) {
 		this.minutes = minutes;
 		this.epochTime = epochTime;
 		this.vehicleId = vehicleId;
-		this.directionTitle = routeConfig.getDirectionTitle(dirTag);
-		this.routeName = routeConfig.getRouteName();
+		this.directionTitle = directionTitle;
+		this.routeName = routeName;
 	}
 
 	@Override
