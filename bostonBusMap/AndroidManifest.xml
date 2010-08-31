@@ -17,6 +17,11 @@
 	<uses-library android:name="android.test.runner"></uses-library>
 </application>
 
+	<resources>
+	<style name="Theme.NoBackground" parent="android:Theme">
+	<item name="android:windowBackground">@null</item>
+	</style></resources>
+
 	<!-- <supports-screens></supports-screens>-->
 	<uses-sdk android:minSdkVersion="3" ></uses-sdk>
 	<!-- <uses-sdk android:targetSdkVersion="4"></uses-sdk>-->
