@@ -3,7 +3,9 @@
       package="boston.Bus.Map"
       android:versionCode="55"
       android:versionName="2.28">
-	<application android:label="@string/app_name" android:icon="@drawable/appicon" android:theme="@android:style/Theme.NoTitleBar"
+	<application android:label="@string/app_name" android:icon="@drawable/appicon" 
+	android:theme="@style/Theme.NoBackground"
+	
 	>
 		<activity android:label="@string/app_name" android:name=".main.Main">
 			<intent-filter>
@@ -16,11 +18,6 @@
 		<uses-library android:name="com.google.android.maps"></uses-library>
 	<uses-library android:name="android.test.runner"></uses-library>
 </application>
-
-	<resources>
-	<style name="Theme.NoBackground" parent="android:Theme">
-	<item name="android:windowBackground">@null</item>
-	</style></resources>
 
 	<!-- <supports-screens></supports-screens>-->
 	<uses-sdk android:minSdkVersion="3" ></uses-sdk>
