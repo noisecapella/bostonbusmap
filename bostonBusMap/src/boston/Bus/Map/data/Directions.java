@@ -32,7 +32,7 @@ public class Directions {
 		}
 	}
 	
-	public String getName(String dirTag)
+	private Integer getIndex(String dirTag)
 	{
 		Integer i = indexes.get(dirTag);
 		if (i == null)
@@ -41,16 +41,21 @@ public class Directions {
 			{
 				helper.refreshDirections(indexes, names, titles, routes);
 			}
-			
-			i = indexes.get(dirTag);
-			if (i == null)
-			{
-				return null;
-			}
-			else
-			{
-				return names.get(i);
-			}
+
+			return indexes.get(dirTag);
+		}
+		else
+		{
+			return i;
+		}
+	}
+	
+	public String getName(String dirTag)
+	{
+		Integer i = getIndex(dirTag);
+		if (i == null)
+		{
+			return null;
 		}
 		else
 		{
@@ -61,7 +66,7 @@ public class Directions {
 
 	public String getTitle(String dirTag)
 	{
-		Integer i = indexes.get(dirTag);
+		Integer i = getIndex(dirTag);
 		if (i == null)
 		{
 			return null;
