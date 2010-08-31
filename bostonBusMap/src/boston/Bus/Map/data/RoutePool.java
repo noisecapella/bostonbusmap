@@ -35,7 +35,7 @@ public class RoutePool {
 			
 			try
 			{
-				if (route != null)
+				if (route == null)
 				{
 					//le ugh
 					for (String supportedRoute : supportedRoutes)
@@ -45,6 +45,7 @@ public class RoutePool {
 						if (stopLocation != null)
 						{
 							route = stopLocation.getFirstRoute();
+							stopLocation.setFavorite(true);
 							break;
 						}
 					}
