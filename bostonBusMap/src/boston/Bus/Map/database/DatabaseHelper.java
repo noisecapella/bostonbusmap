@@ -562,4 +562,34 @@ public class DatabaseHelper extends SQLiteOpenHelper
 		}
 		
 	}
+
+	public void saveFavorites(HashMap<String, String> favoriteStops) {
+		SQLiteDatabase database = getWritableDatabase();
+		synchronized (database) {
+			try
+			{
+				database.beginTransaction();
+
+				database.delete(newFavoritesTable, null, null);
+				
+				for (String stopTag : favoriteStops.keySet())
+				{
+					String routeTag = favoriteStops.get(stopTag);
+
+					ContentValues values = new ContentValues();
+					values.put(newFavoritesTagKey, stopTag);
+					values.put(newFavoritesRouteKey, routeTag);
+					database.insert(newFavoritesTable, null, values);
+				}
+				
+				database.setTransactionSuccessful();
+				database.endTransaction();
+				
+			}
+			finally
+			{
+				database.close();
+			}
+		}
+	}
 }

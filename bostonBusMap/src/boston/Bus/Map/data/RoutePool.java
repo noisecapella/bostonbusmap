@@ -22,14 +22,21 @@ public class RoutePool {
 	private final HashMap<String, StopLocation> sharedStops = new HashMap<String, StopLocation>();
 	private final HashMap<String, String> favoriteStops = new HashMap<String, String>();
 
+	private final String[] supportedRoutes;
+	
+	
 	private static final int MAX_ROUTES = 50;
 	
 	public RoutePool(DatabaseHelper helper, String[] supportedRoutes) {
 		this.helper = helper;
-		
-		ArrayList<String> stopsToRemove = new ArrayList<String>(1);
+		this.supportedRoutes = supportedRoutes;
 		
 		helper.populateFavorites(favoriteStops);
+	}
+	
+	public void fillInFavoritesRoutes()
+	{
+		ArrayList<String> stopsToRemove = new ArrayList<String>();
 		for (String stop : favoriteStops.keySet()) {
 			String route = favoriteStops.get(stop);
 			
@@ -41,6 +48,11 @@ public class RoutePool {
 					for (String supportedRoute : supportedRoutes)
 					{
 						RouteConfig routeConfig = get(supportedRoute);
+						if (routeConfig == null)
+						{
+							//database hasn't been refreshed yet?
+							return;
+						}
 						StopLocation stopLocation = routeConfig.getStop(stop);
 						if (stopLocation != null)
 						{
@@ -74,7 +86,10 @@ public class RoutePool {
 		{
 			favoriteStops.remove(stop);
 		}
+		
+		helper.saveFavorites(favoriteStops);
 	}
+
 	
 	/**
 	 * In the future, this may be necessary to implement. Currently all route data is shipped with the app
@@ -162,6 +177,11 @@ public class RoutePool {
 				}
 			}
 			
+			if (favoriteStops.containsKey(stopLocation.getStopTag()))
+			{
+				keepStop = true;
+			}
+			
 			if (keepStop == false)
 			{
 				sharedStops.remove(stopLocation.getStopTag());
@@ -189,19 +209,24 @@ public class RoutePool {
 	}
 
 	public StopLocation[] getFavoriteStops() {
-		StopLocation[] ret = new StopLocation[favoriteStops.size()];
+		ArrayList<StopLocation> ret = new ArrayList<StopLocation>(favoriteStops.size());
 		
-		int i = 0;
 		for (String stopTag : favoriteStops.keySet())
 		{
 			StopLocation stopLocation = sharedStops.get(stopTag);
+			if (stopLocation == null)
+			{
+				fillInFavoritesRoutes();
+				stopLocation = sharedStops.get(stopTag);
+			}
 			
-			ret[i] = stopLocation;
-			
-			i++;
+			if (stopLocation != null)
+			{
+				ret.add(stopLocation);
+			}
 		}
 		
-		return ret;
+		return ret.toArray(new StopLocation[0]);
 	}
 
 	public int toggleFavorite(StopLocation location) {
