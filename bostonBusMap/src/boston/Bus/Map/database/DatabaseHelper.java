@@ -257,10 +257,11 @@ public class DatabaseHelper extends SQLiteOpenHelper
 		}
 	}
 
-	public void populateFavorites(HashMap<String, String> favorites)
+	public synchronized void populateFavorites(HashMap<String, String> favorites)
 	{
 		SQLiteDatabase database = getReadableDatabase();
 		Cursor cursor = null;
+
 		try
 		{
 			cursor = database.query(newFavoritesTable, new String[]{newFavoritesTagKey, newFavoritesRouteKey},
@@ -271,7 +272,7 @@ public class DatabaseHelper extends SQLiteOpenHelper
 				String favoriteStopKey = cursor.getString(0);
 				String favoriteRouteKey = cursor.getString(1);
 				favorites.put(favoriteStopKey, favoriteRouteKey);
-				
+
 				cursor.moveToNext();
 			}
 		}
@@ -285,41 +286,38 @@ public class DatabaseHelper extends SQLiteOpenHelper
 		}
 	}
 	
-	public void saveMapping(HashMap<String, RouteConfig> mapping, boolean wipe, HashMap<String, StopLocation> sharedStops) throws IOException
+	public synchronized void saveMapping(HashMap<String, RouteConfig> mapping, boolean wipe, HashMap<String, StopLocation> sharedStops) throws IOException
 	{
 		SQLiteDatabase database = getWritableDatabase();
-		synchronized (database) {
-			try
+		try
+		{
+			database.beginTransaction();
+
+			if (wipe)
 			{
-				database.beginTransaction();
-			
-				if (wipe)
-				{
-					//database.delete(stopsTable, null, null);
-					//database.delete(directionsTable, null, null);
-					//database.delete(pathsTable, null, null);
-					database.delete(blobsTable, null, null);
-				}
-				
-				for (String route : mapping.keySet())
-				{
-					RouteConfig routeConfig = mapping.get(route);
-					if (routeConfig != null)
-					{
-						saveMappingKernel(database, route, routeConfig, wipe, sharedStops);
-					}
-				}
-				
-				database.setTransactionSuccessful();
-				database.endTransaction();
-				
+				//database.delete(stopsTable, null, null);
+				//database.delete(directionsTable, null, null);
+				//database.delete(pathsTable, null, null);
+				database.delete(blobsTable, null, null);
 			}
-			finally
+
+			for (String route : mapping.keySet())
 			{
-				database.close();
+				RouteConfig routeConfig = mapping.get(route);
+				if (routeConfig != null)
+				{
+					saveMappingKernel(database, route, routeConfig, wipe, sharedStops);
+				}
 			}
+
+			database.setTransactionSuccessful();
+			database.endTransaction();
+
 		}
-		
+		finally
+		{
+			database.close();
+		}
 	}
 	
 	/**
@@ -355,7 +353,7 @@ public class DatabaseHelper extends SQLiteOpenHelper
 
 	}
 
-	public boolean checkFreeSpace() {
+	public synchronized boolean checkFreeSpace() {
 		SQLiteDatabase database = getReadableDatabase();
 		try
 		{
@@ -378,44 +376,42 @@ public class DatabaseHelper extends SQLiteOpenHelper
 		}
 	}
 
-	public boolean saveFavorite(String stopTag, String routeTag, boolean isFavorite) {
+	public synchronized boolean saveFavorite(String stopTag, String routeTag, boolean isFavorite) {
 		Log.v("BostonBusMap", "Saving favorite " + stopTag + " as " + isFavorite);
 		SQLiteDatabase database = getWritableDatabase();
-		synchronized (database) {
-			try
+		try
+		{
+			if (database.isOpen() == false)
 			{
-				if (database.isOpen() == false)
-				{
-					Log.e("BostonBusMap", "SERIOUS ERROR: database didn't save data properly");
-					return false;
-				}
-				database.beginTransaction();
-				
-				if (isFavorite)
-				{
-					ContentValues values = new ContentValues();
-					values.put(newFavoritesTagKey, stopTag);
-					values.put(newFavoritesRouteKey, routeTag);
-					database.replace(newFavoritesTable, null, values);
-				}
-				else
-				{
-					database.delete(newFavoritesTable, newFavoritesTagKey + "=?", new String[] {stopTag});					
-				}
-				
-				database.setTransactionSuccessful();
-				database.endTransaction();
-				
+				Log.e("BostonBusMap", "SERIOUS ERROR: database didn't save data properly");
+				return false;
 			}
-			finally
+			database.beginTransaction();
+
+			if (isFavorite)
 			{
-				database.close();
+				ContentValues values = new ContentValues();
+				values.put(newFavoritesTagKey, stopTag);
+				values.put(newFavoritesRouteKey, routeTag);
+				database.replace(newFavoritesTable, null, values);
 			}
+			else
+			{
+				database.delete(newFavoritesTable, newFavoritesTagKey + "=?", new String[] {stopTag});					
+			}
+
+			database.setTransactionSuccessful();
+			database.endTransaction();
+
+		}
+		finally
+		{
+			database.close();
 		}
 		return true;
 	}
 
-	public RouteConfig getRoute(String routeToUpdate, HashMap<String, StopLocation> sharedStops) throws IOException {
+	public synchronized RouteConfig getRoute(String routeToUpdate, HashMap<String, StopLocation> sharedStops) throws IOException {
 		SQLiteDatabase database = getReadableDatabase();
 		Cursor cursor = null;
 		try
@@ -445,7 +441,7 @@ public class DatabaseHelper extends SQLiteOpenHelper
 		}
 	}
 
-	public ArrayList<String> routeInfoNeedsUpdating(String[] supportedRoutes) {
+	public synchronized ArrayList<String> routeInfoNeedsUpdating(String[] supportedRoutes) {
 		HashSet<String> routesInDB = new HashSet<String>();
 		SQLiteDatabase database = getReadableDatabase();
 		Cursor cursor = null;
@@ -490,7 +486,7 @@ public class DatabaseHelper extends SQLiteOpenHelper
 	 * @param names
 	 * @param titles
 	 */
-	public void refreshDirections(HashMap<String, Integer> indexes,
+	public synchronized void refreshDirections(HashMap<String, Integer> indexes,
 			ArrayList<String> names, ArrayList<String> titles, ArrayList<String> routes) {
 		SQLiteDatabase database = getReadableDatabase();
 		Cursor cursor = null;
@@ -524,78 +520,73 @@ public class DatabaseHelper extends SQLiteOpenHelper
 		}
 	}
 
-	public void writeDirections(boolean wipe, HashMap<String, Integer> indexes,
+	public synchronized void writeDirections(boolean wipe, HashMap<String, Integer> indexes,
 			ArrayList<String> names, ArrayList<String> titles, ArrayList<String> routes) {
 		SQLiteDatabase database = getWritableDatabase();
-		synchronized (database) {
-			try
+		try
+		{
+			database.beginTransaction();
+			if (wipe)
 			{
-				database.beginTransaction();
+				database.delete(directionsTable, null, null);
+			}
+
+			for (String dirTag : indexes.keySet())
+			{
+				Integer i = indexes.get(dirTag);
+				String name = names.get(i);
+				String title = titles.get(i);
+				String route = routes.get(i);
+
+				ContentValues values = new ContentValues();
+				values.put(dirNameKey, name);
+				values.put(dirRouteKey, route);
+				values.put(dirTagKey, dirTag);
+				values.put(dirTitleKey, title);
+
 				if (wipe)
 				{
-					database.delete(directionsTable, null, null);
+					database.insert(directionsTable, null, values);
 				}
-				
-				for (String dirTag : indexes.keySet())
+				else
 				{
-					Integer i = indexes.get(dirTag);
-					String name = names.get(i);
-					String title = titles.get(i);
-					String route = routes.get(i);
-					
-					ContentValues values = new ContentValues();
-					values.put(dirNameKey, name);
-					values.put(dirRouteKey, route);
-					values.put(dirTagKey, dirTag);
-					values.put(dirTitleKey, title);
-					
-					if (wipe)
-					{
-						database.insert(directionsTable, null, values);
-					}
-					else
-					{
-						database.replace(directionsTable, null, values);
-					}
+					database.replace(directionsTable, null, values);
 				}
-				database.setTransactionSuccessful();
-				database.endTransaction();
 			}
-			finally
-			{
-				database.close();
-			}
+			database.setTransactionSuccessful();
+			database.endTransaction();
 		}
-		
+		finally
+		{
+			database.close();
+		}
 	}
 
-	public void saveFavorites(HashMap<String, String> favoriteStops) {
+	public synchronized void saveFavorites(HashMap<String, String> favoriteStops) {
 		SQLiteDatabase database = getWritableDatabase();
-		synchronized (database) {
-			try
-			{
-				database.beginTransaction();
+		try
+		{
+			database.beginTransaction();
 
-				database.delete(newFavoritesTable, null, null);
-				
-				for (String stopTag : favoriteStops.keySet())
-				{
-					String routeTag = favoriteStops.get(stopTag);
+			database.delete(newFavoritesTable, null, null);
 
-					ContentValues values = new ContentValues();
-					values.put(newFavoritesTagKey, stopTag);
-					values.put(newFavoritesRouteKey, routeTag);
-					database.insert(newFavoritesTable, null, values);
-				}
-				
-				database.setTransactionSuccessful();
-				database.endTransaction();
-				
-			}
-			finally
+			for (String stopTag : favoriteStops.keySet())
 			{
-				database.close();
+				String routeTag = favoriteStops.get(stopTag);
+
+				ContentValues values = new ContentValues();
+				values.put(newFavoritesTagKey, stopTag);
+				values.put(newFavoritesRouteKey, routeTag);
+				database.insert(newFavoritesTable, null, values);
 			}
+
+			database.setTransactionSuccessful();
+			database.endTransaction();
+
+		}
+		finally
+		{
+			database.close();
 		}
 	}
 }
