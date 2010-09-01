@@ -32,8 +32,15 @@ public class RoutePool {
 		this.supportedRoutes = supportedRoutes;
 		
 		helper.populateFavorites(favoriteStops);
+		fillInFavoritesRoutes();
 	}
 	
+	/**
+	 * If you upgraded, favoritesStops.values() only has nulls. Use the information from the database to figure out
+	 * what routes each stop is in.
+	 * 
+	 * Set the favorite status for all StopLocation favorites, and make sure they persist in the route pool.
+	 */
 	public void fillInFavoritesRoutes()
 	{
 		ArrayList<String> stopsToRemove = new ArrayList<String>();
@@ -57,7 +64,6 @@ public class RoutePool {
 						if (stopLocation != null)
 						{
 							route = stopLocation.getFirstRoute();
-							stopLocation.setFavorite(true);
 							break;
 						}
 					}
@@ -68,7 +74,14 @@ public class RoutePool {
 					//Log.v("BostonBusMap", "getting route " + (route == null ? "null" : route) +
 					//		" because favorite stop " + stop + " requested it");
 					RouteConfig routeConfig = get(route);
-					sharedStops.put(stop, routeConfig.getStop(stop));
+					if (routeConfig != null)
+					{
+						StopLocation stopLocation = routeConfig.getStop(stop);
+						stopLocation.setFavorite(true);
+						sharedStops.put(stop, stopLocation);
+						favoriteStops.put(stop, route);
+
+					}
 				}
 				else
 				{
@@ -214,11 +227,6 @@ public class RoutePool {
 		for (String stopTag : favoriteStops.keySet())
 		{
 			StopLocation stopLocation = sharedStops.get(stopTag);
-			if (stopLocation == null)
-			{
-				fillInFavoritesRoutes();
-				stopLocation = sharedStops.get(stopTag);
-			}
 			
 			if (stopLocation != null)
 			{

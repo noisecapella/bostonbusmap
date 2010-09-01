@@ -165,6 +165,8 @@ public final class Locations
 
 			parser.writeToDatabase(routeMapping, true);
 			
+			routeMapping.fillInFavoritesRoutes();
+			
 			map.clear();
 			//TODO: fill routeMapping somehow
 			
