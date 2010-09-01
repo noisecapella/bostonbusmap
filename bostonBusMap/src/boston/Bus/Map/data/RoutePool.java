@@ -239,18 +239,43 @@ public class RoutePool {
 
 	public int toggleFavorite(StopLocation location) {
 		String stopTag = location.getStopTag();
+		String route = favoriteStops.get(stopTag);
 		if (favoriteStops.containsKey(stopTag))
 		{
 			location.setFavorite(false);
 			favoriteStops.remove(stopTag);
-			helper.saveFavorite(stopTag, location.getFirstRoute(), false);
+			boolean result = helper.saveFavorite(stopTag, location.getFirstRoute(), false);
+			if (result == false)
+			{
+				//try one more time
+				result = helper.saveFavorite(stopTag, location.getFirstRoute(), false);
+				if (result == false)
+				{
+					//restore its state. we failed
+					favoriteStops.put(stopTag, route);
+					location.setFavorite(true);
+					return R.drawable.full_star;
+				}
+			}
 			return R.drawable.empty_star;
 		}
 		else
 		{
 			location.setFavorite(true);
 			favoriteStops.put(stopTag, location.getFirstRoute());
-			helper.saveFavorite(stopTag, location.getFirstRoute(), true);
+			boolean result = helper.saveFavorite(stopTag, location.getFirstRoute(), true);
+			if (result == false)
+			{
+				//try one more time
+				result = helper.saveFavorite(stopTag, location.getFirstRoute(), true);
+				if (result == false)
+				{
+					//restore its state, we failed
+					favoriteStops.remove(stopTag);
+					location.setFavorite(false);
+					return R.drawable.empty_star;
+				}
+			}
 			return R.drawable.full_star;
 		}
 

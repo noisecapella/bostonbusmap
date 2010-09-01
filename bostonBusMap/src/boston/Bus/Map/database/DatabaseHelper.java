@@ -378,12 +378,17 @@ public class DatabaseHelper extends SQLiteOpenHelper
 		}
 	}
 
-	public void saveFavorite(String stopTag, String routeTag, boolean isFavorite) {
+	public boolean saveFavorite(String stopTag, String routeTag, boolean isFavorite) {
 		Log.v("BostonBusMap", "Saving favorite " + stopTag + " as " + isFavorite);
 		SQLiteDatabase database = getWritableDatabase();
 		synchronized (database) {
 			try
 			{
+				if (database.isOpen() == false)
+				{
+					Log.e("BostonBusMap", "SERIOUS ERROR: database didn't save data properly");
+					return false;
+				}
 				database.beginTransaction();
 				
 				if (isFavorite)
@@ -407,6 +412,7 @@ public class DatabaseHelper extends SQLiteOpenHelper
 				database.close();
 			}
 		}
+		return true;
 	}
 
 	public RouteConfig getRoute(String routeToUpdate, HashMap<String, StopLocation> sharedStops) throws IOException {
