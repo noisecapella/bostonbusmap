@@ -4,6 +4,7 @@ import android.content.Context;
 import android.location.Location;
 import android.location.LocationProvider;
 import android.os.Bundle;
+import android.util.Log;
 import android.widget.Toast;
 import boston.Bus.Map.R;
 import boston.Bus.Map.main.UpdateHandler;
@@ -43,12 +44,16 @@ public class LocationOverlay extends MyLocationOverlay {
 	}
 
 	public void updateMapViewPosition() {
+		Log.v("BostonBusMap", "updateMapViewPosition");
 		if (handler != null)
 		{
+			Log.v("BostonBusMap", "inside handler in updateMapViewPosition");
 			runOnFirstFix(new Runnable() {
 				
 				@Override
 				public void run() {
+					Log.v("BostonBusMap", "inside updateMapViewPosition.run");
+
 					mapView.getController().animateTo(getMyLocation());
 					LocationOverlay.this.handler.triggerUpdate(1500);
 				}

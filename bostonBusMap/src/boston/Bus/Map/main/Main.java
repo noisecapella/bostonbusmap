@@ -551,6 +551,7 @@ public class Main extends MapActivity
     		break;
     	
     	case R.id.centerOnLocationMenuItem:
+    		Log.v("BostonBusMap", "clicked My Location, which is " + (myLocationOverlay == null ? "null" : "not null"));
     		if (myLocationOverlay != null)
     		{
     			if (myLocationOverlay.isMyLocationEnabled() == false)

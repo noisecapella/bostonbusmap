@@ -128,6 +128,6 @@ public class CurrentState {
 	 */
 	public LocationOverlay cloneLocationOverlay(Context context, MapView mapView)
 	{
-		return myLocationOverlay;
+		return new LocationOverlay(context, mapView);
 	}
 }
