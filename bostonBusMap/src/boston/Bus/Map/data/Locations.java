@@ -147,7 +147,7 @@ public final class Locations
 			*/
 			task.publish("Decompressing route data. This may take a minute...");
 			
-			final int contentLength = 407615;
+			final int contentLength = 453754;
 			
 			InputStream in = new StreamCounter(context.getResources().openRawResource(boston.Bus.Map.R.raw.routeconfig),
 					task, contentLength, null, "Decompressing route data, may take a minute: "); 
