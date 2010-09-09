@@ -448,7 +448,7 @@ public class Main extends MapActivity
 		//TODO: download it from the xml feed and store it in the database. For now it's just a resource
 		Resources res = getResources();
 		
-		return new String[][]{res.getStringArray(R.array.modes), res.getStringArray(R.array.modeTitles)};
+		return new String[][]{res.getStringArray(R.array.routeKeys), res.getStringArray(R.array.routeTitles)};
 	}
 
 
@@ -582,8 +582,8 @@ public class Main extends MapActivity
         		if (currentFavoriteStatus != 0)
         		{
         			item.setIcon(currentFavoriteStatus);
-        			favoriteMenuItem = item;
         		}
+    			favoriteMenuItem = item;
         		break;
         	}
         }
@@ -687,6 +687,10 @@ public class Main extends MapActivity
 		}
 		else if (mapView != null)
 		{
+			if (keyCode == KeyEvent.KEYCODE_MENU)
+			{
+				return super.onKeyUp(keyCode, event);
+			}
 			handler.triggerUpdate(250);
 			
 			if (keyCode == KeyEvent.KEYCODE_DPAD_CENTER)
@@ -734,7 +738,7 @@ public class Main extends MapActivity
 	public void setFavoriteStatus(int drawable) {
 		if (favoriteMenuItem != null)
 		{
-			//Log.v("BostonBusMap", "setting favorite icon now!");
+			Log.v("BostonBusMap", "setting favorite icon now!");
 			favoriteMenuItem.setIcon(drawable);
 		}
 		

@@ -76,6 +76,7 @@ public class RoutePool {
 					RouteConfig routeConfig = get(route);
 					if (routeConfig != null)
 					{
+						Log.v("BostonBusMap", "setting favorite status to true for " + stop);
 						StopLocation stopLocation = routeConfig.getStop(stop);
 						stopLocation.setFavorite(true);
 						sharedStops.put(stop, stopLocation);
@@ -85,6 +86,7 @@ public class RoutePool {
 				}
 				else
 				{
+					Log.e("BostonBusMap", "Favorited stop isn't in database");
 					//this shouldn't happen. We can't find the route the favorite belongs to. Just remove it
 					stopsToRemove.add(stop);
 				}
@@ -242,41 +244,36 @@ public class RoutePool {
 		String route = favoriteStops.get(stopTag);
 		if (favoriteStops.containsKey(stopTag))
 		{
-			location.setFavorite(false);
-			favoriteStops.remove(stopTag);
 			boolean result = helper.saveFavorite(stopTag, location.getFirstRoute(), false);
 			if (result == false)
 			{
-				//try one more time
-				result = helper.saveFavorite(stopTag, location.getFirstRoute(), false);
-				if (result == false)
-				{
-					//restore its state. we failed
-					favoriteStops.put(stopTag, route);
-					location.setFavorite(true);
-					return R.drawable.full_star;
-				}
+				Log.i("BostonBusMap", "toggling favorite status on stop failed");
+				//restore its state. we failed
+				return R.drawable.full_star;
 			}
-			return R.drawable.empty_star;
+			else
+			{
+				//success
+				location.setFavorite(false);
+				favoriteStops.remove(stopTag);
+				return R.drawable.empty_star;
+			}
 		}
 		else
 		{
-			location.setFavorite(true);
-			favoriteStops.put(stopTag, location.getFirstRoute());
 			boolean result = helper.saveFavorite(stopTag, location.getFirstRoute(), true);
 			if (result == false)
 			{
-				//try one more time
-				result = helper.saveFavorite(stopTag, location.getFirstRoute(), true);
-				if (result == false)
-				{
-					//restore its state, we failed
-					favoriteStops.remove(stopTag);
-					location.setFavorite(false);
-					return R.drawable.empty_star;
-				}
+				Log.i("BostonBusMap", "toggling favorite status on stop failed");
+				return R.drawable.empty_star;
 			}
-			return R.drawable.full_star;
+			else
+			{
+				//success
+				location.setFavorite(true);
+				favoriteStops.put(stopTag, location.getFirstRoute());
+				return R.drawable.full_star;
+			}
 		}
 
 	}
