@@ -163,7 +163,7 @@ public class StopLocation implements Location, CanBeSerialized
 					ret += "\n";
 				}
 				
-				ret += "\n" + prediction.makeSnippet();
+				ret += "\n" + prediction.makeSnippet(routeKeysToTitles);
 
 				count++;
 				if (count >= max)

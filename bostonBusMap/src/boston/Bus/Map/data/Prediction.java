@@ -1,6 +1,7 @@
 package boston.Bus.Map.data;
 
 import java.io.IOException;
+import java.util.HashMap;
 
 import boston.Bus.Map.util.Box;
 import boston.Bus.Map.util.CanBeSerialized;
@@ -28,14 +29,14 @@ public class Prediction implements Comparable<Prediction>
 		arrivalTime.set(System.currentTimeMillis() + ((minutes >= 0 ? minutes : 0) * 60 * 1000));
 	}
 
-	public String makeSnippet() {
+	public String makeSnippet(HashMap<String, String> routeKeysToTitles) {
 		if (minutes < 0)
 		{
 			return "";
 		}
 		else
 		{
-			String ret = "Route " + routeName;
+			String ret = "Route " + routeKeysToTitles.get(routeName);
 			ret += ", Bus " + vehicleId;
 			
 			if (direction != null)
