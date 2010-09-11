@@ -15,12 +15,14 @@
 			android:layout_width="fill_parent" 
 			android:id="@+id/balloon_item_title"
 			android:text="balloon_item_title" 
-			android:textSize="12dip"
-			android:textColor="#FF000000"></TextView>
+			android:textSize="15dip"
+			android:textColor="#FF000000"
+			android:bufferType="spannable"></TextView>
 		<TextView android:layout_height="wrap_content"
 			android:layout_width="fill_parent" 
 			android:id="@+id/balloon_item_snippet"
 			android:text="balloon_item_snippet" 
 			android:textSize="12dip"
-			android:textColor="#FF000000"></TextView>
+			android:textColor="#FF000000"
+			android:bufferType="spannable"></TextView>
 </LinearLayout>
