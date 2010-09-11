@@ -119,7 +119,7 @@ public final class Locations
 		this.supportedRoutes = supportedRoutes;
 		this.routeKeysToTitles = routeKeysToTitles;
 		
-		routeMapping = new RoutePool(helper, supportedRoutes);
+		routeMapping = new RoutePool(helper, supportedRoutes, routeKeysToTitles);
 		directions = new Directions(helper);
 	}
 	
@@ -157,7 +157,7 @@ public final class Locations
 			
 			GZIPInputStream stream = new GZIPInputStream(in); 
 			
-			RouteConfigFeedParser parser = new RouteConfigFeedParser(busStop, directions);
+			RouteConfigFeedParser parser = new RouteConfigFeedParser(busStop, directions, routeKeysToTitles);
 			
 			parser.runParse(stream);
 			
@@ -190,7 +190,7 @@ public final class Locations
 
 					//just initialize the route and then end for this round
 					InputStream stream = downloadStream(url, task, prepend, null);
-					RouteConfigFeedParser parser = new RouteConfigFeedParser(busStop, directions);
+					RouteConfigFeedParser parser = new RouteConfigFeedParser(busStop, directions, routeKeysToTitles);
 
 					parser.runParse(stream);
 
@@ -368,7 +368,7 @@ public final class Locations
 		downloadHelper.connect();
 		//just initialize the route and then end for this round
 		
-		RouteConfigFeedParser parser = new RouteConfigFeedParser(busStop, directions);
+		RouteConfigFeedParser parser = new RouteConfigFeedParser(busStop, directions, routeKeysToTitles);
 
 		parser.runParse(downloadHelper.getResponseData()); 
 

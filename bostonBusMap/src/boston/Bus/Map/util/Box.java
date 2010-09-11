@@ -278,7 +278,8 @@ public class Box {
 
 	private final HashMap<String, StopLocation> stopMap;
 	
-	public HashMap<String, StopLocation> readStopsMap(RouteConfig routeConfig, Drawable busStop) throws IOException {
+	public HashMap<String, StopLocation> readStopsMap(RouteConfig routeConfig, Drawable busStop, 
+			HashMap<String, String> routeKeysToTitles) throws IOException {
 		showProgress("readStopsMap");
 		int size = readInt();
 		
@@ -286,7 +287,7 @@ public class Box {
 		for (int i = 0; i < size; i++)
 		{
 			String key = readString();
-			StopLocation value = new StopLocation(this, busStop);
+			StopLocation value = new StopLocation(this, busStop, routeKeysToTitles);
 			if (stopMap.containsKey(key))
 			{
 				stops.put(key, stopMap.get(key));
@@ -296,8 +297,6 @@ public class Box {
 				stops.put(key, value);
 				stopMap.put(key, value);
 			}
-			
-			stopMap.get(key).addRoute(routeConfig);
 		}
 		
 		return stops;
@@ -397,5 +396,24 @@ public class Box {
 		return versionNumber;
 	}
 
+	public void writeStrings(ArrayList<String> routes) throws IOException {
+		writeInt(routes.size());
+		for (String route : routes)
+		{
+			writeString(route);
+		}
+		
+	}
+
+	public ArrayList<String> readStrings() throws IOException
+	{
+		int size = readInt();
+		ArrayList<String> ret = new ArrayList<String>(size);
+		for (int i = 0; i < size; i++)
+		{
+			ret.add(readString());
+		}
+		return ret;
+	}
 	
 }

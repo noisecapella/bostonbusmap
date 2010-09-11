@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
@@ -34,20 +35,23 @@ public class StopLocation implements Location, CanBeSerialized
 	
 	private ArrayList<Prediction> predictions = null;
 	
-	private final ArrayList<String> routes = new ArrayList<String>(1);
+	private final ArrayList<String> routes;
 	
 	private boolean isFavorite;
+	private final HashMap<String, String> routeKeysToTitles;
 	
 	private static final int LOCATIONTYPE = 3; 
 	
 	public StopLocation(float latitudeAsDegrees, float longitudeAsDegrees,
-			Drawable busStop, String tag, String title)
+			Drawable busStop, String tag, String title, HashMap<String, String> routeKeysToTitles)
 	{
 		this.latitude = latitudeAsDegrees * Constants.degreesToRadians;
 		this.longitude = longitudeAsDegrees * Constants.degreesToRadians;
 		this.busStop = busStop;
 		this.tag = tag;
 		this.title = title;
+		this.routes = new ArrayList<String>(1);
+		this.routeKeysToTitles = routeKeysToTitles;
 	}
 	
 	public void addRoute(RouteConfig route)
@@ -112,7 +116,7 @@ public class StopLocation implements Location, CanBeSerialized
 			Collections.sort(routes);
 			for (String route : routes)
 			{
-				ret += route;
+				ret += routeKeysToTitles.get(route);
 
 				if (index != routes.size() - 1)
 				{
@@ -223,10 +227,12 @@ public class StopLocation implements Location, CanBeSerialized
 		dest.writeString(tag);
 
 		dest.writeString(title);
+		
+		dest.writeStrings(routes);
 	}
 
 	
-	public StopLocation(Box source, Drawable busStop) throws IOException {
+	public StopLocation(Box source, Drawable busStop, HashMap<String, String> routeKeysToTitles) throws IOException {
 
 
 		this.latitude = source.readFloat();
@@ -237,6 +243,8 @@ public class StopLocation implements Location, CanBeSerialized
 		tag = source.readString();
 
 		title = source.readString();
+		routes = source.readStrings();
+		this.routeKeysToTitles = routeKeysToTitles;
 		this.busStop = busStop;
 	}
 

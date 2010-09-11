@@ -33,11 +33,13 @@ public class RouteConfigFeedParser extends DefaultHandler
 {
 	private final HashMap<String, RouteConfig> map = new HashMap<String, RouteConfig>();
 	private final Directions directions;
+	private final HashMap<String, String> routeKeysToTitles;
 	
-	public RouteConfigFeedParser(Drawable busStop, Directions directions)
+	public RouteConfigFeedParser(Drawable busStop, Directions directions, HashMap<String, String> routeKeysToTitles)
 	{
 		this.busStop = busStop;
 		this.directions = directions;
+		this.routeKeysToTitles = routeKeysToTitles;
 	}
 
 	public void runParse(InputStream inputStream)  throws ParserConfigurationException, SAXException, IOException
@@ -104,7 +106,7 @@ public class RouteConfigFeedParser extends DefaultHandler
 					if (stopLocation == null)
 					{
 						stopLocation = new StopLocation(latitudeAsDegrees, longitudeAsDegrees, busStop, tag,
-								title);
+								title, routeKeysToTitles);
 						allStops.put(tag, stopLocation);
 					}
 

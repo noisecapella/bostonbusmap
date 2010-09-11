@@ -21,15 +21,17 @@ public class RoutePool {
 	private final HashMap<String, RouteConfig> pool = new HashMap<String, RouteConfig>();
 	private final HashMap<String, StopLocation> sharedStops = new HashMap<String, StopLocation>();
 	private final HashMap<String, String> favoriteStops = new HashMap<String, String>();
+	private final HashMap<String, String> routeKeysToTitles;
 
 	private final String[] supportedRoutes;
 	
 	
 	private static final int MAX_ROUTES = 50;
 	
-	public RoutePool(DatabaseHelper helper, String[] supportedRoutes) {
+	public RoutePool(DatabaseHelper helper, String[] supportedRoutes, HashMap<String, String> routeKeysToTitles) {
 		this.helper = helper;
 		this.supportedRoutes = supportedRoutes;
+		this.routeKeysToTitles = routeKeysToTitles;
 		
 		helper.populateFavorites(favoriteStops);
 		fillInFavoritesRoutes();
@@ -128,7 +130,7 @@ public class RoutePool {
 		{
 			synchronized (helper)
 			{
-				routeConfig = helper.getRoute(routeToUpdate, sharedStops);
+				routeConfig = helper.getRoute(routeToUpdate, sharedStops, routeKeysToTitles);
 				if (routeConfig == null)
 				{
 					return null;

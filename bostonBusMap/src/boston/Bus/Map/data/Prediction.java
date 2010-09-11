@@ -51,7 +51,7 @@ public class Prediction implements Comparable<Prediction>
 			{
 				return ret + "\nArriving in " + minutes + " min at " + arrivalTime.format(hourMinuteFormatString).trim();
 			}
-		}			
+		}
 	}
 
 	@Override
