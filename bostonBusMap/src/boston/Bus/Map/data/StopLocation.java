@@ -151,6 +151,9 @@ public class StopLocation implements Location, CanBeSerialized
 
 			final int max = 3;
 			int count = 0;
+			
+			
+			
 			for (Prediction prediction : predictions)
 			{
 				if (routeConfig != null && routeConfig.getRouteName().equals(prediction.getRouteName()) == false)
@@ -158,6 +161,8 @@ public class StopLocation implements Location, CanBeSerialized
 					continue;
 				}
 
+				
+				
 				if (count != 0)
 				{
 					ret += "\n";
@@ -210,8 +215,12 @@ public class StopLocation implements Location, CanBeSerialized
 		
 		synchronized (predictions)
 		{
-			predictions.add(new Prediction(minutes, epochTime, vehicleId, 
-					directions.getTitleAndName(direction), route.getRouteName()));
+			Prediction prediction = new Prediction(minutes, epochTime, vehicleId, 
+					directions.getTitleAndName(direction), route.getRouteName());
+			if (predictions.contains(prediction) == false)
+			{
+				predictions.add(prediction);
+			}
 		}
 		
 	}

@@ -61,6 +61,26 @@ public class Prediction implements Comparable<Prediction>
 		
 	}
 
+	@Override
+	public int hashCode() {
+		// TODO Auto-generated method stub
+		return (int) (minutes ^ epochTime ^ vehicleId);
+	}
+	
+	@Override
+	public boolean equals(Object o) {
+		if (o instanceof Prediction)
+		{
+			Prediction other = (Prediction)o;
+			if (other.minutes == minutes && other.epochTime == epochTime && other.vehicleId == vehicleId)
+			{
+				//most likely the same
+				return true;
+			}
+		}
+		return false;
+	}
+	
 	public String getRouteName() {
 		return routeName;
 	}
