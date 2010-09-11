@@ -16,6 +16,7 @@ public class Prediction implements Comparable<Prediction>
 	private final int vehicleId;
 	private final String direction;
 	private final String routeName;
+	private final Time arrivalTime = new Time();
 	
 	public Prediction(int minutes, long epochTime, int vehicleId,
 			String direction, String routeName) {
@@ -24,6 +25,7 @@ public class Prediction implements Comparable<Prediction>
 		this.vehicleId = vehicleId;
 		this.direction = direction;
 		this.routeName = routeName;
+		arrivalTime.set(System.currentTimeMillis() + ((minutes >= 0 ? minutes : 0) * 60 * 1000));
 	}
 
 	public String makeSnippet() {
@@ -47,10 +49,7 @@ public class Prediction implements Comparable<Prediction>
 			}
 			else
 			{
-				Time time = new Time();
-				time.setToNow();
-				
-				return ret + "\narriving in " + minutes + " min at " + time.format(hourMinuteFormatString);
+				return ret + "\narriving in " + minutes + " min at " + arrivalTime.format(hourMinuteFormatString);
 			}
 		}			
 	}
