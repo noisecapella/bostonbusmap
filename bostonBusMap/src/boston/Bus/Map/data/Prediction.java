@@ -45,11 +45,11 @@ public class Prediction implements Comparable<Prediction>
 			
 			if (minutes == 0)
 			{
-				return ret + "\narriving now!";
+				return ret + "\nArriving now!";
 			}
 			else
 			{
-				return ret + "\narriving in " + minutes + " min at " + arrivalTime.format(hourMinuteFormatString);
+				return ret + "\nArriving in " + minutes + " min at " + arrivalTime.format(hourMinuteFormatString).trim();
 			}
 		}			
 	}
