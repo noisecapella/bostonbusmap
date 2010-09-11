@@ -3,8 +3,7 @@
 <CheckBoxPreference android:key="@string/showUnpredictableBusesCheckbox" android:title="Show unpredictable buses?"></CheckBoxPreference>
 <CheckBoxPreference android:key="@string/hideCircleCheckbox" android:title="Hide blue circle?" android:summary="This shows what buses are being viewed"/>
 
-<CheckBoxPreference android:key="@string/inferVehicleRouteCheckbox" android:title="Infer vehicle route numbers"
- android:summary="(EXPERIMENTAL / UNRELIABLE) See website for info about this" /><CheckBoxPreference android:title="Show route path?" android:key="@string/showRouteLineCheckbox" android:summary="Draws a line along the selected route"></CheckBoxPreference>
+<CheckBoxPreference android:title="Show route path?" android:key="@string/showRouteLineCheckbox" android:summary="Draws a line along the selected route"></CheckBoxPreference>
 
 
 <!-- 

@@ -257,7 +257,7 @@ public class Main extends MapActivity
         	
         	busOverlay = currentState.cloneBusOverlay(this, mapView);
         	routeOverlay = currentState.cloneRouteOverlay(mapView.getProjection());
-        	myLocationOverlay = currentState.cloneLocationOverlay(this, mapView);
+        	myLocationOverlay = new LocationOverlay(this, mapView);
         	
         	mapView.getOverlays().clear();
         	mapView.getOverlays().add(routeOverlay);
@@ -477,6 +477,13 @@ public class Main extends MapActivity
 			handler.removeAllMessages();
 		}
 		
+		if (myLocationOverlay != null)
+		{
+			myLocationOverlay.disableMyLocation();
+			myLocationOverlay.setUpdateable(null);
+		}
+		
+
 		
 		super.onPause();
     }
@@ -497,13 +504,6 @@ public class Main extends MapActivity
 		{
 			mapView.getOverlays().clear();
 			mapView = null;
-		}
-		
-		if (myLocationOverlay != null)
-		{
-			myLocationOverlay.disableMyLocation();
-			myLocationOverlay.setUpdateable(null);
-			myLocationOverlay = null;
 		}
 		
 		textView = null;
@@ -656,7 +656,7 @@ public class Main extends MapActivity
     	handler.setUpdateConstantly(runInBackgroundCheckboxValue);
     	handler.setShowUnpredictable(prefs.getBoolean(getString(R.string.showUnpredictableBusesCheckbox), false));
     	handler.setHideHighlightCircle(prefs.getBoolean(getString(R.string.hideCircleCheckbox), false));
-    	handler.setInferBusRoutes(prefs.getBoolean(getString(R.string.inferVehicleRouteCheckbox), false));
+    	handler.setInferBusRoutes(false);
     	handler.setShowRouteLine(prefs.getBoolean(getString(R.string.showRouteLineCheckbox), false));
     	boolean showCoarseRouteLineCheckboxValue = prefs.getBoolean(getString(R.string.showCoarseRouteLineCheckbox), true); 
     	handler.setShowCoarseRouteLine(showCoarseRouteLineCheckboxValue);

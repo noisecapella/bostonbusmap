@@ -120,14 +120,4 @@ public class CurrentState {
 		return ret;
 	}
 	
-	/**
-	 * It's probably unnecessary to clone here, do some experiments first before removing though
-	 * @param context
-	 * @param mapView
-	 * @return
-	 */
-	public LocationOverlay cloneLocationOverlay(Context context, MapView mapView)
-	{
-		return new LocationOverlay(context, mapView);
-	}
 }
