@@ -6,43 +6,40 @@ import boston.Bus.Map.util.Box;
 import boston.Bus.Map.util.CanBeSerialized;
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.text.format.Time;
 
 public class Prediction implements Comparable<Prediction>
 {
+	private static final String hourMinuteFormatString = "%l:%M%P";
 	private final int minutes;
 	private final long epochTime;
 	private final int vehicleId;
-	private final String directionTitle;
+	private final String direction;
 	private final String routeName;
 	
 	public Prediction(int minutes, long epochTime, int vehicleId,
-			String directionTitle, String routeName) {
+			String direction, String routeName) {
 		this.minutes = minutes;
 		this.epochTime = epochTime;
 		this.vehicleId = vehicleId;
-		this.directionTitle = directionTitle;
+		this.direction = direction;
 		this.routeName = routeName;
 	}
 
-	@Override
-	public String toString() {
+	public String makeSnippet() {
 		if (minutes < 0)
 		{
 			return "";
 		}
 		else
 		{
-			String ret = "Bus " + vehicleId;
+			String ret = "Route " + routeName;
+			ret += ", Bus " + vehicleId;
 			
-			ret += ", Route " + routeName;
-			
-			String directionToShow = directionTitle;
-			if (directionToShow != null && directionToShow.length() != 0)
+			if (direction != null)
 			{
-				ret += "\n" + directionToShow;
+				ret += "\n" + direction;
 			}
-
-			
 			
 			if (minutes == 0)
 			{
@@ -50,7 +47,10 @@ public class Prediction implements Comparable<Prediction>
 			}
 			else
 			{
-				return ret + "\narriving in " + minutes + " min";
+				Time time = new Time();
+				time.setToNow();
+				
+				return ret + "\narriving in " + minutes + " min at " + time.format(hourMinuteFormatString);
 			}
 		}			
 	}

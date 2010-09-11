@@ -91,15 +91,18 @@ public class Directions {
 		{
 			String title = titles.get(i);
 			String name = names.get(i);
-			if (title == null && name == null)
+			boolean emptyTitle = title == null || title.length() == 0;
+			boolean emptyName = name == null || name.length() == 0;
+			
+			if (emptyName && emptyTitle)
 			{
 				return null;
 			}
-			else if (title == null)
+			else if (emptyTitle)
 			{
 				return name;
 			}
-			else if (name == null)
+			else if (emptyName)
 			{
 				return title;
 			}

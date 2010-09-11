@@ -101,7 +101,9 @@ public class StopLocation implements Location, CanBeSerialized
 
 	@Override
 	public String makeTitle() {
-		String ret = "Stop: " + tag + ", Routes: ";
+		String ret = title;
+
+		ret += "\nStop: " + tag + ", Routes: ";
 
 		//java doesn't have a join function? seriously?
 		int index = 0;
@@ -121,7 +123,6 @@ public class StopLocation implements Location, CanBeSerialized
 			}
 		}
 		
-		ret += "\n" + "Title: " + title;
 		
 		return ret;
 	}
@@ -153,7 +154,12 @@ public class StopLocation implements Location, CanBeSerialized
 					continue;
 				}
 
-				ret += "\n" + prediction.toString();
+				if (count != 0)
+				{
+					ret += "\n";
+				}
+				
+				ret += "\n" + prediction.makeSnippet();
 
 				count++;
 				if (count >= max)
@@ -201,7 +207,7 @@ public class StopLocation implements Location, CanBeSerialized
 		synchronized (predictions)
 		{
 			predictions.add(new Prediction(minutes, epochTime, vehicleId, 
-					directions.getTitle(direction), route.getRouteName()));
+					directions.getTitleAndName(direction), route.getRouteName()));
 		}
 		
 	}
