@@ -239,6 +239,11 @@ public class Main extends MapActivity
         
         
         String[][] routeKeyMap = getOrObtainRoutes(helper);
+        HashMap<String, String> routeKeysToTitles = new HashMap<String, String>();
+        for (int i = 0; i < routeKeyMap[0].length; i++)
+        {
+        	routeKeysToTitles.put(routeKeyMap[0][i], routeKeyMap[1][i]);
+        }
         String[] routesSupported = routeKeyMap[0];
         
         modeSpinner.setAdapter(makeRouteSpinnerAdapter(routeKeyMap));
@@ -292,7 +297,7 @@ public class Main extends MapActivity
         if (busLocations == null)
         {
         	busLocations = new Locations(busPicture, arrow, locationDrawable, busStop,
-        			routesSupported, helper);
+        			routesSupported, helper, routeKeysToTitles);
         }
 
         handler = new UpdateHandler(textView, mapView, arrow, tooltip, busLocations, 

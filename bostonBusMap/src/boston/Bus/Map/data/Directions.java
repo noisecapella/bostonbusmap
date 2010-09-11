@@ -80,6 +80,36 @@ public class Directions {
 	public void writeToDatabase(boolean wipe) {
 		helper.writeDirections(wipe, indexes, names, titles, routes);
 	}
+
+	public String getTitleAndName(String dirTag) {
+		Integer i = getIndex(dirTag);
+		if (i == null)
+		{
+			return null;
+		}
+		else
+		{
+			String title = titles.get(i);
+			String name = names.get(i);
+			if (title == null && name == null)
+			{
+				return null;
+			}
+			else if (title == null)
+			{
+				return name;
+			}
+			else if (name == null)
+			{
+				return title;
+			}
+			else
+			{
+				return title + "\n" + name;
+			}
+				
+		}
+	}
 	
 	
 }

@@ -34,15 +34,17 @@ public class VehicleLocationsFeedParser extends DefaultHandler
 	private final Drawable bus;
 	private final Drawable arrow;
 	private final Directions directions;
+	private final HashMap<String, String> routeKeysToTitles;
 	
 	public VehicleLocationsFeedParser(HashMap<Integer, String> vehiclesToRouteNames,
-			RoutePool stopMapping, Drawable bus, Drawable arrow, Directions directions)
+			RoutePool stopMapping, Drawable bus, Drawable arrow, Directions directions, HashMap<String, String> routeKeysToTitles)
 	{
 		this.vehiclesToRouteNames = vehiclesToRouteNames;
 		this.stopMapping = stopMapping;
 		this.bus = bus;
 		this.arrow = arrow;
 		this.directions = directions;
+		this.routeKeysToTitles = routeKeysToTitles;
 	}
 	
 	public void runParse(InputStream data)
@@ -103,7 +105,7 @@ public class VehicleLocationsFeedParser extends DefaultHandler
 
 
 			BusLocation newBusLocation = new BusLocation(lat, lon, id, seconds, lastUpdateTime, 
-					heading, predictable, dirTag, inferBusRoute, bus, arrow, route, directions);
+					heading, predictable, dirTag, inferBusRoute, bus, arrow, route, directions, routeKeysToTitles.get(route));
 
 			Integer idInt = new Integer(id);
 			if (busMapping.containsKey(idInt))

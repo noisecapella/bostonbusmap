@@ -46,7 +46,9 @@ public class TransitSystem {
 	/**
 	 * The XML feed URL
 	 */
-	private static final String mbtaLocationsDataUrl = "http://webservices.nextbus.com/service/publicXMLFeed?command=vehicleLocations&a=mbta&t=";
+	private static final String mbtaLocationsDataUrlOneRoute = "http://webservices.nextbus.com/service/publicXMLFeed?command=vehicleLocations&a=mbta&t=";
+
+	private static final String mbtaLocationsDataUrlAllRoutes = "http://webservices.nextbus.com/service/publicXMLFeed?command=vehicleLocations&a=mbta&t=";
 
 	private static final String mbtaRouteConfigDataUrl = "http://webservices.nextbus.com/service/publicXMLFeed?command=routeConfig&a=mbta&r=";
 	private static final String mbtaRouteConfigDataUrlAllRoutes = "http://webservices.nextbus.com/service/publicXMLFeed?command=routeConfig&a=mbta";
@@ -54,9 +56,16 @@ public class TransitSystem {
 	private static final String mbtaPredictionsDataUrl = "http://webservices.nextbus.com/service/publicXMLFeed?command=predictionsForMultiStops&a=mbta";
 
 	
-	public static String getVehicleLocationsUrl(long time)
+	public static String getVehicleLocationsUrl(long time, String route)
 	{
-		return mbtaLocationsDataUrl + time;
+		if (route != null)
+		{
+			return mbtaLocationsDataUrlOneRoute + time + "&r=" + route;
+		}
+		else
+		{
+			return mbtaLocationsDataUrlAllRoutes + time;
+		}
 	}
 	
 	public static String getRouteConfigUrl(String route)

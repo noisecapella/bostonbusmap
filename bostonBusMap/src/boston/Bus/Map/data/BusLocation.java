@@ -81,11 +81,13 @@ public class BusLocation implements Location
 	private final Drawable bus;
 	private final Drawable arrow;
 	
+	private final String routeTitle;
+	
 	private static final int LOCATIONTYPE = 1;
 	
 	public BusLocation(double latitude, double longitude, int id, int seconds, double lastUpdateInMillis,
 			String heading, boolean predictable, String dirTag, String inferBusRoute,
-			Drawable bus, Drawable arrow, String routeName, Directions directions)
+			Drawable bus, Drawable arrow, String routeName, Directions directions, String routeTitle)
 	{
 		this.latitude = latitude * Constants.degreesToRadians;
 		this.longitude = longitude * Constants.degreesToRadians;
@@ -102,6 +104,7 @@ public class BusLocation implements Location
 		this.arrow = arrow;
 		this.routeName = routeName;
 		this.directions = directions;
+		this.routeTitle = routeTitle;
 	}
 
 	public boolean hasHeading()
@@ -216,36 +219,19 @@ public class BusLocation implements Location
 	@Override
 	public String makeSnippet(RouteConfig routeConfig)
 	{
-		return null;
-	}
-	
-	public String makeTitle() {
-    	String title = "Id: " + id + ", route: ";
-    	if (routeName == null)
-    	{
-    		title += "not mentioned";
-    	}
-    	else
-    	{
-    		title += routeName;
-    	}
+		String snippet = "";
+    	snippet += "Bus number: " + id;
     	
-    	title += "\nSeconds since update: " + (int)(seconds + (System.currentTimeMillis() - lastUpdateInMillis) / 1000);
+    	snippet += "\nLast update: " + (int)(seconds + (System.currentTimeMillis() - lastUpdateInMillis) / 1000) + " seconds ago";
     	String direction = getDirection();
     	if (direction.length() != 0 && predictable == false)
     	{
-    		title += "\nEstimated direction: " + direction;
+    		snippet += "\nEstimated direction: " + direction;
     	}
     	
     	if (predictable)
     	{
-    		title += "\nHeading: " + heading + " deg (" + convertHeadingToCardinal(Integer.parseInt(heading)) + ")";
-
-    		String directionName = directions.getTitle(dirTag);
-    		if (directionName != null && directionName.length() != 0)
-    		{
-    			title += "\n" + directionName;
-    		}
+    		snippet += "\nHeading: " + heading + " deg (" + convertHeadingToCardinal(Integer.parseInt(heading)) + ")";
     	}
     	else
     	{
@@ -254,7 +240,31 @@ public class BusLocation implements Location
     		
     		if (routeName == null && inferBusRoute != null)
     		{
-    			title += "\nEstimated route number: " + inferBusRoute;
+    			snippet += "\nEstimated route number: " + inferBusRoute;
+    		}
+    	}
+
+    	return snippet;
+	}
+	
+	public String makeTitle() {
+		String title = "";
+    	title += "Route ";
+    	if (routeTitle == null)
+    	{
+    		title += "not mentioned";
+    	}
+    	else
+    	{
+    		title += routeTitle;
+    	}
+
+    	if (predictable)
+    	{
+    		String directionName = directions.getTitleAndName(dirTag);
+    		if (directionName != null && directionName.length() != 0)
+    		{
+    			title += "\n" + directionName;
     		}
     	}
     	
@@ -323,7 +333,20 @@ public class BusLocation implements Location
 		return false;
 	}
 
-	public String getRouteName() {
+	/**
+	 * The display name of the route
+	 * @return
+	 */
+	public String getRouteTitle()
+	{
+		return routeTitle;
+	}
+	
+	/**
+	 * The route name
+	 * @return
+	 */
+	public String getRouteId() {
 		return routeName;
 	}
 }

@@ -106,15 +106,18 @@ public final class Locations
 	
 	private String selectedRoute;
 	private int selectedBusPredictions;
+	private final HashMap<String, String> routeKeysToTitles;
 	
 	public Locations(Drawable bus, Drawable arrow, Drawable locationDrawable,
-			Drawable busStop, String[] supportedRoutes, DatabaseHelper helper)
+			Drawable busStop, String[] supportedRoutes, DatabaseHelper helper, 
+			HashMap<String, String> routeKeysToTitles)
 	{
 		this.bus = bus;
 		this.arrow = arrow;
 		this.locationDrawable = locationDrawable;
 		this.busStop = busStop;
 		this.supportedRoutes = supportedRoutes;
+		this.routeKeysToTitles = routeKeysToTitles;
 		
 		routeMapping = new RoutePool(helper, supportedRoutes);
 		directions = new Directions(helper);
@@ -289,13 +292,15 @@ public final class Locations
 		}
 		break;
 
-		case Main.VEHICLE_LOCATIONS_ALL:
 		case Main.VEHICLE_LOCATIONS_ONE:
+		{
+			final String urlString = TransitSystem.getVehicleLocationsUrl((long)lastUpdateTime, routeConfig.getRouteName());
+			downloadHelper = new DownloadHelper(urlString);
+		}
+		case Main.VEHICLE_LOCATIONS_ALL:
 		default:
 		{
-			//for now, we download and update all buses, whether the user chooses one route or all routes
-			//we only make the distinction when we display the icons
-			final String urlString = TransitSystem.getVehicleLocationsUrl((long)lastUpdateTime);
+			final String urlString = TransitSystem.getVehicleLocationsUrl((long)lastUpdateTime, null);
 			downloadHelper = new DownloadHelper(urlString);
 		}
 		break;
@@ -323,7 +328,7 @@ public final class Locations
 			//lastUpdateTime = parser.getLastUpdateTime();
 
 			VehicleLocationsFeedParser parser = new VehicleLocationsFeedParser(vehiclesToRouteNames, routeMapping,
-					bus, arrow, directions);
+					bus, arrow, directions, routeKeysToTitles);
 			parser.runParse(data);
 
 			//get the time that this information is valid until
@@ -460,7 +465,7 @@ public final class Locations
 						{
 							if (selectedBusPredictions == Main.VEHICLE_LOCATIONS_ONE)
 							{
-								if (selectedRoute != null && selectedRoute.equals(busLocation.getRouteName()))
+								if (selectedRoute != null && selectedRoute.equals(busLocation.getRouteId()))
 								{
 									newLocations.add(busLocation);
 								}
@@ -482,7 +487,7 @@ public final class Locations
 					{
 						for (BusLocation location : busMapping.values())
 						{
-							if (selectedRoute != null && selectedRoute.equals(location.getRouteName()))
+							if (selectedRoute != null && selectedRoute.equals(location.getRouteId()))
 							{
 								newLocations.add(location);
 							}
