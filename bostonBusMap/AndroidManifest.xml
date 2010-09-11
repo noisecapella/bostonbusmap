@@ -5,8 +5,9 @@
       android:versionName="2.28">
 	<application android:label="@string/app_name" android:icon="@drawable/appicon" 
 	android:theme="@style/android:Theme.NoTitleBar"
+	
 	>
-		<activity android:label="@string/app_name" android:name=".main.Main">
+		<activity android:label="@string/app_name" android:name=".main.Main" android:launchMode="singleTop">
 			<intent-filter>
 				<action android:name="android.intent.action.MAIN" />
 				<category android:name="android.intent.category.LAUNCHER" />
