@@ -87,18 +87,18 @@ public class BalloonOverlayView extends FrameLayout {
 	 * @param item - The overlay item containing the relevant view data 
 	 * (title and snippet). 
 	 */
-	public void setData(OverlayItem item) {
+	public void setData(OverlayItem item, String titleText, String snippetText) {
 		
 		layout.setVisibility(VISIBLE);
 		if (item.getTitle() != null) {
 			title.setVisibility(VISIBLE);
-			title.setText(item.getTitle());
+			title.setText(titleText);
 		} else {
 			title.setVisibility(GONE);
 		}
 		if (item.getSnippet() != null) {
 			snippet.setVisibility(VISIBLE);
-			snippet.setText(item.getSnippet());
+			snippet.setText(snippetText);
 		} else {
 			snippet.setVisibility(GONE);
 		}

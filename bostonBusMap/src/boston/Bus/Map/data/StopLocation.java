@@ -164,6 +164,19 @@ public class StopLocation implements Location, CanBeSerialized
 		snippetPredictions = makeSnippet(routeConfig, predictions);
 	}
 	
+	@Override
+	public String getSnippet() {
+		return snippetPredictions;
+	}
+	
+	@Override
+	public String getSnippetTitle() {
+		String ret = snippetTitle;
+		ret += "\n" + "Stop: " + snippetStop;
+		ret += ", Routes: " + snippetRoutes;
+		return ret;
+	}
+	
 	private String makeSnippet(RouteConfig routeConfig, ArrayList<Prediction> predictions) {
 		String ret = "";
 		

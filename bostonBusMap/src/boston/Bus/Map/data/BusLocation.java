@@ -232,6 +232,16 @@ public class BusLocation implements Location
 		snippetTitle = makeTitle();
 	}
 	
+	@Override
+	public String getSnippet() {
+		return snippet;
+	}
+	
+	@Override
+	public String getSnippetTitle() {
+		return snippetTitle;
+	}
+	
 	private String makeSnippet(RouteConfig routeConfig)
 	{
 		String snippet = "";

@@ -403,4 +403,15 @@ public class BusOverlay extends BalloonItemizedOverlay<OverlayItem> {
 		return R.drawable.empty_star;
 	}
 	
+	
+	@Override
+	protected boolean onTap(int index) {
+		Location location = locations.get(index);
+		
+		String title = location.getSnippetTitle();
+		String snippet = location.getSnippet();
+		
+		
+		return onTap(index, title, snippet);
+	}
 }

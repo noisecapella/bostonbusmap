@@ -42,4 +42,16 @@ public interface Location {
 	 * @param location whose textbox info you're adding to this class
 	 */
 	void addToSnippetAndTitle(RouteConfig routeConfig, Location location);
+
+	/**
+	 * Get the title you previously created in makeSnippetAndTitle
+	 * @return
+	 */
+	String getSnippetTitle();
+	
+	/**
+	 * Get the title you previously created in makeSnippetAndTitle
+	 * @return
+	 */
+	String getSnippet();
 }
