@@ -34,6 +34,10 @@ public class Directions {
 	
 	private Integer getIndex(String dirTag)
 	{
+		if (dirTag == null)
+		{
+			return null;
+		}
 		Integer i = indexes.get(dirTag);
 		if (i == null)
 		{

@@ -40,6 +40,8 @@ public class StopLocation implements Location, CanBeSerialized
 	private boolean isFavorite;
 	private final HashMap<String, String> routeKeysToTitles;
 	
+	private final ArrayList<String> dirTags;
+	
 	private static final int LOCATIONTYPE = 3; 
 	
 	public StopLocation(float latitudeAsDegrees, float longitudeAsDegrees,
@@ -51,6 +53,7 @@ public class StopLocation implements Location, CanBeSerialized
 		this.tag = tag;
 		this.title = title;
 		this.routes = new ArrayList<String>(1);
+		this.dirTags = new ArrayList<String>(2);
 		this.routeKeysToTitles = routeKeysToTitles;
 	}
 	
@@ -64,6 +67,11 @@ public class StopLocation implements Location, CanBeSerialized
 				routes.add(routeName);
 			}
 		}
+	}
+	
+	public void addDirTag(String dirTag)
+	{
+		dirTags.add(dirTag);
 	}
 	
 	@Override
@@ -238,6 +246,7 @@ public class StopLocation implements Location, CanBeSerialized
 		dest.writeString(title);
 		
 		dest.writeStrings(routes);
+		dest.writeStrings(dirTags);
 	}
 
 	
@@ -253,6 +262,7 @@ public class StopLocation implements Location, CanBeSerialized
 
 		title = source.readString();
 		routes = source.readStrings();
+		dirTags = source.readStrings();
 		this.routeKeysToTitles = routeKeysToTitles;
 		this.busStop = busStop;
 	}
@@ -297,5 +307,4 @@ public class StopLocation implements Location, CanBeSerialized
 	public String getFirstRoute() {
 		return routes.get(0);
 	}
-
 }

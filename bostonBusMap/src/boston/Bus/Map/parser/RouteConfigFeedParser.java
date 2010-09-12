@@ -34,12 +34,20 @@ public class RouteConfigFeedParser extends DefaultHandler
 	private final HashMap<String, RouteConfig> map = new HashMap<String, RouteConfig>();
 	private final Directions directions;
 	private final HashMap<String, String> routeKeysToTitles;
+	private final RouteConfig oldRouteConfig;
 	
-	public RouteConfigFeedParser(Drawable busStop, Directions directions, HashMap<String, String> routeKeysToTitles)
+	public RouteConfigFeedParser(Drawable busStop, Directions directions, HashMap<String, String> routeKeysToTitles,
+			RouteConfig oldRouteConfig)
 	{
 		this.busStop = busStop;
 		this.directions = directions;
 		this.routeKeysToTitles = routeKeysToTitles;
+		this.oldRouteConfig = oldRouteConfig;
+		
+		if (oldRouteConfig != null)
+		{
+			allStops.putAll(oldRouteConfig.getStopMapping());
+		}
 	}
 
 	public void runParse(InputStream inputStream)  throws ParserConfigurationException, SAXException, IOException
@@ -112,7 +120,7 @@ public class RouteConfigFeedParser extends DefaultHandler
 
 					currentRouteConfig.addStop(tag, stopLocation);
 					stopLocation.addRoute(currentRouteConfig);
-
+					stopLocation.addDirTag(attributes.getValue(dirTagKey));
 				}
 				else
 				{
@@ -194,9 +202,6 @@ public class RouteConfigFeedParser extends DefaultHandler
 		}
 		
 	}
-	
-	
-	
 	
 	public void fillMapping(HashMap<String, RouteConfig> stopMapping) {
 		for (String route : map.keySet())

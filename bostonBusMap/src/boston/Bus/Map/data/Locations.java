@@ -157,7 +157,8 @@ public final class Locations
 			
 			GZIPInputStream stream = new GZIPInputStream(in); 
 			
-			RouteConfigFeedParser parser = new RouteConfigFeedParser(busStop, directions, routeKeysToTitles);
+			RouteConfigFeedParser parser = new RouteConfigFeedParser(busStop, directions, routeKeysToTitles,
+					null);
 			
 			parser.runParse(stream);
 			
@@ -190,7 +191,7 @@ public final class Locations
 
 					//just initialize the route and then end for this round
 					InputStream stream = downloadStream(url, task, prepend, null);
-					RouteConfigFeedParser parser = new RouteConfigFeedParser(busStop, directions, routeKeysToTitles);
+					RouteConfigFeedParser parser = new RouteConfigFeedParser(busStop, directions, routeKeysToTitles, null);
 
 					parser.runParse(stream);
 
@@ -251,7 +252,7 @@ public final class Locations
 			{
 				//populate route overlay (just in case we didn't already)
 				updateAsyncTask.publish("Downloading data for route " + routeToUpdate + "...");
-				populateStops(routeToUpdate);
+				populateStops(routeToUpdate, routeConfig);
 				updateAsyncTask.publish("Finished download");
 				
 				return;
@@ -261,7 +262,7 @@ public final class Locations
 		{
 			//populate route overlay (just in case we didn't already)
 			updateAsyncTask.publish("Downloading data for route " + routeToUpdate + "...");
-			populateStops(routeToUpdate);
+			populateStops(routeToUpdate, routeConfig);
 			updateAsyncTask.publish("Finished download");
 			return;
 		}
@@ -358,7 +359,7 @@ public final class Locations
 		}
 	}
 
-	private void populateStops(String routeToUpdate) 
+	private void populateStops(String routeToUpdate, RouteConfig oldRouteConfig) 
 		throws IOException, ParserConfigurationException, SAXException
 	{
 		final String urlString = TransitSystem.getRouteConfigUrl(routeToUpdate);
@@ -368,7 +369,7 @@ public final class Locations
 		downloadHelper.connect();
 		//just initialize the route and then end for this round
 		
-		RouteConfigFeedParser parser = new RouteConfigFeedParser(busStop, directions, routeKeysToTitles);
+		RouteConfigFeedParser parser = new RouteConfigFeedParser(busStop, directions, routeKeysToTitles, oldRouteConfig);
 
 		parser.runParse(downloadHelper.getResponseData()); 
 
