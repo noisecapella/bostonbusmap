@@ -82,6 +82,8 @@ public class BusLocation implements Location
 	private final Drawable arrow;
 	
 	private final String routeTitle;
+	private String snippet;
+	private String snippetTitle;
 	
 	private static final int LOCATIONTYPE = 1;
 	
@@ -216,8 +218,21 @@ public class BusLocation implements Location
 		}
 	}
 
+	/**
+	 * NOTE: Buses are pretty much never in the exact same place, so I'll take the lazy way out of this
+	 */
 	@Override
-	public String makeSnippet(RouteConfig routeConfig)
+	public void addToSnippetAndTitle(RouteConfig routeConfig, Location location) {
+		//ignore
+	}
+	
+	@Override
+	public void makeSnippetAndTitle(RouteConfig routeConfig) {
+		snippet = makeSnippet(routeConfig);
+		snippetTitle = makeTitle();
+	}
+	
+	private String makeSnippet(RouteConfig routeConfig)
 	{
 		String snippet = "";
     	snippet += "Bus number: " + id;
@@ -247,7 +262,7 @@ public class BusLocation implements Location
     	return snippet;
 	}
 	
-	public String makeTitle() {
+	private String makeTitle() {
 		String title = "";
     	title += "Route ";
     	if (routeTitle == null)

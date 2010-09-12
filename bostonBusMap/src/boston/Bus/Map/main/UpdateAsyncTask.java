@@ -22,6 +22,8 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 
 import javax.xml.parsers.FactoryConfigurationError;
@@ -36,6 +38,7 @@ import boston.Bus.Map.data.Location;
 import boston.Bus.Map.data.Locations;
 import boston.Bus.Map.data.Path;
 import boston.Bus.Map.data.RouteConfig;
+import boston.Bus.Map.data.StopLocation;
 import boston.Bus.Map.database.DatabaseHelper;
 import boston.Bus.Map.ui.BusOverlay;
 import boston.Bus.Map.ui.LocationOverlay;
@@ -321,7 +324,6 @@ public class UpdateAsyncTask extends AsyncTask<Object, String, Locations>
 		Log.v("BostonBusMap", "selectedBusId is " + selectedBusId);
 		
 		busOverlay.setDrawHighlightCircle(drawCircle);
-		busOverlay.setBusLocations(busLocations);
 		
 		routeOverlay.setDrawLine(showRouteLine);
 		//routeOverlay.setDrawCoarseLine(showCoarseRouteLine);
@@ -363,20 +365,36 @@ public class UpdateAsyncTask extends AsyncTask<Object, String, Locations>
 
     	busOverlay.doPopulate();
     	
+    	//point hash to index in busLocations
+    	HashMap<Integer, Integer> points = new HashMap<Integer, Integer>();
+    	
     	//draw the buses on the map
         for (Location busLocation : busLocations)
         {
-        	GeoPoint point = new GeoPoint((int)(busLocation.getLatitudeAsDegrees() * Constants.E6),
-        			(int)(busLocation.getLongitudeAsDegrees() * Constants.E6));
+        	int latInt = (int)(busLocation.getLatitudeAsDegrees() * Constants.E6);
+        	int lonInt = (int)(busLocation.getLongitudeAsDegrees() * Constants.E6);
+        	GeoPoint point = new GeoPoint(latInt, lonInt);
+        			
+        	//make a hash to easily compare this location's position against others
+        	int hash = latInt ^ lonInt;
+        	Integer index = points.get(hash);
+        	if (null != index)
+        	{
+        		//two stops in one space. Just use the one overlay, and combine textboxes in an elegant manner
+        		busLocation.addToSnippetAndTitle(selectedRoute, busLocations.get(points.get(hash)));
+        	}
+        	else
+        	{
+        		busLocation.makeSnippetAndTitle(selectedRoute);
         	
-        	String title = busLocation.makeTitle();
-        	String snippet = busLocation.makeSnippet(selectedRoute);
         	
-        	//int isFavorite = busLocation.getIsFavorite();
-        	
-        	//the title is displayed when someone taps on the icon
-        	OverlayItem overlay = new OverlayItem(point, title, snippet);
-        	busOverlay.addOverlay(overlay);
+        		points.put(hash, busOverlay.size());
+
+        		//the title is displayed when someone taps on the icon
+        		OverlayItem overlay = new OverlayItem(point, null, null);
+        		busOverlay.addOverlay(overlay);
+        		busOverlay.addLocation(busLocation);
+        	}
         }
 
         busOverlay.setSelectedBusId(selectedBusId);

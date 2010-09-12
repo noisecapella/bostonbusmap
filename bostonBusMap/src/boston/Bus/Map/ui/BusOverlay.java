@@ -186,10 +186,9 @@ public class BusOverlay extends BalloonItemizedOverlay<OverlayItem> {
 		drawHighlightCircle = b;
 	}
 	
-	public void setBusLocations(List<Location> busLocations)
+	public void addLocation(Location location)
 	{
-		locations.clear();
-		locations.addAll(busLocations);
+		locations.add(location);
 	}
 	
 	@Override

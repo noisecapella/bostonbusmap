@@ -42,6 +42,11 @@ public class StopLocation implements Location, CanBeSerialized
 	
 	private final ArrayList<String> dirTags;
 	
+	private String snippetTitle;
+	private String snippetStop;
+	private String snippetRoutes;
+	private String snippetPredictions;
+	
 	private static final int LOCATIONTYPE = 3; 
 	
 	public StopLocation(float latitudeAsDegrees, float longitudeAsDegrees,
@@ -112,11 +117,10 @@ public class StopLocation implements Location, CanBeSerialized
 	}
 
 	@Override
-	public String makeTitle() {
-		String ret = title;
-
-		ret += "\nStop: " + tag + ", Routes: ";
-
+	public void makeSnippetAndTitle(RouteConfig routeConfig) {
+		
+		snippetRoutes = "";
+		
 		//java doesn't have a join function? seriously?
 		int index = 0;
 		synchronized (routes)
@@ -124,23 +128,43 @@ public class StopLocation implements Location, CanBeSerialized
 			Collections.sort(routes);
 			for (String route : routes)
 			{
-				ret += routeKeysToTitles.get(route);
+				snippetRoutes += routeKeysToTitles.get(route);
 
 				if (index != routes.size() - 1)
 				{
-					ret += ", ";
+					snippetRoutes += ", ";
 				}
 
 				index++;
 			}
 		}
 		
+		snippetTitle = title;
+		snippetStop = tag;
 		
-		return ret;
+		snippetPredictions = makeSnippet(routeConfig, predictions);
 	}
-
+	
 	@Override
-	public String makeSnippet(RouteConfig routeConfig) {
+	public void addToSnippetAndTitle(RouteConfig routeConfig, Location location) {
+		StopLocation stopLocation = (StopLocation)location;
+		
+		snippetStop += ", " + stopLocation.tag;
+		
+		ArrayList<Prediction> combinedPredictions = new ArrayList<Prediction>();
+		if (predictions != null)
+		{
+			combinedPredictions.addAll(predictions);
+		}
+		if (stopLocation.predictions != null)
+		{
+			combinedPredictions.addAll(stopLocation.predictions);
+		}
+		
+		snippetPredictions = makeSnippet(routeConfig, predictions);
+	}
+	
+	private String makeSnippet(RouteConfig routeConfig, ArrayList<Prediction> predictions) {
 		String ret = "";
 		
 		if (predictions == null)
