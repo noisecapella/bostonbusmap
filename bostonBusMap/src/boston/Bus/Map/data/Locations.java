@@ -613,15 +613,28 @@ public final class Locations
 	public int toggleFavorite(StopLocation location)
 	{
 		Collection<StopLocation> sharedSnippetStops = location.getSharedSnippetStops();
+
+		//isFavorite will be true if any of the individual stops are favorited
+		boolean isFavorite = routeMapping.isFavorite(location);
 		if (sharedSnippetStops != null)
 		{
-			synchronized (sharedSnippetStops) {
+			synchronized (sharedSnippetStops)
+			{
 				for (StopLocation stopLocation : sharedSnippetStops)
 				{
-					routeMapping.toggleFavorite(stopLocation);
+					if (routeMapping.isFavorite(stopLocation))
+					{
+						isFavorite = true;
+					}
+				}
+				
+				//ok, now start setting favorite statuses
+				for (StopLocation stopLocation : sharedSnippetStops)
+				{
+					routeMapping.setFavorite(stopLocation, !isFavorite);
 				}
 			}
 		}
-		return routeMapping.toggleFavorite(location);
+		return routeMapping.setFavorite(location, !isFavorite);
 	}
 }

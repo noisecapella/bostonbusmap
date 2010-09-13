@@ -241,10 +241,14 @@ public class RoutePool {
 		return ret.toArray(new StopLocation[0]);
 	}
 
-	public int toggleFavorite(StopLocation location) {
+	public boolean isFavorite(StopLocation location)
+	{
+		return favoriteStops.containsKey(location);
+	}
+	
+	public int setFavorite(StopLocation location, boolean isFavorite) {
 		String stopTag = location.getStopTag();
-		String route = favoriteStops.get(stopTag);
-		if (favoriteStops.containsKey(stopTag))
+		if (isFavorite)
 		{
 			boolean result = helper.saveFavorite(stopTag, location.getFirstRoute(), false);
 			if (result == false)
