@@ -46,6 +46,10 @@ public class StopLocation implements Location, CanBeSerialized
 	private String snippetStop;
 	private String snippetRoutes;
 	private String snippetPredictions;
+	/**
+	 * Other stops which are temporarily using the same overlay
+	 */
+	private ArrayList<StopLocation> sharedSnippetStops;
 	
 	private static final int LOCATIONTYPE = 3; 
 	
@@ -127,6 +131,7 @@ public class StopLocation implements Location, CanBeSerialized
 		snippetStop = tag;
 		
 		snippetPredictions = makeSnippet(routeConfig, predictions);
+		sharedSnippetStops = null;
 	}
 	
 	private String makeSnippetRoutes(Collection<String> routes) {
@@ -138,11 +143,11 @@ public class StopLocation implements Location, CanBeSerialized
 		{
 			for (String route : routes)
 			{
-				snippetRoutes += routeKeysToTitles.get(route);
+				ret += routeKeysToTitles.get(route);
 
 				if (index != routes.size() - 1)
 				{
-					snippetRoutes += ", ";
+					ret += ", ";
 				}
 
 				index++;
@@ -155,6 +160,13 @@ public class StopLocation implements Location, CanBeSerialized
 	@Override
 	public void addToSnippetAndTitle(RouteConfig routeConfig, Location location) {
 		StopLocation stopLocation = (StopLocation)location;
+		
+		if (sharedSnippetStops == null)
+		{
+			sharedSnippetStops = new ArrayList<StopLocation>();
+		}
+		
+		sharedSnippetStops.add(stopLocation);
 		
 		snippetStop += ", " + stopLocation.tag;
 		
@@ -185,7 +197,7 @@ public class StopLocation implements Location, CanBeSerialized
 	public String getSnippetTitle() {
 		String ret = snippetTitle;
 		ret += "\n" + "Stop: " + snippetStop;
-		ret += ", Routes: " + snippetRoutes;
+		ret += "; Routes: " + snippetRoutes;
 		return ret;
 	}
 	
@@ -355,5 +367,13 @@ public class StopLocation implements Location, CanBeSerialized
 
 	public String getFirstRoute() {
 		return routes.get(0);
+	}
+
+	/**
+	 * Temporary collection of StopLocations that share the same overlay item
+	 * @return
+	 */
+	public Collection<StopLocation> getSharedSnippetStops() {
+		return sharedSnippetStops;
 	}
 }
