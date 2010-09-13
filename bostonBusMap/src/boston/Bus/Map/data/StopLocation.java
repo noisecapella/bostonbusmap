@@ -342,7 +342,7 @@ public class StopLocation implements Location, CanBeSerialized
 		dest.writeString(title);
 		
 		dest.writeStrings(routes);
-		dest.writeStrings(dirTags);
+		//dest.writeStrings(dirTags);
 	}
 
 	
@@ -358,7 +358,8 @@ public class StopLocation implements Location, CanBeSerialized
 
 		title = source.readString();
 		routes = source.readStrings();
-		dirTags = source.readStrings();
+		dirTags = new ArrayList<String>(0);
+		//dirTags = source.readStrings();
 		this.routeKeysToTitles = routeKeysToTitles;
 		this.busStop = busStop;
 	}
