@@ -90,13 +90,13 @@ public class BalloonOverlayView extends FrameLayout {
 	public void setData(OverlayItem item, String titleText, String snippetText) {
 		
 		layout.setVisibility(VISIBLE);
-		if (item.getTitle() != null) {
+		if (titleText != null) {
 			title.setVisibility(VISIBLE);
 			title.setText(titleText);
 		} else {
 			title.setVisibility(GONE);
 		}
-		if (item.getSnippet() != null) {
+		if (snippetText != null) {
 			snippet.setVisibility(VISIBLE);
 			snippet.setText(snippetText);
 		} else {

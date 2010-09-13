@@ -118,14 +118,24 @@ public class StopLocation implements Location, CanBeSerialized
 
 	@Override
 	public void makeSnippetAndTitle(RouteConfig routeConfig) {
+		synchronized(routes)
+		{
+			Collections.sort(routes);
+		}
+		snippetRoutes = makeSnippetRoutes(routes);		
+		snippetTitle = title;
+		snippetStop = tag;
 		
-		snippetRoutes = "";
+		snippetPredictions = makeSnippet(routeConfig, predictions);
+	}
+	
+	private String makeSnippetRoutes(Collection<String> routes) {
+		String ret = "";
 		
 		//java doesn't have a join function? seriously?
 		int index = 0;
 		synchronized (routes)
 		{
-			Collections.sort(routes);
 			for (String route : routes)
 			{
 				snippetRoutes += routeKeysToTitles.get(route);
@@ -139,17 +149,19 @@ public class StopLocation implements Location, CanBeSerialized
 			}
 		}
 		
-		snippetTitle = title;
-		snippetStop = tag;
-		
-		snippetPredictions = makeSnippet(routeConfig, predictions);
+		return ret;
 	}
-	
+
 	@Override
 	public void addToSnippetAndTitle(RouteConfig routeConfig, Location location) {
 		StopLocation stopLocation = (StopLocation)location;
 		
 		snippetStop += ", " + stopLocation.tag;
+		
+		TreeSet<String> combinedTitles = new TreeSet<String>();
+		combinedTitles.addAll(routes);
+		combinedTitles.addAll(stopLocation.getRoutes());
+		snippetRoutes = makeSnippetRoutes(combinedTitles);
 		
 		ArrayList<Prediction> combinedPredictions = new ArrayList<Prediction>();
 		if (predictions != null)
