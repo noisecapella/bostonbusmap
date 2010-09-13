@@ -381,7 +381,7 @@ public class UpdateAsyncTask extends AsyncTask<Object, String, Locations>
         	if (null != index)
         	{
         		//two stops in one space. Just use the one overlay, and combine textboxes in an elegant manner
-        		busLocation.addToSnippetAndTitle(selectedRoute, busLocations.get(points.get(hash)));
+        		busLocations.get(index).addToSnippetAndTitle(selectedRoute, busLocation);
         	}
         	else
         	{
@@ -392,8 +392,8 @@ public class UpdateAsyncTask extends AsyncTask<Object, String, Locations>
 
         		//the title is displayed when someone taps on the icon
         		OverlayItem overlay = new OverlayItem(point, null, null);
-        		busOverlay.addOverlay(overlay);
         		busOverlay.addLocation(busLocation);
+        		busOverlay.addOverlay(overlay);
         	}
         }
 

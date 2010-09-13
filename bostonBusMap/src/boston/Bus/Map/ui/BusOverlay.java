@@ -238,6 +238,7 @@ public class BusOverlay extends BalloonItemizedOverlay<OverlayItem> {
 
 	public void clear() {
 		overlays.clear();
+		locations.clear();
 		
 		setFocus(null);
 		setLastFocusedIndex(-1);
