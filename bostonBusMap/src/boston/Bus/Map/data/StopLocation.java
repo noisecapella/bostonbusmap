@@ -166,28 +166,63 @@ public class StopLocation implements Location, CanBeSerialized
 			sharedSnippetStops = new ArrayList<StopLocation>();
 		}
 		
+		
+		
 		sharedSnippetStops.add(stopLocation);
+		
+		TreeSet<String> combinedTitles = new TreeSet<String>();
+		combinedTitles.add(title);
+		for (StopLocation s : sharedSnippetStops)
+		{
+			combinedTitles.add(s.getTitle());
+		}
+		
+		snippetTitle = makeSnippetTitle(combinedTitles);
 		
 		snippetStop += ", " + stopLocation.tag;
 		
-		TreeSet<String> combinedTitles = new TreeSet<String>();
-		combinedTitles.addAll(routes);
-		combinedTitles.addAll(stopLocation.getRoutes());
-		snippetRoutes = makeSnippetRoutes(combinedTitles);
+		TreeSet<String> combinedRoutes = new TreeSet<String>();
+		combinedRoutes.addAll(routes);
+		for (StopLocation s : sharedSnippetStops)
+		{
+			combinedRoutes.addAll(s.getRoutes());
+		}
+		snippetRoutes = makeSnippetRoutes(combinedRoutes);
 		
 		ArrayList<Prediction> combinedPredictions = new ArrayList<Prediction>();
 		if (predictions != null)
 		{
 			combinedPredictions.addAll(predictions);
 		}
-		if (stopLocation.predictions != null)
+		for (StopLocation s : sharedSnippetStops)
 		{
-			combinedPredictions.addAll(stopLocation.predictions);
+			if (s.predictions != null)
+			{
+				ArrayList<Prediction> predictions = s.predictions;
+				combinedPredictions.addAll(predictions);
+			}
 		}
 		
-		snippetPredictions = makeSnippet(routeConfig, predictions);
+		snippetPredictions = makeSnippet(routeConfig, combinedPredictions);
 	}
 	
+	private String makeSnippetTitle(Collection<String> combinedTitles) {
+		String ret = "";
+		boolean first = true;
+		for (String title : combinedTitles)
+		{
+			if (first == false)
+			{
+				ret += "\n";
+			}
+			
+			ret += title;
+			
+			first = false;
+		}
+		return ret;
+	}
+
 	@Override
 	public String getSnippet() {
 		return snippetPredictions;
