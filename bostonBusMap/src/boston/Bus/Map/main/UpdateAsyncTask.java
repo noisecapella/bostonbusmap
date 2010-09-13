@@ -366,17 +366,20 @@ public class UpdateAsyncTask extends AsyncTask<Object, String, Locations>
     	busOverlay.doPopulate();
     	
     	//point hash to index in busLocations
-    	HashMap<Integer, Integer> points = new HashMap<Integer, Integer>();
+    	HashMap<Long, Integer> points = new HashMap<Long, Integer>();
     	
+    	ArrayList<GeoPoint> geoPointsToAdd = new ArrayList<GeoPoint>();
     	//draw the buses on the map
-        for (Location busLocation : busLocations)
+        for (int i = 0; i < busLocations.size(); i++)
         {
+        	Location busLocation = busLocations.get(i);
+        	
         	int latInt = (int)(busLocation.getLatitudeAsDegrees() * Constants.E6);
         	int lonInt = (int)(busLocation.getLongitudeAsDegrees() * Constants.E6);
         	GeoPoint point = new GeoPoint(latInt, lonInt);
         			
         	//make a hash to easily compare this location's position against others
-        	int hash = latInt ^ lonInt;
+        	long hash = (long)((long)latInt << 32) | (long)lonInt;
         	Integer index = points.get(hash);
         	if (null != index)
         	{
@@ -388,14 +391,14 @@ public class UpdateAsyncTask extends AsyncTask<Object, String, Locations>
         		busLocation.makeSnippetAndTitle(selectedRoute);
         	
         	
-        		points.put(hash, busOverlay.size());
+        		points.put(hash, i);
 
         		//the title is displayed when someone taps on the icon
-        		OverlayItem overlay = new OverlayItem(point, null, null);
         		busOverlay.addLocation(busLocation);
-        		busOverlay.addOverlay(overlay);
+        		geoPointsToAdd.add(point);
         	}
         }
+        busOverlay.addOverlaysFromLocations(geoPointsToAdd);
 
         busOverlay.setSelectedBusId(selectedBusId);
         busOverlay.refreshBalloons();

@@ -243,12 +243,12 @@ public class RoutePool {
 
 	public boolean isFavorite(StopLocation location)
 	{
-		return favoriteStops.containsKey(location);
+		return favoriteStops.containsKey(location.getStopTag());
 	}
 	
 	public int setFavorite(StopLocation location, boolean isFavorite) {
 		String stopTag = location.getStopTag();
-		if (isFavorite)
+		if (isFavorite == false)
 		{
 			boolean result = helper.saveFavorite(stopTag, location.getFirstRoute(), false);
 			if (result == false)

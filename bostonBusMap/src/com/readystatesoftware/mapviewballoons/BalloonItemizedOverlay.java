@@ -89,7 +89,8 @@ public abstract class BalloonItemizedOverlay<Item> extends ItemizedOverlay<Overl
 		return false;
 	}
 
-	protected final boolean onTap(int index, String title, String snippet) {
+	@Override
+	protected final boolean onTap(int index) {
 		
 		boolean isRecycled;
 		final int thisIndex;
@@ -116,7 +117,7 @@ public abstract class BalloonItemizedOverlay<Item> extends ItemizedOverlay<Overl
 		}
 		
 		
-		balloonView.setData(createItem(index), title, snippet);
+		balloonView.setData(createItem(index));
 		
 		MapView.LayoutParams params = new MapView.LayoutParams(
 				LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT, point,

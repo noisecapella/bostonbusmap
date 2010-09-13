@@ -20,6 +20,7 @@ package boston.Bus.Map.ui;
 
 import java.security.acl.LastOwnerException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 
@@ -222,13 +223,20 @@ public class BusOverlay extends BalloonItemizedOverlay<OverlayItem> {
 		return overlays.size();
 	}
 	
-	public void addOverlay(OverlayItem item)
+	private void addOverlay(OverlayItem item)
 	{
 		overlays.add(item);
 		
 		populate();
 	}
 
+	public void addOverlays(Collection<OverlayItem> overlayItems)
+	{
+		overlays.addAll(overlayItems);
+		
+		populate();
+	}
+	
 	@Override
 	protected com.google.android.maps.OverlayItem createItem(int i)
 	{
@@ -403,16 +411,16 @@ public class BusOverlay extends BalloonItemizedOverlay<OverlayItem> {
 		}
 		return R.drawable.empty_star;
 	}
-	
-	
-	@Override
-	protected boolean onTap(int index) {
-		Location location = locations.get(index);
-		
-		String title = location.getSnippetTitle();
-		String snippet = location.getSnippet();
-		
-		
-		return onTap(index, title, snippet);
+
+
+	public void addOverlaysFromLocations(ArrayList<GeoPoint> points) {
+		for (int i = 0; i < locations.size(); i++)
+		{
+			Location location = locations.get(i);
+			String titleText = location.getSnippetTitle();
+			String snippetText = location.getSnippet();
+			OverlayItem overlayItem = new OverlayItem(points.get(i),titleText, snippetText);
+			addOverlay(overlayItem);
+		}
 	}
 }
