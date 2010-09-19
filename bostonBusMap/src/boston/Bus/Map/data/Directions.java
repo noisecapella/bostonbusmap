@@ -34,10 +34,6 @@ public class Directions {
 	
 	private Integer getIndex(String dirTag)
 	{
-		if (dirTag == null)
-		{
-			return null;
-		}
 		Integer i = indexes.get(dirTag);
 		if (i == null)
 		{
@@ -86,6 +82,11 @@ public class Directions {
 	}
 
 	public String getTitleAndName(String dirTag) {
+		if (dirTag == null)
+		{
+			return null;
+		}
+		
 		Integer i = getIndex(dirTag);
 		if (i == null)
 		{

@@ -8,6 +8,7 @@ import java.util.HashMap;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
+import boston.Bus.Map.transit.TransitSystem;
 import boston.Bus.Map.util.Box;
 import boston.Bus.Map.util.CanBeSerialized;
 
@@ -46,10 +47,6 @@ public class RouteConfig implements CanBeSerialized
 		return stops.values();
 	}
 
-	public HashMap<String, StopLocation> getStopMapping()
-	{
-		return stops;
-	}
 
 	public String getRouteName() {
 		return route;
@@ -79,5 +76,11 @@ public class RouteConfig implements CanBeSerialized
 		route = source.readString();
 		stops = source.readStopsMap(this, busStop, routeKeysToTitles);
 		paths = source.readPathsList();
+	}
+
+
+
+	public boolean isSubway() {
+		return TransitSystem.isSubway(route);
 	}
 }

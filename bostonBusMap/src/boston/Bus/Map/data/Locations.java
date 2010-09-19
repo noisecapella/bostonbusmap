@@ -24,7 +24,6 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -52,6 +51,8 @@ import boston.Bus.Map.main.Main;
 import boston.Bus.Map.main.UpdateAsyncTask;
 import boston.Bus.Map.parser.BusPredictionsFeedParser;
 import boston.Bus.Map.parser.RouteConfigFeedParser;
+import boston.Bus.Map.parser.SubwayPredictionsFeedParser;
+import boston.Bus.Map.parser.SubwayRouteConfigFeedParser;
 import boston.Bus.Map.parser.VehicleLocationsFeedParser;
 import boston.Bus.Map.transit.TransitSystem;
 import boston.Bus.Map.util.DownloadHelper;
@@ -158,22 +159,29 @@ public final class Locations
 			
 			GZIPInputStream stream = new GZIPInputStream(in); 
 			
-			RouteConfigFeedParser parser = new RouteConfigFeedParser(busStop, directions, routeKeysToTitles,
-					null);
+			RouteConfigFeedParser parser = new RouteConfigFeedParser(busStop, directions, routeKeysToTitles);
 			
 			parser.runParse(stream);
 			
 			task.publish("Parsing route data...");
 
 			
-			HashMap<String, RouteConfig> map = new HashMap<String, RouteConfig>();
-
 			parser.writeToDatabase(routeMapping, true);
 			
-			routeMapping.fillInFavoritesRoutes();
+			//download subway data
+			final String subwayUrl = TransitSystem.getSubwayRouteConfigUrl();
+			URL url = new URL(subwayUrl);
+			in = downloadStream(url, task, prepend, "");
 			
-			map.clear();
-			//TODO: fill routeMapping somehow
+			SubwayRouteConfigFeedParser subwayParser = new SubwayRouteConfigFeedParser(busStop, routeKeysToTitles, directions);
+			
+			task.publish("Parsing route data...");
+			
+			subwayParser.runParse(in);
+			
+			subwayParser.writeToDatabase(routeMapping, false);
+			
+			routeMapping.fillInFavoritesRoutes();
 			
 			task.publish("Done!");
 		}
@@ -192,7 +200,7 @@ public final class Locations
 
 					//just initialize the route and then end for this round
 					InputStream stream = downloadStream(url, task, prepend, null);
-					RouteConfigFeedParser parser = new RouteConfigFeedParser(busStop, directions, routeKeysToTitles, null);
+					RouteConfigFeedParser parser = new RouteConfigFeedParser(busStop, directions, routeKeysToTitles);
 
 					parser.runParse(stream);
 
@@ -245,7 +253,11 @@ public final class Locations
 		RouteConfig routeConfig = routeMapping.get(routeToUpdate);
 		if (routeConfig != null)
 		{
-			if (routeConfig.getStops().size() != 0 && (showRoute == false || routeConfig.getPaths().size() != 0))
+			if (routeConfig.isSubway())
+			{
+				//no subway path info for now
+			}
+			else if (routeConfig.getStops().size() != 0 && (showRoute == false || routeConfig.getPaths().size() != 0))
 			{
 				//everything's ok
 			}
@@ -253,7 +265,7 @@ public final class Locations
 			{
 				//populate route overlay (just in case we didn't already)
 				updateAsyncTask.publish("Downloading data for route " + routeToUpdate + "...");
-				populateStops(routeToUpdate, routeConfig);
+				populateStops(routeToUpdate);
 				updateAsyncTask.publish("Finished download");
 				
 				return;
@@ -263,7 +275,7 @@ public final class Locations
 		{
 			//populate route overlay (just in case we didn't already)
 			updateAsyncTask.publish("Downloading data for route " + routeToUpdate + "...");
-			populateStops(routeToUpdate, routeConfig);
+			populateStops(routeToUpdate);
 			updateAsyncTask.publish("Finished download");
 			return;
 		}
@@ -316,11 +328,20 @@ public final class Locations
 				selectedBusPredictions == Main.BUS_PREDICTIONS_ALL ||
 				selectedBusPredictions == Main.BUS_PREDICTIONS_STAR)
 		{
-			//bus prediction
+			if (routeConfig.isSubway())
+			{
+				SubwayPredictionsFeedParser parser = new SubwayPredictionsFeedParser(routeMapping, directions);
+				
+				parser.runParse(data);
+			}
+			else
+			{
+				//bus prediction
 
-			BusPredictionsFeedParser parser = new BusPredictionsFeedParser(routeMapping, directions);
+				BusPredictionsFeedParser parser = new BusPredictionsFeedParser(routeMapping, directions);
 
-			parser.runParse(data);
+				parser.runParse(data);
+			}
 		}
 		else 
 		{
@@ -360,9 +381,14 @@ public final class Locations
 		}
 	}
 
-	private void populateStops(String routeToUpdate, RouteConfig oldRouteConfig) 
+	private void populateStops(String routeToUpdate) 
 		throws IOException, ParserConfigurationException, SAXException
 	{
+		if (TransitSystem.isSubway(routeToUpdate))
+		{
+			return;
+		}
+		
 		final String urlString = TransitSystem.getRouteConfigUrl(routeToUpdate);
 
 		DownloadHelper downloadHelper = new DownloadHelper(urlString);
@@ -370,7 +396,7 @@ public final class Locations
 		downloadHelper.connect();
 		//just initialize the route and then end for this round
 		
-		RouteConfigFeedParser parser = new RouteConfigFeedParser(busStop, directions, routeKeysToTitles, oldRouteConfig);
+		RouteConfigFeedParser parser = new RouteConfigFeedParser(busStop, directions, routeKeysToTitles);
 
 		parser.runParse(downloadHelper.getResponseData()); 
 
@@ -612,29 +638,6 @@ public final class Locations
 	
 	public int toggleFavorite(StopLocation location)
 	{
-		Collection<StopLocation> sharedSnippetStops = location.getSharedSnippetStops();
-
-		//isFavorite will be true if any of the individual stops are favorited
-		boolean isFavorite = routeMapping.isFavorite(location);
-		if (sharedSnippetStops != null)
-		{
-			synchronized (sharedSnippetStops)
-			{
-				for (StopLocation stopLocation : sharedSnippetStops)
-				{
-					if (routeMapping.isFavorite(stopLocation))
-					{
-						isFavorite = true;
-					}
-				}
-				
-				//ok, now start setting favorite statuses
-				for (StopLocation stopLocation : sharedSnippetStops)
-				{
-					routeMapping.setFavorite(stopLocation, !isFavorite);
-				}
-			}
-		}
-		return routeMapping.setFavorite(location, !isFavorite);
+		return routeMapping.toggleFavorite(location);
 	}
 }

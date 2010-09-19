@@ -54,6 +54,7 @@ public class TransitSystem {
 	private static final String mbtaRouteConfigDataUrlAllRoutes = "http://webservices.nextbus.com/service/publicXMLFeed?command=routeConfig&a=mbta";
 	
 	private static final String mbtaPredictionsDataUrl = "http://webservices.nextbus.com/service/publicXMLFeed?command=predictionsForMultiStops&a=mbta";
+	private static final String subwayPredictionsDataUrl = "http://developer.mbta.com/Data/";
 
 	
 	public static String getVehicleLocationsUrl(long time, String route)
@@ -87,22 +88,29 @@ public class TransitSystem {
 	
 	public static String getPredictionsUrl(List<Location> locations, int maxStops, String route)
 	{
-		StringBuilder urlString = new StringBuilder(mbtaPredictionsDataUrl);
-		
-		for (Location location : locations)
+		if (isSubway(route) && route != null)
 		{
-			if (location instanceof StopLocation)
-			{
-				StopLocation stopLocation = (StopLocation)location;
-				stopLocation.createPredictionsUrl(urlString, route);
-			}
+			return subwayPredictionsDataUrl + route + ".json";
 		}
-		
-		//TODO: hard limit this to 150 requests
-		
-		Log.v("BostonBusMap", "urlString for bus predictions, all: " + urlString);
-		
-		return urlString.toString();
+		else
+		{
+			StringBuilder urlString = new StringBuilder(mbtaPredictionsDataUrl);
+
+			for (Location location : locations)
+			{
+				if (location instanceof StopLocation)
+				{
+					StopLocation stopLocation = (StopLocation)location;
+					stopLocation.createPredictionsUrl(urlString, route);
+				}
+			}
+
+			//TODO: hard limit this to 150 requests
+
+			Log.v("BostonBusMap", "urlString for bus predictions, all: " + urlString);
+
+			return urlString.toString();
+		}
 	}
 	
 	
@@ -115,5 +123,26 @@ public class TransitSystem {
 			String routeName, String stopId) {
 		urlString.append("&stops=").append(routeName).append("%7C%7C").append(stopId);
 		
+	}
+
+	public static String getSubwayRouteConfigUrl() {
+		return "http://developer.mbta.com/RT_Archive/RealTimeHeavyRailKeys.csv";
+	}
+
+	public static boolean isSubway(String route) {
+		for (String subwayRoute : subwayRoutes)
+		{
+			if (subwayRoute.equals(route))
+			{
+				return true;
+			}
+		}
+		return false;
+	}
+
+	private static final String[] subwayRoutes = new String[] {"Red", "Orange", "Blue"};
+	
+	public static String[] getAllSubwayRoutes() {
+		return subwayRoutes;
 	}
 }
