@@ -53,6 +53,7 @@ import boston.Bus.Map.main.UpdateAsyncTask;
 import boston.Bus.Map.parser.BusPredictionsFeedParser;
 import boston.Bus.Map.parser.RouteConfigFeedParser;
 import boston.Bus.Map.parser.VehicleLocationsFeedParser;
+import boston.Bus.Map.transit.TransitSource;
 import boston.Bus.Map.transit.TransitSystem;
 import boston.Bus.Map.util.DownloadHelper;
 import boston.Bus.Map.util.FeedException;
@@ -364,18 +365,18 @@ public final class Locations
 	private void populateStops(String routeToUpdate, RouteConfig oldRouteConfig) 
 		throws IOException, ParserConfigurationException, SAXException
 	{
-		final String urlString = TransitSystem.getRouteConfigUrl(routeToUpdate);
-
-		DownloadHelper downloadHelper = new DownloadHelper(urlString);
 		
-		downloadHelper.connect();
-		//just initialize the route and then end for this round
+		TransitSource transitSource;
+		if (oldRouteConfig != null)
+		{
+			transitSource = oldRouteConfig.getTransitSource();
+		}
+		else
+		{
+			transitSource = TransitSystem.getTransitSource(routeToUpdate);
+		}
 		
-		RouteConfigFeedParser parser = new RouteConfigFeedParser(busStop, directions, routeKeysToTitles, oldRouteConfig);
-
-		parser.runParse(downloadHelper.getResponseData()); 
-
-		parser.writeToDatabase(routeMapping, false);
+		transitSource.populateStops(routeMapping, routeToUpdate, oldRouteConfig, directions, routeKeysToTitles);
 	}
 
 	/**

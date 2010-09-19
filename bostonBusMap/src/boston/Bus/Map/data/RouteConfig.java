@@ -26,7 +26,7 @@ public class RouteConfig implements CanBeSerialized
 	private final String color;
 	private final String oppositeColor;
 	
-	private final TransitSource transitAgency;
+	private final TransitSource transitSource;
 	
 	public RouteConfig(String route, String color, String oppositeColor, TransitSource transitAgency)
 	{
@@ -36,7 +36,7 @@ public class RouteConfig implements CanBeSerialized
 		
 		this.color = color;
 		this.oppositeColor = oppositeColor;
-		this.transitAgency = transitAgency;
+		this.transitSource = transitAgency;
 	}
 	
 	
@@ -100,7 +100,13 @@ public class RouteConfig implements CanBeSerialized
 		stops = source.readStopsMap(this, busStop, routeKeysToTitles);
 		paths = source.readPathsList();
 		
-		this.transitAgency = transitAgency;
+		this.transitSource = transitAgency;
 		
+	}
+
+
+
+	public TransitSource getTransitSource() {
+		return transitSource;
 	}
 }

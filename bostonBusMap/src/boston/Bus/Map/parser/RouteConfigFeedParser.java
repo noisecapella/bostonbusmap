@@ -50,6 +50,7 @@ public class RouteConfigFeedParser extends DefaultHandler
 		{
 			allStops.putAll(oldRouteConfig.getStopMapping());
 		}
+		transitSource = new MBTABusTransitSource(busStop);
 	}
 
 	public void runParse(InputStream inputStream)  throws ParserConfigurationException, SAXException, IOException
@@ -94,7 +95,7 @@ public class RouteConfigFeedParser extends DefaultHandler
 	private String currentRoute;
 	
 	private ArrayList<Float> currentPathPoints;
-	private final TransitSource mbtaBusTransitSource = new MBTABusTransitSource();
+	private final TransitSource transitSource;
 	
 	 
 	
@@ -156,7 +157,7 @@ public class RouteConfigFeedParser extends DefaultHandler
 			currentRoute = attributes.getValue(tagKey);
 			String color = attributes.getValue(colorKey);
 			String oppositeColor = attributes.getValue(oppositeColorKey);
-			currentRouteConfig = new RouteConfig(currentRoute, color, oppositeColor, mbtaBusTransitSource);
+			currentRouteConfig = new RouteConfig(currentRoute, color, oppositeColor, transitSource);
 			
 		}
 		else if (pathKey.equals(localName))

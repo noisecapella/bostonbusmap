@@ -1,8 +1,10 @@
 package boston.Bus.Map.transit;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
+import android.graphics.drawable.Drawable;
 import android.util.Log;
 import boston.Bus.Map.data.Location;
 import boston.Bus.Map.data.RouteConfig;
@@ -80,11 +82,6 @@ public class TransitSystem {
 		}
 	}
 	
-	public static String getRouteConfigUrl()
-	{
-		return getRouteConfigUrl(null);
-	}
-	
 	public static String getPredictionsUrl(List<Location> locations, int maxStops, String route)
 	{
 		StringBuilder urlString = new StringBuilder(mbtaPredictionsDataUrl);
@@ -117,7 +114,23 @@ public class TransitSystem {
 		
 	}
 
+	private final static HashMap<String, TransitSource> transitSources = new HashMap<String, TransitSource>();  
+	private static TransitSource defaultTransitSource;
+	
+	public static void addTransitSource(String route, TransitSource source)
+	{
+		transitSources.put(route, source);
+	}
+	
+	public static void setDefaultTransitSource(Drawable busStop)
+	{
+		if (defaultTransitSource == null)
+		{
+			defaultTransitSource = new MBTABusTransitSource(busStop);
+		}
+	}
+	
 	public static TransitSource getTransitSource(String routeToUpdate) {
-		return new MBTABusTransitSource();
+		return transitSources.get(routeToUpdate);
 	}
 }
