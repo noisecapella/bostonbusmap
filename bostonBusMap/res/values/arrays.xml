@@ -13,6 +13,10 @@
 
 	</integer-array>
 <string-array name="routeKeys">
+<item>Red</item>
+<item>Blue</item>
+<item>Orange</item>
+
 <item>741</item>
 <item>742</item>
 <item>746</item>
@@ -210,12 +214,11 @@
 <item>9701</item>
 <item>9702</item>
 <item>9703</item>
+</string-array>
+<string-array name="routeTitles">
 <item>Red</item>
 <item>Blue</item>
 <item>Orange</item>
-
-</string-array>
-<string-array name="routeTitles">
 <item>SL1</item>
 <item>SL2</item>
 <item>SL</item>
@@ -413,8 +416,5 @@
 <item>9701</item>
 <item>9702</item>
 <item>9703</item>
-<item>Red</item>
-<item>Blue</item>
-<item>Orange</item>
 </string-array>
 </resources>
