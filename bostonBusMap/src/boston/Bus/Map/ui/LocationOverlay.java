@@ -45,20 +45,21 @@ public class LocationOverlay extends MyLocationOverlay {
 
 	public void updateMapViewPosition() {
 		Log.v("BostonBusMap", "updateMapViewPosition");
-		if (handler != null)
-		{
-			Log.v("BostonBusMap", "inside handler in updateMapViewPosition");
-			runOnFirstFix(new Runnable() {
-				
-				@Override
-				public void run() {
-					Log.v("BostonBusMap", "inside updateMapViewPosition.run");
+		Log.v("BostonBusMap", "inside handler in updateMapViewPosition");
+		runOnFirstFix(new Runnable() {
 
-					mapView.getController().animateTo(getMyLocation());
-					LocationOverlay.this.handler.triggerUpdate(1500);
+			@Override
+			public void run() {
+				Log.v("BostonBusMap", "inside updateMapViewPosition.run");
+
+				mapView.getController().animateTo(getMyLocation());
+				UpdateHandler updateHandler = LocationOverlay.this.handler;
+				if (updateHandler != null)
+				{
+					updateHandler.triggerUpdate(1500);
 				}
-			});
-		}
+			}
+		});
 	}
 
 
