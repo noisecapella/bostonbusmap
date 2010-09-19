@@ -104,10 +104,6 @@ public class TransitSystem {
 	
 	
 
-	public static String getSizeOfRouteConfigUrl() {
-		return "7.5MB";
-	}
-
 	public static void bindPredictionElementsForUrl(StringBuilder urlString,
 			String routeName, String stopId) {
 		urlString.append("&stops=").append(routeName).append("%7C%7C").append(stopId);
@@ -122,15 +118,22 @@ public class TransitSystem {
 		transitSources.put(route, source);
 	}
 	
-	public static void setDefaultTransitSource(Drawable busStop)
+	public static void setDefaultTransitSource(Drawable busStop, Drawable bus, Drawable arrow)
 	{
 		if (defaultTransitSource == null)
 		{
-			defaultTransitSource = new MBTABusTransitSource(busStop);
+			defaultTransitSource = new MBTABusTransitSource(busStop, bus, arrow);
 		}
 	}
 	
 	public static TransitSource getTransitSource(String routeToUpdate) {
-		return transitSources.get(routeToUpdate);
+		if (null == routeToUpdate)
+		{
+			return defaultTransitSource;
+		}
+		else
+		{
+			return transitSources.get(routeToUpdate);
+		}
 	}
 }

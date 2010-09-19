@@ -130,7 +130,7 @@ public class UpdateAsyncTask extends AsyncTask<Object, String, Locations>
 	 * A type safe wrapper around execute
 	 * @param busLocations
 	 */
-	public void runUpdate(Locations locations, double centerLatitude, double centerLongitude, Context context)
+	public void runUpdate(Locations locations, float centerLatitude, float centerLongitude, Context context)
 	{
 		execute(locations, centerLatitude, centerLongitude, context);
 	}
@@ -138,7 +138,7 @@ public class UpdateAsyncTask extends AsyncTask<Object, String, Locations>
 	@Override
 	protected Locations doInBackground(Object... args) {
 		//number of bus pictures to draw. Too many will make things slow
-		return updateBusLocations((Locations)args[0], (Double)args[1], (Double)args[2], (Context)args[3]);
+		return updateBusLocations((Locations)args[0], (Float)args[1], (Float)args[2], (Context)args[3]);
 	}
 
 	@Override
@@ -151,7 +151,7 @@ public class UpdateAsyncTask extends AsyncTask<Object, String, Locations>
 		
 	}
 
-	public Locations updateBusLocations(Locations busLocations, double centerLatitude, double centerLongitude, Context context)
+	public Locations updateBusLocations(Locations busLocations, float centerLatitude, float centerLongitude, Context context)
 	{
 		Log.v("BostonBusMap", "in updateBusLocations, centerLatitude is " + centerLatitude);
 		if (doRefresh == false)
@@ -277,9 +277,9 @@ public class UpdateAsyncTask extends AsyncTask<Object, String, Locations>
 		}
 		
 		GeoPoint center = mapView.getMapCenter();
-		final double e6 = Constants.E6;
-		final double latitude = center.getLatitudeE6() / e6;
-		final double longitude = center.getLongitudeE6() / e6;
+		final float e6 = Constants.E6;
+		final float latitude = center.getLatitudeE6() / e6;
+		final float longitude = center.getLongitudeE6() / e6;
 		
 		
 		final Handler uiHandler = new Handler();
@@ -288,8 +288,8 @@ public class UpdateAsyncTask extends AsyncTask<Object, String, Locations>
 	}
 
 	
-	private void sortBuses(Locations busLocationsObject, final double latitude,
-			final double longitude, Handler uiHandler) {
+	private void sortBuses(Locations busLocationsObject, final float latitude,
+			final float longitude, Handler uiHandler) {
 		final ArrayList<Location> busLocations = new ArrayList<Location>();
 		
 		try
