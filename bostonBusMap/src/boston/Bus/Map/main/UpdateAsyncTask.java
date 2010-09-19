@@ -357,7 +357,7 @@ public class UpdateAsyncTask extends AsyncTask<Object, String, Locations>
 	private void displayIcons(BusOverlay busOverlay, RouteOverlay routeOverlay, LocationOverlay locationOverlay, ArrayList<Path> paths,
 			double latitude, double longitude, ArrayList<Location> busLocations, int selectedBusId, RouteConfig selectedRoute)
 	{
-		routeOverlay.setPaths(paths);
+		routeOverlay.setPathsAndColor(paths, selectedRoute.getColor());
 		
     	//we need to run populate even if there are 0 busLocations. See this link:
     	//http://groups.google.com/group/android-beginners/browse_thread/thread/6d75c084681f943e?pli=1

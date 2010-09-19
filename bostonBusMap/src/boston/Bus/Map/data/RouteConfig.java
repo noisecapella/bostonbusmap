@@ -72,6 +72,11 @@ public class RouteConfig implements CanBeSerialized
 		return paths;
 	}
 
+	public String getColor()
+	{
+		return color;
+	}
+	
 
 	@Override
 	public void serialize(Box dest) throws IOException {

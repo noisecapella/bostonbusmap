@@ -25,14 +25,6 @@ public class RouteOverlay extends Overlay
 	private final Projection projection;
 	private boolean showRouteLine;
 	
-	private static final int FINE_INCREMENT = 1;
-	private static final int COARSE_INCREMENT = 20;
-	
-	/**
-	 * Should we skip any points? (This can drastically slow down the app if we don't).
-	 */
-	private int increment = FINE_INCREMENT;
-	
 	private final Paint paint;
 	
 	public RouteOverlay(Projection projection)
@@ -53,15 +45,17 @@ public class RouteOverlay extends Overlay
 		paths.addAll(routeOverlay.paths);
 	}
 	
-	public void setPaths(ArrayList<Path> paths)
+	public void setPathsAndColor(ArrayList<Path> paths, String color)
 	{
+		if (null == color)
+		{
+			color = "0000ff";
+		}
+		
+		paint.setColor(Color.parseColor(color));
+		
 		this.paths.clear();
 		this.paths.addAll(paths);
-	}
-	
-	public void setIncrement(int i)
-	{
-		this.increment = i;
 	}
 	
 	@Override
@@ -77,14 +71,7 @@ public class RouteOverlay extends Overlay
 		{
 			int size = path.getPointsSize();
 			
-			if (size > 0)
-			{
-				floatCount += size / increment;
-				if (size % increment != 1 && increment != 1)
-				{
-					floatCount += 1;
-				}
-			}
+			floatCount += size;
 		}
 
 		//swap these two back and forth so we don't 
@@ -95,8 +82,6 @@ public class RouteOverlay extends Overlay
 		int floatIndex = 0;
 		
 		//make sure the JVM knows this doesn't change unexpectedly
-		final int increment = this.increment;
-		
 		for (Path path : paths)
 		{
 			int pointsSize = path.getPointsSize();
@@ -104,7 +89,7 @@ public class RouteOverlay extends Overlay
 			Point previousPoint = null;
 			
 			//skip over some points for efficiency's sake
-			for (int i = 0; i < pointsSize; i += increment)
+			for (int i = 0; i < pointsSize; i++)
 			{
 				
 				
@@ -137,28 +122,6 @@ public class RouteOverlay extends Overlay
 				
 				previousPoint = pixelPoint;
 			}
-			
-			if (pointsSize > 1 && increment != 1 && pointsSize % increment != 1)
-			{
-				//if we didn't already draw a line to the last point, make sure we do that to make things go together
-				Point pixelPoint = new Point();
-				
-				double pointLat = path.getPointLat(pointsSize - 1);
-				double pointLon = path.getPointLon(pointsSize - 1);
-				GeoPoint geoPoint = new GeoPoint((int)(pointLat * Constants.E6), (int)(pointLon * Constants.E6));
-				projection.toPixels(geoPoint, pixelPoint);
-				
-				if (previousPoint != null)
-				{
-					floats[floatIndex + 0] = (float)previousPoint.x;
-					floats[floatIndex + 1] = (float)previousPoint.y;
-					floats[floatIndex + 2] = (float)pixelPoint.x;
-					floats[floatIndex + 3] = (float)pixelPoint.y;
-
-					floatIndex += 4;
-				}
-			}
-
 		}
 		
 		//Log.v("BostonBusMap", "Number of floats in array drawn in RouteOverlay: " + floats.length);
