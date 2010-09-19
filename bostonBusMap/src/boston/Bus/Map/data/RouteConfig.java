@@ -41,12 +41,16 @@ public class RouteConfig implements CanBeSerialized
 		return stops.get(tag);
 	}
 
-		
+	public HashMap<String, StopLocation> getStopMapping()
+	{
+		return stops;
+	}
 	
 	public Collection<StopLocation> getStops() {
 		return stops.values();
 	}
 
+	
 
 	public String getRouteName() {
 		return route;
