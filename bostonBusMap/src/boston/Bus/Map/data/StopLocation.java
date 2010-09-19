@@ -339,10 +339,10 @@ public class StopLocation implements Location, CanBeSerialized
 		dest.writeFloat(longitude);
 		dest.writeString(tag);
 
-		dest.writeString(title);
+		dest.writeStringUnique(title);
 		
 		dest.writeStrings(routes);
-		//dest.writeStrings(dirTags);
+		dest.writeStrings(dirTags);
 	}
 
 	
@@ -356,10 +356,9 @@ public class StopLocation implements Location, CanBeSerialized
 
 		tag = source.readString();
 
-		title = source.readString();
+		title = source.readStringUnique();
 		routes = source.readStrings();
-		dirTags = new ArrayList<String>(0);
-		//dirTags = source.readStrings();
+		dirTags = source.readStrings();
 		this.routeKeysToTitles = routeKeysToTitles;
 		this.busStop = busStop;
 	}
