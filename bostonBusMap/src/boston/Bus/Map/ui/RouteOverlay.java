@@ -35,6 +35,7 @@ public class RouteOverlay extends Overlay
 		paint.setColor(Color.argb(0x99, 0x00, 0x00, 0xff));
 		paint.setStrokeWidth(5);
 		paint.setAntiAlias(true);
+		paint.setStrokeMiter(3);
 
 	}
 	
@@ -54,11 +55,11 @@ public class RouteOverlay extends Overlay
 	{
 		if (null == color)
 		{
-			color = "#0000FF";
+			color = "#990000FF";
 		}
 		else
 		{
-			color = "#" + color.toUpperCase();
+			color = "#99" + color.toUpperCase();
 		}
 		
 		paint.setColor(Color.parseColor(color));
