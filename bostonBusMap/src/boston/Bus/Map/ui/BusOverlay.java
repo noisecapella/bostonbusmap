@@ -273,11 +273,11 @@ public class BusOverlay extends BalloonItemizedOverlay<OverlayItem> {
 			
 		}
 		
-		if (selectedBusIndex != -1)
+		if (selectedBusIndex != NOT_SELECTED)
 		{
 			//make sure that selected buses are preserved during refreshes
 			setFocus(overlays.get(selectedBusIndex));
-			selectedBusIndex = -1;
+			selectedBusIndex = NOT_SELECTED;
 		}
 			
 		if (drawHighlightCircle && overlays.size() > 0)
@@ -330,16 +330,16 @@ public class BusOverlay extends BalloonItemizedOverlay<OverlayItem> {
 	public int getSelectedBusId() {
 		int selectedBusIndex = getLastFocusedIndex();
 		//Log.v("BostonBusMap", "getLastFocusedIndex() value is " + selectedBusIndex);
-		if (selectedBusIndex == -1)
+		if (selectedBusIndex == NOT_SELECTED)
 		{
-			return -1;
+			return NOT_SELECTED;
 		}
 		else
 		{
 			if (selectedBusIndex >= locations.size())
 			{
-				this.selectedBusIndex = -1;
-				return -1;
+				this.selectedBusIndex = NOT_SELECTED;
+				return NOT_SELECTED;
 			}
 			else
 			{
@@ -356,7 +356,7 @@ public class BusOverlay extends BalloonItemizedOverlay<OverlayItem> {
 	public void refreshBalloons() {
 		
 		//Log.i("REFRESHBALLOONS", selectedBusIndex + " ");
-		if (selectedBusIndex == -1)
+		if (selectedBusIndex == NOT_SELECTED)
 		{
 			hideBalloon();
 		}
@@ -368,8 +368,8 @@ public class BusOverlay extends BalloonItemizedOverlay<OverlayItem> {
 	
 	public void setSelectedBusId(int selectedBusId)
 	{
-		selectedBusIndex = -1;
-		if (selectedBusId != -1)
+		selectedBusIndex = NOT_SELECTED;
+		if (selectedBusId != NOT_SELECTED)
 		{
 			for (int i = 0; i < locations.size(); i++)
 			{
