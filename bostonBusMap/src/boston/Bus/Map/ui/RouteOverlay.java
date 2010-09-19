@@ -45,11 +45,20 @@ public class RouteOverlay extends Overlay
 		paths.addAll(routeOverlay.paths);
 	}
 	
+	/**
+	 * 
+	 * @param paths
+	 * @param color assumes something like "1234ef"
+	 */
 	public void setPathsAndColor(ArrayList<Path> paths, String color)
 	{
 		if (null == color)
 		{
-			color = "0000ff";
+			color = "#0000FF";
+		}
+		else
+		{
+			color = "#" + color.toUpperCase();
 		}
 		
 		paint.setColor(Color.parseColor(color));
