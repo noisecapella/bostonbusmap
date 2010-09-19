@@ -179,7 +179,7 @@ public final class Locations
 		}
 		else
 		{
-			if (routesThatNeedUpdating != null)
+			/*if (routesThatNeedUpdating != null)
 			{
 				//this code probably isn't executed right now
 				for (String route : routesThatNeedUpdating)
@@ -198,7 +198,8 @@ public final class Locations
 
 					parser.writeToDatabase(routeMapping, false);
 				}
-			}
+			}*/
+			//TODO: what happens here? I don't think this is ever executed
 		}
 	}
 	

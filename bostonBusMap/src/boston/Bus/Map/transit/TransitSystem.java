@@ -116,4 +116,8 @@ public class TransitSystem {
 		urlString.append("&stops=").append(routeName).append("%7C%7C").append(stopId);
 		
 	}
+
+	public static TransitSource getTransitSource(String routeToUpdate) {
+		return new MBTABusTransitSource();
+	}
 }

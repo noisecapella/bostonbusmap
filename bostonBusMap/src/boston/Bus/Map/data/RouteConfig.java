@@ -8,6 +8,7 @@ import java.util.HashMap;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
+import boston.Bus.Map.transit.TransitSource;
 import boston.Bus.Map.util.Box;
 import boston.Bus.Map.util.CanBeSerialized;
 
@@ -25,7 +26,9 @@ public class RouteConfig implements CanBeSerialized
 	private final String color;
 	private final String oppositeColor;
 	
-	public RouteConfig(String route, String color, String oppositeColor)
+	private final TransitSource transitAgency;
+	
+	public RouteConfig(String route, String color, String oppositeColor, TransitSource transitAgency)
 	{
 		this.route = route;
 		stops = new HashMap<String, StopLocation>();
@@ -33,6 +36,7 @@ public class RouteConfig implements CanBeSerialized
 		
 		this.color = color;
 		this.oppositeColor = oppositeColor;
+		this.transitAgency = transitAgency;
 	}
 	
 	
@@ -88,12 +92,15 @@ public class RouteConfig implements CanBeSerialized
 		dest.writePathsList(paths);
 	}
 
-	public RouteConfig(Box source, Drawable busStop, HashMap<String, String> routeKeysToTitles) throws IOException {
+	public RouteConfig(Box source, Drawable busStop, HashMap<String, String> routeKeysToTitles,
+			TransitSource transitAgency) throws IOException {
 		route = source.readString();
 		color = source.readStringUnique();
 		oppositeColor = source.readString();
 		stops = source.readStopsMap(this, busStop, routeKeysToTitles);
 		paths = source.readPathsList();
+		
+		this.transitAgency = transitAgency;
 		
 	}
 }

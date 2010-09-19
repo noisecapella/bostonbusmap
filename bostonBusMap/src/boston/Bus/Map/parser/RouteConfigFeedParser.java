@@ -24,6 +24,8 @@ import boston.Bus.Map.data.RouteConfig;
 import boston.Bus.Map.data.RoutePool;
 import boston.Bus.Map.data.StopLocation;
 import boston.Bus.Map.database.DatabaseHelper;
+import boston.Bus.Map.transit.MBTABusTransitSource;
+import boston.Bus.Map.transit.TransitSource;
 import boston.Bus.Map.util.FeedException;
 
 
@@ -92,6 +94,9 @@ public class RouteConfigFeedParser extends DefaultHandler
 	private String currentRoute;
 	
 	private ArrayList<Float> currentPathPoints;
+	private final TransitSource mbtaBusTransitSource = new MBTABusTransitSource();
+	
+	 
 	
 	@Override
 	public void startElement(String uri, String localName, String qName,
@@ -151,7 +156,7 @@ public class RouteConfigFeedParser extends DefaultHandler
 			currentRoute = attributes.getValue(tagKey);
 			String color = attributes.getValue(colorKey);
 			String oppositeColor = attributes.getValue(oppositeColorKey);
-			currentRouteConfig = new RouteConfig(currentRoute, color, oppositeColor);
+			currentRouteConfig = new RouteConfig(currentRoute, color, oppositeColor, mbtaBusTransitSource);
 			
 		}
 		else if (pathKey.equals(localName))
