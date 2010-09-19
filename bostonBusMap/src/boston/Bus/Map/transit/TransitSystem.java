@@ -133,7 +133,16 @@ public class TransitSystem {
 		}
 		else
 		{
-			return transitSources.get(routeToUpdate);
+			
+			TransitSource transitSource = transitSources.get(routeToUpdate);
+			if (transitSource == null)
+			{
+				return defaultTransitSource;
+			}
+			else
+			{
+				return transitSource;
+			}
 		}
 	}
 }
