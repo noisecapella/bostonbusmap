@@ -22,11 +22,17 @@ public class RouteConfig implements CanBeSerialized
 	private final ArrayList<Path> paths;
 	private final String route;
 	
-	public RouteConfig(String route)
+	private final String color;
+	private final String oppositeColor;
+	
+	public RouteConfig(String route, String color, String oppositeColor)
 	{
 		this.route = route;
 		stops = new HashMap<String, StopLocation>();
 		paths = new ArrayList<Path>();
+		
+		this.color = color;
+		this.oppositeColor = oppositeColor;
 	}
 	
 	
@@ -71,13 +77,18 @@ public class RouteConfig implements CanBeSerialized
 	public void serialize(Box dest) throws IOException {
 		
 		dest.writeString(route);
+		dest.writeStringUnique(color);
+		dest.writeString(oppositeColor);
 		dest.writeStopsMap(stops);
 		dest.writePathsList(paths);
 	}
 
 	public RouteConfig(Box source, Drawable busStop, HashMap<String, String> routeKeysToTitles) throws IOException {
 		route = source.readString();
+		color = source.readStringUnique();
+		oppositeColor = source.readString();
 		stops = source.readStopsMap(this, busStop, routeKeysToTitles);
 		paths = source.readPathsList();
+		
 	}
 }
