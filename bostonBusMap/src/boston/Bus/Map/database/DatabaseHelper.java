@@ -378,7 +378,8 @@ public class DatabaseHelper extends SQLiteOpenHelper
 				cursor.moveToFirst();
 				byte[] data = cursor.getBlob(0);
 				Box box = new Box(data, CURRENT_DB_VERSION, sharedStops);
-				RouteConfig routeConfig = new RouteConfig(box, busStop, routeKeysToTitles, TransitSystem.getTransitSource(routeToUpdate));
+				RouteConfig routeConfig = new RouteConfig(box, busStop, routeKeysToTitles,
+						TransitSystem.getTransitSource(routeToUpdate));
 				return routeConfig;
 			}
 		}
