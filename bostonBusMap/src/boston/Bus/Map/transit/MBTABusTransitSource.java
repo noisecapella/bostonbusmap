@@ -12,12 +12,14 @@ import org.apache.http.client.ClientProtocolException;
 import org.xml.sax.SAXException;
 
 import android.graphics.drawable.Drawable;
+import android.util.Log;
 import boston.Bus.Map.data.BusLocation;
 import boston.Bus.Map.data.Directions;
 import boston.Bus.Map.data.Location;
 import boston.Bus.Map.data.Locations;
 import boston.Bus.Map.data.RouteConfig;
 import boston.Bus.Map.data.RoutePool;
+import boston.Bus.Map.data.StopLocation;
 import boston.Bus.Map.main.Main;
 import boston.Bus.Map.parser.BusPredictionsFeedParser;
 import boston.Bus.Map.parser.RouteConfigFeedParser;
@@ -26,6 +28,18 @@ import boston.Bus.Map.util.DownloadHelper;
 
 public class MBTABusTransitSource implements TransitSource
 {
+	/**
+	 * The XML feed URL
+	 */
+	private static final String mbtaLocationsDataUrlOneRoute = "http://webservices.nextbus.com/service/publicXMLFeed?command=vehicleLocations&a=mbta&t=";
+
+	private static final String mbtaLocationsDataUrlAllRoutes = "http://webservices.nextbus.com/service/publicXMLFeed?command=vehicleLocations&a=mbta&t=";
+
+	private static final String mbtaRouteConfigDataUrl = "http://webservices.nextbus.com/service/publicXMLFeed?command=routeConfig&a=mbta&r=";
+	private static final String mbtaRouteConfigDataUrlAllRoutes = "http://webservices.nextbus.com/service/publicXMLFeed?command=routeConfig&a=mbta";
+	
+	private static final String mbtaPredictionsDataUrl = "http://webservices.nextbus.com/service/publicXMLFeed?command=predictionsForMultiStops&a=mbta";
+
 	private final Drawable busStop;
 	private final Drawable bus;
 	private final Drawable arrow;
@@ -43,7 +57,7 @@ public class MBTABusTransitSource implements TransitSource
 			RouteConfig oldRouteConfig, Directions directions, HashMap<String, String> routeKeysToTitles) 
 			throws ClientProtocolException, IOException, ParserConfigurationException, SAXException 
 	{
-		final String urlString = TransitSystem.getRouteConfigUrl(routeToUpdate);
+		final String urlString = getRouteConfigUrl(routeToUpdate);
 
 		DownloadHelper downloadHelper = new DownloadHelper(urlString);
 		
@@ -74,7 +88,7 @@ public class MBTABusTransitSource implements TransitSource
 			List<Location> locations = locationsObj.getLocations(maxStops, centerLatitude, centerLongitude, false);
 
 			//ok, do predictions now
-			String url = TransitSystem.getPredictionsUrl(locations, maxStops, routeConfig.getRouteName());
+			String url = getPredictionsUrl(locations, maxStops, routeConfig.getRouteName());
 
 			downloadHelper = new DownloadHelper(url);
 		}
@@ -84,7 +98,7 @@ public class MBTABusTransitSource implements TransitSource
 		{
 			List<Location> locations = locationsObj.getLocations(maxStops, centerLatitude, centerLongitude, false);
 			
-			String url = TransitSystem.getPredictionsUrl(locations, maxStops, null);
+			String url = getPredictionsUrl(locations, maxStops, null);
 
 			downloadHelper = new DownloadHelper(url);
 		}
@@ -92,13 +106,13 @@ public class MBTABusTransitSource implements TransitSource
 
 		case Main.VEHICLE_LOCATIONS_ONE:
 		{
-			final String urlString = TransitSystem.getVehicleLocationsUrl(locationsObj.getLastUpdateTime(), routeConfig.getRouteName());
+			final String urlString = getVehicleLocationsUrl(locationsObj.getLastUpdateTime(), routeConfig.getRouteName());
 			downloadHelper = new DownloadHelper(urlString);
 		}
 		case Main.VEHICLE_LOCATIONS_ALL:
 		default:
 		{
-			final String urlString = TransitSystem.getVehicleLocationsUrl(locationsObj.getLastUpdateTime(), null);
+			final String urlString = getVehicleLocationsUrl(locationsObj.getLastUpdateTime(), null);
 			downloadHelper = new DownloadHelper(urlString);
 		}
 		break;
@@ -155,5 +169,58 @@ public class MBTABusTransitSource implements TransitSource
 			}
 		}
 	}
+	
+	private static String getPredictionsUrl(List<Location> locations, int maxStops, String route)
+	{
+		StringBuilder urlString = new StringBuilder(mbtaPredictionsDataUrl);
+		
+		for (Location location : locations)
+		{
+			if (location instanceof StopLocation)
+			{
+				StopLocation stopLocation = (StopLocation)location;
+				stopLocation.createPredictionsUrl(urlString, route);
+			}
+		}
+		
+		//TODO: hard limit this to 150 requests
+		
+		Log.v("BostonBusMap", "urlString for bus predictions, all: " + urlString);
+		
+		return urlString.toString();
+	}
+	
+	
+
+	public static void bindPredictionElementsForUrl(StringBuilder urlString,
+			String routeName, String stopId) {
+		urlString.append("&stops=").append(routeName).append("%7C%7C").append(stopId);
+		
+	}
+
+	private static String getVehicleLocationsUrl(long time, String route)
+	{
+		if (route != null)
+		{
+			return mbtaLocationsDataUrlOneRoute + time + "&r=" + route;
+		}
+		else
+		{
+			return mbtaLocationsDataUrlAllRoutes + time;
+		}
+	}
+	
+	private static String getRouteConfigUrl(String route)
+	{
+		if (route == null)
+		{
+			return mbtaRouteConfigDataUrlAllRoutes;
+		}
+		else
+		{
+			return mbtaRouteConfigDataUrl + route;
+		}
+	}
+	
 
 }

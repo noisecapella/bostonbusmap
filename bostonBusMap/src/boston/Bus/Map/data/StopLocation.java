@@ -9,6 +9,7 @@ import java.util.SortedSet;
 import java.util.TreeSet;
 
 import boston.Bus.Map.database.DatabaseHelper;
+import boston.Bus.Map.transit.MBTABusTransitSource;
 import boston.Bus.Map.transit.TransitSystem;
 import boston.Bus.Map.util.Box;
 import boston.Bus.Map.util.Constants;
@@ -365,13 +366,16 @@ public class StopLocation implements Location, CanBeSerialized
 
 	/**
 	 * This should be in Locations instead but I need to synchronize routes
+	 * 
+	 * NOTE: this is only for bus routes
+	 * 
 	 * @param urlString
 	 */
 	public void createPredictionsUrl(StringBuilder urlString, String routeName) {
 		if (routeName != null)
 		{
 			//only do it for the given route
-			TransitSystem.bindPredictionElementsForUrl(urlString, routeName, tag);
+			MBTABusTransitSource.bindPredictionElementsForUrl(urlString, routeName, tag);
 		}
 		else
 		{
@@ -380,7 +384,7 @@ public class StopLocation implements Location, CanBeSerialized
 			{
 				for (String route : routes)
 				{
-					TransitSystem.bindPredictionElementsForUrl(urlString, route, tag);
+					MBTABusTransitSource.bindPredictionElementsForUrl(urlString, route, tag);
 				}
 			}
 		}

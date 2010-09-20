@@ -45,71 +45,8 @@ public class TransitSystem {
 		return website;
 	}
 	
-	/**
-	 * The XML feed URL
-	 */
-	private static final String mbtaLocationsDataUrlOneRoute = "http://webservices.nextbus.com/service/publicXMLFeed?command=vehicleLocations&a=mbta&t=";
-
-	private static final String mbtaLocationsDataUrlAllRoutes = "http://webservices.nextbus.com/service/publicXMLFeed?command=vehicleLocations&a=mbta&t=";
-
-	private static final String mbtaRouteConfigDataUrl = "http://webservices.nextbus.com/service/publicXMLFeed?command=routeConfig&a=mbta&r=";
-	private static final String mbtaRouteConfigDataUrlAllRoutes = "http://webservices.nextbus.com/service/publicXMLFeed?command=routeConfig&a=mbta";
-	
-	private static final String mbtaPredictionsDataUrl = "http://webservices.nextbus.com/service/publicXMLFeed?command=predictionsForMultiStops&a=mbta";
 
 	
-	public static String getVehicleLocationsUrl(long time, String route)
-	{
-		if (route != null)
-		{
-			return mbtaLocationsDataUrlOneRoute + time + "&r=" + route;
-		}
-		else
-		{
-			return mbtaLocationsDataUrlAllRoutes + time;
-		}
-	}
-	
-	public static String getRouteConfigUrl(String route)
-	{
-		if (route == null)
-		{
-			return mbtaRouteConfigDataUrlAllRoutes;
-		}
-		else
-		{
-			return mbtaRouteConfigDataUrl + route;
-		}
-	}
-	
-	public static String getPredictionsUrl(List<Location> locations, int maxStops, String route)
-	{
-		StringBuilder urlString = new StringBuilder(mbtaPredictionsDataUrl);
-		
-		for (Location location : locations)
-		{
-			if (location instanceof StopLocation)
-			{
-				StopLocation stopLocation = (StopLocation)location;
-				stopLocation.createPredictionsUrl(urlString, route);
-			}
-		}
-		
-		//TODO: hard limit this to 150 requests
-		
-		Log.v("BostonBusMap", "urlString for bus predictions, all: " + urlString);
-		
-		return urlString.toString();
-	}
-	
-	
-
-	public static void bindPredictionElementsForUrl(StringBuilder urlString,
-			String routeName, String stopId) {
-		urlString.append("&stops=").append(routeName).append("%7C%7C").append(stopId);
-		
-	}
-
 	private final static HashMap<String, TransitSource> transitSources = new HashMap<String, TransitSource>();  
 	private static TransitSource defaultTransitSource;
 	
