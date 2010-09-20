@@ -1,8 +1,10 @@
 package boston.Bus.Map.transit;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
+import android.graphics.drawable.Drawable;
 import android.util.Log;
 import boston.Bus.Map.data.Location;
 import boston.Bus.Map.data.RouteConfig;
@@ -43,106 +45,47 @@ public class TransitSystem {
 		return website;
 	}
 	
-	/**
-	 * The XML feed URL
-	 */
-	private static final String mbtaLocationsDataUrlOneRoute = "http://webservices.nextbus.com/service/publicXMLFeed?command=vehicleLocations&a=mbta&t=";
 
-	private static final String mbtaLocationsDataUrlAllRoutes = "http://webservices.nextbus.com/service/publicXMLFeed?command=vehicleLocations&a=mbta&t=";
-
-	private static final String mbtaRouteConfigDataUrl = "http://webservices.nextbus.com/service/publicXMLFeed?command=routeConfig&a=mbta&r=";
-	private static final String mbtaRouteConfigDataUrlAllRoutes = "http://webservices.nextbus.com/service/publicXMLFeed?command=routeConfig&a=mbta";
 	
-	private static final String mbtaPredictionsDataUrl = "http://webservices.nextbus.com/service/publicXMLFeed?command=predictionsForMultiStops&a=mbta";
 	private static final String subwayPredictionsDataUrl = "http://developer.mbta.com/Data/";
-
+	private final static HashMap<String, TransitSource> transitSources = new HashMap<String, TransitSource>();  
+	private static TransitSource defaultTransitSource;
 	
-	public static String getVehicleLocationsUrl(long time, String route)
+	public static void addTransitSource(String route, TransitSource source)
 	{
-		if (route != null)
+		transitSources.put(route, source);
+	}
+	
+	public static void setDefaultTransitSource(Drawable busStop, Drawable bus, Drawable arrow)
+	{
+		if (defaultTransitSource == null)
 		{
-			return mbtaLocationsDataUrlOneRoute + time + "&r=" + route;
-		}
-		else
-		{
-			return mbtaLocationsDataUrlAllRoutes + time;
+			defaultTransitSource = new MBTABusTransitSource(busStop, bus, arrow);
 		}
 	}
 	
-	public static String getRouteConfigUrl(String route)
-	{
-		if (route == null)
-		{
-			return mbtaRouteConfigDataUrlAllRoutes;
-		}
-		else
-		{
-			return mbtaRouteConfigDataUrl + route;
-		}
-	}
-	
-	public static String getRouteConfigUrl()
-	{
-		return getRouteConfigUrl(null);
-	}
-	
-	public static String getPredictionsUrl(List<Location> locations, int maxStops, String route)
-	{
-		if (isSubway(route) && route != null)
+/*		if (isSubway(route) && route != null)
 		{
 			return subwayPredictionsDataUrl + route + ".json";
+		}*/
+	public static TransitSource getTransitSource(String routeToUpdate) {
+		if (null == routeToUpdate)
+		{
+			return defaultTransitSource;
 		}
 		else
 		{
-			StringBuilder urlString = new StringBuilder(mbtaPredictionsDataUrl);
-
-			for (Location location : locations)
+			
+			TransitSource transitSource = transitSources.get(routeToUpdate);
+			if (transitSource == null)
 			{
-				if (location instanceof StopLocation)
-				{
-					StopLocation stopLocation = (StopLocation)location;
-					stopLocation.createPredictionsUrl(urlString, route);
-				}
+				return defaultTransitSource;
 			}
-
-			//TODO: hard limit this to 150 requests
-
-			Log.v("BostonBusMap", "urlString for bus predictions, all: " + urlString);
-
-			return urlString.toString();
-		}
-	}
-	
-	
-
-	public static String getSizeOfRouteConfigUrl() {
-		return "7.5MB";
-	}
-
-	public static void bindPredictionElementsForUrl(StringBuilder urlString,
-			String routeName, String stopId) {
-		urlString.append("&stops=").append(routeName).append("%7C%7C").append(stopId);
-		
-	}
-
-	public static String getSubwayRouteConfigUrl() {
-		return "http://developer.mbta.com/RT_Archive/RealTimeHeavyRailKeys.csv";
-	}
-
-	public static boolean isSubway(String route) {
-		for (String subwayRoute : subwayRoutes)
-		{
-			if (subwayRoute.equals(route))
+			else
 			{
-				return true;
+				return transitSource;
+				
 			}
 		}
-		return false;
-	}
-
-	private static final String[] subwayRoutes = new String[] {"Red", "Orange", "Blue"};
-	
-	public static String[] getAllSubwayRoutes() {
-		return subwayRoutes;
 	}
 }

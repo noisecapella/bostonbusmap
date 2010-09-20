@@ -26,20 +26,15 @@ import boston.Bus.Map.data.RoutePool;
 
 public class VehicleLocationsFeedParser extends DefaultHandler
 {
-	/**
-	 * NOTE: this is read only here
-	 */
-	private final HashMap<Integer,String> vehiclesToRouteNames;
 	private final RoutePool stopMapping;
 	private final Drawable bus;
 	private final Drawable arrow;
 	private final Directions directions;
 	private final HashMap<String, String> routeKeysToTitles;
 	
-	public VehicleLocationsFeedParser(HashMap<Integer, String> vehiclesToRouteNames,
-			RoutePool stopMapping, Drawable bus, Drawable arrow, Directions directions, HashMap<String, String> routeKeysToTitles)
+	public VehicleLocationsFeedParser(RoutePool stopMapping, Drawable bus, Drawable arrow,
+			Directions directions, HashMap<String, String> routeKeysToTitles)
 	{
-		this.vehiclesToRouteNames = vehiclesToRouteNames;
 		this.stopMapping = stopMapping;
 		this.bus = bus;
 		this.arrow = arrow;
@@ -91,18 +86,6 @@ public class VehicleLocationsFeedParser extends DefaultHandler
 
 
 			String inferBusRoute = null;
-			synchronized (vehiclesToRouteNames)
-			{
-				if (vehiclesToRouteNames.containsKey(id))
-				{
-					String value = vehiclesToRouteNames.get(id);
-					if (value != null && value.length() != 0)
-					{
-						inferBusRoute = value;
-					}
-				}
-			}
-
 
 			BusLocation newBusLocation = new BusLocation(lat, lon, id, seconds, lastUpdateTime, 
 					heading, predictable, dirTag, inferBusRoute, bus, arrow, route, directions, routeKeysToTitles.get(route));

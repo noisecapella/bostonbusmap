@@ -34,6 +34,7 @@ import org.xml.sax.SAXException;
 
 
 
+import boston.Bus.Map.data.BusLocation;
 import boston.Bus.Map.data.Location;
 import boston.Bus.Map.data.Locations;
 import boston.Bus.Map.data.Path;
@@ -129,7 +130,7 @@ public class UpdateAsyncTask extends AsyncTask<Object, String, Locations>
 	 * A type safe wrapper around execute
 	 * @param busLocations
 	 */
-	public void runUpdate(Locations locations, double centerLatitude, double centerLongitude, Context context)
+	public void runUpdate(Locations locations, float centerLatitude, float centerLongitude, Context context)
 	{
 		execute(locations, centerLatitude, centerLongitude, context);
 	}
@@ -137,7 +138,7 @@ public class UpdateAsyncTask extends AsyncTask<Object, String, Locations>
 	@Override
 	protected Locations doInBackground(Object... args) {
 		//number of bus pictures to draw. Too many will make things slow
-		return updateBusLocations((Locations)args[0], (Double)args[1], (Double)args[2], (Context)args[3]);
+		return updateBusLocations((Locations)args[0], (Float)args[1], (Float)args[2], (Context)args[3]);
 	}
 
 	@Override
@@ -150,7 +151,7 @@ public class UpdateAsyncTask extends AsyncTask<Object, String, Locations>
 		
 	}
 
-	public Locations updateBusLocations(Locations busLocations, double centerLatitude, double centerLongitude, Context context)
+	public Locations updateBusLocations(Locations busLocations, float centerLatitude, float centerLongitude, Context context)
 	{
 		Log.v("BostonBusMap", "in updateBusLocations, centerLatitude is " + centerLatitude);
 		if (doRefresh == false)
@@ -276,9 +277,9 @@ public class UpdateAsyncTask extends AsyncTask<Object, String, Locations>
 		}
 		
 		GeoPoint center = mapView.getMapCenter();
-		final double e6 = Constants.E6;
-		final double latitude = center.getLatitudeE6() / e6;
-		final double longitude = center.getLongitudeE6() / e6;
+		final float e6 = Constants.E6;
+		final float latitude = center.getLatitudeE6() / e6;
+		final float longitude = center.getLongitudeE6() / e6;
 		
 		
 		final Handler uiHandler = new Handler();
@@ -286,12 +287,14 @@ public class UpdateAsyncTask extends AsyncTask<Object, String, Locations>
 		sortBuses(busLocationsObject, latitude, longitude, uiHandler);
 	}
 
-	private void sortBuses(Locations busLocationsObject, final double latitude,
-			final double longitude, Handler uiHandler) {
+	
+	private void sortBuses(Locations busLocationsObject, final float latitude,
+			final float longitude, Handler uiHandler) {
 		final ArrayList<Location> busLocations = new ArrayList<Location>();
 		
 		try
 		{
+			//get bus locations sorted by closest to lat + lon
 			busLocations.addAll(busLocationsObject.getLocations(maxOverlays, latitude, longitude, doShowUnpredictable));
 		}
 		catch (IOException e)
@@ -311,6 +314,7 @@ public class UpdateAsyncTask extends AsyncTask<Object, String, Locations>
 			return;
 		}
 		
+		//get currently selected location id, or -1 if nothing is selected
 		final int selectedBusId;
 		if (busOverlay != null)
 		{
@@ -318,7 +322,7 @@ public class UpdateAsyncTask extends AsyncTask<Object, String, Locations>
 		}
 		else
 		{
-			selectedBusId = -1;
+			selectedBusId = BusOverlay.NOT_SELECTED;
 		}
 		
 		Log.v("BostonBusMap", "selectedBusId is " + selectedBusId);
@@ -328,6 +332,7 @@ public class UpdateAsyncTask extends AsyncTask<Object, String, Locations>
 		routeOverlay.setDrawLine(showRouteLine);
 		//routeOverlay.setDrawCoarseLine(showCoarseRouteLine);
 		
+		//get a list of lat/lon pairs which describe the route
         ArrayList<Path> paths;
 		try {
 			paths = busLocationsObject.getSelectedPaths();
@@ -339,6 +344,14 @@ public class UpdateAsyncTask extends AsyncTask<Object, String, Locations>
 		RouteConfig selectedRouteConfig;
 		if (selectedBusPredictions == Main.BUS_PREDICTIONS_STAR)
 		{
+			//we want this to be null. Else, the snippet drawing code would only show data for a particular route
+			try {
+				//get the currently drawn route's color
+				routeOverlay.setPathsAndColor(paths, busLocationsObject.getSelectedRoute().getColor());
+			} catch (IOException e) {
+				Log.e("BostonBusMap", "Exception thrown from getSelectedRoute: " + e.getMessage());
+				routeOverlay.setPathsAndColor(paths, null);
+			}
 			selectedRouteConfig = null;
 		}
 		else
@@ -349,73 +362,72 @@ public class UpdateAsyncTask extends AsyncTask<Object, String, Locations>
 				Log.e("BostonBusMap", "Exception thrown from getSelectedRoute: " + e.getMessage());
 				selectedRouteConfig = null;
 			}
+			
+			if (selectedRouteConfig != null)
+			{
+				routeOverlay.setPathsAndColor(paths, selectedRouteConfig.getColor());
+			}
 		}
 		
-		displayIcons(busOverlay, routeOverlay, locationOverlay, paths, latitude, longitude, busLocations, selectedBusId, selectedRouteConfig);
-	}
-	
-	private void displayIcons(BusOverlay busOverlay, RouteOverlay routeOverlay, LocationOverlay locationOverlay, ArrayList<Path> paths,
-			double latitude, double longitude, ArrayList<Location> busLocations, int selectedBusId, RouteConfig selectedRoute)
-	{
-		routeOverlay.setPaths(paths);
+
 		
-    	//we need to run populate even if there are 0 busLocations. See this link:
-    	//http://groups.google.com/group/android-beginners/browse_thread/thread/6d75c084681f943e?pli=1
-    	busOverlay.clear();
-
-    	busOverlay.doPopulate();
-    	
-    	//point hash to index in busLocations
-    	HashMap<Long, Integer> points = new HashMap<Long, Integer>();
-    	
-    	ArrayList<GeoPoint> geoPointsToAdd = new ArrayList<GeoPoint>();
-    	//draw the buses on the map
-        for (int i = 0; i < busLocations.size(); i++)
-        {
-        	Location busLocation = busLocations.get(i);
-        	
-        	int latInt = (int)(busLocation.getLatitudeAsDegrees() * Constants.E6);
-        	int lonInt = (int)(busLocation.getLongitudeAsDegrees() * Constants.E6);
-        	GeoPoint point = new GeoPoint(latInt, lonInt);
-        			
-        	//make a hash to easily compare this location's position against others
-        	long hash = (long)((long)latInt << 32) | (long)lonInt;
-        	Integer index = points.get(hash);
-        	if (null != index)
-        	{
-        		//two stops in one space. Just use the one overlay, and combine textboxes in an elegant manner
-        		busLocations.get(index).addToSnippetAndTitle(selectedRoute, busLocation);
-        	}
-        	else
-        	{
-        		busLocation.makeSnippetAndTitle(selectedRoute);
-        	
-        	
-        		points.put(hash, i);
-
-        		//the title is displayed when someone taps on the icon
-        		busOverlay.addLocation(busLocation);
-        		geoPointsToAdd.add(point);
-        	}
-        }
-        busOverlay.addOverlaysFromLocations(geoPointsToAdd);
-
-        busOverlay.setSelectedBusId(selectedBusId);
-        busOverlay.refreshBalloons();
-
-        mapView.getOverlays().clear();
+		//we need to run populate even if there are 0 busLocations. See this link:
+		//http://groups.google.com/group/android-beginners/browse_thread/thread/6d75c084681f943e?pli=1
+		busOverlay.clear();
+		
+		busOverlay.doPopulate();
+		
+		//point hash to index in busLocations
+		HashMap<Long, Integer> points = new HashMap<Long, Integer>();
+		
+		ArrayList<GeoPoint> geoPointsToAdd = new ArrayList<GeoPoint>();
+		//draw the buses on the map
+		for (int i = 0; i < busLocations.size(); i++)
+		{
+			Location busLocation = busLocations.get(i);
+			
+			int latInt = (int)(busLocation.getLatitudeAsDegrees() * Constants.E6);
+			int lonInt = (int)(busLocation.getLongitudeAsDegrees() * Constants.E6);
+			GeoPoint point = new GeoPoint(latInt, lonInt);
+					
+			//make a hash to easily compare this location's position against others
+			long hash = (long)((long)latInt << 32) | (long)lonInt;
+			Integer index = points.get(hash);
+			if (null != index)
+			{
+				//two stops in one space. Just use the one overlay, and combine textboxes in an elegant manner
+				busLocations.get(index).addToSnippetAndTitle(selectedRouteConfig, busLocation);
+			}
+			else
+			{
+				busLocation.makeSnippetAndTitle(selectedRouteConfig);
+			
+			
+				points.put(hash, i);
+		
+				//the title is displayed when someone taps on the icon
+				busOverlay.addLocation(busLocation);
+				geoPointsToAdd.add(point);
+			}
+		}
+		busOverlay.addOverlaysFromLocations(geoPointsToAdd);
+		
+		busOverlay.setSelectedBusId(selectedBusId);
+		busOverlay.refreshBalloons();
+		
+		mapView.getOverlays().clear();
 		mapView.getOverlays().add(routeOverlay);
 		mapView.getOverlays().add(locationOverlay);
 		mapView.getOverlays().add(busOverlay);
 		
-
-        //make sure we redraw map
-        mapView.invalidate();
-        
-        if (finalMessage != null)
-        {
-        	publishProgress(finalMessage);
-        }
+		
+		//make sure we redraw map
+		mapView.invalidate();
+		
+		if (finalMessage != null)
+		{
+			publishProgress(finalMessage);
+		}
 	}
 	
 	/**

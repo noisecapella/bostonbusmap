@@ -55,6 +55,7 @@ import boston.Bus.Map.parser.RouteConfigFeedParser;
 import boston.Bus.Map.parser.SubwayPredictionsFeedParser;
 import boston.Bus.Map.parser.SubwayRouteConfigFeedParser;
 import boston.Bus.Map.parser.VehicleLocationsFeedParser;
+import boston.Bus.Map.transit.TransitSource;
 import boston.Bus.Map.transit.TransitSystem;
 import boston.Bus.Map.util.DownloadHelper;
 import boston.Bus.Map.util.FeedException;
@@ -81,18 +82,8 @@ public final class Locations
 	
 	private final Directions directions;
 	
-	private final HashMap<Integer, String> vehiclesToRouteNames = new HashMap<Integer, String>();
-
-	private double lastInferBusRoutesTime = 0;
-	
 	private double lastUpdateTime = 0;
 	
-	/**
-	 * This should let us know if the user checked or unchecked the Infer bus routes checkbox. If inferBusRoutes in Refresh()
-	 * is true and this is false, we should do a refresh, and if inferBusRoutes is false and this is true, we should
-	 * clear the bus information 
-	 */
-	private boolean lastInferBusRoutes;
 
 	/**
 	 * in millis
@@ -171,7 +162,7 @@ public final class Locations
 			parser.writeToDatabase(routeMapping, true);
 			
 			//download subway data
-			final String subwayUrl = TransitSystem.getSubwayRouteConfigUrl();
+			/*final String subwayUrl = TransitSystem.getSubwayRouteConfigUrl();
 			URL url = new URL(subwayUrl);
 			in = downloadStream(url, task, prepend, "");
 			
@@ -181,7 +172,7 @@ public final class Locations
 			
 			subwayParser.runParse(in);
 			
-			subwayParser.writeToDatabase(routeMapping, false);
+			subwayParser.writeToDatabase(routeMapping, false);*/
 			
 			routeMapping.fillInFavoritesRoutes();
 			
@@ -189,7 +180,7 @@ public final class Locations
 		}
 		else
 		{
-			if (routesThatNeedUpdating != null)
+			/*if (routesThatNeedUpdating != null)
 			{
 				//this code probably isn't executed right now
 				for (String route : routesThatNeedUpdating)
@@ -208,7 +199,8 @@ public final class Locations
 
 					parser.writeToDatabase(routeMapping, false);
 				}
-			}
+			}*/
+			//TODO: what happens here? I don't think this is ever executed
 		}
 	}
 	
@@ -232,34 +224,20 @@ public final class Locations
 	 * @throws FeedException 
 	 */
 	public void Refresh(boolean inferBusRoutes, int routeIndexToUpdate,
-			int selectedBusPredictions, double centerLatitude, double centerLongitude,
+			int selectedBusPredictions, float centerLatitude, float centerLongitude,
 			UpdateAsyncTask updateAsyncTask, boolean showRoute) throws SAXException, IOException,
 			ParserConfigurationException, FactoryConfigurationError 
 	{
 		String routeToUpdate = supportedRoutes[routeIndexToUpdate];
 
-		try
-		{
-			updateInferRoutes(inferBusRoutes);
-		}
-		catch (IOException e)
-		{
-			//don't let a problem with the mit website stop everything from working
-			Log.e("BostonBusMap", e.toString());
-		}
-
-		
 		final int maxStops = 15;
 
 		//see if route overlays need to be downloaded
 		RouteConfig routeConfig = routeMapping.get(routeToUpdate);
 		if (routeConfig != null)
 		{
-			if (routeConfig.isSubway())
-			{
-				//no subway path info for now
-			}
-			else if (routeConfig.getStops().size() != 0 && (showRoute == false || routeConfig.getPaths().size() != 0))
+			if (routeConfig.getStops().size() != 0 && (showRoute == false || routeConfig.getPaths().size() != 0 || 
+					routeConfig.hasPaths() == false))
 			{
 				//everything's ok
 			}
@@ -282,191 +260,28 @@ public final class Locations
 			return;
 		}
 
-		//read data from the URL
-		DownloadHelper downloadHelper;
-		switch (selectedBusPredictions)
-		{
-		case  Main.BUS_PREDICTIONS_ONE:
-		{
-
-			List<Location> locations = getLocations(maxStops, centerLatitude, centerLongitude, false);
-
-			//ok, do predictions now
-			String url = TransitSystem.getPredictionsUrl(locations, maxStops, routeConfig.getRouteName());
-
-			downloadHelper = new DownloadHelper(url);
-		}
-		break;
-		case Main.BUS_PREDICTIONS_ALL:
-		case Main.BUS_PREDICTIONS_STAR:
-		{
-			List<Location> locations = getLocations(maxStops, centerLatitude, centerLongitude, false);
-			
-			String url = TransitSystem.getPredictionsUrl(locations, maxStops, null);
-
-			downloadHelper = new DownloadHelper(url);
-		}
-		break;
-
-		case Main.VEHICLE_LOCATIONS_ONE:
-		{
-			final String urlString = TransitSystem.getVehicleLocationsUrl((long)lastUpdateTime, routeConfig.getRouteName());
-			downloadHelper = new DownloadHelper(urlString);
-		}
-		case Main.VEHICLE_LOCATIONS_ALL:
-		default:
-		{
-			final String urlString = TransitSystem.getVehicleLocationsUrl((long)lastUpdateTime, null);
-			downloadHelper = new DownloadHelper(urlString);
-		}
-		break;
-		}
-
-		downloadHelper.connect();
-
-		InputStream data = downloadHelper.getResponseData();
-
-		if (selectedBusPredictions == Main.BUS_PREDICTIONS_ONE || 
-				selectedBusPredictions == Main.BUS_PREDICTIONS_ALL ||
-				selectedBusPredictions == Main.BUS_PREDICTIONS_STAR)
-		{
-			if (routeConfig.isSubway())
-			{
-				SubwayPredictionsFeedParser parser = new SubwayPredictionsFeedParser(routeMapping, directions);
-				
-				parser.runParse(data);
-			}
-			else
-			{
-				//bus prediction
-
-				BusPredictionsFeedParser parser = new BusPredictionsFeedParser(routeMapping, directions);
-
-				parser.runParse(data);
-			}
-		}
-		else 
-		{
-			//vehicle locations
-			//VehicleLocationsFeedParser parser = new VehicleLocationsFeedParser(stream);
-
-			//lastUpdateTime = parser.getLastUpdateTime();
-
-			VehicleLocationsFeedParser parser = new VehicleLocationsFeedParser(vehiclesToRouteNames, routeMapping,
-					bus, arrow, directions, routeKeysToTitles);
-			parser.runParse(data);
-
-			//get the time that this information is valid until
-			lastUpdateTime = parser.getLastUpdateTime();
-
-			synchronized (busMapping)
-			{
-				parser.fillMapping(busMapping);
-
-				//delete old buses
-				List<Integer> busesToBeDeleted = new ArrayList<Integer>();
-				for (Integer id : busMapping.keySet())
-				{
-					BusLocation busLocation = busMapping.get(id);
-					if (busLocation.lastUpdateInMillis + 180000 < System.currentTimeMillis())
-					{
-						//put this old dog to sleep
-						busesToBeDeleted.add(id);
-					}
-				}
-
-				for (Integer id : busesToBeDeleted)
-				{
-					busMapping.remove(id);
-				}
-			}
-		}
+		TransitSource transitSource = routeConfig.getTransitSource();
+		transitSource.refreshData(routeConfig, selectedBusPredictions, maxStops,
+				centerLatitude, centerLongitude, busMapping,
+				selectedRoute, routeMapping, directions, this, routeKeysToTitles);
 	}
 
 	private void populateStops(String routeToUpdate, RouteConfig oldRouteConfig) 
 		throws IOException, ParserConfigurationException, SAXException
 	{
-		if (TransitSystem.isSubway(routeToUpdate))
+		
+		TransitSource transitSource;
+		if (oldRouteConfig != null)
 		{
-			return;
+			transitSource = oldRouteConfig.getTransitSource();
+		}
+		else
+		{
+			transitSource = TransitSystem.getTransitSource(routeToUpdate);
 		}
 		
-		final String urlString = TransitSystem.getRouteConfigUrl(routeToUpdate);
-
-		DownloadHelper downloadHelper = new DownloadHelper(urlString);
-		
-		downloadHelper.connect();
-		//just initialize the route and then end for this round
-		
-		RouteConfigFeedParser parser = new RouteConfigFeedParser(busStop, directions, routeKeysToTitles, oldRouteConfig);
-
-		parser.runParse(downloadHelper.getResponseData()); 
-
-		parser.writeToDatabase(routeMapping, false);
+		transitSource.populateStops(routeMapping, routeToUpdate, oldRouteConfig, directions, routeKeysToTitles);
 	}
-
-	/**
-	 * This is a special feed which should hopefully become irrelevant soon. It guesses the route numbers of unpredictable buses based on
-	 * where they go
-	 * 
-	 * @param inferBusRoutes
-	 * @throws MalformedURLException
-	 * @throws ParserConfigurationException
-	 * @throws FactoryConfigurationError
-	 * @throws IOException
-	 * @throws SAXException
-	 */
-	private void updateInferRoutes(boolean inferBusRoutes)
-			throws MalformedURLException, ParserConfigurationException,
-			FactoryConfigurationError, IOException, SAXException {
-		//if Infer bus routes is checked and either:
-		//(a) 10 minutes have passed
-		//(b) the checkbox wasn't checked before, which means we should refresh anyway
-		if (inferBusRoutes && ((System.currentTimeMillis() - lastInferBusRoutesTime > tenMinutes) || (lastInferBusRoutes == false)))
-		{
-			//if we can't read from this feed, it'll throw an exception
-			//set last time we read from site to 5 minutes ago, so it won't try to read for another 5 minutes
-			//(currently it will check inferred route info every 10 minutes)
-			lastInferBusRoutesTime = System.currentTimeMillis() - tenMinutes / 2;
-			
-			
-			synchronized (vehiclesToRouteNames)
-			{
-				vehiclesToRouteNames.clear();
-
-				//thanks Nickolai Zeldovich! http://people.csail.mit.edu/nickolai/
-				final String vehicleToRouteNameUrl = "http://kk.csail.mit.edu/~nickolai/bus-infer/vehicle-to-routename.xml";
-				URL url = new URL(vehicleToRouteNameUrl);
-
-				DocumentBuilder builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
-
-				InputStream stream = url.openStream();
-
-				//parse the data into an XML document
-				Document document = builder.parse(stream);
-
-				NodeList nodeList = document.getElementsByTagName("vehicle");
-
-				for (int i = 0; i < nodeList.getLength(); i++)
-				{
-					Element node = (Element)nodeList.item(i);
-					vehiclesToRouteNames.put(Integer.parseInt(node.getAttribute("id")), node.getAttribute("routeTag"));
-				}
-			}
-			lastInferBusRoutesTime = System.currentTimeMillis();
-		}
-		else if (inferBusRoutes == false && lastInferBusRoutes == true)
-		{
-			//clear vehicle mapping if checkbox is false
-			synchronized (vehiclesToRouteNames)
-			{
-				vehiclesToRouteNames.clear();
-			}
-		}
-		
-		lastInferBusRoutes = inferBusRoutes;
-	}
-
 
 	/**
 	 * Return the 20 (or whatever maxLocations is) closest buses to the center
@@ -477,7 +292,8 @@ public final class Locations
 	 * @return
 	 * @throws IOException 
 	 */
-	public List<Location> getLocations(int maxLocations, double centerLatitude, double centerLongitude, boolean doShowUnpredictable) throws IOException {
+	public List<Location> getLocations(int maxLocations, float centerLatitude, float centerLongitude, 
+			boolean doShowUnpredictable) throws IOException {
 
 		TreeSet<Location> newLocations = new TreeSet<Location>(new LocationComparator(centerLatitude, centerLongitude));
 		
@@ -666,5 +482,14 @@ public final class Locations
 		}
 		return routeMapping.setFavorite(location, !isFavorite);
 		                            	   
+	}
+
+	public void setLastUpdateTime(double lastUpdateTime) {
+		this.lastUpdateTime = lastUpdateTime;
+	}
+	
+	public long getLastUpdateTime()
+	{
+		return (long)lastUpdateTime;
 	}
 }

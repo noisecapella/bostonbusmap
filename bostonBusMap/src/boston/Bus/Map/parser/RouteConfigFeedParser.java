@@ -24,6 +24,9 @@ import boston.Bus.Map.data.RouteConfig;
 import boston.Bus.Map.data.RoutePool;
 import boston.Bus.Map.data.StopLocation;
 import boston.Bus.Map.database.DatabaseHelper;
+import boston.Bus.Map.transit.MBTABusTransitSource;
+import boston.Bus.Map.transit.TransitSource;
+import boston.Bus.Map.transit.TransitSystem;
 import boston.Bus.Map.util.FeedException;
 
 
@@ -48,6 +51,7 @@ public class RouteConfigFeedParser extends DefaultHandler
 		{
 			allStops.putAll(oldRouteConfig.getStopMapping());
 		}
+		transitSource = TransitSystem.getTransitSource(oldRouteConfig != null ? oldRouteConfig.getRouteName() : null);
 	}
 
 	public void runParse(InputStream inputStream)  throws ParserConfigurationException, SAXException, IOException
@@ -77,6 +81,9 @@ public class RouteConfigFeedParser extends DefaultHandler
 	private static final String latKey = "lat";
 	private static final String lonKey = "lon";
 	
+	private static final String colorKey = "color";
+	private static final String oppositeColorKey = "oppositeColor";
+	
 	
 	private HashMap<String, StopLocation> allStops = new HashMap<String, StopLocation>();
 	
@@ -89,6 +96,9 @@ public class RouteConfigFeedParser extends DefaultHandler
 	private String currentRoute;
 	
 	private ArrayList<Float> currentPathPoints;
+	private final TransitSource transitSource;
+	
+	 
 	
 	@Override
 	public void startElement(String uri, String localName, String qName,
@@ -146,7 +156,10 @@ public class RouteConfigFeedParser extends DefaultHandler
 			inRoute = true;
 			
 			currentRoute = attributes.getValue(tagKey);
-			currentRouteConfig = new RouteConfig(currentRoute);
+			String color = attributes.getValue(colorKey);
+			String oppositeColor = attributes.getValue(oppositeColorKey);
+			currentRouteConfig = new RouteConfig(currentRoute, color, oppositeColor, transitSource);
+			
 		}
 		else if (pathKey.equals(localName))
 		{

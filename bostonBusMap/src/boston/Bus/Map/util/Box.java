@@ -27,8 +27,9 @@ public class Box {
 	private static final byte IS_NOT_NULL = 0;
 	
 	private final byte[] single = new byte[1];
-	
-	private final ArrayList<String> progress = new ArrayList<String>();
+
+	private final HashMap<String, Integer> sharedStringTable = new HashMap<String, Integer>();
+	private final HashMap<Integer, String> sharedStringTableReverse = new HashMap<Integer, String>();
 	
 	/**
 	 * The serialization version number
@@ -76,11 +77,6 @@ public class Box {
 	}
 	
 	
-	public void writeString(String route) throws IOException {
-		showProgress("writeString");
-		outputStream.writeUTF(route);
-		
-	}
 
 	
 	public int readInt() throws IOException
@@ -107,12 +103,75 @@ public class Box {
 		}
 	}
 	
-	public String readString() throws IOException
+	/**
+	 * Writes a string to the stream
+	 * @return
+	 * @throws IOException
+	 */
+	public String readStringUnique() throws IOException
 	{
-		showProgress("readString");
+		showProgress("readStringUnique");
 		return inputStream.readUTF();
 	}
 
+	/**
+	 * Reads a string from the stream
+	 * @param s
+	 * @throws IOException
+	 */
+	public void writeStringUnique(String s) throws IOException
+	{
+		showProgress("writeStringUnique");
+		outputStream.writeUTF(s);
+	}
+	
+	/**
+	 * If it's a new string, reads a string from the stream, else it takes it from the hashtable
+	 * @return
+	 * @throws IOException
+	 */
+	public String readString() throws IOException
+	{
+		showProgress("readString");
+		int index = inputStream.readInt();
+		String s = sharedStringTableReverse.get(index);
+		if (null == s)
+		{
+			//new string
+			s = inputStream.readUTF();
+			sharedStringTable.put(s, index);
+			sharedStringTableReverse.put(index, s);
+		}
+		
+		return s;
+	}
+
+	/**
+	 * If it's a new string, it adds the string to the hashtable and writes its value to the stream,
+	 * else it just writes its index
+	 * @param s
+	 * @throws IOException
+	 */
+	public void writeString(String s) throws IOException {
+		showProgress("writeStringUnique");
+		Integer index = sharedStringTable.get(s);
+		if (null == index)
+		{
+			//new string
+			int newIndex = sharedStringTable.size();
+			sharedStringTable.put(s, newIndex);
+			sharedStringTableReverse.put(newIndex, s);
+			
+			outputStream.writeInt(newIndex);
+			outputStream.writeUTF(s);
+		}
+		else
+		{
+			//existing string
+			outputStream.writeInt(index);
+		}
+	}
+	
 	public byte readByte() throws IOException
 	{
 		showProgress("readByte");
@@ -151,7 +210,7 @@ public class Box {
 		}
 	}
 	
-	public void writeStringKeyValue(ArrayList<String> keys, ArrayList<String> values) throws IOException
+	/*public void writeStringKeyValue(ArrayList<String> keys, ArrayList<String> values) throws IOException
 	{
 		showProgress("writeStringMap");
 		if (keys == null || values == null)
@@ -171,13 +230,13 @@ public class Box {
 				writeString(values.get(i));
 			}
 		}
-	}
+	}*/
 	
 	private static final String inbound = "Inbound";
 	private static final String outbound = "Outbound";
 	
 	
-	public Object[] readStringKeyValue(boolean optimizeForInbound) throws IOException
+	/*public Object[] readStringKeyValue(boolean optimizeForInbound) throws IOException
 	{
 		showProgress("readStringMap");
 		byte b = readByte();
@@ -214,7 +273,8 @@ public class Box {
 			
 			return new Object[]{keys, values};
 		}
-	}
+	}*/
+	
 	public void writeStringMap(Map<String, String> map) throws IOException
 	{
 		showProgress("writeStringMap");

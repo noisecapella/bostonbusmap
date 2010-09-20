@@ -76,6 +76,7 @@ import android.widget.Toast;
  */
 public class BusOverlay extends BalloonItemizedOverlay<OverlayItem> {
 
+	public static final int NOT_SELECTED = -1;
 	private final ArrayList<OverlayItem> overlays = new ArrayList<OverlayItem>();
 	private Main context;
 	private final List<Location> locations = new ArrayList<Location>();
@@ -105,7 +106,7 @@ public class BusOverlay extends BalloonItemizedOverlay<OverlayItem> {
 		
 		
 		
-		if (selectedBusIndex != -1)
+		if (selectedBusIndex != NOT_SELECTED)
 		{
 			//Log.v("BostonBusMap", "calling onTap: " + selectedBusIndex);
 			onTap(selectedBusIndex);
@@ -120,7 +121,7 @@ public class BusOverlay extends BalloonItemizedOverlay<OverlayItem> {
 		super(boundCenterBottom(busPicture), mapView);
 
 		this.context = context;
-		this.selectedBusIndex = -1;
+		this.selectedBusIndex = NOT_SELECTED;
 		this.busPicture = busPicture;
 		this.busHeight = busPicture.getIntrinsicHeight();
 		this.paint = new Paint();
@@ -142,7 +143,7 @@ public class BusOverlay extends BalloonItemizedOverlay<OverlayItem> {
 				//if you click on a bus, it would normally draw the selected bus without this code
 				//but in certain cases (you click away from any bus, then click on the bus again) it got confused and didn't draw
 				//things right. This corrects that (hopefully)
-				setLastFocusedIndex(-1);
+				setLastFocusedIndex(NOT_SELECTED);
 				setFocus(newFocus);
 				if (newFocus == null)
 				{
@@ -249,7 +250,7 @@ public class BusOverlay extends BalloonItemizedOverlay<OverlayItem> {
 		locations.clear();
 		
 		setFocus(null);
-		setLastFocusedIndex(-1);
+		setLastFocusedIndex(NOT_SELECTED);
 	}
 
 	@Override
@@ -272,11 +273,11 @@ public class BusOverlay extends BalloonItemizedOverlay<OverlayItem> {
 			
 		}
 		
-		if (selectedBusIndex != -1)
+		if (selectedBusIndex != NOT_SELECTED)
 		{
 			//make sure that selected buses are preserved during refreshes
 			setFocus(overlays.get(selectedBusIndex));
-			selectedBusIndex = -1;
+			selectedBusIndex = NOT_SELECTED;
 		}
 			
 		if (drawHighlightCircle && overlays.size() > 0)
@@ -329,16 +330,16 @@ public class BusOverlay extends BalloonItemizedOverlay<OverlayItem> {
 	public int getSelectedBusId() {
 		int selectedBusIndex = getLastFocusedIndex();
 		//Log.v("BostonBusMap", "getLastFocusedIndex() value is " + selectedBusIndex);
-		if (selectedBusIndex == -1)
+		if (selectedBusIndex == NOT_SELECTED)
 		{
-			return -1;
+			return NOT_SELECTED;
 		}
 		else
 		{
 			if (selectedBusIndex >= locations.size())
 			{
-				this.selectedBusIndex = -1;
-				return -1;
+				this.selectedBusIndex = NOT_SELECTED;
+				return NOT_SELECTED;
 			}
 			else
 			{
@@ -355,7 +356,7 @@ public class BusOverlay extends BalloonItemizedOverlay<OverlayItem> {
 	public void refreshBalloons() {
 		
 		//Log.i("REFRESHBALLOONS", selectedBusIndex + " ");
-		if (selectedBusIndex == -1)
+		if (selectedBusIndex == NOT_SELECTED)
 		{
 			hideBalloon();
 		}
@@ -367,8 +368,8 @@ public class BusOverlay extends BalloonItemizedOverlay<OverlayItem> {
 	
 	public void setSelectedBusId(int selectedBusId)
 	{
-		selectedBusIndex = -1;
-		if (selectedBusId != -1)
+		selectedBusIndex = NOT_SELECTED;
+		if (selectedBusId != NOT_SELECTED)
 		{
 			for (int i = 0; i < locations.size(); i++)
 			{

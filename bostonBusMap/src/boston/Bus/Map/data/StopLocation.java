@@ -9,6 +9,7 @@ import java.util.SortedSet;
 import java.util.TreeSet;
 
 import boston.Bus.Map.database.DatabaseHelper;
+import boston.Bus.Map.transit.MBTABusTransitSource;
 import boston.Bus.Map.transit.TransitSystem;
 import boston.Bus.Map.util.Box;
 import boston.Bus.Map.util.Constants;
@@ -339,10 +340,10 @@ public class StopLocation implements Location, CanBeSerialized
 		dest.writeFloat(longitude);
 		dest.writeString(tag);
 
-		dest.writeString(title);
+		dest.writeStringUnique(title);
 		
 		dest.writeStrings(routes);
-		//dest.writeStrings(dirTags);
+		dest.writeStrings(dirTags);
 	}
 
 	
@@ -356,23 +357,25 @@ public class StopLocation implements Location, CanBeSerialized
 
 		tag = source.readString();
 
-		title = source.readString();
+		title = source.readStringUnique();
 		routes = source.readStrings();
-		dirTags = new ArrayList<String>(0);
-		//dirTags = source.readStrings();
+		dirTags = source.readStrings();
 		this.routeKeysToTitles = routeKeysToTitles;
 		this.busStop = busStop;
 	}
 
 	/**
 	 * This should be in Locations instead but I need to synchronize routes
+	 * 
+	 * NOTE: this is only for bus routes
+	 * 
 	 * @param urlString
 	 */
 	public void createPredictionsUrl(StringBuilder urlString, String routeName) {
 		if (routeName != null)
 		{
 			//only do it for the given route
-			TransitSystem.bindPredictionElementsForUrl(urlString, routeName, tag);
+			MBTABusTransitSource.bindPredictionElementsForUrl(urlString, routeName, tag);
 		}
 		else
 		{
@@ -381,7 +384,7 @@ public class StopLocation implements Location, CanBeSerialized
 			{
 				for (String route : routes)
 				{
-					TransitSystem.bindPredictionElementsForUrl(urlString, route, tag);
+					MBTABusTransitSource.bindPredictionElementsForUrl(urlString, route, tag);
 				}
 			}
 		}

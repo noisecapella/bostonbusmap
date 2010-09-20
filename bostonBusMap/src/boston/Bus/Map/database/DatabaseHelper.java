@@ -11,6 +11,7 @@ import boston.Bus.Map.data.Path;
 
 import boston.Bus.Map.data.RouteConfig;
 import boston.Bus.Map.data.StopLocation;
+import boston.Bus.Map.transit.TransitSystem;
 import boston.Bus.Map.util.Box;
 
 import android.content.ContentValues;
@@ -80,7 +81,7 @@ public class DatabaseHelper extends SQLiteOpenHelper
 	public final static int STOP_LOCATIONS_STORE_ROUTE_STRINGS = 9;
 	public final static int STOP_LOCATIONS_ADD_DIRECTIONS = 10;
 	
-	public final static int CURRENT_DB_VERSION = STOP_LOCATIONS_STORE_ROUTE_STRINGS;
+	public final static int CURRENT_DB_VERSION = STOP_LOCATIONS_ADD_DIRECTIONS;
 	
 	private final Drawable busStop;
 
@@ -206,58 +207,6 @@ public class DatabaseHelper extends SQLiteOpenHelper
 	}
 	
 	
-	private void reserialize(SQLiteDatabase database, int oldVersion, int newVersion, HashMap<String, String> routeKeysToTitles) {
-		HashMap<String, byte[]> routesToWrite = new HashMap<String, byte[]>();
-
-		Cursor cursor = null;
-		try
-		{
-			HashMap<String, StopLocation> sharedStops = new HashMap<String, StopLocation>();
-			
-			cursor = database.query(blobsTable, new String[] {routeKey, blobKey}, null, null, null, null, null);
-			cursor.moveToFirst();
-			while (cursor.isAfterLast() == false)
-			{
-				String route = cursor.getString(0);
-				byte[] blob = cursor.getBlob(1);
-				
-				Log.v("BostonBusMap", "converting over route " + route);
-				RouteConfig routeConfig = new RouteConfig(new Box(blob, oldVersion, sharedStops), busStop, routeKeysToTitles);
-				Box outputBox = new Box(null, newVersion, sharedStops);
-				routeConfig.serialize(outputBox);
-				
-				routesToWrite.put(route, outputBox.getBlob());
-				cursor.moveToNext();
-			}
-			cursor.close();
-		}
-		catch (IOException e)
-		{
-			Log.e("BostonBusMap", "Exception during serialization: " + e.getMessage());
-		}
-		finally
-		{
-			if (cursor != null)
-			{
-				cursor.close();
-			}
-		}
-		
-		//write out everything we just read in
-		database.delete(blobsTable, null, null);
-
-		for (String route : routesToWrite.keySet())
-		{
-			byte[] blob = routesToWrite.get(route);
-
-			ContentValues values = new ContentValues();
-			values.put(routeKey, route);
-			values.put(blobKey, blob);
-
-			database.insert(blobsTable, null, values);
-		}
-	}
-
 	public synchronized void populateFavorites(HashMap<String, String> favorites)
 	{
 		SQLiteDatabase database = getReadableDatabase();
@@ -429,7 +378,8 @@ public class DatabaseHelper extends SQLiteOpenHelper
 				cursor.moveToFirst();
 				byte[] data = cursor.getBlob(0);
 				Box box = new Box(data, CURRENT_DB_VERSION, sharedStops);
-				RouteConfig routeConfig = new RouteConfig(box, busStop, routeKeysToTitles);
+				RouteConfig routeConfig = new RouteConfig(box, busStop, routeKeysToTitles,
+						TransitSystem.getTransitSource(routeToUpdate));
 				return routeConfig;
 			}
 		}

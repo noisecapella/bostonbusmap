@@ -196,7 +196,7 @@ public class Main extends MapActivity
         
         busStop = resources.getDrawable(R.drawable.busstop_statelist);
         
-        
+        TransitSystem.setDefaultTransitSource(busStop, busPicture, arrow);
         SpinnerAdapter modeSpinnerAdapter = makeModeSpinner(); 
 
         toggleButton.setOnItemSelectedListener(new OnItemSelectedListener() {
