@@ -25,4 +25,6 @@ public interface TransitSource {
 			HashMap<Integer, BusLocation> busMapping, String selectedRoute,
 			RoutePool routePool, Directions directions, Locations locationsObj,
 			HashMap<String, String> routeKeysToTitles) throws IOException, ParserConfigurationException, SAXException;
+
+	boolean hasPaths();
 }

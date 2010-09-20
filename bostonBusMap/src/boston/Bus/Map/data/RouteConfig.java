@@ -109,4 +109,9 @@ public class RouteConfig implements CanBeSerialized
 	public TransitSource getTransitSource() {
 		return transitSource;
 	}
+	
+	public boolean hasPaths()
+	{
+		return transitSource.hasPaths();
+	}
 }

@@ -226,7 +226,8 @@ public final class Locations
 		RouteConfig routeConfig = routeMapping.get(routeToUpdate);
 		if (routeConfig != null)
 		{
-			if (routeConfig.getStops().size() != 0 && (showRoute == false || routeConfig.getPaths().size() != 0))
+			if (routeConfig.getStops().size() != 0 && (showRoute == false || routeConfig.getPaths().size() != 0 || 
+					routeConfig.hasPaths() == false))
 			{
 				//everything's ok
 			}

@@ -221,6 +221,12 @@ public class MBTABusTransitSource implements TransitSource
 			return mbtaRouteConfigDataUrl + route;
 		}
 	}
+
+
+	@Override
+	public boolean hasPaths() {
+		return true;
+	}
 	
 
 }
