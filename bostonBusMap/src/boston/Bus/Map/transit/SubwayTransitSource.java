@@ -1,6 +1,8 @@
 package boston.Bus.Map.transit;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.net.URL;
 import java.util.HashMap;
 
 import javax.xml.parsers.ParserConfigurationException;
@@ -8,14 +10,25 @@ import javax.xml.parsers.ParserConfigurationException;
 import org.apache.http.client.ClientProtocolException;
 import org.xml.sax.SAXException;
 
+import android.content.Context;
+import android.graphics.drawable.Drawable;
 import boston.Bus.Map.data.BusLocation;
 import boston.Bus.Map.data.Directions;
 import boston.Bus.Map.data.Locations;
 import boston.Bus.Map.data.RouteConfig;
 import boston.Bus.Map.data.RoutePool;
+import boston.Bus.Map.main.UpdateAsyncTask;
+import boston.Bus.Map.parser.SubwayRouteConfigFeedParser;
 
 public class SubwayTransitSource implements TransitSource {
-
+	private final Drawable busStop;
+	
+	public SubwayTransitSource(Drawable busStop)
+	{
+		this.busStop = busStop;
+	}
+	
+	
 	@Override
 	public void populateStops(RoutePool routeMapping, String routeToUpdate,
 			RouteConfig oldRouteConfig, Directions directions,
@@ -76,5 +89,25 @@ public class SubwayTransitSource implements TransitSource {
 			}
 		}
 		return null;
+	}
+
+	@Override
+	public void initializeAllRoutes(UpdateAsyncTask task, Context context,
+			Directions directions, HashMap<String, String> routeKeysToTitles,
+			RoutePool routeMapping) throws IOException,
+			ParserConfigurationException, SAXException {
+		//download subway data
+		final String subwayUrl = getSubwayRouteConfigUrl();
+		URL url = new URL(subwayUrl);
+		InputStream in = Locations.downloadStream(url, task, "Downloading subway info: ", "");
+		
+		SubwayRouteConfigFeedParser subwayParser = new SubwayRouteConfigFeedParser(busStop, routeKeysToTitles, directions);
+		
+		task.publish("Parsing route data...");
+		
+		subwayParser.runParse(in);
+		
+		subwayParser.writeToDatabase(routeMapping, false);
+		
 	}
 }
