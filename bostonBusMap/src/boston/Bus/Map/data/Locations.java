@@ -55,6 +55,7 @@ import boston.Bus.Map.parser.RouteConfigFeedParser;
 import boston.Bus.Map.parser.SubwayPredictionsFeedParser;
 import boston.Bus.Map.parser.SubwayRouteConfigFeedParser;
 import boston.Bus.Map.parser.VehicleLocationsFeedParser;
+import boston.Bus.Map.transit.MBTABusTransitSource;
 import boston.Bus.Map.transit.TransitSource;
 import boston.Bus.Map.transit.TransitSystem;
 import boston.Bus.Map.util.DownloadHelper;
@@ -142,39 +143,20 @@ public final class Locations
 			
 			InputStream stream = downloadStream(url, task, prepend, "of approx " + TransitSystem.getSizeOfRouteConfigUrl());
 			*/
-			task.publish("Decompressing route data. This may take a minute...");
 			
-			final int contentLength = 453754;
 			
-			InputStream in = new StreamCounter(context.getResources().openRawResource(boston.Bus.Map.R.raw.routeconfig),
-					task, contentLength, null, "Decompressing route data, may take a minute: "); 
+			HashSet<TransitSource> systems = new HashSet<TransitSource>();
+			for (String route : routesThatNeedUpdating)
+			{
+				systems.add(TransitSystem.getTransitSource(route));
+			}
 			
-			GZIPInputStream stream = new GZIPInputStream(in); 
-			
-			RouteConfigFeedParser parser = new RouteConfigFeedParser(busStop, directions, routeKeysToTitles,
-					null);
-			
-			parser.runParse(stream);
-			
-			task.publish("Parsing route data...");
-
-			
-			parser.writeToDatabase(routeMapping, true);
-			
-			//download subway data
-			/*final String subwayUrl = TransitSystem.getSubwayRouteConfigUrl();
-			URL url = new URL(subwayUrl);
-			in = downloadStream(url, task, prepend, "");
-			
-			SubwayRouteConfigFeedParser subwayParser = new SubwayRouteConfigFeedParser(busStop, routeKeysToTitles, directions);
-			
-			task.publish("Parsing route data...");
-			
-			subwayParser.runParse(in);
-			
-			subwayParser.writeToDatabase(routeMapping, false);*/
-			
+			for (TransitSource system : systems)
+			{
+				system.initializeAllRoutes(task, context, directions, routeKeysToTitles, routeMapping);
+			}
 			routeMapping.fillInFavoritesRoutes();
+			//TODO: fill routeMapping somehow
 			
 			task.publish("Done!");
 		}
@@ -204,7 +186,7 @@ public final class Locations
 		}
 	}
 	
-	private InputStream downloadStream(URL url, UpdateAsyncTask task, String prepend, String ifContentLengthMissing) throws IOException {
+	public static InputStream downloadStream(URL url, UpdateAsyncTask task, String prepend, String ifContentLengthMissing) throws IOException {
 		URLConnection connection = url.openConnection();
 		int totalDownloadSize = connection.getContentLength();
 		InputStream inputStream = connection.getInputStream();
