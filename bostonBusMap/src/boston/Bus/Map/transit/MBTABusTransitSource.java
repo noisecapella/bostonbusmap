@@ -5,12 +5,14 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.zip.GZIPInputStream;
 
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.apache.http.client.ClientProtocolException;
 import org.xml.sax.SAXException;
 
+import android.content.Context;
 import android.graphics.drawable.Drawable;
 import android.util.Log;
 import boston.Bus.Map.data.BusLocation;
@@ -21,10 +23,12 @@ import boston.Bus.Map.data.RouteConfig;
 import boston.Bus.Map.data.RoutePool;
 import boston.Bus.Map.data.StopLocation;
 import boston.Bus.Map.main.Main;
+import boston.Bus.Map.main.UpdateAsyncTask;
 import boston.Bus.Map.parser.BusPredictionsFeedParser;
 import boston.Bus.Map.parser.RouteConfigFeedParser;
 import boston.Bus.Map.parser.VehicleLocationsFeedParser;
 import boston.Bus.Map.util.DownloadHelper;
+import boston.Bus.Map.util.StreamCounter;
 
 public class MBTABusTransitSource implements TransitSource
 {
@@ -226,6 +230,32 @@ public class MBTABusTransitSource implements TransitSource
 	@Override
 	public boolean hasPaths() {
 		return true;
+	}
+
+
+	@Override
+	public void initializeAllRoutes(UpdateAsyncTask task, Context context, Directions directions,
+			HashMap<String, String> routeKeysToTitles, RoutePool routeMapping) throws IOException, ParserConfigurationException, SAXException {
+		task.publish("Decompressing route data. This may take a minute...");
+		
+		final int contentLength = 453754;
+		
+		InputStream in = new StreamCounter(context.getResources().openRawResource(boston.Bus.Map.R.raw.routeconfig),
+				task, contentLength, null, "Decompressing route data, may take a minute: "); 
+		
+		GZIPInputStream stream = new GZIPInputStream(in); 
+		
+		RouteConfigFeedParser parser = new RouteConfigFeedParser(busStop, directions, routeKeysToTitles,
+				null);
+		
+		parser.runParse(stream);
+		
+		task.publish("Parsing route data...");
+
+		
+		parser.writeToDatabase(routeMapping, true);
+		
+		
 	}
 	
 

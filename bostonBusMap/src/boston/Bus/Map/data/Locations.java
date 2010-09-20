@@ -53,6 +53,7 @@ import boston.Bus.Map.main.UpdateAsyncTask;
 import boston.Bus.Map.parser.BusPredictionsFeedParser;
 import boston.Bus.Map.parser.RouteConfigFeedParser;
 import boston.Bus.Map.parser.VehicleLocationsFeedParser;
+import boston.Bus.Map.transit.MBTABusTransitSource;
 import boston.Bus.Map.transit.TransitSource;
 import boston.Bus.Map.transit.TransitSystem;
 import boston.Bus.Map.util.DownloadHelper;
@@ -140,30 +141,18 @@ public final class Locations
 			
 			InputStream stream = downloadStream(url, task, prepend, "of approx " + TransitSystem.getSizeOfRouteConfigUrl());
 			*/
-			task.publish("Decompressing route data. This may take a minute...");
 			
-			final int contentLength = 453754;
+			HashSet<TransitSource> systems = new HashSet<TransitSource>();
+			for (String route : routesThatNeedUpdating)
+			{
+				systems.add(TransitSystem.getTransitSource(route));
+			}
 			
-			InputStream in = new StreamCounter(context.getResources().openRawResource(boston.Bus.Map.R.raw.routeconfig),
-					task, contentLength, null, "Decompressing route data, may take a minute: "); 
-			
-			GZIPInputStream stream = new GZIPInputStream(in); 
-			
-			RouteConfigFeedParser parser = new RouteConfigFeedParser(busStop, directions, routeKeysToTitles,
-					null);
-			
-			parser.runParse(stream);
-			
-			task.publish("Parsing route data...");
-
-			
-			HashMap<String, RouteConfig> map = new HashMap<String, RouteConfig>();
-
-			parser.writeToDatabase(routeMapping, true);
-			
+			for (TransitSource system : systems)
+			{
+				system.initializeAllRoutes(task, context, directions, routeKeysToTitles, routeMapping);
+			}
 			routeMapping.fillInFavoritesRoutes();
-			
-			map.clear();
 			//TODO: fill routeMapping somehow
 			
 			task.publish("Done!");
