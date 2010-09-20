@@ -31,6 +31,7 @@ import boston.Bus.Map.data.Prediction;
 import boston.Bus.Map.data.RouteConfig;
 import boston.Bus.Map.data.RoutePool;
 import boston.Bus.Map.data.StopLocation;
+import boston.Bus.Map.transit.SubwayTransitSource;
 import boston.Bus.Map.transit.TransitSystem;
 
 public class SubwayPredictionsFeedParser 
@@ -46,7 +47,7 @@ public class SubwayPredictionsFeedParser
 	
 	private void clearPredictions() throws IOException
 	{
-		String[] routes = TransitSystem.getAllSubwayRoutes();
+		String[] routes = SubwayTransitSource.getAllSubwayRoutes();
 		
 		for (String route : routes)
 		{

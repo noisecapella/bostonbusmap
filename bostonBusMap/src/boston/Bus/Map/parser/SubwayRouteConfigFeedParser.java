@@ -21,6 +21,8 @@ import boston.Bus.Map.data.Directions;
 import boston.Bus.Map.data.RouteConfig;
 import boston.Bus.Map.data.RoutePool;
 import boston.Bus.Map.data.StopLocation;
+import boston.Bus.Map.transit.SubwayTransitSource;
+import boston.Bus.Map.transit.TransitSystem;
 
 import android.graphics.drawable.Drawable;
 
@@ -63,7 +65,8 @@ public class SubwayRouteConfigFeedParser
 			RouteConfig routeConfig = map.get(routeName);
 			if (routeConfig == null)
 			{
-				routeConfig = new RouteConfig(routeName);
+				routeConfig = new RouteConfig(routeName, SubwayTransitSource.getSubwayColor(routeName), null,
+						TransitSystem.getTransitSource(routeName));
 				map.put(routeName, routeConfig);
 			}
 			
