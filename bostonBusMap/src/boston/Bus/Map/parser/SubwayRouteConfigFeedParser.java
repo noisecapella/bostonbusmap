@@ -36,7 +36,7 @@ public class SubwayRouteConfigFeedParser
 	private final Directions directions;
 
 	public SubwayRouteConfigFeedParser(Drawable busStop,
-			HashMap<String, String> routeKeysToTitles, Directions directions) {
+			HashMap<String, String> routeKeysToTitles, Directions directions, RouteConfig oldRouteConfig) {
 		this.busStop = busStop;
 		this.routeKeysToTitles = routeKeysToTitles;
 		this.directions = directions;
