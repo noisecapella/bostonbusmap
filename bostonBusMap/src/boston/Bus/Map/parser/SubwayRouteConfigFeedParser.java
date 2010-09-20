@@ -65,7 +65,7 @@ public class SubwayRouteConfigFeedParser
 			RouteConfig routeConfig = map.get(routeName);
 			if (routeConfig == null)
 			{
-				routeConfig = new RouteConfig(routeName, SubwayTransitSource.getSubwayColor(routeName), null,
+				routeConfig = new RouteConfig(routeName, SubwayTransitSource.getSubwayColor(routeName), SubwayTransitSource.BlueColor,
 						TransitSystem.getTransitSource(routeName));
 				map.put(routeName, routeConfig);
 			}

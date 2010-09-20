@@ -161,7 +161,11 @@ public class SubwayTransitSource implements TransitSource {
 	public static final String BlueLine = "Blue";
 	private static final String[] subwayRoutes = new String[] {RedLine, OrangeLine, BlueLine};
 	
-	private static final String[] subwayColors = new String[] {"ff0000", "f88017", "0000ff"};
+	public static final String RedColor = "ff0000";
+	public static final String OrangeColor = "f88017";
+	public static final String BlueColor = "0000ff";
+	
+	private static final String[] subwayColors = new String[] {RedColor, OrangeColor, BlueColor};
 	
 	public static String[] getAllSubwayRoutes() {
 		return subwayRoutes;
@@ -176,7 +180,7 @@ public class SubwayTransitSource implements TransitSource {
 				return subwayColors[i];
 			}
 		}
-		return null;
+		return BlueColor;
 	}
 
 	@Override
