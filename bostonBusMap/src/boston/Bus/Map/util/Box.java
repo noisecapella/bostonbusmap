@@ -298,6 +298,29 @@ public class Box {
 		}
 	}
 	
+	public void readStringMap(Map<String, String> map) throws IOException
+	{
+		showProgress("readStringMap(map)");
+		byte b = readByte();
+		if (b == IS_NULL)
+		{
+			//do nothing
+			return;
+		}
+		else
+		{
+			int size = readInt();
+			for (int i = 0; i < size; i++)
+			{
+				String key = readString();
+				String value = readString();
+				
+				map.put(key, value);
+			}
+		}
+
+	}
+	
 	public HashMap<String, String> readStringMap() throws IOException
 	{
 		showProgress("readStringMap");

@@ -6,6 +6,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.SortedSet;
+import java.util.TreeMap;
 import java.util.TreeSet;
 
 import boston.Bus.Map.database.DatabaseHelper;
@@ -36,12 +37,13 @@ public class StopLocation implements Location, CanBeSerialized
 	
 	private ArrayList<Prediction> predictions = null;
 	
-	private final ArrayList<String> routes;
-	
 	private boolean isFavorite;
 	private final HashMap<String, String> routeKeysToTitles;
 	
-	private final ArrayList<String> dirTags;
+	/**
+	 * A mapping of routes to dirTags
+	 */
+	private final TreeMap<String, String> dirTags;
 	
 	private String snippetTitle;
 	private String snippetStop;
@@ -62,26 +64,16 @@ public class StopLocation implements Location, CanBeSerialized
 		this.busStop = busStop;
 		this.tag = tag;
 		this.title = title;
-		this.routes = new ArrayList<String>(1);
-		this.dirTags = new ArrayList<String>(2);
+		this.dirTags = new TreeMap<String, String>();
 		this.routeKeysToTitles = routeKeysToTitles;
 	}
-	
-	public void addRoute(RouteConfig route)
+
+	public void addRouteAndDirTag(String route, String dirTag)
 	{
-		synchronized (routes)
+		synchronized (dirTags)
 		{
-			String routeName = route.getRouteName();
-			if (routes.contains(routeName) == false)
-			{
-				routes.add(routeName);
-			}
+			dirTags.put(route, dirTag);
 		}
-	}
-	
-	public void addDirTag(String dirTag)
-	{
-		dirTags.add(dirTag);
 	}
 	
 	@Override
@@ -123,11 +115,7 @@ public class StopLocation implements Location, CanBeSerialized
 
 	@Override
 	public void makeSnippetAndTitle(RouteConfig routeConfig) {
-		synchronized(routes)
-		{
-			Collections.sort(routes);
-		}
-		snippetRoutes = makeSnippetRoutes(routes);		
+		snippetRoutes = makeSnippetRoutes(dirTags.keySet());
 		snippetTitle = title;
 		snippetStop = tag;
 		
@@ -183,7 +171,7 @@ public class StopLocation implements Location, CanBeSerialized
 		snippetStop += ", " + stopLocation.tag;
 		
 		TreeSet<String> combinedRoutes = new TreeSet<String>();
-		combinedRoutes.addAll(routes);
+		combinedRoutes.addAll(dirTags.keySet());
 		for (StopLocation s : sharedSnippetStops)
 		{
 			combinedRoutes.addAll(s.getRoutes());
@@ -342,8 +330,7 @@ public class StopLocation implements Location, CanBeSerialized
 
 		dest.writeStringUnique(title);
 		
-		dest.writeStrings(routes);
-		dest.writeStrings(dirTags);
+		dest.writeStringMap(dirTags);
 	}
 
 	
@@ -358,8 +345,9 @@ public class StopLocation implements Location, CanBeSerialized
 		tag = source.readString();
 
 		title = source.readStringUnique();
-		routes = source.readStrings();
-		dirTags = source.readStrings();
+		dirTags = new TreeMap<String, String>();
+		source.readStringMap(dirTags);
+		
 		this.routeKeysToTitles = routeKeysToTitles;
 		this.busStop = busStop;
 	}
@@ -380,9 +368,9 @@ public class StopLocation implements Location, CanBeSerialized
 		else
 		{
 			//do it for all routes we know about
-			synchronized (routes)
+			synchronized (dirTags)
 			{
-				for (String route : routes)
+				for (String route : dirTags.keySet())
 				{
 					MBTABusTransitSource.bindPredictionElementsForUrl(urlString, route, tag);
 				}
@@ -401,11 +389,11 @@ public class StopLocation implements Location, CanBeSerialized
 	}
 
 	public Collection<String> getRoutes() {
-		return routes;
+		return dirTags.keySet();
 	}
 
 	public String getFirstRoute() {
-		return routes.get(0);
+		return dirTags.keySet().iterator().next();
 	}
 
 	/**
