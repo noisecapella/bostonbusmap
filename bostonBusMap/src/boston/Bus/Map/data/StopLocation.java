@@ -43,7 +43,7 @@ public class StopLocation implements Location, CanBeSerialized
 	/**
 	 * A mapping of routes to dirTags
 	 */
-	private final TreeMap<String, String> dirTags;
+	private final HashMap<String, String> dirTags;
 	
 	private String snippetTitle;
 	private String snippetStop;
@@ -64,7 +64,7 @@ public class StopLocation implements Location, CanBeSerialized
 		this.busStop = busStop;
 		this.tag = tag;
 		this.title = title;
-		this.dirTags = new TreeMap<String, String>();
+		this.dirTags = new HashMap<String, String>();
 		this.routeKeysToTitles = routeKeysToTitles;
 	}
 
@@ -115,7 +115,9 @@ public class StopLocation implements Location, CanBeSerialized
 
 	@Override
 	public void makeSnippetAndTitle(RouteConfig routeConfig) {
-		snippetRoutes = makeSnippetRoutes(dirTags.keySet());
+		TreeSet<String> routes = new TreeSet<String>();
+		routes.addAll(dirTags.keySet());
+		snippetRoutes = makeSnippetRoutes(routes);
 		snippetTitle = title;
 		snippetStop = tag;
 		
@@ -345,8 +347,7 @@ public class StopLocation implements Location, CanBeSerialized
 		tag = source.readString();
 
 		title = source.readStringUnique();
-		dirTags = new TreeMap<String, String>();
-		source.readStringMap(dirTags);
+		dirTags = source.readStringMap();
 		
 		this.routeKeysToTitles = routeKeysToTitles;
 		this.busStop = busStop;
@@ -387,13 +388,18 @@ public class StopLocation implements Location, CanBeSerialized
 	public boolean isFavorite() {
 		return isFavorite;
 	}
-
+	/**
+	 * The list of routes that owns the StopLocation. NOTE: this is not in any particular order
+	 * @return
+	 */
 	public Collection<String> getRoutes() {
 		return dirTags.keySet();
 	}
 
 	public String getFirstRoute() {
-		return dirTags.keySet().iterator().next();
+		TreeSet<String> ret = new TreeSet<String>();
+		ret.addAll(dirTags.keySet());
+		return ret.first();
 	}
 
 	/**
