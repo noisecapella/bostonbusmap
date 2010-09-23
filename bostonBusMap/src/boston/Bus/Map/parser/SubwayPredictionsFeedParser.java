@@ -73,6 +73,7 @@ public class SubwayPredictionsFeedParser
 
 			SimpleDateFormat format = new SimpleDateFormat("M/d/y K:m:s a");
 
+			//TODO: there's a bug here where it doesn't interpret time after midnight correctly
 			for (int i = 0; i < array.length(); i++)
 			{
 				JSONObject object = (JSONObject)array.get(i);
@@ -91,7 +92,8 @@ public class SubwayPredictionsFeedParser
 				Date date = format.parse(object.getString("Time"));
 				long epochTime = date.getTime();
 				int minutes = (int)((epochTime - (long)System.currentTimeMillis()) / 1000 / 60);
-				String direction = null;
+				String stopDirection = stopKey.charAt(4) + "B";
+				String direction = route + stopDirection + object.getString("Route");
 				int vehicleId = 0;
 
 

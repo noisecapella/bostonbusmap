@@ -5,7 +5,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.TreeMap;
 
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
@@ -18,6 +20,7 @@ import org.xml.sax.XMLReader;
 import org.xml.sax.helpers.DefaultHandler;
 
 import boston.Bus.Map.data.Directions;
+import boston.Bus.Map.data.Path;
 import boston.Bus.Map.data.RouteConfig;
 import boston.Bus.Map.data.RoutePool;
 import boston.Bus.Map.data.StopLocation;
@@ -42,6 +45,25 @@ public class SubwayRouteConfigFeedParser
 		this.directions = directions;
 	}
 
+	private int getOrder(String route, int platformOrder)
+	{
+		platformOrder <<= 6;
+		if (route.equals(SubwayTransitSource.RedLine))
+		{
+			platformOrder |= 1;
+		}
+		else if (route.equals(SubwayTransitSource.BlueLine))
+		{
+			platformOrder |= 2;
+		}
+		else if (route.equals(SubwayTransitSource.OrangeLine))
+		{
+			platformOrder |= 4;
+		}
+		
+		return platformOrder;
+	}
+	
 	public void runParse(InputStream inputStream) throws ParserConfigurationException, SAXException, IOException {
 		BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
 		String[] definitions = reader.readLine().split(",");
@@ -50,6 +72,9 @@ public class SubwayRouteConfigFeedParser
 		{
 			indexes.put(definitions[i], i);
 		}
+		
+		HashMap<String, TreeMap<Integer, StopLocation>> orderedStations =
+			new HashMap<String, TreeMap<Integer, StopLocation>>();
 		
 		String line;
 		while ((line = reader.readLine()) != null)
@@ -78,8 +103,45 @@ public class SubwayRouteConfigFeedParser
 
 			StopLocation stopLocation = new StopLocation(latitudeAsDegrees, longitudeAsDegrees,
 					busStop, tag, title, routeKeysToTitles);
-			stopLocation.addRoute(routeConfig);
+
+			String dirTag = routeConfig.getRouteName() + elements[indexes.get("Direction")];
+			stopLocation.addRouteAndDirTag(routeConfig.getRouteName(), dirTag);
 			routeConfig.addStop(tag, stopLocation);
+			
+			int platformOrder = Integer.parseInt(elements[indexes.get("PlatformOrder")]);
+			
+			TreeMap<Integer, StopLocation> innerMapping = orderedStations.get(routeName);
+			if (innerMapping == null)
+			{
+				innerMapping = new TreeMap<Integer, StopLocation>();
+				orderedStations.put(routeName, innerMapping);
+			}
+			
+			innerMapping.put(platformOrder, stopLocation);
+		}
+		
+		//workaround
+		directions.add("RedNB0", "North", null, SubwayTransitSource.RedLine);
+		directions.add("RedSB0", "South to Braintree", null, SubwayTransitSource.RedLine);
+		directions.add("RedSB1", "South to Ashmont", null, SubwayTransitSource.RedLine);
+		directions.add("BlueEB0", "East", null, SubwayTransitSource.BlueLine);
+		directions.add("BlueWB0", "West", null, SubwayTransitSource.BlueLine);
+		directions.add("OrangeNB0", "North", null, SubwayTransitSource.OrangeLine);
+		directions.add("OrangeSB0", "South", null, SubwayTransitSource.OrangeLine);
+		
+		//path
+		for (String route : orderedStations.keySet())
+		{
+			ArrayList<Float> floats = new ArrayList<Float>();
+			TreeMap<Integer, StopLocation> stations = orderedStations.get(route);
+			for (Integer key : stations.keySet())
+			{
+				StopLocation stopLocation = stations.get(key);
+				floats.add((float)stopLocation.getLatitudeAsDegrees());
+				floats.add((float)stopLocation.getLongitudeAsDegrees());
+			}
+			
+			map.get(route).addPath(new Path(floats));
 		}
 	}
 
