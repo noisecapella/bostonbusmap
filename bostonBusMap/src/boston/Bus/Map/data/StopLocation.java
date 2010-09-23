@@ -363,7 +363,7 @@ public class StopLocation implements Location, CanBeSerialized
 		if (routeName != null)
 		{
 			//only do it for the given route
-			MBTABusTransitSource.bindPredictionElementsForUrl(urlString, routeName, tag);
+			MBTABusTransitSource.bindPredictionElementsForUrl(urlString, routeName, tag, dirTags.get(routeName));
 		}
 		else
 		{
@@ -372,7 +372,7 @@ public class StopLocation implements Location, CanBeSerialized
 			{
 				for (String route : dirTags.keySet())
 				{
-					MBTABusTransitSource.bindPredictionElementsForUrl(urlString, route, tag);
+					MBTABusTransitSource.bindPredictionElementsForUrl(urlString, route, tag, dirTags.get(route));
 				}
 			}
 		}

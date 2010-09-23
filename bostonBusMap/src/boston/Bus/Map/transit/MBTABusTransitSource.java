@@ -197,8 +197,14 @@ public class MBTABusTransitSource implements TransitSource
 	
 
 	public static void bindPredictionElementsForUrl(StringBuilder urlString,
-			String routeName, String stopId) {
-		urlString.append("&stops=").append(routeName).append("%7C%7C").append(stopId);
+			String routeName, String stopId, String direction) {
+		urlString.append("&stops=").append(routeName).append("%7C");
+		if (direction != null)
+		{
+			urlString.append(direction);
+		}
+		
+		urlString.append("%7C").append(stopId);
 		
 	}
 
