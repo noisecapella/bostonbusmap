@@ -6,6 +6,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.SortedSet;
+import java.util.TreeMap;
 import java.util.TreeSet;
 
 import boston.Bus.Map.database.DatabaseHelper;
@@ -36,12 +37,13 @@ public class StopLocation implements Location, CanBeSerialized
 	
 	private ArrayList<Prediction> predictions = null;
 	
-	private final ArrayList<String> routes;
-	
 	private boolean isFavorite;
 	private final HashMap<String, String> routeKeysToTitles;
 	
-	private final ArrayList<String> dirTags;
+	/**
+	 * A mapping of routes to dirTags
+	 */
+	private final HashMap<String, String> dirTags;
 	
 	private String snippetTitle;
 	private String snippetStop;
@@ -62,26 +64,16 @@ public class StopLocation implements Location, CanBeSerialized
 		this.busStop = busStop;
 		this.tag = tag;
 		this.title = title;
-		this.routes = new ArrayList<String>(1);
-		this.dirTags = new ArrayList<String>(2);
+		this.dirTags = new HashMap<String, String>();
 		this.routeKeysToTitles = routeKeysToTitles;
 	}
-	
-	public void addRoute(RouteConfig route)
+
+	public void addRouteAndDirTag(String route, String dirTag)
 	{
-		synchronized (routes)
+		synchronized (dirTags)
 		{
-			String routeName = route.getRouteName();
-			if (routes.contains(routeName) == false)
-			{
-				routes.add(routeName);
-			}
+			dirTags.put(route, dirTag);
 		}
-	}
-	
-	public void addDirTag(String dirTag)
-	{
-		dirTags.add(dirTag);
 	}
 	
 	@Override
@@ -123,11 +115,9 @@ public class StopLocation implements Location, CanBeSerialized
 
 	@Override
 	public void makeSnippetAndTitle(RouteConfig routeConfig) {
-		synchronized(routes)
-		{
-			Collections.sort(routes);
-		}
-		snippetRoutes = makeSnippetRoutes(routes);		
+		TreeSet<String> routes = new TreeSet<String>();
+		routes.addAll(dirTags.keySet());
+		snippetRoutes = makeSnippetRoutes(routes);
 		snippetTitle = title;
 		snippetStop = tag;
 		
@@ -183,7 +173,7 @@ public class StopLocation implements Location, CanBeSerialized
 		snippetStop += ", " + stopLocation.tag;
 		
 		TreeSet<String> combinedRoutes = new TreeSet<String>();
-		combinedRoutes.addAll(routes);
+		combinedRoutes.addAll(dirTags.keySet());
 		for (StopLocation s : sharedSnippetStops)
 		{
 			combinedRoutes.addAll(s.getRoutes());
@@ -342,8 +332,7 @@ public class StopLocation implements Location, CanBeSerialized
 
 		dest.writeStringUnique(title);
 		
-		dest.writeStrings(routes);
-		dest.writeStrings(dirTags);
+		dest.writeStringMap(dirTags);
 	}
 
 	
@@ -358,8 +347,8 @@ public class StopLocation implements Location, CanBeSerialized
 		tag = source.readString();
 
 		title = source.readStringUnique();
-		routes = source.readStrings();
-		dirTags = source.readStrings();
+		dirTags = source.readStringMap();
+		
 		this.routeKeysToTitles = routeKeysToTitles;
 		this.busStop = busStop;
 	}
@@ -375,16 +364,16 @@ public class StopLocation implements Location, CanBeSerialized
 		if (routeName != null)
 		{
 			//only do it for the given route
-			MBTABusTransitSource.bindPredictionElementsForUrl(urlString, routeName, tag);
+			MBTABusTransitSource.bindPredictionElementsForUrl(urlString, routeName, tag, dirTags.get(routeName));
 		}
 		else
 		{
 			//do it for all routes we know about
-			synchronized (routes)
+			synchronized (dirTags)
 			{
-				for (String route : routes)
+				for (String route : dirTags.keySet())
 				{
-					MBTABusTransitSource.bindPredictionElementsForUrl(urlString, route, tag);
+					MBTABusTransitSource.bindPredictionElementsForUrl(urlString, route, tag, dirTags.get(route));
 				}
 			}
 		}
@@ -399,13 +388,18 @@ public class StopLocation implements Location, CanBeSerialized
 	public boolean isFavorite() {
 		return isFavorite;
 	}
-
+	/**
+	 * The list of routes that owns the StopLocation. NOTE: this is not in any particular order
+	 * @return
+	 */
 	public Collection<String> getRoutes() {
-		return routes;
+		return dirTags.keySet();
 	}
 
 	public String getFirstRoute() {
-		return routes.get(0);
+		TreeSet<String> ret = new TreeSet<String>();
+		ret.addAll(dirTags.keySet());
+		return ret.first();
 	}
 
 	/**

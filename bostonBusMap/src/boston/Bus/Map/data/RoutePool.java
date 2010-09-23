@@ -151,7 +151,8 @@ public class RoutePool {
 	}
 
 	private void debugStateOfPool() {
-		ArrayList<String> routes = new ArrayList<String>(pool.size());
+		//commenting this out since it seems to have caused a crash on some computer
+		/*ArrayList<String> routes = new ArrayList<String>(pool.size());
 		routes.addAll(pool.keySet());
 		Collections.sort(routes);
 		
@@ -161,7 +162,7 @@ public class RoutePool {
 			joinable.append(route).append(", ");
 		}
 		
-		Log.v("BostonBusMap", "routes currently in pool: " + joinable);
+		Log.v("BostonBusMap", "routes currently in pool: " + joinable);*/
 	}
 
 	private void addARoute(String routeToUpdate, RouteConfig routeConfig) {
