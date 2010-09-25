@@ -132,6 +132,7 @@ public class UMichInitialFeedParser extends DefaultHandler {
 			{
 				currentRouteConfig = new RouteConfig(string, null, null, TransitSystem.getTransitSource(string));
 				routeMapping.put(string, currentRouteConfig);
+				routeKeysToTitles.put(string, string);
 			}
 		}
 		else
@@ -170,7 +171,8 @@ public class UMichInitialFeedParser extends DefaultHandler {
 		{
 			inStop = false;
 			
-			StopLocation currentStopLocation = new StopLocation(stopLat, stopLon, busStop, stopName, stopName, routeKeysToTitles);
+			StopLocation currentStopLocation = new StopLocation(stopLat, stopLon, busStop, 
+					stopName, stopName, routeKeysToTitles);
 			
 			int size = Math.min(predictionTimes.size(), predictionIds.size());
 			for (int i = 0; i < size; i++)
