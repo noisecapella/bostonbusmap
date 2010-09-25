@@ -3,6 +3,7 @@ package boston.Bus.Map.database;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -493,5 +494,19 @@ public class DatabaseHelper extends SQLiteOpenHelper
 		{
 			database.close();
 		}
+	}
+
+	public Collection<StopLocation> getAllStops() {
+		HashMap<String, StopLocation> stopLocations = new HashMap<String, StopLocation>();
+		
+		for (RouteConfig routeConfig : mapping.values())
+		{
+			for (StopLocation stopLocation : routeConfig.getStops())
+			{
+				stopLocations.put(stopLocation.getStopTag(), stopLocation);
+			}
+		}
+		
+		return stopLocations.values();
 	}
 }

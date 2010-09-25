@@ -2,6 +2,7 @@ package boston.Bus.Map.data;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -285,6 +286,10 @@ public class RoutePool {
 			}
 		}
 
+	}
+
+	public Collection<StopLocation> getAllStops() {
+		return helper.getAllStops();
 	}
 
 }

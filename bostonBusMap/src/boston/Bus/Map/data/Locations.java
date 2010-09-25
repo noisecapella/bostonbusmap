@@ -332,18 +332,11 @@ public final class Locations
 		{
 			//Log.v("BostonBusMap", "allStops size is " + allStops.size());
 			
-			/*for (StopLocation location : allStops)
+			for (StopLocation location : routeMapping.getAllStops())
 			{
-				if (location.distanceFrom(centerLatitude * LocationComparator.degreesToRadians,
-						centerLongitude * LocationComparator.degreesToRadians) < 1)
-				{
-					if (locationKeys.contains(location.getId()) == false)
-					{
-						newLocations.add(location);
-						locationKeys.add(location.getId());
-					}
-				}
-			}*/
+				newLocations.add(location);
+				locationKeys.add(location.getId());
+			}
 		}
 		else if (selectedBusPredictions == Main.BUS_PREDICTIONS_STAR)
 		{
