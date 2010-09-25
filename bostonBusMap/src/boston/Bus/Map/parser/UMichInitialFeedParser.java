@@ -171,7 +171,8 @@ public class UMichInitialFeedParser extends DefaultHandler {
 			
 			StopLocation currentStopLocation = new StopLocation(stopLat, stopLon, busStop, stopName, stopName, routeKeysToTitles);
 			
-			for (int i = 0; i < predictionTimes.size(); i++)
+			int size = Math.min(predictionTimes.size(), predictionIds.size());
+			for (int i = 0; i < size; i++)
 			{
 				long epochTime = 0;
 				String dirTag = null;

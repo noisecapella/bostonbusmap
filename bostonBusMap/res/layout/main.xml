@@ -10,10 +10,6 @@
 <Spinner android:id="@+id/predictionsOrLocations"
 android:layout_alignParentRight="true"
  android:layout_height="wrap_content" android:layout_width="wrap_content"></Spinner>
-<Spinner android:layout_width="wrap_content" android:layout_height="wrap_content" 
-android:layout_toLeftOf="@+id/predictionsOrLocations"
-android:id="@+id/modeSpinner"
- ></Spinner>
 		<TextView android:id="@+id/statusView"
 			android:layout_width="wrap_content" android:layout_height="wrap_content" 
 			android:text="" android:layout_toLeftOf="@+id/modeSpinner" android:layout_alignParentLeft="true"></TextView>
