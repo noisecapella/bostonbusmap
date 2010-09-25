@@ -69,9 +69,8 @@ public class UMichTransitSource implements TransitSource
 			RoutePool routeMapping) throws IOException,
 			ParserConfigurationException, SAXException {
 		UMichInitialFeedParser parser = new UMichInitialFeedParser(directions, routeKeysToTitles, busStop);
-		DownloadHelper helper = new DownloadHelper(dataUrl);
-		helper.connect();
-		InputStream data = helper.getResponseData();
+		URL url = new URL(dataUrl);
+		InputStream data = url.openStream();
 		parser.runParse(data);
 		
 		routeMapping.writeToDatabase(parser.getMapping(), true);
