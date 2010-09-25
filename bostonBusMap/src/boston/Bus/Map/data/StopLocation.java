@@ -222,8 +222,6 @@ public class StopLocation implements Location, CanBeSerialized
 	@Override
 	public String getSnippetTitle() {
 		String ret = snippetTitle;
-		ret += "\n" + "Stop: " + snippetStop;
-		ret += "; Routes: " + snippetRoutes;
 		return ret;
 	}
 	

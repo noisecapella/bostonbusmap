@@ -36,8 +36,8 @@ public class Prediction implements Comparable<Prediction>
 		}
 		else
 		{
-			String ret = "Route " + routeKeysToTitles.get(routeName);
-			ret += ", Bus " + vehicleId;
+			String ret = "" + routeKeysToTitles.get(routeName);
+			ret += "\nBus " + vehicleId;
 			
 			if (direction != null)
 			{
