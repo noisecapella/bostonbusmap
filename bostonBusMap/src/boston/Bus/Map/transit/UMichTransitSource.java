@@ -2,6 +2,7 @@ package boston.Bus.Map.transit;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URL;
 import java.util.HashMap;
 
 import javax.xml.parsers.ParserConfigurationException;
@@ -48,9 +49,9 @@ public class UMichTransitSource implements TransitSource
 			Locations locationsObj, HashMap<String, String> routeKeysToTitles)
 			throws IOException, ParserConfigurationException, SAXException {
 		UMichFeedParser parser = new UMichFeedParser(directions, routeKeysToTitles, busStop);
-		DownloadHelper helper = new DownloadHelper(dataUrl);
-		helper.connect();
-		InputStream data = helper.getResponseData();
+		
+		URL url = new URL(dataUrl);
+		InputStream data = url.openStream();
 		parser.runParse(data);
 		
 		routePool.writeToDatabase(parser.getMapping(), true);

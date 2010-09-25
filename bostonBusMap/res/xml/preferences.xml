@@ -12,7 +12,7 @@
 <CheckBoxPreference android:key="@string/showCoarseRouteLineCheckbox" 
 android:summary="Unchecking this may make things slow"
  android:title="Show coarse route path?"></CheckBoxPreference>-->
-<Preference android:title="About BostonBusMap" android:key="about"></Preference>
+<Preference android:title="About UmichBusMap" android:key="about"></Preference>
 
 
 
