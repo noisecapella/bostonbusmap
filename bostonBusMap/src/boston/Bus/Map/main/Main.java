@@ -189,7 +189,6 @@ public class Main extends MapActivity
         mapView = (MapView)findViewById(R.id.mapview);
         textView = (TextView)findViewById(R.id.statusView);
         toggleButton = (Spinner)findViewById(R.id.predictionsOrLocations);
-        Spinner modeSpinner = (Spinner)findViewById(R.id.modeSpinner);
         
         Resources resources = getResources();
 
@@ -252,8 +251,6 @@ public class Main extends MapActivity
         }
         String[] routesSupported = routeKeyMap[0];
         
-        modeSpinner.setAdapter(makeRouteSpinnerAdapter(routeKeyMap));
-        
         //get the busLocations variable if it already exists. We need to do that step here since handler
         double lastUpdateTime = 0;
         boolean previousUpdateConstantly = false;
@@ -312,33 +309,10 @@ public class Main extends MapActivity
         myLocationOverlay.setUpdateable(handler);
         
         populateHandlerSettings();
-        modeSpinner.setOnItemSelectedListener(new OnItemSelectedListener() {
-
-			@Override
-			public void onItemSelected(AdapterView<?> parent, View view,
-					int position, long id) {
-				if (firstRunRoute)
-				{
-					firstRunRoute = false;
-				}
-				else if (busLocations != null && handler != null)
-				{
-					selectedRouteIndex = position;
-					handler.setRouteIndex(position);
-					handler.triggerUpdate();
-					handler.immediateRefresh();
-				}
-			}
-
-			@Override
-			public void onNothingSelected(AdapterView<?> parent) {
-			}
-		});
 
         
         if (lastNonConfigurationInstance != null)
         {
-        	modeSpinner.setSelection(selectedRouteIndex);
         	handler.setSelectedBusPredictions(getSelectedBusPredictions());
         	handler.setRouteIndex(selectedRouteIndex);
         }
@@ -351,7 +325,6 @@ public class Main extends MapActivity
             selectedRouteIndex = prefs.getInt(selectedRouteIndexKey, 0);
             setSelectedBusPredictions(prefs.getInt(selectedBusPredictionsKey, VEHICLE_LOCATIONS_ALL));
             
-            modeSpinner.setSelection(selectedRouteIndex);
             handler.setRouteIndex(selectedRouteIndex);
             handler.setSelectedBusPredictions(getSelectedBusPredictions());
 
