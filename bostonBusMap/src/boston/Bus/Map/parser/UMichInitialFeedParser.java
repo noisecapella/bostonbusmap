@@ -176,7 +176,9 @@ public class UMichInitialFeedParser extends DefaultHandler {
 			{
 				long epochTime = 0;
 				String dirTag = null;
-				currentStopLocation.addPrediction((int)(predictionTimes.get(i) / 60), epochTime, predictionIds.get(i), dirTag, 
+				float predictionTime = predictionTimes.get(i);
+				int predictionId = predictionIds.get(i);
+				currentStopLocation.addPrediction((int)(predictionTime / 60), epochTime, predictionId, dirTag, 
 						currentRouteConfig, directions);
 			}
 			

@@ -1,6 +1,7 @@
 package boston.Bus.Map.transit;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.HashMap;
 
 import javax.xml.parsers.ParserConfigurationException;
@@ -17,6 +18,7 @@ import boston.Bus.Map.data.RouteConfig;
 import boston.Bus.Map.data.RoutePool;
 import boston.Bus.Map.main.UpdateAsyncTask;
 import boston.Bus.Map.parser.UMichInitialFeedParser;
+import boston.Bus.Map.util.DownloadHelper;
 
 public class UMichTransitSource implements TransitSource
 {
@@ -60,6 +62,12 @@ public class UMichTransitSource implements TransitSource
 			RoutePool routeMapping) throws IOException,
 			ParserConfigurationException, SAXException {
 		UMichInitialFeedParser parser = new UMichInitialFeedParser(directions, routeKeysToTitles, busStop);
+		DownloadHelper helper = new DownloadHelper(dataUrl);
+		helper.connect();
+		InputStream data = helper.getResponseData();
+		parser.runParse(data);
+		
+		
 	}
 
 }

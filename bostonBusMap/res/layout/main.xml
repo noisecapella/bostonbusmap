@@ -21,9 +21,9 @@ android:id="@+id/modeSpinner"
 	<com.google.android.maps.MapView
 		android:id="@+id/mapview" android:layout_width="fill_parent"
 		android:layout_height="fill_parent" android:clickable="true"
-		android:apiKey="04_mZq9Q_5sL2pltlDIYof4iIQimS_U5YPnRafg" />
+		android:apiKey="0UeumldxhB0Z2oJukTnO63OYszzcva3pkMu8vxA" />
 <!--  debug key: 0UeumldxhB0bPpe6UgModFrG5tLPAwclzgqJhRg -->
-<!--  release key: 04_mZq9Q_5sL2pltlDIYof4iIQimS_U5YPnRafg -->
+<!--  release key: 0UeumldxhB0Z2oJukTnO63OYszzcva3pkMu8vxA -->
 
 
 </LinearLayout>
