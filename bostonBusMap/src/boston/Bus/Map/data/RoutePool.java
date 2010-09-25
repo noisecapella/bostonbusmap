@@ -123,7 +123,33 @@ public class RoutePool {
 	public RouteConfig get(String routeToUpdate) throws IOException {
 		debugStateOfPool();
 		
-		return pool.get(routeToUpdate);
+		RouteConfig routeConfig = pool.get(routeToUpdate);
+		if (routeConfig != null)
+		{
+			return routeConfig;
+		}
+		else
+		{
+			synchronized (helper)
+			{
+				routeConfig = helper.getRoute(routeToUpdate, sharedStops, routeKeysToTitles);
+				if (routeConfig == null)
+				{
+					return null;
+				}
+				else
+				{
+					if (priorities.size() >= MAX_ROUTES)
+					{
+						removeARoute(priorities.get(0));
+					}
+
+					addARoute(routeToUpdate, routeConfig);
+
+					return routeConfig;
+				}
+			}
+		}
 	}
 
 	private void debugStateOfPool() {
@@ -199,7 +225,7 @@ public class RoutePool {
 
 	public ArrayList<String> routeInfoNeedsUpdating(String[] supportedRoutes) {
 		//TODO: what if another route gets added later, and we want to download it from the server and add it?
-		return null;
+		return helper.routeInfoNeedsUpdating(supportedRoutes);
 	}
 
 	public StopLocation[] getFavoriteStops() {
