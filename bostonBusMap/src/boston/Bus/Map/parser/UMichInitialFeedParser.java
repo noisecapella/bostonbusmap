@@ -131,6 +131,7 @@ public class UMichInitialFeedParser extends DefaultHandler {
 			if (inName)
 			{
 				currentRouteConfig = new RouteConfig(string, null, null, TransitSystem.getTransitSource(string));
+				routeMapping.put(string, currentRouteConfig);
 			}
 		}
 		else
@@ -208,5 +209,9 @@ public class UMichInitialFeedParser extends DefaultHandler {
 			inId = false;
 		}
 
+	}
+
+	public HashMap<String, RouteConfig> getMapping() {
+		return routeMapping;
 	}
 }

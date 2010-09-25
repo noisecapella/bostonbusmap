@@ -52,6 +52,8 @@ public class UMichTransitSource implements TransitSource
 		helper.connect();
 		InputStream data = helper.getResponseData();
 		parser.runParse(data);
+		
+		routePool.writeToDatabase(parser.getMapping(), true);
 	}
 
 	@Override
@@ -71,7 +73,7 @@ public class UMichTransitSource implements TransitSource
 		InputStream data = helper.getResponseData();
 		parser.runParse(data);
 		
-		
+		routeMapping.writeToDatabase(parser.getMapping(), true);
 	}
 
 }
