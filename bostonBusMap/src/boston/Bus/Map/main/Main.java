@@ -638,8 +638,8 @@ public class Main extends MapActivity
     	
     	boolean runInBackgroundCheckboxValue = prefs.getBoolean(getString(R.string.runInBackgroundCheckbox), true);
     	handler.setUpdateConstantly(runInBackgroundCheckboxValue);
-    	handler.setShowUnpredictable(prefs.getBoolean(getString(R.string.showUnpredictableBusesCheckbox), false));
-    	handler.setHideHighlightCircle(prefs.getBoolean(getString(R.string.hideCircleCheckbox), false));
+    	handler.setShowUnpredictable(true);
+    	handler.setHideHighlightCircle(true);
     	handler.setInferBusRoutes(false);
     	handler.setShowRouteLine(prefs.getBoolean(getString(R.string.showRouteLineCheckbox), false));
     	boolean showCoarseRouteLineCheckboxValue = prefs.getBoolean(getString(R.string.showCoarseRouteLineCheckbox), true); 

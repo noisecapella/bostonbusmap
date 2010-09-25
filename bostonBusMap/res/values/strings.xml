@@ -5,9 +5,7 @@
 <string name="refreshButton">Refresh!</string>
 
 <string name="runInBackgroundCheckbox">runInBackgroundKey</string>
-<string name="showUnpredictableBusesCheckbox">showUnpredictableBusesKey</string>
 
-<string name="hideCircleCheckbox">hideCircleCheckboxKey</string>
 <string name="numOverlaysPreference">numOverlaysPreference</string>
 
 <string name="showRouteLineCheckbox">showRouteLine</string>
