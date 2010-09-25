@@ -2,6 +2,8 @@ package boston.Bus.Map.main;
 
 import java.util.List;
 
+import boston.Bus.Map.main.Main;
+
 import android.content.Context;
 import android.view.KeyEvent;
 import android.widget.TextView;

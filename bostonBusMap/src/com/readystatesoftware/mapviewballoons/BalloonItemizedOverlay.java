@@ -20,6 +20,8 @@ package com.readystatesoftware.mapviewballoons;
 import java.lang.reflect.Method;
 import java.util.List;
 
+import umich.Bus.Map.R;
+
 import android.graphics.drawable.Drawable;
 import android.util.Log;
 import android.view.MotionEvent;
@@ -27,7 +29,7 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.View.OnTouchListener;
 import android.view.ViewGroup.LayoutParams;
-import boston.Bus.Map.R;
+
 
 import com.google.android.maps.GeoPoint;
 import com.google.android.maps.ItemizedOverlay;

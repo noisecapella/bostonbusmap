@@ -18,7 +18,7 @@
     */
 package boston.Bus.Map.main;
 
-import boston.Bus.Map.R;
+import umich.Bus.Map.R;
 import boston.Bus.Map.transit.TransitSystem;
 import android.content.Intent;
 import android.content.SharedPreferences;

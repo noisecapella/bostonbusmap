@@ -1,17 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-      package="boston.Bus.Map"
+      package="umich.Bus.Map"
       android:versionCode="59" android:versionName="2.32">
 	<application android:label="@string/app_name" android:icon="@drawable/appicon" 
 	android:theme="@style/android:Theme.NoTitleBar"
 	>
-		<activity android:label="@string/app_name" android:name=".main.Main" android:launchMode="singleTop">
+		<activity android:label="@string/app_name" android:name="boston.Bus.Map.main.Main" android:launchMode="singleTop">
 			<intent-filter>
 				<action android:name="android.intent.action.MAIN" />
 				<category android:name="android.intent.category.LAUNCHER" />
 			</intent-filter>
 		</activity>
-		<activity android:name=".main.Preferences" android:label="@string/app_name">
+		<activity android:name="boston.Bus.Map.main.Preferences" android:label="@string/app_name">
 		</activity> 
 		<uses-library android:name="com.google.android.maps"></uses-library>
 	<uses-library android:name="android.test.runner"></uses-library>

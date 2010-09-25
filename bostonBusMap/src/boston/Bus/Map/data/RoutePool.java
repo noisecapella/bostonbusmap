@@ -9,8 +9,10 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Queue;
 
+import umich.Bus.Map.R;
+
 import android.util.Log;
-import boston.Bus.Map.R;
+
 import boston.Bus.Map.database.DatabaseHelper;
 
 public class RoutePool {

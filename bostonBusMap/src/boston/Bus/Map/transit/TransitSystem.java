@@ -9,7 +9,7 @@ import android.util.Log;
 import boston.Bus.Map.data.Location;
 import boston.Bus.Map.data.RouteConfig;
 import boston.Bus.Map.data.StopLocation;
-import boston.Bus.Map.main.Main;
+
 import boston.Bus.Map.util.Constants;
 /**
  * Any transit-system specific stuff should go here, if possible
@@ -17,28 +17,28 @@ import boston.Bus.Map.util.Constants;
  *
  */
 public class TransitSystem {
-	private static final double bostonLatitude = 42.3583333;
-	private static final double bostonLongitude = -71.0602778;
+	private static final double annArborLatitude = 42.277;
+	private static final double annArborLongitude = -83.74;
 	
-	private static final String website = "http://www.terribleinformation.org/george/bostonbusmap";
+	private static final String website = "http://www.terribleinformation.org/george/umichbusmap";
 	
 	
 	public static double getCenterLat() {
-		return bostonLatitude;
+		return annArborLatitude;
 	}
 
 	public static double getCenterLon() {
-		return bostonLongitude;
+		return annArborLongitude;
 	}
 
 	public static int getCenterLatAsInt()
 	{
-		return (int)(bostonLatitude * Constants.E6);
+		return (int)(annArborLatitude * Constants.E6);
 	}
 	
 	public static int getCenterLonAsInt()
 	{
-		return (int)(bostonLongitude * Constants.E6);
+		return (int)(annArborLongitude * Constants.E6);
 	}
 
 	public static String getWebSite() {
@@ -59,7 +59,7 @@ public class TransitSystem {
 	{
 		if (defaultTransitSource == null)
 		{
-			defaultTransitSource = new MBTABusTransitSource(busStop, bus, arrow);
+			defaultTransitSource = new UMichTransitSource(busStop);
 		}
 	}
 	

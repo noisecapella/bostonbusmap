@@ -17,6 +17,7 @@ package com.readystatesoftware.mapviewballoons;
 
 
 
+import umich.Bus.Map.R;
 import android.content.Context;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -25,7 +26,6 @@ import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import boston.Bus.Map.R;
 
 import com.google.android.maps.OverlayItem;
 

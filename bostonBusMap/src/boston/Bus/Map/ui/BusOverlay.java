@@ -23,15 +23,18 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import umich.Bus.Map.R;
+import boston.Bus.Map.main.Main;
 
-import boston.Bus.Map.R;
+
+
 import boston.Bus.Map.data.BusLocation;
 import boston.Bus.Map.data.Locations;
 import boston.Bus.Map.data.StopLocation;
 
 import boston.Bus.Map.data.Location;
 import boston.Bus.Map.database.DatabaseHelper;
-import boston.Bus.Map.main.Main;
+
 import boston.Bus.Map.main.UpdateHandler;
 
 import com.google.android.maps.GeoPoint;

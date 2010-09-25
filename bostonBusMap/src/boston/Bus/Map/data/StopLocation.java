@@ -10,7 +10,7 @@ import java.util.TreeMap;
 import java.util.TreeSet;
 
 import boston.Bus.Map.database.DatabaseHelper;
-import boston.Bus.Map.transit.MBTABusTransitSource;
+
 import boston.Bus.Map.transit.TransitSystem;
 import boston.Bus.Map.util.Box;
 import boston.Bus.Map.util.Constants;
@@ -353,31 +353,6 @@ public class StopLocation implements Location, CanBeSerialized
 		this.busStop = busStop;
 	}
 
-	/**
-	 * This should be in Locations instead but I need to synchronize routes
-	 * 
-	 * NOTE: this is only for bus routes
-	 * 
-	 * @param urlString
-	 */
-	public void createPredictionsUrl(StringBuilder urlString, String routeName) {
-		if (routeName != null)
-		{
-			//only do it for the given route
-			MBTABusTransitSource.bindPredictionElementsForUrl(urlString, routeName, tag, dirTags.get(routeName));
-		}
-		else
-		{
-			//do it for all routes we know about
-			synchronized (dirTags)
-			{
-				for (String route : dirTags.keySet())
-				{
-					MBTABusTransitSource.bindPredictionElementsForUrl(urlString, route, tag, dirTags.get(route));
-				}
-			}
-		}
-	}
 
 	public void setFavorite(boolean b)
 	{

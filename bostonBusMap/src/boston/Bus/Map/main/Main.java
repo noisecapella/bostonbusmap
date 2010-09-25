@@ -30,10 +30,16 @@ import javax.xml.parsers.ParserConfigurationException;
 
 import org.xml.sax.SAXException;
 
-import boston.Bus.Map.R;
+import umich.Bus.Map.R;
+
+
 import boston.Bus.Map.data.Locations;
 import boston.Bus.Map.data.RouteConfig;
 import boston.Bus.Map.database.DatabaseHelper;
+import boston.Bus.Map.main.CurrentState;
+import boston.Bus.Map.main.Preferences;
+import boston.Bus.Map.main.UpdateAsyncTask;
+import boston.Bus.Map.main.UpdateHandler;
 import boston.Bus.Map.transit.TransitSystem;
 import boston.Bus.Map.ui.BusOverlay;
 

@@ -1,12 +1,13 @@
 package boston.Bus.Map.ui;
 
+import umich.Bus.Map.R;
 import android.content.Context;
 import android.location.Location;
 import android.location.LocationProvider;
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.Toast;
-import boston.Bus.Map.R;
+
 import boston.Bus.Map.main.UpdateHandler;
 
 import com.google.android.maps.GeoPoint;
