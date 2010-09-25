@@ -7,12 +7,9 @@
 		android:layout_width="wrap_content" android:layout_height="wrap_content"
 		 android:orientation="horizontal" android:padding="3dp" android:background="#000000">
 	
-<Spinner android:id="@+id/predictionsOrLocations"
-android:layout_alignParentRight="true"
- android:layout_height="wrap_content" android:layout_width="wrap_content"></Spinner>
 		<TextView android:id="@+id/statusView"
 			android:layout_width="wrap_content" android:layout_height="wrap_content" 
-			android:text="" android:layout_toLeftOf="@+id/predictionsOrLocations" android:layout_alignParentLeft="true"></TextView>
+			android:text="" android:layout_alignParentLeft="true"></TextView>
 </RelativeLayout>
 	<com.google.android.maps.MapView
 		android:id="@+id/mapview" android:layout_width="fill_parent"

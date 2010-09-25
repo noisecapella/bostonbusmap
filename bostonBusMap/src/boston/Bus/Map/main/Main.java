@@ -150,7 +150,6 @@ public class Main extends MapActivity
 	private RouteOverlay routeOverlay;
 	private LocationOverlay myLocationOverlay;
 	
-	private Spinner toggleButton;
 	private Drawable busStop;
 	
 	private MenuItem favoriteMenuItem;
@@ -188,7 +187,6 @@ public class Main extends MapActivity
         //get widgets
         mapView = (MapView)findViewById(R.id.mapview);
         textView = (TextView)findViewById(R.id.statusView);
-        toggleButton = (Spinner)findViewById(R.id.predictionsOrLocations);
         
         Resources resources = getResources();
 
@@ -204,42 +202,6 @@ public class Main extends MapActivity
         TransitSystem.setDefaultTransitSource(busStop, busPicture, arrow);
         SpinnerAdapter modeSpinnerAdapter = makeModeSpinner(); 
 
-        toggleButton.setOnItemSelectedListener(new OnItemSelectedListener() {
-
-			@Override
-			public void onItemSelected(AdapterView<?> parent, View view,
-					int position, long id) {
-				if (firstRunMode)
-				{
-					firstRunMode = false;
-				}
-				else if (busLocations != null && handler != null)
-				{
-					if (position < 0 || position >= modesSupported.length)
-					{
-						handler.setSelectedBusPredictions(VEHICLE_LOCATIONS_ALL);
-					}
-					else
-					{
-						handler.setSelectedBusPredictions(modesSupported[position]);
-					}
-
-					handler.triggerUpdate();
-					handler.immediateRefresh();
-				}				
-			}
-
-			@Override
-			public void onNothingSelected(AdapterView<?> arg0) {
-				//do nothing
-			}
-			
-
-		});
-
-        toggleButton.setAdapter(modeSpinnerAdapter);
-
-        
         DatabaseHelper helper = new DatabaseHelper(this, busStop);
         
         
@@ -404,28 +366,12 @@ public class Main extends MapActivity
 
 	private int getSelectedBusPredictions()
     {
-    	int pos = toggleButton.getSelectedItemPosition();
-    	if (pos < 0 || pos >= modesSupported.length)
-    	{
-    		return VEHICLE_LOCATIONS_ALL;
-    	}
-    	else
-    	{
-    		return modesSupported[pos];
-    	}
-    	
+   		return BUS_PREDICTIONS_ALL;
     }
 
     private void setSelectedBusPredictions(int selection)
     {
-    	for (int i = 0; i < modesSupported.length; i++)
-    	{
-    		if (modesSupported[i] == selection)
-    		{
-    			toggleButton.setSelection(i);
-    			return;
-    		}
-    	}
+    	//do nothing
     }
 
 	private String[][] getOrObtainRoutes(DatabaseHelper helper) {
@@ -493,7 +439,6 @@ public class Main extends MapActivity
 		textView = null;
 		
 		busStop = null;
-		toggleButton = null;
 		favoriteMenuItem = null;
 		
 		
@@ -515,14 +460,6 @@ public class Main extends MapActivity
     		break;
     	case R.id.settingsMenuItem:
     		startActivity(new Intent(this, Preferences.class));
-    		break;
-    	case R.id.favoriteItem:
-    		if (busLocations != null)
-    		{
-    			int id = busOverlay.toggleFavorite(busLocations);
-    			item.setIcon(id);
-    			Log.v("BostonBusMap", "setting favorite icon to " + (id == R.drawable.full_star ? "full star" : "empty star"));
-    		}
     		break;
     	case R.id.centerOnBostonMenuItem:
     	
@@ -558,19 +495,6 @@ public class Main extends MapActivity
     {
     	MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.options_menu, menu);
-        for (int i = 0; i < menu.size(); i++)
-        {
-        	MenuItem item = menu.getItem(i);
-        	if (item.getItemId() == R.id.favoriteItem)
-        	{
-        		if (currentFavoriteStatus != 0)
-        		{
-        			item.setIcon(currentFavoriteStatus);
-        		}
-    			favoriteMenuItem = item;
-        		break;
-        	}
-        }
         
         return true;
     }
