@@ -33,7 +33,6 @@ public class UMichInitialFeedParser extends DefaultHandler {
 <id>-2</id>
 <topofloop>0</topofloop>
 <busroutecolor>0000ff</busroutecolor>
-−
 <stop>
 <name>Bonisteel and Beal (Cooley) W</name>
 <name2>Cooley Lab</name2>
