@@ -77,6 +77,9 @@ public class UMichInitialFeedParser extends DefaultHandler {
 	private boolean inLat;
 	private boolean inLon;
 	
+	private int toaNum;
+	private int idNum;
+	
 	private HashMap<String, RouteConfig> routeMapping = new HashMap<String, RouteConfig>();
 	private HashMap<String, String> routeKeysToTitles = new HashMap<String, String>();
 	private RouteConfig currentRouteConfig;
@@ -85,8 +88,7 @@ public class UMichInitialFeedParser extends DefaultHandler {
 	private float stopLat;
 	private float stopLon;
 	
-	private final ArrayList<Integer> predictionIds = new ArrayList<Integer>();
-	private final ArrayList<Float> predictionTimes = new ArrayList<Float>();
+	private final HashMap<String, String> predictions = new HashMap<String, String>();
 	
 	
 	@Override
@@ -115,10 +117,12 @@ public class UMichInitialFeedParser extends DefaultHandler {
 		else if (localName.startsWith("toa"))
 		{
 			inToa = true;
+			toaNum = Integer.parseInt(localName.substring(3));
 		}
 		else if (localName.startsWith("id"))
 		{
 			inId = true;
+			idNum = Integer.parseInt(localName.substring(2));
 		}
 	}
 	
@@ -151,11 +155,11 @@ public class UMichInitialFeedParser extends DefaultHandler {
 			}
 			else if (inId)
 			{
-				predictionIds.add(Integer.parseInt(string));
+				predictions.put("id" + idNum, string);
 			}
 			else if (inToa)
 			{
-				predictionTimes.add(Float.parseFloat(string));
+				predictions.put("toa" + toaNum, string);
 			}
 		}
 	}
@@ -174,21 +178,26 @@ public class UMichInitialFeedParser extends DefaultHandler {
 			StopLocation currentStopLocation = new StopLocation(stopLat, stopLon, busStop, 
 					stopName, stopName, routeKeysToTitles);
 			
-			int size = Math.min(predictionTimes.size(), predictionIds.size());
-			for (int i = 0; i < size; i++)
+			//TODO: should probably use toacount for this
+			for (int i = 1; i <= 5; i++)
 			{
 				long epochTime = 0;
 				String dirTag = null;
-				float predictionTime = predictionTimes.get(i);
-				int predictionId = predictionIds.get(i);
+				String predictionTimeString = predictions.get("toa" + i);
+				String predictionIdString = predictions.get("id" + i);
+				if (predictionTimeString == null || predictionIdString == null)
+				{
+					continue;
+				}
+				
+				float predictionTime = Float.parseFloat(predictionTimeString);
+				int predictionId = Integer.parseInt(predictionIdString);
 				currentStopLocation.addPrediction((int)(predictionTime / 60), epochTime, predictionId, dirTag, 
 						currentRouteConfig, directions);
 			}
 			
 			currentRouteConfig.addStop(stopName, currentStopLocation);
-			predictionTimes.clear();
-			predictionIds.clear();
-
+			predictions.clear();
 		}
 		else if (localName.equals("name"))
 		{
