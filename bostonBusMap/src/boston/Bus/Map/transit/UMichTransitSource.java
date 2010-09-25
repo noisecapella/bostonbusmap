@@ -17,6 +17,7 @@ import boston.Bus.Map.data.Locations;
 import boston.Bus.Map.data.RouteConfig;
 import boston.Bus.Map.data.RoutePool;
 import boston.Bus.Map.main.UpdateAsyncTask;
+import boston.Bus.Map.parser.UMichFeedParser;
 import boston.Bus.Map.parser.UMichInitialFeedParser;
 import boston.Bus.Map.util.DownloadHelper;
 
@@ -46,8 +47,11 @@ public class UMichTransitSource implements TransitSource
 			String selectedRoute, RoutePool routePool, Directions directions,
 			Locations locationsObj, HashMap<String, String> routeKeysToTitles)
 			throws IOException, ParserConfigurationException, SAXException {
-		// TODO Auto-generated method stub
-		
+		UMichFeedParser parser = new UMichFeedParser();
+		DownloadHelper helper = new DownloadHelper(dataUrl);
+		helper.connect();
+		InputStream data = helper.getResponseData();
+		parser.runParse(data);
 	}
 
 	@Override
