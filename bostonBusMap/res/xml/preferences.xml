@@ -3,7 +3,9 @@
 
 
 
+<!-- 
 <CheckBoxPreference android:title="Show route path?" android:key="@string/showRouteLineCheckbox" android:summary="Draws a line along the selected route"></CheckBoxPreference>
+-->
 
 
 <!-- 
