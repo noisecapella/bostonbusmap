@@ -16,6 +16,7 @@ import boston.Bus.Map.data.Locations;
 import boston.Bus.Map.data.RouteConfig;
 import boston.Bus.Map.data.RoutePool;
 import boston.Bus.Map.main.UpdateAsyncTask;
+import boston.Bus.Map.parser.UMichInitialFeedParser;
 
 public class UMichTransitSource implements TransitSource
 {
@@ -25,14 +26,15 @@ public class UMichTransitSource implements TransitSource
 		this.busStop = busStop;
 	}
 	
+	private static final String dataUrl = "http://mbus.pts.umich.edu/shared/public_feed.xml";
+	
 	@Override
 	public void populateStops(RoutePool routeMapping, String routeToUpdate,
 			RouteConfig oldRouteConfig, Directions directions,
 			HashMap<String, String> routeKeysToTitles)
 			throws ClientProtocolException, IOException,
 			ParserConfigurationException, SAXException {
-		// TODO Auto-generated method stub
-		
+		//do nothing. we always have all the information we need
 	}
 
 	@Override
@@ -57,8 +59,7 @@ public class UMichTransitSource implements TransitSource
 			Directions directions, HashMap<String, String> routeKeysToTitles,
 			RoutePool routeMapping) throws IOException,
 			ParserConfigurationException, SAXException {
-		// TODO Auto-generated method stub
-		
+		UMichInitialFeedParser parser = new UMichInitialFeedParser(directions, routeKeysToTitles, busStop);
 	}
 
 }
