@@ -114,12 +114,12 @@ public class UMichInitialFeedParser extends DefaultHandler {
 		{
 			inLon = true;
 		}
-		else if (localName.startsWith("toa"))
+		else if (localName.startsWith("toa") && localName.equals("toacount") == false && localName.length() > 3)
 		{
 			inToa = true;
 			toaNum = Integer.parseInt(localName.substring(3));
 		}
-		else if (localName.startsWith("id"))
+		else if (localName.startsWith("id") && localName.length() > 2)
 		{
 			inId = true;
 			idNum = Integer.parseInt(localName.substring(2));
