@@ -47,7 +47,7 @@ public class UMichTransitSource implements TransitSource
 			String selectedRoute, RoutePool routePool, Directions directions,
 			Locations locationsObj, HashMap<String, String> routeKeysToTitles)
 			throws IOException, ParserConfigurationException, SAXException {
-		UMichFeedParser parser = new UMichFeedParser();
+		UMichFeedParser parser = new UMichFeedParser(directions, routeKeysToTitles, busStop);
 		DownloadHelper helper = new DownloadHelper(dataUrl);
 		helper.connect();
 		InputStream data = helper.getResponseData();

@@ -236,38 +236,16 @@ public class DatabaseHelper extends SQLiteOpenHelper
 		}
 	}
 	
+	private final HashMap<String, RouteConfig> mapping = new HashMap<String, RouteConfig>();
+	
 	public synchronized void saveMapping(HashMap<String, RouteConfig> mapping, boolean wipe, HashMap<String, StopLocation> sharedStops) throws IOException
 	{
-		SQLiteDatabase database = getWritableDatabase();
-		try
+		//not going to save to the database for UMich BusMap, because we get the entire route list every time we refresh
+		if (wipe)
 		{
-			database.beginTransaction();
-
-			if (wipe)
-			{
-				//database.delete(stopsTable, null, null);
-				//database.delete(directionsTable, null, null);
-				//database.delete(pathsTable, null, null);
-				database.delete(blobsTable, null, null);
-			}
-
-			for (String route : mapping.keySet())
-			{
-				RouteConfig routeConfig = mapping.get(route);
-				if (routeConfig != null)
-				{
-					saveMappingKernel(database, route, routeConfig, wipe, sharedStops);
-				}
-			}
-
-			database.setTransactionSuccessful();
-			database.endTransaction();
-
+			this.mapping.clear();
 		}
-		finally
-		{
-			database.close();
-		}
+		this.mapping.putAll(mapping);
 	}
 	
 	/**
@@ -363,34 +341,9 @@ public class DatabaseHelper extends SQLiteOpenHelper
 
 	public synchronized RouteConfig getRoute(String routeToUpdate, HashMap<String, StopLocation> sharedStops,
 			HashMap<String, String> routeKeysToTitles) throws IOException {
-		SQLiteDatabase database = getReadableDatabase();
-		Cursor cursor = null;
-		try
-		{
-			cursor = database.query(blobsTable, new String[]{blobKey}, routeKey + "=?",
-					new String[]{routeToUpdate}, null, null, null);
-			if (cursor.getCount() == 0)
-			{
-				return null;
-			}
-			else
-			{
-				cursor.moveToFirst();
-				byte[] data = cursor.getBlob(0);
-				Box box = new Box(data, CURRENT_DB_VERSION, sharedStops);
-				RouteConfig routeConfig = new RouteConfig(box, busStop, routeKeysToTitles,
-						TransitSystem.getTransitSource(routeToUpdate));
-				return routeConfig;
-			}
-		}
-		finally
-		{
-			database.close();
-			if (cursor != null)
-			{
-				cursor.close();
-			}
-		}
+		//we get the entire route structure each time we refresh, so there's no need to save to a database
+		
+		return mapping.get(routeToUpdate);
 	}
 
 	public synchronized ArrayList<String> routeInfoNeedsUpdating(String[] supportedRoutes) {

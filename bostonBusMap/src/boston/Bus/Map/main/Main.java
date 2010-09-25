@@ -163,15 +163,15 @@ public class Main extends MapActivity
 	public static final int BUS_PREDICTIONS_STAR = 5;
 	
 	public static final int[] modesSupported = new int[]{
-		BUS_PREDICTIONS_ONE, BUS_PREDICTIONS_STAR
+		BUS_PREDICTIONS_ALL, BUS_PREDICTIONS_STAR
 	};
 	
 	public static final int[] modeIconsSupported = new int[]{
-		R.drawable.busstop_one, R.drawable.busstop_star
+		R.drawable.busstop_all, R.drawable.busstop_star
 	};
 	
 	public static final String[] modeTextSupported = new String[]{
-		"Stops and predictions on one route", "Favorite stops"
+		"Stops and predictions", "Only favorite stops"
 	};
 	
 	
