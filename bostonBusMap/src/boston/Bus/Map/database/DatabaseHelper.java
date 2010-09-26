@@ -341,7 +341,6 @@ public class DatabaseHelper extends SQLiteOpenHelper
 	}
 
 	public synchronized RouteConfig getRoute(String routeToUpdate, HashMap<String, StopLocation> sharedStops,
-			HashMap<String, String> routeKeysToTitles,
 			TransitSystem transitSystem) throws IOException {
 		//we get the entire route structure each time we refresh, so there's no need to save to a database
 		

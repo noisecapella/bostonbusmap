@@ -197,6 +197,8 @@ public class Main extends MapActivity
         Drawable arrow = resources.getDrawable(R.drawable.arrow);
         Drawable tooltip = resources.getDrawable(R.drawable.tooltip);
         
+        Spinner modeSpinner = (Spinner)findViewById(R.id.modeSpinner);
+        
         busStop = resources.getDrawable(R.drawable.busstop_statelist);
         
         TransitSystem transitSystem = new TransitSystem();
@@ -207,7 +209,7 @@ public class Main extends MapActivity
         DatabaseHelper helper = new DatabaseHelper(this, busStop);
         
         
-        String[] transitRoutes = transitSystem.getRoutes();
+        final String[] transitRoutes = transitSystem.getRoutes();
         HashMap<String, String> routeKeysToTitles = transitSystem.getRouteKeysToTitles();
         
         //get the busLocations variable if it already exists. We need to do that step here since handler
@@ -259,21 +261,44 @@ public class Main extends MapActivity
         if (busLocations == null)
         {
         	busLocations = new Locations(busPicture, arrow, locationDrawable, busStop,
-        			transitRoutes, helper, routeKeysToTitles, transitSystem);
+        			helper, transitSystem);
         }
 
         handler = new UpdateHandler(textView, mapView, arrow, tooltip, busLocations, 
-        		this, helper, busOverlay, routeOverlay, myLocationOverlay, majorHandler);
+        		this, helper, busOverlay, routeOverlay, myLocationOverlay, majorHandler, transitSystem);
         busOverlay.setUpdateable(handler);
         myLocationOverlay.setUpdateable(handler);
         
         populateHandlerSettings();
 
+        modeSpinner.setOnItemSelectedListener(new OnItemSelectedListener() {
+
+			@Override
+			public void onItemSelected(AdapterView<?> parent, View view,
+					int position, long id) {
+				if (firstRunRoute)
+				{
+					firstRunRoute = false;
+				}
+				else if (busLocations != null && handler != null)
+				{
+					selectedRouteIndex = position;
+					handler.setRouteToUpdate(transitRoutes[position]);
+					handler.triggerUpdate();
+					handler.immediateRefresh();
+				}
+			}
+
+			@Override
+			public void onNothingSelected(AdapterView<?> parent) {
+			}
+		});
+
         
         if (lastNonConfigurationInstance != null)
         {
         	handler.setSelectedBusPredictions(getSelectedBusPredictions());
-        	handler.setRouteIndex(selectedRouteIndex);
+        	handler.setRouteToUpdate(transitRoutes[selectedRouteIndex]);
         }
         else
         {
@@ -284,7 +309,9 @@ public class Main extends MapActivity
             selectedRouteIndex = prefs.getInt(selectedRouteIndexKey, 0);
             setSelectedBusPredictions(prefs.getInt(selectedBusPredictionsKey, VEHICLE_LOCATIONS_ALL));
             
-            handler.setRouteIndex(selectedRouteIndex);
+            modeSpinner.setSelection(selectedRouteIndex);
+            handler.setRouteToUpdate(transitRoutes[selectedRouteIndex]);
+
             handler.setSelectedBusPredictions(getSelectedBusPredictions());
 
             if (centerLat != Integer.MAX_VALUE && centerLon != Integer.MAX_VALUE && zoomLevel != Integer.MAX_VALUE)

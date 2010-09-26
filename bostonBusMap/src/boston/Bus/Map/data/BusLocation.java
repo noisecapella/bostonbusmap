@@ -1,5 +1,7 @@
 package boston.Bus.Map.data;
 
+import java.util.HashMap;
+
 import boston.Bus.Map.ui.BusDrawable;
 import boston.Bus.Map.util.Constants;
 import android.content.Context;
@@ -222,12 +224,12 @@ public class BusLocation implements Location
 	 * NOTE: Buses are pretty much never in the exact same place, so I'll take the lazy way out of this
 	 */
 	@Override
-	public void addToSnippetAndTitle(RouteConfig routeConfig, Location location) {
+	public void addToSnippetAndTitle(RouteConfig routeConfig, Location location, HashMap<String, String> routeKeysToTitles) {
 		//ignore
 	}
 	
 	@Override
-	public void makeSnippetAndTitle(RouteConfig routeConfig) {
+	public void makeSnippetAndTitle(RouteConfig routeConfig, HashMap<String, String> routeKeysToTitles) {
 		snippet = makeSnippet(routeConfig);
 		snippetTitle = makeTitle();
 	}

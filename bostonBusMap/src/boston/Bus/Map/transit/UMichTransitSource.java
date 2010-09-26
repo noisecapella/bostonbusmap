@@ -34,8 +34,7 @@ public class UMichTransitSource implements TransitSource
 	
 	@Override
 	public void populateStops(RoutePool routeMapping, String routeToUpdate,
-			RouteConfig oldRouteConfig, Directions directions,
-			HashMap<String, String> routeKeysToTitles)
+			RouteConfig oldRouteConfig, Directions directions)
 			throws ClientProtocolException, IOException,
 			ParserConfigurationException, SAXException {
 		//do nothing. we always have all the information we need
@@ -46,7 +45,7 @@ public class UMichTransitSource implements TransitSource
 			int selectedBusPredictions, int maxStops, float centerLatitude,
 			float centerLongitude, HashMap<Integer, BusLocation> busMapping,
 			String selectedRoute, RoutePool routePool, Directions directions,
-			Locations locationsObj, HashMap<String, String> routeKeysToTitles)
+			Locations locationsObj)
 			throws IOException, ParserConfigurationException, SAXException {
 		UMichFeedParser parser = new UMichFeedParser(directions, routeKeysToTitles, busStop, this);
 		URL url = new URL(dataUrl);
@@ -62,28 +61,34 @@ public class UMichTransitSource implements TransitSource
 		return false;
 	}
 
+	private final HashMap<String, String> routeKeysToTitles = new HashMap<String, String>();
+	private String[] routes;
+	
 	@Override
 	public void initializeAllRoutes(UpdateAsyncTask task, Context context,
-			Directions directions, HashMap<String, String> routeKeysToTitles,
+			Directions directions,
 			RoutePool routeMapping) throws IOException,
 			ParserConfigurationException, SAXException {
+		routeKeysToTitles.clear();
 		UMichInitialFeedParser parser = new UMichInitialFeedParser(directions, routeKeysToTitles, busStop, this);
 		URL url = new URL(dataUrl);
 		InputStream data = url.openStream();
 		parser.runParse(data);
 		
+		routes = parser.getRoutes();
+		
 		routeMapping.writeToDatabase(parser.getMapping(), true);
 	}
 
+	
 	@Override
 	public String[] getRoutes() {
-		// TODO Auto-generated method stub
-		return new String[0];
+		return routes;
 	}
 
 	@Override
 	public HashMap<String, String> getRouteKeysToTitles() {
-		return new HashMap<String, String>();
+		return routeKeysToTitles;
 	}
 
 }

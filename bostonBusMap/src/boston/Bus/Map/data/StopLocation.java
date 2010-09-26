@@ -38,7 +38,6 @@ public class StopLocation implements Location, CanBeSerialized
 	private ArrayList<Prediction> predictions = null;
 	
 	private boolean isFavorite;
-	private final HashMap<String, String> routeKeysToTitles;
 	
 	/**
 	 * A mapping of routes to dirTags
@@ -57,7 +56,7 @@ public class StopLocation implements Location, CanBeSerialized
 	private static final int LOCATIONTYPE = 3; 
 	
 	public StopLocation(float latitudeAsDegrees, float longitudeAsDegrees,
-			Drawable busStop, String tag, String title, HashMap<String, String> routeKeysToTitles)
+			Drawable busStop, String tag, String title)
 	{
 		this.latitude = latitudeAsDegrees * Constants.degreesToRadians;
 		this.longitude = longitudeAsDegrees * Constants.degreesToRadians;
@@ -65,7 +64,6 @@ public class StopLocation implements Location, CanBeSerialized
 		this.tag = tag;
 		this.title = title;
 		this.dirTags = new HashMap<String, String>();
-		this.routeKeysToTitles = routeKeysToTitles;
 	}
 
 	public void addRouteAndDirTag(String route, String dirTag)
@@ -114,18 +112,18 @@ public class StopLocation implements Location, CanBeSerialized
 	}
 
 	@Override
-	public void makeSnippetAndTitle(RouteConfig routeConfig) {
+	public void makeSnippetAndTitle(RouteConfig routeConfig, HashMap<String, String> routeKeysToTitles) {
 		TreeSet<String> routes = new TreeSet<String>();
 		routes.addAll(dirTags.keySet());
-		snippetRoutes = makeSnippetRoutes(routes);
+		snippetRoutes = makeSnippetRoutes(routes, routeKeysToTitles);
 		snippetTitle = title;
 		snippetStop = tag;
 		
-		snippetPredictions = makeSnippet(routeConfig, predictions);
+		snippetPredictions = makeSnippet(routeConfig, predictions, routeKeysToTitles);
 		sharedSnippetStops = null;
 	}
 	
-	private String makeSnippetRoutes(Collection<String> routes) {
+	private String makeSnippetRoutes(Collection<String> routes, HashMap<String, String> routeKeysToTitles) {
 		String ret = "";
 		
 		//java doesn't have a join function? seriously?
@@ -149,7 +147,7 @@ public class StopLocation implements Location, CanBeSerialized
 	}
 
 	@Override
-	public void addToSnippetAndTitle(RouteConfig routeConfig, Location location) {
+	public void addToSnippetAndTitle(RouteConfig routeConfig, Location location, HashMap<String, String> routeKeysToTitles) {
 		StopLocation stopLocation = (StopLocation)location;
 		
 		if (sharedSnippetStops == null)
@@ -178,7 +176,7 @@ public class StopLocation implements Location, CanBeSerialized
 		{
 			combinedRoutes.addAll(s.getRoutes());
 		}
-		snippetRoutes = makeSnippetRoutes(combinedRoutes);
+		snippetRoutes = makeSnippetRoutes(combinedRoutes, routeKeysToTitles);
 		
 		ArrayList<Prediction> combinedPredictions = new ArrayList<Prediction>();
 		if (predictions != null)
@@ -194,7 +192,7 @@ public class StopLocation implements Location, CanBeSerialized
 			}
 		}
 		
-		snippetPredictions = makeSnippet(routeConfig, combinedPredictions);
+		snippetPredictions = makeSnippet(routeConfig, combinedPredictions, routeKeysToTitles);
 	}
 	
 	private String makeSnippetTitle(Collection<String> combinedTitles) {
@@ -225,7 +223,7 @@ public class StopLocation implements Location, CanBeSerialized
 		return ret;
 	}
 	
-	private String makeSnippet(RouteConfig routeConfig, ArrayList<Prediction> predictions) {
+	private String makeSnippet(RouteConfig routeConfig, ArrayList<Prediction> predictions, HashMap<String, String> routeKeysToTitles) {
 		String ret = "";
 		
 		if (predictions == null)
@@ -334,7 +332,7 @@ public class StopLocation implements Location, CanBeSerialized
 	}
 
 	
-	public StopLocation(Box source, Drawable busStop, HashMap<String, String> routeKeysToTitles) throws IOException {
+	public StopLocation(Box source, Drawable busStop) throws IOException {
 
 
 		this.latitude = source.readFloat();
@@ -347,7 +345,6 @@ public class StopLocation implements Location, CanBeSerialized
 		title = source.readStringUnique();
 		dirTags = source.readStringMap();
 		
-		this.routeKeysToTitles = routeKeysToTitles;
 		this.busStop = busStop;
 	}
 

@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.TreeSet;
 
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
@@ -55,11 +56,11 @@ public class UMichInitialFeedParser extends DefaultHandler {
 	private final Drawable busStop;
 	private final UMichTransitSource transitSource;
 	
-	public UMichInitialFeedParser(Directions directions, HashMap<String, String> routeKeysToTitles, Drawable busStop,
+	public UMichInitialFeedParser(Directions directions, HashMap<String, String> outputRouteKeysToTitles, Drawable busStop,
 			UMichTransitSource transitSource)
 	{
 		this.directions = directions;
-		this.routeKeysToTitles = routeKeysToTitles;
+		this.routeKeysToTitles = outputRouteKeysToTitles;
 		this.busStop = busStop;
 		this.transitSource = transitSource;
 	}
@@ -181,7 +182,7 @@ public class UMichInitialFeedParser extends DefaultHandler {
 			inStop = false;
 			
 			StopLocation currentStopLocation = new StopLocation(stopLat, stopLon, busStop, 
-					stopName, stopName, routeKeysToTitles);
+					stopName, stopName);
 			
 			//TODO: should probably use toacount for this
 			for (int i = 1; i <= 5; i++)
@@ -229,5 +230,11 @@ public class UMichInitialFeedParser extends DefaultHandler {
 
 	public HashMap<String, RouteConfig> getMapping() {
 		return routeMapping;
+	}
+
+	public String[] getRoutes() {
+		TreeSet<String> routes = new TreeSet<String>();
+		routes.addAll(routeMapping.keySet());
+		return routes.toArray(new String[0]);
 	}
 }

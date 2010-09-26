@@ -92,12 +92,12 @@ public class RouteConfig implements CanBeSerialized
 		dest.writePathsList(paths);
 	}
 
-	public RouteConfig(Box source, Drawable busStop, HashMap<String, String> routeKeysToTitles,
+	public RouteConfig(Box source, Drawable busStop,
 			TransitSource transitAgency) throws IOException {
 		route = source.readString();
 		color = source.readStringUnique();
 		oppositeColor = source.readString();
-		stops = source.readStopsMap(this, busStop, routeKeysToTitles);
+		stops = source.readStopsMap(this, busStop);
 		paths = source.readPathsList();
 		
 		this.transitSource = transitAgency;
