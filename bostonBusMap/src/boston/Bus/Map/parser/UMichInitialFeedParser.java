@@ -20,7 +20,9 @@ import android.graphics.drawable.Drawable;
 import boston.Bus.Map.data.Directions;
 import boston.Bus.Map.data.RouteConfig;
 import boston.Bus.Map.data.StopLocation;
+import boston.Bus.Map.transit.TransitSource;
 import boston.Bus.Map.transit.TransitSystem;
+import boston.Bus.Map.transit.UMichTransitSource;
 
 public class UMichInitialFeedParser extends DefaultHandler {
 	/*
@@ -51,12 +53,15 @@ public class UMichInitialFeedParser extends DefaultHandler {
 
 	private final Directions directions;
 	private final Drawable busStop;
+	private final UMichTransitSource transitSource;
 	
-	public UMichInitialFeedParser(Directions directions, HashMap<String, String> routeKeysToTitles, Drawable busStop)
+	public UMichInitialFeedParser(Directions directions, HashMap<String, String> routeKeysToTitles, Drawable busStop,
+			UMichTransitSource transitSource)
 	{
 		this.directions = directions;
 		this.routeKeysToTitles = routeKeysToTitles;
 		this.busStop = busStop;
+		this.transitSource = transitSource;
 	}
 	
 	public void runParse(InputStream data) throws ParserConfigurationException, SAXException, IOException
@@ -134,7 +139,7 @@ public class UMichInitialFeedParser extends DefaultHandler {
 		{
 			if (inName)
 			{
-				currentRouteConfig = new RouteConfig(string, null, null, TransitSystem.getTransitSource(string));
+				currentRouteConfig = new RouteConfig(string, null, null, transitSource);
 				routeMapping.put(string, currentRouteConfig);
 				routeKeysToTitles.put(string, string);
 			}

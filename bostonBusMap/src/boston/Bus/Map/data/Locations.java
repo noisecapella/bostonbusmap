@@ -50,9 +50,6 @@ import android.util.Log;
 import boston.Bus.Map.database.DatabaseHelper;
 import boston.Bus.Map.main.Main;
 import boston.Bus.Map.main.UpdateAsyncTask;
-import boston.Bus.Map.parser.BusPredictionsFeedParser;
-import boston.Bus.Map.parser.RouteConfigFeedParser;
-import boston.Bus.Map.parser.VehicleLocationsFeedParser;
 import boston.Bus.Map.transit.TransitSource;
 import boston.Bus.Map.transit.TransitSystem;
 import boston.Bus.Map.util.DownloadHelper;
@@ -99,10 +96,11 @@ public final class Locations
 	private String selectedRoute;
 	private int selectedBusPredictions;
 	private final HashMap<String, String> routeKeysToTitles;
+	private final TransitSystem transitSystem;
 	
 	public Locations(Drawable bus, Drawable arrow, Drawable locationDrawable,
 			Drawable busStop, String[] supportedRoutes, DatabaseHelper helper, 
-			HashMap<String, String> routeKeysToTitles)
+			HashMap<String, String> routeKeysToTitles, TransitSystem transitSystem)
 	{
 		this.bus = bus;
 		this.arrow = arrow;
@@ -110,8 +108,8 @@ public final class Locations
 		this.busStop = busStop;
 		this.supportedRoutes = supportedRoutes;
 		this.routeKeysToTitles = routeKeysToTitles;
-		
-		routeMapping = new RoutePool(helper, supportedRoutes, routeKeysToTitles);
+		this.transitSystem = transitSystem;
+		routeMapping = new RoutePool(helper, supportedRoutes, routeKeysToTitles, transitSystem);
 		directions = new Directions(helper);
 	}
 	
@@ -144,7 +142,7 @@ public final class Locations
 			HashSet<TransitSource> systems = new HashSet<TransitSource>();
 			for (String route : routesThatNeedUpdating)
 			{
-				systems.add(TransitSystem.getTransitSource(route));
+				systems.add(transitSystem.getTransitSource(route));
 			}
 			
 			for (TransitSource system : systems)
@@ -255,7 +253,7 @@ public final class Locations
 		}
 		else
 		{
-			transitSource = TransitSystem.getTransitSource(routeToUpdate);
+			transitSource = transitSystem.getTransitSource(routeToUpdate);
 		}
 		
 		transitSource.populateStops(routeMapping, routeToUpdate, oldRouteConfig, directions, routeKeysToTitles);

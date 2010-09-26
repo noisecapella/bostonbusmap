@@ -48,8 +48,7 @@ public class UMichTransitSource implements TransitSource
 			String selectedRoute, RoutePool routePool, Directions directions,
 			Locations locationsObj, HashMap<String, String> routeKeysToTitles)
 			throws IOException, ParserConfigurationException, SAXException {
-		UMichFeedParser parser = new UMichFeedParser(directions, routeKeysToTitles, busStop);
-		
+		UMichFeedParser parser = new UMichFeedParser(directions, routeKeysToTitles, busStop, this);
 		URL url = new URL(dataUrl);
 		InputStream data = url.openStream();
 		parser.runParse(data);
@@ -68,12 +67,23 @@ public class UMichTransitSource implements TransitSource
 			Directions directions, HashMap<String, String> routeKeysToTitles,
 			RoutePool routeMapping) throws IOException,
 			ParserConfigurationException, SAXException {
-		UMichInitialFeedParser parser = new UMichInitialFeedParser(directions, routeKeysToTitles, busStop);
+		UMichInitialFeedParser parser = new UMichInitialFeedParser(directions, routeKeysToTitles, busStop, this);
 		URL url = new URL(dataUrl);
 		InputStream data = url.openStream();
 		parser.runParse(data);
 		
 		routeMapping.writeToDatabase(parser.getMapping(), true);
+	}
+
+	@Override
+	public String[] getRoutes() {
+		// TODO Auto-generated method stub
+		return new String[0];
+	}
+
+	@Override
+	public HashMap<String, String> getRouteKeysToTitles() {
+		return new HashMap<String, String>();
 	}
 
 }
