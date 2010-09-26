@@ -362,7 +362,7 @@ public class DatabaseHelper extends SQLiteOpenHelper
 	}
 
 	public synchronized RouteConfig getRoute(String routeToUpdate, HashMap<String, StopLocation> sharedStops,
-			HashMap<String, String> routeKeysToTitles, TransitSystem transitSystem) throws IOException {
+			TransitSystem transitSystem) throws IOException {
 		SQLiteDatabase database = getReadableDatabase();
 		Cursor cursor = null;
 		try
@@ -378,7 +378,7 @@ public class DatabaseHelper extends SQLiteOpenHelper
 				cursor.moveToFirst();
 				byte[] data = cursor.getBlob(0);
 				Box box = new Box(data, CURRENT_DB_VERSION, sharedStops);
-				RouteConfig routeConfig = new RouteConfig(box, busStop, routeKeysToTitles,
+				RouteConfig routeConfig = new RouteConfig(box, busStop, 
 						transitSystem.getTransitSource(routeToUpdate));
 				return routeConfig;
 			}

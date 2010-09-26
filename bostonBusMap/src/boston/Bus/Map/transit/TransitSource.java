@@ -19,19 +19,19 @@ import boston.Bus.Map.main.UpdateAsyncTask;
 public interface TransitSource {
 
 	void populateStops(RoutePool routeMapping, String routeToUpdate,
-			RouteConfig oldRouteConfig, Directions directions, HashMap<String, String> routeKeysToTitles)
+			RouteConfig oldRouteConfig, Directions directions)
 		throws ClientProtocolException, IOException, ParserConfigurationException, SAXException ;
 
 	void refreshData(RouteConfig routeConfig, int selectedBusPredictions,
 			int maxStops, float centerLatitude, float centerLongitude,
 			HashMap<Integer, BusLocation> busMapping, String selectedRoute,
-			RoutePool routePool, Directions directions, Locations locationsObj,
-			HashMap<String, String> routeKeysToTitles) throws IOException, ParserConfigurationException, SAXException;
+			RoutePool routePool, Directions directions, Locations locationsObj)
+	throws IOException, ParserConfigurationException, SAXException;
 
 	boolean hasPaths();
 
 	public void initializeAllRoutes(UpdateAsyncTask task, Context context,
-			Directions directions, HashMap<String, String> routeKeysToTitles, RoutePool routeMapping) throws IOException,
+			Directions directions, RoutePool routeMapping) throws IOException,
 			ParserConfigurationException, SAXException;
 	
 	public String[] getRoutes();

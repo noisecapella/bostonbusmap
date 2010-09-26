@@ -240,7 +240,7 @@ public class Main extends MapActivity
         DatabaseHelper helper = new DatabaseHelper(this, busStop);
         
         
-        String[] transitRoutes = transitSystem.getRoutes();
+        final String[] transitRoutes = transitSystem.getRoutes();
         HashMap<String, String> routeKeysToTitles = transitSystem.getRouteKeysToTitles();
         
         modeSpinner.setAdapter(makeRouteSpinnerAdapter(transitRoutes, routeKeysToTitles));
@@ -294,11 +294,11 @@ public class Main extends MapActivity
         if (busLocations == null)
         {
         	busLocations = new Locations(busPicture, arrow, locationDrawable, busStop,
-        			transitRoutes, helper, routeKeysToTitles, transitSystem);
+        			helper, transitSystem);
         }
 
         handler = new UpdateHandler(textView, mapView, arrow, tooltip, busLocations, 
-        		this, helper, busOverlay, routeOverlay, myLocationOverlay, majorHandler);
+        		this, helper, busOverlay, routeOverlay, myLocationOverlay, majorHandler, transitSystem);
         busOverlay.setUpdateable(handler);
         myLocationOverlay.setUpdateable(handler);
         
@@ -315,7 +315,7 @@ public class Main extends MapActivity
 				else if (busLocations != null && handler != null)
 				{
 					selectedRouteIndex = position;
-					handler.setRouteIndex(position);
+					handler.setRouteToUpdate(transitRoutes[position]);
 					handler.triggerUpdate();
 					handler.immediateRefresh();
 				}
@@ -331,7 +331,7 @@ public class Main extends MapActivity
         {
         	modeSpinner.setSelection(selectedRouteIndex);
         	handler.setSelectedBusPredictions(getSelectedBusPredictions());
-        	handler.setRouteIndex(selectedRouteIndex);
+        	handler.setRouteToUpdate(transitRoutes[selectedRouteIndex]);
         }
         else
         {
@@ -343,7 +343,7 @@ public class Main extends MapActivity
             setSelectedBusPredictions(prefs.getInt(selectedBusPredictionsKey, VEHICLE_LOCATIONS_ALL));
             
             modeSpinner.setSelection(selectedRouteIndex);
-            handler.setRouteIndex(selectedRouteIndex);
+            handler.setRouteToUpdate(transitRoutes[selectedRouteIndex]);
             handler.setSelectedBusPredictions(getSelectedBusPredictions());
 
             if (centerLat != Integer.MAX_VALUE && centerLon != Integer.MAX_VALUE && zoomLevel != Integer.MAX_VALUE)

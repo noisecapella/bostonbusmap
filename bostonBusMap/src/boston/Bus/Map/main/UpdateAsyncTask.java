@@ -41,6 +41,7 @@ import boston.Bus.Map.data.Path;
 import boston.Bus.Map.data.RouteConfig;
 import boston.Bus.Map.data.StopLocation;
 import boston.Bus.Map.database.DatabaseHelper;
+import boston.Bus.Map.transit.TransitSystem;
 import boston.Bus.Map.ui.BusOverlay;
 import boston.Bus.Map.ui.LocationOverlay;
 import boston.Bus.Map.ui.RouteOverlay;
@@ -92,16 +93,18 @@ public class UpdateAsyncTask extends AsyncTask<Object, String, Locations>
 	private RouteOverlay routeOverlay;
 	private LocationOverlay locationOverlay;
 	
-	private final int selectedRouteIndex;
+	private final String routeToUpdate;
 	private final int selectedBusPredictions;
 	private final boolean showRouteLine;
 	private final boolean showCoarseRouteLine;
+	private final TransitSystem transitSystem;
 	
 	public UpdateAsyncTask(TextView textView, MapView mapView, LocationOverlay locationOverlay, String finalMessage,
 			boolean doShowUnpredictable, boolean doRefresh, int maxOverlays,
 			boolean drawCircle, boolean inferBusRoutes, BusOverlay busOverlay, RouteOverlay routeOverlay, 
-			DatabaseHelper helper, int selectedRouteIndex,
-			int selectedBusPredictions, boolean doInit, boolean showRouteLine, boolean showCoarseRouteLine)
+			DatabaseHelper helper, String routeToUpdate,
+			int selectedBusPredictions, boolean doInit, boolean showRouteLine, boolean showCoarseRouteLine,
+		TransitSystem transitSystem)
 	{
 		super();
 		
@@ -118,12 +121,13 @@ public class UpdateAsyncTask extends AsyncTask<Object, String, Locations>
 		this.locationOverlay = locationOverlay;
 		this.helper = helper;
 		this.textView = textView;
-		this.selectedRouteIndex = selectedRouteIndex;
+		this.routeToUpdate = routeToUpdate;
 		this.selectedBusPredictions = selectedBusPredictions;
 		this.doInit = doInit;
 		this.showRouteLine = showRouteLine;
 		this.showCoarseRouteLine = showCoarseRouteLine;
 		//this.uiHandler = new Handler();
+		this.transitSystem = transitSystem;
 	}
 	
 	/**
@@ -160,17 +164,18 @@ public class UpdateAsyncTask extends AsyncTask<Object, String, Locations>
 			silenceUpdates = true;
 		}
 		
-		busLocations.select(selectedRouteIndex, selectedBusPredictions);
+		busLocations.select(routeToUpdate, selectedBusPredictions);
 
 		if (doRefresh)
 		{
 			try
 			{
+				String[] allRoutes = transitSystem.getRoutes();
 				if (doInit)
 				{
 					//publishProgress("Did not find route info in database, checking if there's free space to download it...");
 				}
-				if (busLocations.checkFreeSpace(helper) == false)
+				if (busLocations.checkFreeSpace(helper, allRoutes) == false)
 				{
 					publishProgress("There is not enough free space to download the route info. About 2MB free is required");
 					return null;
@@ -180,12 +185,12 @@ public class UpdateAsyncTask extends AsyncTask<Object, String, Locations>
 				{
 					//publishProgress("Did not find route info in database, downloading it now...");
 				}
-				busLocations.initializeAllRoutes(this, context);
+				busLocations.initializeAllRoutes(this, context, allRoutes);
 				
 				
 				publishProgress("Fetching data...");
 
-				busLocations.Refresh(inferBusRoutes, selectedRouteIndex, selectedBusPredictions,
+				busLocations.Refresh(inferBusRoutes, routeToUpdate, selectedBusPredictions,
 						centerLatitude, centerLongitude, this, showRouteLine);
 			}
 			catch (IOException e)
@@ -284,12 +289,6 @@ public class UpdateAsyncTask extends AsyncTask<Object, String, Locations>
 		
 		final Handler uiHandler = new Handler();
 		
-		sortBuses(busLocationsObject, latitude, longitude, uiHandler);
-	}
-
-	
-	private void sortBuses(Locations busLocationsObject, final float latitude,
-			final float longitude, Handler uiHandler) {
 		final ArrayList<Location> busLocations = new ArrayList<Location>();
 		
 		try
@@ -389,6 +388,8 @@ public class UpdateAsyncTask extends AsyncTask<Object, String, Locations>
 		
 		busOverlay.doPopulate();
 		
+		HashMap<String, String> routeKeysToTitles = transitSystem.getRouteKeysToTitles();
+		
 		//point hash to index in busLocations
 		HashMap<Long, Integer> points = new HashMap<Long, Integer>();
 		
@@ -408,11 +409,11 @@ public class UpdateAsyncTask extends AsyncTask<Object, String, Locations>
 			if (null != index)
 			{
 				//two stops in one space. Just use the one overlay, and combine textboxes in an elegant manner
-				busLocations.get(index).addToSnippetAndTitle(selectedRouteConfig, busLocation);
+				busLocations.get(index).addToSnippetAndTitle(selectedRouteConfig, busLocation, routeKeysToTitles);
 			}
 			else
 			{
-				busLocation.makeSnippetAndTitle(selectedRouteConfig);
+				busLocation.makeSnippetAndTitle(selectedRouteConfig, routeKeysToTitles);
 			
 			
 				points.put(hash, i);
