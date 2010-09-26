@@ -40,7 +40,7 @@ public class RouteConfigFeedParser extends DefaultHandler
 	private final RouteConfig oldRouteConfig;
 	
 	public RouteConfigFeedParser(Drawable busStop, Directions directions, HashMap<String, String> routeKeysToTitles,
-			RouteConfig oldRouteConfig)
+			RouteConfig oldRouteConfig, MBTABusTransitSource transitSource)
 	{
 		this.busStop = busStop;
 		this.directions = directions;
@@ -51,7 +51,7 @@ public class RouteConfigFeedParser extends DefaultHandler
 		{
 			allStops.putAll(oldRouteConfig.getStopMapping());
 		}
-		transitSource = TransitSystem.getTransitSource(oldRouteConfig != null ? oldRouteConfig.getRouteName() : null);
+		this.transitSource = transitSource;
 	}
 
 	public void runParse(InputStream inputStream)  throws ParserConfigurationException, SAXException, IOException
