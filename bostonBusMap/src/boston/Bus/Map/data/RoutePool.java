@@ -12,6 +12,7 @@ import java.util.Queue;
 import android.util.Log;
 import boston.Bus.Map.R;
 import boston.Bus.Map.database.DatabaseHelper;
+import boston.Bus.Map.transit.TransitSystem;
 
 public class RoutePool {
 	private final DatabaseHelper helper;
@@ -24,14 +25,16 @@ public class RoutePool {
 	private final HashMap<String, String> routeKeysToTitles;
 
 	private final String[] supportedRoutes;
-	
+	private final TransitSystem transitSystem;
 	
 	private static final int MAX_ROUTES = 50;
 	
-	public RoutePool(DatabaseHelper helper, String[] supportedRoutes, HashMap<String, String> routeKeysToTitles) {
+	public RoutePool(DatabaseHelper helper, String[] supportedRoutes, HashMap<String, String> routeKeysToTitles,
+			TransitSystem transitSystem) {
 		this.helper = helper;
 		this.supportedRoutes = supportedRoutes;
 		this.routeKeysToTitles = routeKeysToTitles;
+		this.transitSystem = transitSystem;
 		
 		helper.populateFavorites(favoriteStops);
 		fillInFavoritesRoutes();
@@ -130,7 +133,7 @@ public class RoutePool {
 		{
 			synchronized (helper)
 			{
-				routeConfig = helper.getRoute(routeToUpdate, sharedStops, routeKeysToTitles);
+				routeConfig = helper.getRoute(routeToUpdate, sharedStops, routeKeysToTitles, transitSystem);
 				if (routeConfig == null)
 				{
 					return null;

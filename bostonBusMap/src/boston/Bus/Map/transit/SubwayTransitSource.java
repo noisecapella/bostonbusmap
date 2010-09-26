@@ -39,6 +39,11 @@ public class SubwayTransitSource implements TransitSource {
 		this.busStop = busStop;
 		this.arrow = arrow;
 		this.bus = bus;
+		
+		for (String route : subwayRoutes)
+		{
+			subwayRouteKeysToTitles.put(route, route);
+		}
 	}
 	
 	
@@ -58,7 +63,7 @@ public class SubwayTransitSource implements TransitSource {
 		//just initialize the route and then end for this round
 		
 		SubwayRouteConfigFeedParser parser = new SubwayRouteConfigFeedParser(busStop,
-				routeKeysToTitles, directions, oldRouteConfig);
+				routeKeysToTitles, directions, oldRouteConfig, this);
 
 		parser.runParse(downloadHelper.getResponseData()); 
 
@@ -166,6 +171,7 @@ public class SubwayTransitSource implements TransitSource {
 	public static final String BlueColor = "0000ff";
 	
 	private static final String[] subwayColors = new String[] {RedColor, OrangeColor, BlueColor};
+	private final HashMap<String, String> subwayRouteKeysToTitles = new HashMap<String, String>();
 	
 	public static String[] getAllSubwayRoutes() {
 		return subwayRoutes;
@@ -193,7 +199,8 @@ public class SubwayTransitSource implements TransitSource {
 		URL url = new URL(subwayUrl);
 		InputStream in = Locations.downloadStream(url, task, "Downloading subway info: ", "");
 		
-		SubwayRouteConfigFeedParser subwayParser = new SubwayRouteConfigFeedParser(busStop, routeKeysToTitles, directions, null);
+		SubwayRouteConfigFeedParser subwayParser =
+			new SubwayRouteConfigFeedParser(busStop, routeKeysToTitles, directions, null, this);
 		
 		task.publish("Parsing route data...");
 		
@@ -201,5 +208,17 @@ public class SubwayTransitSource implements TransitSource {
 		
 		subwayParser.writeToDatabase(routeMapping, false);
 		
+	}
+
+
+	@Override
+	public String[] getRoutes() {
+		return subwayRoutes;
+	}
+
+
+	@Override
+	public HashMap<String, String> getRouteKeysToTitles() {
+		return subwayRouteKeysToTitles;
 	}
 }

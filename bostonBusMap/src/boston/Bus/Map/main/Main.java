@@ -196,7 +196,9 @@ public class Main extends MapActivity
         
         busStop = resources.getDrawable(R.drawable.busstop_statelist);
         
-        TransitSystem.setDefaultTransitSource(busStop, busPicture, arrow);
+        TransitSystem transitSystem = new TransitSystem();
+        transitSystem.setDefaultTransitSource(busStop, busPicture, arrow);
+        
         SpinnerAdapter modeSpinnerAdapter = makeModeSpinner(); 
 
         toggleButton.setOnItemSelectedListener(new OnItemSelectedListener() {
@@ -238,15 +240,10 @@ public class Main extends MapActivity
         DatabaseHelper helper = new DatabaseHelper(this, busStop);
         
         
-        String[][] routeKeyMap = getOrObtainRoutes(helper);
-        HashMap<String, String> routeKeysToTitles = new HashMap<String, String>();
-        for (int i = 0; i < routeKeyMap[0].length; i++)
-        {
-        	routeKeysToTitles.put(routeKeyMap[0][i], routeKeyMap[1][i]);
-        }
-        String[] routesSupported = routeKeyMap[0];
+        String[] transitRoutes = transitSystem.getRoutes();
+        HashMap<String, String> routeKeysToTitles = transitSystem.getRouteKeysToTitles();
         
-        modeSpinner.setAdapter(makeRouteSpinnerAdapter(routeKeyMap));
+        modeSpinner.setAdapter(makeRouteSpinnerAdapter(transitRoutes, routeKeysToTitles));
         
         //get the busLocations variable if it already exists. We need to do that step here since handler
         double lastUpdateTime = 0;
@@ -297,7 +294,7 @@ public class Main extends MapActivity
         if (busLocations == null)
         {
         	busLocations = new Locations(busPicture, arrow, locationDrawable, busStop,
-        			routesSupported, helper, routeKeysToTitles);
+        			transitRoutes, helper, routeKeysToTitles, transitSystem);
         }
 
         handler = new UpdateHandler(textView, mapView, arrow, tooltip, busLocations, 
@@ -385,17 +382,22 @@ public class Main extends MapActivity
     }
 		
 
-    private SpinnerAdapter makeRouteSpinnerAdapter(String[][] routeKeyMap) {
+    private SpinnerAdapter makeRouteSpinnerAdapter(String[] routes, HashMap<String, String> routeKeysToTitles) {
     	final ArrayList<HashMap<String, String>> routeList = new ArrayList<HashMap<String, String>>();
         
-    	String[] keys = routeKeyMap[0];
-    	String[] titles = routeKeyMap[1];
-    	
-        for (int i = 0; i < keys.length; i++)
+        for (String route : routes)
         {
         	HashMap<String, String> map = new HashMap<String, String>();
-       		map.put("key", keys[i]);
-        	map.put("name", titles[i]);
+       		map.put("key", route);
+       		String title = routeKeysToTitles.get(route);
+       		if (title == null || title.length() == 0)
+       		{
+       			map.put("name", route);
+       		}
+       		else
+       		{
+       			map.put("name", title);
+       		}
         	routeList.add(map);
         }
         
@@ -448,16 +450,6 @@ public class Main extends MapActivity
     		}
     	}
     }
-
-	private String[][] getOrObtainRoutes(DatabaseHelper helper) {
-		//TODO: download it from the xml feed and store it in the database. For now it's just a resource
-		Resources res = getResources();
-		
-		return new String[][]{res.getStringArray(R.array.routeKeys), res.getStringArray(R.array.routeTitles)};
-	}
-
-
-
 
 	@Override
     protected void onPause() {

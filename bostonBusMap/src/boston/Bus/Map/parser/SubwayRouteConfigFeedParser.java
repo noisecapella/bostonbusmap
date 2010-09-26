@@ -37,12 +37,16 @@ public class SubwayRouteConfigFeedParser
 	
 	private final HashMap<String, Integer> indexes = new HashMap<String, Integer>();
 	private final Directions directions;
+	
+	private final SubwayTransitSource transitSource;
 
 	public SubwayRouteConfigFeedParser(Drawable busStop,
-			HashMap<String, String> routeKeysToTitles, Directions directions, RouteConfig oldRouteConfig) {
+			HashMap<String, String> routeKeysToTitles, Directions directions, RouteConfig oldRouteConfig,
+			SubwayTransitSource transitSource) {
 		this.busStop = busStop;
 		this.routeKeysToTitles = routeKeysToTitles;
 		this.directions = directions;
+		this.transitSource = transitSource;
 	}
 
 	private int getOrder(String route, int platformOrder)
@@ -90,8 +94,9 @@ public class SubwayRouteConfigFeedParser
 			RouteConfig routeConfig = map.get(routeName);
 			if (routeConfig == null)
 			{
-				routeConfig = new RouteConfig(routeName, SubwayTransitSource.getSubwayColor(routeName), SubwayTransitSource.BlueColor,
-						TransitSystem.getTransitSource(routeName));
+				routeConfig = new RouteConfig(routeName, SubwayTransitSource.getSubwayColor(routeName),
+						SubwayTransitSource.BlueColor,
+						transitSource);
 				map.put(routeName, routeConfig);
 			}
 			

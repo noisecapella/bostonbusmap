@@ -30,7 +30,11 @@ public interface TransitSource {
 
 	boolean hasPaths();
 
-	public abstract void initializeAllRoutes(UpdateAsyncTask task, Context context,
+	public void initializeAllRoutes(UpdateAsyncTask task, Context context,
 			Directions directions, HashMap<String, String> routeKeysToTitles, RoutePool routeMapping) throws IOException,
 			ParserConfigurationException, SAXException;
+	
+	public String[] getRoutes();
+	
+	public HashMap<String, String> getRouteKeysToTitles();
 }

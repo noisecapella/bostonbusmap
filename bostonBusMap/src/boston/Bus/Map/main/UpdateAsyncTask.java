@@ -347,7 +347,19 @@ public class UpdateAsyncTask extends AsyncTask<Object, String, Locations>
 			//we want this to be null. Else, the snippet drawing code would only show data for a particular route
 			try {
 				//get the currently drawn route's color
-				routeOverlay.setPathsAndColor(paths, busLocationsObject.getSelectedRoute().getColor());
+				RouteConfig route = busLocationsObject.getSelectedRoute();
+				String color;
+				if (route != null)
+				{
+					color = route.getColor();
+				}
+				else
+				{
+					color = null;
+				}
+				
+				routeOverlay.setPathsAndColor(paths, color);
+
 			} catch (IOException e) {
 				Log.e("BostonBusMap", "Exception thrown from getSelectedRoute: " + e.getMessage());
 				routeOverlay.setPathsAndColor(paths, null);
