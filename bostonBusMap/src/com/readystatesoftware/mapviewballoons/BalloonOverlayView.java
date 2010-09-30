@@ -19,6 +19,7 @@ package com.readystatesoftware.mapviewballoons;
 
 import android.content.Context;
 import android.graphics.drawable.Drawable;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -26,7 +27,11 @@ import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 import boston.Bus.Map.R;
+import boston.Bus.Map.data.Location;
+import boston.Bus.Map.data.Locations;
+import boston.Bus.Map.data.StopLocation;
 
 import com.google.android.maps.OverlayItem;
 
@@ -52,6 +57,9 @@ public class BalloonOverlayView extends FrameLayout {
 	private TextView title;
 	private TextView snippet;
 
+	private Location location;
+	private Locations locations;
+	
 	/**
 	 * Create a new BalloonOverlayView.
 	 * 
@@ -73,25 +81,20 @@ public class BalloonOverlayView extends FrameLayout {
 		title = (TextView) v.findViewById(R.id.balloon_item_title);
 		snippet = (TextView) v.findViewById(R.id.balloon_item_snippet);
 
-		final Drawable emptyStar = context.getResources().getDrawable(R.drawable.empty_star);
-		final Drawable fullStar = context.getResources().getDrawable(R.drawable.full_star);
-		
-		
 		final ImageView favorite = (ImageView) v.findViewById(R.id.balloon_item_favorite);
 
 		favorite.setOnClickListener(new OnClickListener() {
 			
 			@Override
 			public void onClick(View v) {
-				if (favorite.getBackground() == emptyStar)
+				if (location instanceof StopLocation)
 				{
-					favorite.setBackgroundDrawable(fullStar);
+					StopLocation stopLocation = (StopLocation)location;
+					int result = locations.toggleFavorite(stopLocation);
+					favorite.setBackgroundResource(result);
+	    			Log.v("BostonBusMap", "setting favorite icon to " +
+	    					(result == R.drawable.full_star ? "full star" : "empty star"));
 				}
-				else
-				{
-					favorite.setBackgroundDrawable(emptyStar);
-				}
-				
 			}
 		});
 		
@@ -130,4 +133,9 @@ public class BalloonOverlayView extends FrameLayout {
 		
 	}
 
+	public void setCurrentLocation(Locations locations, Location location)
+	{
+		this.locations = locations;
+		this.location = location;
+	}
 }

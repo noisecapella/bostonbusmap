@@ -529,14 +529,6 @@ public class Main extends MapActivity
     	case R.id.settingsMenuItem:
     		startActivity(new Intent(this, Preferences.class));
     		break;
-    	case R.id.favoriteItem:
-    		if (busLocations != null)
-    		{
-    			int id = busOverlay.toggleFavorite(busLocations);
-    			item.setIcon(id);
-    			Log.v("BostonBusMap", "setting favorite icon to " + (id == R.drawable.full_star ? "full star" : "empty star"));
-    		}
-    		break;
     	case R.id.centerOnBostonMenuItem:
     	
     		if (mapView != null)
@@ -571,20 +563,7 @@ public class Main extends MapActivity
     {
     	MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.options_menu, menu);
-        for (int i = 0; i < menu.size(); i++)
-        {
-        	MenuItem item = menu.getItem(i);
-        	if (item.getItemId() == R.id.favoriteItem)
-        	{
-        		if (currentFavoriteStatus != 0)
-        		{
-        			item.setIcon(currentFavoriteStatus);
-        		}
-    			favoriteMenuItem = item;
-        		break;
-        	}
-        }
-        
+
         return true;
     }
     
