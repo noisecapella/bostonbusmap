@@ -1,15 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
 	android:layout_width="wrap_content" 
-	android:layout_height="wrap_content"
-	android:orientation="vertical" 
+	android:layout_height="wrap_content" android:orientation="horizontal"
 	android:paddingBottom="5dip"
 	android:paddingTop="5dip"
 	android:paddingLeft="10dip" 
-	android:id="@+id/balloon_main_layout"
 	android:background="@drawable/tooltip" 
+	android:id="@+id/balloon_main_layout"
+	android:paddingRight="10dip"
+		>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	android:layout_width="wrap_content" 
+	android:layout_height="wrap_content"
+	android:orientation="vertical" 
 	
-	android:paddingRight="10dip">
+>
 
 		<TextView android:layout_height="wrap_content"
 			android:layout_width="fill_parent" 
@@ -25,4 +30,8 @@
 			android:textSize="12dip"
 			android:textColor="#FF000000"
 			android:bufferType="spannable"></TextView>
+</LinearLayout>
+
+<ImageView android:layout_width="wrap_content" android:layout_height="wrap_content"
+ android:id="@+id/balloon_item_favorite" android:background="@drawable/empty_star"></ImageView>
 </LinearLayout>

@@ -18,6 +18,7 @@ package com.readystatesoftware.mapviewballoons;
 
 
 import android.content.Context;
+import android.graphics.drawable.Drawable;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -72,7 +73,28 @@ public class BalloonOverlayView extends FrameLayout {
 		title = (TextView) v.findViewById(R.id.balloon_item_title);
 		snippet = (TextView) v.findViewById(R.id.balloon_item_snippet);
 
+		final Drawable emptyStar = context.getResources().getDrawable(R.drawable.empty_star);
+		final Drawable fullStar = context.getResources().getDrawable(R.drawable.full_star);
+		
+		
+		final ImageView favorite = (ImageView) v.findViewById(R.id.balloon_item_favorite);
 
+		favorite.setOnClickListener(new OnClickListener() {
+			
+			@Override
+			public void onClick(View v) {
+				if (favorite.getBackground() == emptyStar)
+				{
+					favorite.setBackgroundDrawable(fullStar);
+				}
+				else
+				{
+					favorite.setBackgroundDrawable(emptyStar);
+				}
+				
+			}
+		});
+		
 		FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(
 				LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
 		params.gravity = Gravity.NO_GRAVITY;
