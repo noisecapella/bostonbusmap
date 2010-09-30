@@ -147,9 +147,6 @@ public class Main extends MapActivity
 	private Spinner toggleButton;
 	private Drawable busStop;
 	
-	private MenuItem favoriteMenuItem;
-	private int currentFavoriteStatus;
-
 	public static final int VEHICLE_LOCATIONS_ALL = 1;
 	public static final int BUS_PREDICTIONS_ONE = 2;
 	public static final int VEHICLE_LOCATIONS_ONE = 3;
@@ -493,6 +490,7 @@ public class Main extends MapActivity
 		if (busOverlay != null)
 		{
 			busOverlay.setUpdateable(null);
+			busOverlay.clear();
 			busOverlay = null;
 		}
 		
@@ -507,7 +505,6 @@ public class Main extends MapActivity
 		
 		busStop = null;
 		toggleButton = null;
-		favoriteMenuItem = null;
 		
 		
 		super.onDestroy();
@@ -710,14 +707,4 @@ public class Main extends MapActivity
 		}
 	}
 
-
-	public void setFavoriteStatus(int drawable) {
-		if (favoriteMenuItem != null)
-		{
-			Log.v("BostonBusMap", "setting favorite icon now!");
-			favoriteMenuItem.setIcon(drawable);
-		}
-		
-		currentFavoriteStatus = drawable;
-	}
 }

@@ -56,6 +56,7 @@ public class BalloonOverlayView extends FrameLayout {
 	private LinearLayout layout;
 	private TextView title;
 	private TextView snippet;
+	private ImageView favorite;
 
 	private Location location;
 	private Locations locations;
@@ -81,15 +82,17 @@ public class BalloonOverlayView extends FrameLayout {
 		title = (TextView) v.findViewById(R.id.balloon_item_title);
 		snippet = (TextView) v.findViewById(R.id.balloon_item_snippet);
 
-		final ImageView favorite = (ImageView) v.findViewById(R.id.balloon_item_favorite);
+		favorite = (ImageView) v.findViewById(R.id.balloon_item_favorite);
 
 		favorite.setOnClickListener(new OnClickListener() {
 			
 			@Override
 			public void onClick(View v) {
+				Log.v("BostonBusMap", "tapped star icon");
 				if (location instanceof StopLocation)
 				{
 					StopLocation stopLocation = (StopLocation)location;
+
 					int result = locations.toggleFavorite(stopLocation);
 					favorite.setBackgroundResource(result);
 	    			Log.v("BostonBusMap", "setting favorite icon to " +
@@ -137,5 +140,9 @@ public class BalloonOverlayView extends FrameLayout {
 	{
 		this.locations = locations;
 		this.location = location;
+	}
+
+	public void setDrawableState(int resid) {
+		favorite.setBackgroundResource(resid);
 	}
 }
