@@ -87,6 +87,8 @@ public class BusOverlay extends BalloonItemizedOverlay<OverlayItem> {
 	private final Drawable busPicture;
 	private final Paint paint;
 	
+	private Locations locationsObj;
+	
 	public BusOverlay(BusOverlay busOverlay, Main context, MapView mapView)
 	{
 		this(busOverlay.busPicture, context, mapView);
@@ -148,19 +150,6 @@ public class BusOverlay extends BalloonItemizedOverlay<OverlayItem> {
 				if (newFocus == null)
 				{
 					hideBalloon();
-					BusOverlay.this.context.setFavoriteStatus(R.drawable.empty_star);
-				}
-				else
-				{
-					int index = getLastFocusedIndex();
-					Main context = BusOverlay.this.context;
-					Location location = locations.get(index);
-					if (context != null)
-					{
-						boolean b = location.isFavorite();
-						Log.v("BostonBusMap", "setting favorite status, " + b);
-						context.setFavoriteStatus(b ? R.drawable.full_star : R.drawable.empty_star);
-					}
 				}
 			}
 		});
@@ -191,6 +180,11 @@ public class BusOverlay extends BalloonItemizedOverlay<OverlayItem> {
 	public void addLocation(Location location)
 	{
 		locations.add(location);
+	}
+	
+	public void setLocations(Locations locations)
+	{
+		this.locationsObj = locations;
 	}
 	
 	@Override
@@ -251,6 +245,7 @@ public class BusOverlay extends BalloonItemizedOverlay<OverlayItem> {
 		
 		setFocus(null);
 		setLastFocusedIndex(NOT_SELECTED);
+		locationsObj = null;
 	}
 
 	@Override
@@ -423,5 +418,22 @@ public class BusOverlay extends BalloonItemizedOverlay<OverlayItem> {
 			OverlayItem overlayItem = new OverlayItem(points.get(i),titleText, snippetText);
 			addOverlay(overlayItem);
 		}
+	}
+	
+	@Override
+	protected boolean onBalloonTap(int index) {
+		Log.v("BostonBusMap", "Balloon was tapped");
+		balloonView.setCurrentLocation(locationsObj, locations.get(index));
+		
+		//let things underneath handle this too
+		return false;
+	}
+	
+	@Override
+	protected void setOtherData(int index) {
+		Log.v("BostonBusMap", "Balloon was tapped");
+		Location location = locations.get(index);
+		balloonView.setCurrentLocation(locationsObj, location);
+		balloonView.setDrawableState(location.isFavorite() ? R.drawable.full_star : R.drawable.empty_star);
 	}
 }

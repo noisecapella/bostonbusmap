@@ -18,6 +18,8 @@ package com.readystatesoftware.mapviewballoons;
 
 
 import android.content.Context;
+import android.graphics.drawable.Drawable;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -25,7 +27,11 @@ import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 import boston.Bus.Map.R;
+import boston.Bus.Map.data.Location;
+import boston.Bus.Map.data.Locations;
+import boston.Bus.Map.data.StopLocation;
 
 import com.google.android.maps.OverlayItem;
 
@@ -50,7 +56,11 @@ public class BalloonOverlayView extends FrameLayout {
 	private LinearLayout layout;
 	private TextView title;
 	private TextView snippet;
+	private ImageView favorite;
 
+	private Location location;
+	private Locations locations;
+	
 	/**
 	 * Create a new BalloonOverlayView.
 	 * 
@@ -72,7 +82,25 @@ public class BalloonOverlayView extends FrameLayout {
 		title = (TextView) v.findViewById(R.id.balloon_item_title);
 		snippet = (TextView) v.findViewById(R.id.balloon_item_snippet);
 
+		favorite = (ImageView) v.findViewById(R.id.balloon_item_favorite);
 
+		favorite.setOnClickListener(new OnClickListener() {
+			
+			@Override
+			public void onClick(View v) {
+				Log.v("BostonBusMap", "tapped star icon");
+				if (location instanceof StopLocation)
+				{
+					StopLocation stopLocation = (StopLocation)location;
+
+					int result = locations.toggleFavorite(stopLocation);
+					favorite.setBackgroundResource(result);
+	    			Log.v("BostonBusMap", "setting favorite icon to " +
+	    					(result == R.drawable.full_star ? "full star" : "empty star"));
+				}
+			}
+		});
+		
 		FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(
 				LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
 		params.gravity = Gravity.NO_GRAVITY;
@@ -108,4 +136,13 @@ public class BalloonOverlayView extends FrameLayout {
 		
 	}
 
+	public void setCurrentLocation(Locations locations, Location location)
+	{
+		this.locations = locations;
+		this.location = location;
+	}
+
+	public void setDrawableState(int resid) {
+		favorite.setBackgroundResource(resid);
+	}
 }

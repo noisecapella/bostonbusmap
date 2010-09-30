@@ -361,8 +361,7 @@ public class Box {
 
 	private final HashMap<String, StopLocation> stopMap;
 	
-	public HashMap<String, StopLocation> readStopsMap(RouteConfig routeConfig, Drawable busStop, 
-			HashMap<String, String> routeKeysToTitles) throws IOException {
+	public HashMap<String, StopLocation> readStopsMap(RouteConfig routeConfig, Drawable busStop) throws IOException {
 		showProgress("readStopsMap");
 		int size = readInt();
 		
@@ -370,7 +369,7 @@ public class Box {
 		for (int i = 0; i < size; i++)
 		{
 			String key = readString();
-			StopLocation value = new StopLocation(this, busStop, routeKeysToTitles);
+			StopLocation value = new StopLocation(this, busStop);
 			if (stopMap.containsKey(key))
 			{
 				stops.put(key, stopMap.get(key));

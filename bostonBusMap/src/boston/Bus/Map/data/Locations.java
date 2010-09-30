@@ -65,13 +65,6 @@ import boston.Bus.Map.util.StreamCounter;
 public final class Locations
 {
 	/**
-	 * No change to mode we're in. 0 is vehicle locations, and others are indexes to route numbers for bus predictions, as index into
-	 * routesSupported. (In this class, routesSupported is defined such that 0 is null, 1 is route 1, 2 is route 4, etc, so -1
-	 * should be the only special case to deal with)
-	 */
-	public static final int NO_CHANGE = -1;
-
-	/**
 	 * A mapping of the bus number to bus location
 	 */
 	private HashMap<Integer, BusLocation> busMapping = new HashMap<Integer, BusLocation>();
@@ -97,25 +90,20 @@ public final class Locations
 	private final Drawable locationDrawable;
 	private final Drawable busStop;
 	
-	private final String[] supportedRoutes;
-	
 	private String selectedRoute;
 	private int selectedBusPredictions;
-	private final HashMap<String, String> routeKeysToTitles;
 	private final TransitSystem transitSystem;
 	
 	public Locations(Drawable bus, Drawable arrow, Drawable locationDrawable,
-			Drawable busStop, String[] supportedRoutes, DatabaseHelper helper, 
-			HashMap<String, String> routeKeysToTitles, TransitSystem transitSystem)
+			Drawable busStop, DatabaseHelper helper, 
+			TransitSystem transitSystem)
 	{
 		this.bus = bus;
 		this.arrow = arrow;
 		this.locationDrawable = locationDrawable;
 		this.busStop = busStop;
-		this.supportedRoutes = supportedRoutes;
-		this.routeKeysToTitles = routeKeysToTitles;
 		this.transitSystem = transitSystem;
-		routeMapping = new RoutePool(helper, supportedRoutes, routeKeysToTitles, transitSystem);
+		routeMapping = new RoutePool(helper, transitSystem);
 		directions = new Directions(helper);
 	}
 	
@@ -127,10 +115,10 @@ public final class Locations
 	 * @throws SAXException
 	 * @throws IOException
 	 */
-	public void initializeAllRoutes(UpdateAsyncTask task, Context context)
+	public void initializeAllRoutes(UpdateAsyncTask task, Context context, String[] routesToCheck)
 		throws ParserConfigurationException, FactoryConfigurationError, SAXException, IOException
 	{
-		ArrayList<String> routesThatNeedUpdating = routeInfoNeedsUpdating(); 
+		ArrayList<String> routesThatNeedUpdating = routeInfoNeedsUpdating(routesToCheck); 
 		boolean hasNoMissingData = routesThatNeedUpdating == null || routesThatNeedUpdating.size() == 0;
 		
 		if (hasNoMissingData == false)
@@ -154,7 +142,7 @@ public final class Locations
 			
 			for (TransitSource system : systems)
 			{
-				system.initializeAllRoutes(task, context, directions, routeKeysToTitles, routeMapping);
+				system.initializeAllRoutes(task, context, directions, routeMapping);
 			}
 			routeMapping.fillInFavoritesRoutes();
 			//TODO: fill routeMapping somehow
@@ -206,13 +194,11 @@ public final class Locations
 	 * @throws FactoryConfigurationError
 	 * @throws FeedException 
 	 */
-	public void Refresh(boolean inferBusRoutes, int routeIndexToUpdate,
+	public void Refresh(boolean inferBusRoutes, String routeToUpdate,
 			int selectedBusPredictions, float centerLatitude, float centerLongitude,
 			UpdateAsyncTask updateAsyncTask, boolean showRoute) throws SAXException, IOException,
 			ParserConfigurationException, FactoryConfigurationError 
 	{
-		String routeToUpdate = supportedRoutes[routeIndexToUpdate];
-
 		final int maxStops = 15;
 
 		//see if route overlays need to be downloaded
@@ -246,7 +232,7 @@ public final class Locations
 		TransitSource transitSource = routeConfig.getTransitSource();
 		transitSource.refreshData(routeConfig, selectedBusPredictions, maxStops,
 				centerLatitude, centerLongitude, busMapping,
-				selectedRoute, routeMapping, directions, this, routeKeysToTitles);
+				selectedRoute, routeMapping, directions, this);
 	}
 
 	private void populateStops(String routeToUpdate, RouteConfig oldRouteConfig) 
@@ -263,7 +249,7 @@ public final class Locations
 			transitSource = transitSystem.getTransitSource(routeToUpdate);
 		}
 		
-		transitSource.populateStops(routeMapping, routeToUpdate, oldRouteConfig, directions, routeKeysToTitles);
+		transitSource.populateStops(routeMapping, routeToUpdate, oldRouteConfig, directions);
 	}
 
 	/**
@@ -384,17 +370,10 @@ public final class Locations
 		showCurrentLocation = false;
 	}
 	
-	public void select(int position, int busPredictions) {
-		if (position == Locations.NO_CHANGE)
-		{
-			//-1 means don't change this
-		}
-		else
-		{
-			selectedRoute = supportedRoutes[position];
+	public void select(String newRoute, int busPredictions) {
+		selectedRoute = newRoute;
 
-			selectedBusPredictions = busPredictions;
-		}
+		selectedBusPredictions = busPredictions;
 	}
 
 	public ArrayList<Path> getSelectedPaths() throws IOException {
@@ -410,9 +389,9 @@ public final class Locations
 	}
 
 	
-	private ArrayList<String> routeInfoNeedsUpdating() throws IOException
+	private ArrayList<String> routeInfoNeedsUpdating(String[] routesToCheck) throws IOException
 	{
-		return routeMapping.routeInfoNeedsUpdating(supportedRoutes);
+		return routeMapping.routeInfoNeedsUpdating(routesToCheck);
 	}
 
 	/**
@@ -420,8 +399,8 @@ public final class Locations
 	 * @return
 	 * @throws IOException 
 	 */
-	public boolean checkFreeSpace(DatabaseHelper helper) throws IOException {
-		ArrayList<String> routesThatNeedUpdating = routeInfoNeedsUpdating();
+	public boolean checkFreeSpace(DatabaseHelper helper, String[] routesToCheck) throws IOException {
+		ArrayList<String> routesThatNeedUpdating = routeInfoNeedsUpdating(routesToCheck);
 		if (routesThatNeedUpdating == null || routesThatNeedUpdating.size() == 0)
 		{
 			//everything is already in the database

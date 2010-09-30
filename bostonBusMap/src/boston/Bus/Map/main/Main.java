@@ -147,9 +147,6 @@ public class Main extends MapActivity
 	private Spinner toggleButton;
 	private Drawable busStop;
 	
-	private MenuItem favoriteMenuItem;
-	private int currentFavoriteStatus;
-
 	public static final int VEHICLE_LOCATIONS_ALL = 1;
 	public static final int BUS_PREDICTIONS_ONE = 2;
 	public static final int VEHICLE_LOCATIONS_ONE = 3;
@@ -240,7 +237,7 @@ public class Main extends MapActivity
         DatabaseHelper helper = new DatabaseHelper(this, busStop);
         
         
-        String[] transitRoutes = transitSystem.getRoutes();
+        final String[] transitRoutes = transitSystem.getRoutes();
         HashMap<String, String> routeKeysToTitles = transitSystem.getRouteKeysToTitles();
         
         modeSpinner.setAdapter(makeRouteSpinnerAdapter(transitRoutes, routeKeysToTitles));
@@ -294,11 +291,11 @@ public class Main extends MapActivity
         if (busLocations == null)
         {
         	busLocations = new Locations(busPicture, arrow, locationDrawable, busStop,
-        			transitRoutes, helper, routeKeysToTitles, transitSystem);
+        			helper, transitSystem);
         }
 
         handler = new UpdateHandler(textView, mapView, arrow, tooltip, busLocations, 
-        		this, helper, busOverlay, routeOverlay, myLocationOverlay, majorHandler);
+        		this, helper, busOverlay, routeOverlay, myLocationOverlay, majorHandler, transitSystem);
         busOverlay.setUpdateable(handler);
         myLocationOverlay.setUpdateable(handler);
         
@@ -315,7 +312,7 @@ public class Main extends MapActivity
 				else if (busLocations != null && handler != null)
 				{
 					selectedRouteIndex = position;
-					handler.setRouteIndex(position);
+					handler.setRouteToUpdate(transitRoutes[position]);
 					handler.triggerUpdate();
 					handler.immediateRefresh();
 				}
@@ -331,7 +328,7 @@ public class Main extends MapActivity
         {
         	modeSpinner.setSelection(selectedRouteIndex);
         	handler.setSelectedBusPredictions(getSelectedBusPredictions());
-        	handler.setRouteIndex(selectedRouteIndex);
+        	handler.setRouteToUpdate(transitRoutes[selectedRouteIndex]);
         }
         else
         {
@@ -343,7 +340,7 @@ public class Main extends MapActivity
             setSelectedBusPredictions(prefs.getInt(selectedBusPredictionsKey, VEHICLE_LOCATIONS_ALL));
             
             modeSpinner.setSelection(selectedRouteIndex);
-            handler.setRouteIndex(selectedRouteIndex);
+            handler.setRouteToUpdate(transitRoutes[selectedRouteIndex]);
             handler.setSelectedBusPredictions(getSelectedBusPredictions());
 
             if (centerLat != Integer.MAX_VALUE && centerLon != Integer.MAX_VALUE && zoomLevel != Integer.MAX_VALUE)
@@ -493,6 +490,7 @@ public class Main extends MapActivity
 		if (busOverlay != null)
 		{
 			busOverlay.setUpdateable(null);
+			busOverlay.clear();
 			busOverlay = null;
 		}
 		
@@ -507,7 +505,6 @@ public class Main extends MapActivity
 		
 		busStop = null;
 		toggleButton = null;
-		favoriteMenuItem = null;
 		
 		
 		super.onDestroy();
@@ -528,14 +525,6 @@ public class Main extends MapActivity
     		break;
     	case R.id.settingsMenuItem:
     		startActivity(new Intent(this, Preferences.class));
-    		break;
-    	case R.id.favoriteItem:
-    		if (busLocations != null)
-    		{
-    			int id = busOverlay.toggleFavorite(busLocations);
-    			item.setIcon(id);
-    			Log.v("BostonBusMap", "setting favorite icon to " + (id == R.drawable.full_star ? "full star" : "empty star"));
-    		}
     		break;
     	case R.id.centerOnBostonMenuItem:
     	
@@ -571,20 +560,7 @@ public class Main extends MapActivity
     {
     	MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.options_menu, menu);
-        for (int i = 0; i < menu.size(); i++)
-        {
-        	MenuItem item = menu.getItem(i);
-        	if (item.getItemId() == R.id.favoriteItem)
-        	{
-        		if (currentFavoriteStatus != 0)
-        		{
-        			item.setIcon(currentFavoriteStatus);
-        		}
-    			favoriteMenuItem = item;
-        		break;
-        	}
-        }
-        
+
         return true;
     }
     
@@ -731,14 +707,4 @@ public class Main extends MapActivity
 		}
 	}
 
-
-	public void setFavoriteStatus(int drawable) {
-		if (favoriteMenuItem != null)
-		{
-			Log.v("BostonBusMap", "setting favorite icon now!");
-			favoriteMenuItem.setIcon(drawable);
-		}
-		
-		currentFavoriteStatus = drawable;
-	}
 }

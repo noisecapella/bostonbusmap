@@ -8,7 +8,6 @@
 	<item android:id="@+id/settingsMenuItem" android:title="@string/settings"
 	android:icon="@android:drawable/ic_menu_preferences">
 	</item>
-<item android:id="@+id/favoriteItem" android:title="@string/addToFavorites" android:icon="@drawable/empty_star"></item>
 
 <item android:id="@+id/refreshItem" android:title="@string/refresh"
 android:icon="@android:drawable/ic_menu_rotate"></item>

@@ -2,27 +2,40 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
 	android:layout_width="wrap_content" 
 	android:layout_height="wrap_content"
+	android:id="@+id/balloon_main_layout"
 	android:orientation="vertical" 
 	android:paddingBottom="5dip"
 	android:paddingTop="5dip"
 	android:paddingLeft="10dip" 
-	android:id="@+id/balloon_main_layout"
 	android:background="@drawable/tooltip" 
-	
-	android:paddingRight="10dip">
-
+	android:paddingRight="10dip"
+		>
 		<TextView android:layout_height="wrap_content"
-			android:layout_width="fill_parent" 
+			android:layout_width="wrap_content" 
 			android:id="@+id/balloon_item_title"
 			android:text="balloon_item_title" 
 			android:textSize="15dip"
 			android:textColor="#FF000000"
 			android:bufferType="spannable"></TextView>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	android:layout_width="fill_parent" 
+	android:layout_height="wrap_content"
+>
+
+<ImageView android:layout_width="wrap_content" android:layout_height="wrap_content"
+ android:id="@+id/balloon_item_favorite" android:background="@drawable/empty_star"
+ 			android:layout_alignParentRight="true"
+ 
+ ></ImageView>
 		<TextView android:layout_height="wrap_content"
-			android:layout_width="fill_parent" 
+			android:layout_width="wrap_content" 
 			android:id="@+id/balloon_item_snippet"
 			android:text="balloon_item_snippet" 
 			android:textSize="12dip"
 			android:textColor="#FF000000"
-			android:bufferType="spannable"></TextView>
+			android:bufferType="spannable"
+			android:layout_toLeftOf="@+id/balloon_item_favorite"
+			android:layout_alignParentLeft="true"></TextView>
+</RelativeLayout>
+
 </LinearLayout>

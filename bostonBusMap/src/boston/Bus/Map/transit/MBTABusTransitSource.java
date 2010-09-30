@@ -285,7 +285,7 @@ public class MBTABusTransitSource implements TransitSource
 	
 	@Override
 	public void populateStops(RoutePool routeMapping, String routeToUpdate,
-			RouteConfig oldRouteConfig, Directions directions, HashMap<String, String> routeKeysToTitles) 
+			RouteConfig oldRouteConfig, Directions directions) 
 			throws ClientProtocolException, IOException, ParserConfigurationException, SAXException 
 	{
 		final String urlString = getRouteConfigUrl(routeToUpdate);
@@ -295,7 +295,7 @@ public class MBTABusTransitSource implements TransitSource
 		downloadHelper.connect();
 		//just initialize the route and then end for this round
 		
-		RouteConfigFeedParser parser = new RouteConfigFeedParser(busStop, directions, routeKeysToTitles, oldRouteConfig,
+		RouteConfigFeedParser parser = new RouteConfigFeedParser(busStop, directions, oldRouteConfig,
 				this);
 
 		parser.runParse(downloadHelper.getResponseData()); 
@@ -308,8 +308,8 @@ public class MBTABusTransitSource implements TransitSource
 	@Override
 	public void refreshData(RouteConfig routeConfig, int selectedBusPredictions, int maxStops,
 			float centerLatitude, float centerLongitude, HashMap<Integer, BusLocation> busMapping, 
-			String selectedRoute, RoutePool routePool, Directions directions, Locations locationsObj,
-			HashMap<String, String> routeKeysToTitles) throws IOException, ParserConfigurationException, SAXException {
+			String selectedRoute, RoutePool routePool, Directions directions, Locations locationsObj)
+	throws IOException, ParserConfigurationException, SAXException {
 		//read data from the URL
 		DownloadHelper downloadHelper;
 		switch (selectedBusPredictions)
@@ -469,7 +469,8 @@ public class MBTABusTransitSource implements TransitSource
 
 	@Override
 	public void initializeAllRoutes(UpdateAsyncTask task, Context context, Directions directions,
-			HashMap<String, String> routeKeysToTitles, RoutePool routeMapping) throws IOException, ParserConfigurationException, SAXException {
+			RoutePool routeMapping)
+		throws IOException, ParserConfigurationException, SAXException {
 		task.publish("Decompressing route data. This may take a minute...");
 		
 		final int contentLength = 453754;
@@ -479,8 +480,7 @@ public class MBTABusTransitSource implements TransitSource
 		
 		GZIPInputStream stream = new GZIPInputStream(in); 
 		
-		RouteConfigFeedParser parser = new RouteConfigFeedParser(busStop, directions, routeKeysToTitles,
-				null, this);
+		RouteConfigFeedParser parser = new RouteConfigFeedParser(busStop, directions, null, this);
 		
 		parser.runParse(stream);
 		
