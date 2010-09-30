@@ -32,7 +32,6 @@ import android.graphics.drawable.Drawable;
 public class SubwayRouteConfigFeedParser
 {
 	private final Drawable busStop;
-	private final HashMap<String, String> routeKeysToTitles;
 	private final HashMap<String, RouteConfig> map = new HashMap<String, RouteConfig>();
 	
 	private final HashMap<String, Integer> indexes = new HashMap<String, Integer>();
@@ -41,10 +40,9 @@ public class SubwayRouteConfigFeedParser
 	private final SubwayTransitSource transitSource;
 
 	public SubwayRouteConfigFeedParser(Drawable busStop,
-			HashMap<String, String> routeKeysToTitles, Directions directions, RouteConfig oldRouteConfig,
+			Directions directions, RouteConfig oldRouteConfig,
 			SubwayTransitSource transitSource) {
 		this.busStop = busStop;
-		this.routeKeysToTitles = routeKeysToTitles;
 		this.directions = directions;
 		this.transitSource = transitSource;
 	}
@@ -107,7 +105,7 @@ public class SubwayRouteConfigFeedParser
 			String title = elements[indexes.get("stop_name")];
 
 			StopLocation stopLocation = new StopLocation(latitudeAsDegrees, longitudeAsDegrees,
-					busStop, tag, title, routeKeysToTitles);
+					busStop, tag, title);
 
 			String dirTag = routeConfig.getRouteName() + elements[indexes.get("Direction")];
 			stopLocation.addRouteAndDirTag(routeConfig.getRouteName(), dirTag);

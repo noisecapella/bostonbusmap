@@ -49,8 +49,7 @@ public class SubwayTransitSource implements TransitSource {
 	
 	@Override
 	public void populateStops(RoutePool routeMapping, String routeToUpdate,
-			RouteConfig oldRouteConfig, Directions directions,
-			HashMap<String, String> routeKeysToTitles)
+			RouteConfig oldRouteConfig, Directions directions)
 			throws ClientProtocolException, IOException,
 			ParserConfigurationException, SAXException {
 		
@@ -63,7 +62,7 @@ public class SubwayTransitSource implements TransitSource {
 		//just initialize the route and then end for this round
 		
 		SubwayRouteConfigFeedParser parser = new SubwayRouteConfigFeedParser(busStop,
-				routeKeysToTitles, directions, oldRouteConfig, this);
+				directions, oldRouteConfig, this);
 
 		parser.runParse(downloadHelper.getResponseData()); 
 
@@ -76,7 +75,7 @@ public class SubwayTransitSource implements TransitSource {
 			int selectedBusPredictions, int maxStops, float centerLatitude,
 			float centerLongitude, HashMap<Integer, BusLocation> busMapping,
 			String selectedRoute, RoutePool routePool, Directions directions,
-			Locations locationsObj, HashMap<String, String> routeKeysToTitles)
+			Locations locationsObj)
 			throws IOException, ParserConfigurationException, SAXException {
 		//read data from the URL
 		DownloadHelper downloadHelper;
@@ -191,7 +190,7 @@ public class SubwayTransitSource implements TransitSource {
 
 	@Override
 	public void initializeAllRoutes(UpdateAsyncTask task, Context context,
-			Directions directions, HashMap<String, String> routeKeysToTitles,
+			Directions directions,
 			RoutePool routeMapping) throws IOException,
 			ParserConfigurationException, SAXException {
 		//download subway data
@@ -200,7 +199,7 @@ public class SubwayTransitSource implements TransitSource {
 		InputStream in = Locations.downloadStream(url, task, "Downloading subway info: ", "");
 		
 		SubwayRouteConfigFeedParser subwayParser =
-			new SubwayRouteConfigFeedParser(busStop, routeKeysToTitles, directions, null, this);
+			new SubwayRouteConfigFeedParser(busStop, directions, null, this);
 		
 		task.publish("Parsing route data...");
 		
