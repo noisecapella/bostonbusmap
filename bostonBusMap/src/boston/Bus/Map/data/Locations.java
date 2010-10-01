@@ -229,10 +229,20 @@ public final class Locations
 			return;
 		}
 
-		TransitSource transitSource = routeConfig.getTransitSource();
-		transitSource.refreshData(routeConfig, selectedBusPredictions, maxStops,
-				centerLatitude, centerLongitude, busMapping,
-				selectedRoute, routeMapping, directions, this);
+		switch (selectedBusPredictions)
+		{
+		case Main.BUS_PREDICTIONS_ALL:
+		case Main.BUS_PREDICTIONS_STAR:
+		case Main.VEHICLE_LOCATIONS_ALL:
+			//get data from many transit sources
+			transitSystem.refreshData(routeConfig, selectedBusPredictions, maxStops, centerLatitude,
+					centerLongitude, busMapping, selectedRoute, routeMapping, directions, this);
+		default:
+			TransitSource transitSource = routeConfig.getTransitSource();
+			transitSource.refreshData(routeConfig, selectedBusPredictions, maxStops,
+					centerLatitude, centerLongitude, busMapping,
+					selectedRoute, routeMapping, directions, this);
+		}
 	}
 
 	private void populateStops(String routeToUpdate, RouteConfig oldRouteConfig) 
