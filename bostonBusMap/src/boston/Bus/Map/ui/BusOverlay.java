@@ -434,6 +434,6 @@ public class BusOverlay extends BalloonItemizedOverlay<OverlayItem> {
 		Log.v("BostonBusMap", "Balloon was tapped");
 		Location location = locations.get(index);
 		balloonView.setCurrentLocation(locationsObj, location);
-		balloonView.setDrawableState(location.isFavorite() ? R.drawable.full_star : R.drawable.empty_star);
+		balloonView.setDrawableState(location.isFavorite(), location instanceof StopLocation);
 	}
 }

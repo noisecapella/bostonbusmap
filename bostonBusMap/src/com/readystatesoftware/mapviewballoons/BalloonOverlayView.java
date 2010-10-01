@@ -19,6 +19,7 @@ package com.readystatesoftware.mapviewballoons;
 
 import android.content.Context;
 import android.graphics.drawable.Drawable;
+import android.opengl.Visibility;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -142,7 +143,8 @@ public class BalloonOverlayView extends FrameLayout {
 		this.location = location;
 	}
 
-	public void setDrawableState(int resid) {
-		favorite.setBackgroundResource(resid);
+	public void setDrawableState(boolean isFavorite, boolean visible) {
+		favorite.setBackgroundResource(isFavorite ? boston.Bus.Map.R.drawable.full_star : R.drawable.empty_star);
+		favorite.setVisibility(visible ? View.VISIBLE : View.GONE);
 	}
 }
