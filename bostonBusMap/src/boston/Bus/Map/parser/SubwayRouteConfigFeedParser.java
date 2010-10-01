@@ -150,5 +150,6 @@ public class SubwayRouteConfigFeedParser
 
 	public void writeToDatabase(RoutePool routeMapping, boolean wipe) throws IOException {
 		routeMapping.writeToDatabase(map, wipe);
+		directions.writeToDatabase(wipe);
 	}
 }
