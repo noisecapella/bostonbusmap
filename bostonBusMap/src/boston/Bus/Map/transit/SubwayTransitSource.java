@@ -162,7 +162,7 @@ public class SubwayTransitSource implements TransitSource {
 				
 				for (String route : stopLocation.getRoutes())
 				{
-					if (isSubway(routeName))
+					if (isSubway(route))
 					{
 						outputUrls.add("http://developer.mbta.com/Data/" + route + ".json");
 					}
