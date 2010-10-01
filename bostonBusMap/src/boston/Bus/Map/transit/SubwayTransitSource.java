@@ -5,6 +5,7 @@ import java.io.InputStream;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 
 import javax.xml.parsers.ParserConfigurationException;
@@ -20,6 +21,7 @@ import boston.Bus.Map.data.Location;
 import boston.Bus.Map.data.Locations;
 import boston.Bus.Map.data.RouteConfig;
 import boston.Bus.Map.data.RoutePool;
+import boston.Bus.Map.data.StopLocation;
 import boston.Bus.Map.main.Main;
 import boston.Bus.Map.main.UpdateAsyncTask;
 import boston.Bus.Map.parser.BusPredictionsFeedParser;
@@ -78,7 +80,8 @@ public class SubwayTransitSource implements TransitSource {
 			Locations locationsObj)
 			throws IOException, ParserConfigurationException, SAXException {
 		//read data from the URL
-		DownloadHelper downloadHelper;
+		
+		HashSet<String> outputUrls = new HashSet<String>();
 		switch (selectedBusPredictions)
 		{
 		case  Main.BUS_PREDICTIONS_ONE:
@@ -87,14 +90,8 @@ public class SubwayTransitSource implements TransitSource {
 			List<Location> locations = locationsObj.getLocations(maxStops, centerLatitude, centerLongitude, false);
 
 			//ok, do predictions now
-			String url = getPredictionsUrl(locations, maxStops, routeConfig.getRouteName());
+			getPredictionsUrl(locations, maxStops, routeConfig.getRouteName(), outputUrls);
 
-			if (url == null)
-			{
-				return;
-			}
-			
-			downloadHelper = new DownloadHelper(url);
 		}
 		break;
 		case Main.BUS_PREDICTIONS_ALL:
@@ -102,14 +99,8 @@ public class SubwayTransitSource implements TransitSource {
 		{
 			List<Location> locations = locationsObj.getLocations(maxStops, centerLatitude, centerLongitude, false);
 			
-			String url = getPredictionsUrl(locations, maxStops, null);
+			getPredictionsUrl(locations, maxStops, null, outputUrls);
 
-			if (url == null)
-			{
-				return;
-			}
-			
-			downloadHelper = new DownloadHelper(url);
 		}
 		break;
 
@@ -122,37 +113,66 @@ public class SubwayTransitSource implements TransitSource {
 		}
 		}
 
-		downloadHelper.connect();
-
-		InputStream data = downloadHelper.getResponseData();
-
-		if (selectedBusPredictions == Main.BUS_PREDICTIONS_ONE || 
-				selectedBusPredictions == Main.BUS_PREDICTIONS_ALL ||
-				selectedBusPredictions == Main.BUS_PREDICTIONS_STAR)
+		for (String url : outputUrls)
 		{
-			//bus prediction
+			DownloadHelper downloadHelper = new DownloadHelper(url);
+			
+			downloadHelper.connect();
 
-			SubwayPredictionsFeedParser parser = new SubwayPredictionsFeedParser(routePool, directions);
+			InputStream data = downloadHelper.getResponseData();
 
-			parser.runParse(data);
+			if (selectedBusPredictions == Main.BUS_PREDICTIONS_ONE || 
+					selectedBusPredictions == Main.BUS_PREDICTIONS_ALL ||
+					selectedBusPredictions == Main.BUS_PREDICTIONS_STAR)
+			{
+				//bus prediction
+
+				SubwayPredictionsFeedParser parser = new SubwayPredictionsFeedParser(routePool, directions);
+
+				parser.runParse(data);
+			}
+			else 
+			{
+				//TODO
+			}		
 		}
-		else 
-		{
-			//TODO
-		}		
 	}
 
-	private String getPredictionsUrl(List<Location> locations, int maxStops,
-			String routeName) {
-		for (String subwayRoute : subwayRoutes)
+	private void getPredictionsUrl(List<Location> locations, int maxStops,
+			String routeName, HashSet<String> outputUrls) {
+		if (routeName != null)
 		{
-			//make sure we don't make an incorrect url
-			if (subwayRoute.equals(routeName))
+			//we know we're updating only one route
+			for (String subwayRoute : subwayRoutes)
 			{
-				return "http://developer.mbta.com/Data/" + routeName + ".json";
+				//make sure we don't make an incorrect url
+				if (subwayRoute.equals(routeName))
+				{
+					outputUrls.add("http://developer.mbta.com/Data/" + routeName + ".json");
+					return;
+				}
 			}
 		}
-		return null;
+		else
+		{
+			//ok, let's look at the locations and see what we can get
+			for (Location location : locations)
+			{
+				StopLocation stopLocation = (StopLocation)location;
+				
+				for (String route : stopLocation.getRoutes())
+				{
+					for (String subwayRoute : subwayRoutes)
+					{
+						if (subwayRoute.equals(route))
+						{
+							outputUrls.add("http://developer.mbta.com/Data/" + route + ".json");
+						}
+					}
+				}
+			}
+			
+		}
 	}
 
 
