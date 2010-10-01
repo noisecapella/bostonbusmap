@@ -125,6 +125,7 @@ public class SubwayRouteConfigFeedParser
 		
 		//workaround
 		directions.add("RedNB0", "North", null, SubwayTransitSource.RedLine);
+		directions.add("RedNB1", "North", null, SubwayTransitSource.RedLine);
 		directions.add("RedSB0", "South to Braintree", null, SubwayTransitSource.RedLine);
 		directions.add("RedSB1", "South to Ashmont", null, SubwayTransitSource.RedLine);
 		directions.add("BlueEB0", "East", null, SubwayTransitSource.BlueLine);
