@@ -109,6 +109,11 @@ public class SubwayPredictionsFeedParser
 		{
 			Log.e("BostonBusMap", e.getMessage());
 		}
+		catch (ClassCastException e)
+		{
+			//probably updating the wrong url?
+			Log.e("BostonBusMap", e.getMessage());
+		}
 	}
 
 	private String streamToString(InputStream data) throws IOException {

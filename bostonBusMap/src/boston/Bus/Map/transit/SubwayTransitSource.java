@@ -89,6 +89,11 @@ public class SubwayTransitSource implements TransitSource {
 			//ok, do predictions now
 			String url = getPredictionsUrl(locations, maxStops, routeConfig.getRouteName());
 
+			if (url == null)
+			{
+				return;
+			}
+			
 			downloadHelper = new DownloadHelper(url);
 		}
 		break;
@@ -99,6 +104,11 @@ public class SubwayTransitSource implements TransitSource {
 			
 			String url = getPredictionsUrl(locations, maxStops, null);
 
+			if (url == null)
+			{
+				return;
+			}
+			
 			downloadHelper = new DownloadHelper(url);
 		}
 		break;
@@ -134,7 +144,15 @@ public class SubwayTransitSource implements TransitSource {
 
 	private String getPredictionsUrl(List<Location> locations, int maxStops,
 			String routeName) {
-		return "http://developer.mbta.com/Data/" + routeName + ".json";
+		for (String subwayRoute : subwayRoutes)
+		{
+			//make sure we don't make an incorrect url
+			if (subwayRoute.equals(routeName))
+			{
+				return "http://developer.mbta.com/Data/" + routeName + ".json";
+			}
+		}
+		return null;
 	}
 
 
@@ -163,7 +181,7 @@ public class SubwayTransitSource implements TransitSource {
 	public static final String RedLine = "Red";
 	public static final String OrangeLine = "Orange";
 	public static final String BlueLine = "Blue";
-	private static final String[] subwayRoutes = new String[] {RedLine, OrangeLine, BlueLine};
+	public static final String[] subwayRoutes = new String[] {RedLine, OrangeLine, BlueLine};
 	
 	public static final String RedColor = "ff0000";
 	public static final String OrangeColor = "f88017";

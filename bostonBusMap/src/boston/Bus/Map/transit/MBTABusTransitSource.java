@@ -322,6 +322,11 @@ public class MBTABusTransitSource implements TransitSource
 			//ok, do predictions now
 			String url = getPredictionsUrl(locations, maxStops, routeConfig.getRouteName());
 
+			if (url == null)
+			{
+				return;
+			}
+			
 			downloadHelper = new DownloadHelper(url);
 		}
 		break;
@@ -332,6 +337,11 @@ public class MBTABusTransitSource implements TransitSource
 			
 			String url = getPredictionsUrl(locations, maxStops, null);
 
+			if (url == null)
+			{
+				return;
+			}
+			
 			downloadHelper = new DownloadHelper(url);
 		}
 		break;
@@ -402,8 +412,19 @@ public class MBTABusTransitSource implements TransitSource
 		}
 	}
 	
-	private static String getPredictionsUrl(List<Location> locations, int maxStops, String route)
+	private String getPredictionsUrl(List<Location> locations, int maxStops, String route)
 	{
+		//TODO: technically we should be checking that it is a bus route, not that it's not a subway route
+		//but this is probably more efficient
+		
+		for (String subwayRoute : SubwayTransitSource.subwayRoutes)
+		{
+			if (subwayRoute.equals(route))
+			{
+				return null;
+			}
+		}
+		
 		StringBuilder urlString = new StringBuilder(mbtaPredictionsDataUrl);
 		
 		for (Location location : locations)
