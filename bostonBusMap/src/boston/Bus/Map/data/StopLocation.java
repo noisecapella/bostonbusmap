@@ -254,6 +254,11 @@ public class StopLocation implements Location, CanBeSerialized
 				{
 					continue;
 				}
+				
+				if (prediction.getMinutes() < 0)
+				{
+					continue;
+				}
 
 				
 				

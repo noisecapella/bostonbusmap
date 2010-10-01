@@ -91,7 +91,15 @@ public class SubwayPredictionsFeedParser
 
 				Date date = format.parse(object.getString("Time"));
 				long epochTime = date.getTime();
-				int minutes = (int)((epochTime - (long)System.currentTimeMillis()) / 1000 / 60);
+				long diff = epochTime - (long)System.currentTimeMillis();
+				int minutes = (int)(diff / 1000 / 60);
+				
+				if (diff < 0 && minutes == 0)
+				{
+					//just to make sure we don't count this
+					minutes = -1;
+				}
+				
 				String stopDirection = stopKey.charAt(4) + "B";
 				String direction = route + stopDirection + object.getString("Route");
 				int vehicleId = 0;

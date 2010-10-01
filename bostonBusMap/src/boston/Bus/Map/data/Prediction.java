@@ -87,4 +87,8 @@ public class Prediction implements Comparable<Prediction>
 	public String getRouteName() {
 		return routeName;
 	}
+
+	public int getMinutes() {
+		return minutes;
+	}
 }
