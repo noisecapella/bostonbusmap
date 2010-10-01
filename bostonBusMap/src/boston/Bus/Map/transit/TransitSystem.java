@@ -48,17 +48,13 @@ public class TransitSystem {
 	
 
 	
-	private static final String subwayPredictionsDataUrl = "http://developer.mbta.com/Data/";
-	private final HashMap<String, TransitSource> transitSources = new HashMap<String, TransitSource>();  
+	private final HashMap<String, TransitSource> transitSourceMap = new HashMap<String, TransitSource>();
+	private final ArrayList<TransitSource> transitSources = new ArrayList<TransitSource>();
+	
 	/**
 	 * Be careful with this; this stays around forever since it's static
 	 */
 	private TransitSource defaultTransitSource;
-	
-	public void addTransitSource(String route, TransitSource source)
-	{
-		transitSources.put(route, source);
-	}
 	
 	public void setDefaultTransitSource(Drawable busStop, Drawable bus, Drawable arrow)
 	{
@@ -66,16 +62,15 @@ public class TransitSystem {
 		{
 			defaultTransitSource = new MBTABusTransitSource(busStop, bus, arrow);
 			SubwayTransitSource subwayTransitSource = new SubwayTransitSource(busStop, bus, arrow);
-			transitSources.put(SubwayTransitSource.RedLine, subwayTransitSource);
-			transitSources.put(SubwayTransitSource.OrangeLine, subwayTransitSource);
-			transitSources.put(SubwayTransitSource.BlueLine, subwayTransitSource);
+			transitSourceMap.put(SubwayTransitSource.RedLine, subwayTransitSource);
+			transitSourceMap.put(SubwayTransitSource.OrangeLine, subwayTransitSource);
+			transitSourceMap.put(SubwayTransitSource.BlueLine, subwayTransitSource);
+			
+			transitSources.add(subwayTransitSource);
+			transitSources.add(defaultTransitSource);
 		}
 	}
 	
-/*		if (isSubway(route) && route != null)
-		{
-			return subwayPredictionsDataUrl + route + ".json";
-		}*/
 	public TransitSource getTransitSource(String routeToUpdate) {
 		if (null == routeToUpdate)
 		{
@@ -84,7 +79,7 @@ public class TransitSystem {
 		else
 		{
 			
-			TransitSource transitSource = transitSources.get(routeToUpdate);
+			TransitSource transitSource = transitSourceMap.get(routeToUpdate);
 			if (transitSource == null)
 			{
 				return defaultTransitSource;
@@ -98,16 +93,11 @@ public class TransitSystem {
 	}
 
 	public String[] getRoutes() {
-		String[] routes = defaultTransitSource.getRoutes();
-		if (transitSources.size() != 0)
+		if (transitSources.size() > 1)
 		{
 			ArrayList<String> ret = new ArrayList<String>();
-			for (String route : routes)
-			{
-				ret.add(route);
-			}
 
-			for (TransitSource source : transitSources.values())
+			for (TransitSource source : transitSources)
 			{
 				for (String route : source.getRoutes())
 				{
@@ -119,12 +109,13 @@ public class TransitSystem {
 		}
 		else
 		{
+			String[] routes = defaultTransitSource.getRoutes();
 			return routes;
 		}
 	}
 
 	public HashMap<String, String> getRouteKeysToTitles() {
-		if (transitSources.size() == 0)
+		if (transitSources.size() <= 1)
 		{
 			return defaultTransitSource.getRouteKeysToTitles();
 		}
@@ -132,9 +123,7 @@ public class TransitSystem {
 		{
 			HashMap<String, String> ret = new HashMap<String, String>();
 			
-			ret.putAll(defaultTransitSource.getRouteKeysToTitles());
-			
-			for (TransitSource source : transitSources.values())
+			for (TransitSource source : transitSources)
 			{
 				ret.putAll(source.getRouteKeysToTitles());
 			}
