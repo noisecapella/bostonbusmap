@@ -417,12 +417,9 @@ public class MBTABusTransitSource implements TransitSource
 		//TODO: technically we should be checking that it is a bus route, not that it's not a subway route
 		//but this is probably more efficient
 		
-		for (String subwayRoute : SubwayTransitSource.subwayRoutes)
+		if (SubwayTransitSource.isSubway(route))
 		{
-			if (subwayRoute.equals(route))
-			{
-				return null;
-			}
+			return null;
 		}
 		
 		StringBuilder urlString = new StringBuilder(mbtaPredictionsDataUrl);
@@ -432,7 +429,7 @@ public class MBTABusTransitSource implements TransitSource
 			if (location instanceof StopLocation)
 			{
 				StopLocation stopLocation = (StopLocation)location;
-				stopLocation.createPredictionsUrl(urlString, route);
+				stopLocation.createBusPredictionsUrl(urlString, route);
 			}
 		}
 		

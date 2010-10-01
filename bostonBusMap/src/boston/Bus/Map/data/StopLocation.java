@@ -11,6 +11,7 @@ import java.util.TreeSet;
 
 import boston.Bus.Map.database.DatabaseHelper;
 import boston.Bus.Map.transit.MBTABusTransitSource;
+import boston.Bus.Map.transit.SubwayTransitSource;
 import boston.Bus.Map.transit.TransitSystem;
 import boston.Bus.Map.util.Box;
 import boston.Bus.Map.util.Constants;
@@ -357,7 +358,7 @@ public class StopLocation implements Location, CanBeSerialized
 	 * 
 	 * @param urlString
 	 */
-	public void createPredictionsUrl(StringBuilder urlString, String routeName) {
+	public void createBusPredictionsUrl(StringBuilder urlString, String routeName) {
 		if (routeName != null)
 		{
 			//only do it for the given route
@@ -370,7 +371,10 @@ public class StopLocation implements Location, CanBeSerialized
 			{
 				for (String route : dirTags.keySet())
 				{
-					MBTABusTransitSource.bindPredictionElementsForUrl(urlString, route, tag, dirTags.get(route));
+					if (SubwayTransitSource.isSubway(route) == false)
+					{
+						MBTABusTransitSource.bindPredictionElementsForUrl(urlString, route, tag, dirTags.get(route));
+					}
 				}
 			}
 		}

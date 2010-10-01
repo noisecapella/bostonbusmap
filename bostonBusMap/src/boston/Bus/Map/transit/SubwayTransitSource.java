@@ -15,6 +15,7 @@ import org.xml.sax.SAXException;
 
 import android.content.Context;
 import android.graphics.drawable.Drawable;
+import android.util.Log;
 import boston.Bus.Map.data.BusLocation;
 import boston.Bus.Map.data.Directions;
 import boston.Bus.Map.data.Location;
@@ -81,6 +82,7 @@ public class SubwayTransitSource implements TransitSource {
 			throws IOException, ParserConfigurationException, SAXException {
 		//read data from the URL
 		
+		Log.v("BostonBusMap", "refreshing subway data");
 		HashSet<String> outputUrls = new HashSet<String>();
 		switch (selectedBusPredictions)
 		{
@@ -113,6 +115,8 @@ public class SubwayTransitSource implements TransitSource {
 		}
 		}
 
+		Log.v("BostonBusMap", "refreshing subway data for " + outputUrls.size() + " routes");
+
 		for (String url : outputUrls)
 		{
 			DownloadHelper downloadHelper = new DownloadHelper(url);
@@ -143,14 +147,10 @@ public class SubwayTransitSource implements TransitSource {
 		if (routeName != null)
 		{
 			//we know we're updating only one route
-			for (String subwayRoute : subwayRoutes)
+			if (isSubway(routeName))
 			{
-				//make sure we don't make an incorrect url
-				if (subwayRoute.equals(routeName))
-				{
-					outputUrls.add("http://developer.mbta.com/Data/" + routeName + ".json");
-					return;
-				}
+				outputUrls.add("http://developer.mbta.com/Data/" + routeName + ".json");
+				return;
 			}
 		}
 		else
@@ -162,12 +162,9 @@ public class SubwayTransitSource implements TransitSource {
 				
 				for (String route : stopLocation.getRoutes())
 				{
-					for (String subwayRoute : subwayRoutes)
+					if (isSubway(routeName))
 					{
-						if (subwayRoute.equals(route))
-						{
-							outputUrls.add("http://developer.mbta.com/Data/" + route + ".json");
-						}
+						outputUrls.add("http://developer.mbta.com/Data/" + route + ".json");
 					}
 				}
 			}
@@ -201,7 +198,7 @@ public class SubwayTransitSource implements TransitSource {
 	public static final String RedLine = "Red";
 	public static final String OrangeLine = "Orange";
 	public static final String BlueLine = "Blue";
-	public static final String[] subwayRoutes = new String[] {RedLine, OrangeLine, BlueLine};
+	private static final String[] subwayRoutes = new String[] {RedLine, OrangeLine, BlueLine};
 	
 	public static final String RedColor = "ff0000";
 	public static final String OrangeColor = "f88017";
