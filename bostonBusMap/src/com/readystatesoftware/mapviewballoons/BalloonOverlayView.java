@@ -20,6 +20,7 @@ package com.readystatesoftware.mapviewballoons;
 import android.content.Context;
 import android.graphics.drawable.Drawable;
 import android.opengl.Visibility;
+import android.text.Html;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -58,6 +59,7 @@ public class BalloonOverlayView extends FrameLayout {
 	private TextView title;
 	private TextView snippet;
 	private ImageView favorite;
+	private TextView moreInfo;
 
 	private Location location;
 	private Locations locations;
@@ -85,6 +87,8 @@ public class BalloonOverlayView extends FrameLayout {
 
 		favorite = (ImageView) v.findViewById(R.id.balloon_item_favorite);
 
+		moreInfo = (TextView)v.findViewById(R.id.balloon_item_moreinfo);
+		
 		favorite.setOnClickListener(new OnClickListener() {
 			
 			@Override
@@ -99,6 +103,15 @@ public class BalloonOverlayView extends FrameLayout {
 	    			Log.v("BostonBusMap", "setting favorite icon to " +
 	    					(result == R.drawable.full_star ? "full star" : "empty star"));
 				}
+			}
+		});
+		
+		moreInfo.setOnClickListener(new OnClickListener() {
+			
+			@Override
+			public void onClick(View v) {
+				Log.v("BostonBusMap", "tapped More info link");
+				
 			}
 		});
 		
@@ -135,6 +148,7 @@ public class BalloonOverlayView extends FrameLayout {
 			snippet.setVisibility(GONE);
 		}
 		
+		moreInfo.setText(Html.fromHtml("<a href='com.bostonbusmap://moreinfo'>More info</a>"));
 	}
 
 	public void setCurrentLocation(Locations locations, Location location)
