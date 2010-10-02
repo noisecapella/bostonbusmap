@@ -8,6 +8,7 @@ import java.text.DateFormat;
 import java.text.NumberFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
 
 import javax.xml.parsers.ParserConfigurationException;
@@ -71,8 +72,6 @@ public class SubwayPredictionsFeedParser
 			JSONArray array = (JSONArray)tokener.nextValue();
 
 
-			SimpleDateFormat format = new SimpleDateFormat("M/d/y K:m:s a");
-
 			//TODO: there's a bug here where it doesn't interpret time after midnight correctly
 			for (int i = 0; i < array.length(); i++)
 			{
@@ -89,7 +88,7 @@ public class SubwayPredictionsFeedParser
 					continue;
 				}
 
-				Date date = format.parse(object.getString("Time"));
+				Date date = parseTime(object.getString("Time"));
 				long epochTime = date.getTime();
 				long diff = epochTime - (long)System.currentTimeMillis();
 				int minutes = (int)(diff / 1000 / 60);
@@ -134,5 +133,34 @@ public class SubwayPredictionsFeedParser
 			ret.append(line).append('\n');
 		}
 		return ret.toString();
+	}
+
+	private final SimpleDateFormat format = new SimpleDateFormat("M/d/y K:m:s");
+
+
+	public Date parseTime(String time) throws ParseException {
+		Date date = format.parse(time);
+
+		int hour = date.getHours();
+		if (time.endsWith("PM") || time.endsWith("pm"))
+		{
+			if (hour == 12)
+			{
+				//do nothing
+			}
+			else
+			{
+				date.setHours(date.getHours() + 12);
+			}
+			
+		}
+		else
+		{
+			if (hour == 12)
+			{
+				date.setHours(0);
+			}
+		}
+		return date;
 	}
 }
