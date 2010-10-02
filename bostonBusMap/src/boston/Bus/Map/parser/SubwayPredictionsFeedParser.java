@@ -8,6 +8,7 @@ import java.text.DateFormat;
 import java.text.NumberFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 
@@ -62,15 +63,17 @@ public class SubwayPredictionsFeedParser
 	
 	public void runParse(InputStream data) throws IOException
 	{
-		clearPredictions();
-
 		String string = streamToString(data);
 
 		JSONTokener tokener = new JSONTokener(string);
+		
+		//store everything here, then write out all out at once
+		ArrayList<Prediction> predictions = new ArrayList<Prediction>(); 
+		ArrayList<StopLocation> stopLocations = new ArrayList<StopLocation>(); 
+		
 		try
 		{
 			JSONArray array = (JSONArray)tokener.nextValue();
-
 
 			//TODO: there's a bug here where it doesn't interpret time after midnight correctly
 			for (int i = 0; i < array.length(); i++)
@@ -103,8 +106,9 @@ public class SubwayPredictionsFeedParser
 				String direction = route + stopDirection + object.getString("Route");
 				int vehicleId = 0;
 
-
-				stopLocation.addPrediction(minutes, epochTime, vehicleId, direction, routeConfig, directions);
+				predictions.add(new Prediction(minutes, epochTime, vehicleId, directions.getTitleAndName(direction),
+						routeConfig.getRouteName()));
+				stopLocations.add(stopLocation);
 			}
 
 		}
@@ -120,6 +124,14 @@ public class SubwayPredictionsFeedParser
 		{
 			//probably updating the wrong url?
 			Log.e("BostonBusMap", e.getMessage());
+		}
+		
+		clearPredictions();
+
+		for (int i = 0; i < stopLocations.size(); i++)
+		{
+			StopLocation stopLocation = stopLocations.get(i);
+			stopLocation.addPrediction(predictions.get(i));
 		}
 	}
 

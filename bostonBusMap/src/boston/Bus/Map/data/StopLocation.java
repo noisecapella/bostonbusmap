@@ -305,6 +305,21 @@ public class StopLocation implements Location, CanBeSerialized
 		}
 	}
 	
+	public void addPrediction(Prediction prediction)
+	{
+		if (predictions == null)
+		{
+			predictions = new ArrayList<Prediction>();
+		}
+		
+		synchronized (predictions) {
+			if (predictions.contains(prediction) == false)
+			{
+				predictions.add(prediction);
+			}
+		}
+	}
+	
 	public void addPrediction(int minutes, long epochTime, int vehicleId,
 			String direction, RouteConfig route, Directions directions) {
 		if (predictions == null)
