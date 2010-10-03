@@ -23,6 +23,7 @@ public class MoreInfo extends ListActivity {
 	public static final String titlesKey = "titles";
 	
 	public static final String titleKey = "title";
+	public static final String routeKey = "route";
 	
 	public static final String textKey = "text";
 	
@@ -71,7 +72,24 @@ public class MoreInfo extends ListActivity {
 		
 		title = (TextView)findViewById(R.id.moreinfo_title);
 		
-		String titleText = extras.getString(titleKey);
+		String[] stopTitles = extras.getStringArray(titleKey);
+		String routes = extras.getString(routeKey);
+		
+		StringBuilder titleText = new StringBuilder();
+		for (int i = 0; i < stopTitles.length; i++)
+		{
+			titleText.append(stopTitles[i]);
+			if (i != stopTitles.length - 1)
+			{
+				titleText.append("<br />");
+			}
+		}
+		
+		if (routes != null)
+		{
+			titleText.append("<br />Routes: ").append(routes);
+			
+		}
 		
 		title.setText(Html.fromHtml("<b>" + titleText + "</b>"));
 	}

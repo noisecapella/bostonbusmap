@@ -43,5 +43,7 @@
 	android:layout_alignTop="@+id/balloon_item_snippet"
 	android:text="More info"
 	android:paddingTop="20dip"
+	android:paddingLeft="5dip"
+	android:paddingBottom="20dip"
 	></TextView>
 </RelativeLayout>

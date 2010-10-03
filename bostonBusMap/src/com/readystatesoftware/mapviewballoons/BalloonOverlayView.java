@@ -124,7 +124,7 @@ public class BalloonOverlayView extends FrameLayout {
 					StopLocation stopLocation = (StopLocation)location;
 					Intent intent = new Intent(context, MoreInfo.class);
 
-					ArrayList<Prediction> predictionArrayList = stopLocation.getPredictions();
+					ArrayList<Prediction> predictionArrayList = stopLocation.getCombinedPredictions();
 					if (predictionArrayList != null)
 					{
 						intent.putExtra(MoreInfo.predictionsKey, predictionArrayList.toArray(new Prediction[0]));
@@ -139,7 +139,10 @@ public class BalloonOverlayView extends FrameLayout {
 					intent.putExtra(MoreInfo.routesKey, keys);
 					intent.putExtra(MoreInfo.titlesKey, values);
 					
-					intent.putExtra(MoreInfo.titleKey, stopLocation.getTitle());
+					String[] combinedTitles = stopLocation.getCombinedTitles();
+					intent.putExtra(MoreInfo.titleKey, combinedTitles);
+					String combinedRoutes = stopLocation.getCombinedRoutes();
+					intent.putExtra(MoreInfo.routeKey, combinedRoutes);
 					context.startActivity(intent);
 				}
 			}

@@ -147,6 +147,10 @@ public class StopLocation implements Location, CanBeSerialized
 		return ret;
 	}
 
+	private ArrayList<Prediction> combinedPredictions;
+	private TreeSet<String> combinedRoutes;
+	private TreeSet<String> combinedTitles;
+	
 	@Override
 	public void addToSnippetAndTitle(RouteConfig routeConfig, Location location, HashMap<String, String> routeKeysToTitles) {
 		StopLocation stopLocation = (StopLocation)location;
@@ -160,7 +164,7 @@ public class StopLocation implements Location, CanBeSerialized
 		
 		sharedSnippetStops.add(stopLocation);
 		
-		TreeSet<String> combinedTitles = new TreeSet<String>();
+		combinedTitles = new TreeSet<String>();
 		combinedTitles.add(title);
 		for (StopLocation s : sharedSnippetStops)
 		{
@@ -171,7 +175,7 @@ public class StopLocation implements Location, CanBeSerialized
 		
 		snippetStop += ", " + stopLocation.tag;
 		
-		TreeSet<String> combinedRoutes = new TreeSet<String>();
+		combinedRoutes = new TreeSet<String>();
 		combinedRoutes.addAll(dirTags.keySet());
 		for (StopLocation s : sharedSnippetStops)
 		{
@@ -179,7 +183,7 @@ public class StopLocation implements Location, CanBeSerialized
 		}
 		snippetRoutes = makeSnippetRoutes(combinedRoutes, routeKeysToTitles);
 		
-		ArrayList<Prediction> combinedPredictions = new ArrayList<Prediction>();
+		combinedPredictions = new ArrayList<Prediction>();
 		if (predictions != null)
 		{
 			combinedPredictions.addAll(predictions);
@@ -433,5 +437,31 @@ public class StopLocation implements Location, CanBeSerialized
 
 	public ArrayList<Prediction> getPredictions() {
 		return predictions;
+	}
+	
+	public ArrayList<Prediction> getCombinedPredictions() {
+		if (combinedPredictions == null)
+		{
+			return predictions;
+		}
+		else
+		{
+			return combinedPredictions;
+		}
+	}
+	
+	public String getCombinedRoutes() {
+		return snippetRoutes;
+	}
+	
+	public String[] getCombinedTitles() {
+		if (combinedTitles != null)
+		{
+			return combinedTitles.toArray(new String[0]);
+		}
+		else
+		{
+			return new String[]{title};
+		}
 	}
 }

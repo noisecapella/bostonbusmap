@@ -141,9 +141,27 @@ public class Prediction implements Comparable<Prediction>, Parcelable
 	public HashMap<String, Spanned> makeSnippetMap(HashMap<String, String> routeKeysToTitles) {
 		HashMap<String, Spanned> map = new HashMap<String, Spanned>();
 		
-		Spanned string = Html.fromHtml("<b>Hello</b>, world!");
+		String ret = "Route <b>" + routeKeysToTitles.get(routeName) + "</b>";
+		if (vehicleId != 0)
+		{
+			ret += ", Bus <b>" + vehicleId + "</b>";
+		}
 		
-		map.put(MoreInfo.textKey, string);
+		if (direction != null)
+		{
+			ret += "<br />" + direction.replace("\n", "<br />");
+		}
+		
+		if (minutes == 0)
+		{
+			ret += "<br />Arriving now!";
+		}
+		else
+		{
+			ret += "<br />Arriving in " + minutes + " min at " + arrivalTime.format(hourMinuteFormatString).trim();
+		}
+		
+		map.put(MoreInfo.textKey, Html.fromHtml(ret));
 		
 		return map;
 	}
