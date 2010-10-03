@@ -390,28 +390,6 @@ public class BusOverlay extends BalloonItemizedOverlay<OverlayItem> {
 	}
 
 
-	public int toggleFavorite(Locations locationsObj) {
-		int selectedBusIndex = getLastFocusedIndex();
-		
-		if (selectedBusIndex >= 0 && selectedBusIndex < locations.size())
-		{
-			Location location = locations.get(selectedBusIndex);
-			if (location instanceof StopLocation)
-			{
-				return locationsObj.toggleFavorite((StopLocation)location);
-			}
-			else
-			{
-				Toast.makeText(context, "You can only favorite bus stops", Toast.LENGTH_LONG).show();
-			}
-		}
-		else
-		{
-			Toast.makeText(context, "No bus stop is currently selected", Toast.LENGTH_LONG).show();			
-		}
-		return R.drawable.empty_star;
-	}
-
 
 	public void addOverlaysFromLocations(ArrayList<GeoPoint> points) {
 		for (int i = 0; i < locations.size(); i++)

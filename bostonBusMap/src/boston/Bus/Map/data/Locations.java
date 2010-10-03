@@ -446,7 +446,6 @@ public final class Locations
 
 				//ok, now start setting favorite statuses
 				for (StopLocation stopLocation : sharedSnippetStops)
-
 				{
 					routeMapping.setFavorite(stopLocation, !isFavorite);
 				}

@@ -25,7 +25,7 @@
 						android:layout_toLeftOf="@+id/balloon_item_favorite"
 			android:layout_alignParentLeft="true"></TextView>
 		<TextView android:layout_height="wrap_content"
-			android:layout_width="wrap_content" 
+			android:layout_width="fill_parent" 
 			android:id="@+id/balloon_item_snippet"
 			android:text="balloon_item_snippet" 
 			android:textSize="12dip"
