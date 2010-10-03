@@ -430,4 +430,8 @@ public class StopLocation implements Location, CanBeSerialized
 	public Collection<StopLocation> getSharedSnippetStops() {
 		return sharedSnippetStops;
 	}
+
+	public ArrayList<Prediction> getPredictions() {
+		return predictions;
+	}
 }

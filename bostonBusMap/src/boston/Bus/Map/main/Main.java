@@ -254,7 +254,7 @@ public class Main extends MapActivity
         	CurrentState currentState = (CurrentState)lastNonConfigurationInstance;
         	currentState.restoreWidgets(textView);
         	
-        	busOverlay = currentState.cloneBusOverlay(this, mapView);
+        	busOverlay = currentState.cloneBusOverlay(this, mapView, routeKeysToTitles);
         	routeOverlay = currentState.cloneRouteOverlay(mapView.getProjection());
         	myLocationOverlay = new LocationOverlay(this, mapView);
         	
@@ -283,7 +283,7 @@ public class Main extends MapActivity
         }
         else
         {
-        	busOverlay = new BusOverlay(busPicture, this, mapView);
+        	busOverlay = new BusOverlay(busPicture, this, mapView, routeKeysToTitles);
         	routeOverlay = new RouteOverlay(mapView.getProjection());
         	myLocationOverlay = new LocationOverlay(this, mapView);
         }
