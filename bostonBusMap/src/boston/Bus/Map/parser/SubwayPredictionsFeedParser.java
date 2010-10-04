@@ -47,17 +47,12 @@ public class SubwayPredictionsFeedParser
 		this.directions = directions;
 	}
 	
-	private void clearPredictions() throws IOException
+	private void clearPredictions(String route) throws IOException
 	{
-		String[] routes = SubwayTransitSource.getAllSubwayRoutes();
-		
-		for (String route : routes)
+		RouteConfig routeConfig = routePool.get(route);
+		for (StopLocation stopLocation : routeConfig.getStops())
 		{
-			RouteConfig routeConfig = routePool.get(route);
-			for (StopLocation stopLocation : routeConfig.getStops())
-			{
-				stopLocation.clearPredictions(routeConfig);
-			}
+			stopLocation.clearPredictions(routeConfig);
 		}
 	}
 	
@@ -71,6 +66,7 @@ public class SubwayPredictionsFeedParser
 		ArrayList<Prediction> predictions = new ArrayList<Prediction>(); 
 		ArrayList<StopLocation> stopLocations = new ArrayList<StopLocation>(); 
 		
+		String route = null;
 		try
 		{
 			JSONArray array = (JSONArray)tokener.nextValue();
@@ -80,7 +76,7 @@ public class SubwayPredictionsFeedParser
 			{
 				JSONObject object = (JSONObject)array.get(i);
 
-				String route = object.getString("Line");
+				route = object.getString("Line");
 				RouteConfig routeConfig = routePool.get(route);
 
 				String stopKey = object.getString("PlatformKey");
@@ -126,7 +122,7 @@ public class SubwayPredictionsFeedParser
 			Log.e("BostonBusMap", e.getMessage());
 		}
 		
-		clearPredictions();
+		clearPredictions(route);
 
 		for (int i = 0; i < stopLocations.size(); i++)
 		{
