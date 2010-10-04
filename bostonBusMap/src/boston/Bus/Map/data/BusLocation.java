@@ -90,6 +90,7 @@ public class BusLocation implements Location
 	private final boolean disappearAfterRefresh;
 	
 	private static final int LOCATIONTYPE = 1;
+	public static final int NO_HEADING = -1;
 	
 	public BusLocation(double latitude, double longitude, int id, int seconds, double lastUpdateInMillis,
 			String heading, boolean predictable, String dirTag, String inferBusRoute,
@@ -116,7 +117,7 @@ public class BusLocation implements Location
 
 	public boolean hasHeading()
 	{
-		if (predictable)
+		if (predictable && heading != null)
 		{
 			return (getHeading() >= 0);
 		}
