@@ -87,6 +87,7 @@ public class SubwayTransitSource implements TransitSource {
 		switch (selectedBusPredictions)
 		{
 		case  Main.BUS_PREDICTIONS_ONE:
+		case Main.VEHICLE_LOCATIONS_ONE:
 		{
 
 			List<Location> locations = locationsObj.getLocations(maxStops, centerLatitude, centerLongitude, false);
@@ -98,6 +99,7 @@ public class SubwayTransitSource implements TransitSource {
 		break;
 		case Main.BUS_PREDICTIONS_ALL:
 		case Main.BUS_PREDICTIONS_STAR:
+		case Main.VEHICLE_LOCATIONS_ALL:
 		{
 			List<Location> locations = locationsObj.getLocations(maxStops, centerLatitude, centerLongitude, false);
 			
@@ -106,8 +108,6 @@ public class SubwayTransitSource implements TransitSource {
 		}
 		break;
 
-		case Main.VEHICLE_LOCATIONS_ONE:
-		case Main.VEHICLE_LOCATIONS_ALL:
 		default:
 		{
 			//TODO

@@ -134,7 +134,7 @@ public class SubwayPredictionsFeedParser
 				if ("Arrived".equals(informationType))
 				{
 					BusLocation busLocation = new BusLocation(stopLocation.getLatitudeAsDegrees(), stopLocation.getLongitudeAsDegrees(),
-							0, (int)(diff / 1000), 0, null, true, direction, null, bus, arrow, route, directions, route, true);
+							0, -(int)(diff / 1000), 0, null, true, direction, null, bus, arrow, route, directions, route, true);
 					busMapping.put(0xffff | (i << 16), busLocation);
 				}
 			}

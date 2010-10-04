@@ -135,7 +135,7 @@ public class BusLocation implements Location
 	
 	public int getHeading()
 	{
-		if (predictable)
+		if (predictable && heading != null)
 		{
 			return Integer.parseInt(heading);
 		}
