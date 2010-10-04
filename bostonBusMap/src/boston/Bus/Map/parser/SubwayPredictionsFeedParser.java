@@ -113,7 +113,8 @@ public class SubwayPredictionsFeedParser
 
 				Date date = parseTime(object.getString("Time"));
 				long epochTime = date.getTime();
-				long diff = epochTime - (long)System.currentTimeMillis();
+				long currentMillis = System.currentTimeMillis();
+				long diff = epochTime - currentMillis;
 				int minutes = (int)(diff / 1000 / 60);
 				
 				if (diff < 0 && minutes == 0)
@@ -133,8 +134,10 @@ public class SubwayPredictionsFeedParser
 				String informationType = object.getString("InformationType");
 				if ("Arrived".equals(informationType))
 				{
+					int seconds = (int)-(diff / 1000);
+					
 					BusLocation busLocation = new BusLocation(stopLocation.getLatitudeAsDegrees(), stopLocation.getLongitudeAsDegrees(),
-							0, -(int)(diff / 1000), 0, null, true, direction, null, bus, arrow, route, directions, route, true);
+							0, seconds, currentMillis, null, true, direction, null, bus, arrow, route, directions, route, true);
 					busMapping.put(0xffff | (i << 16), busLocation);
 				}
 			}

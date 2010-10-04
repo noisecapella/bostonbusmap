@@ -87,19 +87,19 @@ public class SubwayTransitSource implements TransitSource {
 		switch (selectedBusPredictions)
 		{
 		case  Main.BUS_PREDICTIONS_ONE:
-		case Main.VEHICLE_LOCATIONS_ONE:
 		{
 
 			List<Location> locations = locationsObj.getLocations(maxStops, centerLatitude, centerLongitude, false);
 
 			//ok, do predictions now
 			getPredictionsUrl(locations, maxStops, routeConfig.getRouteName(), outputUrls);
-
+			break;
 		}
-		break;
+		case Main.VEHICLE_LOCATIONS_ONE:
+			//TODO
+			return;
 		case Main.BUS_PREDICTIONS_ALL:
 		case Main.BUS_PREDICTIONS_STAR:
-		case Main.VEHICLE_LOCATIONS_ALL:
 		{
 			List<Location> locations = locationsObj.getLocations(maxStops, centerLatitude, centerLongitude, false);
 			
@@ -108,6 +108,7 @@ public class SubwayTransitSource implements TransitSource {
 		}
 		break;
 
+		case Main.VEHICLE_LOCATIONS_ALL:
 		default:
 		{
 			//TODO
@@ -137,12 +138,14 @@ public class SubwayTransitSource implements TransitSource {
 
 	private void getPredictionsUrl(List<Location> locations, int maxStops,
 			String routeName, HashSet<String> outputUrls) {
+		final String dataUrlPrefix = "http://developer.mbta.com/Data/";
+		
 		if (routeName != null)
 		{
 			//we know we're updating only one route
 			if (isSubway(routeName))
 			{
-				outputUrls.add("http://developer.mbta.com/Data/" + routeName + ".json");
+				outputUrls.add(dataUrlPrefix + routeName + ".json");
 				return;
 			}
 		}
@@ -151,13 +154,28 @@ public class SubwayTransitSource implements TransitSource {
 			//ok, let's look at the locations and see what we can get
 			for (Location location : locations)
 			{
-				StopLocation stopLocation = (StopLocation)location;
-				
-				for (String route : stopLocation.getRoutes())
+				if (location instanceof StopLocation)
 				{
+					StopLocation stopLocation = (StopLocation)location;
+				
+				
+					for (String route : stopLocation.getRoutes())
+					{
+						if (isSubway(route))
+						{
+							outputUrls.add(dataUrlPrefix + route + ".json");
+						}
+					}
+				}
+				else
+				{
+					//bus location
+					BusLocation busLocation = (BusLocation)location;
+					String route = busLocation.getRouteId();
+					
 					if (isSubway(route))
 					{
-						outputUrls.add("http://developer.mbta.com/Data/" + route + ".json");
+						outputUrls.add(dataUrlPrefix + route + ".json");
 					}
 				}
 			}

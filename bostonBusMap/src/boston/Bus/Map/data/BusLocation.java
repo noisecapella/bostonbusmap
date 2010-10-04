@@ -251,9 +251,12 @@ public class BusLocation implements Location
 	private String makeSnippet(RouteConfig routeConfig)
 	{
 		String snippet = "";
-    	snippet += "Bus number: " + id;
+		if (id != 0)
+		{
+			snippet += "Bus number: " + id + "\n";
+		}
     	
-    	snippet += "\nLast update: " + (int)(seconds + (System.currentTimeMillis() - lastUpdateInMillis) / 1000) + " seconds ago";
+    	snippet += "Last update: " + (int)(seconds + (System.currentTimeMillis() - lastUpdateInMillis) / 1000) + " seconds ago";
     	String direction = getDirection();
     	if (direction.length() != 0 && predictable == false)
     	{
