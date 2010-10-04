@@ -237,6 +237,7 @@ public final class Locations
 			//get data from many transit sources
 			transitSystem.refreshData(routeConfig, selectedBusPredictions, maxStops, centerLatitude,
 					centerLongitude, busMapping, selectedRoute, routeMapping, directions, this);
+			break;
 		default:
 			TransitSource transitSource = routeConfig.getTransitSource();
 			transitSource.refreshData(routeConfig, selectedBusPredictions, maxStops,
