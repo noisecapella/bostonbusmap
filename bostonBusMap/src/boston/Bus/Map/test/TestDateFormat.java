@@ -19,7 +19,7 @@ public class TestDateFormat extends TestCase
 		
 		String time = "10/2/2010 12:49:29 PM";
 		
-		SubwayPredictionsFeedParser parser = new SubwayPredictionsFeedParser(null, null);
+		SubwayPredictionsFeedParser parser = new SubwayPredictionsFeedParser(null, null, null, null);
 		
 		Date date = parser.parseTime(time);
 		
@@ -34,7 +34,7 @@ public class TestDateFormat extends TestCase
 		
 		String time = "10/2/2010 12:49:29 AM";
 		
-		SubwayPredictionsFeedParser parser = new SubwayPredictionsFeedParser(null, null);
+		SubwayPredictionsFeedParser parser = new SubwayPredictionsFeedParser(null, null, null, null);
 		
 		Date date = parser.parseTime(time);
 		
@@ -47,7 +47,7 @@ public class TestDateFormat extends TestCase
 		
 		String time = "10/2/2010 1:49:29 PM";
 		
-		SubwayPredictionsFeedParser parser = new SubwayPredictionsFeedParser(null, null);
+		SubwayPredictionsFeedParser parser = new SubwayPredictionsFeedParser(null, null, null, null);
 		
 		Date date = parser.parseTime(time);
 		

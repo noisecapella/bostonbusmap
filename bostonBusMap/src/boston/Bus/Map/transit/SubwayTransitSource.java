@@ -125,20 +125,13 @@ public class SubwayTransitSource implements TransitSource {
 
 			InputStream data = downloadHelper.getResponseData();
 
-			if (selectedBusPredictions == Main.BUS_PREDICTIONS_ONE || 
-					selectedBusPredictions == Main.BUS_PREDICTIONS_ALL ||
-					selectedBusPredictions == Main.BUS_PREDICTIONS_STAR)
-			{
-				//bus prediction
+			//bus prediction
 
-				SubwayPredictionsFeedParser parser = new SubwayPredictionsFeedParser(routePool, directions);
+			SubwayPredictionsFeedParser parser = new SubwayPredictionsFeedParser(routePool, directions, bus, arrow);
 
-				parser.runParse(data);
-			}
-			else 
-			{
-				//TODO
-			}		
+			parser.runParse(data);
+			
+			busMapping.putAll(parser.getBusMapping());
 		}
 	}
 

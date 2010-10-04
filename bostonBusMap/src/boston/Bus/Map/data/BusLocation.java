@@ -87,11 +87,13 @@ public class BusLocation implements Location
 	private String snippet;
 	private String snippetTitle;
 	
+	private final boolean disappearAfterRefresh;
+	
 	private static final int LOCATIONTYPE = 1;
 	
 	public BusLocation(double latitude, double longitude, int id, int seconds, double lastUpdateInMillis,
 			String heading, boolean predictable, String dirTag, String inferBusRoute,
-			Drawable bus, Drawable arrow, String routeName, Directions directions, String routeTitle)
+			Drawable bus, Drawable arrow, String routeName, Directions directions, String routeTitle, boolean disappearAfterRefresh)
 	{
 		this.latitude = latitude * Constants.degreesToRadians;
 		this.longitude = longitude * Constants.degreesToRadians;
@@ -109,6 +111,7 @@ public class BusLocation implements Location
 		this.routeName = routeName;
 		this.directions = directions;
 		this.routeTitle = routeTitle;
+		this.disappearAfterRefresh = disappearAfterRefresh;
 	}
 
 	public boolean hasHeading()
@@ -256,7 +259,7 @@ public class BusLocation implements Location
     		snippet += "\nEstimated direction: " + direction;
     	}
     	
-    	if (predictable)
+    	if (predictable && heading != null)
     	{
     		snippet += "\nHeading: " + heading + " deg (" + convertHeadingToCardinal(Integer.parseInt(heading)) + ")";
     	}
@@ -375,6 +378,10 @@ public class BusLocation implements Location
 	 */
 	public String getRouteId() {
 		return routeName;
+	}
+	
+	public boolean isDisappearAfterRefresh() {
+		return disappearAfterRefresh;
 	}
 }
 

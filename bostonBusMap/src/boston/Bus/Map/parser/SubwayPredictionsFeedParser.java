@@ -11,6 +11,8 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
@@ -26,8 +28,10 @@ import org.xml.sax.SAXException;
 import org.xml.sax.XMLReader;
 import org.xml.sax.helpers.DefaultHandler;
 
+import android.graphics.drawable.Drawable;
 import android.text.format.Time;
 import android.util.Log;
+import boston.Bus.Map.data.BusLocation;
 import boston.Bus.Map.data.Directions;
 import boston.Bus.Map.data.Prediction;
 import boston.Bus.Map.data.RouteConfig;
@@ -40,19 +44,39 @@ public class SubwayPredictionsFeedParser
 {
 	private final RoutePool routePool;
 	private final Directions directions;
+	private final Drawable bus;
+	private final Drawable arrow;
+	
+	private final HashMap<Integer, BusLocation> busMapping = new HashMap<Integer, BusLocation>();
 
-	public SubwayPredictionsFeedParser(RoutePool routePool, Directions directions)
+	public SubwayPredictionsFeedParser(RoutePool routePool, Directions directions, Drawable bus, Drawable arrow)
 	{
 		this.routePool = routePool;
 		this.directions = directions;
+		this.bus = bus;
+		this.arrow = arrow;
 	}
 	
 	private void clearPredictions(String route) throws IOException
 	{
-		RouteConfig routeConfig = routePool.get(route);
-		for (StopLocation stopLocation : routeConfig.getStops())
+		if (route != null)
 		{
-			stopLocation.clearPredictions(routeConfig);
+			RouteConfig routeConfig = routePool.get(route);
+			for (StopLocation stopLocation : routeConfig.getStops())
+			{
+				stopLocation.clearPredictions(routeConfig);
+			}
+		}
+		else
+		{
+			for (String subwayRoute : SubwayTransitSource.getAllSubwayRoutes())
+			{
+				RouteConfig routeConfig = routePool.get(subwayRoute);
+				for (StopLocation stopLocation : routeConfig.getStops())
+				{
+					stopLocation.clearPredictions(routeConfig);
+				}
+			}
 		}
 	}
 	
@@ -105,6 +129,14 @@ public class SubwayPredictionsFeedParser
 				predictions.add(new Prediction(minutes, epochTime, vehicleId, directions.getTitleAndName(direction),
 						routeConfig.getRouteName()));
 				stopLocations.add(stopLocation);
+				
+				String informationType = object.getString("InformationType");
+				if ("Arrived".equals(informationType))
+				{
+					BusLocation busLocation = new BusLocation(stopLocation.getLatitudeAsDegrees(), stopLocation.getLongitudeAsDegrees(),
+							0, (int)(diff / 1000), 0, null, true, direction, null, bus, arrow, route, directions, route, true);
+					busMapping.put(0xffff | (i << 16), busLocation);
+				}
 			}
 
 		}
@@ -170,5 +202,9 @@ public class SubwayPredictionsFeedParser
 			}
 		}
 		return date;
+	}
+
+	public Map<? extends Integer, ? extends BusLocation> getBusMapping() {
+		return busMapping;
 	}
 }
