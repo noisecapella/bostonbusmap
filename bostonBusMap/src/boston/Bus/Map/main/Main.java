@@ -195,7 +195,9 @@ public class Main extends MapActivity
         Drawable tooltip = resources.getDrawable(R.drawable.tooltip);
         Drawable rail = resources.getDrawable(R.drawable.rail);
         
+/*
         Spinner modeSpinner = (Spinner)findViewById(R.id.modeSpinner);
+ */
         
         busStop = resources.getDrawable(R.drawable.busstop_statelist);
         
@@ -268,7 +270,7 @@ public class Main extends MapActivity
         myLocationOverlay.setUpdateable(handler);
         
         populateHandlerSettings();
-
+/*
         modeSpinner.setOnItemSelectedListener(new OnItemSelectedListener() {
 
 			@Override
@@ -291,7 +293,7 @@ public class Main extends MapActivity
 			public void onNothingSelected(AdapterView<?> parent) {
 			}
 		});
-
+*/
         
         if (lastNonConfigurationInstance != null)
         {
@@ -307,8 +309,14 @@ public class Main extends MapActivity
             selectedRouteIndex = prefs.getInt(selectedRouteIndexKey, 0);
             setSelectedBusPredictions(prefs.getInt(selectedBusPredictionsKey, VEHICLE_LOCATIONS_ALL));
             
+            /*
             modeSpinner.setSelection(selectedRouteIndex);
-            handler.setRouteToUpdate(transitRoutes[selectedRouteIndex]);
+            */
+            
+            if (transitRoutes != null)
+            {
+            	handler.setRouteToUpdate(transitRoutes[selectedRouteIndex]);
+            }
 
             handler.setSelectedBusPredictions(getSelectedBusPredictions());
 

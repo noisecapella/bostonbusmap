@@ -101,9 +101,12 @@ public class TransitSystem {
 
 			for (TransitSource source : transitSources)
 			{
-				for (String route : source.getRoutes())
+				if (source.getRoutes() != null)
 				{
-					ret.add(route);
+					for (String route : source.getRoutes())
+					{
+						ret.add(route);
+					}
 				}
 			}
 			
