@@ -18,7 +18,15 @@ package com.readystatesoftware.mapviewballoons;
 
 
 import umich.Bus.Map.R;
+import java.util.ArrayList;
+import java.util.HashMap;
+
 import android.content.Context;
+import android.content.Intent;
+import android.graphics.drawable.Drawable;
+import android.opengl.Visibility;
+import android.text.Html;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -26,6 +34,15 @@ import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
+
+import umich.Bus.Map.R;
+
+import boston.Bus.Map.data.Location;
+import boston.Bus.Map.data.Locations;
+import boston.Bus.Map.data.Prediction;
+import boston.Bus.Map.data.StopLocation;
+import boston.Bus.Map.main.MoreInfo;
 
 import com.google.android.maps.OverlayItem;
 
@@ -50,7 +67,13 @@ public class BalloonOverlayView extends FrameLayout {
 	private LinearLayout layout;
 	private TextView title;
 	private TextView snippet;
+	private ImageView favorite;
+	private TextView moreInfo;
 
+	private Location location;
+	private Locations locations;
+	private HashMap<String, String> routeKeysToTitles;
+	
 	/**
 	 * Create a new BalloonOverlayView.
 	 * 
@@ -58,7 +81,7 @@ public class BalloonOverlayView extends FrameLayout {
 	 * @param balloonBottomOffset - The bottom padding (in pixels) to be applied
 	 * when rendering this view.
 	 */
-	public BalloonOverlayView(Context context, int balloonBottomOffset) {
+	public BalloonOverlayView(final Context context, int balloonBottomOffset) {
 
 		super(context);
 
@@ -72,7 +95,62 @@ public class BalloonOverlayView extends FrameLayout {
 		title = (TextView) v.findViewById(R.id.balloon_item_title);
 		snippet = (TextView) v.findViewById(R.id.balloon_item_snippet);
 
+		favorite = (ImageView) v.findViewById(R.id.balloon_item_favorite);
 
+		moreInfo = (TextView)v.findViewById(R.id.balloon_item_moreinfo);
+		
+		favorite.setOnClickListener(new OnClickListener() {
+			
+			@Override
+			public void onClick(View v) {
+				Log.v("BostonBusMap", "tapped star icon");
+				if (location instanceof StopLocation)
+				{
+					StopLocation stopLocation = (StopLocation)location;
+
+					int result = locations.toggleFavorite(stopLocation);
+					favorite.setBackgroundResource(result);
+	    			Log.v("BostonBusMap", "setting favorite icon to " +
+	    					(result == R.drawable.full_star ? "full star" : "empty star"));
+				}
+			}
+		});
+		
+		moreInfo.setOnClickListener(new OnClickListener() {
+			
+			@Override
+			public void onClick(View v) {
+				Log.v("BostonBusMap", "tapped More info link");
+				
+				if (location instanceof StopLocation)
+				{
+					StopLocation stopLocation = (StopLocation)location;
+					Intent intent = new Intent(context, MoreInfo.class);
+
+					ArrayList<Prediction> predictionArrayList = stopLocation.getCombinedPredictions();
+					if (predictionArrayList != null)
+					{
+						intent.putExtra(MoreInfo.predictionsKey, predictionArrayList.toArray(new Prediction[0]));
+					}
+					String[] keys = routeKeysToTitles.keySet().toArray(new String[0]);
+					String[] values = new String[keys.length];
+					for (int i = 0; i < keys.length; i++)
+					{
+						values[i] = routeKeysToTitles.get(keys[i]);
+					}
+					
+					intent.putExtra(MoreInfo.routesKey, keys);
+					intent.putExtra(MoreInfo.titlesKey, values);
+					
+					String[] combinedTitles = stopLocation.getCombinedTitles();
+					intent.putExtra(MoreInfo.titleKey, combinedTitles);
+					String combinedRoutes = stopLocation.getCombinedRoutes();
+					intent.putExtra(MoreInfo.routeKey, combinedRoutes);
+					context.startActivity(intent);
+				}
+			}
+		});
+		
 		FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(
 				LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
 		params.gravity = Gravity.NO_GRAVITY;
@@ -106,6 +184,20 @@ public class BalloonOverlayView extends FrameLayout {
 			snippet.setVisibility(GONE);
 		}
 		
+		//NOTE: originally this was going to be an actual link, but we can't click it on the popup except through its onclick listener
+		moreInfo.setText(Html.fromHtml("\n<a href='com.bostonbusmap://moreinfo'>More info</a>\n"));
 	}
 
+	public void setCurrentLocation(Locations locations, Location location, HashMap<String, String> routeKeysToTitles)
+	{
+		this.locations = locations;
+		this.location = location;
+		this.routeKeysToTitles = routeKeysToTitles;
+	}
+
+	public void setDrawableState(boolean isFavorite, boolean favoriteVisible, boolean moreInfoVisible) {
+		favorite.setBackgroundResource(isFavorite ? R.drawable.full_star : R.drawable.empty_star);
+		favorite.setVisibility(favoriteVisible ? View.VISIBLE : View.GONE);
+		moreInfo.setVisibility(moreInfoVisible ? View.VISIBLE : View.GONE);
+	}
 }

@@ -146,6 +146,10 @@ public class StopLocation implements Location, CanBeSerialized
 		return ret;
 	}
 
+	private ArrayList<Prediction> combinedPredictions;
+	private TreeSet<String> combinedRoutes;
+	private TreeSet<String> combinedTitles;
+	
 	@Override
 	public void addToSnippetAndTitle(RouteConfig routeConfig, Location location, HashMap<String, String> routeKeysToTitles) {
 		StopLocation stopLocation = (StopLocation)location;
@@ -159,7 +163,7 @@ public class StopLocation implements Location, CanBeSerialized
 		
 		sharedSnippetStops.add(stopLocation);
 		
-		TreeSet<String> combinedTitles = new TreeSet<String>();
+		combinedTitles = new TreeSet<String>();
 		combinedTitles.add(title);
 		for (StopLocation s : sharedSnippetStops)
 		{
@@ -170,7 +174,7 @@ public class StopLocation implements Location, CanBeSerialized
 		
 		snippetStop += ", " + stopLocation.tag;
 		
-		TreeSet<String> combinedRoutes = new TreeSet<String>();
+		combinedRoutes = new TreeSet<String>();
 		combinedRoutes.addAll(dirTags.keySet());
 		for (StopLocation s : sharedSnippetStops)
 		{
@@ -178,7 +182,7 @@ public class StopLocation implements Location, CanBeSerialized
 		}
 		snippetRoutes = makeSnippetRoutes(combinedRoutes, routeKeysToTitles);
 		
-		ArrayList<Prediction> combinedPredictions = new ArrayList<Prediction>();
+		combinedPredictions = new ArrayList<Prediction>();
 		if (predictions != null)
 		{
 			combinedPredictions.addAll(predictions);
@@ -251,6 +255,11 @@ public class StopLocation implements Location, CanBeSerialized
 				{
 					continue;
 				}
+				
+				if (prediction.getMinutes() < 0)
+				{
+					continue;
+				}
 
 				
 				
@@ -294,6 +303,21 @@ public class StopLocation implements Location, CanBeSerialized
 			}
 			predictions.clear();
 			predictions.addAll(newPredictions);
+		}
+	}
+	
+	public void addPrediction(Prediction prediction)
+	{
+		if (predictions == null)
+		{
+			predictions = new ArrayList<Prediction>();
+		}
+		
+		synchronized (predictions) {
+			if (predictions.contains(prediction) == false)
+			{
+				predictions.add(prediction);
+			}
 		}
 	}
 	
@@ -348,6 +372,36 @@ public class StopLocation implements Location, CanBeSerialized
 		this.busStop = busStop;
 	}
 
+	/**
+	 * This should be in Locations instead but I need to synchronize routes
+	 * 
+	 * NOTE: this is only for bus routes
+	 * 
+	 * @param urlString
+	 */
+	/*
+	public void createBusPredictionsUrl(StringBuilder urlString, String routeName) {
+		if (routeName != null)
+		{
+			//only do it for the given route
+			MBTABusTransitSource.bindPredictionElementsForUrl(urlString, routeName, tag, dirTags.get(routeName));
+		}
+		else
+		{
+			//do it for all routes we know about
+			synchronized (dirTags)
+			{
+				for (String route : dirTags.keySet())
+				{
+					if (SubwayTransitSource.isSubway(route) == false)
+					{
+						MBTABusTransitSource.bindPredictionElementsForUrl(urlString, route, tag, dirTags.get(route));
+					}
+				}
+			}
+		}
+	}
+	*/
 
 	public void setFavorite(boolean b)
 	{
@@ -378,5 +432,35 @@ public class StopLocation implements Location, CanBeSerialized
 	 */
 	public Collection<StopLocation> getSharedSnippetStops() {
 		return sharedSnippetStops;
+	}
+
+	public ArrayList<Prediction> getPredictions() {
+		return predictions;
+	}
+	
+	public ArrayList<Prediction> getCombinedPredictions() {
+		if (combinedPredictions == null)
+		{
+			return predictions;
+		}
+		else
+		{
+			return combinedPredictions;
+		}
+	}
+	
+	public String getCombinedRoutes() {
+		return snippetRoutes;
+	}
+	
+	public String[] getCombinedTitles() {
+		if (combinedTitles != null)
+		{
+			return combinedTitles.toArray(new String[0]);
+		}
+		else
+		{
+			return new String[]{title};
+		}
 	}
 }

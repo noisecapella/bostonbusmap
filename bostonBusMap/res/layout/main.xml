@@ -6,12 +6,6 @@
 	<RelativeLayout
 		android:layout_width="wrap_content" android:layout_height="wrap_content"
 		 android:orientation="horizontal" android:padding="3dp" android:background="#000000">
-		<Spinner android:id="@+id/modeSpinner" android:layout_width="wrap_content" android:layout_height="wrap_content"
-		android:layout_align>
-		</Spinner>
-		<Spinner android:id="@+id/modeSpinner2" android:layout_width="wrap_content" android:layout_height="wrap_content"
-		android:layout_align>
-		</Spinner>
 		<TextView android:id="@+id/statusView"
 			android:layout_width="wrap_content" android:layout_height="wrap_content" 
 			android:text="" android:layout_toLeftOf="@+id/modeSpinner" android:layout_alignParentLeft="true"></TextView>

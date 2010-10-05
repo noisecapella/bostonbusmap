@@ -22,6 +22,7 @@ import java.util.List;
 
 import umich.Bus.Map.R;
 
+
 import android.graphics.drawable.Drawable;
 import android.util.Log;
 import android.view.MotionEvent;
@@ -48,7 +49,7 @@ import com.google.android.maps.ItemizedOverlay.OnFocusChangeListener;
 public abstract class BalloonItemizedOverlay<Item> extends ItemizedOverlay<OverlayItem> {
 
 	private MapView mapView;
-	private BalloonOverlayView balloonView;
+	protected BalloonOverlayView balloonView;
 	private View clickRegion;
 	private int viewOffset;
 	final MapController mc;
@@ -120,6 +121,7 @@ public abstract class BalloonItemizedOverlay<Item> extends ItemizedOverlay<Overl
 		
 		
 		balloonView.setData(createItem(index));
+		setOtherData(index);
 		
 		MapView.LayoutParams params = new MapView.LayoutParams(
 				LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT, point,
@@ -141,6 +143,8 @@ public abstract class BalloonItemizedOverlay<Item> extends ItemizedOverlay<Overl
 		return true;
 	}
 	
+	protected abstract void setOtherData(int index);
+
 	/**
 	 * Sets the visibility of this overlay's balloon view to GONE. 
 	 */
@@ -180,24 +184,26 @@ public abstract class BalloonItemizedOverlay<Item> extends ItemizedOverlay<Overl
 			
 			clickRegion.setOnTouchListener(new OnTouchListener() {
 				public boolean onTouch(View v, MotionEvent event) {
-					
+					Log.v("BostonBusMap", "balloon touch listener activated");
 					View l =  ((View) v.getParent()).findViewById(R.id.balloon_main_layout);
 					Drawable d = l.getBackground();
 					
 					if (event.getAction() == MotionEvent.ACTION_DOWN) {
+						Log.v("BostonBusMap", "balloon touch listener activated, down");
 						int[] states = {android.R.attr.state_pressed};
 						if (d.setState(states)) {
 							d.invalidateSelf();
 						}
-						return true;
+						return false;
 					} else if (event.getAction() == MotionEvent.ACTION_UP) {
+						Log.v("BostonBusMap", "balloon touch listener activated, up");
 						int newStates[] = {};
 						if (d.setState(newStates)) {
 							d.invalidateSelf();
 						}
 						// call overridden method
 						onBalloonTap(thisIndex);
-						return true;
+						return false;
 					} else {
 						return false;
 					}

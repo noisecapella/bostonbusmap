@@ -1,5 +1,6 @@
 package boston.Bus.Map.main;
 
+import java.util.HashMap;
 import java.util.List;
 
 import boston.Bus.Map.main.Main;
@@ -92,8 +93,8 @@ public class CurrentState {
 	 * @param mapView
 	 * @return
 	 */
-	public BusOverlay cloneBusOverlay(Main context, MapView mapView) {
-		BusOverlay ret = new BusOverlay(busOverlay, context, mapView);
+	public BusOverlay cloneBusOverlay(Main context, MapView mapView, HashMap<String, String> routeKeysToTitles) {
+		BusOverlay ret = new BusOverlay(busOverlay, context, mapView, routeKeysToTitles);
 		
 		return ret;
 	}

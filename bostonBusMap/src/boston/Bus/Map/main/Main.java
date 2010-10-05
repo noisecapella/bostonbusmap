@@ -152,9 +152,6 @@ public class Main extends MapActivity
 	
 	private Drawable busStop;
 	
-	private MenuItem favoriteMenuItem;
-	private int currentFavoriteStatus;
-
 	public static final int VEHICLE_LOCATIONS_ALL = 1;
 	public static final int BUS_PREDICTIONS_ONE = 2;
 	public static final int VEHICLE_LOCATIONS_ONE = 3;
@@ -196,13 +193,14 @@ public class Main extends MapActivity
         
         Drawable arrow = resources.getDrawable(R.drawable.arrow);
         Drawable tooltip = resources.getDrawable(R.drawable.tooltip);
+        Drawable rail = resources.getDrawable(R.drawable.rail);
         
         Spinner modeSpinner = (Spinner)findViewById(R.id.modeSpinner);
         
         busStop = resources.getDrawable(R.drawable.busstop_statelist);
         
         TransitSystem transitSystem = new TransitSystem();
-        transitSystem.setDefaultTransitSource(busStop, busPicture, arrow);
+        transitSystem.setDefaultTransitSource(busStop, busPicture, arrow, rail);
         
         SpinnerAdapter modeSpinnerAdapter = makeModeSpinner(); 
 
@@ -224,7 +222,7 @@ public class Main extends MapActivity
         	CurrentState currentState = (CurrentState)lastNonConfigurationInstance;
         	currentState.restoreWidgets(textView);
         	
-        	busOverlay = currentState.cloneBusOverlay(this, mapView);
+        	busOverlay = currentState.cloneBusOverlay(this, mapView, routeKeysToTitles);
         	routeOverlay = currentState.cloneRouteOverlay(mapView.getProjection());
         	myLocationOverlay = new LocationOverlay(this, mapView);
         	
@@ -253,7 +251,7 @@ public class Main extends MapActivity
         }
         else
         {
-        	busOverlay = new BusOverlay(busPicture, this, mapView);
+        	busOverlay = new BusOverlay(busPicture, this, mapView, routeKeysToTitles);
         	routeOverlay = new RouteOverlay(mapView.getProjection());
         	myLocationOverlay = new LocationOverlay(this, mapView);
         }
@@ -445,6 +443,7 @@ public class Main extends MapActivity
 		if (busOverlay != null)
 		{
 			busOverlay.setUpdateable(null);
+			busOverlay.clear();
 			busOverlay = null;
 		}
 		
@@ -458,7 +457,6 @@ public class Main extends MapActivity
 		textView = null;
 		
 		busStop = null;
-		favoriteMenuItem = null;
 		
 		
 		super.onDestroy();
@@ -514,7 +512,7 @@ public class Main extends MapActivity
     {
     	MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.options_menu, menu);
-        
+
         return true;
     }
     
@@ -661,14 +659,4 @@ public class Main extends MapActivity
 		}
 	}
 
-
-	public void setFavoriteStatus(int drawable) {
-		if (favoriteMenuItem != null)
-		{
-			Log.v("BostonBusMap", "setting favorite icon now!");
-			favoriteMenuItem.setIcon(drawable);
-		}
-		
-		currentFavoriteStatus = drawable;
-	}
 }

@@ -387,6 +387,7 @@ public class UpdateAsyncTask extends AsyncTask<Object, String, Locations>
 		busOverlay.clear();
 		
 		busOverlay.doPopulate();
+		busOverlay.setLocations(busLocationsObject);
 		
 		HashMap<String, String> routeKeysToTitles = transitSystem.getRouteKeysToTitles();
 		

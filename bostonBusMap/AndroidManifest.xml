@@ -12,8 +12,8 @@
 				<category android:name="android.intent.category.LAUNCHER" />
 			</intent-filter>
 		</activity>
-		<activity android:name="boston.Bus.Map.main.Preferences" android:label="@string/app_name">
-		</activity> 
+		<activity android:name="boston.Bus.Map.main.Preferences" android:label="@string/app_name"></activity>
+		<activity android:name="boston.Bus.Map.main.MoreInfo" ></activity>
 		<uses-library android:name="com.google.android.maps"></uses-library>
 	<uses-library android:name="android.test.runner"></uses-library>
 </application>

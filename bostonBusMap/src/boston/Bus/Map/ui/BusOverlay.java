@@ -21,6 +21,7 @@ package boston.Bus.Map.ui;
 import java.security.acl.LastOwnerException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
 
 import umich.Bus.Map.R;
@@ -90,9 +91,13 @@ public class BusOverlay extends BalloonItemizedOverlay<OverlayItem> {
 	private final Drawable busPicture;
 	private final Paint paint;
 	
-	public BusOverlay(BusOverlay busOverlay, Main context, MapView mapView)
+	private final HashMap<String, String> routeKeysToTitles;
+	
+	private Locations locationsObj;
+	
+	public BusOverlay(BusOverlay busOverlay, Main context, MapView mapView, HashMap<String, String> routeKeysToTitles)
 	{
-		this(busOverlay.busPicture, context, mapView);
+		this(busOverlay.busPicture, context, mapView, routeKeysToTitles);
 		
 		this.drawHighlightCircle = busOverlay.drawHighlightCircle;
 		
@@ -120,13 +125,14 @@ public class BusOverlay extends BalloonItemizedOverlay<OverlayItem> {
 	
 	
 	public BusOverlay(Drawable busPicture, Main context, 
-			MapView mapView) {
+			MapView mapView, HashMap<String, String> routeKeysToTitles) {
 		super(boundCenterBottom(busPicture), mapView);
 
 		this.context = context;
 		this.selectedBusIndex = NOT_SELECTED;
 		this.busPicture = busPicture;
 		this.busHeight = busPicture.getIntrinsicHeight();
+		this.routeKeysToTitles = routeKeysToTitles;
 		this.paint = new Paint();
 		paint.setColor(Color.rgb(0x77, 0x77, 0xff));
 		paint.setStyle(Style.STROKE);
@@ -151,19 +157,6 @@ public class BusOverlay extends BalloonItemizedOverlay<OverlayItem> {
 				if (newFocus == null)
 				{
 					hideBalloon();
-					BusOverlay.this.context.setFavoriteStatus(R.drawable.empty_star);
-				}
-				else
-				{
-					int index = getLastFocusedIndex();
-					Main context = BusOverlay.this.context;
-					Location location = locations.get(index);
-					if (context != null)
-					{
-						boolean b = location.isFavorite();
-						Log.v("BostonBusMap", "setting favorite status, " + b);
-						context.setFavoriteStatus(b ? R.drawable.full_star : R.drawable.empty_star);
-					}
 				}
 			}
 		});
@@ -194,6 +187,11 @@ public class BusOverlay extends BalloonItemizedOverlay<OverlayItem> {
 	public void addLocation(Location location)
 	{
 		locations.add(location);
+	}
+	
+	public void setLocations(Locations locations)
+	{
+		this.locationsObj = locations;
 	}
 	
 	@Override
@@ -254,6 +252,7 @@ public class BusOverlay extends BalloonItemizedOverlay<OverlayItem> {
 		
 		setFocus(null);
 		setLastFocusedIndex(NOT_SELECTED);
+		locationsObj = null;
 	}
 
 	@Override
@@ -394,28 +393,6 @@ public class BusOverlay extends BalloonItemizedOverlay<OverlayItem> {
 	}
 
 
-	public int toggleFavorite(Locations locationsObj) {
-		int selectedBusIndex = getLastFocusedIndex();
-		
-		if (selectedBusIndex >= 0 && selectedBusIndex < locations.size())
-		{
-			Location location = locations.get(selectedBusIndex);
-			if (location instanceof StopLocation)
-			{
-				return locationsObj.toggleFavorite((StopLocation)location);
-			}
-			else
-			{
-				Toast.makeText(context, "You can only favorite bus stops", Toast.LENGTH_LONG).show();
-			}
-		}
-		else
-		{
-			Toast.makeText(context, "No bus stop is currently selected", Toast.LENGTH_LONG).show();			
-		}
-		return R.drawable.empty_star;
-	}
-
 
 	public void addOverlaysFromLocations(ArrayList<GeoPoint> points) {
 		for (int i = 0; i < locations.size(); i++)
@@ -426,5 +403,25 @@ public class BusOverlay extends BalloonItemizedOverlay<OverlayItem> {
 			OverlayItem overlayItem = new OverlayItem(points.get(i),titleText, snippetText);
 			addOverlay(overlayItem);
 		}
+	}
+	
+	@Override
+	protected boolean onBalloonTap(int index) {
+		Log.v("BostonBusMap", "Balloon was tapped");
+		balloonView.setCurrentLocation(locationsObj, locations.get(index), routeKeysToTitles);
+		
+		//let things underneath handle this too
+		return false;
+	}
+	
+	@Override
+	protected void setOtherData(int index) {
+		Log.v("BostonBusMap", "Balloon was tapped");
+		Location location = locations.get(index);
+		balloonView.setCurrentLocation(locationsObj, location, routeKeysToTitles);
+		
+		//only show the favorite star and more info link if it's a bus stop
+		boolean isVisible = location instanceof StopLocation;
+		balloonView.setDrawableState(location.isFavorite(), isVisible, isVisible);
 	}
 }

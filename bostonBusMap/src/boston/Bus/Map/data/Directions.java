@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 import android.database.sqlite.SQLiteDatabase;
+import android.util.Log;
 import boston.Bus.Map.database.DatabaseHelper;
 
 public class Directions {
@@ -41,6 +42,7 @@ public class Directions {
 		Integer i = indexes.get(dirTag);
 		if (i == null)
 		{
+			Log.v("BostonBusMap", "strange, dirTag + " + dirTag + " doesnt exist");
 			synchronized(indexes)
 			{
 				helper.refreshDirections(indexes, names, titles, routes);
@@ -86,6 +88,11 @@ public class Directions {
 	}
 
 	public String getTitleAndName(String dirTag) {
+		if (dirTag == null)
+		{
+			return null;
+		}
+		
 		Integer i = getIndex(dirTag);
 		if (i == null)
 		{

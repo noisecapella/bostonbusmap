@@ -50,6 +50,7 @@ import android.util.Log;
 import boston.Bus.Map.database.DatabaseHelper;
 import boston.Bus.Map.main.Main;
 import boston.Bus.Map.main.UpdateAsyncTask;
+
 import boston.Bus.Map.transit.TransitSource;
 import boston.Bus.Map.transit.TransitSystem;
 import boston.Bus.Map.util.DownloadHelper;
@@ -127,6 +128,7 @@ public final class Locations
 			InputStream stream = downloadStream(url, task, prepend, "of approx " + TransitSystem.getSizeOfRouteConfigUrl());
 			*/
 			
+			
 			HashSet<TransitSource> systems = new HashSet<TransitSource>();
 			for (String route : routesThatNeedUpdating)
 			{
@@ -168,7 +170,7 @@ public final class Locations
 		}
 	}
 	
-	private InputStream downloadStream(URL url, UpdateAsyncTask task, String prepend, String ifContentLengthMissing) throws IOException {
+	public static InputStream downloadStream(URL url, UpdateAsyncTask task, String prepend, String ifContentLengthMissing) throws IOException {
 		URLConnection connection = url.openConnection();
 		int totalDownloadSize = connection.getContentLength();
 		InputStream inputStream = connection.getInputStream();
@@ -222,10 +224,41 @@ public final class Locations
 			return;
 		}
 
-		TransitSource transitSource = routeConfig.getTransitSource();
-		transitSource.refreshData(routeConfig, selectedBusPredictions, maxStops,
-				centerLatitude, centerLongitude, busMapping,
-				selectedRoute, routeMapping, directions, this);
+		switch (selectedBusPredictions)
+		{
+		case Main.VEHICLE_LOCATIONS_ALL:
+		case Main.VEHICLE_LOCATIONS_ONE:
+			ArrayList<Integer> toRemove = new ArrayList<Integer>();
+			for (Integer id : busMapping.keySet())
+			{
+				BusLocation busLocation = busMapping.get(id);
+				if (busLocation.isDisappearAfterRefresh())
+				{
+					toRemove.add(id);
+				}
+			}
+			
+			for (int id : toRemove)
+			{
+				busMapping.remove(id);
+			}
+		}
+		
+		switch (selectedBusPredictions)
+		{
+		case Main.BUS_PREDICTIONS_ALL:
+		case Main.BUS_PREDICTIONS_STAR:
+		case Main.VEHICLE_LOCATIONS_ALL:
+			//get data from many transit sources
+			transitSystem.refreshData(routeConfig, selectedBusPredictions, maxStops, centerLatitude,
+					centerLongitude, busMapping, selectedRoute, routeMapping, directions, this);
+			break;
+		default:
+			TransitSource transitSource = routeConfig.getTransitSource();
+			transitSource.refreshData(routeConfig, selectedBusPredictions, maxStops,
+					centerLatitude, centerLongitude, busMapping,
+					selectedRoute, routeMapping, directions, this);
+		}
 	}
 
 	private void populateStops(String routeToUpdate, RouteConfig oldRouteConfig) 
@@ -419,7 +452,7 @@ public final class Locations
 						isFavorite = true;
 					}
 				}
-				
+
 				//ok, now start setting favorite statuses
 				for (StopLocation stopLocation : sharedSnippetStops)
 				{
@@ -428,6 +461,7 @@ public final class Locations
 			}
 		}
 		return routeMapping.setFavorite(location, !isFavorite);
+		                            	   
 	}
 
 	public void setLastUpdateTime(double lastUpdateTime) {
