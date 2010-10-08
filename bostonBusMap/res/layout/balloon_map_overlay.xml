@@ -10,11 +10,12 @@
 	android:background="@drawable/tooltip" 
 	android:paddingRight="10dip"
 		>
-
+<!-- 
 <ImageView android:layout_width="wrap_content" android:layout_height="wrap_content"
  android:id="@+id/balloon_item_favorite" android:background="@drawable/empty_star"
  			android:layout_alignParentRight="true"
  ></ImageView>
+  -->
 		<TextView android:layout_height="wrap_content"
 			android:layout_width="wrap_content" 
 			android:id="@+id/balloon_item_title"

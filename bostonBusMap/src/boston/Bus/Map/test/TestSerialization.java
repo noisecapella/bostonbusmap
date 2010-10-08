@@ -136,7 +136,7 @@ public class TestSerialization extends TestCase {
 		Box inputBox = new Box(blob, DatabaseHelper.CURRENT_DB_VERSION, sharedStops);
 		
 		RouteConfig routeConfig2 = new RouteConfig(inputBox, null,
-				new UMichTransitSource(null));
+				new UMichTransitSource(null, null));
 		
 		Box outputBox2 = new Box(null, DatabaseHelper.CURRENT_DB_VERSION, sharedStops);
 		routeConfig2.serialize(outputBox2);
@@ -155,7 +155,7 @@ public class TestSerialization extends TestCase {
 	{
 		HashMap<String, StopLocation> sharedStops = new HashMap<String, StopLocation>();
 		
-		RouteConfig routeConfig = new RouteConfig("x", "003344", "556677", new UMichTransitSource(null));
+		RouteConfig routeConfig = new RouteConfig("x", "003344", "556677", new UMichTransitSource(null, null));
 		
 		routeConfig.addStop("5", new StopLocation(44.0f, 55.0f, null, "5", "xy"));
 		
@@ -169,7 +169,7 @@ public class TestSerialization extends TestCase {
 	{
 		HashMap<String, StopLocation> sharedStops = new HashMap<String, StopLocation>();
 		
-		RouteConfig routeConfig = new RouteConfig("x", "123123", "ffeedd", new UMichTransitSource(null));
+		RouteConfig routeConfig = new RouteConfig("x", "123123", "ffeedd", new UMichTransitSource(null, null));
 		
 		routeConfig.addStop("5", new StopLocation(44.0f, 55.0f, null, "5", "xy"));
 		//routeConfig.addStop(6, new StopLocation(47.0, 56.0, null, 5, "x", "tue", routeConfig));
@@ -280,7 +280,7 @@ public class TestSerialization extends TestCase {
 		
 		Path path = new Path(floats);
 		
-		RouteConfig routeConfig = new RouteConfig("6", "deadbe", "ef1234", new UMichTransitSource(null));
+		RouteConfig routeConfig = new RouteConfig("6", "deadbe", "ef1234", new UMichTransitSource(null, null));
 		routeConfig.addPath(path);
 		routeConfig.addStop("xyz", new StopLocation(-3.4f, -6.5f, null, "s", "etwk"));
 		routeConfig.addStop("yy", new StopLocation(-4f, 5f, null, "k", "xkfowe"));

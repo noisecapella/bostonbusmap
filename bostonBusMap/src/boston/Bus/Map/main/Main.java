@@ -202,7 +202,7 @@ public class Main extends MapActivity
         busStop = resources.getDrawable(R.drawable.busstop_statelist);
         
         TransitSystem transitSystem = new TransitSystem();
-        transitSystem.setDefaultTransitSource(busStop, busPicture, arrow, rail);
+        transitSystem.setDefaultTransitSource(busStop, busPicture, arrow, rail, this);
         
         SpinnerAdapter modeSpinnerAdapter = makeModeSpinner(); 
 

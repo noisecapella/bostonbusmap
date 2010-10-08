@@ -10,6 +10,8 @@ import javax.xml.parsers.ParserConfigurationException;
 import org.apache.http.client.ClientProtocolException;
 import org.xml.sax.SAXException;
 
+import umich.Bus.Map.R;
+
 import android.content.Context;
 import android.graphics.drawable.Drawable;
 import boston.Bus.Map.data.BusLocation;
@@ -25,9 +27,12 @@ import boston.Bus.Map.util.DownloadHelper;
 public class UMichTransitSource implements TransitSource
 {
 	private final Drawable busStop;
-	public UMichTransitSource(Drawable busStop)
+	private final Context context;
+	
+	public UMichTransitSource(Drawable busStop, Context context)
 	{
 		this.busStop = busStop;
+		this.context = context;
 	}
 	
 	private static final String dataUrl = "http://mbus.pts.umich.edu/shared/public_feed.xml";
@@ -48,8 +53,10 @@ public class UMichTransitSource implements TransitSource
 			Locations locationsObj)
 			throws IOException, ParserConfigurationException, SAXException {
 		UMichFeedParser parser = new UMichFeedParser(directions, routeKeysToTitles, busStop, this);
-		URL url = new URL(dataUrl);
-		InputStream data = url.openStream();
+		//URL url = new URL(dataUrl);
+		//InputStream data = url.openStream();
+		InputStream data = context.getResources().openRawResource(R.raw.test);
+		
 		parser.runParse(data);
 		
 		routePool.writeToDatabase(parser.getMapping(), true);
@@ -71,8 +78,10 @@ public class UMichTransitSource implements TransitSource
 			ParserConfigurationException, SAXException {
 		routeKeysToTitles.clear();
 		UMichInitialFeedParser parser = new UMichInitialFeedParser(directions, routeKeysToTitles, busStop, this);
-		URL url = new URL(dataUrl);
-		InputStream data = url.openStream();
+		//URL url = new URL(dataUrl);
+		//InputStream data = url.openStream();
+		InputStream data = context.getResources().openRawResource(R.raw.test);
+
 		parser.runParse(data);
 		
 		routes = parser.getRoutes();

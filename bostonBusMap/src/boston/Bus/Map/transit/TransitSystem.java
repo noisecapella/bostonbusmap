@@ -10,6 +10,7 @@ import javax.xml.parsers.ParserConfigurationException;
 import org.xml.sax.SAXException;
 
 import android.R.string;
+import android.content.Context;
 import android.graphics.drawable.Drawable;
 import android.util.Log;
 import boston.Bus.Map.data.BusLocation;
@@ -65,11 +66,11 @@ public class TransitSystem {
 	 */
 	private TransitSource defaultTransitSource;
 	
-	public void setDefaultTransitSource(Drawable busStop, Drawable bus, Drawable arrow, Drawable rail)
+	public void setDefaultTransitSource(Drawable busStop, Drawable bus, Drawable arrow, Drawable rail, Context context)
 	{
 		if (defaultTransitSource == null)
 		{
-			defaultTransitSource = new UMichTransitSource(busStop);
+			defaultTransitSource = new UMichTransitSource(busStop, context);
 		}
 	}
 	
