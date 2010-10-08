@@ -53,9 +53,8 @@ public class UMichTransitSource implements TransitSource
 			Locations locationsObj)
 			throws IOException, ParserConfigurationException, SAXException {
 		UMichFeedParser parser = new UMichFeedParser(directions, routeKeysToTitles, busStop, this);
-		//URL url = new URL(dataUrl);
-		//InputStream data = url.openStream();
-		InputStream data = context.getResources().openRawResource(R.raw.test);
+		URL url = new URL(dataUrl);
+		InputStream data = url.openStream();
 		
 		parser.runParse(data);
 		
@@ -78,10 +77,9 @@ public class UMichTransitSource implements TransitSource
 			ParserConfigurationException, SAXException {
 		routeKeysToTitles.clear();
 		UMichInitialFeedParser parser = new UMichInitialFeedParser(directions, routeKeysToTitles, busStop, this);
-		//URL url = new URL(dataUrl);
-		//InputStream data = url.openStream();
-		InputStream data = context.getResources().openRawResource(R.raw.test);
-
+		URL url = new URL(dataUrl);
+		InputStream data = url.openStream();
+		
 		parser.runParse(data);
 		
 		routes = parser.getRoutes();
