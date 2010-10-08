@@ -67,7 +67,9 @@ public class BalloonOverlayView extends FrameLayout {
 	private LinearLayout layout;
 	private TextView title;
 	private TextView snippet;
+	/*
 	private ImageView favorite;
+	*/
 	private TextView moreInfo;
 
 	private Location location;
@@ -95,10 +97,11 @@ public class BalloonOverlayView extends FrameLayout {
 		title = (TextView) v.findViewById(R.id.balloon_item_title);
 		snippet = (TextView) v.findViewById(R.id.balloon_item_snippet);
 
+		/*
 		favorite = (ImageView) v.findViewById(R.id.balloon_item_favorite);
-
+*/
 		moreInfo = (TextView)v.findViewById(R.id.balloon_item_moreinfo);
-		
+		/*
 		favorite.setOnClickListener(new OnClickListener() {
 			
 			@Override
@@ -115,7 +118,7 @@ public class BalloonOverlayView extends FrameLayout {
 				}
 			}
 		});
-		
+		*/
 		moreInfo.setOnClickListener(new OnClickListener() {
 			
 			@Override
@@ -196,8 +199,10 @@ public class BalloonOverlayView extends FrameLayout {
 	}
 
 	public void setDrawableState(boolean isFavorite, boolean favoriteVisible, boolean moreInfoVisible) {
+		/*
 		favorite.setBackgroundResource(isFavorite ? R.drawable.full_star : R.drawable.empty_star);
 		favorite.setVisibility(favoriteVisible ? View.VISIBLE : View.GONE);
+		*/
 		moreInfo.setVisibility(moreInfoVisible ? View.VISIBLE : View.GONE);
 	}
 }

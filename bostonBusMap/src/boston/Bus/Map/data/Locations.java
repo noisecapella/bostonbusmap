@@ -135,6 +135,7 @@ public final class Locations
 				systems.add(transitSystem.getTransitSource(route));
 			}
 			
+			task.publish("Downloading route info...");
 			for (TransitSource system : systems)
 			{
 				system.initializeAllRoutes(task, context, directions, routeMapping);
