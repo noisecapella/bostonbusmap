@@ -56,6 +56,8 @@ public class UMichInitialFeedParser extends DefaultHandler {
 	private final Drawable busStop;
 	private final UMichTransitSource transitSource;
 	
+	private final HashMap<String, StopLocation> sharedStops = new HashMap<String, StopLocation>();
+	
 	public UMichInitialFeedParser(Directions directions, HashMap<String, String> outputRouteKeysToTitles, Drawable busStop,
 			UMichTransitSource transitSource)
 	{
@@ -181,8 +183,12 @@ public class UMichInitialFeedParser extends DefaultHandler {
 		{
 			inStop = false;
 			
-			StopLocation currentStopLocation = new StopLocation(stopLat, stopLon, busStop, 
-					stopName, stopName);
+			StopLocation currentStopLocation = sharedStops.get(stopName);
+			if (currentStopLocation == null)
+			{
+				currentStopLocation = new StopLocation(stopLat, stopLon, busStop, stopName, stopName);
+				sharedStops.put(stopName, currentStopLocation);
+			}
 			
 			//TODO: should probably use toacount for this
 			for (int i = 1; i <= 5; i++)
@@ -203,6 +209,7 @@ public class UMichInitialFeedParser extends DefaultHandler {
 			}
 			
 			currentRouteConfig.addStop(stopName, currentStopLocation);
+			currentStopLocation.addRouteAndDirTag(currentRouteConfig.getRouteName(), null);
 			predictions.clear();
 		}
 		else if (localName.equals("name"))
