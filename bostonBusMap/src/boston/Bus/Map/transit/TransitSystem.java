@@ -71,6 +71,7 @@ public class TransitSystem {
 		if (defaultTransitSource == null)
 		{
 			defaultTransitSource = new UMichTransitSource(busStop, context);
+			transitSources.add(defaultTransitSource);
 		}
 	}
 	
