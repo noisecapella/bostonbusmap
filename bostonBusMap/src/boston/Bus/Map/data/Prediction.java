@@ -48,7 +48,20 @@ public class Prediction implements Comparable<Prediction>, Parcelable
 		}
 		else
 		{
-			String ret = "" + routeKeysToTitles.get(routeName);
+			String ret;
+			String routeTitle = routeKeysToTitles.get(routeName);
+			if (routeTitle != null)
+			{
+				ret = routeTitle;
+			}
+			else if (routeName != null)
+			{
+				ret = routeName;
+			}
+			else
+			{
+				ret = "";
+			}
 			
 			if (direction != null)
 			{
@@ -137,7 +150,14 @@ public class Prediction implements Comparable<Prediction>, Parcelable
 	public HashMap<String, Spanned> makeSnippetMap(HashMap<String, String> routeKeysToTitles) {
 		HashMap<String, Spanned> map = new HashMap<String, Spanned>();
 		
-		String ret = "Route <b>" + routeKeysToTitles.get(routeName) + "</b>";
+		String routeTitle = routeKeysToTitles.get(routeName);
+		if (routeTitle == null)
+		{
+			routeTitle = routeName;
+		}
+		
+		
+		String ret = "Route <b>" + routeTitle + "</b>";
 		if (vehicleId != 0)
 		{
 			ret += ", Bus <b>" + vehicleId + "</b>";

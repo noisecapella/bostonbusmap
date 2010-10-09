@@ -132,7 +132,13 @@ public class StopLocation implements Location, CanBeSerialized
 		{
 			for (String route : routes)
 			{
-				ret += routeKeysToTitles.get(route);
+				String routeTitle = routeKeysToTitles.get(route);
+				if (routeTitle == null)
+				{
+					routeTitle = route;
+				}
+				
+				ret += routeTitle;
 
 				if (index != routes.size() - 1)
 				{

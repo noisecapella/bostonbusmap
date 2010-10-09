@@ -349,13 +349,19 @@ public class DatabaseHelper extends SQLiteOpenHelper
 	}
 
 	public synchronized ArrayList<String> routeInfoNeedsUpdating(String[] supportedRoutes) {
-		if (supportedRoutes == null)
+		if (mapping.size() == 0)
 		{
 			ArrayList<String> ret = new ArrayList<String>();
 			//ugly kludge
 			ret.add("a");
 			return ret;
 		}
+		
+		if (supportedRoutes != null && supportedRoutes.length != 0)
+		{
+			return new ArrayList<String>();
+		}
+		
 		HashSet<String> routesInDB = new HashSet<String>();
 		SQLiteDatabase database = getReadableDatabase();
 		Cursor cursor = null;

@@ -216,7 +216,7 @@ public final class Locations
 				return;
 			}
 		}
-		else
+		else if (routeToUpdate != null)
 		{
 			//populate route overlay (just in case we didn't already)
 			updateAsyncTask.publish("Downloading data for route " + routeToUpdate + "...");

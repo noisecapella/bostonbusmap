@@ -52,11 +52,13 @@ public class UMichTransitSource implements TransitSource
 			String selectedRoute, RoutePool routePool, Directions directions,
 			Locations locationsObj)
 			throws IOException, ParserConfigurationException, SAXException {
-		UMichFeedParser parser = new UMichFeedParser(directions, routeKeysToTitles, busStop, this);
+		UMichFeedParser parser = new UMichFeedParser(directions, routeKeysToTitles, busStop, this, routePool);
 		URL url = new URL(dataUrl);
 		InputStream data = url.openStream();
 		
 		parser.runParse(data);
+		
+		routes = parser.getRoutes();
 		
 		routePool.writeToDatabase(parser.getMapping(), true);
 	}
@@ -90,7 +92,14 @@ public class UMichTransitSource implements TransitSource
 	
 	@Override
 	public String[] getRoutes() {
-		return routes;
+		if (routes == null)
+		{
+			return new String[0];
+		}
+		else
+		{
+			return routes;
+		}
 	}
 
 	@Override

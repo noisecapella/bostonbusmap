@@ -297,8 +297,11 @@ public class Main extends MapActivity
         
         if (lastNonConfigurationInstance != null)
         {
+        	
         	handler.setSelectedBusPredictions(getSelectedBusPredictions());
+        	/*
         	handler.setRouteToUpdate(transitRoutes[selectedRouteIndex]);
+        	*/
         }
         else
         {
@@ -313,7 +316,7 @@ public class Main extends MapActivity
             modeSpinner.setSelection(selectedRouteIndex);
             */
             
-            if (transitRoutes != null)
+            if (transitRoutes != null && transitRoutes.length != 0)
             {
             	handler.setRouteToUpdate(transitRoutes[selectedRouteIndex]);
             }
