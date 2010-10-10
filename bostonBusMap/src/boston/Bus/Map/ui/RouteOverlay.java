@@ -1,6 +1,10 @@
 package boston.Bus.Map.ui;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.LinkedList;
+import java.util.ListIterator;
+import java.util.TreeSet;
 
 import android.graphics.Canvas;
 import android.graphics.Color;
@@ -21,7 +25,7 @@ import com.google.android.maps.Projection;
 
 public class RouteOverlay extends Overlay
 {
-	private ArrayList<Path> paths = new ArrayList<Path>();
+	private LinkedList<Path> paths = new LinkedList<Path>();
 	private final Projection projection;
 	private boolean showRouteLine;
 	
@@ -43,9 +47,63 @@ public class RouteOverlay extends Overlay
 	{
 		this(projection);
 		
-		paths.addAll(routeOverlay.paths);
+		addPaths(routeOverlay.paths);
 	}
 	
+	/**
+	 * Add the collection of paths, such that the head of one path touches the tail of another when possible
+	 * @param paths
+	 */
+	private void addPaths(Collection<Path> paths) {
+		for (Path path : paths)
+		{
+			int size = path.getPointsSize();
+			float firstLat = path.getPointLat(0);
+			float firstLon = path.getPointLon(0);
+			float lastLat = path.getPointLat(size - 1);
+			float lastLon = path.getPointLon(size - 1);
+
+			//can this attach onto a head or tail?
+			ListIterator<Path> iterator = this.paths.listIterator();
+			boolean addedItem = false;
+			while (iterator.hasNext())
+			{
+				Path thisPath = (Path)iterator.next();
+				
+				int thisSize = thisPath.getPointsSize();
+				if (thisSize >= 1)
+				{
+					float thisFirstLat = thisPath.getPointLat(0);
+					float thisFirstLon = thisPath.getPointLon(0);
+					float thisLastLat = thisPath.getPointLat(thisSize - 1);
+					float thisLastLon = thisPath.getPointLon(thisSize - 1);
+					
+					//if inserting head == existing tail
+					if (firstLat == thisLastLat && firstLon == thisLastLon)
+					{
+						iterator.add(path);
+						addedItem = true;
+						break;
+					}
+					else if (lastLat == thisFirstLat && lastLon == thisFirstLon)
+					{
+						//inserting tail == existing head
+						iterator.previous();
+						iterator.add(path);
+						addedItem = true;
+						break;
+					}
+				}
+			}
+			
+			if (addedItem == false)
+			{
+				//head or tail doesn't match, just add it to the end of the list
+				this.paths.add(path);
+			}
+		}
+	}
+
 	/**
 	 * 
 	 * @param paths
@@ -65,7 +123,7 @@ public class RouteOverlay extends Overlay
 		paint.setColor(Color.parseColor(color));
 		
 		this.paths.clear();
-		this.paths.addAll(paths);
+		addPaths(paths);
 	}
 	
 	@Override
@@ -77,10 +135,22 @@ public class RouteOverlay extends Overlay
 		
 
 		int floatCount = 0;
+		float prevLastLon = 0;
+		float prevLastLat = 0;
 		for (Path path : paths)
 		{
 			int size = path.getPointsSize();
 			
+			if (size >= 1)
+			{
+				if (path.getPointLat(0) == prevLastLat && path.getPointLon(0) == prevLastLon)
+				{
+					size--;
+				}
+				
+				prevLastLat = path.getPointLat(path.getPointsSize() - 1);
+				prevLastLon = path.getPointLon(path.getPointsSize() - 1);
+			}
 			floatCount += size;
 		}
 
@@ -91,11 +161,25 @@ public class RouteOverlay extends Overlay
 		float[] floats = new float[floatCount * 4];
 		int floatIndex = 0;
 		
+		prevLastLat = 0;
+		prevLastLon = 0;
+		
 		//make sure the JVM knows this doesn't change unexpectedly
 		for (Path path : paths)
 		{
 			int pointsSize = path.getPointsSize();
 
+			if (pointsSize >= 1)
+			{
+				if (path.getPointLat(0) == prevLastLat && path.getPointLon(0) == prevLastLon)
+				{
+					pointsSize--;
+				}
+				
+				prevLastLat = path.getPointLat(path.getPointsSize() - 1);
+				prevLastLon = path.getPointLon(path.getPointsSize() - 1);
+			}
+			
 			Point previousPoint = null;
 			
 			//skip over some points for efficiency's sake

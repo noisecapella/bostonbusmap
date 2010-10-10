@@ -42,13 +42,27 @@ public class Path implements CanBeSerialized
 		}
 	}
 
+	/**
+	 * get the latitude of a point
+	 * @param i
+	 * @return
+	 */
 	public float getPointLat(int i) {
 		return points[i * 2];
 	}
-	public double getPointLon(int i) {
+	/**
+	 * get the longitude of a point
+	 * @param i
+	 * @return
+	 */
+	public float getPointLon(int i) {
 		return points[i*2 + 1];
 	}
 
+	/**
+	 * get the number of points
+	 * @return
+	 */
 	public int getPointsSize() {
 		return points.length / 2;
 	}
