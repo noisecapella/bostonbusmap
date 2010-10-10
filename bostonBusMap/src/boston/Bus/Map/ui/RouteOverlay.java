@@ -9,6 +9,7 @@ import java.util.TreeSet;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.graphics.Paint.Style;
 import android.graphics.Point;
 import android.os.Debug;
 import android.util.Log;
@@ -40,7 +41,7 @@ public class RouteOverlay extends Overlay
 		paint.setStrokeWidth(5);
 		paint.setAntiAlias(true);
 		paint.setStrokeMiter(3);
-
+		paint.setStyle(Style.STROKE);
 	}
 	
 	public RouteOverlay(RouteOverlay routeOverlay, Projection projection)
@@ -134,92 +135,50 @@ public class RouteOverlay extends Overlay
 		}
 		
 
-		int floatCount = 0;
 		float prevLastLon = 0;
 		float prevLastLat = 0;
-		for (Path path : paths)
-		{
-			int size = path.getPointsSize();
-			
-			if (size >= 1)
-			{
-				if (path.getPointLat(0) == prevLastLat && path.getPointLon(0) == prevLastLon)
-				{
-					size--;
-				}
-				
-				prevLastLat = path.getPointLat(path.getPointsSize() - 1);
-				prevLastLon = path.getPointLon(path.getPointsSize() - 1);
-			}
-			floatCount += size;
-		}
 
 		//swap these two back and forth so we don't 
 		Point pixelPoint1 = new Point();
 		Point pixelPoint2 = new Point();
 
-		float[] floats = new float[floatCount * 4];
+		android.graphics.Path drawingPath = new android.graphics.Path();
 		int floatIndex = 0;
 		
 		prevLastLat = 0;
 		prevLastLon = 0;
 		
 		//make sure the JVM knows this doesn't change unexpectedly
+		Point pixelPoint = new Point();
 		for (Path path : paths)
 		{
 			int pointsSize = path.getPointsSize();
 
-			if (pointsSize >= 1)
-			{
-				if (path.getPointLat(0) == prevLastLat && path.getPointLon(0) == prevLastLon)
-				{
-					pointsSize--;
-				}
-				
-				prevLastLat = path.getPointLat(path.getPointsSize() - 1);
-				prevLastLon = path.getPointLon(path.getPointsSize() - 1);
-			}
-			
-			Point previousPoint = null;
-			
-			//skip over some points for efficiency's sake
 			for (int i = 0; i < pointsSize; i++)
 			{
-				
-				
-				Point pixelPoint;
-				if (pixelPoint1 == previousPoint)
-				{
-					pixelPoint = pixelPoint2;
-				}
-				else
-				{
-					pixelPoint = pixelPoint1;
-				}
-
-				double pointLat = path.getPointLat(i);
-				double pointLon = path.getPointLon(i);
+				float pointLat = path.getPointLat(i);
+				float pointLon = path.getPointLon(i);
 				
 				GeoPoint geoPoint = new GeoPoint((int)(pointLat * Constants.E6), (int)(pointLon * Constants.E6));
 				
 				projection.toPixels(geoPoint, pixelPoint);
-
-				if (previousPoint != null)
+				
+				if (i == 0 && prevLastLat != pointLat && prevLastLon != pointLon)
 				{
-					floats[floatIndex + 0] = (float)previousPoint.x;
-					floats[floatIndex + 1] = (float)previousPoint.y;
-					floats[floatIndex + 2] = (float)pixelPoint.x;
-					floats[floatIndex + 3] = (float)pixelPoint.y;
-
-					floatIndex += 4;
+					drawingPath.moveTo(pixelPoint.x, pixelPoint.y);
+				}
+				else
+				{
+					drawingPath.lineTo(pixelPoint.x, pixelPoint.y);
 				}
 				
-				previousPoint = pixelPoint;
+				prevLastLat = pointLat;
+				prevLastLon = pointLon;
 			}
 		}
 		
 		//Log.v("BostonBusMap", "Number of floats in array drawn in RouteOverlay: " + floats.length);
-		canvas.drawLines(floats, paint);
+		canvas.drawPath(drawingPath, paint);
 	}
 
 	public void setDrawLine(boolean showRouteLine) {
