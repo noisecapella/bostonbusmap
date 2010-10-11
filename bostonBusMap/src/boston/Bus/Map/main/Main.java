@@ -738,10 +738,19 @@ public class Main extends MapActivity
 				return;
 			}
 			
-			if (query.toLowerCase().startsWith("route "))
+			query = query.toLowerCase();
+			
+			if (query.startsWith("route "))
 			{
 				query = query.substring(6);
 			}
+			
+			if (query.length() >= 2)
+			{
+				//this is kind of a hack. We need subway lines to start with a capital letter to search for them properly
+				query = query.substring(0, 1).toUpperCase() + query.substring(1);
+			}
+			
 			
 			int position = Arrays.asList(dropdownRoutes).indexOf(query);
 			if (position != -1)
