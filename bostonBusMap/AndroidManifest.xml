@@ -11,10 +11,20 @@
 				<category android:name="android.intent.category.LAUNCHER" />
 			</intent-filter>
 		</activity>
+		<activity android:name=".main.SearchResults">
+			<intent-filter>
+				<action android:name="android.intent.action.SEARCH"></action>
+			</intent-filter>
+			<meta-data android:name="android.app.searchable" android:resource="@xml/searchable" 
+			/>
+		</activity>
 		<activity android:name=".main.MoreInfo" ></activity>
 		<activity android:name=".main.Preferences" android:label="@string/app_name">
 		</activity> 
 		<uses-library android:name="com.google.android.maps"></uses-library>
+		<meta-data android:name="android.app.default_searchable"
+               android:value=".main.SearchResults" />
+		
 	<uses-library android:name="android.test.runner"></uses-library>
 </application>
 
