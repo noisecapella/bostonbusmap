@@ -749,7 +749,7 @@ public class Main extends MapActivity
 			
 			if (query.contains(" "))
 			{
-				query.replaceAll(" ", "");
+				query = query.replaceAll(" ", "");
 				lowercaseQuery = query.toLowerCase();
 			}
 			
