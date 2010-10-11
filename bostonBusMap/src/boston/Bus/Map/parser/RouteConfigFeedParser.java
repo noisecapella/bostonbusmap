@@ -122,7 +122,7 @@ public class RouteConfigFeedParser extends DefaultHandler
 					if (stopLocation == null)
 					{
 						stopLocation = new StopLocation(latitudeAsDegrees, longitudeAsDegrees, busStop, tag,
-								title);
+								title, (short)-1, null);
 						allStops.put(tag, stopLocation);
 					}
 

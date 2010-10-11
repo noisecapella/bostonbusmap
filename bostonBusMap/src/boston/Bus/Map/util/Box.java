@@ -85,6 +85,18 @@ public class Box {
 		return inputStream.readInt();
 	}
 	
+	public void writeShort(short s) throws IOException
+	{
+		showProgress("writeShort");
+		outputStream.writeShort(s);
+	}
+	
+	public short readShort() throws IOException
+	{
+		showProgress("readShort");
+		return inputStream.readShort();
+	}
+	
 	public byte[] readBytes() throws IOException
 	{
 		showProgress("readBytes");
@@ -125,6 +137,8 @@ public class Box {
 		outputStream.writeUTF(s);
 	}
 	
+	private static final int NULL_STRING = -1;
+	
 	/**
 	 * If it's a new string, reads a string from the stream, else it takes it from the hashtable
 	 * @return
@@ -134,6 +148,11 @@ public class Box {
 	{
 		showProgress("readString");
 		int index = inputStream.readInt();
+		if (index == NULL_STRING)
+		{
+			return null;
+		}
+		
 		String s = sharedStringTableReverse.get(index);
 		if (null == s)
 		{
@@ -154,21 +173,29 @@ public class Box {
 	 */
 	public void writeString(String s) throws IOException {
 		showProgress("writeStringUnique");
-		Integer index = sharedStringTable.get(s);
-		if (null == index)
+		
+		if (s == null)
 		{
-			//new string
-			int newIndex = sharedStringTable.size();
-			sharedStringTable.put(s, newIndex);
-			sharedStringTableReverse.put(newIndex, s);
-			
-			outputStream.writeInt(newIndex);
-			outputStream.writeUTF(s);
+			outputStream.writeInt(NULL_STRING);
 		}
 		else
 		{
-			//existing string
-			outputStream.writeInt(index);
+			Integer index = sharedStringTable.get(s);
+			if (null == index)
+			{
+				//new string
+				int newIndex = sharedStringTable.size();
+				sharedStringTable.put(s, newIndex);
+				sharedStringTableReverse.put(newIndex, s);
+
+				outputStream.writeInt(newIndex);
+				outputStream.writeUTF(s);
+			}
+			else
+			{
+				//existing string
+				outputStream.writeInt(index);
+			}
 		}
 	}
 	
@@ -497,5 +524,4 @@ public class Box {
 		}
 		return ret;
 	}
-	
 }

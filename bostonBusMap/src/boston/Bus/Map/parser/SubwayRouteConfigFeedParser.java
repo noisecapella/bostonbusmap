@@ -75,8 +75,15 @@ public class SubwayRouteConfigFeedParser
 			indexes.put(definitions[i], i);
 		}
 		
-		HashMap<String, TreeMap<Integer, StopLocation>> orderedStations =
-			new HashMap<String, TreeMap<Integer, StopLocation>>();
+		/**route to a mapping of
+		     direction + branch to a mapping of
+		       platform order numbers to stops
+		 * 
+		 */
+		HashMap<String, HashMap<String, TreeMap<Short, StopLocation>>> orderedStations =
+			new HashMap<String, HashMap<String, TreeMap<Short, StopLocation>>>();
+		
+		HashMap<String, String> pathDirection = new HashMap<String, String>();
 		
 		String line;
 		while ((line = reader.readLine()) != null)
@@ -99,53 +106,82 @@ public class SubwayRouteConfigFeedParser
 			}
 			
 			//create stop location
+			short platformOrder = Short.parseShort(elements[indexes.get("PlatformOrder")]);
 			float latitudeAsDegrees = Float.parseFloat(elements[indexes.get("stop_lat")]);
 			float longitudeAsDegrees = Float.parseFloat(elements[indexes.get("stop_lon")]);
 			String tag = elements[indexes.get("PlatformKey")];
 			String title = elements[indexes.get("stop_name")];
+			String branch = elements[indexes.get("Branch")];
 
 			StopLocation stopLocation = new StopLocation(latitudeAsDegrees, longitudeAsDegrees,
-					busStop, tag, title);
+					busStop, tag, title, platformOrder, branch);
 
 			String dirTag = routeConfig.getRouteName() + elements[indexes.get("Direction")];
 			stopLocation.addRouteAndDirTag(routeConfig.getRouteName(), dirTag);
 			routeConfig.addStop(tag, stopLocation);
 			
-			int platformOrder = Integer.parseInt(elements[indexes.get("PlatformOrder")]);
 			
-			TreeMap<Integer, StopLocation> innerMapping = orderedStations.get(routeName);
+			HashMap<String, TreeMap<Short, StopLocation>> innerMapping = orderedStations.get(routeName);
 			if (innerMapping == null)
 			{
-				innerMapping = new TreeMap<Integer, StopLocation>();
+				innerMapping = new HashMap<String, TreeMap<Short, StopLocation>>();
 				orderedStations.put(routeName, innerMapping);
 			}
 			
-			innerMapping.put(platformOrder, stopLocation);
+			//mapping of (direction plus branch plus platform order) to a stop
+			//for example, key is NBAshmont3 for fields corner
+			
+			String combinedDirectionBranch = elements[indexes.get("Direction")] + elements[indexes.get("Branch")];
+			TreeMap<Short, StopLocation> innerInnerMapping = innerMapping.get(combinedDirectionBranch);
+			if (innerInnerMapping == null)
+			{
+				innerInnerMapping = new TreeMap<Short, StopLocation>();
+				innerMapping.put(combinedDirectionBranch, innerInnerMapping);
+			}
+			
+			innerInnerMapping.put(platformOrder, stopLocation);
 		}
 		
 		//workaround
-		directions.add("RedNB0", "North", null, SubwayTransitSource.RedLine);
-		directions.add("RedNB1", "North", null, SubwayTransitSource.RedLine);
-		directions.add("RedSB0", "South to Braintree", null, SubwayTransitSource.RedLine);
-		directions.add("RedSB1", "South to Ashmont", null, SubwayTransitSource.RedLine);
-		directions.add("BlueEB0", "East", null, SubwayTransitSource.BlueLine);
-		directions.add("BlueWB0", "West", null, SubwayTransitSource.BlueLine);
-		directions.add("OrangeNB0", "North", null, SubwayTransitSource.OrangeLine);
-		directions.add("OrangeSB0", "South", null, SubwayTransitSource.OrangeLine);
+		directions.add("RedNB0", "North toward Alewife", null, SubwayTransitSource.RedLine);
+		directions.add("RedNB1", "North toward Alewife", null, SubwayTransitSource.RedLine);
+		directions.add("RedSB0", "South toward Braintree", null, SubwayTransitSource.RedLine);
+		directions.add("RedSB1", "South toward Ashmont", null, SubwayTransitSource.RedLine);
+		directions.add("BlueEB0", "East toward Wonderland", null, SubwayTransitSource.BlueLine);
+		directions.add("BlueWB0", "West toward Bowdoin", null, SubwayTransitSource.BlueLine);
+		directions.add("OrangeNB0", "North toward Oak Grove", null, SubwayTransitSource.OrangeLine);
+		directions.add("OrangeSB0", "South toward Forest Hills", null, SubwayTransitSource.OrangeLine);
 		
 		//path
 		for (String route : orderedStations.keySet())
 		{
-			ArrayList<Float> floats = new ArrayList<Float>();
-			TreeMap<Integer, StopLocation> stations = orderedStations.get(route);
-			for (Integer key : stations.keySet())
+			HashMap<String, TreeMap<Short, StopLocation>> innerMapping = orderedStations.get(route);
+			for (String directionHash : innerMapping.keySet())
 			{
-				StopLocation stopLocation = stations.get(key);
-				floats.add((float)stopLocation.getLatitudeAsDegrees());
-				floats.add((float)stopLocation.getLongitudeAsDegrees());
+				TreeMap<Short, StopLocation> stations = innerMapping.get(directionHash);
+
+				ArrayList<Float> floats = new ArrayList<Float>();
+				for (Short platformOrder : stations.keySet())
+				{
+					StopLocation station = stations.get(platformOrder);
+
+					floats.add((float)station.getLatitudeAsDegrees());
+					floats.add((float)station.getLongitudeAsDegrees());
+				}
+				
+				//this is kind of a hack. We need to connect the southern branches of the red line to JFK manually
+				if (directionHash.equals("NBAshmont") || directionHash.equals("NBBraintree"))
+				{
+					final short jfkNorthBoundOrder = 5;
+					StopLocation jfkStation = innerMapping.get("NBTrunk").get(jfkNorthBoundOrder);
+					if (jfkStation != null)
+					{
+						floats.add((float)jfkStation.getLatitudeAsDegrees());
+						floats.add((float)jfkStation.getLongitudeAsDegrees());
+					}
+				}
+				map.get(route).addPath(new Path(floats));
 			}
-			
-			map.get(route).addPath(new Path(floats));
 		}
 	}
 

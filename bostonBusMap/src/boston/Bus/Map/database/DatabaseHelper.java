@@ -81,8 +81,9 @@ public class DatabaseHelper extends SQLiteOpenHelper
 	public final static int STOP_LOCATIONS_STORE_ROUTE_STRINGS = 9;
 	public final static int STOP_LOCATIONS_ADD_DIRECTIONS = 10;
 	public final static int SUBWAY_VERSION = 11;
+	public final static int ADDED_PLATFORM_ORDER = 12;
 	
-	public final static int CURRENT_DB_VERSION = SUBWAY_VERSION;
+	public final static int CURRENT_DB_VERSION = ADDED_PLATFORM_ORDER;
 	
 	private final Drawable busStop;
 
