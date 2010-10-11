@@ -741,10 +741,16 @@ public class Main extends MapActivity
 			
 			String lowercaseQuery = query.toLowerCase();
 			
-			if (lowercaseQuery.startsWith("route "))
+			//remove these words from the search
+			String[] wordsToRemove = new String[] {"route", "subway", "bus", "line"};
+
+			for (String wordToRemove : wordsToRemove)
 			{
-				query = query.substring(6);
-				lowercaseQuery = query.toLowerCase();
+				if (lowercaseQuery.contains(wordToRemove))
+				{
+					query = query.replaceAll(wordToRemove, "");
+					lowercaseQuery = query.toLowerCase();
+				}
 			}
 			
 			if (query.contains(" "))
