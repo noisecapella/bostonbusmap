@@ -563,6 +563,11 @@ public class Main extends MapActivity
     		
     		break;
  
+    	
+    	case R.id.search:
+    		Log.v("BostonBusMap", "clicked search in menu");
+    		onSearchRequested();
+    		break;
     	}
     	return true;
     }

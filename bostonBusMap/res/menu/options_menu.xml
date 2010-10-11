@@ -9,8 +9,9 @@
 	android:icon="@android:drawable/ic_menu_preferences">
 	</item>
 
-<item android:id="@+id/refreshItem" android:title="@string/refresh"
+<item android:icon="@drawable/ic_menu_search" android:title="@string/search" android:id="@+id/search"></item><item android:id="@+id/refreshItem" android:title="@string/refresh"
 android:icon="@android:drawable/ic_menu_rotate"></item>
+
 
 
 </menu>
