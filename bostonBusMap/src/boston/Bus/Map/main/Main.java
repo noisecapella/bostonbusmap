@@ -727,18 +727,31 @@ public class Main extends MapActivity
 		if (Intent.ACTION_SEARCH.equals(newIntent.getAction()))
 		{
 			String query = newIntent.getStringExtra(SearchManager.QUERY);
-			if (dropdownRoutes != null)
+			
+			if (query == null)
 			{
-				int position = Arrays.asList(dropdownRoutes).indexOf(query);
-				if (position != -1)
-				{
-					setNewRoute(position);
-					modeSpinner.setSelection(position);
-				}
-				else
-				{
-					Toast.makeText(this, "Route " + query + " doesn't exist", Toast.LENGTH_SHORT).show();
-				}
+				return;
+			}
+			
+			if (dropdownRoutes == null)
+			{
+				return;
+			}
+			
+			if (query.toLowerCase().startsWith("route "))
+			{
+				query = query.substring(6);
+			}
+			
+			int position = Arrays.asList(dropdownRoutes).indexOf(query);
+			if (position != -1)
+			{
+				setNewRoute(position);
+				modeSpinner.setSelection(position);
+			}
+			else
+			{
+				Toast.makeText(this, "Route " + query + " doesn't exist", Toast.LENGTH_LONG).show();
 			}
 		}
 	}
