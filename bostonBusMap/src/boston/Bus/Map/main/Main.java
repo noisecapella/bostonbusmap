@@ -153,6 +153,7 @@ public class Main extends MapActivity
 	 */
 	private String[] dropdownRoutes;
 	private Spinner modeSpinner;
+	private HashMap<String, String> dropdownRouteKeysToTitles;
 	
 	public static final int VEHICLE_LOCATIONS_ALL = 1;
 	public static final int BUS_PREDICTIONS_ONE = 2;
@@ -246,9 +247,9 @@ public class Main extends MapActivity
         
         
         dropdownRoutes = transitSystem.getRoutes();
-        HashMap<String, String> routeKeysToTitles = transitSystem.getRouteKeysToTitles();
+        dropdownRouteKeysToTitles = transitSystem.getRouteKeysToTitles();
         
-        modeSpinner.setAdapter(makeRouteSpinnerAdapter(dropdownRoutes, routeKeysToTitles));
+        modeSpinner.setAdapter(makeRouteSpinnerAdapter(dropdownRoutes, dropdownRouteKeysToTitles));
         
         //get the busLocations variable if it already exists. We need to do that step here since handler
         double lastUpdateTime = 0;
@@ -262,7 +263,7 @@ public class Main extends MapActivity
         	CurrentState currentState = (CurrentState)lastNonConfigurationInstance;
         	currentState.restoreWidgets(textView);
         	
-        	busOverlay = currentState.cloneBusOverlay(this, mapView, routeKeysToTitles);
+        	busOverlay = currentState.cloneBusOverlay(this, mapView, dropdownRouteKeysToTitles);
         	routeOverlay = currentState.cloneRouteOverlay(mapView.getProjection());
         	myLocationOverlay = new LocationOverlay(this, mapView);
         	
@@ -291,7 +292,7 @@ public class Main extends MapActivity
         }
         else
         {
-        	busOverlay = new BusOverlay(busPicture, this, mapView, routeKeysToTitles);
+        	busOverlay = new BusOverlay(busPicture, this, mapView, dropdownRouteKeysToTitles);
         	routeOverlay = new RouteOverlay(mapView.getProjection());
         	myLocationOverlay = new LocationOverlay(this, mapView);
         }
@@ -733,26 +734,35 @@ public class Main extends MapActivity
 				return;
 			}
 			
-			if (dropdownRoutes == null)
+			if (dropdownRoutes == null || dropdownRouteKeysToTitles == null)
 			{
 				return;
 			}
 			
-			query = query.toLowerCase();
+			String lowercaseQuery = query.toLowerCase();
 			
-			if (query.startsWith("route "))
+			if (lowercaseQuery.startsWith("route "))
 			{
 				query = query.substring(6);
+				lowercaseQuery = query.toLowerCase();
 			}
 			
-			if (query.length() >= 2)
+			if (query.contains(" "))
+			{
+				query.replaceAll(" ", "");
+				lowercaseQuery = query.toLowerCase();
+			}
+			
+			//indexingQuery is query which may be slightly altered to match one of the route keys
+			String indexingQuery = lowercaseQuery;
+			if (indexingQuery.length() >= 2)
 			{
 				//this is kind of a hack. We need subway lines to start with a capital letter to search for them properly
-				query = query.substring(0, 1).toUpperCase() + query.substring(1);
+				indexingQuery = indexingQuery.substring(0, 1).toUpperCase() + query.substring(1);
 			}
 			
 			
-			int position = Arrays.asList(dropdownRoutes).indexOf(query);
+			int position = Arrays.asList(dropdownRoutes).indexOf(indexingQuery);
 			if (position != -1)
 			{
 				setNewRoute(position);
@@ -760,6 +770,19 @@ public class Main extends MapActivity
 			}
 			else
 			{
+				//try the titles
+				for (int i = 0; i < dropdownRoutes.length; i++)
+				{
+					String title = dropdownRouteKeysToTitles.get(dropdownRoutes[i]);
+					if (title != null && title.toLowerCase().equals(lowercaseQuery))
+					{
+						setNewRoute(i);
+						modeSpinner.setSelection(i);
+						return;
+					}
+				}
+				
+				//else
 				Toast.makeText(this, "Route " + query + " doesn't exist", Toast.LENGTH_LONG).show();
 			}
 		}
