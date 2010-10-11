@@ -788,8 +788,15 @@ public class Main extends MapActivity
 					}
 				}
 				
-				//else
-				Toast.makeText(this, "Route " + query + " doesn't exist", Toast.LENGTH_LONG).show();
+				//else, we don't know what it is
+				if (lowercaseQuery.equals("green"))
+				{
+					Toast.makeText(this, "Sorry, Green line information isn't available yet", Toast.LENGTH_LONG).show();
+				}
+				else
+				{
+					Toast.makeText(this, "Route " + query + " doesn't exist", Toast.LENGTH_LONG).show();
+				}
 			}
 		}
 	}
