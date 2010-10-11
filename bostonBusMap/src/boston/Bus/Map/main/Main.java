@@ -796,7 +796,7 @@ public class Main extends MapActivity
 				//else, we don't know what it is
 				if (lowercaseQuery.equals("green"))
 				{
-					Toast.makeText(this, "Sorry, Green line information isn't available yet", Toast.LENGTH_LONG).show();
+					Toast.makeText(this, "Sorry, green line information isn't available yet", Toast.LENGTH_LONG).show();
 				}
 				else
 				{
