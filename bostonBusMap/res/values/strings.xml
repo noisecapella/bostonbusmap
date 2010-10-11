@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    
-    <string name="app_name">Boston BusMap</string>
+        <string name="app_name">Boston BusMap</string>
 <string name="refreshButton">Refresh!</string>
 
 <string name="runInBackgroundCheckbox">runInBackgroundKey</string>
@@ -23,4 +22,6 @@
 <string name="noProviders">Cannot use any location service.
 Are any enabled (like GPS) in your system settings?</string>
 <string name="locationUnavailable">Current location is unavailable</string>
+
+<string name="search_hint">Search routes</string>
 </resources>

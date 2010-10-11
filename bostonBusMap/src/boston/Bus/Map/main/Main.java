@@ -22,6 +22,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
@@ -52,6 +53,7 @@ import com.google.android.maps.Overlay;
 import com.google.android.maps.OverlayItem;
 
 import android.app.Activity;
+import android.app.SearchManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -146,6 +148,11 @@ public class Main extends MapActivity
 	
 	private Spinner toggleButton;
 	private Drawable busStop;
+	/**
+	 * The list of routes that's selectable in the routes dropdown list
+	 */
+	private String[] dropdownRoutes;
+	private Spinner modeSpinner;
 	
 	public static final int VEHICLE_LOCATIONS_ALL = 1;
 	public static final int BUS_PREDICTIONS_ONE = 2;
@@ -180,7 +187,7 @@ public class Main extends MapActivity
         mapView = (MapView)findViewById(R.id.mapview);
         textView = (TextView)findViewById(R.id.statusView);
         toggleButton = (Spinner)findViewById(R.id.predictionsOrLocations);
-        Spinner modeSpinner = (Spinner)findViewById(R.id.modeSpinner);
+        modeSpinner = (Spinner)findViewById(R.id.modeSpinner);
         
         Resources resources = getResources();
 
@@ -194,7 +201,7 @@ public class Main extends MapActivity
         
         busStop = resources.getDrawable(R.drawable.busstop_statelist);
         
-        TransitSystem transitSystem = new TransitSystem();
+        final TransitSystem transitSystem = new TransitSystem();
         transitSystem.setDefaultTransitSource(busStop, busPicture, arrow, rail);
         
         SpinnerAdapter modeSpinnerAdapter = makeModeSpinner(); 
@@ -238,10 +245,10 @@ public class Main extends MapActivity
         DatabaseHelper helper = new DatabaseHelper(this, busStop);
         
         
-        final String[] transitRoutes = transitSystem.getRoutes();
+        dropdownRoutes = transitSystem.getRoutes();
         HashMap<String, String> routeKeysToTitles = transitSystem.getRouteKeysToTitles();
         
-        modeSpinner.setAdapter(makeRouteSpinnerAdapter(transitRoutes, routeKeysToTitles));
+        modeSpinner.setAdapter(makeRouteSpinnerAdapter(dropdownRoutes, routeKeysToTitles));
         
         //get the busLocations variable if it already exists. We need to do that step here since handler
         double lastUpdateTime = 0;
@@ -306,17 +313,7 @@ public class Main extends MapActivity
 			@Override
 			public void onItemSelected(AdapterView<?> parent, View view,
 					int position, long id) {
-				if (firstRunRoute)
-				{
-					firstRunRoute = false;
-				}
-				else if (busLocations != null && handler != null)
-				{
-					selectedRouteIndex = position;
-					handler.setRouteToUpdate(transitRoutes[position]);
-					handler.triggerUpdate();
-					handler.immediateRefresh();
-				}
+				setNewRoute(position);
 			}
 
 			@Override
@@ -329,7 +326,7 @@ public class Main extends MapActivity
         {
         	modeSpinner.setSelection(selectedRouteIndex);
         	handler.setSelectedBusPredictions(getSelectedBusPredictions());
-        	handler.setRouteToUpdate(transitRoutes[selectedRouteIndex]);
+        	handler.setRouteToUpdate(dropdownRoutes[selectedRouteIndex]);
         }
         else
         {
@@ -341,7 +338,7 @@ public class Main extends MapActivity
             setSelectedBusPredictions(prefs.getInt(selectedBusPredictionsKey, VEHICLE_LOCATIONS_ALL));
             
             modeSpinner.setSelection(selectedRouteIndex);
-            handler.setRouteToUpdate(transitRoutes[selectedRouteIndex]);
+            handler.setRouteToUpdate(dropdownRoutes[selectedRouteIndex]);
             handler.setSelectedBusPredictions(getSelectedBusPredictions());
 
             if (centerLat != Integer.MAX_VALUE && centerLon != Integer.MAX_VALUE && zoomLevel != Integer.MAX_VALUE)
@@ -379,6 +376,20 @@ public class Main extends MapActivity
         
     }
 		
+    private void setNewRoute(int position)
+    {
+		if (firstRunRoute)
+		{
+			firstRunRoute = false;
+		}
+		else if (busLocations != null && handler != null)
+		{
+			selectedRouteIndex = position;
+			handler.setRouteToUpdate(dropdownRoutes[position]);
+			handler.triggerUpdate();
+			handler.immediateRefresh();
+		}
+    }
 
     private SpinnerAdapter makeRouteSpinnerAdapter(String[] routes, HashMap<String, String> routeKeysToTitles) {
     	final ArrayList<HashMap<String, String>> routeList = new ArrayList<HashMap<String, String>>();
@@ -708,4 +719,27 @@ public class Main extends MapActivity
 		}
 	}
 
+	@Override
+	public void onNewIntent(Intent newIntent) {
+		//since Main is marked singletop, it only uses one activity and onCreate won't get called. Use this to handle search requests 
+		Log.v("BostonBusMap", "onNewIntent called");
+		
+		if (Intent.ACTION_SEARCH.equals(newIntent.getAction()))
+		{
+			String query = newIntent.getStringExtra(SearchManager.QUERY);
+			if (dropdownRoutes != null)
+			{
+				int position = Arrays.asList(dropdownRoutes).indexOf(query);
+				if (position != -1)
+				{
+					setNewRoute(position);
+					modeSpinner.setSelection(position);
+				}
+				else
+				{
+					Toast.makeText(this, "Route " + query + " doesn't exist", Toast.LENGTH_SHORT).show();
+				}
+			}
+		}
+	}
 }
