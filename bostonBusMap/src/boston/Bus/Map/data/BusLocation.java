@@ -2,6 +2,7 @@ package boston.Bus.Map.data;
 
 import java.util.HashMap;
 
+import boston.Bus.Map.math.Geometry;
 import boston.Bus.Map.ui.BusDrawable;
 import boston.Bus.Map.util.Constants;
 import android.content.Context;
@@ -96,8 +97,8 @@ public class BusLocation implements Location
 			String heading, boolean predictable, String dirTag, String inferBusRoute,
 			Drawable bus, Drawable arrow, String routeName, Directions directions, String routeTitle, boolean disappearAfterRefresh)
 	{
-		this.latitude = latitude * Constants.degreesToRadians;
-		this.longitude = longitude * Constants.degreesToRadians;
+		this.latitude = latitude * Geometry.degreesToRadians;
+		this.longitude = longitude * Geometry.degreesToRadians;
 		this.latitudeAsDegrees = latitude;
 		this.longitudeAsDegrees = longitude;
 		this.id = id;
@@ -143,9 +144,7 @@ public class BusLocation implements Location
 		else
 		{
 			//TODO: this repeats code from getDirection(), make a method to reuse code
-			double thetaInRadians = Math.atan2(distanceFromLastY, distanceFromLastX);
-			
-			int degrees = radiansToDegrees(thetaInRadians);
+			int degrees = Geometry.getDegreesFromSlope(distanceFromLastY, distanceFromLastX);
 			return degrees;
 		}
 	}
@@ -163,40 +162,35 @@ public class BusLocation implements Location
 		}
 		else
 		{
-			double thetaInRadians = Math.atan2(distanceFromLastY, distanceFromLastX);
+			int degrees = Geometry.getDegreesFromSlope(distanceFromLastY, distanceFromLastX);
 			
-			int degrees = radiansToDegrees(thetaInRadians); 
 			return  degrees + " deg (" + convertHeadingToCardinal(degrees) + ")";
 		}
 		
 	}
-	/**
-	 * 
-	 * @param thetaBackup direction in radians, where east is 0 and going counterclockwise
-	 * @return a descriptive String showing the direction (for example: E (90 deg))
-	 */
-	private int radiansToDegrees(double thetaAsRadians)
-	{
-		//NOTE: degrees will be 0 == north, going clockwise
-		int degrees = (int)(thetaAsRadians * 180.0 / Math.PI);
-		if (degrees < 0)
-		{
-			degrees += 360;
-		}
-		
-		//convert to usual compass orientation
-		degrees = -degrees + 90;
-		if (degrees < 0)
-		{
-			degrees += 360;
-		}
-		
-		return degrees;
-	}
-
 	public double distanceFrom(double lat2, double lon2)
 	{
-		return LocationConstants.computeCompareDistance(latitude, longitude, lat2, lon2);
+		return Geometry.computeCompareDistance(latitude, longitude, lat2, lon2);
+	}
+	
+	public void movedFrom(double oldLatitude, double oldLongitude)
+	{
+		if (oldLatitude == latitude && oldLongitude == longitude)
+		{
+			//ignore
+			return;
+		}
+		distanceFromLastX = distanceFrom(latitude, oldLongitude);
+		distanceFromLastY = distanceFrom(oldLatitude, longitude);
+		
+		if (oldLatitude > latitude)
+		{
+			distanceFromLastY *= -1;
+		}
+		if (oldLongitude > longitude)
+		{
+			distanceFromLastX *= -1;
+		}		
 	}
 	
 	/**
@@ -206,22 +200,7 @@ public class BusLocation implements Location
 	 */
 	public void movedFrom(BusLocation oldBusLocation)
 	{
-		if (oldBusLocation.latitude == latitude && oldBusLocation.longitude == longitude)
-		{
-			//ignore
-			return;
-		}
-		distanceFromLastX = distanceFrom(latitude, oldBusLocation.longitude);
-		distanceFromLastY = distanceFrom(oldBusLocation.latitude, longitude);
-		
-		if (oldBusLocation.latitude > latitude)
-		{
-			distanceFromLastY *= -1;
-		}
-		if (oldBusLocation.longitude > longitude)
-		{
-			distanceFromLastX *= -1;
-		}
+		movedFrom(oldBusLocation.latitude, oldBusLocation.longitude);
 	}
 
 	/**
@@ -386,6 +365,13 @@ public class BusLocation implements Location
 	
 	public boolean isDisappearAfterRefresh() {
 		return disappearAfterRefresh;
+	}
+
+	public void movedTo(double latitudeAsDegrees, double longitudeAsDegrees) {
+		movedFrom(latitudeAsDegrees * Geometry.degreesToRadians, longitudeAsDegrees * Geometry.degreesToRadians);
+		
+		distanceFromLastX *= -1;
+		distanceFromLastY *= -1;
 	}
 }
 

@@ -44,7 +44,7 @@ public class SubwayPredictionsFeedParser
 {
 	private final RoutePool routePool;
 	private final Directions directions;
-	private final Drawable bus;
+	private final Drawable rail;
 	private final Drawable arrow;
 	
 	private final HashMap<Integer, BusLocation> busMapping = new HashMap<Integer, BusLocation>();
@@ -53,7 +53,7 @@ public class SubwayPredictionsFeedParser
 	{
 		this.routePool = routePool;
 		this.directions = directions;
-		this.bus = bus;
+		this.rail = bus;
 		this.arrow = arrow;
 	}
 	
@@ -136,9 +136,24 @@ public class SubwayPredictionsFeedParser
 				{
 					int seconds = (int)-(diff / 1000);
 					
+					StopLocation nextStop = routeConfig.getNextStop(stopLocation);
+					
 					BusLocation busLocation = new BusLocation(stopLocation.getLatitudeAsDegrees(), stopLocation.getLongitudeAsDegrees(),
-							0, seconds, currentMillis, null, true, direction, null, bus, arrow, route, directions, route, true);
+							0, seconds, currentMillis, null, true, direction, null, rail, arrow, route, directions, route, true);
 					busMapping.put(0xffff | (i << 16), busLocation);
+
+					//set arrow to point to correct direction
+					
+					if (nextStop != null)
+					{
+						Log.v("BostonBusMap", "at " + stopLocation.getTitle() + " moving to " + nextStop.getTitle());
+						busLocation.movedTo(nextStop.getLatitudeAsDegrees(), nextStop.getLongitudeAsDegrees());
+					}
+					else
+					{
+						Log.v("BostonBusMap", "at " + stopLocation.getTitle() + ", nothing to move to");
+					}
+					
 				}
 			}
 

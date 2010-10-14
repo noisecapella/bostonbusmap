@@ -115,4 +115,20 @@ public class RouteConfig implements CanBeSerialized
 	{
 		return transitSource.hasPaths();
 	}
+
+
+
+	public StopLocation getNextStop(StopLocation stopLocation) {
+		int stopLocationPlatformOrder = stopLocation.getPlatformOrder();
+		String branch = stopLocation.getBranch();
+		for (StopLocation stop : stops.values())
+		{
+			if (stop.getPlatformOrder() == stopLocationPlatformOrder + 1 && stop.getBranch() == branch)
+			{
+				return stop;
+			}
+		}
+		
+		return null;
+	}
 }

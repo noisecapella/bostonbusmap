@@ -10,6 +10,7 @@ import java.util.TreeMap;
 import java.util.TreeSet;
 
 import boston.Bus.Map.database.DatabaseHelper;
+import boston.Bus.Map.math.Geometry;
 import boston.Bus.Map.transit.MBTABusTransitSource;
 import boston.Bus.Map.transit.SubwayTransitSource;
 import boston.Bus.Map.transit.TransitSystem;
@@ -69,8 +70,8 @@ public class StopLocation implements Location, CanBeSerialized
 	public StopLocation(float latitudeAsDegrees, float longitudeAsDegrees,
 			Drawable busStop, String tag, String title, short platformOrder, String branch)
 	{
-		this.latitude = latitudeAsDegrees * Constants.degreesToRadians;
-		this.longitude = longitudeAsDegrees * Constants.degreesToRadians;
+		this.latitude = latitudeAsDegrees * Geometry.degreesToRadians;
+		this.longitude = longitudeAsDegrees * Geometry.degreesToRadians;
 		this.busStop = busStop;
 		this.tag = tag;
 		this.title = title;
@@ -89,7 +90,7 @@ public class StopLocation implements Location, CanBeSerialized
 	
 	@Override
 	public double distanceFrom(double centerLatitude, double centerLongitude) {
-		return LocationConstants.computeCompareDistance(latitude, longitude, centerLatitude, centerLongitude);
+		return Geometry.computeCompareDistance(latitude, longitude, centerLatitude, centerLongitude);
 	}
 
 	@Override
@@ -110,12 +111,12 @@ public class StopLocation implements Location, CanBeSerialized
 
 	@Override
 	public double getLatitudeAsDegrees() {
-		return latitude * Constants.radiansToDegrees;
+		return latitude * Geometry.radiansToDegrees;
 	}
 
 	@Override
 	public double getLongitudeAsDegrees() {
-		return longitude * Constants.radiansToDegrees;
+		return longitude * Geometry.radiansToDegrees;
 	}
 
 	@Override
@@ -481,5 +482,13 @@ public class StopLocation implements Location, CanBeSerialized
 		{
 			return new String[]{title};
 		}
+	}
+
+	public int getPlatformOrder() {
+		return platformOrder;
+	}
+
+	public String getBranch() {
+		return branch;
 	}
 }
