@@ -147,7 +147,7 @@ public class SubwayPredictionsFeedParser
 					if (nextStop != null)
 					{
 						Log.v("BostonBusMap", "at " + stopLocation.getTitle() + " moving to " + nextStop.getTitle());
-						busLocation.movedTo(nextStop.getLatitudeAsDegrees(), nextStop.getLongitudeAsDegrees());
+						//busLocation.movedTo(nextStop.getLatitudeAsDegrees(), nextStop.getLongitudeAsDegrees());
 					}
 					else
 					{
