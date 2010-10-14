@@ -87,6 +87,7 @@ public class SubwayTransitSource implements TransitSource {
 		switch (selectedBusPredictions)
 		{
 		case  Main.BUS_PREDICTIONS_ONE:
+		case Main.VEHICLE_LOCATIONS_ONE:
 		{
 
 			List<Location> locations = locationsObj.getLocations(maxStops, centerLatitude, centerLongitude, false);
@@ -95,10 +96,8 @@ public class SubwayTransitSource implements TransitSource {
 			getPredictionsUrl(locations, maxStops, routeConfig.getRouteName(), outputUrls);
 			break;
 		}
-		case Main.VEHICLE_LOCATIONS_ONE:
-			//TODO
-			return;
 		case Main.BUS_PREDICTIONS_ALL:
+		case Main.VEHICLE_LOCATIONS_ALL:
 		case Main.BUS_PREDICTIONS_STAR:
 		{
 			List<Location> locations = locationsObj.getLocations(maxStops, centerLatitude, centerLongitude, false);
@@ -108,12 +107,6 @@ public class SubwayTransitSource implements TransitSource {
 		}
 		break;
 
-		case Main.VEHICLE_LOCATIONS_ALL:
-		default:
-		{
-			//TODO
-			return;
-		}
 		}
 
 		Log.v("BostonBusMap", "refreshing subway data for " + outputUrls.size() + " routes");

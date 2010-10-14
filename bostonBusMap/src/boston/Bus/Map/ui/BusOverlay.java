@@ -265,11 +265,8 @@ public class BusOverlay extends BalloonItemizedOverlay<OverlayItem> {
 			boolean isSelected = i == lastFocusedIndex;
 			Drawable drawable = busLocation.getDrawable(context, shadow, isSelected);
 			item.setMarker(drawable);
-			if (!(busLocation instanceof BusLocation))
-			{
-				boundCenterBottom(drawable);
-			}
-			
+
+			boundCenterBottom(drawable);
 		}
 		
 		if (selectedBusIndex != NOT_SELECTED)

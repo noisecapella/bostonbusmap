@@ -198,7 +198,7 @@ public class Main extends MapActivity
         
         Drawable arrow = resources.getDrawable(R.drawable.arrow);
         Drawable tooltip = resources.getDrawable(R.drawable.tooltip);
-        Drawable rail = resources.getDrawable(R.drawable.rail);
+        Drawable rail = resources.getDrawable(R.drawable.rail_statelist);
         
         busStop = resources.getDrawable(R.drawable.busstop_statelist);
         
