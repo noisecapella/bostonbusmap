@@ -38,15 +38,20 @@ import android.widget.TextView;
  *
  */
 public class BusDrawable extends Drawable {
-	private final Drawable bus;
+	private final Drawable vehicle;
 	private final Drawable arrow;
 	private final int heading;
+	/**
+	 * Pixels from top of bus/rail icon to draw the arrow
+	 */
+	private final int arrowTopDiff;
 	
-	public BusDrawable(Drawable drawable, int heading, Drawable arrow)
+	public BusDrawable(Drawable drawable, int heading, Drawable arrow, int arrowTop)
 	{
-		this.bus = drawable;
+		this.vehicle = drawable;
 		this.heading = heading;
 		this.arrow = arrow;
+		this.arrowTopDiff = arrowTop;
 	}
 	
 	@Override
@@ -55,7 +60,7 @@ public class BusDrawable extends Drawable {
 		//NOTE: 0, 0 is the bottom center point of the bus icon
 		
 		//first draw the bus
-		bus.draw(canvas);
+		vehicle.draw(canvas);
 		
 		//then draw arrow
 		if (arrow != null && heading != BusLocation.NO_HEADING)
@@ -63,7 +68,7 @@ public class BusDrawable extends Drawable {
 			//put the arrow in the bus window
 			
 			int arrowLeft = -(arrow.getIntrinsicWidth() / 4);
-			int arrowTop = -bus.getIntrinsicHeight() + 7;
+			int arrowTop = -vehicle.getIntrinsicHeight() + arrowTopDiff;
 			
 			//NOTE: use integer division when possible. This code is frequently executed
 			int arrowWidth = (arrow.getIntrinsicWidth() * 6) / 10;  
@@ -91,12 +96,12 @@ public class BusDrawable extends Drawable {
 	
 	@Override
 	public int getOpacity() {
-		return bus.getOpacity();
+		return vehicle.getOpacity();
 	}
 
 	@Override
 	public void setAlpha(int alpha) {
-		bus.setAlpha(alpha);
+		vehicle.setAlpha(alpha);
 		
 		if (arrow != null)
 		{
@@ -106,7 +111,7 @@ public class BusDrawable extends Drawable {
 
 	@Override
 	public void setColorFilter(ColorFilter cf) {
-		bus.setColorFilter(cf);
+		vehicle.setColorFilter(cf);
 		if (arrow != null)
 		{
 			arrow.setColorFilter(cf);
@@ -116,31 +121,31 @@ public class BusDrawable extends Drawable {
 	@Override
 	public int getIntrinsicHeight() {
 		//ignoring arrow because it's inside the drawable
-		return bus.getIntrinsicHeight();
+		return vehicle.getIntrinsicHeight();
 	}
 	@Override
 	public int getIntrinsicWidth() {
-		return bus.getIntrinsicWidth();
+		return vehicle.getIntrinsicWidth();
 	}
 	
 	@Override
 	public int getMinimumHeight() {
-		return bus.getMinimumHeight();
+		return vehicle.getMinimumHeight();
 	}
 	
 	@Override
 	public int getMinimumWidth() {
-		return bus.getMinimumWidth();
+		return vehicle.getMinimumWidth();
 	}
 	
 	@Override
 	public Drawable getCurrent() {
-		return bus.getCurrent();
+		return vehicle.getCurrent();
 	}
 	
 	@Override
 	public void clearColorFilter() {
-		bus.clearColorFilter();
+		vehicle.clearColorFilter();
 		if (arrow != null)
 		{
 			arrow.clearColorFilter();
@@ -149,44 +154,44 @@ public class BusDrawable extends Drawable {
 	
 	@Override
 	public boolean equals(Object o) {
-		return bus.equals(o);
+		return vehicle.equals(o);
 	}
 	
 	@Override
 	public int getChangingConfigurations() {
-		return bus.getChangingConfigurations();
+		return vehicle.getChangingConfigurations();
 	}
 	
 	@Override
 
 	public Drawable.ConstantState getConstantState() {
-		return bus.getConstantState();
+		return vehicle.getConstantState();
 	}
 	
 	@Override
 	public boolean getPadding(Rect padding) {
-		return bus.getPadding(padding);
+		return vehicle.getPadding(padding);
 	}
 	
 	@Override
 	public int[] getState() {
-		return bus.getState();
+		return vehicle.getState();
 	}
 	
 	@Override
 	public Region getTransparentRegion() {
-		return bus.getTransparentRegion();
+		return vehicle.getTransparentRegion();
 	}
 	
 	@Override
 	public int hashCode() {
-		return bus.hashCode();
+		return vehicle.hashCode();
 	}
 	
 	@Override
 	public void inflate(Resources r, XmlPullParser parser, AttributeSet attrs)
 			throws XmlPullParserException, IOException {
-		bus.inflate(r, parser, attrs);
+		vehicle.inflate(r, parser, attrs);
 		if (arrow != null)
 		{
 			arrow.inflate(r, parser, attrs);
@@ -195,7 +200,7 @@ public class BusDrawable extends Drawable {
 	
 	@Override
 	public void invalidateSelf() {
-		bus.invalidateSelf();
+		vehicle.invalidateSelf();
 		if (arrow != null)
 		{
 			arrow.invalidateSelf();
@@ -204,7 +209,7 @@ public class BusDrawable extends Drawable {
 	
 	@Override
 	public boolean isStateful() {
-		return bus.isStateful();
+		return vehicle.isStateful();
 	}
 	
 	@Override
@@ -216,12 +221,12 @@ public class BusDrawable extends Drawable {
 		{
 			arrow.mutate();
 		}
-		return bus.mutate();
+		return vehicle.mutate();
 	}
 	
 	@Override
 	public void scheduleSelf(Runnable what, long when) {
-		bus.scheduleSelf(what, when);
+		vehicle.scheduleSelf(what, when);
 		if (arrow != null)
 		{
 			arrow.scheduleSelf(what, when);
@@ -230,7 +235,7 @@ public class BusDrawable extends Drawable {
 	
 	@Override
 	public void setBounds(int left, int top, int right, int bottom) {
-		bus.setBounds(left, top, right, bottom);
+		vehicle.setBounds(left, top, right, bottom);
 		if (arrow != null)
 		{
 			arrow.setBounds(left, top, right, bottom);
@@ -239,7 +244,7 @@ public class BusDrawable extends Drawable {
 	
 	@Override
 	public void setBounds(Rect bounds) {
-		bus.setBounds(bounds);
+		vehicle.setBounds(bounds);
 		if (arrow != null)
 		{
 			arrow.setBounds(bounds);
@@ -248,7 +253,7 @@ public class BusDrawable extends Drawable {
 	
 	@Override
 	public void setChangingConfigurations(int configs) {
-		bus.setChangingConfigurations(configs);
+		vehicle.setChangingConfigurations(configs);
 		if (arrow != null)
 		{
 			arrow.setChangingConfigurations(configs);
@@ -257,7 +262,7 @@ public class BusDrawable extends Drawable {
 	
 	@Override
 	public void setColorFilter(int color, Mode mode) {
-		bus.setColorFilter(color, mode);
+		vehicle.setColorFilter(color, mode);
 		if (arrow != null)
 		{
 			arrow.setColorFilter(color, mode);
@@ -266,7 +271,7 @@ public class BusDrawable extends Drawable {
 	
 	@Override
 	public void setDither(boolean dither) {
-		bus.setDither(dither);
+		vehicle.setDither(dither);
 		if (arrow != null)
 		{
 			arrow.setDither(dither);
@@ -275,7 +280,7 @@ public class BusDrawable extends Drawable {
 	
 	@Override
 	public void setFilterBitmap(boolean filter) {
-		bus.setFilterBitmap(filter);
+		vehicle.setFilterBitmap(filter);
 		if (arrow != null)
 		{
 			arrow.setFilterBitmap(filter);
@@ -284,7 +289,7 @@ public class BusDrawable extends Drawable {
 	
 	@Override
 	public boolean setState(int[] stateSet) {
-		boolean busModified = bus.setState(stateSet);
+		boolean busModified = vehicle.setState(stateSet);
 		boolean arrowModified = (arrow != null ? arrow.setState(stateSet) : false);
 		
 		//we have to make sure all three are called. If we inline this, the condition may short circuit and not all setState will be called
@@ -293,7 +298,7 @@ public class BusDrawable extends Drawable {
 	
 	@Override
 	public boolean setVisible(boolean visible, boolean restart) {
-		boolean busModified = bus.setVisible(visible, restart);
+		boolean busModified = vehicle.setVisible(visible, restart);
 		boolean arrowModified = (arrow != null ? arrow.setVisible(visible, restart) : false);
 		
 		//we have to make sure all three are called. If we inline this, the condition may short circuit and not all setVisible will be called
@@ -302,7 +307,7 @@ public class BusDrawable extends Drawable {
 	
 	@Override
 	public void unscheduleSelf(Runnable what) {
-		bus.unscheduleSelf(what);
+		vehicle.unscheduleSelf(what);
 		if (arrow != null)
 		{
 			arrow.unscheduleSelf(what);

@@ -84,6 +84,10 @@ public class BusLocation implements Location
 	
 	private final Drawable bus;
 	private final Drawable arrow;
+	/**
+	 * Distance in pixels between top of bus image and where we want to draw the arrow
+	 */
+	private final int arrowTopDiff;
 	
 	private final String routeTitle;
 	private String snippet;
@@ -98,7 +102,7 @@ public class BusLocation implements Location
 	public BusLocation(double latitude, double longitude, int id, int seconds, double lastUpdateInMillis,
 			String heading, boolean predictable, String dirTag, String inferBusRoute,
 			Drawable bus, Drawable arrow, String routeName, Directions directions, String routeTitle, boolean disappearAfterRefresh,
-			boolean showBusNumber)
+			boolean showBusNumber, int arrowTopDiff)
 	{
 		this.latitude = latitude * Geometry.degreesToRadians;
 		this.longitude = longitude * Geometry.degreesToRadians;
@@ -118,6 +122,7 @@ public class BusLocation implements Location
 		this.routeTitle = routeTitle;
 		this.disappearAfterRefresh = disappearAfterRefresh;
 		this.showBusNumber = showBusNumber;
+		this.arrowTopDiff = arrowTopDiff;
 	}
 
 	public boolean hasHeading()
@@ -219,7 +224,8 @@ public class BusLocation implements Location
 		}
 		
 		//multiple headings, don't show anything to avoid confusion
-		heading = null;
+		distanceFromLastX = 0;
+		distanceFromLastY = 0;
 	}
 	
 	@Override
@@ -343,7 +349,7 @@ public class BusLocation implements Location
 			//the tooltip has some weird error where the shadow draws a little left and up from where it should draw
 			
 			//the constructor should ignore the arrow and tooltip if these arguments are null
-			drawable = new BusDrawable(bus, getHeading(), arrow);
+			drawable = new BusDrawable(bus, getHeading(), arrow, arrowTopDiff);
 		}
 		return drawable;
 	}

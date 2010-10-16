@@ -139,10 +139,12 @@ public class SubwayPredictionsFeedParser
 					
 					StopLocation nextStop = getNextStop(routeConfig, stopLocation, direction);
 					
+					final int arrowTopDiff = 9;
+					
 					int id = (int)(Math.random() * 1234);
 					BusLocation busLocation = new BusLocation(stopLocation.getLatitudeAsDegrees(), stopLocation.getLongitudeAsDegrees(),
 							id, seconds, currentMillis, null, true, direction, null, rail, 
-							railArrow, route, directions, route + " at " + stopLocation.getTitle(), true, false);
+							railArrow, route, directions, route + " at " + stopLocation.getTitle(), true, false, arrowTopDiff);
 					busMapping.put(id, busLocation);
 
 					//set arrow to point to correct direction

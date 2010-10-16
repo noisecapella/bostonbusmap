@@ -87,9 +87,11 @@ public class VehicleLocationsFeedParser extends DefaultHandler
 
 			String inferBusRoute = null;
 
+			final int arrowTopDiff = 7;
+			
 			BusLocation newBusLocation = new BusLocation(lat, lon, id, seconds, lastUpdateTime, 
 					heading, predictable, dirTag, inferBusRoute, bus, arrow, route, directions, routeKeysToTitles.get(route),
-					false, true);
+					false, true, arrowTopDiff);
 
 			Integer idInt = new Integer(id);
 			if (busMapping.containsKey(idInt))
