@@ -62,9 +62,7 @@ public class BusLocation implements Location
 	/**
 	 * What is the heading mentioned for the bus?
 	 */
-	private final String heading;
-	
-	private ArrayList<Integer> additionalHeadings;
+	private String heading;
 	
 	/**
 	 * Does the bus behave predictably?
@@ -139,11 +137,6 @@ public class BusLocation implements Location
 				return true;
 			}
 		}
-	}
-	
-	public ArrayList<Integer> getAdditionalHeadings()
-	{
-		return additionalHeadings;
 	}
 	
 	public int getHeading()
@@ -225,12 +218,8 @@ public class BusLocation implements Location
 			snippetTitle += makeDirection(busLocation.dirTag);
 		}
 		
-		if (additionalHeadings == null)
-		{
-			additionalHeadings = new ArrayList<Integer>(1);
-		}
-		
-		additionalHeadings.add(busLocation.getHeading());
+		//multiple headings, don't show anything to avoid confusion
+		heading = null;
 	}
 	
 	@Override
@@ -354,7 +343,7 @@ public class BusLocation implements Location
 			//the tooltip has some weird error where the shadow draws a little left and up from where it should draw
 			
 			//the constructor should ignore the arrow and tooltip if these arguments are null
-			drawable = new BusDrawable(bus, getHeading(), getAdditionalHeadings(), arrow);
+			drawable = new BusDrawable(bus, getHeading(), arrow);
 		}
 		return drawable;
 	}
