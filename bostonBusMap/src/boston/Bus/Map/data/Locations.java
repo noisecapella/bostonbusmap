@@ -228,26 +228,6 @@ public final class Locations
 			updateAsyncTask.publish("Finished download");
 			return;
 		}
-
-		switch (selectedBusPredictions)
-		{
-		case Main.VEHICLE_LOCATIONS_ALL:
-		case Main.VEHICLE_LOCATIONS_ONE:
-			ArrayList<Integer> toRemove = new ArrayList<Integer>();
-			for (Integer id : busMapping.keySet())
-			{
-				BusLocation busLocation = busMapping.get(id);
-				if (busLocation.isDisappearAfterRefresh())
-				{
-					toRemove.add(id);
-				}
-			}
-			
-			for (int id : toRemove)
-			{
-				busMapping.remove(id);
-			}
-		}
 		
 		switch (selectedBusPredictions)
 		{

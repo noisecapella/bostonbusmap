@@ -121,11 +121,9 @@ public class SubwayTransitSource implements TransitSource {
 
 			//bus prediction
 
-			SubwayPredictionsFeedParser parser = new SubwayPredictionsFeedParser(routePool, directions, rail, railArrow);
+			SubwayPredictionsFeedParser parser = new SubwayPredictionsFeedParser(routePool, directions, rail, railArrow, busMapping);
 
 			parser.runParse(data);
-			
-			busMapping.putAll(parser.getBusMapping());
 		}
 	}
 

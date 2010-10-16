@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 
 import javax.xml.parsers.ParserConfigurationException;
@@ -47,14 +48,16 @@ public class SubwayPredictionsFeedParser
 	private final Drawable rail;
 	private final Drawable railArrow;
 	
-	private final HashMap<Integer, BusLocation> busMapping = new HashMap<Integer, BusLocation>();
-
-	public SubwayPredictionsFeedParser(RoutePool routePool, Directions directions, Drawable bus, Drawable railArrow)
+	private final HashMap<Integer, BusLocation> busMapping;
+	
+	public SubwayPredictionsFeedParser(RoutePool routePool, Directions directions, Drawable bus, Drawable railArrow, 
+			HashMap<Integer, BusLocation> busMapping)
 	{
 		this.routePool = routePool;
 		this.directions = directions;
 		this.rail = bus;
 		this.railArrow = railArrow;
+		this.busMapping = busMapping;
 	}
 	
 	private void clearPredictions(String route) throws IOException
@@ -89,6 +92,9 @@ public class SubwayPredictionsFeedParser
 		//store everything here, then write out all out at once
 		ArrayList<Prediction> predictions = new ArrayList<Prediction>(); 
 		ArrayList<StopLocation> stopLocations = new ArrayList<StopLocation>(); 
+		
+		//start off with all the buses to be removed, and if they're still around remove them from toRemove
+		HashSet<Integer> toRemove = new HashSet<Integer>(busMapping.keySet());
 		
 		String route = null;
 		try
@@ -131,34 +137,64 @@ public class SubwayPredictionsFeedParser
 				predictions.add(new Prediction(minutes, epochTime, vehicleId, directions.getTitleAndName(direction),
 						routeConfig.getRouteName()));
 				stopLocations.add(stopLocation);
-				
+
 				String informationType = object.getString("InformationType");
 				if ("Arrived".equals(informationType))
 				{
 					int seconds = (int)-(diff / 1000);
-					
-					StopLocation nextStop = getNextStop(routeConfig, stopLocation, direction);
-					
-					final int arrowTopDiff = 9;
-					
-					int id = (int)(Math.random() * 1234);
-					BusLocation busLocation = new BusLocation(stopLocation.getLatitudeAsDegrees(), stopLocation.getLongitudeAsDegrees(),
-							id, seconds, currentMillis, null, true, direction, null, rail, 
-							railArrow, route, directions, route + " at " + stopLocation.getTitle(), true, false, arrowTopDiff);
-					busMapping.put(id, busLocation);
 
-					//set arrow to point to correct direction
+					//NOTE: I'm not sure if I want to keep subway cars around for a long time, but there's no good way of knowing
+					//when they're not around
 					
-					if (nextStop != null)
+					//if (seconds < 300)
+					if (true)
 					{
-						Log.v("BostonBusMap", "at " + stopLocation.getTitle() + " moving to " + nextStop.getTitle());
-						busLocation.movedTo(nextStop.getLatitudeAsDegrees(), nextStop.getLongitudeAsDegrees());
+						StopLocation nextStop = getNextStop(routeConfig, stopLocation, direction);
+
+						final int arrowTopDiff = 9;
+
+						//first, see if there's a subway car which pretty much matches an old BusLocation
+						BusLocation busLocation = null;
+						int id = 0;
+						for (BusLocation location : busMapping.values())
+						{
+							int secondsDiff = (int) ((currentMillis - location.lastUpdateInMillis) / 1000) - (seconds - location.seconds);
+							if (location.getLatitudeAsDegrees() == stopLocation.getLatitudeAsDegrees() && 
+									location.getLongitudeAsDegrees() == stopLocation.getLongitudeAsDegrees() &&
+									Math.abs(secondsDiff) < 10)
+							{
+								//the last part is, does the number of seconds still pretty much match up, give or take 10 seconds?
+								//if so, reuse the id so that highlighted buses remain highlighted after a refresh
+								id = location.getId();
+								break;
+							}
+						}
+						
+						if (id == 0)
+						{
+							id = (int)(Math.random() * 1234) + 1;
+						}
+						
+						busLocation = new BusLocation(stopLocation.getLatitudeAsDegrees(), stopLocation.getLongitudeAsDegrees(),
+								id, seconds, currentMillis, null, true, direction, null, rail, 
+								railArrow, route, directions, route + " at " + stopLocation.getTitle(), true, false, arrowTopDiff);
+						busMapping.put(id, busLocation);
+						
+						toRemove.remove(id);
+
+
+						//set arrow to point to correct direction
+
+						if (nextStop != null)
+						{
+							Log.v("BostonBusMap", "at " + stopLocation.getTitle() + " moving to " + nextStop.getTitle());
+							busLocation.movedTo(nextStop.getLatitudeAsDegrees(), nextStop.getLongitudeAsDegrees());
+						}
+						else
+						{
+							Log.v("BostonBusMap", "at " + stopLocation.getTitle() + ", nothing to move to");
+						}
 					}
-					else
-					{
-						Log.v("BostonBusMap", "at " + stopLocation.getTitle() + ", nothing to move to");
-					}
-					
 				}
 			}
 
@@ -183,6 +219,11 @@ public class SubwayPredictionsFeedParser
 		{
 			StopLocation stopLocation = stopLocations.get(i);
 			stopLocation.addPrediction(predictions.get(i));
+		}
+		
+		for (Integer id : toRemove)
+		{
+			busMapping.remove(id);
 		}
 	}
 
