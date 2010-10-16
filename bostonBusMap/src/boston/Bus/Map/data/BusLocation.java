@@ -1,5 +1,6 @@
 package boston.Bus.Map.data;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 
 import boston.Bus.Map.math.Geometry;
@@ -63,6 +64,8 @@ public class BusLocation implements Location
 	 */
 	private final String heading;
 	
+	private ArrayList<Integer> additionalHeadings;
+	
 	/**
 	 * Does the bus behave predictably?
 	 */
@@ -89,13 +92,15 @@ public class BusLocation implements Location
 	private String snippetTitle;
 	
 	private final boolean disappearAfterRefresh;
+	private final boolean showBusNumber;
 	
 	private static final int LOCATIONTYPE = 1;
 	public static final int NO_HEADING = -1;
 	
 	public BusLocation(double latitude, double longitude, int id, int seconds, double lastUpdateInMillis,
 			String heading, boolean predictable, String dirTag, String inferBusRoute,
-			Drawable bus, Drawable arrow, String routeName, Directions directions, String routeTitle, boolean disappearAfterRefresh)
+			Drawable bus, Drawable arrow, String routeName, Directions directions, String routeTitle, boolean disappearAfterRefresh,
+			boolean showBusNumber)
 	{
 		this.latitude = latitude * Geometry.degreesToRadians;
 		this.longitude = longitude * Geometry.degreesToRadians;
@@ -114,6 +119,7 @@ public class BusLocation implements Location
 		this.directions = directions;
 		this.routeTitle = routeTitle;
 		this.disappearAfterRefresh = disappearAfterRefresh;
+		this.showBusNumber = showBusNumber;
 	}
 
 	public boolean hasHeading()
@@ -133,6 +139,11 @@ public class BusLocation implements Location
 				return true;
 			}
 		}
+	}
+	
+	public ArrayList<Integer> getAdditionalHeadings()
+	{
+		return additionalHeadings;
 	}
 	
 	public int getHeading()
@@ -203,12 +214,23 @@ public class BusLocation implements Location
 		movedFrom(oldBusLocation.latitude, oldBusLocation.longitude);
 	}
 
-	/**
-	 * NOTE: Buses are pretty much never in the exact same place, so I'll take the lazy way out of this
-	 */
 	@Override
 	public void addToSnippetAndTitle(RouteConfig routeConfig, Location location, HashMap<String, String> routeKeysToTitles) {
-		//ignore
+		BusLocation busLocation = (BusLocation)location;
+		
+		snippet += "\n" + busLocation.makeSnippet(routeConfig);
+
+		if (busLocation.predictable)
+		{
+			snippetTitle += makeDirection(busLocation.dirTag);
+		}
+		
+		if (additionalHeadings == null)
+		{
+			additionalHeadings = new ArrayList<Integer>(1);
+		}
+		
+		additionalHeadings.add(busLocation.getHeading());
 	}
 	
 	@Override
@@ -230,7 +252,7 @@ public class BusLocation implements Location
 	private String makeSnippet(RouteConfig routeConfig)
 	{
 		String snippet = "";
-		if (id != 0)
+		if (showBusNumber)
 		{
 			snippet += "Bus number: " + id + "\n";
 		}
@@ -274,14 +296,22 @@ public class BusLocation implements Location
 
     	if (predictable)
     	{
-    		String directionName = directions.getTitleAndName(dirTag);
-    		if (directionName != null && directionName.length() != 0)
-    		{
-    			title += "\n" + directionName;
-    		}
+    		title += makeDirection(dirTag);
     	}
     	
     	return title;
+	}
+
+	private String makeDirection(String dirTag) {
+		String ret = "";
+		
+		String directionName = directions.getTitleAndName(dirTag);
+		if (directionName != null && directionName.length() != 0)
+		{
+			ret += "\n" + directionName;
+		}
+		
+		return ret;
 	}
 
 	/**
@@ -324,7 +354,7 @@ public class BusLocation implements Location
 			//the tooltip has some weird error where the shadow draws a little left and up from where it should draw
 			
 			//the constructor should ignore the arrow and tooltip if these arguments are null
-			drawable = new BusDrawable(bus, getHeading(), arrow);
+			drawable = new BusDrawable(bus, getHeading(), getAdditionalHeadings(), arrow);
 		}
 		return drawable;
 	}
@@ -344,15 +374,6 @@ public class BusLocation implements Location
 	@Override
 	public boolean isFavorite() {
 		return false;
-	}
-
-	/**
-	 * The display name of the route
-	 * @return
-	 */
-	public String getRouteTitle()
-	{
-		return routeTitle;
 	}
 	
 	/**

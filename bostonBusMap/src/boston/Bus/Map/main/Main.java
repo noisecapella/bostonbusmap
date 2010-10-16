@@ -199,11 +199,12 @@ public class Main extends MapActivity
         Drawable arrow = resources.getDrawable(R.drawable.arrow);
         Drawable tooltip = resources.getDrawable(R.drawable.tooltip);
         Drawable rail = resources.getDrawable(R.drawable.rail_statelist);
+        Drawable railArrow = resources.getDrawable(R.drawable.rail_arrow);
         
         busStop = resources.getDrawable(R.drawable.busstop_statelist);
         
         final TransitSystem transitSystem = new TransitSystem();
-        transitSystem.setDefaultTransitSource(busStop, busPicture, arrow, rail);
+        transitSystem.setDefaultTransitSource(busStop, busPicture, arrow, rail, railArrow);
         
         SpinnerAdapter modeSpinnerAdapter = makeModeSpinner(); 
 

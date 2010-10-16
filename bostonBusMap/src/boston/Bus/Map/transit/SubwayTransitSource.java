@@ -34,14 +34,14 @@ import boston.Bus.Map.util.DownloadHelper;
 
 public class SubwayTransitSource implements TransitSource {
 	private final Drawable busStop;
-	private final Drawable arrow;
-	private final Drawable bus;
+	private final Drawable railArrow;
+	private final Drawable rail;
 	
-	public SubwayTransitSource(Drawable busStop, Drawable bus, Drawable arrow)
+	public SubwayTransitSource(Drawable busStop, Drawable rail, Drawable railArrow)
 	{
 		this.busStop = busStop;
-		this.arrow = arrow;
-		this.bus = bus;
+		this.railArrow = railArrow;
+		this.rail = rail;
 		
 		for (String route : subwayRoutes)
 		{
@@ -121,7 +121,7 @@ public class SubwayTransitSource implements TransitSource {
 
 			//bus prediction
 
-			SubwayPredictionsFeedParser parser = new SubwayPredictionsFeedParser(routePool, directions, bus, arrow);
+			SubwayPredictionsFeedParser parser = new SubwayPredictionsFeedParser(routePool, directions, rail, railArrow);
 
 			parser.runParse(data);
 			

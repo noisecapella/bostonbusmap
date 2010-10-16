@@ -31,6 +31,14 @@ import android.graphics.drawable.Drawable;
 
 public class SubwayRouteConfigFeedParser
 {
+	public static final String RedNorthToAlewife = "RedNB0";
+	public static final String RedNorthToAlewife2 = "RedNB1";
+	public static final String RedSouthToBraintree = "RedSB0";
+	public static final String RedSouthToAshmont = "RedSB1";
+	public static final String BlueEastToWonderland = "BlueEB0";
+	public static final String BlueWestToBowdoin = "BlueWB0";
+	public static final String OrangeNorthToOakGrove = "OrangeNB0";
+	public static final String OrangeSouthToForestHills = "OrangeSB0";
 	private final Drawable busStop;
 	private final HashMap<String, RouteConfig> map = new HashMap<String, RouteConfig>();
 	
@@ -143,14 +151,14 @@ public class SubwayRouteConfigFeedParser
 		}
 		
 		//workaround
-		directions.add("RedNB0", "North toward Alewife", null, SubwayTransitSource.RedLine);
-		directions.add("RedNB1", "North toward Alewife", null, SubwayTransitSource.RedLine);
-		directions.add("RedSB0", "South toward Braintree", null, SubwayTransitSource.RedLine);
-		directions.add("RedSB1", "South toward Ashmont", null, SubwayTransitSource.RedLine);
-		directions.add("BlueEB0", "East toward Wonderland", null, SubwayTransitSource.BlueLine);
-		directions.add("BlueWB0", "West toward Bowdoin", null, SubwayTransitSource.BlueLine);
-		directions.add("OrangeNB0", "North toward Oak Grove", null, SubwayTransitSource.OrangeLine);
-		directions.add("OrangeSB0", "South toward Forest Hills", null, SubwayTransitSource.OrangeLine);
+		directions.add(RedNorthToAlewife, "North toward Alewife", null, SubwayTransitSource.RedLine);
+		directions.add(RedNorthToAlewife2, "North toward Alewife", null, SubwayTransitSource.RedLine);
+		directions.add(RedSouthToBraintree, "South toward Braintree", null, SubwayTransitSource.RedLine);
+		directions.add(RedSouthToAshmont, "South toward Ashmont", null, SubwayTransitSource.RedLine);
+		directions.add(BlueEastToWonderland, "East toward Wonderland", null, SubwayTransitSource.BlueLine);
+		directions.add(BlueWestToBowdoin, "West toward Bowdoin", null, SubwayTransitSource.BlueLine);
+		directions.add(OrangeNorthToOakGrove, "North toward Oak Grove", null, SubwayTransitSource.OrangeLine);
+		directions.add(OrangeSouthToForestHills, "South toward Forest Hills", null, SubwayTransitSource.OrangeLine);
 		
 		//path
 		for (String route : orderedStations.keySet())

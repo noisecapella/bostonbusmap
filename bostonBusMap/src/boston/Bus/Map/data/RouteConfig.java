@@ -16,6 +16,7 @@ import boston.Bus.Map.util.CanBeSerialized;
 import android.graphics.drawable.Drawable;
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.util.Log;
 
 public class RouteConfig implements CanBeSerialized
 {
@@ -114,21 +115,5 @@ public class RouteConfig implements CanBeSerialized
 	public boolean hasPaths()
 	{
 		return transitSource.hasPaths();
-	}
-
-
-
-	public StopLocation getNextStop(StopLocation stopLocation) {
-		int stopLocationPlatformOrder = stopLocation.getPlatformOrder();
-		String branch = stopLocation.getBranch();
-		for (StopLocation stop : stops.values())
-		{
-			if (stop.getPlatformOrder() == stopLocationPlatformOrder + 1 && stop.getBranch() == branch)
-			{
-				return stop;
-			}
-		}
-		
-		return null;
 	}
 }

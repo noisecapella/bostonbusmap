@@ -45,16 +45,16 @@ public class SubwayPredictionsFeedParser
 	private final RoutePool routePool;
 	private final Directions directions;
 	private final Drawable rail;
-	private final Drawable arrow;
+	private final Drawable railArrow;
 	
 	private final HashMap<Integer, BusLocation> busMapping = new HashMap<Integer, BusLocation>();
 
-	public SubwayPredictionsFeedParser(RoutePool routePool, Directions directions, Drawable bus, Drawable arrow)
+	public SubwayPredictionsFeedParser(RoutePool routePool, Directions directions, Drawable bus, Drawable railArrow)
 	{
 		this.routePool = routePool;
 		this.directions = directions;
 		this.rail = bus;
-		this.arrow = arrow;
+		this.railArrow = railArrow;
 	}
 	
 	private void clearPredictions(String route) throws IOException
@@ -124,7 +124,8 @@ public class SubwayPredictionsFeedParser
 				}
 				
 				String stopDirection = stopKey.charAt(4) + "B";
-				String direction = route + stopDirection + object.getString("Route");
+				String branch = object.getString("Route");
+				String direction = route + stopDirection + branch;
 				int vehicleId = 0;
 
 				predictions.add(new Prediction(minutes, epochTime, vehicleId, directions.getTitleAndName(direction),
@@ -136,18 +137,20 @@ public class SubwayPredictionsFeedParser
 				{
 					int seconds = (int)-(diff / 1000);
 					
-					StopLocation nextStop = routeConfig.getNextStop(stopLocation);
+					StopLocation nextStop = getNextStop(routeConfig, stopLocation, direction);
 					
+					int id = (int)(Math.random() * 1234);
 					BusLocation busLocation = new BusLocation(stopLocation.getLatitudeAsDegrees(), stopLocation.getLongitudeAsDegrees(),
-							0, seconds, currentMillis, null, true, direction, null, rail, arrow, route, directions, route, true);
-					busMapping.put(0xffff | (i << 16), busLocation);
+							id, seconds, currentMillis, null, true, direction, null, rail, 
+							railArrow, route, directions, route + " at " + stopLocation.getTitle(), true, false);
+					busMapping.put(id, busLocation);
 
 					//set arrow to point to correct direction
 					
 					if (nextStop != null)
 					{
 						Log.v("BostonBusMap", "at " + stopLocation.getTitle() + " moving to " + nextStop.getTitle());
-						//busLocation.movedTo(nextStop.getLatitudeAsDegrees(), nextStop.getLongitudeAsDegrees());
+						busLocation.movedTo(nextStop.getLatitudeAsDegrees(), nextStop.getLongitudeAsDegrees());
 					}
 					else
 					{
@@ -178,6 +181,55 @@ public class SubwayPredictionsFeedParser
 		{
 			StopLocation stopLocation = stopLocations.get(i);
 			stopLocation.addPrediction(predictions.get(i));
+		}
+	}
+
+	/**
+	 * Get the next stop in the route, going in the same general direction, on the same branch
+	 * @param routeConfig
+	 * @param stopLocation
+	 * @return
+	 */
+	private StopLocation getNextStop(RouteConfig routeConfig, StopLocation stopLocation, String dirTag) {
+		String stoptag = stopLocation.getStopTag();
+		String dirSuffix = stoptag.substring(stoptag.length() - 1);
+		String fromBranch = stopLocation.getBranch();
+
+		//first, check special cases, those that go to different branches
+		//JFK is on Trunk, as well as anything north of it
+		if (stoptag.equals("RSAVN") || stoptag.equals("RNQUN"))
+		{
+			return routeConfig.getStopMapping().get("RJFKN");
+		}
+		else if (stoptag.equals("RJFKS"))
+		{
+			if (dirTag.equals(SubwayRouteConfigFeedParser.RedSouthToAshmont))
+			{
+				return routeConfig.getStopMapping().get("RSAVS");
+			}
+			else
+			{
+				return routeConfig.getStopMapping().get("RNQUS");
+			}
+		}
+		else
+		{
+
+			int stopLocationPlatformOrder = stopLocation.getPlatformOrder();
+
+			for (StopLocation stop : routeConfig.getStops())
+			{
+				String toBranch = stop.getBranch();
+
+				//Log.v("BostonBusMap", "from " + fromBranch + " to " + toBranch);
+				if (stop.getPlatformOrder() == stopLocationPlatformOrder + 1 && fromBranch.equals(toBranch) &&
+						stop.getStopTag().endsWith(dirSuffix))
+				{
+					return stop;
+				}
+			}
+
+			return null;
 		}
 	}
 

@@ -1,6 +1,7 @@
 package boston.Bus.Map.ui;
 
 import java.io.IOException;
+import java.util.ArrayList;
 
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
@@ -40,12 +41,14 @@ public class BusDrawable extends Drawable {
 	private final Drawable bus;
 	private final Drawable arrow;
 	private final int heading;
+	private final ArrayList<Integer> additionalHeadings;
 	
-	public BusDrawable(Drawable drawable, int heading, Drawable arrow)
+	public BusDrawable(Drawable drawable, int heading, ArrayList<Integer> additionalHeadings, Drawable arrow)
 	{
 		this.bus = drawable;
 		this.heading = heading;
 		this.arrow = arrow;
+		this.additionalHeadings = additionalHeadings;
 	}
 	
 	@Override
@@ -79,8 +82,27 @@ public class BusDrawable extends Drawable {
 			Rect rect = arrow.getBounds();
 			arrow.draw(canvas);
 			arrow.setBounds(rect);
+			
 			canvas.restore();
-		}
+
+		
+			if (additionalHeadings != null)
+			{
+				for (Integer heading : additionalHeadings)
+				{
+					canvas.save();
+					//set rotation pivot at the center of the arrow image
+					canvas.rotate(heading, arrowLeft + arrowWidth/2, arrowTop + arrowHeight / 2);
+
+					rect = arrow.getBounds();
+					arrow.draw(canvas);
+					arrow.setBounds(rect);
+					
+					canvas.restore();
+				}
+			}
+			
+}
 		
 	}
 
