@@ -761,11 +761,8 @@ public class Main extends MapActivity
 			{
 				//ok, try geocoding
 				
-				//TODO: actually let's wait a second on this
-				//GeocoderAsyncTask geocoderAsyncTask = new GeocoderAsyncTask(this, mapView, query);
-				//geocoderAsyncTask.execute();
-				
-				Toast.makeText(this, "Route " + query + " doesn't exist", Toast.LENGTH_LONG).show();
+				GeocoderAsyncTask geocoderAsyncTask = new GeocoderAsyncTask(this, mapView, query);
+				geocoderAsyncTask.execute();
 			}
 			else
 			{

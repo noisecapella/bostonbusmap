@@ -9,11 +9,15 @@ import boston.Bus.Map.util.Constants;
 import com.google.android.maps.GeoPoint;
 import com.google.android.maps.MapView;
 
+import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.location.Address;
 import android.location.Geocoder;
 import android.os.AsyncTask;
 import android.util.Log;
+import android.view.ContextMenu;
 import android.widget.Toast;
 
 /**
@@ -21,7 +25,7 @@ import android.widget.Toast;
  * @author schneg
  *
  */
-public class GeocoderAsyncTask extends AsyncTask<Object, String, GeoPoint> {
+public class GeocoderAsyncTask extends AsyncTask<Object, String, List<Address>> {
 	private final Context context;
 	private final MapView mapView;
 	private final String query;
@@ -45,11 +49,11 @@ public class GeocoderAsyncTask extends AsyncTask<Object, String, GeoPoint> {
 	}
 	
 	@Override
-	protected GeoPoint doInBackground(Object... params) {
+	protected List<Address> doInBackground(Object... params) {
 		Geocoder geocoder = new Geocoder(context);
 		try
 		{
-			List<Address> addresses = geocoder.getFromLocationName(query, 1, TransitSystem.lowerLeftLat,
+			List<Address> addresses = geocoder.getFromLocationName(query, 5, TransitSystem.lowerLeftLat,
 						TransitSystem.lowerLeftLon, TransitSystem.upperRightLat, TransitSystem.upperRightLon);
 			if (addresses.size() < 1)
 			{
@@ -57,22 +61,17 @@ public class GeocoderAsyncTask extends AsyncTask<Object, String, GeoPoint> {
 			}
 			else
 			{
-				Address address = addresses.get(0);
-				double lon = address.getLongitude();
-				double lat = address.getLatitude();
-				
-				String name = address.getAddressLine(0);
-				if (name == null)
-				{
-					name = "null";
-				}
-				publishProgress("Found a result: " + name);
-				
-				GeoPoint point = new GeoPoint((int)lat * Constants.E6, (int)lon * Constants.E6);
-				return point;
+				return addresses;
 			}
 		}
 		catch (IOException e)
+		{
+			//this is not important enough to risk crashing the phone
+			Log.e("BostonBusMap", e.getMessage());
+			
+			publishProgress("An unknown error occurred while searching for \"" + query + "\"");
+		}
+		catch (IllegalStateException e)
 		{
 			//this is not important enough to risk crashing the phone
 			Log.e("BostonBusMap", e.getMessage());
@@ -83,10 +82,59 @@ public class GeocoderAsyncTask extends AsyncTask<Object, String, GeoPoint> {
 	}
 
 	@Override
-	protected void onPostExecute(GeoPoint point) {
-		if (point != null)
+	protected void onPostExecute(final List<Address> addresses) {
+		if (addresses != null)
 		{
-			mapView.getController().animateTo(point);
+			if (addresses.size() == 1)
+			{
+				//just go to the place
+				Address address = addresses.get(0);
+				Toast.makeText(context, "Found one result: " + makeResultText(address), Toast.LENGTH_LONG).show();
+				zoomToAddress(address);
+			}
+			else
+			{
+				final String[] items = new String[addresses.size()];
+				for (int i = 0; i < items.length; i++)
+				{
+					items[i] = makeResultText(addresses.get(i));
+				}
+
+				AlertDialog.Builder builder = new AlertDialog.Builder(context);
+				builder.setTitle("Pick an address");
+				builder.setItems(items, new DialogInterface.OnClickListener() {
+					public void onClick(DialogInterface dialog, int item) {
+						Address address = addresses.get(item);
+						zoomToAddress(address);
+					}
+				});
+				AlertDialog alert = builder.create();
+				alert.show();
+			}
 		}
+	}
+
+	private void zoomToAddress(Address address)
+	{
+		double lat = address.getLatitude();
+		double lon = address.getLongitude();
+		GeoPoint point = new GeoPoint((int)(lat * Constants.E6), (int)(lon * Constants.E6));
+		mapView.getController().animateTo(point);
+	}
+	
+	private String makeResultText(Address address) {
+		String ret = address.getAddressLine(0);
+		if (ret == null)
+		{
+			return "(no description)";
+		}
+		
+		String city = address.getLocality();
+		if (city != null)
+		{
+			ret += ", " + city;
+		}
+		
+		return ret;
 	}
 }
