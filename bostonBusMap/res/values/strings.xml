@@ -24,6 +24,6 @@ Are any enabled (like GPS) in your system settings?</string>
 <string name="locationUnavailable">Current location is unavailable</string>
 
 
-<string name="search_hint">Search routes</string>
+<string name="search_hint">Search routes and places</string>
 <string name="search">Search</string>
 </resources>
