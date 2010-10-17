@@ -32,6 +32,12 @@ public class TransitSystem {
 	
 	private static final String website = "http://www.terribleinformation.org/george/bostonbusmap";
 	
+	//these four variables cover a very wide area just in case
+	public static final double lowerLeftLat = 41.582579601430346;
+	public static final double lowerLeftLon = -72.0428466796875;
+	public static final double upperRightLat = 42.74701217318067;
+	public static final double upperRightLon = -69.774169921875;
+	
 	
 	public static double getCenterLat() {
 		return bostonLatitude;

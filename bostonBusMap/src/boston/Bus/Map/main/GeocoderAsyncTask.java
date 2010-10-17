@@ -3,6 +3,7 @@ package boston.Bus.Map.main;
 import java.io.IOException;
 import java.util.List;
 
+import boston.Bus.Map.transit.TransitSystem;
 import boston.Bus.Map.util.Constants;
 
 import com.google.android.maps.GeoPoint;
@@ -15,15 +16,27 @@ import android.os.AsyncTask;
 import android.util.Log;
 import android.widget.Toast;
 
+/**
+ * Translate an address or other string into a lat/lon
+ * @author schneg
+ *
+ */
 public class GeocoderAsyncTask extends AsyncTask<Object, String, GeoPoint> {
 	private final Context context;
 	private final MapView mapView;
 	private final String query;
 	
+	private final double currentLat;
+	private final double currentLon;
+	
 	public GeocoderAsyncTask(Context context, MapView mapView, String query) {
 		this.context = context;
 		this.mapView = mapView;
 		this.query = query;
+		
+		GeoPoint geoPoint = mapView.getMapCenter();
+		currentLat = geoPoint.getLatitudeE6() / (float)Constants.E6;
+		currentLon = geoPoint.getLongitudeE6() / (float)Constants.E6;
 	}
 
 	@Override
@@ -36,7 +49,8 @@ public class GeocoderAsyncTask extends AsyncTask<Object, String, GeoPoint> {
 		Geocoder geocoder = new Geocoder(context);
 		try
 		{
-			List<Address> addresses = geocoder.getFromLocationName(query, 1);
+			List<Address> addresses = geocoder.getFromLocationName(query, 1, TransitSystem.lowerLeftLat,
+						TransitSystem.lowerLeftLon, TransitSystem.upperRightLat, TransitSystem.upperRightLon);
 			if (addresses.size() < 1)
 			{
 				publishProgress("No results found for \"" + query + "\"");
