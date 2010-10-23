@@ -10,7 +10,7 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteQueryBuilder;
 import android.net.Uri;
 
-public class RouteContentProvider extends ContentProvider {
+public class TransitContentProvider extends ContentProvider {
 
 	private TransitSystem transit;
 	private UriMatcher matcher;
@@ -25,7 +25,7 @@ public class RouteContentProvider extends ContentProvider {
 	
 	public static final Uri CONTENT_URI = Uri.parse("content://" + providerName);
 	
-	public RouteContentProvider()
+	public TransitContentProvider()
 	{
 		matcher = new UriMatcher(UriMatcher.NO_MATCH);
 		matcher.addURI(providerName, "routes", ROUTES_CODE);
