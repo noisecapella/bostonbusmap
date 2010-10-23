@@ -26,6 +26,7 @@
                android:value=".main.SearchResults" />
 		
 	<uses-library android:name="android.test.runner"></uses-library>
+	<provider android:name=".provider.RouteContentProvider" android:authorities="com.bostonbusmap.transitprovider"></provider>
 </application>
 
 	<!-- <supports-screens></supports-screens>-->
