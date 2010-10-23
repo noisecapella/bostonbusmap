@@ -85,8 +85,12 @@ public class DatabaseHelper extends SQLiteOpenHelper
 	
 	public final static int CURRENT_DB_VERSION = ADDED_PLATFORM_ORDER;
 	
-	public DatabaseHelper(Context context) {
+	private final Drawable busStop;
+
+	public DatabaseHelper(Context context, Drawable busStop) {
 		super(context, dbName, null, CURRENT_DB_VERSION);
+		
+		this.busStop = busStop;
 	}
 
 	@Override
@@ -223,7 +227,7 @@ public class DatabaseHelper extends SQLiteOpenHelper
 
 				cursor.moveToNext();
 			}
-		}		
+		}
 		finally
 		{
 			database.close();
@@ -376,7 +380,8 @@ public class DatabaseHelper extends SQLiteOpenHelper
 				cursor.moveToFirst();
 				byte[] data = cursor.getBlob(0);
 				Box box = new Box(data, CURRENT_DB_VERSION, sharedStops);
-				RouteConfig routeConfig = new RouteConfig(box, transitSystem.getTransitSource(routeToUpdate));
+				RouteConfig routeConfig = new RouteConfig(box, busStop, 
+						transitSystem.getTransitSource(routeToUpdate));
 				return routeConfig;
 			}
 		}

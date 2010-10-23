@@ -257,10 +257,4 @@ public class SubwayTransitSource implements TransitSource {
 	public HashMap<String, String> getRouteKeysToTitles() {
 		return subwayRouteKeysToTitles;
 	}
-
-
-	@Override
-	public Drawable getBusStopDrawable() {
-		return busStop;
-	}
 }
