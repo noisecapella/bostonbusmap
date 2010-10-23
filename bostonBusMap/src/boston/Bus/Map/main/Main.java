@@ -247,7 +247,7 @@ public class Main extends MapActivity
         toggleButton.setAdapter(modeSpinnerAdapter);
 
         
-        DatabaseHelper helper = new DatabaseHelper(this, busStop);
+        DatabaseHelper helper = new DatabaseHelper(this);
         
         
         dropdownRoutes = transitSystem.getRoutes();

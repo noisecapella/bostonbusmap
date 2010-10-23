@@ -134,8 +134,7 @@ public class TestSerialization extends TestCase {
 		
 		Box inputBox = new Box(blob, DatabaseHelper.CURRENT_DB_VERSION, sharedStops);
 		
-		RouteConfig routeConfig2 = new RouteConfig(inputBox, null,
-				new MBTABusTransitSource(null, null, null));
+		RouteConfig routeConfig2 = new RouteConfig(inputBox, new MBTABusTransitSource(null, null, null));
 		
 		Box outputBox2 = new Box(null, DatabaseHelper.CURRENT_DB_VERSION, sharedStops);
 		routeConfig2.serialize(outputBox2);

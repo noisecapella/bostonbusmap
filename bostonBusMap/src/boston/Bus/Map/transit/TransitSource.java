@@ -9,6 +9,7 @@ import org.apache.http.client.ClientProtocolException;
 import org.xml.sax.SAXException;
 
 import android.content.Context;
+import android.graphics.drawable.Drawable;
 import boston.Bus.Map.data.BusLocation;
 import boston.Bus.Map.data.Directions;
 import boston.Bus.Map.data.Locations;
@@ -37,4 +38,6 @@ public interface TransitSource {
 	public String[] getRoutes();
 	
 	public HashMap<String, String> getRouteKeysToTitles();
+
+	Drawable getBusStopDrawable();
 }
