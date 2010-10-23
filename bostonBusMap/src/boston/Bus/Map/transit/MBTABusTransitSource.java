@@ -521,6 +521,12 @@ public class MBTABusTransitSource implements TransitSource
 	public HashMap<String, String> getRouteKeysToTitles() {
 		return routeKeysToTitles;
 	}
+
+
+	@Override
+	public Drawable getBusStopDrawable() {
+		return busStop;
+	}
 	
 
 }
