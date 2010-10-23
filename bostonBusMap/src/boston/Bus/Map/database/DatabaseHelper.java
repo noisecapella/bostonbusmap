@@ -538,35 +538,4 @@ public class DatabaseHelper extends SQLiteOpenHelper
 			database.close();
 		}
 	}
-
-	public Cursor getCursorForRoutes() {
-		SQLiteDatabase database = getReadableDatabase();
-		Cursor cursor = database.query(blobsTable, new String[]{blobKey}, null,
-				null, null, null, null);
-		return cursor;
-	}
-	
-	public Cursor getCursorForRoute(String routeName)
-	{
-		SQLiteDatabase database = getReadableDatabase();
-		Cursor cursor = database.query(blobsTable, new String[]{blobKey}, routeKey + "=?",
-				new String[]{routeName}, null, null, null);
-		return cursor;
-	}
-
-	public Cursor getCursorForDirections() {
-		SQLiteDatabase database = getReadableDatabase();
-		Cursor cursor = database.query(directionsTable, new String[]{dirTagKey, dirNameKey, dirTitleKey, dirRouteKey},
-				null, null, null, null, null);
-		return cursor;
-	}
-	
-	public Cursor getCursorForDirection(String dirTag) {
-		SQLiteDatabase database = getReadableDatabase();
-		Cursor cursor = database.query(directionsTable, new String[]{dirTagKey, dirNameKey, dirTitleKey, dirRouteKey},
-				dirTagKey + "=?", new String[]{dirTag}, null, null, null);
-		return cursor;
-	}
-	
-	
 }

@@ -17,9 +17,7 @@ import boston.Bus.Map.transit.TransitSystem;
 public class RoutePool {
 	private final DatabaseHelper helper;
 	
-	/**
-	 * list of routes, in order of first in, first out. Used to figure out the oldest routes to get rid of
-	 */
+	
 	private final LinkedList<String> priorities = new LinkedList<String>();
 	private final HashMap<String, RouteConfig> pool = new HashMap<String, RouteConfig>();
 	private final HashMap<String, StopLocation> sharedStops = new HashMap<String, StopLocation>();
