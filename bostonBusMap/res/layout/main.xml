@@ -18,11 +18,10 @@
  android:layout_height="wrap_content" android:layout_width="wrap_content"
         android:layout_alignParentRight="true"
  ></Spinner>
-    <ProgressBar android:id="@+android:id/progress_small"
+    <ProgressBar android:id="@+id/progress"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-android:layout_toLeftOf="@+id/predictionsOrLocations"
-          />
+android:layout_toLeftOf="@+id/predictionsOrLocations" android:indeterminateOnly="true" android:indeterminate="true"/>
 
 </RelativeLayout>
 	<com.google.android.maps.MapView

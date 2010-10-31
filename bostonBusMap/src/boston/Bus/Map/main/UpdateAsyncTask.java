@@ -64,16 +64,18 @@ import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
 import android.os.Handler;
 import android.util.Log;
+import android.view.View;
+import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 /**
  * Handles the heavy work of downloading and parsing the XML in a separate thread from the UI.
  *
  */
-public class UpdateAsyncTask extends AsyncTask<Object, String, Locations>
+public class UpdateAsyncTask extends AsyncTask<Object, Object, Locations>
 {
 	private final MapView mapView;
-	private final String finalMessage;
 	private final boolean doShowUnpredictable;
 	private final boolean doRefresh;
 	/**
@@ -83,7 +85,7 @@ public class UpdateAsyncTask extends AsyncTask<Object, String, Locations>
 	private final int maxOverlays;
 	private final boolean drawCircle;
 	private final DatabaseHelper helper;
-	private TextView textView;
+	private ProgressBar progress;
 	
 	private boolean silenceUpdates;
 	
@@ -98,8 +100,9 @@ public class UpdateAsyncTask extends AsyncTask<Object, String, Locations>
 	private final boolean showRouteLine;
 	private final boolean showCoarseRouteLine;
 	private final TransitSystem transitSystem;
+	private final Context context;
 	
-	public UpdateAsyncTask(TextView textView, MapView mapView, LocationOverlay locationOverlay, String finalMessage,
+	public UpdateAsyncTask(ProgressBar progress, MapView mapView, LocationOverlay locationOverlay,
 			boolean doShowUnpredictable, boolean doRefresh, int maxOverlays,
 			boolean drawCircle, boolean inferBusRoutes, BusOverlay busOverlay, RouteOverlay routeOverlay, 
 			DatabaseHelper helper, String routeToUpdate,
@@ -110,7 +113,7 @@ public class UpdateAsyncTask extends AsyncTask<Object, String, Locations>
 		
 		//NOTE: these should only be used in one of the UI threads
 		this.mapView = mapView;
-		this.finalMessage = finalMessage;
+		this.context = mapView.getContext();
 		this.doShowUnpredictable = doShowUnpredictable;
 		this.doRefresh = doRefresh;
 		this.maxOverlays = maxOverlays;
@@ -120,7 +123,7 @@ public class UpdateAsyncTask extends AsyncTask<Object, String, Locations>
 		this.routeOverlay = routeOverlay;
 		this.locationOverlay = locationOverlay;
 		this.helper = helper;
-		this.textView = textView;
+		this.progress = progress;
 		this.routeToUpdate = routeToUpdate;
 		this.selectedBusPredictions = selectedBusPredictions;
 		this.doInit = doInit;
@@ -146,11 +149,20 @@ public class UpdateAsyncTask extends AsyncTask<Object, String, Locations>
 	}
 
 	@Override
-	protected void onProgressUpdate(String... strings)
+	protected void onProgressUpdate(Object... strings)
 	{
-		if (silenceUpdates == false && textView != null)
+		if (silenceUpdates == false)
 		{
-			textView.setText(strings[0]);
+			Object string = strings[0];
+			if (string instanceof String)
+			{
+				Toast.makeText(context, (String)string, Toast.LENGTH_LONG).show();
+			}
+			else if (string instanceof Boolean && progress != null)
+			{
+				boolean b = (Boolean)string;
+				progress.setVisibility(b ? View.VISIBLE : View.INVISIBLE);
+			}
 		}
 		
 	}
@@ -166,10 +178,13 @@ public class UpdateAsyncTask extends AsyncTask<Object, String, Locations>
 		
 		busLocations.select(routeToUpdate, selectedBusPredictions);
 
+		
 		if (doRefresh)
 		{
 			try
 			{
+				publishProgress(true);
+				
 				String[] allRoutes = transitSystem.getRoutes();
 				if (doInit)
 				{
@@ -187,9 +202,6 @@ public class UpdateAsyncTask extends AsyncTask<Object, String, Locations>
 				}
 				busLocations.initializeAllRoutes(this, context, allRoutes);
 				
-				
-				publishProgress("Fetching data...");
-
 				busLocations.Refresh(inferBusRoutes, routeToUpdate, selectedBusPredictions,
 						centerLatitude, centerLongitude, this, showRouteLine);
 			}
@@ -264,12 +276,14 @@ public class UpdateAsyncTask extends AsyncTask<Object, String, Locations>
 				
 				return null;
 			}
+			finally
+			{
+				//we should always set the icon to invisible afterwards just in case
+				publishProgress(false);
+			}
 		}
-		publishProgress("Preparing to draw overlays...");
-		
-		publishProgress("Adding overlays to map...");
-		
-    	return busLocations;
+
+		return busLocations;
     }
 	
 	@Override
@@ -437,11 +451,6 @@ public class UpdateAsyncTask extends AsyncTask<Object, String, Locations>
 		
 		//make sure we redraw map
 		mapView.invalidate();
-		
-		if (finalMessage != null)
-		{
-			publishProgress(finalMessage);
-		}
 	}
 	
 	/**
@@ -457,8 +466,8 @@ public class UpdateAsyncTask extends AsyncTask<Object, String, Locations>
 	 * This should be run in the UI thread so that we don't change the textView object while it's being used
 	 * @param textView
 	 */
-	public void setTextView(TextView textView)
+	public void setProgress(ProgressBar progress)
 	{
-		this.textView = textView;
+		this.progress = progress;
 	}
 }

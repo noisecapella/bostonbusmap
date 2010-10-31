@@ -99,6 +99,7 @@ import android.widget.EditText;
 import android.widget.Gallery;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 import android.widget.SimpleAdapter;
 import android.widget.Spinner;
 import android.widget.SpinnerAdapter;
@@ -160,6 +161,7 @@ public class Main extends MapActivity
 	private String[] dropdownRoutes;
 	private HashMap<String, String> dropdownRouteKeysToTitles;
 	private AlertDialog routeChooserDialog;
+	private ProgressBar progress;
 	
 	public static final int VEHICLE_LOCATIONS_ALL = 1;
 	public static final int BUS_PREDICTIONS_ONE = 2;
@@ -195,6 +197,10 @@ public class Main extends MapActivity
         mapView = (MapView)findViewById(R.id.mapview);
         toggleButton = (Spinner)findViewById(R.id.predictionsOrLocations);
         searchView = (EditText)findViewById(R.id.searchTextView);
+        progress = (ProgressBar)findViewById(R.id.progress);
+        
+        progress.setVisibility(View.INVISIBLE);
+        
         
         Resources resources = getResources();
 
@@ -305,7 +311,7 @@ public class Main extends MapActivity
         	//continue posting status updates on new textView
         	if (majorHandler != null)
         	{
-        		majorHandler.setTextView(null);
+        		majorHandler.setProgress(progress);
         	}
         }
         else
