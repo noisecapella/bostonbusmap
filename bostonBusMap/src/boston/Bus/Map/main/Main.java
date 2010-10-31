@@ -54,8 +54,10 @@ import com.google.android.maps.Overlay;
 import com.google.android.maps.OverlayItem;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.SearchManager;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Resources;
@@ -93,6 +95,7 @@ import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CheckBox;
+import android.widget.EditText;
 import android.widget.Gallery;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
@@ -116,7 +119,7 @@ public class Main extends MapActivity
 	private static final String centerLonKey = "centerLon";
 	private static final String zoomLevelKey = "zoomLevel";
 	private MapView mapView;
-	private TextView textView;
+	private EditText searchView;
 	
 	
 	
@@ -155,8 +158,8 @@ public class Main extends MapActivity
 	 * The list of routes that's selectable in the routes dropdown list
 	 */
 	private String[] dropdownRoutes;
-	private Spinner modeSpinner;
 	private HashMap<String, String> dropdownRouteKeysToTitles;
+	private AlertDialog routeChooserDialog;
 	
 	public static final int VEHICLE_LOCATIONS_ALL = 1;
 	public static final int BUS_PREDICTIONS_ONE = 2;
@@ -177,6 +180,7 @@ public class Main extends MapActivity
 	};
 	
 	
+	
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -189,9 +193,8 @@ public class Main extends MapActivity
         
         //get widgets
         mapView = (MapView)findViewById(R.id.mapview);
-        textView = (TextView)findViewById(R.id.statusView);
         toggleButton = (Spinner)findViewById(R.id.predictionsOrLocations);
-        modeSpinner = (Spinner)findViewById(R.id.modeSpinner);
+        searchView = (EditText)findViewById(R.id.searchTextView);
         
         Resources resources = getResources();
 
@@ -253,8 +256,19 @@ public class Main extends MapActivity
         dropdownRoutes = transitSystem.getRoutes();
         dropdownRouteKeysToTitles = transitSystem.getRouteKeysToTitles();
         
-        modeSpinner.setAdapter(makeRouteSpinnerAdapter(dropdownRoutes, dropdownRouteKeysToTitles));
+        String[] routeTitles = getRouteTitles(dropdownRoutes, dropdownRouteKeysToTitles);
         
+		AlertDialog.Builder builder = new AlertDialog.Builder(this);
+		builder.setTitle("Choose a route");
+		builder.setItems(routeTitles, new DialogInterface.OnClickListener() {
+		    public void onClick(DialogInterface dialog, int item) {
+		    	setNewRoute(item);
+		    	
+		    }
+		});
+		routeChooserDialog = builder.create();
+		
+		
         //get the busLocations variable if it already exists. We need to do that step here since handler
         double lastUpdateTime = 0;
         boolean previousUpdateConstantly = false;
@@ -265,7 +279,7 @@ public class Main extends MapActivity
         if (lastNonConfigurationInstance != null)
         {
         	CurrentState currentState = (CurrentState)lastNonConfigurationInstance;
-        	currentState.restoreWidgets(textView);
+        	currentState.restoreWidgets();
         	
         	busOverlay = currentState.cloneBusOverlay(this, mapView, dropdownRouteKeysToTitles);
         	routeOverlay = currentState.cloneRouteOverlay(mapView.getProjection());
@@ -291,7 +305,7 @@ public class Main extends MapActivity
         	//continue posting status updates on new textView
         	if (majorHandler != null)
         	{
-        		majorHandler.setTextView(textView);
+        		majorHandler.setTextView(null);
         	}
         }
         else
@@ -307,31 +321,20 @@ public class Main extends MapActivity
         			helper, transitSystem);
         }
 
-        handler = new UpdateHandler(textView, mapView, arrow, tooltip, busLocations, 
+        handler = new UpdateHandler(null, mapView, arrow, tooltip, busLocations, 
         		this, helper, busOverlay, routeOverlay, myLocationOverlay, majorHandler, transitSystem);
         busOverlay.setUpdateable(handler);
         myLocationOverlay.setUpdateable(handler);
         
         populateHandlerSettings();
-        modeSpinner.setOnItemSelectedListener(new OnItemSelectedListener() {
-
-			@Override
-			public void onItemSelected(AdapterView<?> parent, View view,
-					int position, long id) {
-				setNewRoute(position);
-			}
-
-			@Override
-			public void onNothingSelected(AdapterView<?> parent) {
-			}
-		});
-
         
         if (lastNonConfigurationInstance != null)
         {
-        	modeSpinner.setSelection(selectedRouteIndex);
+        	String route = dropdownRoutes[selectedRouteIndex];
+        	String routeTitle = dropdownRouteKeysToTitles.get(route);
+        	searchView.setText(routeTitle);
         	handler.setSelectedBusPredictions(getSelectedBusPredictions());
-        	handler.setRouteToUpdate(dropdownRoutes[selectedRouteIndex]);
+        	handler.setRouteToUpdate(route);
         }
         else
         {
@@ -342,9 +345,11 @@ public class Main extends MapActivity
             selectedRouteIndex = prefs.getInt(selectedRouteIndexKey, 0);
             setSelectedBusPredictions(prefs.getInt(selectedBusPredictionsKey, VEHICLE_LOCATIONS_ALL));
             
-            modeSpinner.setSelection(selectedRouteIndex);
-            handler.setRouteToUpdate(dropdownRoutes[selectedRouteIndex]);
+        	String route = dropdownRoutes[selectedRouteIndex];
+        	String routeTitle = dropdownRouteKeysToTitles.get(route);
+        	searchView.setText(routeTitle);
             handler.setSelectedBusPredictions(getSelectedBusPredictions());
+            handler.setRouteToUpdate(route);
 
             if (centerLat != Integer.MAX_VALUE && centerLon != Integer.MAX_VALUE && zoomLevel != Integer.MAX_VALUE)
             {
@@ -365,7 +370,6 @@ public class Main extends MapActivity
             	controller.setZoom(14);
             }
         	//make the textView blank
-        	textView.setText("");
         }
         
         handler.setLastUpdateTime(lastUpdateTime);
@@ -381,7 +385,24 @@ public class Main extends MapActivity
         
     }
 		
-    private void setNewRoute(int position)
+    private static String[] getRouteTitles(String[] dropdownRoutes,
+			HashMap<String, String> dropdownRouteKeysToTitles) {
+    	String[] ret = new String[dropdownRoutes.length];
+    	for (int i = 0; i < dropdownRoutes.length; i++)
+    	{
+    		String route = dropdownRoutes[i];
+    		ret[i] = dropdownRouteKeysToTitles.get(route);
+    		
+    		if (ret[i] == null)
+    		{
+    			ret[i] = route;
+    		}
+    	}
+    	
+    	return ret;
+	}
+
+	private void setNewRoute(int position)
     {
 		if (firstRunRoute)
 		{
@@ -518,7 +539,7 @@ public class Main extends MapActivity
 			mapView = null;
 		}
 		
-		textView = null;
+		searchView = null;
 		
 		busStop = null;
 		toggleButton = null;
@@ -537,7 +558,7 @@ public class Main extends MapActivity
     		boolean b = handler.instantRefresh();
     		if (b == false)
     		{
-    			textView.setText("Please wait 10 seconds before clicking Refresh again");
+    			Toast.makeText(this, "Please wait 10 seconds before clicking Refresh again", Toast.LENGTH_LONG).show();
     		}
     		break;
     	case R.id.settingsMenuItem:
@@ -571,6 +592,11 @@ public class Main extends MapActivity
     	case R.id.search:
     		Log.v("BostonBusMap", "clicked search in menu");
     		onSearchRequested();
+    		break;
+    	
+    	case R.id.chooseRoute:
+    		Log.v("BostonBusMap", "choosing a route");
+
     		break;
     	}
     	return true;
@@ -668,7 +694,7 @@ public class Main extends MapActivity
 		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
 		boolean updateConstantly = prefs.getBoolean(getString(R.string.runInBackgroundCheckbox), true);
 		
-		return new CurrentState(textView, busLocations, handler.getLastUpdateTime(), updateConstantly,
+		return new CurrentState(busLocations, handler.getLastUpdateTime(), updateConstantly,
 				selectedRouteIndex, getSelectedBusPredictions(), busOverlay, routeOverlay,
 				myLocationOverlay, handler.getMajorHandler());
 	}
@@ -768,7 +794,9 @@ public class Main extends MapActivity
 			{
 				//it's a route!
 				setNewRoute(routeIndex);
-				modeSpinner.setSelection(routeIndex);
+				String route = dropdownRoutes[routeIndex];
+				String routeTitle = dropdownRouteKeysToTitles.get(route);
+				searchView.setText(routeTitle);
 			}
 		}
 	}

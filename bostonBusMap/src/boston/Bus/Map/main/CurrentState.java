@@ -23,7 +23,6 @@ import com.google.android.maps.Projection;
  *
  */
 public class CurrentState {
-	private final CharSequence textViewStatus;
 	private final double lastUpdateTime;
 	private final Locations busLocations;
 	private final boolean updateConstantly;
@@ -34,20 +33,11 @@ public class CurrentState {
 	private final LocationOverlay myLocationOverlay;
 	private final UpdateAsyncTask majorHandler;
 	
-	public CurrentState(TextView textView,
-			Locations busLocations, double lastUpdateTime, boolean updateConstantly,
+	public CurrentState(Locations busLocations, double lastUpdateTime, boolean updateConstantly,
 			int selectedRouteIndex, int selectedBusPredictions, BusOverlay busOverlay, RouteOverlay routeOverlay,
 			LocationOverlay myLocationOverlay,
 			UpdateAsyncTask majorHandler) 
 	{
-		if (textView == null)
-		{
-			textViewStatus = "";
-		}
-		else
-		{
-			textViewStatus = textView.getText();
-		}
 		this.busLocations = busLocations;
 		this.lastUpdateTime = lastUpdateTime;
 		this.updateConstantly = updateConstantly;
@@ -69,12 +59,8 @@ public class CurrentState {
 		return busLocations;
 	}
 	
-	public void restoreWidgets(TextView textView)
+	public void restoreWidgets()
 	{
-		if (textView != null && textViewStatus.length() != 0)
-		{
-			textView.setText(textViewStatus);
-		}
 	}
 
 	public boolean getUpdateConstantly() {

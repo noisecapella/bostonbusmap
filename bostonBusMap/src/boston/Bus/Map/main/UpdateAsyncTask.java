@@ -148,7 +148,7 @@ public class UpdateAsyncTask extends AsyncTask<Object, String, Locations>
 	@Override
 	protected void onProgressUpdate(String... strings)
 	{
-		if (silenceUpdates == false)
+		if (silenceUpdates == false && textView != null)
 		{
 			textView.setText(strings[0]);
 		}

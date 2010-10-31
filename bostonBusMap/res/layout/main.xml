@@ -7,21 +7,28 @@
 		android:layout_width="wrap_content" android:layout_height="wrap_content"
 		 android:orientation="horizontal" android:padding="3dp" android:background="#000000">
 	
+
+		
+<EditText android:layout_width="wrap_content" android:layout_height="wrap_content"
+ android:id="@+id/searchTextView" android:hint="@string/searchHint"
+ android:layout_alignParentLeft="true"></EditText>
+
 <Spinner android:id="@+id/predictionsOrLocations"
-android:layout_alignParentRight="true"
- android:layout_height="wrap_content" android:layout_width="wrap_content"></Spinner>
-<Spinner android:layout_width="wrap_content" android:layout_height="wrap_content" 
-android:layout_toLeftOf="@+id/predictionsOrLocations"
-android:id="@+id/modeSpinner"
+
+ android:layout_height="wrap_content" android:layout_width="wrap_content"
+        android:layout_alignParentRight="true"
  ></Spinner>
-		<TextView android:id="@+id/statusView"
-			android:layout_width="wrap_content" android:layout_height="wrap_content" 
-			android:text="" android:layout_toLeftOf="@+id/modeSpinner" android:layout_alignParentLeft="true"></TextView>
+    <ProgressBar android:id="@+android:id/progress_small"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+android:layout_toLeftOf="@+id/predictionsOrLocations"
+          />
+
 </RelativeLayout>
 	<com.google.android.maps.MapView
 		android:id="@+id/mapview" android:layout_width="fill_parent"
 		android:layout_height="fill_parent" android:clickable="true"
-		android:apiKey="04_mZq9Q_5sL2pltlDIYof4iIQimS_U5YPnRafg" />
+		android:apiKey="0UeumldxhB0bPpe6UgModFrG5tLPAwclzgqJhRg" />
 <!--  debug key: 0UeumldxhB0bPpe6UgModFrG5tLPAwclzgqJhRg -->
 <!--  release key: 04_mZq9Q_5sL2pltlDIYof4iIQimS_U5YPnRafg -->
 
