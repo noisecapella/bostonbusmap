@@ -89,7 +89,9 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.MenuItem.OnMenuItemClickListener;
 import android.view.View.OnClickListener;
+import android.view.View.OnKeyListener;
 import android.view.View.OnTouchListener;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
@@ -104,6 +106,7 @@ import android.widget.SimpleAdapter;
 import android.widget.Spinner;
 import android.widget.SpinnerAdapter;
 import android.widget.TextView;
+import android.widget.TextView.OnEditorActionListener;
 import android.widget.Toast;
 import android.widget.ZoomControls;
 import android.widget.AdapterView.OnItemSelectedListener;
@@ -162,6 +165,7 @@ public class Main extends MapActivity
 	private HashMap<String, String> dropdownRouteKeysToTitles;
 	private AlertDialog routeChooserDialog;
 	private ProgressBar progress;
+	private ImageButton searchButton;
 	
 	public static final int VEHICLE_LOCATIONS_ALL = 1;
 	public static final int BUS_PREDICTIONS_ONE = 2;
@@ -198,9 +202,25 @@ public class Main extends MapActivity
         toggleButton = (Spinner)findViewById(R.id.predictionsOrLocations);
         searchView = (EditText)findViewById(R.id.searchTextView);
         progress = (ProgressBar)findViewById(R.id.progress);
+        searchButton = (ImageButton)findViewById(R.id.searchButton);
         
         progress.setVisibility(View.INVISIBLE);
         
+        searchView.setOnClickListener(new OnClickListener() {
+			
+			@Override
+			public void onClick(View v) {
+				onSearchRequested();
+			}
+		});
+        
+        searchButton.setOnClickListener(new OnClickListener() {
+			
+			@Override
+			public void onClick(View v) {
+				onSearchRequested();
+			}
+		});
         
         Resources resources = getResources();
 
@@ -391,7 +411,7 @@ public class Main extends MapActivity
         
     }
 		
-    private static String[] getRouteTitles(String[] dropdownRoutes,
+	private static String[] getRouteTitles(String[] dropdownRoutes,
 			HashMap<String, String> dropdownRouteKeysToTitles) {
     	String[] ret = new String[dropdownRoutes.length];
     	for (int i = 0; i < dropdownRoutes.length; i++)
@@ -765,45 +785,53 @@ public class Main extends MapActivity
 	public void onNewIntent(Intent newIntent) {
 		//since Main is marked singletop, it only uses one activity and onCreate won't get called. Use this to handle search requests 
 		Log.v("BostonBusMap", "onNewIntent called");
-		
 		if (Intent.ACTION_SEARCH.equals(newIntent.getAction()))
 		{
 			String query = newIntent.getStringExtra(SearchManager.QUERY);
-			
+
 			if (query == null)
 			{
 				return;
 			}
-			
-			if (dropdownRoutes == null || dropdownRouteKeysToTitles == null)
-			{
-				return;
-			}
-			
-			int routeIndex = searchRoutes(query);
-			if (routeIndex == IS_GREEN_LINE)
-			{
-				//we know what this is, don't try to search for it
-			}
-			else if (routeIndex == IS_NUMBER)
-			{
-				//user probably mistyped a route number
-			}
-			else if (routeIndex == IS_NOTHING)
-			{
-				//ok, try geocoding
-				
-				GeocoderAsyncTask geocoderAsyncTask = new GeocoderAsyncTask(this, mapView, query);
-				geocoderAsyncTask.execute();
-			}
-			else
-			{
-				//it's a route!
-				setNewRoute(routeIndex);
-				String route = dropdownRoutes[routeIndex];
-				String routeTitle = dropdownRouteKeysToTitles.get(route);
-				searchView.setText(routeTitle);
-			}
+
+			runSearch(query);
+		}
+	}
+
+	/**
+	 * Search for query and do whatever actions we do when that happens
+	 * @param query
+	 */
+	public void runSearch(String query)
+	{
+		if (dropdownRoutes == null || dropdownRouteKeysToTitles == null)
+		{
+			return;
+		}
+
+		int routeIndex = searchRoutes(query);
+		if (routeIndex == IS_GREEN_LINE)
+		{
+			//we know what this is, don't try to search for it
+		}
+		else if (routeIndex == IS_NUMBER)
+		{
+			//user probably mistyped a route number
+		}
+		else if (routeIndex == IS_NOTHING)
+		{
+			//ok, try geocoding
+
+			GeocoderAsyncTask geocoderAsyncTask = new GeocoderAsyncTask(this, mapView, query);
+			geocoderAsyncTask.execute();
+		}
+		else
+		{
+			//it's a route!
+			setNewRoute(routeIndex);
+			String route = dropdownRoutes[routeIndex];
+			String routeTitle = dropdownRouteKeysToTitles.get(route);
+			searchView.setText(routeTitle);
 		}
 	}
 

@@ -5,13 +5,14 @@
 
 	<RelativeLayout
 		android:layout_width="wrap_content" android:layout_height="wrap_content"
-		 android:orientation="horizontal" android:padding="3dp" android:background="#000000">
+		 android:orientation="horizontal" android:padding="3dp" android:background="#bbbbbb">
 	
 
 		
 <EditText android:layout_width="wrap_content" android:layout_height="wrap_content"
  android:id="@+id/searchTextView" android:hint="@string/searchHint"
- android:layout_alignParentLeft="true"></EditText>
+ android:layout_alignParentLeft="true"
+ android:inputType="text" android:imeActionId="1" android:imeOptions="actionGo" android:focusable="false" android:focusableInTouchMode="false"></EditText>
 
 <Spinner android:id="@+id/predictionsOrLocations"
 
@@ -23,6 +24,10 @@
         android:layout_height="wrap_content"
 android:layout_toLeftOf="@+id/predictionsOrLocations" android:indeterminateOnly="true" android:indeterminate="true"/>
 
+<ImageButton android:layout_width="wrap_content" android:layout_height="wrap_content" 
+android:id="@+id/searchButton"
+ android:layout_toRightOf="@+id/searchTextView" android:layout_alignTop="@+id/searchTextView"
+  android:layout_alignBottom="@+id/searchTextView" android:src="@drawable/ic_btn_search"></ImageButton>
 </RelativeLayout>
 	<com.google.android.maps.MapView
 		android:id="@+id/mapview" android:layout_width="fill_parent"
