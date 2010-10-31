@@ -131,6 +131,7 @@ public class UpdateAsyncTask extends AsyncTask<Object, Object, Locations>
 		this.showCoarseRouteLine = showCoarseRouteLine;
 		//this.uiHandler = new Handler();
 		this.transitSystem = transitSystem;
+		this.progress = progress;
 	}
 	
 	/**
@@ -156,12 +157,18 @@ public class UpdateAsyncTask extends AsyncTask<Object, Object, Locations>
 			Object string = strings[0];
 			if (string instanceof String)
 			{
+				Log.v("BostonBusMap", "Toast made: " + string);
 				Toast.makeText(context, (String)string, Toast.LENGTH_LONG).show();
 			}
 			else if (string instanceof Boolean && progress != null)
 			{
 				boolean b = (Boolean)string;
+				Log.v("BostonBusMap", "turning progress " + (b ? "on" : "off"));
 				progress.setVisibility(b ? View.VISIBLE : View.INVISIBLE);
+			}
+			else if (progress == null)
+			{
+				Log.v("BostonBusMap", "WARNING: progress is null");
 			}
 		}
 		

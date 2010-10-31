@@ -327,7 +327,7 @@ public class Main extends MapActivity
         			helper, transitSystem);
         }
 
-        handler = new UpdateHandler(null, mapView, arrow, tooltip, busLocations, 
+        handler = new UpdateHandler(progress, mapView, arrow, tooltip, busLocations, 
         		this, helper, busOverlay, routeOverlay, myLocationOverlay, majorHandler, transitSystem);
         busOverlay.setUpdateable(handler);
         myLocationOverlay.setUpdateable(handler);
