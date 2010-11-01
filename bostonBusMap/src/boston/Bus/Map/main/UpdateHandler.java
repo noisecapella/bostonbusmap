@@ -18,6 +18,7 @@ import android.graphics.drawable.Drawable;
 import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -57,7 +58,7 @@ public class UpdateHandler extends Handler {
 	private UpdateAsyncTask updateAsyncTask;
 	private UpdateAsyncTask minorUpdate;
 	
-	private final TextView textView;
+	private final ProgressBar progress;
 	private final MapView mapView;
 	private boolean inferBusRoutes;
 	private final Locations busLocations;
@@ -74,12 +75,12 @@ public class UpdateHandler extends Handler {
 	
 	private final TransitSystem transitSystem;
 	
-	public UpdateHandler(TextView textView, MapView mapView,
+	public UpdateHandler(ProgressBar progress, MapView mapView,
 			Drawable arrow, Drawable tooltip, Locations busLocations, Context context, DatabaseHelper helper, BusOverlay busOverlay,
 			RouteOverlay routeOverlay,  LocationOverlay locationOverlay,
 			UpdateAsyncTask majorHandler, TransitSystem transitSystem)
 	{
-		this.textView = textView;
+		this.progress = progress;
 		this.mapView = mapView;
 		this.busLocations = busLocations;
 		this.helper = helper;
@@ -109,7 +110,7 @@ public class UpdateHandler extends Handler {
 			if (currentTime - lastUpdateTime > fetchDelay || msg.arg1 == IMMEDIATE_REFRESH)
 			{
 				//if not too soon, do the update
-				runUpdateTask("Finished update!", isFirstRefresh);
+				runUpdateTask(isFirstRefresh);
 				isFirstRefresh = false;
 			}
 
@@ -142,7 +143,7 @@ public class UpdateHandler extends Handler {
 			//remove duplicate messages
 			removeMessages(MINOR);
 			
-			minorUpdate = new UpdateAsyncTask(textView, mapView, locationOverlay, null, getShowUnpredictable(), false, maxOverlays,
+			minorUpdate = new UpdateAsyncTask(progress, mapView, locationOverlay, getShowUnpredictable(), false, maxOverlays,
 					getHideHighlightCircle() == false, getInferBusRoutes(), busOverlay, routeOverlay, helper,
 					routeToUpdate, selectedBusPredictions, false, getShowRouteLine(), getShowCoarseRouteLine(),
 					transitSystem);
@@ -186,7 +187,7 @@ public class UpdateHandler extends Handler {
 	/**
 	 * executes the update
 	 */
-	private void runUpdateTask(String finalMessage, boolean isFirstTime) {
+	private void runUpdateTask(boolean isFirstTime) {
 		//make sure we don't update too often
 		lastUpdateTime = System.currentTimeMillis();
 
@@ -206,8 +207,7 @@ public class UpdateHandler extends Handler {
 		float centerLongitude = geoPoint.getLongitudeE6() / (float)Constants.E6;
 
 		
-		updateAsyncTask = new UpdateAsyncTask(textView, mapView, locationOverlay, finalMessage,
-				getShowUnpredictable(), true, maxOverlays,
+		updateAsyncTask = new UpdateAsyncTask(progress, mapView, locationOverlay, getShowUnpredictable(), true, maxOverlays,
 				getHideHighlightCircle() == false, getInferBusRoutes(), busOverlay, routeOverlay, helper,
 				routeToUpdate, selectedBusPredictions, isFirstTime, showRouteLine, showCoarseRouteLine,
 				transitSystem);
@@ -231,7 +231,7 @@ public class UpdateHandler extends Handler {
 			return false;
 		}
 
-		runUpdateTask("Finished update!", isFirstRefresh);
+		runUpdateTask(isFirstRefresh);
 		isFirstRefresh = false;
 		return true;
 

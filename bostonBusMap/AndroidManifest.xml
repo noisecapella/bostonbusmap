@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
       package="boston.Bus.Map"
-      android:versionName="3.06" android:versionCode="66">
+      android:versionCode="67" android:versionName="3.07">
 	<application android:label="@string/app_name" android:icon="@drawable/appicon" 
 	android:theme="@style/android:Theme.NoTitleBar"
 	>
@@ -26,6 +26,7 @@
                android:value=".main.SearchResults" />
 		
 	<uses-library android:name="android.test.runner"></uses-library>
+	<provider android:name=".provider.TransitContentProvider" android:authorities="com.bostonbusmap.transitprovider"></provider>
 </application>
 
 	<!-- <supports-screens></supports-screens>-->
