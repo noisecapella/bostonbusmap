@@ -23,6 +23,7 @@ import boston.Bus.Map.provider.TransitContentProvider;
 import boston.Bus.Map.transit.TransitSystem;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
+import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
@@ -72,7 +73,15 @@ public class Preferences extends PreferenceActivity
 				        	   
 				        	   
 				           }
-				       });
+				       })
+				       .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+						
+						@Override
+						public void onClick(DialogInterface dialog, int which) {
+							dialog.cancel();
+							
+						}
+					});
 				AlertDialog alert = builder.create();
 				alert.show();
 			}
