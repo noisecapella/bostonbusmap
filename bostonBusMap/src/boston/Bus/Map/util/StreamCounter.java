@@ -55,7 +55,8 @@ public class StreamCounter extends InputStream
 			}
 		}
 
-		publisher.publish(msg);
+		//NOTE: commenting this out makes this class useless, but for now there's no good place to show this information
+		//publisher.publish(msg);
 	}
 
 	@Override

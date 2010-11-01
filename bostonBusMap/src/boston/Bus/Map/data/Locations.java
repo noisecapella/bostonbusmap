@@ -147,7 +147,6 @@ public final class Locations
 			routeMapping.fillInFavoritesRoutes();
 			//TODO: fill routeMapping somehow
 			
-			task.publish("Done!");
 		}
 		else
 		{
@@ -215,7 +214,6 @@ public final class Locations
 				//populate route overlay (just in case we didn't already)
 				updateAsyncTask.publish("Downloading data for route " + routeToUpdate + "...");
 				populateStops(routeToUpdate, routeConfig);
-				updateAsyncTask.publish("Finished download");
 				
 				return;
 			}
@@ -225,7 +223,6 @@ public final class Locations
 			//populate route overlay (just in case we didn't already)
 			updateAsyncTask.publish("Downloading data for route " + routeToUpdate + "...");
 			populateStops(routeToUpdate, routeConfig);
-			updateAsyncTask.publish("Finished download");
 			return;
 		}
 		

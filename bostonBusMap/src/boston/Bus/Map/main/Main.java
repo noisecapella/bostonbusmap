@@ -353,7 +353,7 @@ public class Main extends MapActivity
         {
         	String route = dropdownRoutes[selectedRouteIndex];
         	String routeTitle = dropdownRouteKeysToTitles.get(route);
-        	searchView.setText(routeTitle);
+        	searchView.setText("Route " + routeTitle);
         	handler.setSelectedBusPredictions(getSelectedBusPredictions());
         	handler.setRouteToUpdate(route);
         }
@@ -368,7 +368,7 @@ public class Main extends MapActivity
             
         	String route = dropdownRoutes[selectedRouteIndex];
         	String routeTitle = dropdownRouteKeysToTitles.get(route);
-        	searchView.setText(routeTitle);
+        	searchView.setText("Route " + routeTitle);
             handler.setSelectedBusPredictions(getSelectedBusPredictions());
             handler.setRouteToUpdate(route);
 
@@ -431,8 +431,8 @@ public class Main extends MapActivity
 			String route = dropdownRoutes[position];
 			handler.setRouteToUpdate(route);
 			Log.v("BostonBusMap", "setting route to " + route);
-			handler.triggerUpdate();
 			handler.immediateRefresh();
+			handler.triggerUpdate(100);
 
 			String routeTitle = dropdownRouteKeysToTitles.get(route);
 			if (searchView != null)
@@ -441,7 +441,7 @@ public class Main extends MapActivity
 				{
 					routeTitle = route;
 				}
-				searchView.setText(routeTitle);
+				searchView.setText("Route " + routeTitle);
 			}
 		}
     }

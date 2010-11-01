@@ -502,7 +502,6 @@ public class MBTABusTransitSource implements TransitSource
 		
 		parser.runParse(stream);
 		
-		task.publish("Parsing route data...");
 
 		
 		parser.writeToDatabase(routeMapping, true);

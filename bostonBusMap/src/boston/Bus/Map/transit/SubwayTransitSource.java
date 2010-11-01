@@ -238,8 +238,6 @@ public class SubwayTransitSource implements TransitSource {
 		SubwayRouteConfigFeedParser subwayParser =
 			new SubwayRouteConfigFeedParser(busStop, directions, null, this);
 		
-		task.publish("Parsing route data...");
-		
 		subwayParser.runParse(in);
 		
 		subwayParser.writeToDatabase(routeMapping, false);
