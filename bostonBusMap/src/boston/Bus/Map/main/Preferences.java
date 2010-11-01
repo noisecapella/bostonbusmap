@@ -19,7 +19,10 @@
 package boston.Bus.Map.main;
 
 import boston.Bus.Map.R;
+import boston.Bus.Map.provider.TransitContentProvider;
 import boston.Bus.Map.transit.TransitSystem;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
@@ -28,8 +31,10 @@ import android.preference.Preference;
 import android.preference.PreferenceActivity;
 import android.preference.PreferenceManager;
 import android.preference.PreferenceScreen;
+import android.provider.SearchRecentSuggestions;
 import android.view.MenuItem;
 import android.widget.TextView;
+import android.widget.Toast;
 
 public class Preferences extends PreferenceActivity 
 {
@@ -45,10 +50,32 @@ public class Preferences extends PreferenceActivity
 	@Override
 	public boolean onPreferenceTreeClick(PreferenceScreen preferenceScreen,
 			Preference preference) {
-		if (preference != null && "about".equals(preference.getKey()))
+		if (preference != null)
 		{
-			Intent viewIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(TransitSystem.getWebSite()));
-			startActivity(viewIntent);
+			String preferenceKey = preference.getKey();
+			if ("about".equals(preferenceKey))
+			{
+				Intent viewIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(TransitSystem.getWebSite()));
+				startActivity(viewIntent);
+			}
+			else if ("clearHistory".equals(preferenceKey))
+			{
+				AlertDialog.Builder builder = new AlertDialog.Builder(this);
+				builder.setMessage("Are you sure you want to clear your search history?")
+				       .setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+				           public void onClick(DialogInterface dialog, int id) {
+								SearchRecentSuggestions suggestions = new SearchRecentSuggestions(Preferences.this,
+								        TransitContentProvider.AUTHORITY, TransitContentProvider.MODE);
+								suggestions.clearHistory();
+
+								Toast.makeText(Preferences.this, "Search history is cleared for this app", Toast.LENGTH_LONG).show();
+				        	   
+				        	   
+				           }
+				       });
+				AlertDialog alert = builder.create();
+				alert.show();
+			}
 		}
 		
 		return super.onPreferenceTreeClick(preferenceScreen, preference);

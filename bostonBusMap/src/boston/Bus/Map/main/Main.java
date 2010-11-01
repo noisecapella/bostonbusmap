@@ -35,6 +35,7 @@ import boston.Bus.Map.R;
 import boston.Bus.Map.data.Locations;
 import boston.Bus.Map.data.RouteConfig;
 import boston.Bus.Map.database.DatabaseHelper;
+import boston.Bus.Map.provider.TransitContentProvider;
 import boston.Bus.Map.transit.TransitSystem;
 import boston.Bus.Map.ui.BusOverlay;
 
@@ -80,6 +81,7 @@ import android.os.SystemClock;
 import android.os.Handler.Callback;
 import android.preference.PreferenceActivity;
 import android.preference.PreferenceManager;
+import android.provider.SearchRecentSuggestions;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.Menu;
@@ -793,6 +795,10 @@ public class Main extends MapActivity
 				return;
 			}
 
+			SearchRecentSuggestions suggestions = new SearchRecentSuggestions(this, TransitContentProvider.AUTHORITY,
+					TransitContentProvider.MODE);
+			suggestions.saveRecentQuery(query, null);
+			
 			runSearch(query);
 		}
 	}
