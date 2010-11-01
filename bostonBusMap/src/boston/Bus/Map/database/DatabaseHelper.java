@@ -538,4 +538,20 @@ public class DatabaseHelper extends SQLiteOpenHelper
 			database.close();
 		}
 	}
+
+	public Cursor getCursorForRoutes() {
+		throw new RuntimeException("Not Implemented");
+	}
+
+	public Cursor getCursorForRoute(String routeName) {
+		throw new RuntimeException("Not Implemented");
+	}
+
+	public Cursor getCursorForDirections() {
+		throw new RuntimeException("Not Implemented");
+	}
+
+	public Cursor getCursorForDirection(String dirTag) {
+		throw new RuntimeException("Not Implemented");
+	}
 }

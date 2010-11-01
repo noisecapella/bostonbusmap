@@ -6,6 +6,8 @@
   android:voiceSearchMode="showVoiceSearchButton|launchRecognizer"
   android:voiceLanguageModel="web_search"
   android:voicePromptText="For example, say 'Route 73'"
+  android:searchSuggestAuthority="com.bostonbusmap.transitprovider"
+  android:searchSuggestSelection=" ?"
   >
   
 </searchable>

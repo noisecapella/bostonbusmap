@@ -5,34 +5,40 @@ import boston.Bus.Map.database.DatabaseHelper;
 import boston.Bus.Map.transit.TransitSystem;
 import android.content.ContentProvider;
 import android.content.ContentValues;
+import android.content.SearchRecentSuggestionsProvider;
 import android.content.UriMatcher;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteQueryBuilder;
 import android.net.Uri;
 
-public class TransitContentProvider extends ContentProvider {
+public class TransitContentProvider extends SearchRecentSuggestionsProvider {
 
 	private TransitSystem transit;
 	private UriMatcher matcher;
 	private DatabaseHelper helper;
 
-	private static final String providerName = "com.bostonbusmap.transitprovider";
+	private static final String AUTHORITY = "com.bostonbusmap.transitprovider";
+	private static final int MODE = DATABASE_MODE_QUERIES;
+	
 	
 	private static final int ROUTES_CODE = 1;
 	private static final int ROUTE_ID_CODE = 2;
 	private static final int DIRECTIONS_CODE = 3;
 	private static final int DIRECTION_ID_CODE = 4;
 	
-	public static final Uri CONTENT_URI = Uri.parse("content://" + providerName);
+	public static final Uri CONTENT_URI = Uri.parse("content://" + AUTHORITY);
 	
 	public TransitContentProvider()
 	{
 		matcher = new UriMatcher(UriMatcher.NO_MATCH);
-		matcher.addURI(providerName, "routes", ROUTES_CODE);
-		matcher.addURI(providerName, "routes/#", ROUTE_ID_CODE);
-		matcher.addURI(providerName, "directions", DIRECTIONS_CODE);
-		matcher.addURI(providerName, "directions/#", DIRECTION_ID_CODE);
+		matcher.addURI(AUTHORITY, "routes", ROUTES_CODE);
+		matcher.addURI(AUTHORITY, "routes/#", ROUTE_ID_CODE);
+		matcher.addURI(AUTHORITY, "directions", DIRECTIONS_CODE);
+		matcher.addURI(AUTHORITY, "directions/#", DIRECTION_ID_CODE);
 		
+		setupSuggestions(AUTHORITY, MODE);
+		
+		helper = new DatabaseHelper(this.getContext());
 	}
 	
 	@Override
@@ -65,17 +71,9 @@ public class TransitContentProvider extends ContentProvider {
 	}
 
 	@Override
-	public boolean onCreate() {
-		helper = new DatabaseHelper(this.getContext());
-		return true;
-	}
-
-	@Override
 	public Cursor query(Uri uri, String[] projection, String selection,
 			String[] selectionArgs, String sortOrder)
 	{
-		SQLiteQueryBuilder builder = new SQLiteQueryBuilder();
-		
 		int code = matcher.match(uri);
 		Cursor cursor;
 		switch (code)
