@@ -146,12 +146,6 @@ public class Main extends MapActivity
 	 */
 	private boolean firstRunMode;
 	
-	/**
-	 * This is used to indicate to the mode spinner to ignore the first time we set it, so we don't update every time the screen changes
-	 */
-	private boolean firstRunRoute;
-
-	
 	private BusOverlay busOverlay;
 	private RouteOverlay routeOverlay;
 	private LocationOverlay myLocationOverlay;
@@ -195,7 +189,6 @@ public class Main extends MapActivity
         
         
         firstRunMode = true;
-        firstRunRoute = true;
         
         //get widgets
         mapView = (MapView)findViewById(R.id.mapview);
@@ -430,16 +423,24 @@ public class Main extends MapActivity
 
 	private void setNewRoute(int position)
     {
-		if (firstRunRoute)
-		{
-			firstRunRoute = false;
-		}
-		else if (busLocations != null && handler != null)
+		if (busLocations != null && handler != null)
 		{
 			selectedRouteIndex = position;
-			handler.setRouteToUpdate(dropdownRoutes[position]);
+			String route = dropdownRoutes[position];
+			handler.setRouteToUpdate(route);
+			Log.v("BostonBusMap", "setting route to " + route);
 			handler.triggerUpdate();
 			handler.immediateRefresh();
+
+			String routeTitle = dropdownRouteKeysToTitles.get(route);
+			if (searchView != null)
+			{
+				if (routeTitle == null)
+				{
+					routeTitle = route;
+				}
+				searchView.setText(routeTitle);
+			}
 		}
     }
 
@@ -615,14 +616,12 @@ public class Main extends MapActivity
     		break;
  
     	
-    	case R.id.search:
-    		Log.v("BostonBusMap", "clicked search in menu");
-    		onSearchRequested();
-    		break;
     	
     	case R.id.chooseRoute:
     		Log.v("BostonBusMap", "choosing a route");
 
+    		routeChooserDialog.show();
+    		
     		break;
     	}
     	return true;
@@ -829,9 +828,6 @@ public class Main extends MapActivity
 		{
 			//it's a route!
 			setNewRoute(routeIndex);
-			String route = dropdownRoutes[routeIndex];
-			String routeTitle = dropdownRouteKeysToTitles.get(route);
-			searchView.setText(routeTitle);
 		}
 	}
 

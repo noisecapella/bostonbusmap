@@ -5,11 +5,11 @@
 	 android:icon="@android:drawable/ic_menu_mylocation">
 	</item>
 	
-	<item android:id="@+id/chooseRoute" android:title="@string/chooseRoute" android:icon="@android:drawable/ic_menu_more"></item><item android:id="@+id/settingsMenuItem" android:title="@string/settings"
+	<item android:id="@+id/settingsMenuItem" android:title="@string/settings"
 	android:icon="@android:drawable/ic_menu_preferences">
 	</item>
-
-<item android:icon="@drawable/ic_menu_search" android:title="@string/search" android:id="@+id/search"></item><item android:id="@+id/refreshItem" android:title="@string/refresh"
+<item android:id="@+id/chooseRoute" android:title="@string/chooseRoute" android:icon="@android:drawable/ic_menu_more"></item>
+<item android:id="@+id/refreshItem" android:title="@string/refresh"
 android:icon="@android:drawable/ic_menu_rotate"></item>
 
 

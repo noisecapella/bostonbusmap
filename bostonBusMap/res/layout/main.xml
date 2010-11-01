@@ -5,7 +5,7 @@
 
 	<RelativeLayout
 		android:layout_width="wrap_content" android:layout_height="wrap_content"
-		 android:orientation="horizontal" android:padding="3dp" android:background="#bbbbbb">
+		 android:orientation="horizontal" android:padding="3dp" android:background="#000000">
 	
 
 		
