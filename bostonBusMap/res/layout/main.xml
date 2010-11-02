@@ -11,22 +11,21 @@
 		
 <EditText android:layout_width="wrap_content" android:id="@+id/searchTextView" android:hint="@string/searchHint"
  android:layout_alignParentLeft="true"
- android:inputType="text" android:imeActionId="1" android:imeOptions="actionGo" android:focusable="false" android:focusableInTouchMode="false" android:layout_height="wrap_content" android:textSize="16sp"></EditText>
+ android:inputType="text" android:imeActionId="1" android:imeOptions="actionGo" android:focusable="false" android:focusableInTouchMode="false" android:layout_height="wrap_content" android:textSize="16sp" android:background="@drawable/textfield_search"></EditText>
 
 <Spinner android:id="@+id/predictionsOrLocations"
 
  android:layout_height="wrap_content" android:layout_width="wrap_content"
         android:layout_alignParentRight="true"
- ></Spinner>
+ android:layout_alignTop="@+id/searchTextView" android:layout_alignParentBottom="@+id/searchTextView"></Spinner>
     <ProgressBar android:id="@+id/progress"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-android:layout_toLeftOf="@+id/predictionsOrLocations" android:indeterminateOnly="true" android:indeterminate="true"/>
+android:layout_toLeftOf="@+id/predictionsOrLocations" android:indeterminateOnly="true" android:indeterminate="true" android:layout_alignBottom="@+id/predictionsOrLocations" android:layout_alignTop="@+id/predictionsOrLocations"/>
 
 <ImageButton android:layout_width="wrap_content" android:layout_height="wrap_content" 
 android:id="@+id/searchButton"
- android:layout_toRightOf="@+id/searchTextView" android:layout_alignTop="@+id/searchTextView"
-  android:layout_alignBottom="@+id/searchTextView" android:src="@drawable/ic_btn_search"></ImageButton>
+ android:layout_toRightOf="@+id/searchTextView" android:src="@drawable/ic_btn_search"></ImageButton>
 </RelativeLayout>
 	<com.google.android.maps.MapView
 		android:id="@+id/mapview" android:layout_width="fill_parent"
