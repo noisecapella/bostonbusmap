@@ -432,7 +432,7 @@ public class Main extends MapActivity
 			handler.setRouteToUpdate(route);
 			Log.v("BostonBusMap", "setting route to " + route);
 			handler.immediateRefresh();
-			handler.triggerUpdate(100);
+			handler.triggerUpdate();
 
 			String routeTitle = dropdownRouteKeysToTitles.get(route);
 			if (searchView != null)

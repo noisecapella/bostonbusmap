@@ -102,6 +102,7 @@ public class UpdateHandler extends Handler {
 		switch (msg.what)
 		{
 		case MAJOR:
+			Log.v("BostonBusMap", "received major message");
 			//remove duplicates
 			double currentTime = System.currentTimeMillis();
 			
@@ -125,11 +126,13 @@ public class UpdateHandler extends Handler {
 
 			break;
 		case MINOR:
+			Log.v("BostonBusMap", "received minor message");
 			//don't do two updates at once
 			if (minorUpdate != null)
 			{
 				if (minorUpdate.getStatus().equals(UpdateAsyncTask.Status.FINISHED) == false)
 				{
+					Log.v("BostonBusMap", "ignoring minor message since it's already in progress");
 					//task is not finished yet
 					return;
 				}
@@ -331,7 +334,7 @@ public class UpdateHandler extends Handler {
 
 
 	public void resume() {
-		removeAllMessages();
+		//removeAllMessages();
 		if(getUpdateConstantly())
 		{
 			//if the runInBackground checkbox is clicked, start the handler updating
