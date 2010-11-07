@@ -109,6 +109,12 @@ public class SubwayPredictionsFeedParser
 				route = object.getString("Line");
 				RouteConfig routeConfig = routePool.get(route);
 
+				if (routeConfig == null)
+				{
+					//bogus JSON maybe?
+					continue;
+				}
+				
 				String stopKey = object.getString("PlatformKey");
 				StopLocation stopLocation = routeConfig.getStop(stopKey);
 
