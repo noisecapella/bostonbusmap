@@ -220,7 +220,7 @@ public class StopLocation implements Location, CanBeSerialized
 		{
 			if (first == false)
 			{
-				ret += "\n";
+				ret += "<br />";
 			}
 			
 			ret += title;
@@ -238,7 +238,7 @@ public class StopLocation implements Location, CanBeSerialized
 	@Override
 	public String getSnippetTitle() {
 		String ret = snippetTitle;
-		ret += "\n" + "Stop: " + snippetStop;
+		ret += "<br />" + "Stop: " + snippetStop;
 		ret += "; Routes: " + snippetRoutes;
 		return ret;
 	}
@@ -281,10 +281,10 @@ public class StopLocation implements Location, CanBeSerialized
 				
 				if (count != 0)
 				{
-					ret += "\n";
+					ret += "<br />";
 				}
 				
-				ret += "\n" + prediction.makeSnippet(routeKeysToTitles);
+				ret += "<br />" + prediction.makeSnippet(routeKeysToTitles);
 
 				count++;
 				if (count >= max)

@@ -25,6 +25,7 @@ import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.opengl.Visibility;
 import android.text.Html;
+import android.text.SpannableString;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -170,13 +171,13 @@ public class BalloonOverlayView extends FrameLayout {
 		layout.setVisibility(VISIBLE);
 		if (titleText != null) {
 			title.setVisibility(VISIBLE);
-			title.setText(titleText);
+			title.setText(Html.fromHtml(titleText));
 		} else {
 			title.setVisibility(GONE);
 		}
 		if (snippetText != null) {
 			snippet.setVisibility(VISIBLE);
-			snippet.setText(snippetText);
+			snippet.setText(Html.fromHtml(snippetText));
 		} else {
 			snippet.setVisibility(GONE);
 		}

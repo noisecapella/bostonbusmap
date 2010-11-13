@@ -46,13 +46,13 @@ public interface Location {
 	void addToSnippetAndTitle(RouteConfig routeConfig, Location location, HashMap<String, String> routeKeysToTitles);
 
 	/**
-	 * Get the title you previously created in makeSnippetAndTitle
+	 * Get the title you previously created in makeSnippetAndTitle. This is HTML, so make sure newlines are <br />
 	 * @return
 	 */
 	String getSnippetTitle();
 	
 	/**
-	 * Get the title you previously created in makeSnippetAndTitle
+	 * Get the title you previously created in makeSnippetAndTitle. This is HTML, so make sure newlines are <br />
 	 * @return
 	 */
 	String getSnippet();

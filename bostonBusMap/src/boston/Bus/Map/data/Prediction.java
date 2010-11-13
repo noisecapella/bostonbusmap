@@ -42,32 +42,34 @@ public class Prediction implements Comparable<Prediction>, Parcelable
 	}
 
 	public String makeSnippet(HashMap<String, String> routeKeysToTitles) {
+		String ret;
 		if (minutes < 0)
 		{
-			return "";
+			ret = "";
 		}
 		else
 		{
-			String ret = "Route " + routeKeysToTitles.get(routeName);
+			ret = "Route <b>" + routeKeysToTitles.get(routeName) + "</b>";
 			if (vehicleId != 0)
 			{
-				ret += ", Bus " + vehicleId;
+				ret += ", Bus <b>" + vehicleId + "</b>";
 			}
-			
+
 			if (direction != null)
 			{
-				ret += "\n" + direction;
+				ret += "<br />" + direction.replace("\n", "<br />");
 			}
-			
+
 			if (minutes == 0)
 			{
-				return ret + "\nArriving now!";
+				ret += "<br />Arriving now!";
 			}
 			else
 			{
-				return ret + "\nArriving in " + minutes + " min at " + arrivalTime.format(hourMinuteFormatString).trim();
+				ret += "<br />Arriving in " + minutes + " min at " + arrivalTime.format(hourMinuteFormatString).trim();
 			}
 		}
+		return ret;
 	}
 
 	@Override
@@ -138,28 +140,15 @@ public class Prediction implements Comparable<Prediction>, Parcelable
 		}
 	};
 
+	/**
+	 * Create 
+	 * @param routeKeysToTitles
+	 * @return
+	 */
 	public HashMap<String, Spanned> makeSnippetMap(HashMap<String, String> routeKeysToTitles) {
 		HashMap<String, Spanned> map = new HashMap<String, Spanned>();
 		
-		String ret = "Route <b>" + routeKeysToTitles.get(routeName) + "</b>";
-		if (vehicleId != 0)
-		{
-			ret += ", Bus <b>" + vehicleId + "</b>";
-		}
-		
-		if (direction != null)
-		{
-			ret += "<br />" + direction.replace("\n", "<br />");
-		}
-		
-		if (minutes == 0)
-		{
-			ret += "<br />Arriving now!";
-		}
-		else
-		{
-			ret += "<br />Arriving in " + minutes + " min at " + arrivalTime.format(hourMinuteFormatString).trim();
-		}
+		String ret = makeSnippet(routeKeysToTitles);
 		
 		map.put(MoreInfo.textKey, Html.fromHtml(ret));
 		
