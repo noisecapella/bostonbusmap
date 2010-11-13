@@ -62,11 +62,11 @@ public class Prediction implements Comparable<Prediction>, Parcelable
 
 			if (minutes == 0)
 			{
-				ret += "<br />Arriving now!";
+				ret += "<br />Arriving <b>now</b>!";
 			}
 			else
 			{
-				ret += "<br />Arriving in " + minutes + " min at " + arrivalTime.format(hourMinuteFormatString).trim();
+				ret += "<br />Arriving in <b>" + minutes + " min</b> at " + arrivalTime.format(hourMinuteFormatString).trim();
 			}
 		}
 		return ret;
