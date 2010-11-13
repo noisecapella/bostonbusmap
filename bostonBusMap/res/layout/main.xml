@@ -11,7 +11,7 @@
 		
 <EditText android:layout_width="wrap_content" android:id="@+id/searchTextView" android:hint="@string/searchHint"
  android:layout_alignParentLeft="true"
- android:inputType="text" android:imeActionId="1" android:imeOptions="actionGo" android:focusable="false" android:focusableInTouchMode="false" android:layout_height="wrap_content" android:textSize="16sp" android:background="@drawable/textfield_search"></EditText>
+ android:inputType="text" android:imeActionId="1" android:imeOptions="actionGo" android:focusable="false" android:focusableInTouchMode="false" android:layout_height="wrap_content" android:textSize="16sp"></EditText>
 
 <Spinner android:id="@+id/predictionsOrLocations"
 
