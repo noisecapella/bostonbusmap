@@ -20,6 +20,12 @@ import android.text.style.ImageSpan;
 import android.text.style.StyleSpan;
 import android.text.style.TypefaceSpan;
 
+/**
+ * A container of a prediction.
+ * 
+ * @author schneg
+ *
+ */
 public class Prediction implements Comparable<Prediction>, Parcelable
 {
 	private static final String hourMinuteFormatString = "%l:%M%P";
@@ -57,7 +63,7 @@ public class Prediction implements Comparable<Prediction>, Parcelable
 
 			if (direction != null)
 			{
-				ret += "<br />" + direction.replace("\n", "<br />");
+				ret += "<br />" + direction;
 			}
 
 			if (minutes == 0)
@@ -80,7 +86,6 @@ public class Prediction implements Comparable<Prediction>, Parcelable
 
 	@Override
 	public int hashCode() {
-		// TODO Auto-generated method stub
 		return (int) (minutes ^ epochTime ^ vehicleId);
 	}
 	

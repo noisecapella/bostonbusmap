@@ -87,6 +87,11 @@ public class Directions {
 		helper.writeDirections(wipe, indexes, names, titles, routes);
 	}
 
+	/**
+	 * Returns a displayable HTML string of the direction's title and name
+	 * @param dirTag
+	 * @return
+	 */
 	public String getTitleAndName(String dirTag) {
 		if (dirTag == null)
 		{
@@ -119,7 +124,7 @@ public class Directions {
 			}
 			else
 			{
-				return title + "\n" + name;
+				return title + "<br />" + name;
 			}
 				
 		}

@@ -283,7 +283,7 @@ public class BusLocation implements Location {
 
 		String directionName = directions.getTitleAndName(dirTag);
 		if (directionName != null && directionName.length() != 0) {
-			ret += "\n" + directionName;
+			ret += "<br />" + directionName;
 		}
 
 		return ret;
