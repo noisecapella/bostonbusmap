@@ -36,7 +36,7 @@ public class Box {
 	 */
 	private final int versionNumber;
 	
-	public Box(byte[] input, int versionNumber, HashMap<String, StopLocation> sharedStops)
+	public Box(byte[] input, int versionNumber)
 	{
 		this.versionNumber = versionNumber;
 		if (input == null)
@@ -51,8 +51,6 @@ public class Box {
 			innerOutputStream = null;
 			inputStream = new DataInputStream(new ByteArrayInputStream(input));
 		}
-		
-		this.stopMap = sharedStops;
 	}
 	
 	public void writeBytes(byte[] b) throws IOException
@@ -371,44 +369,6 @@ public class Box {
 			
 			return map;
 		}
-	}
-
-	public void writeStopsMap(Map<String, StopLocation> stops) throws IOException {
-		showProgress("writeStopsMap");
-		int size = stops.size();
-		writeInt(size);
-		
-		for (String key : stops.keySet())
-		{
-			writeString(key);
-			StopLocation value = stops.get(key);
-			value.serialize(this);
-		}
-	}
-
-	private final HashMap<String, StopLocation> stopMap;
-	
-	public HashMap<String, StopLocation> readStopsMap(RouteConfig routeConfig, Drawable busStop) throws IOException {
-		showProgress("readStopsMap");
-		int size = readInt();
-		
-		HashMap<String, StopLocation> stops = new HashMap<String, StopLocation>(size);
-		for (int i = 0; i < size; i++)
-		{
-			String key = readString();
-			StopLocation value = new StopLocation(this, busStop);
-			if (stopMap.containsKey(key))
-			{
-				stops.put(key, stopMap.get(key));
-			}
-			else
-			{
-				stops.put(key, value);
-				stopMap.put(key, value);
-			}
-		}
-		
-		return stops;
 	}
 
 	public void writePathsList(ArrayList<Path> paths) throws IOException {

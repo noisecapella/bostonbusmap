@@ -30,6 +30,7 @@ import boston.Bus.Map.transit.TransitSystem;
 import boston.Bus.Map.util.FeedException;
 
 
+import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 
 public class RouteConfigFeedParser extends DefaultHandler
@@ -122,7 +123,7 @@ public class RouteConfigFeedParser extends DefaultHandler
 					if (stopLocation == null)
 					{
 						stopLocation = new StopLocation(latitudeAsDegrees, longitudeAsDegrees, busStop, tag,
-								title, (short)-1, null);
+								title);
 						allStops.put(tag, stopLocation);
 					}
 
@@ -153,10 +154,18 @@ public class RouteConfigFeedParser extends DefaultHandler
 			inRoute = true;
 			
 			currentRoute = attributes.getValue(tagKey);
-			String color = attributes.getValue(colorKey);
-			String oppositeColor = attributes.getValue(oppositeColorKey);
-			currentRouteConfig = new RouteConfig(currentRoute, color, oppositeColor, transitSource);
-			
+			int color = parseColor(attributes.getValue(colorKey));
+			int oppositeColor = parseColor(attributes.getValue(oppositeColorKey));
+			try
+			{
+				currentRouteConfig = new RouteConfig(currentRoute, color, oppositeColor, transitSource);
+			}
+			catch (IOException e)
+			{
+				//this shouldn't happen...
+				//this should be caught and reported where the caller originally called runParse
+				throw new RuntimeException(e);
+			}
 		}
 		else if (pathKey.equals(localName))
 		{
@@ -180,6 +189,24 @@ public class RouteConfigFeedParser extends DefaultHandler
 		
 	}
 	
+	private int parseColor(String value) {
+		if (value == null)
+		{
+			return Color.BLUE;
+		}
+		try
+		{
+			String colorString = "#99" + Color.parseColor(value);
+			int color = Color.parseColor(colorString);
+			return color;
+		}
+		catch (IllegalArgumentException e)
+		{
+			//malformed color string?
+			return Color.BLUE;
+		}
+	}
+
 	@Override
 	public void endElement(String uri, String localName, String qName)
 			throws SAXException {

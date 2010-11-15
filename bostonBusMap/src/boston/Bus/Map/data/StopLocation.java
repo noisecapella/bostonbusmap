@@ -27,7 +27,7 @@ import android.os.Parcelable;
 import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
-public class StopLocation implements Location, CanBeSerialized
+public class StopLocation implements Location
 {
 	private final float latitude;
 	private final float longitude;
@@ -55,20 +55,10 @@ public class StopLocation implements Location, CanBeSerialized
 	 */
 	private ArrayList<StopLocation> sharedSnippetStops;
 	
-	/**
-	 * The order of this stop compared to other stops. Optional, used only for subways
-	 */
-	private short platformOrder;
-	
-	/**
-	 * What branch this subway is on. Optional, only used for subways
-	 */
-	private String branch;
-	
 	private static final int LOCATIONTYPE = 3; 
 	
 	public StopLocation(float latitudeAsDegrees, float longitudeAsDegrees,
-			Drawable busStop, String tag, String title, short platformOrder, String branch)
+			Drawable busStop, String tag, String title)
 	{
 		this.latitude = latitudeAsDegrees * Geometry.degreesToRadians;
 		this.longitude = longitudeAsDegrees * Geometry.degreesToRadians;
@@ -76,8 +66,6 @@ public class StopLocation implements Location, CanBeSerialized
 		this.tag = tag;
 		this.title = title;
 		this.dirTags = new HashMap<String, String>();
-		this.platformOrder = platformOrder;
-		this.branch = branch;
 	}
 
 	public void addRouteAndDirTag(String route, String dirTag)
@@ -360,40 +348,6 @@ public class StopLocation implements Location, CanBeSerialized
 		return title;
 	}
 
-	@Override
-	public void serialize(Box dest) throws IOException {
-		dest.writeFloat(latitude);
-		dest.writeFloat(longitude);
-		dest.writeString(tag);
-
-		dest.writeStringUnique(title);
-		
-		dest.writeStringMap(dirTags);
-		
-		dest.writeShort(platformOrder);
-		dest.writeString(branch);
-	}
-
-	
-	public StopLocation(Box source, Drawable busStop) throws IOException {
-
-
-		this.latitude = source.readFloat();
-		this.longitude = source.readFloat();
-		
-		
-
-		tag = source.readString();
-
-		title = source.readStringUnique();
-		dirTags = source.readStringMap();
-		platformOrder = source.readShort();
-		branch = source.readString();
-		
-		
-		this.busStop = busStop;
-	}
-
 	/**
 	 * This should be in Locations instead but I need to synchronize routes
 	 * 
@@ -484,11 +438,7 @@ public class StopLocation implements Location, CanBeSerialized
 		}
 	}
 
-	public int getPlatformOrder() {
-		return platformOrder;
-	}
-
-	public String getBranch() {
-		return branch;
+	public String getDirTagForRoute(String route) {
+		return dirTags.get(route);
 	}
 }

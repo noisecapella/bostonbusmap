@@ -14,6 +14,7 @@ import org.apache.http.client.ClientProtocolException;
 import org.xml.sax.SAXException;
 
 import android.content.Context;
+import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.util.Log;
 import boston.Bus.Map.data.BusLocation;
@@ -202,18 +203,18 @@ public class SubwayTransitSource implements TransitSource {
 	public static final String BlueLine = "Blue";
 	private static final String[] subwayRoutes = new String[] {RedLine, OrangeLine, BlueLine};
 	
-	public static final String RedColor = "ff0000";
-	public static final String OrangeColor = "f88017";
-	public static final String BlueColor = "0000ff";
+	public static final int RedColor = Color.parseColor("#ff0000");
+	public static final int OrangeColor = Color.parseColor("f88017");
+	public static final int BlueColor = Color.parseColor("0000ff");
 	
-	private static final String[] subwayColors = new String[] {RedColor, OrangeColor, BlueColor};
+	private static final int[] subwayColors = new int[] {RedColor, OrangeColor, BlueColor};
 	private final HashMap<String, String> subwayRouteKeysToTitles = new HashMap<String, String>();
 	
 	public static String[] getAllSubwayRoutes() {
 		return subwayRoutes;
 	}
 
-	public static String getSubwayColor(String subwayRoute)
+	public static int getSubwayColor(String subwayRoute)
 	{
 		for (int i = 0; i < subwayRoutes.length; i++)
 		{

@@ -38,6 +38,7 @@ import boston.Bus.Map.data.Prediction;
 import boston.Bus.Map.data.RouteConfig;
 import boston.Bus.Map.data.RoutePool;
 import boston.Bus.Map.data.StopLocation;
+import boston.Bus.Map.data.SubwayStopLocation;
 import boston.Bus.Map.transit.SubwayTransitSource;
 import boston.Bus.Map.transit.TransitSystem;
 
@@ -116,7 +117,9 @@ public class SubwayPredictionsFeedParser
 				}
 				
 				String stopKey = object.getString("PlatformKey");
-				StopLocation stopLocation = routeConfig.getStop(stopKey);
+				
+				//this is a subway route so all StopLocations should be SubwayStopLocations 
+				SubwayStopLocation stopLocation = (SubwayStopLocation)routeConfig.getStop(stopKey);
 
 				if (stopLocation == null)
 				{
@@ -239,7 +242,7 @@ public class SubwayPredictionsFeedParser
 	 * @param stopLocation
 	 * @return
 	 */
-	private StopLocation getNextStop(RouteConfig routeConfig, StopLocation stopLocation, String dirTag) {
+	private StopLocation getNextStop(RouteConfig routeConfig, SubwayStopLocation stopLocation, String dirTag) {
 		String stoptag = stopLocation.getStopTag();
 		String dirSuffix = stoptag.substring(stoptag.length() - 1);
 		String fromBranch = stopLocation.getBranch();
@@ -268,13 +271,16 @@ public class SubwayPredictionsFeedParser
 
 			for (StopLocation stop : routeConfig.getStops())
 			{
-				String toBranch = stop.getBranch();
+				//this is a subway route so we can cast all stops on it
+				SubwayStopLocation subwayStop = (SubwayStopLocation)stop;
+				
+				String toBranch = subwayStop.getBranch();
 
 				//Log.v("BostonBusMap", "from " + fromBranch + " to " + toBranch);
-				if (stop.getPlatformOrder() == stopLocationPlatformOrder + 1 && fromBranch.equals(toBranch) &&
-						stop.getStopTag().endsWith(dirSuffix))
+				if (subwayStop.getPlatformOrder() == stopLocationPlatformOrder + 1 && fromBranch.equals(toBranch) &&
+						subwayStop.getStopTag().endsWith(dirSuffix))
 				{
-					return stop;
+					return subwayStop;
 				}
 			}
 

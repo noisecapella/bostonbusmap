@@ -11,6 +11,8 @@ import boston.Bus.Map.data.Path;
 
 import boston.Bus.Map.data.RouteConfig;
 import boston.Bus.Map.data.StopLocation;
+import boston.Bus.Map.data.SubwayStopLocation;
+import boston.Bus.Map.transit.TransitSource;
 import boston.Bus.Map.transit.TransitSystem;
 import boston.Bus.Map.util.Box;
 
@@ -22,6 +24,7 @@ import android.database.sqlite.SQLiteDiskIOException;
 import android.database.sqlite.SQLiteException;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.database.sqlite.SQLiteDatabase.CursorFactory;
+import android.database.sqlite.SQLiteQueryBuilder;
 import android.graphics.drawable.Drawable;
 import android.net.wifi.WifiConfiguration.PairwiseCipher;
 import android.os.Debug;
@@ -39,6 +42,12 @@ public class DatabaseHelper extends SQLiteOpenHelper
 {
 	private final static String dbName = "bostonBusMap";
 	 
+	private final static String verboseRoutes = "routes";
+	private final static String verboseStops = "stops";
+	private final static String stopsRoutesMap = "stopmapping";
+	private final static String subwaySpecificTable = "subway";
+	
+	
 	private final static String directionsTable = "directions";
 	private final static String stopsTable = "stops";
 	private final static String routesTable = "routes";
@@ -62,7 +71,16 @@ public class DatabaseHelper extends SQLiteOpenHelper
 	private final static String oldFavoritesIdKey = "idkey";
 	private final static String newFavoritesRouteKey = "route";
 
-	private static final String dirTagKey = "dirTagKey";
+	private final static String colorKey = "color";
+	private final static String oppositeColorKey = "oppositecolor";
+	private final static String pathsBlobKey = "pathblob";
+	private final static String stopTagKey = "tag";
+	private final static String branchKey = "branch";
+	private final static String stopTitleKey = "title";
+	private final static String platformOrderKey = "platformorder";
+	
+	
+	private static final String dirTagKey = "dirTag";
 	private static final String dirNameKey = "dirNameKey";
 	private static final String dirTitleKey = "dirTitleKey";
 	private static final String dirRouteKey = "dirRouteKey";
@@ -82,8 +100,10 @@ public class DatabaseHelper extends SQLiteOpenHelper
 	public final static int STOP_LOCATIONS_ADD_DIRECTIONS = 10;
 	public final static int SUBWAY_VERSION = 11;
 	public final static int ADDED_PLATFORM_ORDER = 12;
+	public final static int VERBOSE_DB = 13;
 	
-	public final static int CURRENT_DB_VERSION = ADDED_PLATFORM_ORDER;
+	
+	public final static int CURRENT_DB_VERSION = VERBOSE_DB;
 	
 	public DatabaseHelper(Context context) {
 		super(context, dbName, null, CURRENT_DB_VERSION);
@@ -92,12 +112,26 @@ public class DatabaseHelper extends SQLiteOpenHelper
 	@Override
 	public void onCreate(SQLiteDatabase db) {
 		
-		db.execSQL("CREATE TABLE IF NOT EXISTS " + blobsTable + " (" + routeKey + " STRING PRIMARY KEY, " + blobKey + " BLOB)");
+		/*db.execSQL("CREATE TABLE IF NOT EXISTS " + blobsTable + " (" + routeKey + " STRING PRIMARY KEY, " + blobKey + " BLOB)");
+		db.execSQL("CREATE TABLE IF NOT EXISTS " + routePoolTable + " (" + routeKey + " STRING PRIMARY KEY)");*/
 		db.execSQL("CREATE TABLE IF NOT EXISTS " + newFavoritesTable + " (" + newFavoritesTagKey + " STRING PRIMARY KEY, " +
 				newFavoritesRouteKey + " STRING)");
-		db.execSQL("CREATE TABLE IF NOT EXISTS " + routePoolTable + " (" + routeKey + " STRING PRIMARY KEY)");
+		
 		db.execSQL("CREATE TABLE IF NOT EXISTS " + directionsTable + " (" + dirTagKey + " STRING PRIMARY KEY, " + 
 				dirNameKey + " STRING, " + dirTitleKey + " STRING, " + dirRouteKey + " STRING)");
+		
+		db.execSQL("CREATE TABLE IF NOT EXISTS " + verboseRoutes + " (" + routeKey + " STRING PRIMARY KEY, " + colorKey + 
+				" INTEGER, " + oppositeColorKey + " INTEGER, " + pathsBlobKey + " BLOB)");
+		
+		db.execSQL("CREATE TABLE IF NOT EXISTS " + verboseStops + " (" + stopTagKey + " STRING PRIMARY KEY, " + 
+				latitudeKey + " FLOAT, " + longitudeKey + " FLOAT, " + stopTitleKey + " STRING)");
+		
+		db.execSQL("CREATE TABLE IF NOT EXISTS " + stopsRoutesMap + " (" + routeKey + " STRING, " + stopTagKey + " STRING)" +
+				dirTagKey + " STRING)");
+		
+		db.execSQL("CREATE TABLE IF NOT EXISTS " + subwaySpecificTable + " (" + stopTagKey + " STRING PRIMARY KEY, " +
+				platformOrderKey + " INTEGER, " + 
+				branchKey + " STRING)");
 	}
 
 	@Override
@@ -115,6 +149,9 @@ public class DatabaseHelper extends SQLiteOpenHelper
 		db.execSQL("DROP TABLE IF EXISTS " + routesTable);
 		db.execSQL("DROP TABLE IF EXISTS " + pathsTable);
 		db.execSQL("DROP TABLE IF EXISTS " + blobsTable);
+		db.execSQL("DROP TABLE IF EXISTS " + verboseRoutes);
+		db.execSQL("DROP TABLE IF EXISTS " + verboseStops);
+		db.execSQL("DROP TABLE IF EXISTS " + stopsRoutesMap);
 
 		db.execSQL("DROP TABLE IF EXISTS " + oldFavoritesTable);
 		if (oldVersion < ROUTE_POOL_DB_VERSION)
@@ -246,7 +283,10 @@ public class DatabaseHelper extends SQLiteOpenHelper
 				//database.delete(stopsTable, null, null);
 				//database.delete(directionsTable, null, null);
 				//database.delete(pathsTable, null, null);
-				database.delete(blobsTable, null, null);
+				//database.delete(blobsTable, null, null);
+				
+				database.delete(verboseStops, null, null);
+				database.delete(verboseRoutes, null, null);
 			}
 
 			for (String route : mapping.keySet())
@@ -279,26 +319,83 @@ public class DatabaseHelper extends SQLiteOpenHelper
 	private void saveMappingKernel(SQLiteDatabase database, String route, RouteConfig routeConfig,
 			boolean useInsert, HashMap<String, StopLocation> sharedStops) throws IOException
 	{
-		Box box = new Box(null, CURRENT_DB_VERSION, sharedStops);
+		Box serializedPath = new Box(null, CURRENT_DB_VERSION);
 		
-		routeConfig.serialize(box);
+		routeConfig.serializePath(serializedPath);
 		
-		byte[] blob = box.getBlob();
+		byte[] serializedPathBlob = serializedPath.getBlob();
 		
-		ContentValues values = new ContentValues();
-		values.put(routeKey, route);
-		values.put(blobKey, blob);
-			
-			
-		if (useInsert)
 		{
-			database.insert(blobsTable, null, values);
-		}
-		else
-		{
-			database.replace(blobsTable, null, values);
-		}
+			ContentValues values = new ContentValues();
+			values.put(routeKey, route);
+			values.put(pathsBlobKey, serializedPathBlob);
+			values.put(colorKey, routeConfig.getColor());
+			values.put(oppositeColorKey, routeConfig.getOppositeColor());
 
+			if (useInsert)
+			{
+				database.insert(verboseRoutes, null, values);
+			}
+			else
+			{
+				database.replace(verboseRoutes, null, values);
+			}
+		}
+		
+		//add all stops associated with the route, if they don't already exist
+		
+
+		if (useInsert == false)
+		{
+			//if useInsert is false, it means we're replacing things which already exist.
+			//for this table we need to clear it away
+			database.delete(stopsRoutesMap, routeKey + "=?", new String[]{route});
+		}
+		
+		
+		for (StopLocation stop : routeConfig.getStops())
+		{
+			/*"CREATE TABLE IF NOT EXISTS " + verboseStops + " (" + stopTagKey + " STRING PRIMARY KEY, " + 
+			latitudeKey + " FLOAT, " + longitudeKey + " FLOAT, " + stopTitleKey + " STRING, " +
+			branchKey + " STRING, " + platformOrderKey + " SHORT)"*/
+			String stopTag = stop.getStopTag();
+			
+			if (sharedStops.containsKey(stopTag) == false)
+			{
+			
+				sharedStops.put(stopTag, stop);
+
+				{
+					ContentValues values = new ContentValues();
+					values.put(stopTagKey, stopTag);
+					values.put(latitudeKey, stop.getLatitudeAsDegrees());
+					values.put(longitudeKey, stop.getLongitudeAsDegrees());
+					values.put(stopTitleKey, stop.getTitle());
+
+					database.insert(verboseStops, null, values);
+				}
+
+				if (stop instanceof SubwayStopLocation)
+				{
+					SubwayStopLocation subwayStop = (SubwayStopLocation)stop;
+					ContentValues values = new ContentValues();
+					values.put(stopTagKey, stopTag);
+					values.put(platformOrderKey, subwayStop.getPlatformOrder());
+					values.put(branchKey, subwayStop.getBranch());
+
+					database.insert(subwaySpecificTable, null, values);
+				}
+			}
+			
+			{
+				//show that there's a relationship between the stop and this route
+				ContentValues values = new ContentValues();
+				values.put(routeKey, route);
+				values.put(stopTagKey, stopTag);
+				values.put(dirtagKey, stop.getDirTagForRoute(route));
+				database.insert(stopsRoutesMap, null, values);
+			}
+		}
 	}
 
 	public synchronized boolean checkFreeSpace() {
@@ -362,30 +459,81 @@ public class DatabaseHelper extends SQLiteOpenHelper
 	public synchronized RouteConfig getRoute(String routeToUpdate, HashMap<String, StopLocation> sharedStops,
 			TransitSystem transitSystem) throws IOException {
 		SQLiteDatabase database = getReadableDatabase();
-		Cursor cursor = null;
+		Cursor routeCursor = null;
+		Cursor stopCursor = null;
 		try
 		{
-			cursor = database.query(blobsTable, new String[]{blobKey}, routeKey + "=?",
+			/*db.execSQL("CREATE TABLE IF NOT EXISTS " + verboseRoutes + " (" + routeKey + " STRING PRIMARY KEY, " + colorKey + 
+					" INTEGER, " + oppositeColorKey + " INTEGER, " + pathsBlobKey + " BLOB)");*/
+
+			
+			routeCursor = database.query(verboseRoutes, new String[]{colorKey, oppositeColorKey, pathsBlobKey}, routeKey + "=?",
 					new String[]{routeToUpdate}, null, null, null);
-			if (cursor.getCount() == 0)
+			if (routeCursor.getCount() == 0)
 			{
 				return null;
 			}
-			else
+			
+			routeCursor.moveToFirst();
+
+			TransitSource source = transitSystem.getTransitSource(routeToUpdate);
+
+			int color = routeCursor.getInt(0);
+			int oppositeColor = routeCursor.getInt(1);
+			byte[] pathsBlob = routeCursor.getBlob(2);
+			Box pathsBlobBox = new Box(pathsBlob, CURRENT_DB_VERSION);
+
+			RouteConfig routeConfig = new RouteConfig(routeToUpdate, color, oppositeColor, source, pathsBlobBox);
+
+			
+			
+			
+			SQLiteQueryBuilder builder = new SQLiteQueryBuilder();
+			stopCursor = builder.query(database, new String[] {stopTagKey, latitudeKey, longitudeKey, 
+					stopTitleKey, platformOrderKey, branchKey},
+					routeKey + "=?", new String[]{routeToUpdate}, null, null, null);
+			
+			stopCursor.moveToFirst();
+			while (stopCursor.isAfterLast() == false)
 			{
-				cursor.moveToFirst();
-				byte[] data = cursor.getBlob(0);
-				Box box = new Box(data, CURRENT_DB_VERSION, sharedStops);
-				RouteConfig routeConfig = new RouteConfig(box, transitSystem.getTransitSource(routeToUpdate));
-				return routeConfig;
+				String stopTag = stopCursor.getString(0);
+				float latitude = stopCursor.getFloat(1);
+				float longitude = stopCursor.getFloat(2);
+				String stopTitle = stopCursor.getString(3);
+				String branch = stopCursor.getString(5);
+				int platformOrder = 0;
+				
+				StopLocation stop;
+				Drawable busStop = source.getBusStopDrawable();
+				if (stopCursor.isNull(4) == false)
+				{
+					platformOrder = stopCursor.getInt(4);
+					
+					stop = new SubwayStopLocation(latitude, longitude, busStop,
+							stopTag, stopTitle, platformOrder, branch);
+				}
+				else
+				{
+					stop = new StopLocation(latitude, longitude, busStop, stopTag, stopTitle);
+				}
+				
+				routeConfig.addStop(stopTag, stop);
+				stopCursor.moveToNext();
 			}
+			
+			
+			return routeConfig;
 		}
 		finally
 		{
 			database.close();
-			if (cursor != null)
+			if (routeCursor != null)
 			{
-				cursor.close();
+				routeCursor.close();
+			}
+			if (stopCursor != null)
+			{
+				stopCursor.close();
 			}
 		}
 	}
@@ -396,7 +544,7 @@ public class DatabaseHelper extends SQLiteOpenHelper
 		Cursor cursor = null;
 		try
 		{
-			cursor = database.query(blobsTable, new String[]{routeKey}, null, null, null, null, null);
+			cursor = database.query(verboseRoutes, new String[]{routeKey}, null, null, null, null, null);
 			cursor.moveToFirst();
 			while (cursor.isAfterLast() == false)
 			{

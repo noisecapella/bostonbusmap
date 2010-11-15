@@ -24,6 +24,7 @@ import boston.Bus.Map.data.Path;
 import boston.Bus.Map.data.RouteConfig;
 import boston.Bus.Map.data.RoutePool;
 import boston.Bus.Map.data.StopLocation;
+import boston.Bus.Map.data.SubwayStopLocation;
 import boston.Bus.Map.transit.SubwayTransitSource;
 import boston.Bus.Map.transit.TransitSystem;
 
@@ -121,7 +122,7 @@ public class SubwayRouteConfigFeedParser
 			String title = elements[indexes.get("stop_name")];
 			String branch = elements[indexes.get("Branch")];
 
-			StopLocation stopLocation = new StopLocation(latitudeAsDegrees, longitudeAsDegrees,
+			StopLocation stopLocation = new SubwayStopLocation(latitudeAsDegrees, longitudeAsDegrees,
 					busStop, tag, title, platformOrder, branch);
 
 			String dirTag = routeConfig.getRouteName() + elements[indexes.get("Direction")];

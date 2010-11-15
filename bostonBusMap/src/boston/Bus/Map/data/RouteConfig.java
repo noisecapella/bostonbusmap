@@ -13,38 +13,31 @@ import boston.Bus.Map.transit.TransitSource;
 import boston.Bus.Map.util.Box;
 import boston.Bus.Map.util.CanBeSerialized;
 
+import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.util.Log;
 
-public class RouteConfig implements CanBeSerialized
+public class RouteConfig
 {
 
 	private final HashMap<String, StopLocation> stops;
 	private final ArrayList<Path> paths;
 	private final String route;
 	
-	private final String color;
-	private final String oppositeColor;
+	private final int color;
+	private final int oppositeColor;
 	
 	private final TransitSource transitSource;
 	
-	public RouteConfig(String route, String color, String oppositeColor, TransitSource transitAgency)
+	public RouteConfig(String route, int color, int oppositeColor, TransitSource transitAgency) throws IOException
 	{
-		this.route = route;
-		stops = new HashMap<String, StopLocation>();
-		paths = new ArrayList<Path>();
-		
-		this.color = color;
-		this.oppositeColor = oppositeColor;
-		this.transitSource = transitAgency;
+		this(route, color, oppositeColor, transitAgency, null);
 	}
 	
-	
-	
-	public void addStop(String id, StopLocation stopLocation) {
-		stops.put(id, stopLocation);
+	public void addStop(String tag, StopLocation stopLocation) {
+		stops.put(tag, stopLocation);
 	}
 	
 	public StopLocation getStop(String tag)
@@ -78,31 +71,33 @@ public class RouteConfig implements CanBeSerialized
 		return paths;
 	}
 
-	public String getColor()
+	public int getColor()
 	{
 		return color;
 	}
-	
 
-	@Override
-	public void serialize(Box dest) throws IOException {
-		
-		dest.writeString(route);
-		dest.writeStringUnique(color);
-		dest.writeString(oppositeColor);
-		dest.writeStopsMap(stops);
+	public void serializePath(Box dest) throws IOException
+	{
 		dest.writePathsList(paths);
 	}
-
-	public RouteConfig(Box source, TransitSource transitAgency) throws IOException {
-		route = source.readString();
-		color = source.readStringUnique();
-		oppositeColor = source.readString();
-		stops = source.readStopsMap(this, transitAgency.getBusStopDrawable());
-		paths = source.readPathsList();
+	
+	public RouteConfig(String route, int color, int oppositeColor, TransitSource transitAgency, Box serializedPath)
+			throws IOException {
+		this.route = route;
+		stops = new HashMap<String, StopLocation>();
 		
+		this.color = color;
+		this.oppositeColor = oppositeColor;
 		this.transitSource = transitAgency;
-		
+
+		if (serializedPath != null)
+		{
+			paths = serializedPath.readPathsList();
+		}
+		else
+		{
+			paths = new ArrayList<Path>();
+		}
 	}
 
 
@@ -114,5 +109,9 @@ public class RouteConfig implements CanBeSerialized
 	public boolean hasPaths()
 	{
 		return transitSource.hasPaths();
+	}
+
+	public int getOppositeColor() {
+		return oppositeColor;
 	}
 }

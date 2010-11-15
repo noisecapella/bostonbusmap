@@ -368,21 +368,21 @@ public class UpdateAsyncTask extends AsyncTask<Object, Object, Locations>
 			try {
 				//get the currently drawn route's color
 				RouteConfig route = busLocationsObject.getSelectedRoute();
-				String color;
+				int color;
 				if (route != null)
 				{
 					color = route.getColor();
 				}
 				else
 				{
-					color = null;
+					color = Color.BLUE;
 				}
 				
 				routeOverlay.setPathsAndColor(paths, color);
 
 			} catch (IOException e) {
 				Log.e("BostonBusMap", "Exception thrown from getSelectedRoute: " + e.getMessage());
-				routeOverlay.setPathsAndColor(paths, null);
+				routeOverlay.setPathsAndColor(paths, Color.BLUE);
 			}
 			selectedRouteConfig = null;
 		}

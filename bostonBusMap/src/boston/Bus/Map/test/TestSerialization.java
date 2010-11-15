@@ -20,10 +20,8 @@ import junit.framework.TestCase;
 public class TestSerialization extends TestCase {
 	public void testString() throws IOException
 	{
-		HashMap<String, StopLocation> sharedStops = new HashMap<String, StopLocation>();
-		
 		String x = null;
-		Box outputBox = new Box(null, DatabaseHelper.CURRENT_DB_VERSION, sharedStops);
+		Box outputBox = new Box(null, DatabaseHelper.CURRENT_DB_VERSION);
 		
 		try
 		{
@@ -32,7 +30,7 @@ public class TestSerialization extends TestCase {
 		
 			byte[] blob = outputBox.getBlob();
 
-			Box inputBox = new Box(blob, DatabaseHelper.CURRENT_DB_VERSION, sharedStops);
+			Box inputBox = new Box(blob, DatabaseHelper.CURRENT_DB_VERSION);
 
 			String string2 = inputBox.readString();
 
@@ -45,15 +43,13 @@ public class TestSerialization extends TestCase {
 	}
 	public void testString2() throws IOException
 	{
-		HashMap<String, StopLocation> sharedStops = new HashMap<String, StopLocation>();
-		
 		String x = "A quick brown fox";
-		Box outputBox = new Box(null, DatabaseHelper.CURRENT_DB_VERSION, sharedStops);
+		Box outputBox = new Box(null, DatabaseHelper.CURRENT_DB_VERSION);
 		outputBox.writeString(x);
 		
 		byte[] blob = outputBox.getBlob();
 		
-		Box inputBox = new Box(blob, DatabaseHelper.CURRENT_DB_VERSION, sharedStops);
+		Box inputBox = new Box(blob, DatabaseHelper.CURRENT_DB_VERSION);
 		
 		String string2 = inputBox.readString();
 		
@@ -64,12 +60,12 @@ public class TestSerialization extends TestCase {
 		HashMap<String, StopLocation> sharedStops = new HashMap<String, StopLocation>();
 		
 		long x = -4557498050202912686l;
-		Box outputBox = new Box(null, DatabaseHelper.CURRENT_DB_VERSION, sharedStops);
+		Box outputBox = new Box(null, DatabaseHelper.CURRENT_DB_VERSION);
 		outputBox.writeLong(x);
 		
 		byte[] blob = outputBox.getBlob();
 		
-		Box inputBox = new Box(blob, DatabaseHelper.CURRENT_DB_VERSION, sharedStops);
+		Box inputBox = new Box(blob, DatabaseHelper.CURRENT_DB_VERSION);
 		
 		long string2 = inputBox.readLong();
 		
@@ -80,12 +76,12 @@ public class TestSerialization extends TestCase {
 		HashMap<String, StopLocation> sharedStops = new HashMap<String, StopLocation>();
 		
 		int x = -8455;
-		Box outputBox = new Box(null, DatabaseHelper.CURRENT_DB_VERSION, sharedStops);
+		Box outputBox = new Box(null, DatabaseHelper.CURRENT_DB_VERSION);
 		outputBox.writeInt(x);
 		
 		byte[] blob = outputBox.getBlob();
 		
-		Box inputBox = new Box(blob, DatabaseHelper.CURRENT_DB_VERSION, sharedStops);
+		Box inputBox = new Box(blob, DatabaseHelper.CURRENT_DB_VERSION);
 		
 		int string2 = inputBox.readInt();
 		
@@ -97,12 +93,12 @@ public class TestSerialization extends TestCase {
 		HashMap<String, StopLocation> sharedStops = new HashMap<String, StopLocation>();
 		
 		double x = -8455.34;
-		Box outputBox = new Box(null, DatabaseHelper.CURRENT_DB_VERSION, sharedStops);
+		Box outputBox = new Box(null, DatabaseHelper.CURRENT_DB_VERSION);
 		outputBox.writeDouble(x);
 		
 		byte[] blob = outputBox.getBlob();
 		
-		Box inputBox = new Box(blob, DatabaseHelper.CURRENT_DB_VERSION, sharedStops);
+		Box inputBox = new Box(blob, DatabaseHelper.CURRENT_DB_VERSION);
 		
 		double string2 = inputBox.readDouble();
 		
@@ -114,71 +110,18 @@ public class TestSerialization extends TestCase {
 		HashMap<String, StopLocation> sharedStops = new HashMap<String, StopLocation>();
 		
 		float x = -8455.88f;
-		Box outputBox = new Box(null, DatabaseHelper.CURRENT_DB_VERSION, sharedStops);
+		Box outputBox = new Box(null, DatabaseHelper.CURRENT_DB_VERSION);
 		outputBox.writeFloat(x);
 		
 		byte[] blob = outputBox.getBlob();
 		
-		Box inputBox = new Box(blob, DatabaseHelper.CURRENT_DB_VERSION, sharedStops);
+		Box inputBox = new Box(blob, DatabaseHelper.CURRENT_DB_VERSION);
 		
 		float string2 = inputBox.readFloat();
 		
 		assertEquals(x, string2);
 	}
 	
-	private void assertValid(Box outputBox) throws IOException
-	{
-		HashMap<String, StopLocation> sharedStops = new HashMap<String, StopLocation>();
-		
-		byte[] blob = outputBox.getBlob();
-		
-		Box inputBox = new Box(blob, DatabaseHelper.CURRENT_DB_VERSION, sharedStops);
-		
-		RouteConfig routeConfig2 = new RouteConfig(inputBox, new MBTABusTransitSource(null, null, null));
-		
-		Box outputBox2 = new Box(null, DatabaseHelper.CURRENT_DB_VERSION, sharedStops);
-		routeConfig2.serialize(outputBox2);
-		
-		byte[] blob2 = outputBox2.getBlob();
-		
-		assertEquals(blob.length, blob2.length);
-		
-		for (int i = 0; i < blob.length; i++)
-		{
-			assertEquals(blob[i], blob2[i]);
-		}
-	}
-	
-	public void testBasic() throws IOException
-	{
-		HashMap<String, StopLocation> sharedStops = new HashMap<String, StopLocation>();
-		
-		RouteConfig routeConfig = new RouteConfig("x", "003344", "556677", new MBTABusTransitSource(null, null, null));
-		
-		routeConfig.addStop("5", new StopLocation(44.0f, 55.0f, null, "5", "xy", (short)9, null));
-		
-		Box outputBox = new Box(null, DatabaseHelper.CURRENT_DB_VERSION, sharedStops);
-		
-		routeConfig.serialize(outputBox);
-
-		assertValid(outputBox);
-	}
-	public void testBasic2() throws IOException
-	{
-		HashMap<String, StopLocation> sharedStops = new HashMap<String, StopLocation>();
-		
-		RouteConfig routeConfig = new RouteConfig("x", "123123", "ffeedd", new MBTABusTransitSource(null, null, null));
-		
-		routeConfig.addStop("5", new StopLocation(44.0f, 55.0f, null, "5", "xy", (short)9, null));
-		//routeConfig.addStop(6, new StopLocation(47.0, 56.0, null, 5, "x", "tue", routeConfig));
-		//routeConfig.addDirection("XYZSD", "akosod", "asodkosd");
-		
-		Box outputBox = new Box(null, DatabaseHelper.CURRENT_DB_VERSION, sharedStops);
-		
-		routeConfig.serialize(outputBox);
-
-		assertValid(outputBox);
-	}
 	
 	public void testStringMap() throws IOException
 	{
@@ -191,7 +134,7 @@ public class TestSerialization extends TestCase {
 		
 		mapping.put("sea cucumber", null);
 
-		Box outputBox = new Box(null, DatabaseHelper.CURRENT_DB_VERSION, sharedStops);
+		Box outputBox = new Box(null, DatabaseHelper.CURRENT_DB_VERSION);
 
 		try
 		{
@@ -200,7 +143,7 @@ public class TestSerialization extends TestCase {
 
 			HashMap<String, String> newMapping;
 
-			Box inputBox = new Box(outputBox.getBlob(), DatabaseHelper.CURRENT_DB_VERSION, sharedStops);
+			Box inputBox = new Box(outputBox.getBlob(), DatabaseHelper.CURRENT_DB_VERSION);
 			newMapping = inputBox.readStringMap();
 
 			assertEquals(newMapping.size(), mapping.size());
@@ -229,20 +172,6 @@ public class TestSerialization extends TestCase {
 		}
 	}
 	
-	public void testStopLocation() throws IOException
-	{
-		HashMap<String, StopLocation> sharedStops = new HashMap<String, StopLocation>();
-		
-		StopLocation stopLocation = new StopLocation(44.6f, -45.6f, null, "3", "stop", (short)9, null);
-		
-		
-		Box outputBox = new Box(null, DatabaseHelper.CURRENT_DB_VERSION, sharedStops);
-		
-		stopLocation.serialize(outputBox);
-		
-		assertValidStopLocation(outputBox);
-	}
-	
 	public void testPath() throws IOException
 	{
 		HashMap<String, StopLocation> sharedStops = new HashMap<String, StopLocation>();
@@ -255,79 +184,26 @@ public class TestSerialization extends TestCase {
 		
 		Path stopLocation = new Path(floats);
 		
-		Box outputBox = new Box(null, DatabaseHelper.CURRENT_DB_VERSION, sharedStops);
+		Box outputBox = new Box(null, DatabaseHelper.CURRENT_DB_VERSION);
 		
 		stopLocation.serialize(outputBox);
 		
 		assertValidPath(outputBox);
 	}
 
-	public void testRouteAndPath() throws IOException
-	{
-		HashMap<String, StopLocation> sharedStops = new HashMap<String, StopLocation>();
-		
-		ArrayList<Float> floats = new ArrayList<Float>();
-		floats.add(2.3f);
-		floats.add(-42.3f);
-		floats.add(-502.3f);
-		ArrayList<Float> floats2 = new ArrayList<Float>();
-		floats2.add(2.43f);
-		floats2.add(-42.53f);
-		floats2.add(-502.63f);
-		
-		
-		Path path = new Path(floats);
-		
-		RouteConfig routeConfig = new RouteConfig("6", "deadbe", "ef1234", new MBTABusTransitSource(null, null, null));
-		routeConfig.addPath(path);
-		routeConfig.addStop("xyz", new StopLocation(-3.4f, -6.5f, null, "s", "etwk", (short)9, null));
-		routeConfig.addStop("yy", new StopLocation(-4f, 5f, null, "k", "xkfowe", (short)9, null));
-		
-		Box outputBox = new Box(null, DatabaseHelper.CURRENT_DB_VERSION, sharedStops);
-		
-		
-		routeConfig.serialize(outputBox);
-		
-		assertValid(outputBox);
-	}
-	
-	
 	
 
-	private void assertValidStopLocation(Box outputBox) throws IOException
-	{
-		HashMap<String, StopLocation> sharedStops = new HashMap<String, StopLocation>();
-		
-		byte[] blob = outputBox.getBlob();
-		
-		Box inputBox = new Box(blob, DatabaseHelper.CURRENT_DB_VERSION, sharedStops);
-		
-		StopLocation routeConfig2 = new StopLocation(inputBox, null);
-		
-		Box outputBox2 = new Box(null, DatabaseHelper.CURRENT_DB_VERSION, sharedStops);
-		routeConfig2.serialize(outputBox2);
-		
-		byte[] blob2 = outputBox2.getBlob();
-		
-		assertEquals(blob.length, blob2.length);
-		
-		for (int i = 0; i < blob.length; i++)
-		{
-			assertEquals(blob[i], blob2[i]);
-		}
-	}
-	
 	private void assertValidPath(Box outputBox) throws IOException
 	{
 		HashMap<String, StopLocation> sharedStops = new HashMap<String, StopLocation>();
 		
 		byte[] blob = outputBox.getBlob();
 		
-		Box inputBox = new Box(blob, DatabaseHelper.CURRENT_DB_VERSION, sharedStops);
+		Box inputBox = new Box(blob, DatabaseHelper.CURRENT_DB_VERSION);
 		
 		Path routeConfig2 = new Path(inputBox);
 		
-		Box outputBox2 = new Box(null, DatabaseHelper.CURRENT_DB_VERSION, sharedStops);
+		Box outputBox2 = new Box(null, DatabaseHelper.CURRENT_DB_VERSION);
 		routeConfig2.serialize(outputBox2);
 		
 		byte[] blob2 = outputBox2.getBlob();
