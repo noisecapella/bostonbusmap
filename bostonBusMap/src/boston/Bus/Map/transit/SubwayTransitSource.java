@@ -203,9 +203,9 @@ public class SubwayTransitSource implements TransitSource {
 	public static final String BlueLine = "Blue";
 	private static final String[] subwayRoutes = new String[] {RedLine, OrangeLine, BlueLine};
 	
-	public static final int RedColor = Color.parseColor("#ff0000");
-	public static final int OrangeColor = Color.parseColor("f88017");
-	public static final int BlueColor = Color.parseColor("0000ff");
+	public static final int RedColor = Color.RED;
+	public static final int OrangeColor = 0xf88017; //orange isn't a built in color?
+	public static final int BlueColor = Color.BLUE;
 	
 	private static final int[] subwayColors = new int[] {RedColor, OrangeColor, BlueColor};
 	private final HashMap<String, String> subwayRouteKeysToTitles = new HashMap<String, String>();
