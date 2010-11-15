@@ -31,6 +31,7 @@ public class RoutePool {
 		this.helper = helper;
 		this.transitSystem = transitSystem;
 		
+		helper.upgradeIfNecessary();
 		helper.populateFavorites(favoriteStops);
 		fillInFavoritesRoutes();
 	}

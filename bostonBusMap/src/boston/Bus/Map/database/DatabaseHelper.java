@@ -702,4 +702,10 @@ public class DatabaseHelper extends SQLiteOpenHelper
 	public Cursor getCursorForDirection(String dirTag) {
 		throw new RuntimeException("Not Implemented");
 	}
+
+	public void upgradeIfNecessary() {
+		//trigger an upgrade so future calls of getReadableDatabase won't complain that you can't upgrade a read only db
+		getWritableDatabase();
+		
+	}
 }
