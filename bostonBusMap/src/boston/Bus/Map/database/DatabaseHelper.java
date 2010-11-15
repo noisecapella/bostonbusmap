@@ -487,9 +487,12 @@ public class DatabaseHelper extends SQLiteOpenHelper
 
 			
 			
-			
+			//get all stops, joining in the subway stops, making sure that the stop references the route we're on
 			SQLiteQueryBuilder builder = new SQLiteQueryBuilder();
-			stopCursor = builder.query(database, new String[] {stopTagKey, latitudeKey, longitudeKey, 
+			builder.setTables(verboseStops + " LEFT OUTER JOIN " + subwaySpecificTable + " ON (" + verboseStops + "." + stopTagKey + " = " + 
+					subwaySpecificTable + "." + stopTagKey + ") LEFT OUTER JOIN " + stopsRoutesMap +
+					" ON (" + verboseStops + "." + stopTagKey + " = " + stopsRoutesMap + "." + stopTagKey + ")");
+			stopCursor = builder.query(database, new String[] {verboseStops + "." + stopTagKey, latitudeKey, longitudeKey, 
 					stopTitleKey, platformOrderKey, branchKey},
 					routeKey + "=?", new String[]{routeToUpdate}, null, null, null);
 			
