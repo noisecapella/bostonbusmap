@@ -14,8 +14,10 @@ import boston.Bus.Map.data.Path;
 import boston.Bus.Map.data.RouteConfig;
 import boston.Bus.Map.data.StopLocation;
 import boston.Bus.Map.data.SubwayStopLocation;
+import boston.Bus.Map.main.UpdateAsyncTask;
 import boston.Bus.Map.transit.TransitSource;
 import boston.Bus.Map.transit.TransitSystem;
+import boston.Bus.Map.ui.ProgressMessage;
 import boston.Bus.Map.util.Box;
 
 import android.content.ContentValues;
@@ -273,7 +275,8 @@ public class DatabaseHelper extends SQLiteOpenHelper
 		}
 	}
 	
-	public synchronized void saveMapping(HashMap<String, RouteConfig> mapping, boolean wipe, HashMap<String, StopLocation> sharedStops) throws IOException
+	public synchronized void saveMapping(HashMap<String, RouteConfig> mapping,
+			boolean wipe, HashMap<String, StopLocation> sharedStops, UpdateAsyncTask task) throws IOException
 	{
 		SQLiteDatabase database = getWritableDatabase();
 		try
@@ -291,6 +294,10 @@ public class DatabaseHelper extends SQLiteOpenHelper
 				database.delete(verboseRoutes, null, null);
 			}
 
+			int total = mapping.keySet().size();
+			task.publish(new ProgressMessage(ProgressMessage.SET_MAX, total));
+			
+			int count = 0;
 			for (String route : mapping.keySet())
 			{
 				RouteConfig routeConfig = mapping.get(route);
@@ -298,6 +305,9 @@ public class DatabaseHelper extends SQLiteOpenHelper
 				{
 					saveMappingKernel(database, route, routeConfig, wipe, sharedStops);
 				}
+				
+				count++;
+				task.publish(count);
 			}
 
 			database.setTransactionSuccessful();

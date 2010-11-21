@@ -12,7 +12,9 @@ import java.util.Queue;
 import android.util.Log;
 import boston.Bus.Map.R;
 import boston.Bus.Map.database.DatabaseHelper;
+import boston.Bus.Map.main.UpdateAsyncTask;
 import boston.Bus.Map.transit.TransitSystem;
+import boston.Bus.Map.ui.ProgressMessage;
 
 public class RoutePool {
 	private final DatabaseHelper helper;
@@ -207,13 +209,21 @@ public class RoutePool {
 		}
 	}
 
-	public void writeToDatabase(HashMap<String, RouteConfig> map, boolean wipe) throws IOException {
-		helper.saveMapping(map, wipe, sharedStops);
-		for (String route : map.keySet())
-		{
-			//TODO: we just saved to database and then reloaded from database. This is inefficient
-			refreshRoute(route);
-		}
+	public void writeToDatabase(HashMap<String, RouteConfig> map, boolean wipe, UpdateAsyncTask task) throws IOException {
+		task.publish(new ProgressMessage(ProgressMessage.PROGRESS_DIALOG_ON, "Saving to database", null));
+		
+		helper.saveMapping(map, wipe, sharedStops, task);
+		
+		clearAll();
+	}
+
+	
+	
+	private void clearAll() {
+		priorities.clear();
+		pool.clear();
+		favoriteStops.clear();
+		sharedStops.clear();
 	}
 
 	private void refreshRoute(String route) throws IOException {

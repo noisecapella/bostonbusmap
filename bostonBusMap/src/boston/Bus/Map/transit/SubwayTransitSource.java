@@ -54,7 +54,7 @@ public class SubwayTransitSource implements TransitSource {
 	
 	@Override
 	public void populateStops(RoutePool routeMapping, String routeToUpdate,
-			RouteConfig oldRouteConfig, Directions directions)
+			RouteConfig oldRouteConfig, Directions directions, UpdateAsyncTask task)
 			throws ClientProtocolException, IOException,
 			ParserConfigurationException, SAXException {
 		
@@ -71,7 +71,7 @@ public class SubwayTransitSource implements TransitSource {
 
 		parser.runParse(downloadHelper.getResponseData()); 
 
-		parser.writeToDatabase(routeMapping, false);
+		parser.writeToDatabase(routeMapping, false, task);
 
 	}
 
@@ -234,7 +234,7 @@ public class SubwayTransitSource implements TransitSource {
 			ParserConfigurationException, SAXException {
 		//download subway data
 		
-		task.publish(new ProgressMessage(ProgressMessage.PROGRESS_DIALOG_ON, "Downloading subway info...", null));
+		task.publish(new ProgressMessage(ProgressMessage.PROGRESS_DIALOG_ON, "Downloading subway info", null));
 		final String subwayUrl = getRouteConfigUrl();
 		URL url = new URL(subwayUrl);
 		InputStream in = Locations.downloadStream(url, task);
@@ -243,7 +243,7 @@ public class SubwayTransitSource implements TransitSource {
 		
 		subwayParser.runParse(in);
 		
-		subwayParser.writeToDatabase(routeMapping, false);
+		subwayParser.writeToDatabase(routeMapping, false, task);
 		
 	}
 

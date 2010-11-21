@@ -25,6 +25,7 @@ import boston.Bus.Map.data.RouteConfig;
 import boston.Bus.Map.data.RoutePool;
 import boston.Bus.Map.data.StopLocation;
 import boston.Bus.Map.data.SubwayStopLocation;
+import boston.Bus.Map.main.UpdateAsyncTask;
 import boston.Bus.Map.transit.SubwayTransitSource;
 import boston.Bus.Map.transit.TransitSystem;
 
@@ -194,8 +195,8 @@ public class SubwayRouteConfigFeedParser
 		}
 	}
 
-	public void writeToDatabase(RoutePool routeMapping, boolean wipe) throws IOException {
-		routeMapping.writeToDatabase(map, wipe);
+	public void writeToDatabase(RoutePool routeMapping, boolean wipe, UpdateAsyncTask task) throws IOException {
+		routeMapping.writeToDatabase(map, wipe, task);
 		directions.writeToDatabase(wipe);
 	}
 }

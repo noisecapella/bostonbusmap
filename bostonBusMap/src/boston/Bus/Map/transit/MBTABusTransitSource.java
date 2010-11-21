@@ -286,7 +286,7 @@ public class MBTABusTransitSource implements TransitSource
 	
 	@Override
 	public void populateStops(RoutePool routeMapping, String routeToUpdate,
-			RouteConfig oldRouteConfig, Directions directions) 
+			RouteConfig oldRouteConfig, Directions directions, UpdateAsyncTask task) 
 			throws ClientProtocolException, IOException, ParserConfigurationException, SAXException 
 	{
 		final String urlString = getRouteConfigUrl(routeToUpdate);
@@ -301,7 +301,7 @@ public class MBTABusTransitSource implements TransitSource
 
 		parser.runParse(downloadHelper.getResponseData()); 
 
-		parser.writeToDatabase(routeMapping, false);
+		parser.writeToDatabase(routeMapping, false, task);
 		
 	}
 
@@ -490,7 +490,7 @@ public class MBTABusTransitSource implements TransitSource
 	public void initializeAllRoutes(UpdateAsyncTask task, Context context, Directions directions,
 			RoutePool routeMapping)
 		throws IOException, ParserConfigurationException, SAXException {
-		task.publish(new ProgressMessage(ProgressMessage.PROGRESS_DIALOG_ON, "Decompressing route data...", null));
+		task.publish(new ProgressMessage(ProgressMessage.PROGRESS_DIALOG_ON, "Decompressing route data", null));
 		
 		final int contentLength = 453754;
 		
@@ -505,7 +505,7 @@ public class MBTABusTransitSource implements TransitSource
 		
 
 		
-		parser.writeToDatabase(routeMapping, true);
+		parser.writeToDatabase(routeMapping, true, task);
 		
 		
 	}

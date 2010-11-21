@@ -213,8 +213,8 @@ public final class Locations
 			else
 			{
 				//populate route overlay (just in case we didn't already)
-				updateAsyncTask.publish(new ProgressMessage(ProgressMessage.PROGRESS_DIALOG_ON, "Downloading data for route " + routeToUpdate + "...", null));
-				populateStops(routeToUpdate, routeConfig);
+				updateAsyncTask.publish(new ProgressMessage(ProgressMessage.PROGRESS_DIALOG_ON, "Downloading data for route " + routeToUpdate, null));
+				populateStops(routeToUpdate, routeConfig, updateAsyncTask);
 				
 				return;
 			}
@@ -222,8 +222,8 @@ public final class Locations
 		else
 		{
 			//populate route overlay (just in case we didn't already)
-			updateAsyncTask.publish(new ProgressMessage(ProgressMessage.PROGRESS_DIALOG_ON, "Downloading data for route " + routeToUpdate + "...", null));
-			populateStops(routeToUpdate, routeConfig);
+			updateAsyncTask.publish(new ProgressMessage(ProgressMessage.PROGRESS_DIALOG_ON, "Downloading data for route " + routeToUpdate, null));
+			populateStops(routeToUpdate, routeConfig, updateAsyncTask);
 			return;
 		}
 		
@@ -244,7 +244,7 @@ public final class Locations
 		}
 	}
 
-	private void populateStops(String routeToUpdate, RouteConfig oldRouteConfig) 
+	private void populateStops(String routeToUpdate, RouteConfig oldRouteConfig, UpdateAsyncTask task) 
 		throws IOException, ParserConfigurationException, SAXException
 	{
 		
@@ -258,7 +258,7 @@ public final class Locations
 			transitSource = transitSystem.getTransitSource(routeToUpdate);
 		}
 		
-		transitSource.populateStops(routeMapping, routeToUpdate, oldRouteConfig, directions);
+		transitSource.populateStops(routeMapping, routeToUpdate, oldRouteConfig, directions, task);
 	}
 
 	/**
