@@ -7,6 +7,8 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 
+import com.google.android.maps.Projection;
+
 import boston.Bus.Map.data.Path;
 
 import boston.Bus.Map.data.RouteConfig;
@@ -489,12 +491,22 @@ public class DatabaseHelper extends SQLiteOpenHelper
 			
 			//get all stops, joining in the subway stops, making sure that the stop references the route we're on
 			SQLiteQueryBuilder builder = new SQLiteQueryBuilder();
-			builder.setTables(verboseStops + " LEFT OUTER JOIN " + subwaySpecificTable + " ON (" + verboseStops + "." + stopTagKey + " = " + 
-					subwaySpecificTable + "." + stopTagKey + ") LEFT OUTER JOIN " + stopsRoutesMap +
-					" ON (" + verboseStops + "." + stopTagKey + " = " + stopsRoutesMap + "." + stopTagKey + ")");
-			stopCursor = builder.query(database, new String[] {verboseStops + "." + stopTagKey, latitudeKey, longitudeKey, 
-					stopTitleKey, platformOrderKey, branchKey},
-					routeKey + "=?", new String[]{routeToUpdate}, null, null, null);
+			String tables = verboseStops +
+			" INNER JOIN " + stopsRoutesMap +
+			" ON (" + verboseStops + "." + stopTagKey + " = " + stopsRoutesMap + "." + stopTagKey + ")" +
+			" LEFT OUTER JOIN " + subwaySpecificTable + " ON (" + verboseStops + "." + stopTagKey + " = " + 
+			subwaySpecificTable + "." + stopTagKey + ")";
+			builder.setTables(tables);
+			
+			String[] projectionIn = new String[] {verboseStops + "." + stopTagKey, latitudeKey, longitudeKey, 
+					stopTitleKey, platformOrderKey, branchKey};
+			String select = routeKey + "=?";
+			String[] selectArray = new String[]{routeToUpdate};
+			
+			Log.v("BostonBusMap", SQLiteQueryBuilder.buildQueryString(false, tables, projectionIn, routeKey + "=\"" + routeToUpdate + "\"",
+					null, null, null, null));
+			
+			stopCursor = builder.query(database, projectionIn, select, selectArray, null, null, null);
 			
 			stopCursor.moveToFirst();
 			while (stopCursor.isAfterLast() == false)
@@ -523,7 +535,7 @@ public class DatabaseHelper extends SQLiteOpenHelper
 				routeConfig.addStop(stopTag, stop);
 				stopCursor.moveToNext();
 			}
-			
+			Log.v("BostonBusMap", "getRoute ended successfully");
 			
 			return routeConfig;
 		}

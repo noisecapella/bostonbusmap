@@ -58,6 +58,7 @@ import boston.Bus.Map.parser.VehicleLocationsFeedParser;
 import boston.Bus.Map.transit.MBTABusTransitSource;
 import boston.Bus.Map.transit.TransitSource;
 import boston.Bus.Map.transit.TransitSystem;
+import boston.Bus.Map.ui.ProgressMessage;
 import boston.Bus.Map.util.DownloadHelper;
 import boston.Bus.Map.util.FeedException;
 import boston.Bus.Map.util.StreamCounter;
@@ -174,12 +175,12 @@ public final class Locations
 		}
 	}
 	
-	public static InputStream downloadStream(URL url, UpdateAsyncTask task, String prepend, String ifContentLengthMissing) throws IOException {
+	public static InputStream downloadStream(URL url, UpdateAsyncTask task) throws IOException {
 		URLConnection connection = url.openConnection();
 		int totalDownloadSize = connection.getContentLength();
 		InputStream inputStream = connection.getInputStream();
 
-		return new StreamCounter(inputStream, task, totalDownloadSize, ifContentLengthMissing, prepend);
+		return new StreamCounter(inputStream, task, totalDownloadSize);
 	}
 
 	/**
@@ -212,7 +213,7 @@ public final class Locations
 			else
 			{
 				//populate route overlay (just in case we didn't already)
-				updateAsyncTask.publish("Downloading data for route " + routeToUpdate + "...");
+				updateAsyncTask.publish(new ProgressMessage(ProgressMessage.PROGRESS_DIALOG_ON, "Downloading data for route " + routeToUpdate + "...", null));
 				populateStops(routeToUpdate, routeConfig);
 				
 				return;
@@ -221,7 +222,7 @@ public final class Locations
 		else
 		{
 			//populate route overlay (just in case we didn't already)
-			updateAsyncTask.publish("Downloading data for route " + routeToUpdate + "...");
+			updateAsyncTask.publish(new ProgressMessage(ProgressMessage.PROGRESS_DIALOG_ON, "Downloading data for route " + routeToUpdate + "...", null));
 			populateStops(routeToUpdate, routeConfig);
 			return;
 		}

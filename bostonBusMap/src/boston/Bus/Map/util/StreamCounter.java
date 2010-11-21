@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.InputStream;
 
 import boston.Bus.Map.main.UpdateAsyncTask;
+import boston.Bus.Map.ui.ProgressMessage;
 
 public class StreamCounter extends InputStream
 {
@@ -12,17 +13,13 @@ public class StreamCounter extends InputStream
 	private final UpdateAsyncTask publisher;
 	private final byte[] byteSpace = new byte[1];
 	private final int contentLength;
-	private final String contentLengthMissingString;
-	private final String prepend;
 	
-	public StreamCounter(InputStream wrappedStream, UpdateAsyncTask publisher, int contentLength,
-			String contentLengthMissingString, String prepend)
+	public StreamCounter(InputStream wrappedStream, UpdateAsyncTask publisher, int contentLength)
 	{
 		this.wrappedStream = wrappedStream;
 		this.publisher = publisher;
 		this.contentLength = contentLength;
-		this.contentLengthMissingString = contentLengthMissingString;
-		this.prepend = prepend;
+		publisher.publish(new ProgressMessage(ProgressMessage.SET_MAX, contentLength));
 	}
 	
 	@Override
@@ -36,27 +33,10 @@ public class StreamCounter extends InputStream
 	}
 
 	private void publish(int totalRead) {
-		int totalReadInKb = totalRead >> 10;
-		
-		String msg;
 		if (contentLength > 0)
 		{
-			msg = prepend + " " + totalReadInKb + "kb of " + (contentLength / 1024) + "kb";
+			publisher.publish(totalRead);
 		}
-		else
-		{
-			if (contentLengthMissingString != null)
-			{
-				msg = prepend + " " + totalReadInKb + "kb " + contentLengthMissingString;
-			}
-			else
-			{
-				msg = prepend + " " + totalReadInKb + "kb";					
-			}
-		}
-
-		//NOTE: commenting this out makes this class useless, but for now there's no good place to show this information
-		//publisher.publish(msg);
 	}
 
 	@Override

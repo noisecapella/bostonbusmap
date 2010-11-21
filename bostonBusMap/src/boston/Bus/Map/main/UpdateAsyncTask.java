@@ -44,6 +44,7 @@ import boston.Bus.Map.database.DatabaseHelper;
 import boston.Bus.Map.transit.TransitSystem;
 import boston.Bus.Map.ui.BusOverlay;
 import boston.Bus.Map.ui.LocationOverlay;
+import boston.Bus.Map.ui.ProgressMessage;
 import boston.Bus.Map.ui.RouteOverlay;
 import boston.Bus.Map.util.Constants;
 import boston.Bus.Map.util.FeedException;
@@ -53,6 +54,7 @@ import com.google.android.maps.MapView;
 import com.google.android.maps.OverlayItem;
 import com.google.android.maps.Projection;
 
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.graphics.Color;
 import android.graphics.ColorFilter;
@@ -86,6 +88,7 @@ public class UpdateAsyncTask extends AsyncTask<Object, Object, Locations>
 	private final boolean drawCircle;
 	private final DatabaseHelper helper;
 	private ProgressBar progress;
+	private ProgressDialog progressDialog;
 	
 	private boolean silenceUpdates;
 	
@@ -155,16 +158,54 @@ public class UpdateAsyncTask extends AsyncTask<Object, Object, Locations>
 		if (silenceUpdates == false)
 		{
 			Object string = strings[0];
-			if (string instanceof String)
+			if (string instanceof Integer)
 			{
-				Log.v("BostonBusMap", "Toast made: " + string);
-				Toast.makeText(context, (String)string, Toast.LENGTH_LONG).show();
+				if (progressDialog != null)
+				{
+					progressDialog.setProgress((Integer)string);
+				}
 			}
-			else if (string instanceof Boolean && progress != null)
+			else if (string instanceof ProgressMessage && progress != null)
 			{
-				boolean b = (Boolean)string;
-				Log.v("BostonBusMap", "turning progress " + (b ? "on" : "off"));
-				progress.setVisibility(b ? View.VISIBLE : View.INVISIBLE);
+				ProgressMessage message = (ProgressMessage)string;
+				
+				switch (message.type)
+				{
+				case ProgressMessage.PROGRESS_OFF:
+					if (progressDialog != null)
+					{
+						progressDialog.dismiss();
+						progressDialog = null;
+					}
+					progress.setVisibility(View.INVISIBLE);
+					break;
+				case ProgressMessage.PROGRESS_DIALOG_ON:
+					if (progressDialog != null)
+					{
+						progressDialog.dismiss();
+					}
+					progressDialog = new ProgressDialog(context);
+					progressDialog.setMessage(message.message);
+					progressDialog.setTitle(message.title);
+					progressDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
+					progressDialog.setCancelable(false);
+					progressDialog.show();
+					
+					break;
+				case ProgressMessage.SET_MAX:
+					if (progressDialog != null)
+					{
+						progressDialog.setMax(message.max);
+					}
+					break;
+				case ProgressMessage.PROGRESS_SPINNER_ON:
+					progress.setVisibility(View.VISIBLE);
+					break;
+				case ProgressMessage.TOAST:
+					Log.v("BostonBusMap", "Toast made: " + string);
+					Toast.makeText(context, message.message, Toast.LENGTH_LONG).show();
+					break;
+				}
 			}
 			else if (progress == null)
 			{
@@ -190,7 +231,7 @@ public class UpdateAsyncTask extends AsyncTask<Object, Object, Locations>
 		{
 			try
 			{
-				publishProgress(true);
+				publish(new ProgressMessage(ProgressMessage.PROGRESS_SPINNER_ON, null, null));
 				
 				String[] allRoutes = transitSystem.getRoutes();
 				if (doInit)
@@ -199,7 +240,8 @@ public class UpdateAsyncTask extends AsyncTask<Object, Object, Locations>
 				}
 				if (busLocations.checkFreeSpace(helper, allRoutes) == false)
 				{
-					publishProgress("There is not enough free space to download the route info. About 2MB free is required");
+					publish(new ProgressMessage(ProgressMessage.TOAST, null, 
+							"There is not enough free space to download the route info. About 2MB free is required"));
 					return null;
 				}
 				
@@ -215,7 +257,7 @@ public class UpdateAsyncTask extends AsyncTask<Object, Object, Locations>
 			catch (IOException e)
 			{
 				//this probably means that there is no Internet available, or there's something wrong with the feed
-				publishProgress("Feed is inaccessible; try again later");
+				publish(new ProgressMessage(ProgressMessage.TOAST, null, "Feed is inaccessible; try again later"));
 
 				StringWriter writer = new StringWriter();
 				e.printStackTrace(new PrintWriter(writer));
@@ -224,7 +266,8 @@ public class UpdateAsyncTask extends AsyncTask<Object, Object, Locations>
 				return null;
 
 			} catch (SAXException e) {
-				publishProgress("XML parsing exception; cannot update. Maybe there was a hiccup in the feed?");
+				publish(new ProgressMessage(ProgressMessage.TOAST, null,
+						"XML parsing exception; cannot update. Maybe there was a hiccup in the feed?"));
 
 				StringWriter writer = new StringWriter();
 				e.printStackTrace(new PrintWriter(writer));
@@ -232,7 +275,7 @@ public class UpdateAsyncTask extends AsyncTask<Object, Object, Locations>
 				
 				return null;
 			} catch (NumberFormatException e) {
-				publishProgress("XML parsing exception; cannot update. Maybe there was a hiccup in the feed?");
+				publish(new ProgressMessage(ProgressMessage.TOAST, null, "XML number parsing exception; cannot update. Maybe there was a hiccup in the feed?"));
 
 				StringWriter writer = new StringWriter();
 				e.printStackTrace(new PrintWriter(writer));
@@ -240,7 +283,7 @@ public class UpdateAsyncTask extends AsyncTask<Object, Object, Locations>
 				
 				return null;
 			} catch (ParserConfigurationException e) {
-				publishProgress("XML parser configuration exception; cannot update");
+				publish(new ProgressMessage(ProgressMessage.TOAST, null, "XML parser configuration exception; cannot update"));
 
 				StringWriter writer = new StringWriter();
 				e.printStackTrace(new PrintWriter(writer));
@@ -248,7 +291,7 @@ public class UpdateAsyncTask extends AsyncTask<Object, Object, Locations>
 				
 				return null;
 			} catch (FactoryConfigurationError e) {
-				publishProgress("XML parser factory configuration exception; cannot update");
+				publish(new ProgressMessage(ProgressMessage.TOAST, null, "XML parser factory configuration exception; cannot update"));
 
 				StringWriter writer = new StringWriter();
 				e.printStackTrace(new PrintWriter(writer));
@@ -260,7 +303,7 @@ public class UpdateAsyncTask extends AsyncTask<Object, Object, Locations>
 			{
 				if (e.getCause() instanceof FeedException)
 				{
-					publishProgress("The feed is reporting an error");
+					publish(new ProgressMessage(ProgressMessage.TOAST, null, "The feed is reporting an error"));
 
 					StringWriter writer = new StringWriter();
 					e.printStackTrace(new PrintWriter(writer));
@@ -275,7 +318,7 @@ public class UpdateAsyncTask extends AsyncTask<Object, Object, Locations>
 			}
 			catch (Exception e)
 			{
-				publishProgress("Unknown exception occurred");
+				publish(new ProgressMessage(ProgressMessage.TOAST, null, "Unknown exception occurred"));
 
 				StringWriter writer = new StringWriter();
 				e.printStackTrace(new PrintWriter(writer));
@@ -286,7 +329,7 @@ public class UpdateAsyncTask extends AsyncTask<Object, Object, Locations>
 			finally
 			{
 				//we should always set the icon to invisible afterwards just in case
-				publishProgress(false);
+				publish(new ProgressMessage(ProgressMessage.PROGRESS_OFF, null, null));
 			}
 		}
 
@@ -319,7 +362,7 @@ public class UpdateAsyncTask extends AsyncTask<Object, Object, Locations>
 		}
 		catch (IOException e)
 		{
-			publishProgress("Error getting route data from database");
+			publish(new ProgressMessage(ProgressMessage.TOAST, null, "Error getting route data from database"));
 			return;
 		}
 
@@ -328,7 +371,7 @@ public class UpdateAsyncTask extends AsyncTask<Object, Object, Locations>
 		{
 			//no data? oh well
 			//sometimes the feed provides an empty XML message; completely valid but without any vehicle elements
-			publishProgress("Finished update, no data provided");
+			publish(new ProgressMessage(ProgressMessage.TOAST, null, "Finished update, no data provided"));
 
 			//an error probably occurred; keep buses where they were before, and don't overwrite message in textbox
 			return;
@@ -464,9 +507,14 @@ public class UpdateAsyncTask extends AsyncTask<Object, Object, Locations>
 	 * public method exposing protected publishProgress()
 	 * @param msg
 	 */
-	public void publish(String msg)
+	public void publish(ProgressMessage msg)
 	{
 		publishProgress(msg);
+	}
+	
+	public void publish(int value)
+	{
+		publishProgress(value);
 	}
 	
 	/**

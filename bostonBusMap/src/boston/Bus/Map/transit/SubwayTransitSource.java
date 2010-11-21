@@ -31,6 +31,7 @@ import boston.Bus.Map.parser.RouteConfigFeedParser;
 import boston.Bus.Map.parser.SubwayPredictionsFeedParser;
 import boston.Bus.Map.parser.SubwayRouteConfigFeedParser;
 import boston.Bus.Map.parser.VehicleLocationsFeedParser;
+import boston.Bus.Map.ui.ProgressMessage;
 import boston.Bus.Map.util.DownloadHelper;
 
 public class SubwayTransitSource implements TransitSource {
@@ -232,12 +233,13 @@ public class SubwayTransitSource implements TransitSource {
 			RoutePool routeMapping) throws IOException,
 			ParserConfigurationException, SAXException {
 		//download subway data
+		
+		task.publish(new ProgressMessage(ProgressMessage.PROGRESS_DIALOG_ON, "Downloading subway info...", null));
 		final String subwayUrl = getRouteConfigUrl();
 		URL url = new URL(subwayUrl);
-		InputStream in = Locations.downloadStream(url, task, "Downloading subway info: ", "");
+		InputStream in = Locations.downloadStream(url, task);
 		
-		SubwayRouteConfigFeedParser subwayParser =
-			new SubwayRouteConfigFeedParser(busStop, directions, null, this);
+		SubwayRouteConfigFeedParser subwayParser = new SubwayRouteConfigFeedParser(busStop, directions, null, this);
 		
 		subwayParser.runParse(in);
 		

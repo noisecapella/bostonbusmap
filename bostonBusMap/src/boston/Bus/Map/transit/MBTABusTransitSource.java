@@ -27,6 +27,7 @@ import boston.Bus.Map.main.UpdateAsyncTask;
 import boston.Bus.Map.parser.BusPredictionsFeedParser;
 import boston.Bus.Map.parser.RouteConfigFeedParser;
 import boston.Bus.Map.parser.VehicleLocationsFeedParser;
+import boston.Bus.Map.ui.ProgressMessage;
 import boston.Bus.Map.util.DownloadHelper;
 import boston.Bus.Map.util.StreamCounter;
 
@@ -489,12 +490,12 @@ public class MBTABusTransitSource implements TransitSource
 	public void initializeAllRoutes(UpdateAsyncTask task, Context context, Directions directions,
 			RoutePool routeMapping)
 		throws IOException, ParserConfigurationException, SAXException {
-		task.publish("Decompressing route data. This may take a minute...");
+		task.publish(new ProgressMessage(ProgressMessage.PROGRESS_DIALOG_ON, "Decompressing route data...", null));
 		
 		final int contentLength = 453754;
 		
 		InputStream in = new StreamCounter(context.getResources().openRawResource(boston.Bus.Map.R.raw.routeconfig),
-				task, contentLength, null, "Decompressing route data, may take a minute: "); 
+				task, contentLength); 
 		
 		GZIPInputStream stream = new GZIPInputStream(in); 
 		
