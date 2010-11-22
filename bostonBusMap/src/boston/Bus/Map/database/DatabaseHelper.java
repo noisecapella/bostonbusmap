@@ -49,6 +49,7 @@ public class DatabaseHelper extends SQLiteOpenHelper
 	private final static String verboseRoutes = "routes";
 	private final static String verboseStops = "stops";
 	private final static String stopsRoutesMap = "stopmapping";
+	private final static String stopsRoutesMapIndex = "IDX_stopmapping";
 	private final static String subwaySpecificTable = "subway";
 	
 	
@@ -131,7 +132,7 @@ public class DatabaseHelper extends SQLiteOpenHelper
 				latitudeKey + " FLOAT, " + longitudeKey + " FLOAT, " + stopTitleKey + " STRING)");
 		
 		db.execSQL("CREATE TABLE IF NOT EXISTS " + stopsRoutesMap + " (" + routeKey + " STRING, " + stopTagKey + " STRING, " +
-				dirTagKey + " STRING)");
+				dirTagKey + " STRING, PRIMARY KEY (" + routeKey + ", " + stopTagKey + "))");
 		
 		db.execSQL("CREATE TABLE IF NOT EXISTS " + subwaySpecificTable + " (" + stopTagKey + " STRING PRIMARY KEY, " +
 				platformOrderKey + " INTEGER, " + 
@@ -309,7 +310,7 @@ public class DatabaseHelper extends SQLiteOpenHelper
 				count++;
 				task.publish(count);
 			}
-
+			database.execSQL("CREATE INDEX IF NOT EXISTS " + stopsRoutesMapIndex + " ON " + stopsRoutesMap + " (" + stopTagKey + ")");
 			database.setTransactionSuccessful();
 			database.endTransaction();
 
@@ -502,18 +503,24 @@ public class DatabaseHelper extends SQLiteOpenHelper
 			//get all stops, joining in the subway stops, making sure that the stop references the route we're on
 			SQLiteQueryBuilder builder = new SQLiteQueryBuilder();
 			String tables = verboseStops +
-			" INNER JOIN " + stopsRoutesMap +
-			" ON (" + verboseStops + "." + stopTagKey + " = " + stopsRoutesMap + "." + stopTagKey + ")" +
 			" LEFT OUTER JOIN " + subwaySpecificTable + " ON (" + verboseStops + "." + stopTagKey + " = " + 
-			subwaySpecificTable + "." + stopTagKey + ")";
+			subwaySpecificTable + "." + stopTagKey + ")" +
+			" JOIN " + stopsRoutesMap + " AS sm1 ON (" + verboseStops + "." + stopTagKey + " = sm1." + stopTagKey + ")" +
+			" JOIN " + stopsRoutesMap + " AS sm2 ON (" + verboseStops + "." + stopTagKey + " = sm2." + stopTagKey + ")";
+			
+			/* select stops.tag, lat, lon, title, platformorder, branch, stopmapping1.dirTag, stopmapping2.route 
+			 * from stops inner join stopmapping as stopmapping1 on (stops.tag = stopmapping1.tag) 
+			 * inner join stopmapping as stopmapping2 on (stops.tag = stopmapping2.tag)
+			 * left outer join subway on (stops.tag = subway.tag) 
+			 * where stopmapping1.route=71;*/ 
 			builder.setTables(tables);
 			
 			String[] projectionIn = new String[] {verboseStops + "." + stopTagKey, latitudeKey, longitudeKey, 
-					stopTitleKey, platformOrderKey, branchKey};
-			String select = routeKey + "=?";
+					stopTitleKey, platformOrderKey, branchKey, "sm1." + dirTagKey, "sm2." + routeKey};
+			String select = "sm1." + routeKey + "=?";
 			String[] selectArray = new String[]{routeToUpdate};
 			
-			Log.v("BostonBusMap", SQLiteQueryBuilder.buildQueryString(false, tables, projectionIn, routeKey + "=\"" + routeToUpdate + "\"",
+			Log.v("BostonBusMap", SQLiteQueryBuilder.buildQueryString(false, tables, projectionIn, "sm1." + routeKey + "=\"" + routeToUpdate + "\"",
 					null, null, null, null));
 			
 			stopCursor = builder.query(database, projectionIn, select, selectArray, null, null, null);
@@ -522,27 +529,37 @@ public class DatabaseHelper extends SQLiteOpenHelper
 			while (stopCursor.isAfterLast() == false)
 			{
 				String stopTag = stopCursor.getString(0);
-				float latitude = stopCursor.getFloat(1);
-				float longitude = stopCursor.getFloat(2);
-				String stopTitle = stopCursor.getString(3);
-				String branch = stopCursor.getString(5);
-				int platformOrder = 0;
-				
-				StopLocation stop;
-				Drawable busStop = source.getBusStopDrawable();
-				if (stopCursor.isNull(4) == false)
+				String dirTag = stopCursor.getString(6);
+				String route = stopCursor.getString(7);
+
+				StopLocation stop = routeConfig.getStop(stopTag);
+				if (stop == null)
 				{
-					platformOrder = stopCursor.getInt(4);
-					
-					stop = new SubwayStopLocation(latitude, longitude, busStop,
-							stopTag, stopTitle, platformOrder, branch);
-				}
-				else
-				{
-					stop = new StopLocation(latitude, longitude, busStop, stopTag, stopTitle);
+					float latitude = stopCursor.getFloat(1);
+					float longitude = stopCursor.getFloat(2);
+					String stopTitle = stopCursor.getString(3);
+					String branch = stopCursor.getString(5);
+
+					int platformOrder = 0;
+
+					Drawable busStop = source.getBusStopDrawable();
+					if (stopCursor.isNull(4) == false)
+					{
+						platformOrder = stopCursor.getInt(4);
+
+						stop = new SubwayStopLocation(latitude, longitude, busStop,
+								stopTag, stopTitle, platformOrder, branch);
+					}
+					else
+					{
+						stop = new StopLocation(latitude, longitude, busStop, stopTag, stopTitle);
+					}
+
+					routeConfig.addStop(stopTag, stop);
 				}
 				
-				routeConfig.addStop(stopTag, stop);
+				stop.addRouteAndDirTag(route, dirTag);
+				
 				stopCursor.moveToNext();
 			}
 			Log.v("BostonBusMap", "getRoute ended successfully");
