@@ -49,7 +49,8 @@ public class DatabaseHelper extends SQLiteOpenHelper
 	private final static String verboseRoutes = "routes";
 	private final static String verboseStops = "stops";
 	private final static String stopsRoutesMap = "stopmapping";
-	private final static String stopsRoutesMapIndex = "IDX_stopmapping";
+	private final static String stopsRoutesMapIndexTag = "IDX_stopmapping";
+	private final static String stopsRoutesMapIndexRoute = "IDX_routemapping";
 	private final static String subwaySpecificTable = "subway";
 	
 	
@@ -137,6 +138,9 @@ public class DatabaseHelper extends SQLiteOpenHelper
 		db.execSQL("CREATE TABLE IF NOT EXISTS " + subwaySpecificTable + " (" + stopTagKey + " STRING PRIMARY KEY, " +
 				platformOrderKey + " INTEGER, " + 
 				branchKey + " STRING)");
+		db.execSQL("CREATE INDEX IF NOT EXISTS " + stopsRoutesMapIndexRoute + " ON " + stopsRoutesMap + " (" + routeKey + ")");
+		db.execSQL("CREATE INDEX IF NOT EXISTS " + stopsRoutesMapIndexTag + " ON " + stopsRoutesMap + " (" + stopTagKey + ")");
+
 	}
 
 	@Override
@@ -310,7 +314,7 @@ public class DatabaseHelper extends SQLiteOpenHelper
 				count++;
 				task.publish(count);
 			}
-			database.execSQL("CREATE INDEX IF NOT EXISTS " + stopsRoutesMapIndex + " ON " + stopsRoutesMap + " (" + stopTagKey + ")");
+
 			database.setTransactionSuccessful();
 			database.endTransaction();
 
@@ -503,10 +507,11 @@ public class DatabaseHelper extends SQLiteOpenHelper
 			//get all stops, joining in the subway stops, making sure that the stop references the route we're on
 			SQLiteQueryBuilder builder = new SQLiteQueryBuilder();
 			String tables = verboseStops +
-			" LEFT OUTER JOIN " + subwaySpecificTable + " ON (" + verboseStops + "." + stopTagKey + " = " + 
-			subwaySpecificTable + "." + stopTagKey + ")" +
 			" JOIN " + stopsRoutesMap + " AS sm1 ON (" + verboseStops + "." + stopTagKey + " = sm1." + stopTagKey + ")" +
-			" JOIN " + stopsRoutesMap + " AS sm2 ON (" + verboseStops + "." + stopTagKey + " = sm2." + stopTagKey + ")";
+			" JOIN " + stopsRoutesMap + " AS sm2 ON (" + verboseStops + "." + stopTagKey + " = sm2." + stopTagKey + ")" +
+			" LEFT OUTER JOIN " + subwaySpecificTable + " ON (" + verboseStops + "." + stopTagKey + " = " + 
+			subwaySpecificTable + "." + stopTagKey + ")";
+
 			
 			/* select stops.tag, lat, lon, title, platformorder, branch, stopmapping1.dirTag, stopmapping2.route 
 			 * from stops inner join stopmapping as stopmapping1 on (stops.tag = stopmapping1.tag) 
