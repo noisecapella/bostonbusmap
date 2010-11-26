@@ -80,29 +80,13 @@ public final class Locations
 	private double lastUpdateTime = 0;
 	
 
-	/**
-	 * in millis
-	 */
-	private final double tenMinutes = 10 * 60 * 1000;
-	
-	
-	private final Drawable bus;
-	private final Drawable arrow;
-	private final Drawable locationDrawable;
-	private final Drawable busStop;
-	
 	private String selectedRoute;
 	private int selectedBusPredictions;
 	private final TransitSystem transitSystem;
 	
-	public Locations(Drawable bus, Drawable arrow, Drawable locationDrawable,
-			Drawable busStop, DatabaseHelper helper, 
+	public Locations(DatabaseHelper helper, 
 			TransitSystem transitSystem)
 	{
-		this.bus = bus;
-		this.arrow = arrow;
-		this.locationDrawable = locationDrawable;
-		this.busStop = busStop;
 		this.transitSystem = transitSystem;
 		routeMapping = new RoutePool(helper, transitSystem);
 		directions = new Directions(helper);
@@ -124,17 +108,6 @@ public final class Locations
 		
 		if (hasNoMissingData == false)
 		{
-			final String prepend = "Downloading route info (this may take a short while): ";
-			
-			//download everything at once
-			//NOTE: for now, I'm including a copy of the routeConfig with the app
-			/*final String urlString = TransitSystem.getRouteConfigUrl();
-			URL url = new URL(urlString);
-			
-			InputStream stream = downloadStream(url, task, prepend, "of approx " + TransitSystem.getSizeOfRouteConfigUrl());
-			*/
-			
-			
 			HashSet<TransitSource> systems = new HashSet<TransitSource>();
 			for (String route : routesThatNeedUpdating)
 			{
@@ -148,30 +121,6 @@ public final class Locations
 			routeMapping.fillInFavoritesRoutes();
 			//TODO: fill routeMapping somehow
 			
-		}
-		else
-		{
-			/*if (routesThatNeedUpdating != null)
-			{
-				//this code probably isn't executed right now
-				for (String route : routesThatNeedUpdating)
-				{
-					final String prepend = "Downloading route info for " + route + " (this may take a short while): ";
-
-					//populate stops
-					final String urlString = TransitSystem.getRouteConfigUrl(route);
-					URL url = new URL(urlString);
-
-					//just initialize the route and then end for this round
-					InputStream stream = downloadStream(url, task, prepend, null);
-					RouteConfigFeedParser parser = new RouteConfigFeedParser(busStop, directions, routeKeysToTitles, null);
-
-					parser.runParse(stream);
-
-					parser.writeToDatabase(routeMapping, false);
-				}
-			}*/
-			//TODO: what happens here? I don't think this is ever executed
 		}
 	}
 	

@@ -281,7 +281,7 @@ public class DatabaseHelper extends SQLiteOpenHelper
 	}
 	
 	public synchronized void saveMapping(HashMap<String, RouteConfig> mapping,
-			boolean wipe, HashMap<String, StopLocation> sharedStops, UpdateAsyncTask task) throws IOException
+			boolean wipe, HashSet<String> sharedStops, UpdateAsyncTask task) throws IOException
 	{
 		SQLiteDatabase database = getWritableDatabase();
 		try
@@ -334,7 +334,7 @@ public class DatabaseHelper extends SQLiteOpenHelper
 	 * @throws IOException 
 	 */
 	private void saveMappingKernel(SQLiteDatabase database, String route, RouteConfig routeConfig,
-			boolean useInsert, HashMap<String, StopLocation> sharedStops) throws IOException
+			boolean useInsert, HashSet<String> sharedStops) throws IOException
 	{
 		Box serializedPath = new Box(null, CURRENT_DB_VERSION);
 		
@@ -377,10 +377,10 @@ public class DatabaseHelper extends SQLiteOpenHelper
 			branchKey + " STRING, " + platformOrderKey + " SHORT)"*/
 			String stopTag = stop.getStopTag();
 			
-			if (sharedStops.containsKey(stopTag) == false)
+			if (sharedStops.contains(stopTag) == false)
 			{
 			
-				sharedStops.put(stopTag, stop);
+				sharedStops.add(stopTag);
 
 				{
 					ContentValues values = new ContentValues();
