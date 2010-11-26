@@ -188,7 +188,7 @@ public class UpdateAsyncTask extends AsyncTask<Object, Object, Locations>
 					progressDialog.setMessage(message.message);
 					progressDialog.setTitle(message.title);
 					progressDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
-					progressDialog.setCancelable(false);
+					progressDialog.setCancelable(true);
 					progressDialog.show();
 					
 					break;
