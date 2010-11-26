@@ -338,8 +338,7 @@ public class Main extends MapActivity
         
         if (busLocations == null)
         {
-        	busLocations = new Locations(busPicture, arrow, locationDrawable, busStop,
-        			helper, transitSystem);
+        	busLocations = new Locations(helper, transitSystem);
         }
 
         handler = new UpdateHandler(progress, mapView, arrow, tooltip, busLocations, 
