@@ -135,11 +135,7 @@ public class Main extends MapActivity
 	
 	private Locations busLocations;
 
-	/**
-	 * Five minutes in milliseconds
-	 */
-	private final double timeoutInMillis = 10 * 60 * 1000; //10 minutes
-	
+
 	private int selectedRouteIndex;
 	
 	/**
@@ -217,8 +213,6 @@ public class Main extends MapActivity
 		});
         
         Resources resources = getResources();
-
-        Drawable locationDrawable = resources.getDrawable(R.drawable.ic_maps_indicator_current_position);
 
         Drawable busPicture = resources.getDrawable(R.drawable.bus_statelist);
         

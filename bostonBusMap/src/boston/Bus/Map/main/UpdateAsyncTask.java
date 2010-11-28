@@ -101,7 +101,7 @@ public class UpdateAsyncTask extends AsyncTask<Object, Object, Locations>
 	private final String routeToUpdate;
 	private final int selectedBusPredictions;
 	private final boolean showRouteLine;
-	private final boolean showCoarseRouteLine;
+
 	private final TransitSystem transitSystem;
 	private final Context context;
 	
@@ -109,7 +109,7 @@ public class UpdateAsyncTask extends AsyncTask<Object, Object, Locations>
 			boolean doShowUnpredictable, boolean doRefresh, int maxOverlays,
 			boolean drawCircle, boolean inferBusRoutes, BusOverlay busOverlay, RouteOverlay routeOverlay, 
 			DatabaseHelper helper, String routeToUpdate,
-			int selectedBusPredictions, boolean doInit, boolean showRouteLine, boolean showCoarseRouteLine,
+			int selectedBusPredictions, boolean doInit, boolean showRouteLine,
 		TransitSystem transitSystem)
 	{
 		super();
@@ -131,7 +131,6 @@ public class UpdateAsyncTask extends AsyncTask<Object, Object, Locations>
 		this.selectedBusPredictions = selectedBusPredictions;
 		this.doInit = doInit;
 		this.showRouteLine = showRouteLine;
-		this.showCoarseRouteLine = showCoarseRouteLine;
 		//this.uiHandler = new Handler();
 		this.transitSystem = transitSystem;
 		this.progress = progress;

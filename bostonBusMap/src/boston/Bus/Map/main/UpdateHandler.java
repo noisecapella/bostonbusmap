@@ -71,7 +71,6 @@ public class UpdateHandler extends Handler {
 	
 	private boolean isFirstRefresh;
 	private boolean showRouteLine;
-	private boolean showCoarseRouteLine;
 	
 	private final TransitSystem transitSystem;
 	
@@ -148,7 +147,7 @@ public class UpdateHandler extends Handler {
 			
 			minorUpdate = new UpdateAsyncTask(progress, mapView, locationOverlay, getShowUnpredictable(), false, maxOverlays,
 					getHideHighlightCircle() == false, getInferBusRoutes(), busOverlay, routeOverlay, helper,
-					routeToUpdate, selectedBusPredictions, false, getShowRouteLine(), getShowCoarseRouteLine(),
+					routeToUpdate, selectedBusPredictions, false, getShowRouteLine(), 
 					transitSystem);
 			
 
@@ -212,7 +211,7 @@ public class UpdateHandler extends Handler {
 		
 		updateAsyncTask = new UpdateAsyncTask(progress, mapView, locationOverlay, getShowUnpredictable(), true, maxOverlays,
 				getHideHighlightCircle() == false, getInferBusRoutes(), busOverlay, routeOverlay, helper,
-				routeToUpdate, selectedBusPredictions, isFirstTime, showRouteLine, showCoarseRouteLine,
+				routeToUpdate, selectedBusPredictions, isFirstTime, showRouteLine,
 				transitSystem);
 		updateAsyncTask.runUpdate(busLocations, centerLatitude, centerLongitude, context);
 	}
@@ -308,16 +307,6 @@ public class UpdateHandler extends Handler {
 	{
 		return showRouteLine;
 	}
-	
-	public void setShowCoarseRouteLine(boolean b) {
-		showCoarseRouteLine = b;
-	}
-
-	public boolean getShowCoarseRouteLine()
-	{
-		return showCoarseRouteLine;
-	}
-	
 	
 	
 	public void triggerUpdate(int millis) {
