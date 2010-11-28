@@ -13,6 +13,7 @@ import boston.Bus.Map.util.Constants;
 import com.google.android.maps.GeoPoint;
 import com.google.android.maps.MapView;
 
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.graphics.drawable.Drawable;
 import android.os.Handler;
@@ -59,6 +60,7 @@ public class UpdateHandler extends Handler {
 	private UpdateAsyncTask minorUpdate;
 	
 	private final ProgressBar progress;
+	private final ProgressDialog progressDialog;
 	private final MapView mapView;
 	private boolean inferBusRoutes;
 	private final Locations busLocations;
@@ -77,7 +79,7 @@ public class UpdateHandler extends Handler {
 	public UpdateHandler(ProgressBar progress, MapView mapView,
 			Drawable arrow, Drawable tooltip, Locations busLocations, Context context, DatabaseHelper helper, BusOverlay busOverlay,
 			RouteOverlay routeOverlay,  LocationOverlay locationOverlay,
-			UpdateAsyncTask majorHandler, TransitSystem transitSystem)
+			UpdateAsyncTask majorHandler, TransitSystem transitSystem, ProgressDialog progressDialog)
 	{
 		this.progress = progress;
 		this.mapView = mapView;
@@ -91,6 +93,7 @@ public class UpdateHandler extends Handler {
 		this.context = context;
 		this.updateAsyncTask = majorHandler;
 		this.transitSystem = transitSystem;
+		this.progressDialog = progressDialog;
 	}
 	
 	private String routeToUpdate;
@@ -148,7 +151,7 @@ public class UpdateHandler extends Handler {
 			minorUpdate = new UpdateAsyncTask(progress, mapView, locationOverlay, getShowUnpredictable(), false, maxOverlays,
 					getHideHighlightCircle() == false, getInferBusRoutes(), busOverlay, routeOverlay, helper,
 					routeToUpdate, selectedBusPredictions, false, getShowRouteLine(), 
-					transitSystem);
+					transitSystem, progressDialog);
 			
 
 			minorUpdate.runUpdate(busLocations, centerLatitude, centerLongitude, context);
@@ -212,7 +215,7 @@ public class UpdateHandler extends Handler {
 		updateAsyncTask = new UpdateAsyncTask(progress, mapView, locationOverlay, getShowUnpredictable(), true, maxOverlays,
 				getHideHighlightCircle() == false, getInferBusRoutes(), busOverlay, routeOverlay, helper,
 				routeToUpdate, selectedBusPredictions, isFirstTime, showRouteLine,
-				transitSystem);
+				transitSystem, progressDialog);
 		updateAsyncTask.runUpdate(busLocations, centerLatitude, centerLongitude, context);
 	}
 

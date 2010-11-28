@@ -89,6 +89,8 @@ public class UpdateAsyncTask extends AsyncTask<Object, Object, Locations>
 	private final DatabaseHelper helper;
 	private ProgressBar progress;
 	private ProgressDialog progressDialog;
+	private String progressDialogTitle;
+	private String progressDialogMessage;
 	
 	private boolean silenceUpdates;
 	
@@ -110,7 +112,7 @@ public class UpdateAsyncTask extends AsyncTask<Object, Object, Locations>
 			boolean drawCircle, boolean inferBusRoutes, BusOverlay busOverlay, RouteOverlay routeOverlay, 
 			DatabaseHelper helper, String routeToUpdate,
 			int selectedBusPredictions, boolean doInit, boolean showRouteLine,
-		TransitSystem transitSystem)
+		TransitSystem transitSystem, ProgressDialog progressDialog)
 	{
 		super();
 		
@@ -133,7 +135,7 @@ public class UpdateAsyncTask extends AsyncTask<Object, Object, Locations>
 		this.showRouteLine = showRouteLine;
 		//this.uiHandler = new Handler();
 		this.transitSystem = transitSystem;
-		this.progress = progress;
+		this.progressDialog = progressDialog;
 	}
 	
 	/**
@@ -159,10 +161,7 @@ public class UpdateAsyncTask extends AsyncTask<Object, Object, Locations>
 			Object string = strings[0];
 			if (string instanceof Integer)
 			{
-				if (progressDialog != null)
-				{
-					progressDialog.setProgress((Integer)string);
-				}
+				progressDialog.setProgress((Integer)string);
 			}
 			else if (string instanceof ProgressMessage && progress != null)
 			{
@@ -171,31 +170,19 @@ public class UpdateAsyncTask extends AsyncTask<Object, Object, Locations>
 				switch (message.type)
 				{
 				case ProgressMessage.PROGRESS_OFF:
-					if (progressDialog != null)
-					{
-						progressDialog.dismiss();
-						progressDialog = null;
-					}
+					progressDialog.dismiss();
 					progress.setVisibility(View.INVISIBLE);
 					break;
 				case ProgressMessage.PROGRESS_DIALOG_ON:
-					if (progressDialog != null)
-					{
-						progressDialog.dismiss();
-					}
-					progressDialog = new ProgressDialog(context);
-					progressDialog.setMessage(message.message);
 					progressDialog.setTitle(message.title);
-					progressDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
-					progressDialog.setCancelable(true);
+					progressDialog.setMessage(message.message);
+					progressDialogTitle = message.title;
+					progressDialogMessage = message.message;
 					progressDialog.show();
 					
 					break;
 				case ProgressMessage.SET_MAX:
-					if (progressDialog != null)
-					{
-						progressDialog.setMax(message.max);
-					}
+					progressDialog.setMax(message.max);
 					break;
 				case ProgressMessage.PROGRESS_SPINNER_ON:
 					progress.setVisibility(View.VISIBLE);
@@ -515,13 +502,25 @@ public class UpdateAsyncTask extends AsyncTask<Object, Object, Locations>
 	{
 		publishProgress(value);
 	}
-	
+
 	/**
-	 * This should be run in the UI thread so that we don't change the textView object while it's being used
-	 * @param textView
+	 * This must get run in the UI thread
+	 * @param progress
+	 * @param progressDialog
 	 */
-	public void setProgress(ProgressBar progress)
-	{
+	public void setProgress(ProgressBar progress, ProgressDialog progressDialog) {
+		boolean progressDialogVisible = this.progressDialog.isShowing();
+		int progressVisible = this.progress.getVisibility();
+		
 		this.progress = progress;
+		this.progressDialog = progressDialog;
+		
+		progress.setVisibility(progressVisible);
+		progressDialog.setTitle(progressDialogTitle);
+		progressDialog.setMessage(progressDialogMessage);
+		if (progressDialogVisible)
+		{
+			progressDialog.show();
+		}
 	}
 }

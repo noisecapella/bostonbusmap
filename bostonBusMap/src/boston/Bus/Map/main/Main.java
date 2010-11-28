@@ -56,6 +56,7 @@ import com.google.android.maps.OverlayItem;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.ProgressDialog;
 import android.app.SearchManager;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -158,6 +159,8 @@ public class Main extends MapActivity
 	private ProgressBar progress;
 	private ImageButton searchButton;
 	
+	private ProgressDialog progressDialog;
+	
 	public static final int VEHICLE_LOCATIONS_ALL = 1;
 	public static final int BUS_PREDICTIONS_ONE = 2;
 	public static final int VEHICLE_LOCATIONS_ONE = 3;
@@ -193,6 +196,11 @@ public class Main extends MapActivity
         searchView = (EditText)findViewById(R.id.searchTextView);
         progress = (ProgressBar)findViewById(R.id.progress);
         searchButton = (ImageButton)findViewById(R.id.searchButton);
+        
+        progressDialog = new ProgressDialog(this);
+		progressDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
+		progressDialog.setCancelable(true);
+
         
         progress.setVisibility(View.INVISIBLE);
         
@@ -320,7 +328,7 @@ public class Main extends MapActivity
         	//continue posting status updates on new textView
         	if (majorHandler != null)
         	{
-        		majorHandler.setProgress(progress);
+        		majorHandler.setProgress(progress, progressDialog);
         	}
         }
         else
@@ -336,7 +344,8 @@ public class Main extends MapActivity
         }
 
         handler = new UpdateHandler(progress, mapView, arrow, tooltip, busLocations, 
-        		this, helper, busOverlay, routeOverlay, myLocationOverlay, majorHandler, transitSystem);
+        		this, helper, busOverlay, routeOverlay, myLocationOverlay, majorHandler,
+        		transitSystem, progressDialog);
         busOverlay.setUpdateable(handler);
         myLocationOverlay.setUpdateable(handler);
         

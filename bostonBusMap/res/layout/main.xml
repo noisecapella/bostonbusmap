@@ -30,7 +30,7 @@
 		android:layout_height="fill_parent" android:clickable="true"
 		android:layout_alignParentBottom="true"
 		android:layout_below="@id/predictionsOrLocations"
-		android:apiKey="04_mZq9Q_5sL2pltlDIYof4iIQimS_U5YPnRafg"
+		android:apiKey="0UeumldxhB0bPpe6UgModFrG5tLPAwclzgqJhRg"
 		 />
 	<!-- debug key: 0UeumldxhB0bPpe6UgModFrG5tLPAwclzgqJhRg -->
 	<!-- release key: 04_mZq9Q_5sL2pltlDIYof4iIQimS_U5YPnRafg -->
