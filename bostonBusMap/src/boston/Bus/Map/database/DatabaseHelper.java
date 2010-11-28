@@ -217,38 +217,6 @@ public class DatabaseHelper extends SQLiteOpenHelper
 		
 		return favorites;
 	}
-
-	private HashSet<String> readv6Favorites(SQLiteDatabase database)
-	{
-		HashSet<String> favorites = new HashSet<String>();
-
-		Cursor cursor = null;
-		try
-		{
-			cursor = database.query(oldFavoritesTable, new String[] {oldFavoritesIdKey}, null, null, null, null, null);
-			cursor.moveToFirst();
-			while (cursor.isAfterLast() == false)
-			{
-				int key = cursor.getInt(0);
-
-				//the old favorites used the public locationtype id, which it shouldn't have
-				key = key & 0xffff;
-				favorites.add(new Integer(key).toString());
-
-				cursor.moveToNext();
-			}
-		}
-		finally
-		{
-			if (cursor != null)
-			{
-				cursor.close();
-			}
-		}
-
-		return favorites;
-	}
-	
 	
 	public synchronized void populateFavorites(HashMap<String, String> favorites)
 	{
@@ -307,7 +275,7 @@ public class DatabaseHelper extends SQLiteOpenHelper
 				RouteConfig routeConfig = mapping.get(route);
 				if (routeConfig != null)
 				{
-					saveMappingKernel(database, route, routeConfig, wipe, sharedStops);
+					saveMappingKernel(database, route, routeConfig, sharedStops);
 				}
 				
 				count++;
@@ -333,7 +301,7 @@ public class DatabaseHelper extends SQLiteOpenHelper
 	 * @throws IOException 
 	 */
 	private void saveMappingKernel(SQLiteDatabase database, String route, RouteConfig routeConfig,
-			boolean useInsert, HashSet<String> sharedStops) throws IOException
+			HashSet<String> sharedStops) throws IOException
 	{
 		Box serializedPath = new Box(null, CURRENT_DB_VERSION);
 		
@@ -348,25 +316,13 @@ public class DatabaseHelper extends SQLiteOpenHelper
 			values.put(colorKey, routeConfig.getColor());
 			values.put(oppositeColorKey, routeConfig.getOppositeColor());
 
-			if (useInsert)
-			{
-				database.insert(verboseRoutes, null, values);
-			}
-			else
-			{
-				database.replace(verboseRoutes, null, values);
-			}
+			database.replace(verboseRoutes, null, values);
 		}
 		
 		//add all stops associated with the route, if they don't already exist
 		
 
-		if (useInsert == false)
-		{
-			//if useInsert is false, it means we're replacing things which already exist.
-			//for this table we need to clear it away
-			database.delete(stopsRoutesMap, routeKey + "=?", new String[]{route});
-		}
+		database.delete(stopsRoutesMap, routeKey + "=?", new String[]{route});
 		
 		
 		for (StopLocation stop : routeConfig.getStops())
@@ -424,7 +380,7 @@ public class DatabaseHelper extends SQLiteOpenHelper
 			long freeSpace = (long)statFs.getAvailableBlocks() * (long)statFs.getBlockSize(); 
 		
 			Log.v("BostonBusMap", "free database space: " + freeSpace);
-			return freeSpace >= 1024 * 1024 * 2;
+			return freeSpace >= 1024 * 1024 * 4;
 		}
 		catch (Exception e)
 		{

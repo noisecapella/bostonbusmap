@@ -700,7 +700,6 @@ public class Main extends MapActivity
     	handler.setInferBusRoutes(false);
     	handler.setShowRouteLine(prefs.getBoolean(getString(R.string.showRouteLineCheckbox), false));
     	boolean showCoarseRouteLineCheckboxValue = prefs.getBoolean(getString(R.string.showCoarseRouteLineCheckbox), true); 
-    	handler.setShowCoarseRouteLine(showCoarseRouteLineCheckboxValue);
     	//handler.setInitAllRouteInfo(prefs.getBoolean(getString(R.string.initAllRouteInfoCheckbox2), true));
     	handler.setInitAllRouteInfo(true);
     	
