@@ -91,6 +91,7 @@ public class UpdateAsyncTask extends AsyncTask<Object, Object, Locations>
 	private ProgressDialog progressDialog;
 	private String progressDialogTitle;
 	private String progressDialogMessage;
+	private int progressDialogMax;
 	
 	private boolean silenceUpdates;
 	
@@ -183,6 +184,7 @@ public class UpdateAsyncTask extends AsyncTask<Object, Object, Locations>
 					break;
 				case ProgressMessage.SET_MAX:
 					progressDialog.setMax(message.max);
+					progressDialogMax = message.max;
 					break;
 				case ProgressMessage.PROGRESS_SPINNER_ON:
 					progress.setVisibility(View.VISIBLE);
@@ -518,6 +520,7 @@ public class UpdateAsyncTask extends AsyncTask<Object, Object, Locations>
 		progress.setVisibility(progressVisible);
 		progressDialog.setTitle(progressDialogTitle);
 		progressDialog.setMessage(progressDialogMessage);
+		progressDialog.setMax(progressDialogMax);
 		if (progressDialogVisible)
 		{
 			progressDialog.show();

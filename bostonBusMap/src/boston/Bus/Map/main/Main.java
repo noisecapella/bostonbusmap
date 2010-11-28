@@ -546,7 +546,10 @@ public class Main extends MapActivity
 			myLocationOverlay.setUpdateable(null);
 		}
 		
-
+		if (progressDialog != null)
+		{
+			progressDialog.dismiss();
+		}
 		
 		super.onPause();
     }
