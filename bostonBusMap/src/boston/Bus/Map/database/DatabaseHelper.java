@@ -140,7 +140,6 @@ public class DatabaseHelper extends SQLiteOpenHelper
 				branchKey + " STRING)");
 		db.execSQL("CREATE INDEX IF NOT EXISTS " + stopsRoutesMapIndexRoute + " ON " + stopsRoutesMap + " (" + routeKey + ")");
 		db.execSQL("CREATE INDEX IF NOT EXISTS " + stopsRoutesMapIndexTag + " ON " + stopsRoutesMap + " (" + stopTagKey + ")");
-
 	}
 
 	@Override

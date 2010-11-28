@@ -128,7 +128,6 @@ public class Main extends MapActivity
 	private EditText searchView;
 	
 	
-	
 	/**
 	 * Used to make updateBuses run every 10 seconds or so
 	 */
@@ -319,6 +318,7 @@ public class Main extends MapActivity
         	previousUpdateConstantly = currentState.getUpdateConstantly();
         	selectedRouteIndex = currentState.getSelectedRouteIndex();
         	setSelectedBusPredictions(currentState.getSelectedBusPredictions());
+        	progress.setVisibility(currentState.getProgressState() ? View.VISIBLE : View.INVISIBLE);
         	
         	
         	
@@ -722,7 +722,7 @@ public class Main extends MapActivity
 		
 		return new CurrentState(busLocations, handler.getLastUpdateTime(), updateConstantly,
 				selectedRouteIndex, getSelectedBusPredictions(), busOverlay, routeOverlay,
-				myLocationOverlay, handler.getMajorHandler());
+				handler.getMajorHandler(), progress.getVisibility() == View.VISIBLE);
 	}
 
 	
