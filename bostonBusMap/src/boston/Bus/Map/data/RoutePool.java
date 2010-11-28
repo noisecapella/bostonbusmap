@@ -23,6 +23,10 @@ public class RoutePool {
 	private final LinkedList<String> priorities = new LinkedList<String>();
 	private final HashMap<String, RouteConfig> pool = new HashMap<String, RouteConfig>();
 	private final HashMap<String, StopLocation> sharedStops = new HashMap<String, StopLocation>();
+	
+	/**
+	 * A mapping of stop key to route key. Look in sharedStops for the StopLocation
+	 */
 	private final HashMap<String, String> favoriteStops = new HashMap<String, String>();
 
 	private final TransitSystem transitSystem;
@@ -34,8 +38,7 @@ public class RoutePool {
 		this.transitSystem = transitSystem;
 		
 		helper.upgradeIfNecessary();
-		helper.populateFavorites(favoriteStops);
-		fillInFavoritesRoutes();
+		populateFavorites();
 	}
 	
 	/**
@@ -216,10 +219,17 @@ public class RoutePool {
 		helper.saveMapping(map, wipe, stopTags, task);
 		
 		clearAll();
+		populateFavorites();
 	}
 
 	
 	
+	private void populateFavorites() {
+		helper.populateFavorites(favoriteStops);
+		fillInFavoritesRoutes();
+
+	}
+
 	private void clearAll() {
 		priorities.clear();
 		pool.clear();
@@ -227,10 +237,6 @@ public class RoutePool {
 		sharedStops.clear();
 	}
 
-	private void refreshRoute(String route) throws IOException {
-		removeARoute(route);
-		get(route);
-	}
 
 	public ArrayList<String> routeInfoNeedsUpdating(String[] supportedRoutes) {
 		//TODO: what if another route gets added later, and we want to download it from the server and add it?
