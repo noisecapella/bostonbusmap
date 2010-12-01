@@ -124,7 +124,7 @@ public class DatabaseHelper extends SQLiteOpenHelper
 		/*db.execSQL("CREATE TABLE IF NOT EXISTS " + blobsTable + " (" + routeKey + " STRING PRIMARY KEY, " + blobKey + " BLOB)");
 		db.execSQL("CREATE TABLE IF NOT EXISTS " + routePoolTable + " (" + routeKey + " STRING PRIMARY KEY)");*/
 		db.execSQL("CREATE TABLE IF NOT EXISTS " + verboseFavorites + " (" + latitudeKey + " FLOAT, " + longitudeKey + " FLOAT" +
-				", PRIMARY KEY (" + latitudeKey + ", " + longitudeKey + ")");
+				", PRIMARY KEY (" + latitudeKey + ", " + longitudeKey + "))");
 						
 		db.execSQL("CREATE TABLE IF NOT EXISTS " + directionsTable + " (" + dirTagKey + " STRING PRIMARY KEY, " + 
 				dirNameKey + " STRING, " + dirTitleKey + " STRING, " + dirRouteKey + " STRING)");
