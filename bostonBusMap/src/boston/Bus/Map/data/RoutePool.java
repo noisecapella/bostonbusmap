@@ -27,7 +27,7 @@ public class RoutePool {
 	/**
 	 * A mapping of stop key to route key. Look in sharedStops for the StopLocation
 	 */
-	private final HashMap<String, String> favoriteStops = new HashMap<String, String>();
+	private final HashSet<String> favoriteStops = new HashSet<String>();
 
 	private final TransitSystem transitSystem;
 	
@@ -49,70 +49,34 @@ public class RoutePool {
 	 */
 	public void fillInFavoritesRoutes()
 	{
-		ArrayList<String> stopsToRemove = new ArrayList<String>();
-		for (String stop : favoriteStops.keySet()) {
-			String route = favoriteStops.get(stop);
-			
-			try
-			{
-				if (route == null)
-				{
-					//le ugh
-					String[] supportedRoutes = transitSystem.getRoutes();
-					for (String supportedRoute : supportedRoutes)
-					{
-						RouteConfig routeConfig = get(supportedRoute);
-						if (routeConfig == null)
-						{
-							//database hasn't been refreshed yet?
-							return;
-						}
-						StopLocation stopLocation = routeConfig.getStop(stop);
-						if (stopLocation != null)
-						{
-							route = stopLocation.getFirstRoute();
-							break;
-						}
-					}
-				}
-				
-				if (route != null)
-				{
-					//Log.v("BostonBusMap", "getting route " + (route == null ? "null" : route) +
-					//		" because favorite stop " + stop + " requested it");
-					RouteConfig routeConfig = get(route);
-					if (routeConfig != null)
-					{
-						Log.v("BostonBusMap", "setting favorite status to true for " + stop);
-						StopLocation stopLocation = routeConfig.getStop(stop);
-						stopLocation.setFavorite(true);
-						sharedStops.put(stop, stopLocation);
-						favoriteStops.put(stop, route);
-
-					}
-				}
-				else
-				{
-					Log.e("BostonBusMap", "Favorited stop isn't in database");
-					//this shouldn't happen. We can't find the route the favorite belongs to. Just remove it
-					stopsToRemove.add(stop);
-				}
-			}
-			catch (IOException e)
-			{
-				Log.e("BostonBusMap", "Error getting route " + route + ": " + e.getMessage());
-			}
-		}
-		
-		for (String stop : stopsToRemove)
+		for (String stop : favoriteStops)
 		{
-			favoriteStops.remove(stop);
+			//Log.v("BostonBusMap", "getting route " + (route == null ? "null" : route) +
+			//		" because favorite stop " + stop + " requested it");
+			StopLocation stopLocation = getStop(stop);
+			if (stopLocation != null)
+			{
+				Log.v("BostonBusMap", "setting favorite status to true for " + stop);
+				stopLocation.setFavorite(true);
+				sharedStops.put(stop, stopLocation);
+				favoriteStops.add(stop);
+			}
 		}
 		
-		helper.saveFavorites(favoriteStops);
+		helper.saveFavorites(favoriteStops, sharedStops);
 	}
 
 	
+	private StopLocation getStop(String stopTag) {
+		StopLocation stop = sharedStops.get(stopTag);
+		if (stop == null)
+		{
+			stop = helper.getStop(stopTag, transitSystem);
+			sharedStops.put(stopTag, stop);
+		}
+		return stop;
+	}
+
 	/**
 	 * In the future, this may be necessary to implement. Currently all route data is shipped with the app
 	 * 
@@ -186,7 +150,7 @@ public class RoutePool {
 			return;
 		}
 		//remove all stops from sharedStops,
-		//unless that stop is owned by another route also which is currently in the pool
+		//unless that stop is owned by another route also which is currently in the pool, or it's a favorite
 		for (StopLocation stopLocation : routeConfig.getStops())
 		{
 			boolean keepStop = false;
@@ -200,7 +164,7 @@ public class RoutePool {
 				}
 			}
 			
-			if (favoriteStops.containsKey(stopLocation.getStopTag()))
+			if (keepStop == false && favoriteStops.contains(stopLocation.getStopTag()))
 			{
 				keepStop = true;
 			}
@@ -246,7 +210,7 @@ public class RoutePool {
 	public StopLocation[] getFavoriteStops() {
 		ArrayList<StopLocation> ret = new ArrayList<StopLocation>(favoriteStops.size());
 		
-		for (String stopTag : favoriteStops.keySet())
+		for (String stopTag : favoriteStops)
 		{
 			StopLocation stopLocation = sharedStops.get(stopTag);
 			
@@ -261,45 +225,23 @@ public class RoutePool {
 
 	public boolean isFavorite(StopLocation location)
 	{
-		return favoriteStops.containsKey(location.getStopTag());
+		return favoriteStops.contains(location.getStopTag());
 	}
 	
 	public int setFavorite(StopLocation location, boolean isFavorite) {
-		String stopTag = location.getStopTag();
-		if (isFavorite == false)
+		boolean result = helper.saveFavorite(location.getLatitudeAsDegrees(), location.getLongitudeAsDegrees(), isFavorite);
+		if (result == false)
 		{
-			boolean result = helper.saveFavorite(stopTag, location.getFirstRoute(), false);
-			if (result == false)
-			{
-				Log.i("BostonBusMap", "toggling favorite status on stop failed");
-				//restore its state. we failed
-				return R.drawable.full_star;
-			}
-			else
-			{
-				//success
-				location.setFavorite(false);
-				favoriteStops.remove(stopTag);
-				return R.drawable.empty_star;
-			}
+			Log.i("BostonBusMap", "toggling favorite status on stop failed");
+			
+			return isFavorite ? R.drawable.empty_star : R.drawable.full_star;
 		}
 		else
 		{
-			boolean result = helper.saveFavorite(stopTag, location.getFirstRoute(), true);
-			if (result == false)
-			{
-				Log.i("BostonBusMap", "toggling favorite status on stop failed");
-				return R.drawable.empty_star;
-			}
-			else
-			{
-				//success
-				location.setFavorite(true);
-				favoriteStops.put(stopTag, location.getFirstRoute());
-				return R.drawable.full_star;
-			}
+			favoriteStops.clear();
+			helper.populateFavorites(favoriteStops);
+			return isFavorite ? R.drawable.full_star : R.drawable.empty_star;
 		}
-
 	}
 
 }

@@ -19,20 +19,20 @@ public class BusLocation implements Location {
 	/**
 	 * Current latitude of bus, in radians
 	 */
-	public final double latitude;
+	public final float latitude;
 	/**
 	 * Current longitude of bus, in radians
 	 */
-	public final double longitude;
+	public final float longitude;
 
 	/**
 	 * Current latitude of bus, in degrees
 	 */
-	public final double latitudeAsDegrees;
+	public final float latitudeAsDegrees;
 	/**
 	 * Current longitude of bus, in degrees
 	 */
-	public final double longitudeAsDegrees;
+	public final float longitudeAsDegrees;
 
 	/**
 	 * The bus id. This uniquely identifies a bus
@@ -103,7 +103,7 @@ public class BusLocation implements Location {
 	private static final int LOCATIONTYPE = 1;
 	public static final int NO_HEADING = -1;
 
-	public BusLocation(double latitude, double longitude, int id, int seconds,
+	public BusLocation(float latitude, float longitude, int id, int seconds,
 			double lastUpdateInMillis, String heading, boolean predictable,
 			String dirTag, String inferBusRoute, Drawable bus, Drawable arrow,
 			String routeName, Directions directions, String routeTitle,
@@ -335,13 +335,13 @@ public class BusLocation implements Location {
 	}
 
 	@Override
-	public double getLatitudeAsDegrees() {
+	public float getLatitudeAsDegrees() {
 		// TODO Auto-generated method stub
 		return latitudeAsDegrees;
 	}
 
 	@Override
-	public double getLongitudeAsDegrees() {
+	public float getLongitudeAsDegrees() {
 		// TODO Auto-generated method stub
 		return longitudeAsDegrees;
 	}

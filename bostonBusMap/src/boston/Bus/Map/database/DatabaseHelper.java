@@ -7,6 +7,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 
+import com.google.android.maps.GeoPoint;
 import com.google.android.maps.Projection;
 
 import boston.Bus.Map.data.Path;
@@ -19,6 +20,7 @@ import boston.Bus.Map.transit.TransitSource;
 import boston.Bus.Map.transit.TransitSystem;
 import boston.Bus.Map.ui.ProgressMessage;
 import boston.Bus.Map.util.Box;
+import boston.Bus.Map.util.Constants;
 
 import android.content.ContentValues;
 import android.content.Context;
@@ -63,6 +65,7 @@ public class DatabaseHelper extends SQLiteOpenHelper
 	private final static String newFavoritesTable = "favs2";
 	private final static String routePoolTable = "routepool";
 	
+	private final static String verboseFavorites = "favorites";
 	
 	private final static String routeKey = "route";
 	private final static String stopIdKey = "stopId";
@@ -120,9 +123,9 @@ public class DatabaseHelper extends SQLiteOpenHelper
 		
 		/*db.execSQL("CREATE TABLE IF NOT EXISTS " + blobsTable + " (" + routeKey + " STRING PRIMARY KEY, " + blobKey + " BLOB)");
 		db.execSQL("CREATE TABLE IF NOT EXISTS " + routePoolTable + " (" + routeKey + " STRING PRIMARY KEY)");*/
-		db.execSQL("CREATE TABLE IF NOT EXISTS " + newFavoritesTable + " (" + newFavoritesTagKey + " STRING PRIMARY KEY, " +
-				newFavoritesRouteKey + " STRING)");
-		
+		db.execSQL("CREATE TABLE IF NOT EXISTS " + verboseFavorites + " (" + latitudeKey + " FLOAT, " + longitudeKey + " FLOAT" +
+				", PRIMARY KEY (" + latitudeKey + ", " + longitudeKey + ")");
+						
 		db.execSQL("CREATE TABLE IF NOT EXISTS " + directionsTable + " (" + dirTagKey + " STRING PRIMARY KEY, " + 
 				dirNameKey + " STRING, " + dirTitleKey + " STRING, " + dirRouteKey + " STRING)");
 		
@@ -145,10 +148,10 @@ public class DatabaseHelper extends SQLiteOpenHelper
 	@Override
 	public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
 		Log.v("BostonBusMap", "upgrading database from " + oldVersion + " to " + newVersion);
-		HashSet<String> favorites = null;
-		if (oldVersion == NEW_ROUTES_DB_VERSION)
+		ArrayList<FloatPoint> favorites = null;
+		if (oldVersion < VERBOSE_DB)
 		{
-			favorites = readv7Favorites(db);
+			favorites = readOldFavorites(db);
 		}
 
 		db.beginTransaction();
@@ -162,48 +165,51 @@ public class DatabaseHelper extends SQLiteOpenHelper
 		db.execSQL("DROP TABLE IF EXISTS " + stopsRoutesMap);
 
 		db.execSQL("DROP TABLE IF EXISTS " + oldFavoritesTable);
-		if (oldVersion < ROUTE_POOL_DB_VERSION)
-		{
-			db.execSQL("DROP TABLE IF EXISTS " + newFavoritesTable);
-		}
-		else
-		{
-			//we want to save favorites between upgrades
-		}
+		db.execSQL("DROP TABLE IF EXISTS " + newFavoritesTable);
+		//if it's verboseFavorites, we want to save it since it's user specified data
 
 		onCreate(db);
 
 		if (favorites != null)
 		{
-			writeNewFavorites(db, favorites);
+			writeVerboseFavorites(db, favorites);
 		}
 		db.setTransactionSuccessful();
 		db.endTransaction();
 		
 	}
 
-	private void writeNewFavorites(SQLiteDatabase db, HashSet<String> favorites) {
-		for (String favorite : favorites) {
+	private void writeVerboseFavorites(SQLiteDatabase db, ArrayList<FloatPoint> favorites) {
+		for (FloatPoint favorite : favorites) {
 			ContentValues values = new ContentValues();
-			values.put(newFavoritesTagKey, favorite);
+			values.put(latitudeKey, favorite.lat);
+			values.put(longitudeKey, favorite.lon);
 			
-			db.insert(newFavoritesTable, null, values);
+			db.replace(verboseFavorites, null, values);
 		}
 	}
 	
-	private HashSet<String> readv7Favorites(SQLiteDatabase database)
+	private ArrayList<FloatPoint> readOldFavorites(SQLiteDatabase database)
 	{
-		HashSet<String> favorites = new HashSet<String>();
+		ArrayList<FloatPoint> ret = new ArrayList<FloatPoint>();
 		Cursor cursor = null;
+		SQLiteQueryBuilder builder = new SQLiteQueryBuilder();
+		builder.setTables(newFavoritesTable + ", " + verboseStops);
+		builder.setDistinct(true);
+		
 		try
 		{
-			cursor = database.query(newFavoritesTable, new String[]{newFavoritesTagKey}, null, null, null, null, null);
+			cursor = builder.query(database, new String[] {
+					verboseStops + "." + latitudeKey, verboseStops + "." + longitudeKey},
+					verboseStops + "." + stopTagKey + "=" + newFavoritesTable + "." + stopTagKey,
+					null, null, null, null);
+		
 			cursor.moveToFirst();
 			while (cursor.isAfterLast() == false)
 			{
-				String key = cursor.getString(0);
+				FloatPoint point = new FloatPoint(cursor.getFloat(0), cursor.getFloat(1));
 				
-				favorites.add(key);
+				ret.add(point);
 				cursor.moveToNext();
 			}
 		}
@@ -215,24 +221,32 @@ public class DatabaseHelper extends SQLiteOpenHelper
 			}
 		}
 		
-		return favorites;
+		return ret;
 	}
 	
-	public synchronized void populateFavorites(HashMap<String, String> favorites)
+	/**
+	 * Fill the given HashSet with all stop tags that are favorites
+	 * @param favorites
+	 */
+	public synchronized void populateFavorites(HashSet<String> favorites)
 	{
 		SQLiteDatabase database = getReadableDatabase();
 		Cursor cursor = null;
 
+		SQLiteQueryBuilder builder = new SQLiteQueryBuilder();
+		builder.setTables(verboseFavorites + ", " + verboseStops);
+		builder.setDistinct(true);
 		try
 		{
-			cursor = database.query(newFavoritesTable, new String[]{newFavoritesTagKey, newFavoritesRouteKey},
-					null, null, null, null, null);
+			cursor = builder.query(database, new String[]{stopTagKey}, 
+					verboseStops + "." + stopTagKey + "=" + verboseFavorites + "." + stopTagKey,
+					null, null, null, null);
 			cursor.moveToFirst();
 			while (cursor.isAfterLast() == false)
 			{
 				String favoriteStopKey = cursor.getString(0);
-				String favoriteRouteKey = cursor.getString(1);
-				favorites.put(favoriteStopKey, favoriteRouteKey);
+				
+				favorites.add(favoriteStopKey);
 
 				cursor.moveToNext();
 			}
@@ -393,8 +407,8 @@ public class DatabaseHelper extends SQLiteOpenHelper
 		}
 	}
 
-	public synchronized boolean saveFavorite(String stopTag, String routeTag, boolean isFavorite) {
-		Log.v("BostonBusMap", "Saving favorite " + stopTag + " as " + isFavorite);
+	public synchronized boolean saveFavorite(float lat, float lon, boolean isFavorite) {
+		Log.v("BostonBusMap", "Saving favorite " + lat + ", " + lon + " as " + isFavorite);
 		SQLiteDatabase database = getWritableDatabase();
 		try
 		{
@@ -408,13 +422,14 @@ public class DatabaseHelper extends SQLiteOpenHelper
 			if (isFavorite)
 			{
 				ContentValues values = new ContentValues();
-				values.put(newFavoritesTagKey, stopTag);
-				values.put(newFavoritesRouteKey, routeTag);
-				database.replace(newFavoritesTable, null, values);
+				values.put(latitudeKey, lat);
+				values.put(longitudeKey, lon);
+				database.replace(verboseFavorites, null, values);
 			}
 			else
 			{
-				database.delete(newFavoritesTable, newFavoritesTagKey + "=?", new String[] {stopTag});					
+				database.delete(verboseFavorites, latitudeKey + "=? AND " + longitudeKey + "=?",
+						new String[] {((Float)lat).toString(), ((Float)lon).toString()});					
 			}
 
 			database.setTransactionSuccessful();
@@ -438,7 +453,7 @@ public class DatabaseHelper extends SQLiteOpenHelper
 			/*db.execSQL("CREATE TABLE IF NOT EXISTS " + verboseRoutes + " (" + routeKey + " STRING PRIMARY KEY, " + colorKey + 
 					" INTEGER, " + oppositeColorKey + " INTEGER, " + pathsBlobKey + " BLOB)");*/
 
-			
+			//get the route-specific information, like the path outline and the color
 			routeCursor = database.query(verboseRoutes, new String[]{colorKey, oppositeColorKey, pathsBlobKey}, routeKey + "=?",
 					new String[]{routeToUpdate}, null, null, null);
 			if (routeCursor.getCount() == 0)
@@ -485,6 +500,7 @@ public class DatabaseHelper extends SQLiteOpenHelper
 			
 			stopCursor = builder.query(database, projectionIn, select, selectArray, null, null, null);
 			
+			
 			stopCursor.moveToFirst();
 			while (stopCursor.isAfterLast() == false)
 			{
@@ -492,32 +508,50 @@ public class DatabaseHelper extends SQLiteOpenHelper
 				String dirTag = stopCursor.getString(6);
 				String route = stopCursor.getString(7);
 
-				StopLocation stop = routeConfig.getStop(stopTag);
-				if (stop == null)
+				//we need to ensure this stop is in the sharedstops and the route
+				StopLocation stop = sharedStops.get(stopTag);
+				if (stop != null)
 				{
-					float latitude = stopCursor.getFloat(1);
-					float longitude = stopCursor.getFloat(2);
-					String stopTitle = stopCursor.getString(3);
-					String branch = stopCursor.getString(5);
-
-					int platformOrder = 0;
-
-					Drawable busStop = source.getBusStopDrawable();
-					if (stopCursor.isNull(4) == false)
+					//make sure it exists in the route too
+					StopLocation stopInRoute = routeConfig.getStop(stopTag);
+					if (stopInRoute == null)
 					{
-						platformOrder = stopCursor.getInt(4);
-
-						stop = new SubwayStopLocation(latitude, longitude, busStop,
-								stopTag, stopTitle, platformOrder, branch);
+						routeConfig.addStop(stopTag, stop);
 					}
-					else
-					{
-						stop = new StopLocation(latitude, longitude, busStop, stopTag, stopTitle);
-					}
-
-					routeConfig.addStop(stopTag, stop);
+					
 				}
-				
+				else
+				{
+					stop = routeConfig.getStop(stopTag);
+					
+					if (stop == null)
+					{
+						float latitude = stopCursor.getFloat(1);
+						float longitude = stopCursor.getFloat(2);
+						String stopTitle = stopCursor.getString(3);
+						String branch = stopCursor.getString(5);
+
+						int platformOrder = 0;
+
+						Drawable busStop = source.getBusStopDrawable();
+						if (stopCursor.isNull(4) == false)
+						{
+							//TODO: we should have a factory somewhere to abstract details away
+							platformOrder = stopCursor.getInt(4);
+
+							stop = new SubwayStopLocation(latitude, longitude, busStop,
+									stopTag, stopTitle, platformOrder, branch);
+						}
+						else
+						{
+							stop = new StopLocation(latitude, longitude, busStop, stopTag, stopTitle);
+						}
+
+						routeConfig.addStop(stopTag, stop);
+					}
+					
+					sharedStops.put(stopTag, stop);
+				}
 				stop.addRouteAndDirTag(route, dirTag);
 				
 				stopCursor.moveToNext();
@@ -661,7 +695,7 @@ public class DatabaseHelper extends SQLiteOpenHelper
 		}
 	}
 
-	public synchronized void saveFavorites(HashMap<String, String> favoriteStops) {
+	public synchronized void saveFavorites(HashSet<String> favoriteStops, HashMap<String, StopLocation> sharedStops) {
 		SQLiteDatabase database = getWritableDatabase();
 		try
 		{
@@ -669,14 +703,17 @@ public class DatabaseHelper extends SQLiteOpenHelper
 
 			database.delete(newFavoritesTable, null, null);
 
-			for (String stopTag : favoriteStops.keySet())
+			for (String stopTag : favoriteStops)
 			{
-				String routeTag = favoriteStops.get(stopTag);
-
-				ContentValues values = new ContentValues();
-				values.put(newFavoritesTagKey, stopTag);
-				values.put(newFavoritesRouteKey, routeTag);
-				database.insert(newFavoritesTable, null, values);
+				StopLocation stopLocation = sharedStops.get(stopTag);
+				
+				if (stopLocation != null)
+				{
+					ContentValues values = new ContentValues();
+					values.put(latitudeKey, stopLocation.getLatitudeAsDegrees());
+					values.put(longitudeKey, stopLocation.getLongitudeAsDegrees());
+					database.replace(verboseFavorites, null, values);
+				}
 			}
 
 			database.setTransactionSuccessful();
@@ -709,5 +746,90 @@ public class DatabaseHelper extends SQLiteOpenHelper
 		//trigger an upgrade so future calls of getReadableDatabase won't complain that you can't upgrade a read only db
 		getWritableDatabase();
 		
+	}
+	
+	private class FloatPoint
+	{
+		public final float lat;
+		public final float lon;
+		
+		public FloatPoint(float lat, float lon)
+		{
+			this.lat = lat;
+			this.lon = lon;
+		}
+	}
+
+	/**
+	 * Read a single stop from the database
+	 * @param stopTag
+	 * @param transitSystem
+	 * @return
+	 */
+	public StopLocation getStop(String stopTag, TransitSystem transitSystem) {
+		SQLiteDatabase database = getReadableDatabase();
+		Cursor stopCursor = null;
+		try
+		{
+			//TODO: we should have a factory somewhere to abstract details away regarding subway vs bus
+
+			//get stop with name stopTag, joining with the subway table
+			SQLiteQueryBuilder builder = new SQLiteQueryBuilder();
+			String tables = verboseStops +
+			" LEFT OUTER JOIN " + subwaySpecificTable + " ON (" + verboseStops + "." + stopTagKey + " = " + 
+			subwaySpecificTable + "." + stopTagKey + ")";
+
+
+			builder.setTables(tables);
+
+			String[] projectionIn = new String[] {latitudeKey, longitudeKey, 
+					stopTitleKey, platformOrderKey, branchKey};
+			String select = verboseStops + "." + stopTagKey + "=?";
+			String[] selectArray = new String[]{stopTag};
+
+			Log.v("BostonBusMap", SQLiteQueryBuilder.buildQueryString(false, tables, projectionIn, verboseStops + "." + stopTagKey + "=\"" + stopTagKey + "\"",
+					null, null, null, null));
+
+			stopCursor = builder.query(database, projectionIn, select, selectArray, null, null, null);
+
+			stopCursor.moveToFirst();
+			
+			if (stopCursor.isAfterLast() == false)
+			{
+				float lat = stopCursor.getFloat(0);
+				float lon = stopCursor.getFloat(1);
+				String title = stopCursor.getString(2);
+				
+				//NOTE: for now, the bus stop icon is the same for all transit sources
+				Drawable busStop = transitSystem.getTransitSource(null).getBusStopDrawable();
+				
+				StopLocation stop;
+				if (stopCursor.isNull(3))
+				{
+					stop = new StopLocation(lat, lon, busStop, stopTag, title);
+				}
+				else
+				{
+					int platformOrder = stopCursor.getInt(3);
+					String branch = stopCursor.getString(4);
+					
+					stop = new SubwayStopLocation(lat, lon, busStop, stopTag, title, platformOrder, branch);
+				}
+				
+				return stop;
+			}
+			else
+			{
+				return null;
+			}
+		}
+		finally
+		{
+			if (stopCursor != null)
+			{
+				stopCursor.close();
+			}
+			database.close();
+		}
 	}
 }

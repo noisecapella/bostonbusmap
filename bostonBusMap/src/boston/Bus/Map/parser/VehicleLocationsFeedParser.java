@@ -75,8 +75,8 @@ public class VehicleLocationsFeedParser extends DefaultHandler
 		
 		if (localName.equals(vehicleKey))
 		{
-			double lat = Double.parseDouble(attributes.getValue(latKey));
-			double lon = Double.parseDouble(attributes.getValue(lonKey));
+			float lat = Float.parseFloat(attributes.getValue(latKey));
+			float lon = Float.parseFloat(attributes.getValue(lonKey));
 			int id = Integer.parseInt(attributes.getValue(idKey));
 			String route = attributes.getValue(routeTagKey);
 			int seconds = Integer.parseInt(attributes.getValue(secsSinceReportKey));

@@ -19,9 +19,9 @@ public interface Location {
 
 	Drawable getDrawable(Context context, boolean shadow, boolean isSelected);
 
-	double getLatitudeAsDegrees();
+	float getLatitudeAsDegrees();
 	
-	double getLongitudeAsDegrees();
+	float getLongitudeAsDegrees();
 
 	/**
 	 * @param lat2 latitude in radians

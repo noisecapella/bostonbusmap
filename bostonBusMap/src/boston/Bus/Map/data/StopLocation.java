@@ -98,12 +98,12 @@ public class StopLocation implements Location
 	}
 
 	@Override
-	public double getLatitudeAsDegrees() {
+	public float getLatitudeAsDegrees() {
 		return latitude * Geometry.radiansToDegrees;
 	}
 
 	@Override
-	public double getLongitudeAsDegrees() {
+	public float getLongitudeAsDegrees() {
 		return longitude * Geometry.radiansToDegrees;
 	}
 
