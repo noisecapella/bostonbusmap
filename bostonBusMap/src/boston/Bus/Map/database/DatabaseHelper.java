@@ -194,14 +194,14 @@ public class DatabaseHelper extends SQLiteOpenHelper
 		ArrayList<FloatPoint> ret = new ArrayList<FloatPoint>();
 		Cursor cursor = null;
 		SQLiteQueryBuilder builder = new SQLiteQueryBuilder();
-		builder.setTables(newFavoritesTable + ", " + verboseStops);
+		builder.setTables(verboseFavorites + ", " + verboseStops);
 		builder.setDistinct(true);
 		
 		try
 		{
 			cursor = builder.query(database, new String[] {
 					verboseStops + "." + latitudeKey, verboseStops + "." + longitudeKey},
-					verboseStops + "." + stopTagKey + "=" + newFavoritesTable + "." + stopTagKey,
+					verboseStops + "." + stopTagKey + "=" + verboseFavorites + "." + stopTagKey,
 					null, null, null, null);
 		
 			cursor.moveToFirst();
@@ -239,7 +239,8 @@ public class DatabaseHelper extends SQLiteOpenHelper
 		try
 		{
 			cursor = builder.query(database, new String[]{stopTagKey}, 
-					verboseStops + "." + stopTagKey + "=" + verboseFavorites + "." + stopTagKey,
+					verboseStops + "." + latitudeKey + "=" + verboseFavorites + "." + latitudeKey + " AND " + 
+					verboseStops + "." + longitudeKey + "=" + verboseFavorites + "." + longitudeKey,
 					null, null, null, null);
 			cursor.moveToFirst();
 			while (cursor.isAfterLast() == false)
@@ -701,7 +702,7 @@ public class DatabaseHelper extends SQLiteOpenHelper
 		{
 			database.beginTransaction();
 
-			database.delete(newFavoritesTable, null, null);
+			database.delete(verboseFavorites, null, null);
 
 			for (String stopTag : favoriteStops)
 			{
