@@ -123,8 +123,7 @@ public class DatabaseHelper extends SQLiteOpenHelper
 		
 		/*db.execSQL("CREATE TABLE IF NOT EXISTS " + blobsTable + " (" + routeKey + " STRING PRIMARY KEY, " + blobKey + " BLOB)");
 		db.execSQL("CREATE TABLE IF NOT EXISTS " + routePoolTable + " (" + routeKey + " STRING PRIMARY KEY)");*/
-		db.execSQL("CREATE TABLE IF NOT EXISTS " + verboseFavorites + " (" + latitudeKey + " FLOAT, " + longitudeKey + " FLOAT" +
-				", PRIMARY KEY (" + latitudeKey + ", " + longitudeKey + "))");
+		db.execSQL("CREATE TABLE IF NOT EXISTS " + verboseFavorites + " (" + stopTagKey + " STRING PRIMARY KEY)");
 						
 		db.execSQL("CREATE TABLE IF NOT EXISTS " + directionsTable + " (" + dirTagKey + " STRING PRIMARY KEY, " + 
 				dirNameKey + " STRING, " + dirTitleKey + " STRING, " + dirRouteKey + " STRING)");
@@ -191,6 +190,7 @@ public class DatabaseHelper extends SQLiteOpenHelper
 	
 	private ArrayList<FloatPoint> readOldFavorites(SQLiteDatabase database)
 	{
+		/*
 		ArrayList<FloatPoint> ret = new ArrayList<FloatPoint>();
 		Cursor cursor = null;
 		SQLiteQueryBuilder builder = new SQLiteQueryBuilder();
@@ -222,6 +222,9 @@ public class DatabaseHelper extends SQLiteOpenHelper
 		}
 		
 		return ret;
+		
+		*/
+		throw new RuntimeException("Not Implemented");
 	}
 	
 	/**
@@ -239,9 +242,7 @@ public class DatabaseHelper extends SQLiteOpenHelper
 		try
 		{
 			cursor = builder.query(database, new String[]{stopTagKey}, 
-					verboseStops + "." + latitudeKey + "=" + verboseFavorites + "." + latitudeKey + " AND " + 
-					verboseStops + "." + longitudeKey + "=" + verboseFavorites + "." + longitudeKey,
-					null, null, null, null);
+					null, null, null, null, null);
 			cursor.moveToFirst();
 			while (cursor.isAfterLast() == false)
 			{
@@ -407,41 +408,112 @@ public class DatabaseHelper extends SQLiteOpenHelper
 			database.close();
 		}
 	}
+	
 
-	public synchronized boolean saveFavorite(float lat, float lon, boolean isFavorite) {
-		Log.v("BostonBusMap", "Saving favorite " + lat + ", " + lon + " as " + isFavorite);
-		SQLiteDatabase database = getWritableDatabase();
+	private ArrayList<String> getAllStopTagsAtLocation(String stopTag)
+	{
+		SQLiteDatabase database = getReadableDatabase();
+		Cursor cursor = null;
 		try
 		{
 			if (database.isOpen() == false)
 			{
 				Log.e("BostonBusMap", "SERIOUS ERROR: database didn't save data properly");
-				return false;
+				return null;
 			}
-			database.beginTransaction();
 
-			if (isFavorite)
+			SQLiteQueryBuilder builder = new SQLiteQueryBuilder();
+			builder.setTables(verboseStops + " as s1 " + verboseStops + " as s2");
+			cursor = builder.query(database, new String[] {"s2." + stopTagKey},
+					"s1." + stopTagKey + " = ? AND s1." + latitudeKey + " = s2." + latitudeKey +
+					" AND s1." + longitudeKey + " = s2." + longitudeKey, new String[]{stopTag}, null, null, null);
+			
+			ArrayList<String> ret = new ArrayList<String>();
+			cursor.moveToFirst();
+			while (cursor.isAfterLast() == false)
+			{
+				String tag = cursor.getString(0);
+				ret.add(tag);
+				
+				cursor.moveToNext();
+			}
+			
+			return ret;
+		}
+		finally
+		{
+			database.close();
+			if (cursor != null)
+			{
+				cursor.close();
+			}
+		}
+	}
+	
+	private void storeFavorite(ArrayList<String> stopTags)
+	{
+		if (stopTags == null || stopTags.size() == 0)
+		{
+			return;
+		}
+		
+		SQLiteDatabase database = getWritableDatabase();
+		try
+		{
+			database.beginTransaction();
+			for (String tag : stopTags)
 			{
 				ContentValues values = new ContentValues();
-				values.put(latitudeKey, lat);
-				values.put(longitudeKey, lon);
+				values.put(stopTagKey, tag);
+				
 				database.replace(verboseFavorites, null, values);
 			}
-			else
-			{
-				database.delete(verboseFavorites, latitudeKey + "=? AND " + longitudeKey + "=?",
-						new String[] {((Float)lat).toString(), ((Float)lon).toString()});					
-			}
-
+			
 			database.setTransactionSuccessful();
 			database.endTransaction();
-
 		}
 		finally
 		{
 			database.close();
 		}
-		return true;
+	}
+	
+	
+	public synchronized void saveFavorite(String stopTag, boolean isFavorite) {
+		//Log.v("BostonBusMap", "Saving favorite " + lat + ", " + lon + " as " + isFavorite);
+		if (isFavorite)
+		{
+			ArrayList<String> stopTags = getAllStopTagsAtLocation(stopTag);
+			storeFavorite(stopTags);
+		}
+		else
+		{
+			//delete all stops at location
+			
+			SQLiteDatabase database = getWritableDatabase();
+			
+			try
+			{
+				if (database.isOpen() == false)
+				{
+					Log.e("BostonBusMap", "SERIOUS ERROR: database didn't save data properly");
+					return;
+				}
+
+				database.beginTransaction();
+				//delete all tags from favorites where the lat/lon of stopTag matches those tags
+				database.delete(verboseFavorites, verboseFavorites + "." + stopTagKey + 
+						" IN (SELECT s2." + stopTagKey + " FROM " + verboseStops + " as s1 JOIN " + verboseStops + " as s2 WHERE " +
+						"s1." + latitudeKey + " = s2." + latitudeKey + " AND s1." + longitudeKey +
+						" = s2." + longitudeKey + ") AND s1." + stopTagKey + " = ?", new String[]{stopTag});
+				database.setTransactionSuccessful();
+				database.endTransaction();
+			}
+			finally
+			{
+				database.close();
+			}
+		}
 	}
 
 	public synchronized RouteConfig getRoute(String routeToUpdate, HashMap<String, StopLocation> sharedStops,

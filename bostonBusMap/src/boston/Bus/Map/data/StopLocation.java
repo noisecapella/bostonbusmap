@@ -31,6 +31,8 @@ public class StopLocation implements Location
 {
 	private final float latitude;
 	private final float longitude;
+	private final float latitudeAsDegrees;
+	private final float longitudeAsDegrees;
 	private final Drawable busStop;
 	
 	private final String tag;
@@ -60,6 +62,8 @@ public class StopLocation implements Location
 	public StopLocation(float latitudeAsDegrees, float longitudeAsDegrees,
 			Drawable busStop, String tag, String title)
 	{
+		this.latitudeAsDegrees = latitudeAsDegrees;
+		this.longitudeAsDegrees = longitudeAsDegrees;
 		this.latitude = latitudeAsDegrees * Geometry.degreesToRadians;
 		this.longitude = longitudeAsDegrees * Geometry.degreesToRadians;
 		this.busStop = busStop;
@@ -99,12 +103,12 @@ public class StopLocation implements Location
 
 	@Override
 	public float getLatitudeAsDegrees() {
-		return latitude * Geometry.radiansToDegrees;
+		return latitudeAsDegrees;
 	}
 
 	@Override
 	public float getLongitudeAsDegrees() {
-		return longitude * Geometry.radiansToDegrees;
+		return longitudeAsDegrees;
 	}
 
 	@Override
@@ -398,14 +402,6 @@ public class StopLocation implements Location
 		TreeSet<String> ret = new TreeSet<String>();
 		ret.addAll(dirTags.keySet());
 		return ret.first();
-	}
-
-	/**
-	 * Temporary collection of StopLocations that share the same overlay item
-	 * @return
-	 */
-	public Collection<StopLocation> getSharedSnippetStops() {
-		return sharedSnippetStops;
 	}
 
 	public ArrayList<Prediction> getPredictions() {

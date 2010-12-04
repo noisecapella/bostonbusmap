@@ -41,6 +41,11 @@ public class RoutePool {
 		populateFavorites();
 	}
 	
+	public void saveFavoritesToDatabase()
+	{
+		helper.saveFavorites(favoriteStops, sharedStops);
+	}
+	
 	/**
 	 * If you upgraded, favoritesStops.values() only has nulls. Use the information from the database to figure out
 	 * what routes each stop is in.
@@ -59,11 +64,8 @@ public class RoutePool {
 				Log.v("BostonBusMap", "setting favorite status to true for " + stop);
 				stopLocation.setFavorite(true);
 				sharedStops.put(stop, stopLocation);
-				favoriteStops.add(stop);
 			}
 		}
-		
-		helper.saveFavorites(favoriteStops, sharedStops);
 	}
 
 	
@@ -229,19 +231,10 @@ public class RoutePool {
 	}
 	
 	public int setFavorite(StopLocation location, boolean isFavorite) {
-		boolean result = helper.saveFavorite(location.getLatitudeAsDegrees(), location.getLongitudeAsDegrees(), isFavorite);
-		if (result == false)
-		{
-			Log.i("BostonBusMap", "toggling favorite status on stop failed");
-			
-			return isFavorite ? R.drawable.empty_star : R.drawable.full_star;
-		}
-		else
-		{
-			favoriteStops.clear();
-			helper.populateFavorites(favoriteStops);
-			return isFavorite ? R.drawable.full_star : R.drawable.empty_star;
-		}
+		helper.saveFavorite(location.getStopTag(), isFavorite);
+		populateFavorites();
+		
+		return isFavorite ? R.drawable.full_star : R.drawable.empty_star;
 	}
 
 }
