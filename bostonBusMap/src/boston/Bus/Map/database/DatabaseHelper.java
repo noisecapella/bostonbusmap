@@ -147,8 +147,8 @@ public class DatabaseHelper extends SQLiteOpenHelper
 	@Override
 	public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
 		Log.v("BostonBusMap", "upgrading database from " + oldVersion + " to " + newVersion);
-		ArrayList<FloatPoint> favorites = null;
-		if (oldVersion < VERBOSE_DB)
+		ArrayList<String> favorites = null;
+		if (oldVersion > STOP_LOCATIONS_STORE_ROUTE_STRINGS && oldVersion < VERBOSE_DB)
 		{
 			favorites = readOldFavorites(db);
 		}
@@ -178,40 +178,35 @@ public class DatabaseHelper extends SQLiteOpenHelper
 		
 	}
 
-	private void writeVerboseFavorites(SQLiteDatabase db, ArrayList<FloatPoint> favorites) {
-		for (FloatPoint favorite : favorites) {
+	private void writeVerboseFavorites(SQLiteDatabase db, ArrayList<String> favorites) {
+		for (String favorite : favorites) {
 			ContentValues values = new ContentValues();
-			values.put(latitudeKey, favorite.lat);
-			values.put(longitudeKey, favorite.lon);
+			values.put(stopTagKey, favorite);
 			
 			db.replace(verboseFavorites, null, values);
 		}
 	}
 	
-	private ArrayList<FloatPoint> readOldFavorites(SQLiteDatabase database)
+	private ArrayList<String> readOldFavorites(SQLiteDatabase database)
 	{
-		/*
-		ArrayList<FloatPoint> ret = new ArrayList<FloatPoint>();
 		Cursor cursor = null;
-		SQLiteQueryBuilder builder = new SQLiteQueryBuilder();
-		builder.setTables(verboseFavorites + ", " + verboseStops);
-		builder.setDistinct(true);
-		
 		try
 		{
-			cursor = builder.query(database, new String[] {
-					verboseStops + "." + latitudeKey, verboseStops + "." + longitudeKey},
-					verboseStops + "." + stopTagKey + "=" + verboseFavorites + "." + stopTagKey,
-					null, null, null, null);
-		
+			ArrayList<String> ret = new ArrayList<String>();
+			
+			cursor = database.query(newFavoritesTable, new String[]{newFavoritesTagKey}, null, null, null, null, null);
+			
 			cursor.moveToFirst();
+			
 			while (cursor.isAfterLast() == false)
 			{
-				FloatPoint point = new FloatPoint(cursor.getFloat(0), cursor.getFloat(1));
+				String tag = cursor.getString(0);
+				ret.add(tag);
 				
-				ret.add(point);
 				cursor.moveToNext();
 			}
+			
+			return ret;
 		}
 		finally
 		{
@@ -220,11 +215,6 @@ public class DatabaseHelper extends SQLiteOpenHelper
 				cursor.close();
 			}
 		}
-		
-		return ret;
-		
-		*/
-		throw new RuntimeException("Not Implemented");
 	}
 	
 	/**
