@@ -237,7 +237,7 @@ public class DatabaseHelper extends SQLiteOpenHelper
 		Cursor cursor = null;
 
 		SQLiteQueryBuilder builder = new SQLiteQueryBuilder();
-		builder.setTables(verboseFavorites + ", " + verboseStops);
+		builder.setTables(verboseFavorites);
 		builder.setDistinct(true);
 		try
 		{
@@ -423,7 +423,7 @@ public class DatabaseHelper extends SQLiteOpenHelper
 			}
 
 			SQLiteQueryBuilder builder = new SQLiteQueryBuilder();
-			builder.setTables(verboseStops + " as s1 " + verboseStops + " as s2");
+			builder.setTables(verboseStops + " as s1, " + verboseStops + " as s2");
 			cursor = builder.query(database, new String[] {"s2." + stopTagKey},
 					"s1." + stopTagKey + " = ? AND s1." + latitudeKey + " = s2." + latitudeKey +
 					" AND s1." + longitudeKey + " = s2." + longitudeKey, new String[]{stopTag}, null, null, null);
@@ -503,9 +503,9 @@ public class DatabaseHelper extends SQLiteOpenHelper
 				database.beginTransaction();
 				//delete all tags from favorites where the lat/lon of stopTag matches those tags
 				database.delete(verboseFavorites, verboseFavorites + "." + stopTagKey + 
-						" IN (SELECT s2." + stopTagKey + " FROM " + verboseStops + " as s1 JOIN " + verboseStops + " as s2 WHERE " +
+						" IN (SELECT s2." + stopTagKey + " FROM " + verboseStops + " as s1, " + verboseStops + " as s2 WHERE " +
 						"s1." + latitudeKey + " = s2." + latitudeKey + " AND s1." + longitudeKey +
-						" = s2." + longitudeKey + ") AND s1." + stopTagKey + " = ?", new String[]{stopTag});
+						" = s2." + longitudeKey + " AND s1." + stopTagKey + " = ?)", new String[]{stopTag});
 				database.setTransactionSuccessful();
 				database.endTransaction();
 			}
