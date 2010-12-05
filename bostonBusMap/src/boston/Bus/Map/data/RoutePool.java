@@ -231,9 +231,24 @@ public class RoutePool {
 	}
 	
 	public int setFavorite(StopLocation location, boolean isFavorite) {
-		helper.saveFavorite(location.getStopTag(), isFavorite);
+		ArrayList<String> stopTags = helper.getAllStopTagsAtLocation(location.getStopTag());
+
+		helper.saveFavorite(location.getStopTag(), stopTags, isFavorite);
 		favoriteStops.clear();
 		populateFavorites();
+		
+		if (isFavorite == false)
+		{
+			//make sure setFavorite(false) is called for each stop
+			for (String tag : stopTags)
+			{
+				StopLocation stop = sharedStops.get(tag);
+				if (stop != null)
+				{
+					stop.setFavorite(false);
+				}
+			}
+		}
 		
 		return isFavorite ? R.drawable.full_star : R.drawable.empty_star;
 	}

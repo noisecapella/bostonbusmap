@@ -230,8 +230,6 @@ public class StopLocation implements Location
 	@Override
 	public String getSnippetTitle() {
 		String ret = snippetTitle;
-		ret += "<br />" + "Stop: " + snippetStop;
-		ret += "; Routes: " + snippetRoutes;
 		return ret;
 	}
 	

@@ -350,7 +350,7 @@ public class DatabaseHelper extends SQLiteOpenHelper
 					values.put(longitudeKey, stop.getLongitudeAsDegrees());
 					values.put(stopTitleKey, stop.getTitle());
 
-					database.insert(verboseStops, null, values);
+					database.replace(verboseStops, null, values);
 				}
 
 				if (stop instanceof SubwayStopLocation)
@@ -361,7 +361,7 @@ public class DatabaseHelper extends SQLiteOpenHelper
 					values.put(platformOrderKey, subwayStop.getPlatformOrder());
 					values.put(branchKey, subwayStop.getBranch());
 
-					database.insert(subwaySpecificTable, null, values);
+					database.replace(subwaySpecificTable, null, values);
 				}
 			}
 			
@@ -371,7 +371,7 @@ public class DatabaseHelper extends SQLiteOpenHelper
 				values.put(routeKey, route);
 				values.put(stopTagKey, stopTag);
 				values.put(dirtagKey, stop.getDirTagForRoute(route));
-				database.insert(stopsRoutesMap, null, values);
+				database.replace(stopsRoutesMap, null, values);
 			}
 		}
 	}
@@ -400,7 +400,7 @@ public class DatabaseHelper extends SQLiteOpenHelper
 	}
 	
 
-	private ArrayList<String> getAllStopTagsAtLocation(String stopTag)
+	public ArrayList<String> getAllStopTagsAtLocation(String stopTag)
 	{
 		SQLiteDatabase database = getReadableDatabase();
 		Cursor cursor = null;
@@ -469,11 +469,11 @@ public class DatabaseHelper extends SQLiteOpenHelper
 	}
 	
 	
-	public synchronized void saveFavorite(String stopTag, boolean isFavorite) {
+	public synchronized void saveFavorite(String stopTag, ArrayList<String> stopTags, boolean isFavorite) {
 		//Log.v("BostonBusMap", "Saving favorite " + lat + ", " + lon + " as " + isFavorite);
+
 		if (isFavorite)
 		{
-			ArrayList<String> stopTags = getAllStopTagsAtLocation(stopTag);
 			storeFavorite(stopTags);
 		}
 		else
