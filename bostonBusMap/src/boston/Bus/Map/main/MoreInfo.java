@@ -19,8 +19,9 @@ import android.widget.TextView;
 
 public class MoreInfo extends ListActivity {
 	public static final String predictionsKey = "predictions";
-	public static final String routesKey = "routes";
-	public static final String titlesKey = "titles";
+	public static final String routeKeysKey = "routes";
+	public static final String stopsKey = "stops";
+	public static final String routeTitlesKey = "titles";
 	
 	public static final String titleKey = "title";
 	public static final String routeKey = "route";
@@ -28,7 +29,6 @@ public class MoreInfo extends ListActivity {
 	public static final String textKey = "text";
 	
 	private Parcelable[] predictions;
-	private HashMap<String, String> routeKeysToTitles;
 	private TextView title;
 	
 	@Override
@@ -42,8 +42,8 @@ public class MoreInfo extends ListActivity {
 		
 		
 		predictions = (Parcelable[])extras.getParcelableArray(predictionsKey);
-		String[] keys = extras.getStringArray(routesKey);
-		String[] titles = extras.getStringArray(titlesKey);
+		String[] keys = extras.getStringArray(routeKeysKey);
+		String[] titles = extras.getStringArray(routeTitlesKey);
 		
 		HashMap<String, String> routeKeysToTitles = new HashMap<String, String>();
 		for (int i = 0; i < keys.length; i++)
@@ -85,8 +85,10 @@ public class MoreInfo extends ListActivity {
 			}
 		}
 		
+		String stopTags = extras.getString(stopsKey);
 		if (routes != null)
 		{
+			titleText.append("<br />Stop ids: ").append(stopTags);
 			titleText.append("<br />Routes: ").append(routes);
 			
 		}

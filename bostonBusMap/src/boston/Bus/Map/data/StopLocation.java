@@ -435,4 +435,15 @@ public class StopLocation implements Location
 	public String getDirTagForRoute(String route) {
 		return dirTags.get(route);
 	}
+
+	public String getCombinedStops() {
+		if (snippetStop != null)
+		{
+			return snippetStop;
+		}
+		else
+		{
+			return "";
+		}
+	}
 }

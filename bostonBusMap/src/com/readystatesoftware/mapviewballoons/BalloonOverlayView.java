@@ -137,13 +137,18 @@ public class BalloonOverlayView extends FrameLayout {
 						values[i] = routeKeysToTitles.get(keys[i]);
 					}
 					
-					intent.putExtra(MoreInfo.routesKey, keys);
-					intent.putExtra(MoreInfo.titlesKey, values);
+					intent.putExtra(MoreInfo.routeKeysKey, keys);
+					intent.putExtra(MoreInfo.routeTitlesKey, values);
 					
 					String[] combinedTitles = stopLocation.getCombinedTitles();
 					intent.putExtra(MoreInfo.titleKey, combinedTitles);
+					
 					String combinedRoutes = stopLocation.getCombinedRoutes();
 					intent.putExtra(MoreInfo.routeKey, combinedRoutes);
+					
+					String combinedStops = stopLocation.getCombinedStops();
+					intent.putExtra(MoreInfo.stopsKey, combinedStops);
+					
 					context.startActivity(intent);
 				}
 			}

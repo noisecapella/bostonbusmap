@@ -1,12 +1,14 @@
 package boston.Bus.Map.data;
 
 import java.io.IOException;
+import java.util.AbstractCollection;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Queue;
 
 import android.util.Log;
@@ -54,13 +56,17 @@ public class RoutePool {
 	 */
 	public void fillInFavoritesRoutes()
 	{
-		for (String stop : favoriteStops)
+		ArrayList<StopLocation> stops = getStops(favoriteStops);
+		if (stops == null)
 		{
-			//Log.v("BostonBusMap", "getting route " + (route == null ? "null" : route) +
-			//		" because favorite stop " + stop + " requested it");
-			StopLocation stopLocation = getStop(stop);
+			return;
+		}
+		
+		for (StopLocation stopLocation : stops)
+		{
 			if (stopLocation != null)
 			{
+				String stop = stopLocation.getStopTag();
 				Log.v("BostonBusMap", "setting favorite status to true for " + stop);
 				stopLocation.setFavorite(true);
 				sharedStops.put(stop, stopLocation);
@@ -69,14 +75,30 @@ public class RoutePool {
 	}
 
 	
-	private StopLocation getStop(String stopTag) {
-		StopLocation stop = sharedStops.get(stopTag);
-		if (stop == null)
+	private ArrayList<StopLocation> getStops(AbstractCollection<String> stopTags) {
+		if (stopTags.size() == 0)
 		{
-			stop = helper.getStop(stopTag, transitSystem);
-			sharedStops.put(stopTag, stop);
+			return null;
 		}
-		return stop;
+		
+		ArrayList<String> stopTagsToRetrieve = new ArrayList<String>();
+		
+		for (String stopTag : stopTags)
+		{
+			if (sharedStops.containsKey(stopTag) == false)
+			{
+				stopTagsToRetrieve.add(stopTag);
+			}
+		}
+		
+		ArrayList<StopLocation> ret = helper.getStops(stopTagsToRetrieve, transitSystem);
+		
+		for (StopLocation stopLocation : ret)
+		{
+			sharedStops.put(stopLocation.getStopTag(), stopLocation);
+		}
+
+		return ret;
 	}
 
 	/**

@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 
 import com.google.android.maps.GeoPoint;
 import com.google.android.maps.Projection;
@@ -829,7 +830,12 @@ public class DatabaseHelper extends SQLiteOpenHelper
 	 * @param transitSystem
 	 * @return
 	 */
-	public StopLocation getStop(String stopTag, TransitSystem transitSystem) {
+	public ArrayList<StopLocation> getStops(List<String> stopTags, TransitSystem transitSystem) {
+		if (stopTags == null || stopTags.size() == 0)
+		{
+			return null;
+		}
+		
 		SQLiteDatabase database = getReadableDatabase();
 		Cursor stopCursor = null;
 		try
@@ -838,53 +844,85 @@ public class DatabaseHelper extends SQLiteOpenHelper
 
 			//get stop with name stopTag, joining with the subway table
 			SQLiteQueryBuilder builder = new SQLiteQueryBuilder();
-			String tables = verboseStops +
-			" LEFT OUTER JOIN " + subwaySpecificTable + " ON (" + verboseStops + "." + stopTagKey + " = " + 
+			String tables = verboseStops + " JOIN " + stopsRoutesMap + " ON (" + verboseStops + "." + stopTagKey + " = " +
+			stopsRoutesMap + "." + stopTagKey + ") LEFT OUTER JOIN " +
+			subwaySpecificTable + " ON (" + verboseStops + "." + stopTagKey + " = " + 
 			subwaySpecificTable + "." + stopTagKey + ")";
 
 
 			builder.setTables(tables);
 
-			String[] projectionIn = new String[] {latitudeKey, longitudeKey, 
+			String[] projectionIn = new String[] {stopTagKey, latitudeKey, longitudeKey, 
 					stopTitleKey, platformOrderKey, branchKey};
-			String select = verboseStops + "." + stopTagKey + "=?";
-			String[] selectArray = new String[]{stopTag};
 
-			Log.v("BostonBusMap", SQLiteQueryBuilder.buildQueryString(false, tables, projectionIn, verboseStops + "." + stopTagKey + "=\"" + stopTagKey + "\"",
-					null, null, null, null));
+			//if size == 1, where clause is tag = ?. if size > 1, where clause is "IN (tag1, tag2, tag3...)"
+			StringBuilder select;
+			String[] selectArray;
+			if (stopTags.size() == 1)
+			{
+				String stopTag = stopTags.get(0);
+				
+				select = new StringBuilder(verboseStops + "." + stopTagKey + "=?");
+				selectArray = new String[]{stopTag};
 
-			stopCursor = builder.query(database, projectionIn, select, selectArray, null, null, null);
+				Log.v("BostonBusMap", SQLiteQueryBuilder.buildQueryString(false, tables, projectionIn, verboseStops + "." + stopTagKey + "=\"" + stopTagKey + "\"",
+						null, null, null, null));
+			}
+			else
+			{
+				select = new StringBuilder(verboseStops + "." + stopTagKey + " IN (");
+				
+				for (int i = 0; i < stopTags.size(); i++)
+				{
+					String stopTag = stopTags.get(i);
+					select.append('\'').append(stopTag);
+					if (i != stopTags.size() - 1)
+					{
+						select.append("', ");
+					}
+					else
+					{
+						select.append("')");
+					}
+				}
+				selectArray = null;
+			}
+
+			stopCursor = builder.query(database, projectionIn, select.toString(), selectArray, null, null, null);
 
 			stopCursor.moveToFirst();
 			
-			if (stopCursor.isAfterLast() == false)
+			ArrayList<StopLocation> ret = new ArrayList<StopLocation>();
+			
+			while (stopCursor.isAfterLast() == false)
 			{
-				float lat = stopCursor.getFloat(0);
-				float lon = stopCursor.getFloat(1);
-				String title = stopCursor.getString(2);
+				String stopTag = stopCursor.getString(0);
+				float lat = stopCursor.getFloat(1);
+				float lon = stopCursor.getFloat(2);
+				String title = stopCursor.getString(3);
 				
 				//NOTE: for now, the bus stop icon is the same for all transit sources
 				Drawable busStop = transitSystem.getTransitSource(null).getBusStopDrawable();
 				
 				StopLocation stop;
-				if (stopCursor.isNull(3))
+				if (stopCursor.isNull(4))
 				{
 					stop = new StopLocation(lat, lon, busStop, stopTag, title);
 				}
 				else
 				{
-					int platformOrder = stopCursor.getInt(3);
-					String branch = stopCursor.getString(4);
+					int platformOrder = stopCursor.getInt(4);
+					String branch = stopCursor.getString(5);
 					
 					stop = new SubwayStopLocation(lat, lon, busStop, stopTag, title, platformOrder, branch);
 				}
 				
-				return stop;
+				ret.add(stop);
+				
+				stopCursor.moveToNext();
 			}
-			else
-			{
-				return null;
-			}
+			
+			return ret;
 		}
 		finally
 		{
