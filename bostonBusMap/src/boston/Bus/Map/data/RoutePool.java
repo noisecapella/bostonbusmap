@@ -81,17 +81,23 @@ public class RoutePool {
 			return null;
 		}
 		
+		HashMap<String, StopLocation> ret = new HashMap<String, StopLocation>();
 		ArrayList<String> stopTagsToRetrieve = new ArrayList<String>();
 		
 		for (String stopTag : stopTags)
 		{
-			if (sharedStops.containsKey(stopTag) == false)
+			StopLocation stop = sharedStops.get(stopTag);
+			if (stop == null)
 			{
 				stopTagsToRetrieve.add(stopTag);
 			}
+			else
+			{
+				ret.put(stopTag, stop);
+			}
 		}
 		
-		HashMap<String, StopLocation> ret = helper.getStops(stopTagsToRetrieve, transitSystem);
+		helper.getStops(stopTagsToRetrieve, transitSystem, ret);
 		
 		if (ret != null)
 		{

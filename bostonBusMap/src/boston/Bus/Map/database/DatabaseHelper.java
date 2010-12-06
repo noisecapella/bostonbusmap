@@ -819,10 +819,10 @@ public class DatabaseHelper extends SQLiteOpenHelper
 	 * @param transitSystem
 	 * @return
 	 */
-	public HashMap<String, StopLocation> getStops(List<String> stopTags, TransitSystem transitSystem) {
+	public void getStops(List<String> stopTags, TransitSystem transitSystem, HashMap<String, StopLocation> outputMapping) {
 		if (stopTags == null || stopTags.size() == 0)
 		{
-			return null;
+			return;
 		}
 		
 		SQLiteDatabase database = getReadableDatabase();
@@ -883,8 +883,6 @@ public class DatabaseHelper extends SQLiteOpenHelper
 
 			stopCursor.moveToFirst();
 			
-			HashMap<String, StopLocation> ret = new HashMap<String, StopLocation>();
-			
 			//iterate through the stops in the database and create new ones if necessary
 			//stops will be repeated if they are on multiple routes. If so, just skip to the bottom and add the route and dirTag
 			while (stopCursor.isAfterLast() == false)
@@ -894,7 +892,7 @@ public class DatabaseHelper extends SQLiteOpenHelper
 				String route = stopCursor.getString(6);
 				String dirTag = stopCursor.getString(7);
 
-				StopLocation stop = ret.get(stopTag);
+				StopLocation stop = outputMapping.get(stopTag);
 				if (stop == null)
 				{
 					float lat = stopCursor.getFloat(1);
@@ -910,7 +908,7 @@ public class DatabaseHelper extends SQLiteOpenHelper
 					}
 
 					stop = transitSystem.createStop(lat, lon, stopTag, title, platformOrder, branch, route, dirTag);
-					ret.put(stopTag, stop);
+					outputMapping.put(stopTag, stop);
 				}
 				else
 				{
@@ -919,8 +917,6 @@ public class DatabaseHelper extends SQLiteOpenHelper
 				
 				stopCursor.moveToNext();
 			}
-			
-			return ret;
 		}
 		finally
 		{
