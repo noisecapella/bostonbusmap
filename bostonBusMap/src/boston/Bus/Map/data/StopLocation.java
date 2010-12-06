@@ -182,7 +182,7 @@ public class StopLocation implements Location
 			combinedTitles.add(s.getTitle());
 		}
 		
-		if (sharedSnippetStops.size() > 0)
+		if (combinedTitles.size() > 1)
 		{
 			snippetTitle = title + ", ...";
 		}

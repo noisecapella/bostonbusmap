@@ -35,14 +35,12 @@
 	<!-- debug key: 0UeumldxhB0bPpe6UgModFrG5tLPAwclzgqJhRg -->
 	<!-- release key: 04_mZq9Q_5sL2pltlDIYof4iIQimS_U5YPnRafg -->
 
-	<ProgressBar android:id="@+id/progress"
-		android:layout_width="wrap_content" android:layout_height="wrap_content"
-		android:indeterminateOnly="true" android:indeterminate="true"
-		android:layout_alignParentLeft="true" 
-		android:layout_alignTop="@+id/mapview"
-		style="?android:attr/progressBarStyleSmall"
-		android:indeterminateDrawable="@drawable/progress_medium"
-		 />
+    <ProgressBar android:id="@+id/progress"
+	android:layout_width="wrap_content" android:layout_height="wrap_content"
+	android:layout_toLeftOf="@+id/predictionsOrLocations"
+	android:indeterminateOnly="true" android:indeterminate="true"
+	android:layout_alignBottom="@+id/predictionsOrLocations"
+	android:layout_alignTop="@+id/predictionsOrLocations" />
 
 <!-- 
 		 -->
