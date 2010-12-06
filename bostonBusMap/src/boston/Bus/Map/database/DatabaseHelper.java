@@ -221,18 +221,35 @@ public class DatabaseHelper extends SQLiteOpenHelper
 	 * Fill the given HashSet with all stop tags that are favorites
 	 * @param favorites
 	 */
-	public synchronized void populateFavorites(HashSet<String> favorites)
+	public synchronized void populateFavorites(HashSet<String> favorites, boolean lookForOtherStopsAtSameLocation)
 	{
 		SQLiteDatabase database = getReadableDatabase();
 		Cursor cursor = null;
 
-		SQLiteQueryBuilder builder = new SQLiteQueryBuilder();
-		builder.setTables(verboseFavorites);
-		builder.setDistinct(true);
 		try
 		{
-			cursor = builder.query(database, new String[]{stopTagKey}, 
-					null, null, null, null, null);
+			if (lookForOtherStopsAtSameLocation)
+			{
+				//get all stop tags which are at the same location as stop tags in the database
+				//this is a relatively expensive query but it should only be done once, when the
+				//database needs it
+				SQLiteQueryBuilder builder = new SQLiteQueryBuilder();
+				builder.setTables(verboseFavorites + " JOIN stops as s1 ON (" + verboseFavorites + "." + stopTagKey +
+						"=s1." + stopIdKey + ") JOIN stops as s2 ON (s1." + "." + latitudeKey + 
+						"= s2." + latitudeKey + " AND s1." + longitudeKey + "= s2." + longitudeKey + ")");
+				builder.setDistinct(true);
+				
+				cursor = builder.query(database, new String[]{"s2." + stopTagKey}, null, null, null, null, null);
+			}
+			else
+			{
+				SQLiteQueryBuilder builder = new SQLiteQueryBuilder();
+				builder.setTables(verboseFavorites);
+
+				cursor = builder.query(database, new String[]{stopTagKey}, 
+						null, null, null, null, null);
+
+			}
 			cursor.moveToFirst();
 			while (cursor.isAfterLast() == false)
 			{

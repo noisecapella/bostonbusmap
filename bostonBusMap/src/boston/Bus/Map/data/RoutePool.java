@@ -40,7 +40,7 @@ public class RoutePool {
 		this.transitSystem = transitSystem;
 		
 		helper.upgradeIfNecessary();
-		populateFavorites();
+		populateFavorites(false);
 	}
 	
 	public void saveFavoritesToDatabase()
@@ -204,13 +204,13 @@ public class RoutePool {
 		helper.saveMapping(map, wipe, stopTags, task);
 		
 		clearAll();
-		populateFavorites();
+		populateFavorites(true);
 	}
 
 	
 	
-	private void populateFavorites() {
-		helper.populateFavorites(favoriteStops);
+	private void populateFavorites(boolean lookForOtherStopsAtSameLocation) {
+		helper.populateFavorites(favoriteStops, lookForOtherStopsAtSameLocation);
 		fillInFavoritesRoutes();
 
 	}
@@ -254,7 +254,7 @@ public class RoutePool {
 
 		helper.saveFavorite(location.getStopTag(), stopTags, isFavorite);
 		favoriteStops.clear();
-		populateFavorites();
+		populateFavorites(false);
 		
 		if (isFavorite == false)
 		{
