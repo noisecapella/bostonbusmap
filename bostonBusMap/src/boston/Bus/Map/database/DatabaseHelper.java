@@ -554,7 +554,7 @@ public class DatabaseHelper extends SQLiteOpenHelper
 			builder.setTables(tables);
 			
 			String[] projectionIn = new String[] {verboseStops + "." + stopTagKey, latitudeKey, longitudeKey, 
-					stopTitleKey, platformOrderKey, branchKey, "sm1." + dirTagKey, "sm2." + routeKey};
+					stopTitleKey, platformOrderKey, branchKey, "sm2." + dirTagKey, "sm2." + routeKey};
 			String select = "sm1." + routeKey + "=?";
 			String[] selectArray = new String[]{routeToUpdate};
 			
