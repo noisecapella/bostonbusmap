@@ -176,13 +176,24 @@ public class StopLocation implements Location
 		
 		combinedTitles = new TreeSet<String>();
 		combinedTitles.add(title);
+		
+		if (sharedSnippetStops.size() > 0)
+		{
+			snippetTitle = title + ", ...";
+		}
+		else
+		{
+			snippetTitle = title;
+		}
+		/*
+		 * uncomment to show all titles on front page
 		for (StopLocation s : sharedSnippetStops)
 		{
 			combinedTitles.add(s.getTitle());
 		}
 		
 		snippetTitle = makeSnippetTitle(combinedTitles);
-		
+		*/
 		snippetStop += ", " + stopLocation.tag;
 		
 		combinedRoutes = new TreeSet<String>();
