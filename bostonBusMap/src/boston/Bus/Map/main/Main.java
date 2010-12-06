@@ -397,6 +397,8 @@ public class Main extends MapActivity
         
         handler.setLastUpdateTime(lastUpdateTime);
 
+        //show all icons if there are any
+    	handler.triggerUpdate();
         if (handler.getUpdateConstantly() && previousUpdateConstantly == false)
         {
         	handler.instantRefresh();

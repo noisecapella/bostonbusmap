@@ -42,7 +42,8 @@
 	android:layout_below="@+id/balloon_item_favorite"
 	android:layout_alignTop="@+id/balloon_item_snippet"
 	android:text="More info"
-	android:paddingTop="40dip"
+	android:layout_marginTop="20dip"
+	android:paddingTop="20dip"
 	android:paddingLeft="5dip"
 	android:paddingBottom="20dip"
 	></TextView>
