@@ -64,21 +64,13 @@ public class DatabaseHelper extends SQLiteOpenHelper
 	private final static String blobsTable = "blobs";
 	private final static String oldFavoritesTable = "favs";
 	private final static String newFavoritesTable = "favs2";
-	private final static String routePoolTable = "routepool";
 	
 	private final static String verboseFavorites = "favorites";
 	
 	private final static String routeKey = "route";
-	private final static String stopIdKey = "stopId";
 	private final static String newFavoritesTagKey = "tag";
 	private final static String latitudeKey = "lat";
 	private final static String longitudeKey = "lon";
-	private final static String titleKey = "title";
-	private final static String nameKey = "name";
-	private final static String pathIdKey = "pathid";
-	private final static String blobKey = "blob";
-	private final static String oldFavoritesIdKey = "idkey";
-	private final static String newFavoritesRouteKey = "route";
 
 	private final static String colorKey = "color";
 	private final static String oppositeColorKey = "oppositecolor";
@@ -93,10 +85,6 @@ public class DatabaseHelper extends SQLiteOpenHelper
 	private static final String dirNameKey = "dirNameKey";
 	private static final String dirTitleKey = "dirTitleKey";
 	private static final String dirRouteKey = "dirRouteKey";
-	
-	private final static int tagIndex = 1;
-	private final static int nameIndex = 2;
-	private final static int titleIndex = 3;
 	
 	/**
 	 * The first version where we serialize as bytes, not necessarily the first db version
@@ -235,7 +223,7 @@ public class DatabaseHelper extends SQLiteOpenHelper
 				//database needs it
 				SQLiteQueryBuilder builder = new SQLiteQueryBuilder();
 				builder.setTables(verboseFavorites + " JOIN stops as s1 ON (" + verboseFavorites + "." + stopTagKey +
-						"=s1." + stopIdKey + ") JOIN stops as s2 ON (s1." +  latitudeKey + 
+						"=s1." + stopTagKey + ") JOIN stops as s2 ON (s1." +  latitudeKey + 
 						"= s2." + latitudeKey + " AND s1." + longitudeKey + "= s2." + longitudeKey + ")");
 				builder.setDistinct(true);
 				
