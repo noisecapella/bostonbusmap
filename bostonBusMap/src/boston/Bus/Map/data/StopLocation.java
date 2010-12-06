@@ -177,6 +177,11 @@ public class StopLocation implements Location
 		combinedTitles = new TreeSet<String>();
 		combinedTitles.add(title);
 		
+		for (StopLocation s : sharedSnippetStops)
+		{
+			combinedTitles.add(s.getTitle());
+		}
+		
 		if (sharedSnippetStops.size() > 0)
 		{
 			snippetTitle = title + ", ...";
@@ -185,15 +190,12 @@ public class StopLocation implements Location
 		{
 			snippetTitle = title;
 		}
+		
 		/*
 		 * uncomment to show all titles on front page
-		for (StopLocation s : sharedSnippetStops)
-		{
-			combinedTitles.add(s.getTitle());
-		}
-		
 		snippetTitle = makeSnippetTitle(combinedTitles);
 		*/
+		
 		snippetStop += ", " + stopLocation.tag;
 		
 		combinedRoutes = new TreeSet<String>();
