@@ -27,6 +27,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.TreeSet;
 import java.util.zip.GZIPInputStream;
@@ -309,8 +310,35 @@ public final class Locations
 		}
 		
 		
+		ArrayList<Location> ret = new ArrayList<Location>(maxLocations);
+		Iterator<Location> iterator = newLocations.iterator();
 		
-		return new ArrayList<Location>(newLocations).subList(0, maxLocations);
+		//add the first n-th locations, where n is the maximum number of icons we can display on screen without slowing things down
+		//however, we shouldn't cut two locations off where they would get combined into one icon anyway
+		int count = 0;
+		Location lastLocation = null;
+		while (iterator.hasNext())
+		{
+			Location location = iterator.next();
+			if (count >= maxLocations)
+			{
+				if (lastLocation != null && 
+					lastLocation.getLatitudeAsDegrees() == location.getLatitudeAsDegrees() && 
+					lastLocation.getLongitudeAsDegrees() == location.getLongitudeAsDegrees())
+				{
+					//ok, let's add one more since it won't affect the framerate at all (and because things would get weird without it)
+				}
+				else
+				{
+					break;
+				}
+			}
+			ret.add(location);
+			count++;
+			lastLocation = location;
+		}
+		
+		return ret;
 	}
 
 	private int latitudeAsDegreesE6;
