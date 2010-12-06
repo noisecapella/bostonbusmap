@@ -764,8 +764,7 @@ public class DatabaseHelper extends SQLiteOpenHelper
 				if (stopLocation != null)
 				{
 					ContentValues values = new ContentValues();
-					values.put(latitudeKey, stopLocation.getLatitudeAsDegrees());
-					values.put(longitudeKey, stopLocation.getLongitudeAsDegrees());
+					values.put(stopTagKey, stopTag);
 					database.replace(verboseFavorites, null, values);
 				}
 			}
