@@ -93,7 +93,10 @@ public class RoutePool {
 		
 		HashMap<String, StopLocation> ret = helper.getStops(stopTagsToRetrieve, transitSystem);
 		
-		sharedStops.putAll(ret);
+		if (ret != null)
+		{
+			sharedStops.putAll(ret);
+		}
 
 		return ret;
 	}

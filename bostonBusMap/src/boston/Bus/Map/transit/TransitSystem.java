@@ -140,7 +140,11 @@ public class TransitSystem {
 			
 			for (TransitSource source : transitSources)
 			{
-				ret.putAll(source.getRouteKeysToTitles());
+				HashMap<String, String> sourceRouteKeyMap = source.getRouteKeysToTitles();
+				if (sourceRouteKeyMap != null)
+				{
+					ret.putAll(sourceRouteKeyMap);
+				}
 			}
 			
 			return ret;
