@@ -24,6 +24,7 @@ import boston.Bus.Map.data.Locations;
 import boston.Bus.Map.data.RouteConfig;
 import boston.Bus.Map.data.RoutePool;
 import boston.Bus.Map.data.StopLocation;
+import boston.Bus.Map.data.SubwayStopLocation;
 import boston.Bus.Map.main.Main;
 import boston.Bus.Map.main.UpdateAsyncTask;
 import boston.Bus.Map.parser.BusPredictionsFeedParser;
@@ -263,5 +264,14 @@ public class SubwayTransitSource implements TransitSource {
 	@Override
 	public Drawable getBusStopDrawable() {
 		return busStop;
+	}
+
+
+	@Override
+	public StopLocation createStop(float lat, float lon, String stopTag, String title,
+			int platformOrder, String branch, String route, String dirTag) {
+		SubwayStopLocation stop = new SubwayStopLocation(lat, lon, busStop, stopTag, title, platformOrder, branch);
+		stop.addRouteAndDirTag(route, dirTag);
+		return stop;
 	}
 }

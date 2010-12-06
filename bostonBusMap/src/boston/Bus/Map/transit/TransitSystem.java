@@ -158,4 +158,26 @@ public class TransitSystem {
 					centerLongitude, busMapping, selectedRoute, routePool, directions, locations);
 		}
 	}
+
+	/**
+	 * Create a StopLocation from the parameters. 
+	 * This will use the route parameter to pick a TransitSource which does the instantiating 
+	 * 
+	 * @param lat
+	 * @param lon
+	 * @param stopTag
+	 * @param title
+	 * @param platformOrder
+	 * @param branch
+	 * @param route
+	 * @param dirTag
+	 * @return
+	 */
+	public StopLocation createStop(float lat, float lon, String stopTag, String title, int platformOrder, 
+			String branch, String route, String dirTag)
+	{
+		TransitSource source = getTransitSource(route);
+		
+		return source.createStop(lat, lon, stopTag, title, platformOrder, branch, route, dirTag);
+	}
 }

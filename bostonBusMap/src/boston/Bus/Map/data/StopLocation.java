@@ -72,6 +72,11 @@ public class StopLocation implements Location
 		this.dirTags = new HashMap<String, String>();
 	}
 
+	/**
+	 * Add a route and the dirTag for that stop which is mentioned in the routeConfig xml
+	 * @param route
+	 * @param dirTag
+	 */
 	public void addRouteAndDirTag(String route, String dirTag)
 	{
 		synchronized (dirTags)

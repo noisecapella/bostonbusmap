@@ -15,6 +15,7 @@ import boston.Bus.Map.data.Directions;
 import boston.Bus.Map.data.Locations;
 import boston.Bus.Map.data.RouteConfig;
 import boston.Bus.Map.data.RoutePool;
+import boston.Bus.Map.data.StopLocation;
 import boston.Bus.Map.main.UpdateAsyncTask;
 
 public interface TransitSource {
@@ -40,4 +41,18 @@ public interface TransitSource {
 	public HashMap<String, String> getRouteKeysToTitles();
 
 	Drawable getBusStopDrawable();
+
+	/**
+	 * Create a StopLocation using the parameters
+	 * @param lat
+	 * @param lon
+	 * @param stopTag
+	 * @param title
+	 * @param platformOrder
+	 * @param branch
+	 * @param route
+	 * @param dirTag
+	 */
+	StopLocation createStop(float lat, float lon, String stopTag, String title,
+			int platformOrder, String branch, String route, String dirTag);
 }

@@ -74,7 +74,6 @@ public class DatabaseHelper extends SQLiteOpenHelper
 	private final static String latitudeKey = "lat";
 	private final static String longitudeKey = "lon";
 	private final static String titleKey = "title";
-	private final static String dirtagKey = "dirtag";
 	private final static String nameKey = "name";
 	private final static String pathIdKey = "pathid";
 	private final static String blobKey = "blob";
@@ -371,7 +370,7 @@ public class DatabaseHelper extends SQLiteOpenHelper
 				ContentValues values = new ContentValues();
 				values.put(routeKey, route);
 				values.put(stopTagKey, stopTag);
-				values.put(dirtagKey, stop.getDirTagForRoute(route));
+				values.put(dirTagKey, stop.getDirTagForRoute(route));
 				database.replace(stopsRoutesMap, null, values);
 			}
 		}
@@ -582,7 +581,7 @@ public class DatabaseHelper extends SQLiteOpenHelper
 					{
 						routeConfig.addStop(stopTag, stop);
 					}
-					
+					stop.addRouteAndDirTag(route, dirTag);
 				}
 				else
 				{
@@ -597,27 +596,13 @@ public class DatabaseHelper extends SQLiteOpenHelper
 
 						int platformOrder = 0;
 
-						Drawable busStop = source.getBusStopDrawable();
-						if (stopCursor.isNull(4) == false)
-						{
-							//TODO: we should have a factory somewhere to abstract details away
-							platformOrder = stopCursor.getInt(4);
-
-							stop = new SubwayStopLocation(latitude, longitude, busStop,
-									stopTag, stopTitle, platformOrder, branch);
-						}
-						else
-						{
-							stop = new StopLocation(latitude, longitude, busStop, stopTag, stopTitle);
-						}
-
+						stop = transitSystem.createStop(latitude, longitude, stopTag, stopTitle, platformOrder, branch, route, dirTag);
+						
 						routeConfig.addStop(stopTag, stop);
 					}
 					
 					sharedStops.put(stopTag, stop);
 				}
-				stop.addRouteAndDirTag(route, dirTag);
-				
 				stopCursor.moveToNext();
 			}
 			Log.v("BostonBusMap", "getRoute ended successfully");
@@ -825,12 +810,12 @@ public class DatabaseHelper extends SQLiteOpenHelper
 	}
 
 	/**
-	 * Read a single stop from the database
+	 * Read stops from the database and return a mapping of the stop tag to the stop object
 	 * @param stopTag
 	 * @param transitSystem
 	 * @return
 	 */
-	public ArrayList<StopLocation> getStops(List<String> stopTags, TransitSystem transitSystem) {
+	public HashMap<String, StopLocation> getStops(List<String> stopTags, TransitSystem transitSystem) {
 		if (stopTags == null || stopTags.size() == 0)
 		{
 			return null;
@@ -852,8 +837,8 @@ public class DatabaseHelper extends SQLiteOpenHelper
 
 			builder.setTables(tables);
 
-			String[] projectionIn = new String[] {stopTagKey, latitudeKey, longitudeKey, 
-					stopTitleKey, platformOrderKey, branchKey};
+			String[] projectionIn = new String[] {verboseStops + "." + stopTagKey, latitudeKey, longitudeKey, 
+					stopTitleKey, platformOrderKey, branchKey, stopsRoutesMap + "." + routeKey, stopsRoutesMap + "." + dirTagKey};
 
 			//if size == 1, where clause is tag = ?. if size > 1, where clause is "IN (tag1, tag2, tag3...)"
 			StringBuilder select;
@@ -886,38 +871,47 @@ public class DatabaseHelper extends SQLiteOpenHelper
 					}
 				}
 				selectArray = null;
+				
+				Log.v("BostonBusMap", select.toString());
 			}
 
 			stopCursor = builder.query(database, projectionIn, select.toString(), selectArray, null, null, null);
 
 			stopCursor.moveToFirst();
 			
-			ArrayList<StopLocation> ret = new ArrayList<StopLocation>();
+			HashMap<String, StopLocation> ret = new HashMap<String, StopLocation>();
 			
+			//iterate through the stops in the database and create new ones if necessary
+			//stops will be repeated if they are on multiple routes. If so, just skip to the bottom and add the route and dirTag
 			while (stopCursor.isAfterLast() == false)
 			{
 				String stopTag = stopCursor.getString(0);
-				float lat = stopCursor.getFloat(1);
-				float lon = stopCursor.getFloat(2);
-				String title = stopCursor.getString(3);
 				
-				//NOTE: for now, the bus stop icon is the same for all transit sources
-				Drawable busStop = transitSystem.getTransitSource(null).getBusStopDrawable();
-				
-				StopLocation stop;
-				if (stopCursor.isNull(4))
+				String route = stopCursor.getString(6);
+				String dirTag = stopCursor.getString(7);
+
+				StopLocation stop = ret.get(stopTag);
+				if (stop == null)
 				{
-					stop = new StopLocation(lat, lon, busStop, stopTag, title);
+					float lat = stopCursor.getFloat(1);
+					float lon = stopCursor.getFloat(2);
+					String title = stopCursor.getString(3);
+
+					int platformOrder = 0;
+					String branch = null;
+					if (stopCursor.isNull(4) == false)
+					{
+						platformOrder = stopCursor.getInt(4);
+						branch = stopCursor.getString(5);
+					}
+
+					stop = transitSystem.createStop(lat, lon, stopTag, title, platformOrder, branch, route, dirTag);
+					ret.put(stopTag, stop);
 				}
 				else
 				{
-					int platformOrder = stopCursor.getInt(4);
-					String branch = stopCursor.getString(5);
-					
-					stop = new SubwayStopLocation(lat, lon, busStop, stopTag, title, platformOrder, branch);
+					stop.addRouteAndDirTag(route, dirTag);
 				}
-				
-				ret.add(stop);
 				
 				stopCursor.moveToNext();
 			}

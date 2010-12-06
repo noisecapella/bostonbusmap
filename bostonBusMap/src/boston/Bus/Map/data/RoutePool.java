@@ -56,17 +56,17 @@ public class RoutePool {
 	 */
 	public void fillInFavoritesRoutes()
 	{
-		ArrayList<StopLocation> stops = getStops(favoriteStops);
+		HashMap<String, StopLocation> stops = getStops(favoriteStops);
 		if (stops == null)
 		{
 			return;
 		}
 		
-		for (StopLocation stopLocation : stops)
+		for (String stop : stops.keySet())
 		{
+			StopLocation stopLocation = stops.get(stop);
 			if (stopLocation != null)
 			{
-				String stop = stopLocation.getStopTag();
 				Log.v("BostonBusMap", "setting favorite status to true for " + stop);
 				stopLocation.setFavorite(true);
 				sharedStops.put(stop, stopLocation);
@@ -75,7 +75,7 @@ public class RoutePool {
 	}
 
 	
-	private ArrayList<StopLocation> getStops(AbstractCollection<String> stopTags) {
+	private HashMap<String, StopLocation> getStops(AbstractCollection<String> stopTags) {
 		if (stopTags.size() == 0)
 		{
 			return null;
@@ -91,12 +91,9 @@ public class RoutePool {
 			}
 		}
 		
-		ArrayList<StopLocation> ret = helper.getStops(stopTagsToRetrieve, transitSystem);
+		HashMap<String, StopLocation> ret = helper.getStops(stopTagsToRetrieve, transitSystem);
 		
-		for (StopLocation stopLocation : ret)
-		{
-			sharedStops.put(stopLocation.getStopTag(), stopLocation);
-		}
+		sharedStops.putAll(ret);
 
 		return ret;
 	}

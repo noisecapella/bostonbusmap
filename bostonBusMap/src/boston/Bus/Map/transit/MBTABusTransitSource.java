@@ -527,6 +527,16 @@ public class MBTABusTransitSource implements TransitSource
 	public Drawable getBusStopDrawable() {
 		return busStop;
 	}
+
+
+	@Override
+	public StopLocation createStop(float lat, float lon, String stopTag,
+			String title, int platformOrder, String branch, String route,
+			String dirTag) {
+		StopLocation stop = new StopLocation(lat, lon, busStop, stopTag, title);
+		stop.addRouteAndDirTag(route, dirTag);
+		return stop;
+	}
 	
 
 }
