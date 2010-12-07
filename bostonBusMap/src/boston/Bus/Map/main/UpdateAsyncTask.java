@@ -67,6 +67,7 @@ import android.os.AsyncTask;
 import android.os.Handler;
 import android.util.Log;
 import android.view.View;
+import android.view.WindowManager.BadTokenException;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -87,11 +88,15 @@ public class UpdateAsyncTask extends AsyncTask<Object, Object, Locations>
 	private final int maxOverlays;
 	private final boolean drawCircle;
 	private final DatabaseHelper helper;
+	
 	private ProgressBar progress;
 	private ProgressDialog progressDialog;
 	private String progressDialogTitle;
 	private String progressDialogMessage;
 	private int progressDialogMax;
+	private int progressDialogProgress;
+	private boolean progressDialogIsShowing;
+	private boolean progressIsShowing;
 	
 	private boolean silenceUpdates;
 	
@@ -106,7 +111,7 @@ public class UpdateAsyncTask extends AsyncTask<Object, Object, Locations>
 	private final boolean showRouteLine;
 
 	private final TransitSystem transitSystem;
-	private final Context context;
+	private Context context;
 	
 	public UpdateAsyncTask(ProgressBar progress, MapView mapView, LocationOverlay locationOverlay,
 			boolean doShowUnpredictable, boolean doRefresh, int maxOverlays,
@@ -159,35 +164,62 @@ public class UpdateAsyncTask extends AsyncTask<Object, Object, Locations>
 	{
 		if (silenceUpdates == false)
 		{
+			if (progressDialog == null || progress == null)
+			{
+				return;
+			}
+
 			Object string = strings[0];
 			if (string instanceof Integer)
 			{
-				progressDialog.setProgress((Integer)string);
+				int value = (Integer)string;
+				progressDialog.setProgress(value);
+				progressDialogProgress = value;
 			}
-			else if (string instanceof ProgressMessage && progress != null)
+			else if (string instanceof ProgressMessage)
 			{
 				ProgressMessage message = (ProgressMessage)string;
-				
+
 				switch (message.type)
 				{
 				case ProgressMessage.PROGRESS_OFF:
-					progressDialog.dismiss();
-					progress.setVisibility(View.INVISIBLE);
+					if (progressDialog != null)
+					{
+						progressDialog.dismiss();
+					}
+					progressDialogIsShowing = false;
+
+					if (progress != null)
+					{
+						progress.setVisibility(View.INVISIBLE);
+					}
+					progressIsShowing = false;
 					break;
 				case ProgressMessage.PROGRESS_DIALOG_ON:
-					progressDialog.setTitle(message.title);
-					progressDialog.setMessage(message.message);
+					if (progressDialog != null)
+					{
+						progressDialog.setTitle(message.title);
+						progressDialog.setMessage(message.message);
+						progressDialog.show();
+					}
 					progressDialogTitle = message.title;
 					progressDialogMessage = message.message;
-					progressDialog.show();
-					
+					progressDialogIsShowing = true;
+
 					break;
 				case ProgressMessage.SET_MAX:
-					progressDialog.setMax(message.max);
+					if (progressDialog != null)
+					{
+						progressDialog.setMax(message.max);
+					}
 					progressDialogMax = message.max;
 					break;
 				case ProgressMessage.PROGRESS_SPINNER_ON:
-					progress.setVisibility(View.VISIBLE);
+					if (progress != null)
+					{
+						progress.setVisibility(View.VISIBLE);
+					}
+					progressIsShowing = true;
 					break;
 				case ProgressMessage.TOAST:
 					Log.v("BostonBusMap", "Toast made: " + string);
@@ -195,12 +227,7 @@ public class UpdateAsyncTask extends AsyncTask<Object, Object, Locations>
 					break;
 				}
 			}
-			else if (progress == null)
-			{
-				Log.v("BostonBusMap", "WARNING: progress is null");
-			}
 		}
-		
 	}
 
 	public Locations updateBusLocations(Locations busLocations, float centerLatitude, float centerLongitude, Context context)
@@ -338,8 +365,6 @@ public class UpdateAsyncTask extends AsyncTask<Object, Object, Locations>
 		final float latitude = center.getLatitudeE6() / e6;
 		final float longitude = center.getLongitudeE6() / e6;
 		
-		
-		final Handler uiHandler = new Handler();
 		
 		final ArrayList<Location> busLocations = new ArrayList<Location>();
 		
@@ -505,23 +530,29 @@ public class UpdateAsyncTask extends AsyncTask<Object, Object, Locations>
 		publishProgress(value);
 	}
 
+	
+	
+	public void nullifyProgress()
+	{
+		progress = null;
+		progressDialog = null;
+	}
+	
 	/**
-	 * This must get run in the UI thread
+	 * This must get run in the UI thread. Neither parameter can be null; use nullifyProgress for that
+	 * 
 	 * @param progress
 	 * @param progressDialog
 	 */
 	public void setProgress(ProgressBar progress, ProgressDialog progressDialog) {
-		boolean progressDialogVisible = this.progressDialog.isShowing();
-		int progressVisible = this.progress.getVisibility();
-		
 		this.progress = progress;
 		this.progressDialog = progressDialog;
 		
-		progress.setVisibility(progressVisible);
+		progress.setVisibility(progressIsShowing ? View.VISIBLE : View.INVISIBLE);
 		progressDialog.setTitle(progressDialogTitle);
 		progressDialog.setMessage(progressDialogMessage);
 		progressDialog.setMax(progressDialogMax);
-		if (progressDialogVisible)
+		if (progressDialogIsShowing)
 		{
 			progressDialog.show();
 		}

@@ -361,4 +361,19 @@ public class UpdateHandler extends Handler {
 	}
 
 
+
+	public void nullifyProgress() {
+		if (updateAsyncTask != null)
+		{
+			updateAsyncTask.nullifyProgress();
+		}
+		
+		if (minorUpdate != null)
+		{
+			//probably not in the middle of something but just in case
+			minorUpdate.nullifyProgress();
+		}
+	}
+
+
 }

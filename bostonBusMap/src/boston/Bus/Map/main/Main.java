@@ -540,6 +540,7 @@ public class Main extends MapActivity
 		if (handler != null)
 		{
 			handler.removeAllMessages();
+			handler.nullifyProgress();
 		}
 		
 		if (myLocationOverlay != null)
