@@ -11,18 +11,17 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteQueryBuilder;
 import android.net.Uri;
 
-public class TransitContentProvider extends SearchRecentSuggestionsProvider {
+public class TransitContentProvider extends ContentProvider {
 
 	private TransitSystem transit;
 	private UriMatcher matcher;
 	private DatabaseHelper helper;
 
 	public static final String AUTHORITY = "com.bostonbusmap.transitprovider";
-	public static final int MODE = DATABASE_MODE_QUERIES;
+	public static final int MODE = SearchRecentSuggestionsProvider.DATABASE_MODE_QUERIES;
 	
 	
 	private static final int ROUTES_CODE = 1;
-	private static final int ROUTE_ID_CODE = 2;
 	private static final int DIRECTIONS_CODE = 3;
 	private static final int DIRECTION_ID_CODE = 4;
 	
@@ -31,29 +30,22 @@ public class TransitContentProvider extends SearchRecentSuggestionsProvider {
 	public TransitContentProvider()
 	{
 		matcher = new UriMatcher(UriMatcher.NO_MATCH);
-		/*matcher.addURI(AUTHORITY, "routes", ROUTES_CODE);
-		matcher.addURI(AUTHORITY, "routes/#", ROUTE_ID_CODE);
+		matcher.addURI(AUTHORITY, "routes", ROUTES_CODE);
 		matcher.addURI(AUTHORITY, "directions", DIRECTIONS_CODE);
-		matcher.addURI(AUTHORITY, "directions/#", DIRECTION_ID_CODE);*/
-		
-		setupSuggestions(AUTHORITY, MODE);
-		
-		helper = new DatabaseHelper(this.getContext());
+		matcher.addURI(AUTHORITY, "directions/#", DIRECTION_ID_CODE);
 	}
 	
-/*	@Override
+	@Override
 	public int delete(Uri arg0, String arg1, String[] arg2) {
 		//ignore
 		return 0;
-	}*/
+	}
 
 	@Override
 	public String getType(Uri uri) {
 		int code = matcher.match(uri);
 		switch (code)
 		{
-		case ROUTE_ID_CODE:
-			return "vnd.android.cursor.item/vnd.bostonbusmap.route";
 		case ROUTES_CODE:
 			return "vnd.android.cursor.dir/vnd.bostonbusmap.route";
 		case DIRECTION_ID_CODE:
@@ -64,7 +56,7 @@ public class TransitContentProvider extends SearchRecentSuggestionsProvider {
 			throw new IllegalArgumentException("Unsupported URI: " + uri);
 		}
 	}
-/*
+
 	@Override
 	public Uri insert(Uri uri, ContentValues values) {
 		return null;
@@ -81,11 +73,6 @@ public class TransitContentProvider extends SearchRecentSuggestionsProvider {
 		case ROUTES_CODE:
 			 cursor = helper.getCursorForRoutes();
 			 break;
-		case ROUTE_ID_CODE:
-			//path segment 1 should be the route name
-			String routeName = uri.getPathSegments().get(1); 
-			cursor = helper.getCursorForRoute(routeName);
-			break;
 		case DIRECTIONS_CODE:
 			cursor = helper.getCursorForDirections();
 			break;
@@ -106,5 +93,10 @@ public class TransitContentProvider extends SearchRecentSuggestionsProvider {
 			String[] selectionArgs) {
 		return 0;
 	}
-*/
+
+	@Override
+	public boolean onCreate() {
+		helper = new DatabaseHelper(getContext());
+		return true;
+	}
 }

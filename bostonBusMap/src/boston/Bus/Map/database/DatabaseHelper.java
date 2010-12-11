@@ -780,21 +780,26 @@ public class DatabaseHelper extends SQLiteOpenHelper
 	}
 
 	public Cursor getCursorForRoutes() {
-		throw new RuntimeException("Not Implemented");
-	}
-
-	public Cursor getCursorForRoute(String routeName) {
-		throw new RuntimeException("Not Implemented");
-	}
-
-	public Cursor getCursorForDirections() {
-		throw new RuntimeException("Not Implemented");
+		SQLiteDatabase database = getReadableDatabase();
+		
+		return database.query(verboseRoutes, new String[]{routeKey}, null, null, null, null, null);
 	}
 
 	public Cursor getCursorForDirection(String dirTag) {
-		throw new RuntimeException("Not Implemented");
+		SQLiteDatabase database = getReadableDatabase();
+		
+		return database.query(directionsTable, new String[]{dirTagKey, dirTitleKey, dirRouteKey}, dirTagKey + "=?", 
+				new String[]{dirTag}, null, null, null);
+		
 	}
 
+	public Cursor getCursorForDirections() {
+		SQLiteDatabase database = getReadableDatabase();
+		
+		return database.query(directionsTable, new String[]{dirTagKey, dirTitleKey, dirRouteKey}, null, 
+				null, null, null, null);
+	}
+	
 	public void upgradeIfNecessary() {
 		//trigger an upgrade so future calls of getReadableDatabase won't complain that you can't upgrade a read only db
 		getWritableDatabase();
@@ -927,4 +932,5 @@ public class DatabaseHelper extends SQLiteOpenHelper
 			database.close();
 		}
 	}
+
 }
