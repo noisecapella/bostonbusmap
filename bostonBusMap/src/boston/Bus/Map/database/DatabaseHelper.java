@@ -98,9 +98,9 @@ public class DatabaseHelper extends SQLiteOpenHelper
 	public final static int SUBWAY_VERSION = 11;
 	public final static int ADDED_PLATFORM_ORDER = 12;
 	public final static int VERBOSE_DB = 13;
+	public final static int VERBOSE_DB_2 = 14;
 	
-	
-	public final static int CURRENT_DB_VERSION = VERBOSE_DB;
+	public final static int CURRENT_DB_VERSION = VERBOSE_DB_2;
 	
 	public DatabaseHelper(Context context) {
 		super(context, dbName, null, CURRENT_DB_VERSION);
