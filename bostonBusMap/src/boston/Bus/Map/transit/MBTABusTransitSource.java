@@ -64,7 +64,6 @@ public class MBTABusTransitSource implements TransitSource
 		addRoute("749", "SL5");
 		addRoute("701", "CT1");
 		addRoute("747", "CT2");
-
 		addRoute("708", "CT3");
 		
 		
@@ -94,7 +93,7 @@ public class MBTABusTransitSource implements TransitSource
 		addRoute("31", "31");
 		addRoute("32", "32");
 		addRoute("33", "33");
-		addRoute("34", "34");
+		addRoute("34", "34E");
 		addRoute("35", "35");
 		addRoute("36", "36");
 		addRoute("37", "37");
@@ -244,9 +243,6 @@ public class MBTABusTransitSource implements TransitSource
 		addRoute("725", "725");
 
 
-		addRoute("747", "747");
-
-
 		addRoute("9109", "9109");
 		addRoute("9111", "9111");
 		addRoute("9501", "9501");
@@ -262,7 +258,9 @@ public class MBTABusTransitSource implements TransitSource
 	
 	private void addRoute(String key, String title) {
 		tempRoutes.add(key);
+
 		routeKeysToTitles.put(key, title);
+		
 	}
 
 	private final String[] routes;
