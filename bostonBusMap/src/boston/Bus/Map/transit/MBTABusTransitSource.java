@@ -93,7 +93,7 @@ public class MBTABusTransitSource implements TransitSource
 		addRoute("31", "31");
 		addRoute("32", "32");
 		addRoute("33", "33");
-		addRoute("34", "34E");
+		addRoute("34", "34");
 		addRoute("35", "35");
 		addRoute("36", "36");
 		addRoute("37", "37");
