@@ -11,7 +11,7 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteQueryBuilder;
 import android.net.Uri;
 
-public class TransitContentProvider extends ContentProvider {
+public class TransitContentProvider extends SearchRecentSuggestionsProvider {
 
 	private TransitSystem transit;
 	private UriMatcher matcher;
@@ -30,17 +30,21 @@ public class TransitContentProvider extends ContentProvider {
 	public TransitContentProvider()
 	{
 		matcher = new UriMatcher(UriMatcher.NO_MATCH);
-		matcher.addURI(AUTHORITY, "routes", ROUTES_CODE);
+		/*matcher.addURI(AUTHORITY, "routes", ROUTES_CODE);
 		matcher.addURI(AUTHORITY, "directions", DIRECTIONS_CODE);
-		matcher.addURI(AUTHORITY, "directions/#", DIRECTION_ID_CODE);
+		matcher.addURI(AUTHORITY, "directions/#", DIRECTION_ID_CODE);*/
+		
+		
+		setupSuggestions(AUTHORITY, MODE);
+		helper = new DatabaseHelper(this.getContext());
 	}
-	
+	/*
 	@Override
 	public int delete(Uri arg0, String arg1, String[] arg2) {
 		//ignore
 		return 0;
 	}
-
+*/
 	@Override
 	public String getType(Uri uri) {
 		int code = matcher.match(uri);
@@ -53,16 +57,17 @@ public class TransitContentProvider extends ContentProvider {
 		case DIRECTIONS_CODE:
 			return "vnd.android.cursor.dir/vnd.bostonbusmap.direction";
 		default:
-			throw new IllegalArgumentException("Unsupported URI: " + uri);
+			//throw new IllegalArgumentException("Unsupported URI: " + uri);
+			return super.getType(uri);
 		}
 	}
-
+/*
 	@Override
 	public Uri insert(Uri uri, ContentValues values) {
 		return null;
 	}
-
-	@Override
+*/
+/*	@Override
 	public Cursor query(Uri uri, String[] projection, String selection,
 			String[] selectionArgs, String sortOrder)
 	{
@@ -81,7 +86,7 @@ public class TransitContentProvider extends ContentProvider {
 			cursor = helper.getCursorForDirection(dirTag);
 			break;
 		default:
-			throw new IllegalArgumentException("Unsupported URI: " + uri);
+			return super.query(uri, projection, selection, selectionArgs, sortOrder);
 		}
 		
 		cursor.setNotificationUri(getContext().getContentResolver(), uri);
@@ -92,11 +97,11 @@ public class TransitContentProvider extends ContentProvider {
 	public int update(Uri uri, ContentValues values, String selection,
 			String[] selectionArgs) {
 		return 0;
-	}
-
+	}*/
+/*
 	@Override
 	public boolean onCreate() {
 		helper = new DatabaseHelper(getContext());
 		return true;
-	}
+	}*/
 }
