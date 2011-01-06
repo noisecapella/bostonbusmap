@@ -476,7 +476,7 @@ public class MBTABusTransitSource implements TransitSource
 		throws IOException, ParserConfigurationException, SAXException {
 		task.publish(new ProgressMessage(ProgressMessage.PROGRESS_DIALOG_ON, "Decompressing route data", null));
 		
-		final int contentLength = 453754;
+		final int contentLength = 339976;
 		
 		InputStream in = new StreamCounter(context.getResources().openRawResource(boston.Bus.Map.R.raw.routeconfig),
 				task, contentLength); 
