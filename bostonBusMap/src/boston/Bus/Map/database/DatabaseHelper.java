@@ -99,6 +99,7 @@ public class DatabaseHelper extends SQLiteOpenHelper
 	public final static int ADDED_PLATFORM_ORDER = 12;
 	public final static int VERBOSE_DB = 13;
 	public final static int VERBOSE_DB_2 = 14;
+	public final static int VERBOSE_DB_3 = 15;
 	
 	public final static int CURRENT_DB_VERSION = VERBOSE_DB_2;
 	

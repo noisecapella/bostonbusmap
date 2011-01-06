@@ -15,6 +15,8 @@ public class Directions {
 	
 	private final DatabaseHelper helper;
 	
+	private boolean isRefreshed = false;
+	
 	public Directions(DatabaseHelper helper) {
 		this.helper = helper;
 	}
@@ -43,9 +45,13 @@ public class Directions {
 		if (i == null)
 		{
 			Log.v("BostonBusMap", "strange, dirTag + " + dirTag + " doesnt exist. If you see this many times, we're having trouble storing the data in the database. Too much DB activity causes objects to persist which causes a crash");
-			synchronized(indexes)
+			if (isRefreshed == false)
 			{
-				helper.refreshDirections(indexes, names, titles, routes);
+				synchronized(indexes)
+				{
+					helper.refreshDirections(indexes, names, titles, routes);
+				}
+				isRefreshed = true;
 			}
 
 			return indexes.get(dirTag);
