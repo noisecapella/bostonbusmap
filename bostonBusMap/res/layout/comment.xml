@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+  xmlns:android="http://schemas.android.com/apk/res/android"
+  android:layout_width="wrap_content"
+  android:layout_height="wrap_content">
+
+
+
+
+
+
+
+
+<TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/commentRoute" android:id="@+id/commentRoute" android:textSize="30dp" android:layout_marginBottom="10dip"></TextView>
+<EditText android:layout_width="wrap_content" android:layout_height="wrap_content" android:width="100dp" android:layout_toRightOf="@+id/commentRoute" android:id="@+id/commentRouteEdit" android:layout_alignTop="@+id/commentRoute"></EditText>
+<TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/commentStop" android:id="@+id/commentStop" android:textSize="30dp" android:layout_below="@+id/commentRoute" android:layout_marginBottom="10dip"></TextView>
+<EditText android:layout_width="wrap_content" android:layout_height="wrap_content" android:width="100dp" android:layout_toRightOf="@+id/commentStop" android:id="@+id/commentStopEdit" android:layout_alignTop="@+id/commentStop"></EditText>
+<TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/commentOther" android:id="@+id/commentOther" android:textSize="30dp" android:layout_below="@+id/commentStop" android:layout_marginBottom="10dip"></TextView>
+<EditText android:layout_height="wrap_content" android:width="100dp" android:id="@+id/commentOtherEdit" android:layout_below="@+id/commentOther" android:layout_width="fill_parent"></EditText>
+
+<Button android:layout_below="@id/commentOtherEdit" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/commentSubmit" android:id="@+id/commentSubmit"></Button>
+</RelativeLayout>

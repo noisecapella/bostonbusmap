@@ -28,4 +28,10 @@ Are any enabled (like GPS) in your system settings?</string>
 <string name="search">Search</string>
 <string name="chooseRoute">Routes</string>
 <string name="searchHint">Search routes</string>
+<string name="commentRoute">Routes: </string>
+<string name="commentStop">Stops: </string>
+<string name="commentOther">Problem?</string>
+<string name="commentSubmit">Send feedback</string>
+<string name="moreinfo">More info</string>
+<string name="reportproblem">Report problem</string>
 </resources>
