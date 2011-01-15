@@ -18,6 +18,7 @@ package com.readystatesoftware.mapviewballoons;
 
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 
 import android.content.Context;
@@ -40,7 +41,9 @@ import boston.Bus.Map.data.Location;
 import boston.Bus.Map.data.Locations;
 import boston.Bus.Map.data.Prediction;
 import boston.Bus.Map.data.StopLocation;
+import boston.Bus.Map.main.Main;
 import boston.Bus.Map.main.MoreInfo;
+import boston.Bus.Map.main.ReportProblem;
 
 import com.google.android.maps.OverlayItem;
 
@@ -67,6 +70,7 @@ public class BalloonOverlayView extends FrameLayout {
 	private TextView snippet;
 	private ImageView favorite;
 	private TextView moreInfo;
+	private TextView reportProblem;
 
 	private Location location;
 	private Locations locations;
@@ -97,6 +101,8 @@ public class BalloonOverlayView extends FrameLayout {
 
 		moreInfo = (TextView)v.findViewById(R.id.balloon_item_moreinfo);
 		
+		reportProblem = (TextView)v.findViewById(R.id.balloon_item_report);
+		
 		favorite.setOnClickListener(new OnClickListener() {
 			
 			@Override
@@ -120,8 +126,6 @@ public class BalloonOverlayView extends FrameLayout {
 			public void onClick(View v) {
 				Log.v("BostonBusMap", "tapped More info link");
 				
-				if (location instanceof StopLocation)
-				{
 					StopLocation stopLocation = (StopLocation)location;
 					Intent intent = new Intent(context, MoreInfo.class);
 
@@ -151,6 +155,40 @@ public class BalloonOverlayView extends FrameLayout {
 					
 					context.startActivity(intent);
 				}
+			}
+		);
+		
+		reportProblem.setOnClickListener(new OnClickListener() {
+			
+			@Override
+			public void onClick(View v) {
+				Intent intent = new Intent(context, ReportProblem.class);
+				String routeText;
+				String stopsText;
+				
+				int selectedBusPredictions = locations != null ? locations.getSelectedBusPredictions() : -1;
+
+				String otherText = "There was a problem with ";
+				switch (selectedBusPredictions)
+				{
+				case Main.BUS_PREDICTIONS_ONE:
+					otherText += "bus predictions on one route. ";
+					break;
+				case Main.BUS_PREDICTIONS_STAR:
+					otherText += "bus predictions for favorited routes. ";
+					break;
+				case Main.VEHICLE_LOCATIONS_ALL:
+					otherText += "vehicle locations on all routes. ";
+					break;
+				case Main.VEHICLE_LOCATIONS_ONE:
+					otherText += "vehicle locations for one route. ";
+					break;
+				default:
+					otherText += "something that I can't figure out. ";
+				}
+				
+
+				context.startActivity(intent);
 			}
 		});
 		
@@ -189,6 +227,7 @@ public class BalloonOverlayView extends FrameLayout {
 		
 		//NOTE: originally this was going to be an actual link, but we can't click it on the popup except through its onclick listener
 		moreInfo.setText(Html.fromHtml("\n<a href='com.bostonbusmap://moreinfo'>More info</a>\n"));
+		reportProblem.setText(Html.fromHtml("\n<a href='com.bostonbusmap://reportproblem'>Report Problem</a>\n"));
 	}
 
 	public void setCurrentLocation(Locations locations, Location location, HashMap<String, String> routeKeysToTitles)

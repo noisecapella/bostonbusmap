@@ -211,6 +211,11 @@ public final class Locations
 		transitSource.populateStops(routeMapping, routeToUpdate, oldRouteConfig, directions, task);
 	}
 
+	public int getSelectedBusPredictions()
+	{
+		return selectedBusPredictions;
+	}
+	
 	/**
 	 * Return the 20 (or whatever maxLocations is) closest buses to the center
 	 * 
