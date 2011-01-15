@@ -17,12 +17,16 @@ package com.readystatesoftware.mapviewballoons;
 
 
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
+import android.content.pm.PackageManager.NameNotFoundException;
 import android.graphics.drawable.Drawable;
 import android.opengl.Visibility;
 import android.text.Html;
@@ -44,6 +48,7 @@ import boston.Bus.Map.data.StopLocation;
 import boston.Bus.Map.main.Main;
 import boston.Bus.Map.main.MoreInfo;
 import boston.Bus.Map.main.ReportProblem;
+import boston.Bus.Map.transit.TransitSystem;
 
 import com.google.android.maps.OverlayItem;
 
@@ -162,7 +167,12 @@ public class BalloonOverlayView extends FrameLayout {
 			
 			@Override
 			public void onClick(View v) {
-				Intent intent = new Intent(context, ReportProblem.class);
+				//Intent intent = new Intent(context, ReportProblem.class);
+				Intent intent = new Intent(android.content.Intent.ACTION_SEND);
+				intent.setType("plain/text");
+				
+				intent.putExtra(android.content.Intent.EXTRA_EMAIL, TransitSystem.emails);
+				intent.putExtra(android.content.Intent.EXTRA_SUBJECT, TransitSystem.emailSubject);
 				String routeText;
 				String stopsText;
 				
@@ -187,8 +197,44 @@ public class BalloonOverlayView extends FrameLayout {
 					otherText += "something that I can't figure out. ";
 				}
 				
+				String route = "";
+				try
+				{
+					if (locations != null && locations.getSelectedRoute() != null && locations.getSelectedRoute().getRouteName() != null)
+					{
+						route = locations.getSelectedRoute().getRouteName();
+					}
+				}
+				catch (IOException e)
+				{
+					//don't worry about it
+				}
+				
+				otherText += "Currently selected route is " + route;
+				if (location instanceof StopLocation)
+				{
+					StopLocation stopLocation = (StopLocation)location;
+					String stopTag = stopLocation.getStopTag();
+					otherText += " and the stop id is " + (stopTag != null ? stopTag : "");
+				}
+				otherText += ". ";
 
-				context.startActivity(intent);
+				try
+				{
+					PackageManager packageManager = context.getPackageManager();
+					PackageInfo packageInfo = packageManager.getPackageInfo(context.getPackageName(), 0);
+					String versionText = packageInfo.versionName;
+					otherText += "App version: " + versionText + ". ";
+				}
+				catch (NameNotFoundException e)
+				{
+					//don't worry about it
+				}
+				otherText += "OS: " + android.os.Build.MODEL + ". ";
+				otherText += "(Add any other info you want at the end of this message, and click send.)\n\n";
+				
+				intent.putExtra(android.content.Intent.EXTRA_TEXT, otherText);
+				context.startActivity(Intent.createChooser(intent, "Send email..."));
 			}
 		});
 		
@@ -227,7 +273,7 @@ public class BalloonOverlayView extends FrameLayout {
 		
 		//NOTE: originally this was going to be an actual link, but we can't click it on the popup except through its onclick listener
 		moreInfo.setText(Html.fromHtml("\n<a href='com.bostonbusmap://moreinfo'>More info</a>\n"));
-		reportProblem.setText(Html.fromHtml("\n<a href='com.bostonbusmap://reportproblem'>Report Problem</a>\n"));
+		reportProblem.setText(Html.fromHtml("\n<a href='com.bostonbusmap://reportproblem'>Report<br/>Problem</a>\n"));
 	}
 
 	public void setCurrentLocation(Locations locations, Location location, HashMap<String, String> routeKeysToTitles)

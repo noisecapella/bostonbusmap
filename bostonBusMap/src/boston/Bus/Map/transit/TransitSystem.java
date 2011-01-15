@@ -37,6 +37,9 @@ public class TransitSystem {
 	public static final double lowerLeftLon = -72.0428466796875;
 	public static final double upperRightLat = 42.74701217318067;
 	public static final double upperRightLon = -69.774169921875;
+	//public static final String[] emails = new String[]{"bostonbusmap@gmail.com", "JRobin@mbta.com"};
+	public static final String[] emails = new String[]{"bostonbusmap@gmail.com"};
+	public static final String emailSubject = "BostonBusMap error report";
 	
 	
 	public static double getCenterLat() {
