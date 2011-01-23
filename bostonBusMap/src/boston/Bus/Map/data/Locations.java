@@ -93,6 +93,11 @@ public final class Locations
 		directions = new Directions(helper);
 	}
 	
+	public String getRouteName(String key)
+	{
+		return transitSystem.getTransitSource(key).getRouteKeysToTitles().get(key);
+	}
+	
 	/**
 	 * Download all stop locations
 	 * 
@@ -420,5 +425,10 @@ public final class Locations
 	public long getLastUpdateTime()
 	{
 		return (long)lastUpdateTime;
+	}
+	
+	public HashMap<String, StopLocation> getAllStopsAtStop(String stopTag)
+	{
+		return routeMapping.getAllStopTagsAtLocation(stopTag);
 	}
 }

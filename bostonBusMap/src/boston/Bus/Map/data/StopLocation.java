@@ -17,6 +17,7 @@ import boston.Bus.Map.transit.TransitSystem;
 import boston.Bus.Map.util.Box;
 import boston.Bus.Map.util.Constants;
 import boston.Bus.Map.util.RouteComparator;
+import boston.Bus.Map.util.StringUtil;
 
 import boston.Bus.Map.util.CanBeSerialized;
 
@@ -138,20 +139,9 @@ public class StopLocation implements Location
 		String ret = "";
 		
 		//java doesn't have a join function? seriously?
-		int index = 0;
 		synchronized (routes)
 		{
-			for (String route : routes)
-			{
-				ret += routeKeysToTitles.get(route);
-
-				if (index != routes.size() - 1)
-				{
-					ret += ", ";
-				}
-
-				index++;
-			}
+			ret = StringUtil.join(routes, ", ");
 		}
 		
 		return ret;

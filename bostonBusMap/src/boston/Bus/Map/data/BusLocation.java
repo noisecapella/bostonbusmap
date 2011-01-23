@@ -319,6 +319,11 @@ public class BusLocation implements Location {
 		return id | LOCATIONTYPE << 24;
 	}
 
+	public int getBusNumber()
+	{
+		return id;
+	}
+	
 	public Drawable getDrawable(Context context, boolean shadow,
 			boolean isSelected) {
 		Drawable drawable = bus;

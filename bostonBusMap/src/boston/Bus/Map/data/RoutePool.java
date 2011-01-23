@@ -282,4 +282,12 @@ public class RoutePool {
 		return isFavorite ? R.drawable.full_star : R.drawable.empty_star;
 	}
 
+	public HashMap<String, StopLocation> getAllStopTagsAtLocation(String stopTag) {
+		ArrayList<String> tags = helper.getAllStopTagsAtLocation(stopTag);
+		HashMap<String, StopLocation> outputMapping = new HashMap<String, StopLocation>();
+		helper.getStops(tags, transitSystem, outputMapping);
+		
+		return outputMapping;
+	}
+
 }

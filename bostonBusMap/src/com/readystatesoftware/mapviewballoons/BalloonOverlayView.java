@@ -21,6 +21,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.SortedSet;
+import java.util.TreeSet;
 
 import android.content.Context;
 import android.content.Intent;
@@ -41,6 +43,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 import boston.Bus.Map.R;
+import boston.Bus.Map.data.BusLocation;
 import boston.Bus.Map.data.Location;
 import boston.Bus.Map.data.Locations;
 import boston.Bus.Map.data.Prediction;
@@ -49,6 +52,7 @@ import boston.Bus.Map.main.Main;
 import boston.Bus.Map.main.MoreInfo;
 import boston.Bus.Map.main.ReportProblem;
 import boston.Bus.Map.transit.TransitSystem;
+import boston.Bus.Map.util.StringUtil;
 
 import com.google.android.maps.OverlayItem;
 
@@ -173,66 +177,10 @@ public class BalloonOverlayView extends FrameLayout {
 				
 				intent.putExtra(android.content.Intent.EXTRA_EMAIL, TransitSystem.emails);
 				intent.putExtra(android.content.Intent.EXTRA_SUBJECT, TransitSystem.emailSubject);
-				String routeText;
-				String stopsText;
-				
-				int selectedBusPredictions = locations != null ? locations.getSelectedBusPredictions() : -1;
 
-				String otherText = "There was a problem with ";
-				switch (selectedBusPredictions)
-				{
-				case Main.BUS_PREDICTIONS_ONE:
-					otherText += "bus predictions on one route. ";
-					break;
-				case Main.BUS_PREDICTIONS_STAR:
-					otherText += "bus predictions for favorited routes. ";
-					break;
-				case Main.VEHICLE_LOCATIONS_ALL:
-					otherText += "vehicle locations on all routes. ";
-					break;
-				case Main.VEHICLE_LOCATIONS_ONE:
-					otherText += "vehicle locations for one route. ";
-					break;
-				default:
-					otherText += "something that I can't figure out. ";
-				}
 				
-				String route = "";
-				try
-				{
-					if (locations != null && locations.getSelectedRoute() != null && locations.getSelectedRoute().getRouteName() != null)
-					{
-						route = locations.getSelectedRoute().getRouteName();
-					}
-				}
-				catch (IOException e)
-				{
-					//don't worry about it
-				}
-				
-				otherText += "Currently selected route is " + route;
-				if (location instanceof StopLocation)
-				{
-					StopLocation stopLocation = (StopLocation)location;
-					String stopTag = stopLocation.getStopTag();
-					otherText += " and the stop id is " + (stopTag != null ? stopTag : "");
-				}
-				otherText += ". ";
+				String otherText = createEmailBody(context);
 
-				try
-				{
-					PackageManager packageManager = context.getPackageManager();
-					PackageInfo packageInfo = packageManager.getPackageInfo(context.getPackageName(), 0);
-					String versionText = packageInfo.versionName;
-					otherText += "App version: " + versionText + ". ";
-				}
-				catch (NameNotFoundException e)
-				{
-					//don't worry about it
-				}
-				otherText += "OS: " + android.os.Build.MODEL + ". ";
-				otherText += "(Add any other info you want at the end of this message, and click send.)\n\n";
-				
 				intent.putExtra(android.content.Intent.EXTRA_TEXT, otherText);
 				context.startActivity(Intent.createChooser(intent, "Send email..."));
 			}
@@ -244,6 +192,128 @@ public class BalloonOverlayView extends FrameLayout {
 
 		addView(layout, params);
 
+	}
+	
+	protected void createInfoForDeveloper(Context context, StringBuilder otherText, int selectedBusPredictions, String selectedRoute)
+	{
+		otherText.append("There was a problem with ");
+		switch (selectedBusPredictions)
+		{
+		case Main.BUS_PREDICTIONS_ONE:
+			otherText.append("bus predictions on one route. ");
+			break;
+		case Main.BUS_PREDICTIONS_STAR:
+			otherText.append("bus predictions for favorited routes. ");
+			break;
+		case Main.VEHICLE_LOCATIONS_ALL:
+			otherText.append("vehicle locations on all routes. ");
+			break;
+		case Main.VEHICLE_LOCATIONS_ONE:
+			otherText.append("vehicle locations for one route. ");
+			break;
+		default:
+			otherText.append("something that I can't figure out. ");
+		}
+		
+		try
+		{
+			PackageManager packageManager = context.getPackageManager();
+			PackageInfo packageInfo = packageManager.getPackageInfo(context.getPackageName(), 0);
+			String versionText = packageInfo.versionName;
+			otherText.append("App version: ").append(versionText).append(". ");
+		}
+		catch (NameNotFoundException e)
+		{
+			//don't worry about it
+		}
+		otherText.append("OS: ").append(android.os.Build.MODEL).append(". ");
+
+		otherText.append("Currently selected route is '").append(selectedRoute).append("'. ");
+
+	}
+	
+	protected void createInfoForAgency(Context context, StringBuilder ret, int selectedBusPredictions, String selectedRoute)
+	{
+		if (location instanceof StopLocation)
+		{
+			StopLocation stopLocation = (StopLocation)location;
+			String stopTag = stopLocation.getStopTag();
+			HashMap<String, StopLocation> stopTags = locations.getAllStopsAtStop(stopTag);
+
+
+			if (selectedBusPredictions == Main.BUS_PREDICTIONS_ONE)
+			{
+				if (stopTags.size() <= 1)
+				{
+					ret.append("The stop id is ").append(stopTag).append(" (").append(stopLocation.getTitle()).append(")");
+					ret.append(" on route ").append(selectedRoute).append(". ");
+				}
+				else
+				{
+					ArrayList<String> stopTagStrings = new ArrayList<String>();
+					for (StopLocation stop : stopTags.values())
+					{
+						String text = stop.getStopTag() + " (" + stop.getTitle() + ")";
+						stopTagStrings.add(text);
+					}
+					String stopTagsList = StringUtil.join(stopTagStrings, ", ");
+					
+					ret.append("The stop ids are: ").append(stopTagsList).append(" on route ").append(selectedRoute).append(". ");
+				}
+			}
+			else
+			{
+				ArrayList<String> pairs = new ArrayList<String>();
+				for (StopLocation stop : stopTags.values())
+				{
+					String routesJoin = StringUtil.join(stop.getRoutes(), ", ");
+					pairs.add(stop.getStopTag() + " on routes " + routesJoin);
+				}
+				
+				String list = StringUtil.join(pairs, ", ");
+				ret.append("The stop ids are: ");
+				StringUtil.join(pairs, ", ", ret);
+				ret.append(". ");
+			}
+		}
+		else if (location instanceof BusLocation)
+		{
+			BusLocation busLocation = (BusLocation)location;
+			String busRouteId = busLocation.getRouteId();
+			ret.append("The bus number is ").append(busLocation.getBusNumber());
+			ret.append(" on route ").append(locations.getRouteName(busRouteId)).append(". ");
+		}
+
+	}
+	
+	protected String createEmailBody(Context context)
+	{
+		int selectedBusPredictions = locations != null ? locations.getSelectedBusPredictions() : -1;
+
+		String route = "";
+		try
+		{
+			if (locations != null && locations.getSelectedRoute() != null && locations.getSelectedRoute().getRouteName() != null)
+			{
+				String routeKey = locations.getSelectedRoute().getRouteName();
+				route = locations.getRouteName(routeKey);
+			}
+		}
+		catch (IOException e)
+		{
+			//don't worry about it
+		}
+		
+		StringBuilder otherText = new StringBuilder();
+		otherText.append("(Add any other info you want at the beginning or end of this message, and click send.)\n\n");
+		otherText.append("\n\nInfo for MBTA:\n");
+		createInfoForAgency(context, otherText, selectedBusPredictions, route);
+		otherText.append("\n\nInfo for developer:\n");
+		createInfoForDeveloper(context, otherText, selectedBusPredictions, route);
+
+		
+
+		return otherText.toString();
 	}
 	
 	/**
