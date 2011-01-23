@@ -224,8 +224,8 @@ public class DatabaseHelper extends SQLiteOpenHelper
 				//database needs it
 				SQLiteQueryBuilder builder = new SQLiteQueryBuilder();
 				builder.setTables(verboseFavorites + " JOIN stops as s1 ON (" + verboseFavorites + "." + stopTagKey +
-						"=s1." + stopTagKey + ") JOIN stops as s2 ON (s1." +  latitudeKey + 
-						"= s2." + latitudeKey + " AND s1." + longitudeKey + "= s2." + longitudeKey + ")");
+						"=s1." + stopTagKey + ") JOIN stops as s2 ON round(s1." +  latitudeKey + 
+						"*1000) = round(s2." + latitudeKey + "*1000) AND round(s1." + longitudeKey + "*1000) = round(s2." + longitudeKey + "*1000)");
 				builder.setDistinct(true);
 				
 				cursor = builder.query(database, new String[]{"s2." + stopTagKey}, null, null, null, null, null);
@@ -805,18 +805,6 @@ public class DatabaseHelper extends SQLiteOpenHelper
 		//trigger an upgrade so future calls of getReadableDatabase won't complain that you can't upgrade a read only db
 		getWritableDatabase();
 		
-	}
-	
-	private class FloatPoint
-	{
-		public final float lat;
-		public final float lon;
-		
-		public FloatPoint(float lat, float lon)
-		{
-			this.lat = lat;
-			this.lon = lon;
-		}
 	}
 
 	/**

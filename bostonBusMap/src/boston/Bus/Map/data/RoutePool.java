@@ -40,7 +40,7 @@ public class RoutePool {
 		this.transitSystem = transitSystem;
 		
 		helper.upgradeIfNecessary();
-		populateFavorites(false);
+		populateFavorites(true);
 	}
 	
 	public void saveFavoritesToDatabase()
