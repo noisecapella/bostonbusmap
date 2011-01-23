@@ -134,39 +134,44 @@ public class BalloonOverlayView extends FrameLayout {
 			@Override
 			public void onClick(View v) {
 				Log.v("BostonBusMap", "tapped More info link");
-				
-					StopLocation stopLocation = (StopLocation)location;
-					Intent intent = new Intent(context, MoreInfo.class);
 
-					ArrayList<Prediction> predictionArrayList = stopLocation.getCombinedPredictions();
-					if (predictionArrayList != null)
-					{
-						intent.putExtra(MoreInfo.predictionsKey, predictionArrayList.toArray(new Prediction[0]));
-					}
-					String[] keys = routeKeysToTitles.keySet().toArray(new String[0]);
-					String[] values = new String[keys.length];
-					for (int i = 0; i < keys.length; i++)
-					{
-						values[i] = routeKeysToTitles.get(keys[i]);
-					}
-					
-					intent.putExtra(MoreInfo.routeKeysKey, keys);
-					intent.putExtra(MoreInfo.routeTitlesKey, values);
-					
-					String[] combinedTitles = stopLocation.getCombinedTitles();
-					intent.putExtra(MoreInfo.titleKey, combinedTitles);
-					
-					String combinedRoutes = stopLocation.getCombinedRoutes();
-					intent.putExtra(MoreInfo.routeKey, combinedRoutes);
-					
-					String combinedStops = stopLocation.getCombinedStops();
-					intent.putExtra(MoreInfo.stopsKey, combinedStops);
-					
-					context.startActivity(intent);
+				if (routeKeysToTitles == null)
+				{
+					//ignore for now, we can't print route information without it
 				}
+				
+				StopLocation stopLocation = (StopLocation)location;
+				Intent intent = new Intent(context, MoreInfo.class);
+
+				ArrayList<Prediction> predictionArrayList = stopLocation.getCombinedPredictions();
+				if (predictionArrayList != null)
+				{
+					intent.putExtra(MoreInfo.predictionsKey, predictionArrayList.toArray(new Prediction[0]));
+				}
+				String[] keys = routeKeysToTitles.keySet().toArray(new String[0]);
+				String[] values = new String[keys.length];
+				for (int i = 0; i < keys.length; i++)
+				{
+					values[i] = routeKeysToTitles.get(keys[i]);
+				}
+
+				intent.putExtra(MoreInfo.routeKeysKey, keys);
+				intent.putExtra(MoreInfo.routeTitlesKey, values);
+
+				String[] combinedTitles = stopLocation.getCombinedTitles();
+				intent.putExtra(MoreInfo.titleKey, combinedTitles);
+
+				String combinedRoutes = stopLocation.getCombinedRoutes();
+				intent.putExtra(MoreInfo.routeKey, combinedRoutes);
+
+				String combinedStops = stopLocation.getCombinedStops();
+				intent.putExtra(MoreInfo.stopsKey, combinedStops);
+
+				context.startActivity(intent);
 			}
+		}
 		);
-		
+
 		reportProblem.setOnClickListener(new OnClickListener() {
 			
 			@Override
