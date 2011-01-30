@@ -35,12 +35,13 @@ public class RoutePool {
 	
 	private static final int MAX_ROUTES = 50;
 	
+	
 	public RoutePool(DatabaseHelper helper, TransitSystem transitSystem) {
 		this.helper = helper;
 		this.transitSystem = transitSystem;
 		
 		helper.upgradeIfNecessary();
-		populateFavorites(true);
+		populateFavorites(false);
 	}
 	
 	public void saveFavoritesToDatabase()

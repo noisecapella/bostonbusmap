@@ -100,11 +100,18 @@ public class DatabaseHelper extends SQLiteOpenHelper
 	public final static int VERBOSE_DB = 13;
 	public final static int VERBOSE_DB_2 = 14;
 	public final static int VERBOSE_DB_3 = 15;
+	public final static int VERBOSE_DB_4 = 16;
 	
-	public final static int CURRENT_DB_VERSION = VERBOSE_DB_3;
+	public final static int CURRENT_DB_VERSION = VERBOSE_DB_4;
+	
+	public static final int ALWAYS_POPULATE = 3;
+	public static final int POPULATE_IF_UPGRADE = 2;
+	public static final int MAYBE = 1;
+
 	
 	public DatabaseHelper(Context context) {
 		super(context, dbName, null, CURRENT_DB_VERSION);
+		
 	}
 
 	@Override
@@ -136,24 +143,33 @@ public class DatabaseHelper extends SQLiteOpenHelper
 	@Override
 	public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
 		Log.v("BostonBusMap", "upgrading database from " + oldVersion + " to " + newVersion);
-		ArrayList<String> favorites = null;
+		HashSet<String> favorites = null;
+
+		db.beginTransaction();
 		if (oldVersion > STOP_LOCATIONS_STORE_ROUTE_STRINGS && oldVersion < VERBOSE_DB)
 		{
 			favorites = readOldFavorites(db);
 		}
+		else if (oldVersion >= VERBOSE_DB)
+		{
+			favorites = new HashSet<String>();
+			populateFavorites(favorites, true, db);
+		}
 
-		db.beginTransaction();
-		db.execSQL("DROP TABLE IF EXISTS " + directionsTable);
-		db.execSQL("DROP TABLE IF EXISTS " + stopsTable);
-		db.execSQL("DROP TABLE IF EXISTS " + routesTable);
-		db.execSQL("DROP TABLE IF EXISTS " + pathsTable);
-		db.execSQL("DROP TABLE IF EXISTS " + blobsTable);
-		db.execSQL("DROP TABLE IF EXISTS " + verboseRoutes);
-		db.execSQL("DROP TABLE IF EXISTS " + verboseStops);
-		db.execSQL("DROP TABLE IF EXISTS " + stopsRoutesMap);
+		if (oldVersion < VERBOSE_DB_3)
+		{
+			db.execSQL("DROP TABLE IF EXISTS " + directionsTable);
+			db.execSQL("DROP TABLE IF EXISTS " + stopsTable);
+			db.execSQL("DROP TABLE IF EXISTS " + routesTable);
+			db.execSQL("DROP TABLE IF EXISTS " + pathsTable);
+			db.execSQL("DROP TABLE IF EXISTS " + blobsTable);
+			db.execSQL("DROP TABLE IF EXISTS " + verboseRoutes);
+			db.execSQL("DROP TABLE IF EXISTS " + verboseStops);
+			db.execSQL("DROP TABLE IF EXISTS " + stopsRoutesMap);
 
-		db.execSQL("DROP TABLE IF EXISTS " + oldFavoritesTable);
-		db.execSQL("DROP TABLE IF EXISTS " + newFavoritesTable);
+			db.execSQL("DROP TABLE IF EXISTS " + oldFavoritesTable);
+			db.execSQL("DROP TABLE IF EXISTS " + newFavoritesTable);
+		}
 		//if it's verboseFavorites, we want to save it since it's user specified data
 
 		onCreate(db);
@@ -167,7 +183,7 @@ public class DatabaseHelper extends SQLiteOpenHelper
 		
 	}
 
-	private void writeVerboseFavorites(SQLiteDatabase db, ArrayList<String> favorites) {
+	private void writeVerboseFavorites(SQLiteDatabase db, HashSet<String> favorites) {
 		for (String favorite : favorites) {
 			ContentValues values = new ContentValues();
 			values.put(stopTagKey, favorite);
@@ -176,12 +192,12 @@ public class DatabaseHelper extends SQLiteOpenHelper
 		}
 	}
 	
-	private ArrayList<String> readOldFavorites(SQLiteDatabase database)
+	private HashSet<String> readOldFavorites(SQLiteDatabase database)
 	{
 		Cursor cursor = null;
 		try
 		{
-			ArrayList<String> ret = new ArrayList<String>();
+			HashSet<String> ret = new HashSet<String>();
 			
 			cursor = database.query(newFavoritesTable, new String[]{newFavoritesTagKey}, null, null, null, null, null);
 			
@@ -206,13 +222,27 @@ public class DatabaseHelper extends SQLiteOpenHelper
 		}
 	}
 	
+	public synchronized void populateFavorites(HashSet<String> favorites, boolean lookForOtherStopsAtSameLocation)
+	{
+		SQLiteDatabase database = null;
+		try
+		{
+			database = getReadableDatabase();
+			populateFavorites(favorites, lookForOtherStopsAtSameLocation, database);
+		}
+		finally
+		{
+			database.close();
+		}
+	}
+	
 	/**
 	 * Fill the given HashSet with all stop tags that are favorites
 	 * @param favorites
 	 */
-	public synchronized void populateFavorites(HashSet<String> favorites, boolean lookForOtherStopsAtSameLocation)
+	public synchronized void populateFavorites(HashSet<String> favorites, boolean lookForOtherStopsAtSameLocation, 
+			SQLiteDatabase database)
 	{
-		SQLiteDatabase database = getReadableDatabase();
 		Cursor cursor = null;
 
 		try
@@ -251,7 +281,6 @@ public class DatabaseHelper extends SQLiteOpenHelper
 		}		
 		finally
 		{
-			database.close();
 			if (cursor != null)
 			{
 				cursor.close();
@@ -921,5 +950,4 @@ public class DatabaseHelper extends SQLiteOpenHelper
 			database.close();
 		}
 	}
-
 }
