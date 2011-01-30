@@ -480,11 +480,11 @@ public class UpdateAsyncTask extends AsyncTask<Object, Object, Locations>
 			int latInt = (int)(busLocation.getLatitudeAsDegrees() * Constants.E6);
 			int lonInt = (int)(busLocation.getLongitudeAsDegrees() * Constants.E6);
 			//get around sign extension issues
-			latInt = (latInt < 0 ? -latInt : latInt);
-			lonInt = (lonInt < 0 ? -lonInt : lonInt);
 			GeoPoint point = new GeoPoint(latInt, lonInt);
 					
 			//make a hash to easily compare this location's position against others
+			latInt = (latInt < 0 ? -latInt : latInt);
+			lonInt = (lonInt < 0 ? -lonInt : lonInt);
 			long hash = (long)((long)latInt << 32) | (long)lonInt;
 			Integer index = points.get(hash);
 			if (null != index)
