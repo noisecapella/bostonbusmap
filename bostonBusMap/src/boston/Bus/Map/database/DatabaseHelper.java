@@ -224,8 +224,8 @@ public class DatabaseHelper extends SQLiteOpenHelper
 				//database needs it
 				SQLiteQueryBuilder builder = new SQLiteQueryBuilder();
 				builder.setTables(verboseFavorites + " JOIN stops as s1 ON (" + verboseFavorites + "." + stopTagKey +
-						"=s1." + stopTagKey + ") JOIN stops as s2 ON round(s1." +  latitudeKey + 
-						"*1000) = round(s2." + latitudeKey + "*1000) AND round(s1." + longitudeKey + "*1000) = round(s2." + longitudeKey + "*1000)");
+						"=s1." + stopTagKey + ") JOIN stops as s2 ON s1." +  latitudeKey + 
+						" = s2." + latitudeKey + " AND s1." + longitudeKey + " = s2." + longitudeKey + "");
 				builder.setDistinct(true);
 				
 				cursor = builder.query(database, new String[]{"s2." + stopTagKey}, null, null, null, null, null);
@@ -421,8 +421,8 @@ public class DatabaseHelper extends SQLiteOpenHelper
 			SQLiteQueryBuilder builder = new SQLiteQueryBuilder();
 			builder.setTables(verboseStops + " as s1, " + verboseStops + " as s2");
 			cursor = builder.query(database, new String[] {"s2." + stopTagKey},
-					"s1." + stopTagKey + " = ? AND round(s1." + latitudeKey + "*1000) = round(s2." + latitudeKey +
-					"*1000) AND round(s1." + longitudeKey + "*1000) = round(s2." + longitudeKey + "*1000)", new String[]{stopTag}, null, null, null);
+					"s1." + stopTagKey + " = ? AND s1." + latitudeKey + " = s2." + latitudeKey +
+					" AND s1." + longitudeKey + " = s2." + longitudeKey + "", new String[]{stopTag}, null, null, null);
 			
 			ArrayList<String> ret = new ArrayList<String>();
 			cursor.moveToFirst();
