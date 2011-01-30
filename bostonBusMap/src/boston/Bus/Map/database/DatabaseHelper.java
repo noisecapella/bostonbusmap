@@ -223,8 +223,8 @@ public class DatabaseHelper extends SQLiteOpenHelper
 				//this is a relatively expensive query but it should only be done once, when the
 				//database needs it
 				SQLiteQueryBuilder builder = new SQLiteQueryBuilder();
-				builder.setTables(verboseFavorites + " JOIN stops as s1 ON (" + verboseFavorites + "." + stopTagKey +
-						"=s1." + stopTagKey + ") JOIN stops as s2 ON s1." +  latitudeKey + 
+				builder.setTables(verboseFavorites + " JOIN stops as s1 ON " + verboseFavorites + "." + stopTagKey +
+						" = s1." + stopTagKey + " JOIN stops as s2 ON s1." +  latitudeKey + 
 						" = s2." + latitudeKey + " AND s1." + longitudeKey + " = s2." + longitudeKey + "");
 				builder.setDistinct(true);
 				
