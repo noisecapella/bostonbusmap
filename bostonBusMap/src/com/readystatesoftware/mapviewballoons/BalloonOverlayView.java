@@ -261,7 +261,7 @@ public class BalloonOverlayView extends FrameLayout {
 						String text = stop.getStopTag() + " (" + stop.getTitle() + ")";
 						stopTagStrings.add(text);
 					}
-					String stopTagsList = StringUtil.join(stopTagStrings, ", ");
+					String stopTagsList = StringUtil.join(stopTagStrings, ",\n");
 					
 					ret.append("The stop ids are: ").append(stopTagsList).append(" on route ").append(selectedRoute).append(". ");
 				}
@@ -275,7 +275,7 @@ public class BalloonOverlayView extends FrameLayout {
 					pairs.add(stop.getStopTag() + " on routes " + routesJoin);
 				}
 				
-				String list = StringUtil.join(pairs, ", ");
+				String list = StringUtil.join(pairs, ",\n");
 				ret.append("The stop ids are: ");
 				StringUtil.join(pairs, ", ", ret);
 				ret.append(". ");
@@ -310,10 +310,10 @@ public class BalloonOverlayView extends FrameLayout {
 		}
 		
 		StringBuilder otherText = new StringBuilder();
-		otherText.append("(Add any other info you want at the beginning or end of this message, and click send.)\n\n");
-		otherText.append("\n\nInfo for MBTA:\n");
+		otherText.append("(What is the problem?\nAdd any other info you want at the beginning or end of this message, and click send.)\n\n");
+		otherText.append("\n\n");
 		createInfoForAgency(context, otherText, selectedBusPredictions, route);
-		otherText.append("\n\nInfo for developer:\n");
+		otherText.append("\n\n");
 		createInfoForDeveloper(context, otherText, selectedBusPredictions, route);
 
 		
