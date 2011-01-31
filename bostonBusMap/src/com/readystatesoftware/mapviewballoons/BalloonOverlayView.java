@@ -272,7 +272,7 @@ public class BalloonOverlayView extends FrameLayout {
 				for (StopLocation stop : stopTags.values())
 				{
 					String routesJoin = StringUtil.join(stop.getRoutes(), ", ");
-					pairs.add(stop.getStopTag() + " on routes " + routesJoin);
+					pairs.add(stop.getStopTag() + "(" + stop.getTitle() + ") on routes " + routesJoin);
 				}
 				
 				String list = StringUtil.join(pairs, ",\n");
