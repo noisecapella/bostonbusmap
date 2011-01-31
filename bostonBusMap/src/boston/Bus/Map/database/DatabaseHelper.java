@@ -629,7 +629,7 @@ public class DatabaseHelper extends SQLiteOpenHelper
 						String stopTitle = stopCursor.getString(3);
 						String branch = stopCursor.getString(5);
 
-						int platformOrder = 0;
+						int platformOrder = stopCursor.getInt(4);
 
 						stop = transitSystem.createStop(latitude, longitude, stopTag, stopTitle, platformOrder, branch, route, dirTag);
 						
