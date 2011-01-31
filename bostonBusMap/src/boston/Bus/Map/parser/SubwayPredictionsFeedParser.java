@@ -95,7 +95,15 @@ public class SubwayPredictionsFeedParser
 		ArrayList<StopLocation> stopLocations = new ArrayList<StopLocation>(); 
 		
 		//start off with all the buses to be removed, and if they're still around remove them from toRemove
-		HashSet<Integer> toRemove = new HashSet<Integer>(busMapping.keySet());
+		HashSet<Integer> toRemove = new HashSet<Integer>();
+		for (Integer id : busMapping.keySet())
+		{
+			BusLocation busLocation = busMapping.get(id);
+			if (busLocation.isDisappearAfterRefresh())
+			{
+				toRemove.add(id);
+			}
+		}
 		
 		String route = null;
 		try
