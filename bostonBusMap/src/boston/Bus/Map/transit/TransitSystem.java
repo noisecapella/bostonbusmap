@@ -84,8 +84,8 @@ public class TransitSystem {
 			transitSourceMap.put(SubwayTransitSource.OrangeLine, subwayTransitSource);
 			transitSourceMap.put(SubwayTransitSource.BlueLine, subwayTransitSource);
 			
-			transitSources.add(defaultTransitSource);
 			transitSources.add(subwayTransitSource);
+			transitSources.add(defaultTransitSource);
 		}
 	}
 	
