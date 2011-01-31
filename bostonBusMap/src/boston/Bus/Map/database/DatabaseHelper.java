@@ -435,7 +435,7 @@ public class DatabaseHelper extends SQLiteOpenHelper
 	}
 	
 
-	public ArrayList<String> getAllStopTagsAtLocation(String stopTag)
+	public synchronized ArrayList<String> getAllStopTagsAtLocation(String stopTag)
 	{
 		SQLiteDatabase database = getReadableDatabase();
 		Cursor cursor = null;
@@ -809,13 +809,13 @@ public class DatabaseHelper extends SQLiteOpenHelper
 		}
 	}
 
-	public Cursor getCursorForRoutes() {
+	public synchronized Cursor getCursorForRoutes() {
 		SQLiteDatabase database = getReadableDatabase();
 		
 		return database.query(verboseRoutes, new String[]{routeKey}, null, null, null, null, null);
 	}
 
-	public Cursor getCursorForDirection(String dirTag) {
+	public synchronized Cursor getCursorForDirection(String dirTag) {
 		SQLiteDatabase database = getReadableDatabase();
 		
 		return database.query(directionsTable, new String[]{dirTagKey, dirTitleKey, dirRouteKey}, dirTagKey + "=?", 
@@ -823,14 +823,14 @@ public class DatabaseHelper extends SQLiteOpenHelper
 		
 	}
 
-	public Cursor getCursorForDirections() {
+	public synchronized Cursor getCursorForDirections() {
 		SQLiteDatabase database = getReadableDatabase();
 		
 		return database.query(directionsTable, new String[]{dirTagKey, dirTitleKey, dirRouteKey}, null, 
 				null, null, null, null);
 	}
 	
-	public void upgradeIfNecessary() {
+	public synchronized void upgradeIfNecessary() {
 		//trigger an upgrade so future calls of getReadableDatabase won't complain that you can't upgrade a read only db
 		getWritableDatabase();
 		

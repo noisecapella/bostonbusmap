@@ -351,21 +351,6 @@ public final class Locations
 		return ret;
 	}
 
-	private int latitudeAsDegreesE6;
-	private int longitudeAsDegreesE6;
-	private boolean showCurrentLocation;
-
-	public void setCurrentLocation(int latitudeAsDegreesE6, int longitudeAsDegreesE6) {
-		this.latitudeAsDegreesE6 = latitudeAsDegreesE6;
-		this.longitudeAsDegreesE6 = longitudeAsDegreesE6;
-		showCurrentLocation = true;
-	}
-	
-	public void clearCurrentLocation()
-	{
-		showCurrentLocation = false;
-	}
-	
 	public void select(String newRoute, int busPredictions) {
 		selectedRoute = newRoute;
 
