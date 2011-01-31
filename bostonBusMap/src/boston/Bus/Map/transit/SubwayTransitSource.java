@@ -96,7 +96,7 @@ public class SubwayTransitSource implements TransitSource {
 			List<Location> locations = locationsObj.getLocations(maxStops, centerLatitude, centerLongitude, false);
 
 			//ok, do predictions now
-			getPredictionsUrl(locations, maxStops, routeConfig.getRouteName(), outputUrls);
+			getPredictionsUrl(locations, maxStops, routeConfig.getRouteName(), outputUrls, selectedBusPredictions);
 			break;
 		}
 		case Main.BUS_PREDICTIONS_ALL:
@@ -105,7 +105,7 @@ public class SubwayTransitSource implements TransitSource {
 		{
 			List<Location> locations = locationsObj.getLocations(maxStops, centerLatitude, centerLongitude, false);
 			
-			getPredictionsUrl(locations, maxStops, null, outputUrls);
+			getPredictionsUrl(locations, maxStops, null, outputUrls, selectedBusPredictions);
 
 		}
 		break;
@@ -131,9 +131,10 @@ public class SubwayTransitSource implements TransitSource {
 	}
 
 	private void getPredictionsUrl(List<Location> locations, int maxStops,
-			String routeName, HashSet<String> outputUrls) {
+			String routeName, HashSet<String> outputUrls, int mode) {
 		final String dataUrlPrefix = "http://developer.mbta.com/Data/";
 		
+		//BUS_PREDICTIONS_ONE or VEHICLE_LOCATIONS_ONE
 		if (routeName != null)
 		{
 			//we know we're updating only one route
@@ -145,35 +146,45 @@ public class SubwayTransitSource implements TransitSource {
 		}
 		else
 		{
-			//ok, let's look at the locations and see what we can get
-			for (Location location : locations)
+			if (mode == Main.BUS_PREDICTIONS_STAR)
 			{
-				if (location instanceof StopLocation)
+				//ok, let's look at the locations and see what we can get
+				for (Location location : locations)
 				{
-					StopLocation stopLocation = (StopLocation)location;
-				
-				
-					for (String route : stopLocation.getRoutes())
+					if (location instanceof StopLocation)
 					{
+						StopLocation stopLocation = (StopLocation)location;
+
+
+						for (String route : stopLocation.getRoutes())
+						{
+							if (isSubway(route))
+							{
+								outputUrls.add(dataUrlPrefix + route + ".json");
+							}
+						}
+					}
+					else
+					{
+						//bus location
+						BusLocation busLocation = (BusLocation)location;
+						String route = busLocation.getRouteId();
+
 						if (isSubway(route))
 						{
 							outputUrls.add(dataUrlPrefix + route + ".json");
 						}
 					}
 				}
-				else
+			}
+			else
+			{
+				//add all three
+				for (String route : subwayRoutes)
 				{
-					//bus location
-					BusLocation busLocation = (BusLocation)location;
-					String route = busLocation.getRouteId();
-					
-					if (isSubway(route))
-					{
-						outputUrls.add(dataUrlPrefix + route + ".json");
-					}
+					outputUrls.add(dataUrlPrefix + route + ".json");
 				}
 			}
-			
 		}
 	}
 
