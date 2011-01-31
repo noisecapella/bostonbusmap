@@ -173,23 +173,14 @@ public class SubwayPredictionsFeedParser
 						//first, see if there's a subway car which pretty much matches an old BusLocation
 						BusLocation busLocation = null;
 						int id = 0;
-						for (BusLocation location : busMapping.values())
+						try
 						{
-							int secondsDiff = (int) ((currentMillis - location.lastUpdateInMillis) / 1000) - (seconds - location.seconds);
-							if (location.getLatitudeAsDegrees() == stopLocation.getLatitudeAsDegrees() && 
-									location.getLongitudeAsDegrees() == stopLocation.getLongitudeAsDegrees() &&
-									Math.abs(secondsDiff) < 10)
-							{
-								//the last part is, does the number of seconds still pretty much match up, give or take 10 seconds?
-								//if so, reuse the id so that highlighted buses remain highlighted after a refresh
-								id = location.getId();
-								break;
-							}
+							id = Integer.parseInt(object.getString("Trip"));
 						}
-						
-						if (id == 0)
+						catch (NumberFormatException e)
 						{
-							id = (int)(Math.random() * 1234) + 1;
+							Log.e("BostonBusMap", e.getMessage());
+							id = -1;
 						}
 						
 						busLocation = new BusLocation(stopLocation.getLatitudeAsDegrees(), stopLocation.getLongitudeAsDegrees(),
