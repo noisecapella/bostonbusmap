@@ -6,6 +6,7 @@ import java.io.PrintWriter;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.util.HashMap;
+import java.util.concurrent.ConcurrentHashMap;
 
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
@@ -118,7 +119,7 @@ public class VehicleLocationsFeedParser extends DefaultHandler
 		return lastUpdateTime;
 	}
 
-	public void fillMapping(HashMap<Integer, BusLocation> outputBusMapping) {
+	public void fillMapping(ConcurrentHashMap<Integer, BusLocation> outputBusMapping) {
 		outputBusMapping.putAll(busMapping);
 	}
 	

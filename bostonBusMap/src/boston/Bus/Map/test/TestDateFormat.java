@@ -6,6 +6,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
+import java.util.concurrent.ConcurrentHashMap;
 
 import boston.Bus.Map.data.BusLocation;
 import boston.Bus.Map.parser.SubwayPredictionsFeedParser;
@@ -21,7 +22,7 @@ public class TestDateFormat extends TestCase
 		
 		String time = "10/2/2010 12:49:29 PM";
 		
-		SubwayPredictionsFeedParser parser = new SubwayPredictionsFeedParser(null, null, null, null, new HashMap<Integer, BusLocation>());
+		SubwayPredictionsFeedParser parser = new SubwayPredictionsFeedParser(null, null, null, null, new ConcurrentHashMap<Integer, BusLocation>());
 		
 		Date date = parser.parseTime(time);
 		
@@ -36,7 +37,7 @@ public class TestDateFormat extends TestCase
 		
 		String time = "10/2/2010 12:49:29 AM";
 		
-		SubwayPredictionsFeedParser parser = new SubwayPredictionsFeedParser(null, null, null, null, new HashMap<Integer, BusLocation>());
+		SubwayPredictionsFeedParser parser = new SubwayPredictionsFeedParser(null, null, null, null, new ConcurrentHashMap<Integer, BusLocation>());
 		
 		Date date = parser.parseTime(time);
 		
@@ -49,7 +50,7 @@ public class TestDateFormat extends TestCase
 		
 		String time = "10/2/2010 1:49:29 PM";
 		
-		SubwayPredictionsFeedParser parser = new SubwayPredictionsFeedParser(null, null, null, null, new HashMap<Integer, BusLocation>());
+		SubwayPredictionsFeedParser parser = new SubwayPredictionsFeedParser(null, null, null, null, new ConcurrentHashMap<Integer, BusLocation>());
 		
 		Date date = parser.parseTime(time);
 		

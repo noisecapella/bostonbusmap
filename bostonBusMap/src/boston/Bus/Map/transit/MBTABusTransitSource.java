@@ -5,6 +5,7 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.zip.GZIPInputStream;
 
 import javax.xml.parsers.ParserConfigurationException;
@@ -292,7 +293,7 @@ public class MBTABusTransitSource implements TransitSource
 
 	@Override
 	public void refreshData(RouteConfig routeConfig, int selectedBusPredictions, int maxStops,
-			float centerLatitude, float centerLongitude, HashMap<Integer, BusLocation> busMapping, 
+			float centerLatitude, float centerLongitude, ConcurrentHashMap<Integer, BusLocation> busMapping, 
 			String selectedRoute, RoutePool routePool, Directions directions, Locations locationsObj)
 	throws IOException, ParserConfigurationException, SAXException {
 		//read data from the URL

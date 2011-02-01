@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
 
 import javax.xml.parsers.ParserConfigurationException;
 
@@ -156,7 +157,7 @@ public class TransitSystem {
 
 	public void refreshData(RouteConfig routeConfig,
 			int selectedBusPredictions, int maxStops, float centerLatitude,
-			float centerLongitude, HashMap<Integer, BusLocation> busMapping,
+			float centerLongitude, ConcurrentHashMap<Integer, BusLocation> busMapping,
 			String selectedRoute, RoutePool routePool,
 			Directions directions, Locations locations) throws IOException, ParserConfigurationException, SAXException {
 		for (TransitSource source : transitSources)

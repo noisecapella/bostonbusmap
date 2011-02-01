@@ -2,6 +2,7 @@ package boston.Bus.Map.transit;
 
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.concurrent.ConcurrentHashMap;
 
 import javax.xml.parsers.ParserConfigurationException;
 
@@ -26,7 +27,7 @@ public interface TransitSource {
 
 	void refreshData(RouteConfig routeConfig, int selectedBusPredictions,
 			int maxStops, float centerLatitude, float centerLongitude,
-			HashMap<Integer, BusLocation> busMapping, String selectedRoute,
+			ConcurrentHashMap<Integer, BusLocation> busMapping, String selectedRoute,
 			RoutePool routePool, Directions directions, Locations locationsObj)
 	throws IOException, ParserConfigurationException, SAXException;
 

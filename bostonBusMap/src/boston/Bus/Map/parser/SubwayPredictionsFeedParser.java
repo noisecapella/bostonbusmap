@@ -14,6 +14,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
@@ -49,10 +50,10 @@ public class SubwayPredictionsFeedParser
 	private final Drawable rail;
 	private final Drawable railArrow;
 	
-	private final HashMap<Integer, BusLocation> busMapping;
+	private final ConcurrentHashMap<Integer, BusLocation> busMapping;
 	
 	public SubwayPredictionsFeedParser(RoutePool routePool, Directions directions, Drawable bus, Drawable railArrow, 
-			HashMap<Integer, BusLocation> busMapping)
+			ConcurrentHashMap<Integer, BusLocation> busMapping)
 	{
 		this.routePool = routePool;
 		this.directions = directions;
