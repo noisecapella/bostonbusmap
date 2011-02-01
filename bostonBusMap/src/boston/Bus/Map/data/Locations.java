@@ -30,6 +30,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.TreeSet;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.InflaterInputStream;
 
@@ -69,7 +70,7 @@ public final class Locations
 	/**
 	 * A mapping of the bus number to bus location
 	 */
-	private HashMap<Integer, BusLocation> busMapping = new HashMap<Integer, BusLocation>();
+	private ConcurrentHashMap<Integer, BusLocation> busMapping = new ConcurrentHashMap<Integer, BusLocation>();
 	
 	/**
 	 * A mapping of a route id to a RouteConfig object.
@@ -239,42 +240,39 @@ public final class Locations
 
 		if (selectedBusPredictions == Main.VEHICLE_LOCATIONS_ALL || selectedBusPredictions == Main.VEHICLE_LOCATIONS_ONE)
 		{
-			synchronized (busMapping)
+			if (doShowUnpredictable == false)
 			{
-				if (doShowUnpredictable == false)
+				for (BusLocation busLocation : busMapping.values())
 				{
-					for (BusLocation busLocation : busMapping.values())
+					if (busLocation.predictable == true)
 					{
-						if (busLocation.predictable == true)
+						if (selectedBusPredictions == Main.VEHICLE_LOCATIONS_ONE)
 						{
-							if (selectedBusPredictions == Main.VEHICLE_LOCATIONS_ONE)
-							{
-								if (selectedRoute != null && selectedRoute.equals(busLocation.getRouteId()))
-								{
-									newLocations.add(busLocation);
-								}
-							}
-							else
+							if (selectedRoute != null && selectedRoute.equals(busLocation.getRouteId()))
 							{
 								newLocations.add(busLocation);
 							}
 						}
+						else
+						{
+							newLocations.add(busLocation);
+						}
 					}
+				}
+			}
+			else
+			{
+				if (selectedBusPredictions == Main.VEHICLE_LOCATIONS_ALL)
+				{
+					newLocations.addAll(busMapping.values());
 				}
 				else
 				{
-					if (selectedBusPredictions == Main.VEHICLE_LOCATIONS_ALL)
+					for (BusLocation location : busMapping.values())
 					{
-						newLocations.addAll(busMapping.values());
-					}
-					else
-					{
-						for (BusLocation location : busMapping.values())
+						if (selectedRoute != null && selectedRoute.equals(location.getRouteId()))
 						{
-							if (selectedRoute != null && selectedRoute.equals(location.getRouteId()))
-							{
-								newLocations.add(location);
-							}
+							newLocations.add(location);
 						}
 					}
 				}
