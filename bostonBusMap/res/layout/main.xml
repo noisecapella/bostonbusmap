@@ -12,10 +12,10 @@
 		android:layout_height="wrap_content" android:textSize="16sp"></EditText>
 
 	<Spinner android:id="@+id/predictionsOrLocations"
-
+		
 		android:layout_height="wrap_content" android:layout_width="wrap_content"
 		android:layout_alignParentRight="true" android:layout_alignTop="@+id/searchTextView"
-		android:layout_alignParentBottom="@+id/searchTextView"></Spinner>
+		android:layout_alignParentBottom="@+id/searchTextView" android:background="@android:drawable/btn_default"></Spinner>
 
 	<ImageButton android:layout_width="wrap_content"
 		android:layout_height="wrap_content" android:id="@+id/searchButton"
