@@ -112,13 +112,14 @@ public class UpdateAsyncTask extends AsyncTask<Object, Object, Locations>
 
 	private final TransitSystem transitSystem;
 	private Context context;
+	private final int idToSelect;
 	
 	public UpdateAsyncTask(ProgressBar progress, MapView mapView, LocationOverlay locationOverlay,
 			boolean doShowUnpredictable, boolean doRefresh, int maxOverlays,
 			boolean drawCircle, boolean inferBusRoutes, BusOverlay busOverlay, RouteOverlay routeOverlay, 
 			DatabaseHelper helper, String routeToUpdate,
 			int selectedBusPredictions, boolean doInit, boolean showRouteLine,
-		TransitSystem transitSystem, ProgressDialog progressDialog)
+		TransitSystem transitSystem, ProgressDialog progressDialog, int idToSelect)
 	{
 		super();
 		
@@ -142,6 +143,7 @@ public class UpdateAsyncTask extends AsyncTask<Object, Object, Locations>
 		//this.uiHandler = new Handler();
 		this.transitSystem = transitSystem;
 		this.progressDialog = progressDialog;
+		this.idToSelect = idToSelect;
 	}
 	
 	/**
@@ -392,7 +394,11 @@ public class UpdateAsyncTask extends AsyncTask<Object, Object, Locations>
 		
 		//get currently selected location id, or -1 if nothing is selected
 		final int selectedBusId;
-		if (busOverlay != null)
+		if (idToSelect != 0)
+		{
+			selectedBusId = idToSelect;
+		}
+		else if (busOverlay != null)
 		{
 			selectedBusId = busOverlay.getSelectedBusId();
 		}

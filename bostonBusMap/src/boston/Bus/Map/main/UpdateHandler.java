@@ -148,10 +148,11 @@ public class UpdateHandler extends Handler {
 			//remove duplicate messages
 			removeMessages(MINOR);
 			
+			int idToSelect = msg.arg1;
 			minorUpdate = new UpdateAsyncTask(progress, mapView, locationOverlay, getShowUnpredictable(), false, maxOverlays,
 					getHideHighlightCircle() == false, getInferBusRoutes(), busOverlay, routeOverlay, helper,
 					routeToUpdate, selectedBusPredictions, false, getShowRouteLine(), 
-					transitSystem, progressDialog);
+					transitSystem, progressDialog, idToSelect);
 			
 
 			minorUpdate.runUpdate(busLocations, centerLatitude, centerLongitude, context);
@@ -215,7 +216,7 @@ public class UpdateHandler extends Handler {
 		updateAsyncTask = new UpdateAsyncTask(progress, mapView, locationOverlay, getShowUnpredictable(), true, maxOverlays,
 				getHideHighlightCircle() == false, getInferBusRoutes(), busOverlay, routeOverlay, helper,
 				routeToUpdate, selectedBusPredictions, isFirstTime, showRouteLine,
-				transitSystem, progressDialog);
+				transitSystem, progressDialog, 0);
 		updateAsyncTask.runUpdate(busLocations, centerLatitude, centerLongitude, context);
 	}
 
@@ -324,6 +325,13 @@ public class UpdateHandler extends Handler {
 		
 	}
 
+	public void triggerUpdateAndSelect(int id)
+	{
+		Message msg = new Message();
+		msg.arg1 = id;
+		msg.what = MINOR;
+		sendMessage(msg);
+	}
 
 	public void resume() {
 		//removeAllMessages();
