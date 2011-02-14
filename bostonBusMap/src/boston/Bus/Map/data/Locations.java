@@ -414,4 +414,22 @@ public final class Locations
 	{
 		return routeMapping.getAllStopTagsAtLocation(stopTag);
 	}
+
+	public StopLocation setSelectedStop(String route, String stopTag)
+	{
+		try
+		{
+			RouteConfig routeConfig = routeMapping.get(route);
+			StopLocation stopLocation = routeConfig.getStop(stopTag);
+			select(route, Main.BUS_PREDICTIONS_ONE);
+			
+			return stopLocation;
+		}
+		catch (IOException e)
+		{
+			Log.e("BostonBusMap", "Exception thrown from setSelectedStop: " + e.getMessage());
+		}
+		
+		return null;
+	}
 }

@@ -837,6 +837,44 @@ public class DatabaseHelper extends SQLiteOpenHelper
 	}
 
 	/**
+	 * Is stopTag a stop? Returns the number of routes it's on
+	 * @param stopTag
+	 * @return
+	 */
+	public ArrayList<String> isStop(String stopTag)
+	{
+		SQLiteDatabase database = getReadableDatabase();
+		Cursor cursor = null;
+		try
+		{
+			SQLiteQueryBuilder builder = new SQLiteQueryBuilder();
+			builder.setTables(stopsRoutesMap);
+			String[] projectionIn = new String[] {routeKey};
+			
+			cursor = builder.query(database, projectionIn, stopTagKey + " = ?", new String[] {stopTag}, null, null, null);
+			
+			ArrayList<String> routes = new ArrayList<String>(3);
+			while (cursor.isAfterLast() == false)
+			{
+				String route = cursor.getString(0);
+				routes.add(route);
+				
+				cursor.moveToNext();
+			}
+			
+			return routes;
+		}
+		finally
+		{
+			if (cursor != null)
+			{
+				cursor.close();
+			}
+			database.close();
+		}
+	}
+	
+	/**
 	 * Read stops from the database and return a mapping of the stop tag to the stop object
 	 * @param stopTag
 	 * @param transitSystem

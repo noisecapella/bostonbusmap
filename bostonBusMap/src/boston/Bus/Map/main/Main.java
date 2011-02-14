@@ -21,6 +21,7 @@ package boston.Bus.Map.main;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -34,6 +35,7 @@ import org.xml.sax.SAXException;
 import boston.Bus.Map.R;
 import boston.Bus.Map.data.Locations;
 import boston.Bus.Map.data.RouteConfig;
+import boston.Bus.Map.data.StopLocation;
 import boston.Bus.Map.database.DatabaseHelper;
 import boston.Bus.Map.provider.TransitContentProvider;
 import boston.Bus.Map.transit.TransitSystem;
@@ -66,6 +68,7 @@ import android.content.SharedPreferences;
 import android.content.res.Resources;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.BitmapFactory;
+import android.graphics.Point;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.StateListDrawable;
 import android.location.Address;
@@ -161,6 +164,7 @@ public class Main extends MapActivity
 	private ImageButton searchButton;
 	
 	private ProgressDialog progressDialog;
+	private DatabaseHelper databaseHelper;
 	
 	public static final int VEHICLE_LOCATIONS_ALL = 1;
 	public static final int BUS_PREDICTIONS_ONE = 2;
@@ -248,17 +252,7 @@ public class Main extends MapActivity
 				}
 				else if (busLocations != null && handler != null)
 				{
-					if (position < 0 || position >= modesSupported.length)
-					{
-						handler.setSelectedBusPredictions(VEHICLE_LOCATIONS_ALL);
-					}
-					else
-					{
-						handler.setSelectedBusPredictions(modesSupported[position]);
-					}
-
-					handler.triggerUpdate();
-					handler.immediateRefresh();
+					setMode(position);
 				}				
 			}
 
@@ -273,7 +267,7 @@ public class Main extends MapActivity
         toggleButton.setAdapter(modeSpinnerAdapter);
 
         
-        DatabaseHelper helper = new DatabaseHelper(this);
+        databaseHelper = new DatabaseHelper(this);
         
         
         dropdownRoutes = transitSystem.getRoutes();
@@ -341,11 +335,11 @@ public class Main extends MapActivity
         
         if (busLocations == null)
         {
-        	busLocations = new Locations(helper, transitSystem);
+        	busLocations = new Locations(databaseHelper, transitSystem);
         }
 
         handler = new UpdateHandler(progress, mapView, arrow, tooltip, busLocations, 
-        		this, helper, busOverlay, routeOverlay, myLocationOverlay, majorHandler,
+        		this, databaseHelper, busOverlay, routeOverlay, myLocationOverlay, majorHandler,
         		transitSystem, progressDialog);
         busOverlay.setUpdateable(handler);
         myLocationOverlay.setUpdateable(handler);
@@ -808,13 +802,79 @@ public class Main extends MapActivity
 				return;
 			}
 
-			SearchRecentSuggestions suggestions = new SearchRecentSuggestions(this, TransitContentProvider.AUTHORITY,
-					TransitContentProvider.MODE);
-			suggestions.saveRecentQuery(query, null);
 			
-			SearchHelper helper = new SearchHelper(this, dropdownRoutes, dropdownRouteKeysToTitles, mapView);
-			helper.runSearch(query);
+			final SearchHelper helper = new SearchHelper(this, dropdownRoutes, dropdownRouteKeysToTitles, mapView, query, 
+				databaseHelper);
+			helper.runSearch(new Runnable()
+			{
+				@Override
+				public void run() {
+					//search is finished
+					SearchRecentSuggestions suggestions = new SearchRecentSuggestions(Main.this, TransitContentProvider.AUTHORITY,
+							TransitContentProvider.MODE);
+					suggestions.saveRecentQuery(helper.getSuggestionsQuery(), null);
+				}
+			});
+
+			
 		}
+	}
+
+	public void setMode(int position)
+	{
+		if (position < 0 || position >= modesSupported.length)
+		{
+			handler.setSelectedBusPredictions(VEHICLE_LOCATIONS_ALL);
+		}
+		else
+		{
+			handler.setSelectedBusPredictions(modesSupported[position]);
+		}
+
+		handler.triggerUpdate();
+		handler.immediateRefresh();
+	}
+	
+	/**
+	 * Sets the current selected stop to stopTag, moves map over it, sets route to route, sets mode to stops for one route
+	 * @param route
+	 * @param stopTag
+	 */
+	public void setNewStop(String route, String stopTag)
+	{
+		StopLocation stopLocation = busLocations.setSelectedStop(route, stopTag);
+
+		if (stopLocation == null)
+		{
+			Log.e("BostonBusMap", "Error: stopLocation was null");
+			return;
+		}
+		
+		int routePosition = -1;
+		for (int position = 0; position < dropdownRoutes.length; position++)
+		{
+			if (route.equals(dropdownRoutes[position]))
+			{
+				routePosition = position;
+				break;
+			}
+		}
+		
+		if (routePosition != -1)
+		{
+			//should always happen, but we just ignore this if something went wrong
+			setNewRoute(routePosition);
+		}
+		
+		setMode(BUS_PREDICTIONS_ONE);
+		
+		MapController controller = mapView.getController();
+		
+		int latE6 = (int)(stopLocation.getLatitudeAsDegrees() * Constants.E6);
+		int lonE6 = (int)(stopLocation.getLongitudeAsDegrees() * Constants.E6);
+		
+		GeoPoint geoPoint = new GeoPoint(latE6, lonE6);
+		controller.setCenter(geoPoint);
 	}
 
 }
