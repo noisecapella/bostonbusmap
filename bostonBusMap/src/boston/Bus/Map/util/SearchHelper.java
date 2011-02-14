@@ -110,6 +110,14 @@ public class SearchHelper
 			queryContainsStop = false;
 		}
 
+		//NOTE: this hardwires the default to be queryContainsRoute, bypassing the popup menu
+		//it seems like a good idea for now so people aren't confused
+		if (queryContainsStop == false)
+		{
+			queryContainsRoute = true;
+		}
+		
+		//NOTE: the next section is currently never run since we set queryContainsStop to true if queryContainsRoute was false
 		final String finalLowercaseQuery = lowercaseQuery;
 		final String finalIndexingQuery = indexingQuery;
 		if (queryContainsRoute == false && queryContainsStop == false)
