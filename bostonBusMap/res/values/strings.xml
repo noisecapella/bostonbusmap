@@ -34,4 +34,6 @@ Are any enabled (like GPS) in your system settings?</string>
 <string name="commentSubmit">Send feedback</string>
 <string name="moreinfo">More info</string>
 <string name="reportproblem">Report problem</string>
+<string name="basicInstructions">Hello &lt;br /&gt; World\n
+3</string>
 </resources>

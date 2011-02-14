@@ -129,6 +129,7 @@ public class Main extends MapActivity
 	private static final String centerLatKey = "centerLat";
 	private static final String centerLonKey = "centerLon";
 	private static final String zoomLevelKey = "zoomLevel";
+	private static final String introScreenKey = "introScreen";
 	private MapView mapView;
 	private EditText searchView;
 	
@@ -191,8 +192,6 @@ public class Main extends MapActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
         
-        
-        
         firstRunMode = true;
         
         //get widgets
@@ -202,7 +201,9 @@ public class Main extends MapActivity
         progress = (ProgressBar)findViewById(R.id.progress);
         searchButton = (ImageButton)findViewById(R.id.searchButton);
         
-        progressDialog = new ProgressDialog(this);
+    	SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+
+    	progressDialog = new ProgressDialog(this);
 		progressDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
 		progressDialog.setCancelable(true);
 
@@ -224,6 +225,14 @@ public class Main extends MapActivity
 				onSearchRequested();
 			}
 		});
+        
+        boolean showIntroScreen = prefs.getBoolean(introScreenKey, true);
+        if (showIntroScreen)
+        {
+        	displayInstructions(this);
+        	//only show this screen once
+        	prefs.edit().putBoolean(introScreenKey, false).commit();
+        }
         
         Resources resources = getResources();
 
@@ -356,7 +365,6 @@ public class Main extends MapActivity
         }
         else
         {
-        	SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
             int centerLat = prefs.getInt(centerLatKey, Integer.MAX_VALUE);
             int centerLon = prefs.getInt(centerLonKey, Integer.MAX_VALUE);
             int zoomLevel = prefs.getInt(zoomLevelKey, Integer.MAX_VALUE);
@@ -405,6 +413,20 @@ public class Main extends MapActivity
         
     }
 		
+	public static void displayInstructions(Context context)
+	{
+        AlertDialog.Builder builder = new AlertDialog.Builder(context);
+        builder.setMessage(R.string.basicInstructions);
+        builder.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+			
+			@Override
+			public void onClick(DialogInterface dialog, int which) {
+				dialog.dismiss();
+			}
+		});
+        builder.show();
+	}
+
 	private static String[] getRouteTitles(String[] dropdownRoutes,
 			HashMap<String, String> dropdownRouteKeysToTitles) {
     	String[] ret = new String[dropdownRoutes.length];
@@ -869,10 +891,17 @@ public class Main extends MapActivity
 		final int id = stopLocation.getId();
 		handler.triggerUpdateAndSelect(id);
 
+		
+		
 		if (routePosition != -1)
 		{
 			//should always happen, but we just ignore this if something went wrong
-			setNewRoute(routePosition);
+			String currentRoute = getRoute();
+			if (stopLocation.getRoutes().contains(currentRoute) == false)
+			{
+				//only set it if some route which contains this stop isn't already set
+				setNewRoute(routePosition);
+			}
 		}
 		
 		setMode(BUS_PREDICTIONS_ONE);
@@ -884,6 +913,10 @@ public class Main extends MapActivity
 		
 		GeoPoint geoPoint = new GeoPoint(latE6, lonE6);
 		controller.setCenter(geoPoint);
+	}
+
+	private String getRoute() {
+		return dropdownRoutes[selectedRouteIndex];
 	}
 
 }
