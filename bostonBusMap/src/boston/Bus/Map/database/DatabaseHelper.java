@@ -854,6 +854,7 @@ public class DatabaseHelper extends SQLiteOpenHelper
 			cursor = builder.query(database, projectionIn, stopTagKey + " = ?", new String[] {stopTag}, null, null, null);
 			
 			ArrayList<String> routes = new ArrayList<String>(3);
+			cursor.moveToFirst();
 			while (cursor.isAfterLast() == false)
 			{
 				String route = cursor.getString(0);
