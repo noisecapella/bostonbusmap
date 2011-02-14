@@ -11,6 +11,7 @@ import android.app.AlertDialog.Builder;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.util.Log;
 import android.widget.Toast;
 import boston.Bus.Map.database.DatabaseHelper;
 import boston.Bus.Map.main.GeocoderAsyncTask;
@@ -23,6 +24,7 @@ public class SearchHelper
 	private final HashMap<String, String> dropdownRouteKeysToTitles;
 	private final MapView mapView;
 	private final String query;
+	private String suggestionsQuery;
 	private final DatabaseHelper databaseHelper;
 	
 	private boolean queryContainsRoute;
@@ -144,6 +146,7 @@ public class SearchHelper
 	private void returnResults(Runnable onFinish, String indexingQuery, String lowercaseQuery) {
 		if (queryContainsRoute)
 		{
+			suggestionsQuery = "route " + indexingQuery;
 			int position = getAsRoute(indexingQuery, lowercaseQuery);
 
 			if (position >= 0)
@@ -168,6 +171,7 @@ public class SearchHelper
 		}
 		else if (queryContainsStop)
 		{
+			suggestionsQuery = "stop " + indexingQuery;
 			ArrayList<String> routesForStop = databaseHelper.isStop(lowercaseQuery);
 			if (routesForStop.size() > 0)
 			{
@@ -178,6 +182,11 @@ public class SearchHelper
 				//invalid stop id
 				Toast.makeText(context, "Stop number '" + indexingQuery + "' doesn't exist. Did you mistype it?", Toast.LENGTH_LONG).show();
 			}
+		}
+		else
+		{
+			//shouldn't happen
+			Log.e("BostonBusMap", "Error: query is neither about stops nor routes");
 		}
 		
 		onFinish.run();
@@ -209,8 +218,7 @@ public class SearchHelper
 	}
 
 	public String getSuggestionsQuery() {
-		// TODO Auto-generated method stub
-		return null;
+		return suggestionsQuery;
 	}
 
 }

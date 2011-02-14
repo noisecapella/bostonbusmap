@@ -810,9 +810,14 @@ public class Main extends MapActivity
 				@Override
 				public void run() {
 					//search is finished
-					SearchRecentSuggestions suggestions = new SearchRecentSuggestions(Main.this, TransitContentProvider.AUTHORITY,
-							TransitContentProvider.MODE);
-					suggestions.saveRecentQuery(helper.getSuggestionsQuery(), null);
+					
+					String suggestionsQuery = helper.getSuggestionsQuery();
+					if (suggestionsQuery != null)
+					{
+						SearchRecentSuggestions suggestions = new SearchRecentSuggestions(Main.this, TransitContentProvider.AUTHORITY,
+								TransitContentProvider.MODE);
+						suggestions.saveRecentQuery(suggestionsQuery, null);
+					}
 				}
 			});
 
