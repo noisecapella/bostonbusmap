@@ -880,6 +880,9 @@ public class Main extends MapActivity
 		
 		GeoPoint geoPoint = new GeoPoint(latE6, lonE6);
 		controller.setCenter(geoPoint);
+		
+		busOverlay.setSelectedBusId(stopLocation.getId());
+		busOverlay.refreshBalloons();
 	}
 
 }
