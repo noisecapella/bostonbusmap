@@ -56,10 +56,6 @@ public class SearchHelper
 		searchRoutes(onFinish);
 	}
 
-	private static final int IS_GREEN_LINE = -1;
-	private static final int IS_NOTHING = -2;
-	private static final int IS_NUMBER = -3;
-	
 	/**
 	 * Try a search on the list of routes. If it matches, do that. Else, it's a geocode
 	 * 
@@ -157,17 +153,7 @@ public class SearchHelper
 			}
 			else
 			{
-				try
-				{
-					int x = Integer.parseInt(lowercaseQuery);
-					Toast.makeText(context, "Route number '" + x + "' doesn't exist. Did you mistype it?", Toast.LENGTH_LONG).show();
-				}
-				catch (NumberFormatException e)
-				{
-					//no need to log this, it's mostly expected. I wish Java had a TryParse method like C# does so we don't have to
-					//use try catch for flow control
-
-				}
+				Toast.makeText(context, "Route number '" + indexingQuery + "' doesn't exist. Did you mistype it?", Toast.LENGTH_LONG).show();
 			}
 		}
 		else if (queryContainsStop)
