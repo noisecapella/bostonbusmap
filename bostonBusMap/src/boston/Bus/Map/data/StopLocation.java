@@ -454,4 +454,23 @@ public class StopLocation implements Location
 			return "";
 		}
 	}
+	
+	@Override
+	public boolean containsId(int selectedBusId) {
+		if (getId() == selectedBusId)
+		{
+			return true;
+		}
+		else if (sharedSnippetStops != null)
+		{
+			for (StopLocation stop : sharedSnippetStops)
+			{
+				if (stop.getId() == selectedBusId)
+				{
+					return true;
+				}
+			}
+		}
+		return false;
+	}
 }

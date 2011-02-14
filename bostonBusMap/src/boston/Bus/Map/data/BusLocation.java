@@ -376,4 +376,9 @@ public class BusLocation implements Location {
 		distanceFromLastX *= -1;
 		distanceFromLastY *= -1;
 	}
+
+	@Override
+	public boolean containsId(int selectedBusId) {
+		return selectedBusId == getId();
+	}
 }

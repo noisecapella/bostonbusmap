@@ -371,10 +371,9 @@ public class BusOverlay extends BalloonItemizedOverlay<OverlayItem> {
 			{
 				Location busLocation = locations.get(i);
 
-				if (busLocation.getId() == selectedBusId)
+				if (busLocation.containsId(selectedBusId))
 				{
 					selectedBusIndex = i;
-					
 					break;
 				}
 			}

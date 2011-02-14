@@ -865,6 +865,10 @@ public class Main extends MapActivity
 			}
 		}
 		
+		
+		final int id = stopLocation.getId();
+		handler.triggerUpdateAndSelect(id);
+
 		if (routePosition != -1)
 		{
 			//should always happen, but we just ignore this if something went wrong
@@ -880,9 +884,6 @@ public class Main extends MapActivity
 		
 		GeoPoint geoPoint = new GeoPoint(latE6, lonE6);
 		controller.setCenter(geoPoint);
-		
-		final int id = stopLocation.getId();
-		handler.triggerUpdateAndSelect(id);
 	}
 
 }

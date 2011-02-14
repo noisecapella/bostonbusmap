@@ -56,4 +56,11 @@ public interface Location {
 	 * @return
 	 */
 	String getSnippet();
+
+	/**
+	 * Does this location match the given id?
+	 * @param selectedBusId
+	 * @return
+	 */
+	boolean containsId(int selectedBusId);
 }
