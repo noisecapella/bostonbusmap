@@ -92,9 +92,10 @@ public class SearchHelper
 			}
 		}
 		
+		String queryWithoutSpaces = censoredQuery;
 		if (censoredQuery.contains(" "))
 		{
-			String queryWithoutSpaces = censoredQuery.replaceAll(" ", "");
+			queryWithoutSpaces = censoredQuery.replaceAll(" ", "");
 			lowercaseQuery = queryWithoutSpaces.toLowerCase();
 		}
 		
@@ -103,7 +104,7 @@ public class SearchHelper
 		if (indexingQuery.length() >= 2)
 		{
 			//this is kind of a hack. We need subway lines to start with a capital letter to search for them properly
-			indexingQuery = indexingQuery.substring(0, 1).toUpperCase() + censoredQuery.substring(1);
+			indexingQuery = indexingQuery.substring(0, 1).toUpperCase() + queryWithoutSpaces.substring(1);
 		}
 		
 		if (queryContainsRoute && queryContainsStop)
