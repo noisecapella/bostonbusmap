@@ -44,7 +44,7 @@ public class Prediction implements Comparable<Prediction>, Parcelable
 		this.direction = direction;
 		this.routeName = routeName;
 		arrivalTime = new Time();
-		arrivalTime.set(System.currentTimeMillis() + ((minutes >= 0 ? minutes : 0) * 60 * 1000));
+		arrivalTime.set(epochTime);
 	}
 
 	public String makeSnippet(HashMap<String, String> routeKeysToTitles) {
