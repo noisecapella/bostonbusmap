@@ -167,7 +167,7 @@ public class SearchHelper
 		else if (queryContainsStop)
 		{
 			suggestionsQuery = "stop " + indexingQuery;
-			ArrayList<String> routesForStop = databaseHelper.isStop(lowercaseQuery);
+			ArrayList<String> routesForStop = databaseHelper.isStop(indexingQuery);
 			if (routesForStop.size() > 0)
 			{
 				context.setNewStop(routesForStop.get(0), lowercaseQuery);

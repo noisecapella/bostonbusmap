@@ -226,14 +226,6 @@ public class Main extends MapActivity
 			}
 		});
         
-        boolean showIntroScreen = prefs.getBoolean(introScreenKey, true);
-        if (showIntroScreen)
-        {
-        	displayInstructions(this);
-        	//only show this screen once
-        	prefs.edit().putBoolean(introScreenKey, false).commit();
-        }
-        
         Resources resources = getResources();
 
         Drawable busPicture = resources.getDrawable(R.drawable.bus_statelist);
@@ -341,7 +333,11 @@ public class Main extends MapActivity
         	routeOverlay = new RouteOverlay(mapView.getProjection());
         	myLocationOverlay = new LocationOverlay(this, mapView);
         }
-        
+
+        //final boolean showIntroScreen = prefs.getBoolean(introScreenKey, true);
+    	//only show this screen once
+    	//prefs.edit().putBoolean(introScreenKey, false).commit();
+
         if (busLocations == null)
         {
         	busLocations = new Locations(databaseHelper, transitSystem);
@@ -410,21 +406,21 @@ public class Main extends MapActivity
     	//enable plus/minus zoom buttons in map
         mapView.setBuiltInZoomControls(true);
         
-        
+        /*handler.post(new Runnable() {
+        	public void run() {
+                if (showIntroScreen || true)
+                {
+                	displayInstructions(Main.this);
+                }
+        		
+        	}
+        });*/
     }
 		
 	public static void displayInstructions(Context context)
 	{
-        AlertDialog.Builder builder = new AlertDialog.Builder(context);
-        builder.setMessage(R.string.basicInstructions);
-        builder.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
-			
-			@Override
-			public void onClick(DialogInterface dialog, int which) {
-				dialog.dismiss();
-			}
-		});
-        builder.show();
+		Intent intent = new Intent(context, Instructions.class);
+		context.startActivity(intent);
 	}
 
 	private static String[] getRouteTitles(String[] dropdownRoutes,

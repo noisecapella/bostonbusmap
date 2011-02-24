@@ -67,7 +67,6 @@ public class MBTABusTransitSource implements TransitSource
 		addRoute("747", "CT2");
 		addRoute("708", "CT3");
 		
-		
 		addRoute("1", "1");
 		addRoute("4", "4");
 		addRoute("5", "5");
@@ -95,6 +94,7 @@ public class MBTABusTransitSource implements TransitSource
 		addRoute("32", "32");
 		addRoute("33", "33");
 		addRoute("34", "34");
+		addRoute("34E", "34E");
 		addRoute("35", "35");
 		addRoute("36", "36");
 		addRoute("37", "37");
@@ -113,6 +113,7 @@ public class MBTABusTransitSource implements TransitSource
 		addRoute("52", "52");
 		addRoute("55", "55");
 		addRoute("57", "57");
+		addRoute("57A", "57A");
 		addRoute("59", "59");
 		addRoute("60", "60");
 		addRoute("62", "62");
@@ -239,11 +240,20 @@ public class MBTABusTransitSource implements TransitSource
 		addRoute("555", "555");
 		addRoute("556", "556");
 		addRoute("558", "558");
-		addRoute("627", "627");
+		addRoute("627", "62/76");
 
-		addRoute("725", "725");
+		addRoute("725", "72/75");
 
 
+
+
+
+		addRoute("3233", "32/33");
+		addRoute("3738", "37/38");
+		addRoute("4050", "40/50");
+		addRoute("4265", "426/455");
+		addRoute("4269", "426/439");
+		addRoute("4412", "441/442");
 		addRoute("9109", "9109");
 		addRoute("9111", "9111");
 		addRoute("9501", "9501");

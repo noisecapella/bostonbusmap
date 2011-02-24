@@ -234,7 +234,6 @@ public class BalloonOverlayView extends FrameLayout {
 		otherText.append("OS: ").append(android.os.Build.MODEL).append(". ");
 
 		otherText.append("Currently selected route is '").append(selectedRoute).append("'. ");
-
 	}
 	
 	protected void createInfoForAgency(Context context, StringBuilder ret, int selectedBusPredictions, String selectedRoute)
