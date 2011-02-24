@@ -153,7 +153,7 @@ public class SubwayPredictionsFeedParser
 				int vehicleId = 0;
 
 				predictions.add(new Prediction(minutes, epochTime, vehicleId, directions.getTitleAndName(direction),
-						routeConfig.getRouteName()));
+						routeConfig.getRouteName(), false, false));
 				stopLocations.add(stopLocation);
 
 				String informationType = object.getString("InformationType");

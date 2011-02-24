@@ -31,10 +31,12 @@ public class BusPredictionsFeedParser extends DefaultHandler
 	private static final String minutesKey = "minutes";
 	private static final String epochTimeKey = "epochTime";
 	private static final String vehicleKey = "vehicle";
+	private static final String affectedByLayoverKey = "affectedByLayover";
 	private static final String dirTagKey = "dirTag";
 	private static final String predictionKey = "prediction";
 	private static final String predictionsKey = "predictions";
 	private static final String routeTagKey = "routeTag";
+	private static final String delayedKey = "delayed";
 	
 	private final RoutePool stopMapping;
 	private StopLocation currentLocation;
@@ -96,11 +98,17 @@ public class BusPredictionsFeedParser extends DefaultHandler
 				long epochTime = Long.parseLong(attributes.getValue(epochTimeKey));
 
 				int vehicleId = Integer.parseInt(attributes.getValue(vehicleKey));
+				
+				boolean affectedByLayover = Boolean.parseBoolean(attributes.getValue(affectedByLayoverKey));
+				
+				boolean isDelayed = Boolean.parseBoolean(attributes.getValue(delayedKey));
 
-
+				
+				
 				String dirTag = attributes.getValue(dirTagKey);
 
-				currentLocation.addPrediction(minutes, epochTime, vehicleId, dirTag, currentRoute, directions);
+				currentLocation.addPrediction(minutes, epochTime, vehicleId, dirTag, currentRoute, directions, affectedByLayover,
+						isDelayed);
 			}
 		}
 	}

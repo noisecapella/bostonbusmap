@@ -336,7 +336,7 @@ public class StopLocation implements Location
 	}
 	
 	public void addPrediction(int minutes, long epochTime, int vehicleId,
-			String direction, RouteConfig route, Directions directions) {
+			String direction, RouteConfig route, Directions directions, boolean affectedByLayover, boolean isDelayed) {
 		if (predictions == null)
 		{
 			predictions = new ArrayList<Prediction>();
@@ -345,7 +345,7 @@ public class StopLocation implements Location
 		synchronized (predictions)
 		{
 			Prediction prediction = new Prediction(minutes, epochTime, vehicleId, 
-					directions.getTitleAndName(direction), route.getRouteName());
+					directions.getTitleAndName(direction), route.getRouteName(), affectedByLayover, isDelayed);
 			if (predictions.contains(prediction) == false)
 			{
 				predictions.add(prediction);

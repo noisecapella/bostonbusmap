@@ -35,9 +35,11 @@ public class Prediction implements Comparable<Prediction>, Parcelable
 	private final String direction;
 	private final String routeName;
 	private final Time arrivalTime;
+	private final boolean affectedByLayover;
+	private final boolean isDelayed;
 	
 	public Prediction(int minutes, long epochTime, int vehicleId,
-			String direction, String routeName) {
+			String direction, String routeName, boolean affectedByLayover, boolean isDelayed) {
 		this.minutes = minutes;
 		this.epochTime = epochTime;
 		this.vehicleId = vehicleId;
@@ -45,6 +47,8 @@ public class Prediction implements Comparable<Prediction>, Parcelable
 		this.routeName = routeName;
 		arrivalTime = new Time();
 		arrivalTime.set(epochTime);
+		this.affectedByLayover = affectedByLayover;
+		this.isDelayed = isDelayed;
 	}
 
 	public String makeSnippet(HashMap<String, String> routeKeysToTitles) {
@@ -123,6 +127,8 @@ public class Prediction implements Comparable<Prediction>, Parcelable
 		dest.writeInt(vehicleId);
 		dest.writeString(direction);
 		dest.writeString(routeName);
+		writeBoolean(dest, affectedByLayover);
+		writeBoolean(dest, isDelayed);
 	}
 	
 	public static final Parcelable.Creator<Prediction> CREATOR = new Creator<Prediction>() {
@@ -139,8 +145,10 @@ public class Prediction implements Comparable<Prediction>, Parcelable
 			int vehicleId = source.readInt();
 			String direction = source.readString();
 			String routeName = source.readString();
+			boolean affectedByLayover = readBoolean(source);
+			boolean isDelayed = readBoolean(source);
 			
-			Prediction prediction = new Prediction(minutes, epochTime, vehicleId, direction, routeName);
+			Prediction prediction = new Prediction(minutes, epochTime, vehicleId, direction, routeName, affectedByLayover, isDelayed);
 			return prediction;
 		}
 	};
@@ -158,5 +166,14 @@ public class Prediction implements Comparable<Prediction>, Parcelable
 		map.put(MoreInfo.textKey, Html.fromHtml(ret));
 		
 		return map;
+	}
+
+	private static boolean readBoolean(Parcel source) {
+		return source.readInt() == 1;
+	}
+	
+	private static void writeBoolean(Parcel dest, boolean data)
+	{
+		dest.writeInt(data ? 1 : 0);
 	}
 }
