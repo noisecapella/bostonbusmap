@@ -70,6 +70,16 @@ public class Prediction implements Comparable<Prediction>, Parcelable
 				ret += "<br />" + direction;
 			}
 
+			if (isDelayed)
+			{
+				ret += "<br /><b>Delayed</b>";
+			}
+			
+			if (affectedByLayover)
+			{
+				//hmm...
+			}
+			
 			if (minutes == 0)
 			{
 				ret += "<br />Arriving <b>now</b>!";
