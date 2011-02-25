@@ -37,14 +37,14 @@ public class MBTABusTransitSource implements TransitSource
 	/**
 	 * The XML feed URL
 	 */
-	private static final String mbtaLocationsDataUrlOneRoute = "http://webservices.nextbus.com/service/publicXMLFeed?command=vehicleLocations&a=mbta&t=";
+	private static final String mbtaLocationsDataUrlOneRoute = "http://test.nextbus.com/service/publicXMLFeed?command=vehicleLocations&a=mbta-test&t=";
 
-	private static final String mbtaLocationsDataUrlAllRoutes = "http://webservices.nextbus.com/service/publicXMLFeed?command=vehicleLocations&a=mbta&t=";
+	private static final String mbtaLocationsDataUrlAllRoutes = "http://test.nextbus.com/service/publicXMLFeed?command=vehicleLocations&a=mbta-test&t=";
 
-	private static final String mbtaRouteConfigDataUrl = "http://webservices.nextbus.com/service/publicXMLFeed?command=routeConfig&a=mbta&r=";
-	private static final String mbtaRouteConfigDataUrlAllRoutes = "http://webservices.nextbus.com/service/publicXMLFeed?command=routeConfig&a=mbta";
+	private static final String mbtaRouteConfigDataUrl = "http://test.nextbus.com/service/publicXMLFeed?command=routeConfig&a=mbta-test&r=";
+	private static final String mbtaRouteConfigDataUrlAllRoutes = "http://test.nextbus.com/service/publicXMLFeed?command=routeConfig&a=mbta-test";
 	
-	private static final String mbtaPredictionsDataUrl = "http://webservices.nextbus.com/service/publicXMLFeed?command=predictionsForMultiStops&a=mbta";
+	private static final String mbtaPredictionsDataUrl = "http://test.nextbus.com/service/publicXMLFeed?command=predictionsForMultiStops&a=mbta-test";
 
 	private final Drawable busStop;
 	private final Drawable bus;
@@ -487,7 +487,7 @@ public class MBTABusTransitSource implements TransitSource
 		throws IOException, ParserConfigurationException, SAXException {
 		task.publish(new ProgressMessage(ProgressMessage.PROGRESS_DIALOG_ON, "Decompressing route data", null));
 		
-		final int contentLength = 343013;
+		final int contentLength = 855212;
 		
 		InputStream in = new StreamCounter(context.getResources().openRawResource(boston.Bus.Map.R.raw.routeconfig),
 				task, contentLength); 
