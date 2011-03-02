@@ -22,14 +22,15 @@
 		android:layout_toRightOf="@+id/searchTextView" 
 		android:layout_alignBottom="@+id/searchTextView"
 		android:layout_alignTop="@+id/searchTextView"
-		android:src="@drawable/ic_btn_search"
+android:src="@android:drawable/ic_search_category_default"
 		></ImageButton>
-
+ 
 	<com.google.android.maps.MapView
 		android:id="@+id/mapview" android:layout_width="fill_parent"
 		android:layout_height="fill_parent" android:clickable="true"
 		android:layout_alignParentBottom="true"
 		android:layout_below="@id/predictionsOrLocations"
+		
 		android:apiKey="04_mZq9Q_5sL2pltlDIYof4iIQimS_U5YPnRafg"
 		 />
 	<!-- debug key: 0UeumldxhB0bPpe6UgModFrG5tLPAwclzgqJhRg -->
