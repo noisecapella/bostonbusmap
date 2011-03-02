@@ -1,6 +1,8 @@
 package boston.Bus.Map.data;
 
 import java.io.IOException;
+import java.text.DateFormat;
+import java.util.Date;
 import java.util.HashMap;
 
 import boston.Bus.Map.main.MoreInfo;
@@ -15,7 +17,6 @@ import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.SpannableStringBuilder;
 import android.text.Spanned;
-import android.text.format.Time;
 import android.text.style.ImageSpan;
 import android.text.style.StyleSpan;
 import android.text.style.TypefaceSpan;
@@ -34,7 +35,7 @@ public class Prediction implements Comparable<Prediction>, Parcelable
 	private final int vehicleId;
 	private final String direction;
 	private final String routeName;
-	private final Time arrivalTime;
+	private final Date arrivalTime;
 	private final boolean affectedByLayover;
 	private final boolean isDelayed;
 	
@@ -45,8 +46,7 @@ public class Prediction implements Comparable<Prediction>, Parcelable
 		this.vehicleId = vehicleId;
 		this.direction = direction;
 		this.routeName = routeName;
-		arrivalTime = new Time();
-		arrivalTime.set(epochTime);
+		arrivalTime = new Date(epochTime);
 		this.affectedByLayover = affectedByLayover;
 		this.isDelayed = isDelayed;
 	}
@@ -86,7 +86,10 @@ public class Prediction implements Comparable<Prediction>, Parcelable
 			}
 			else
 			{
-				ret += "<br />Arriving in <b>" + minutes + " min</b> at " + arrivalTime.format(hourMinuteFormatString).trim();
+				DateFormat dateFormat = DateFormat.getTimeInstance(DateFormat.SHORT);
+
+				String formatted = dateFormat.format(arrivalTime);
+				ret += "<br />Arriving in <b>" + minutes + " min</b> at " + formatted.trim();
 			}
 		}
 		return ret;
