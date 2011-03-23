@@ -67,9 +67,12 @@ public class SubwayPredictionsFeedParser
 		if (route != null)
 		{
 			RouteConfig routeConfig = routePool.get(route);
-			for (StopLocation stopLocation : routeConfig.getStops())
+			if (routeConfig != null)
 			{
-				stopLocation.clearPredictions(routeConfig);
+				for (StopLocation stopLocation : routeConfig.getStops())
+				{
+					stopLocation.clearPredictions(routeConfig);
+				}
 			}
 		}
 		else
@@ -77,9 +80,12 @@ public class SubwayPredictionsFeedParser
 			for (String subwayRoute : SubwayTransitSource.getAllSubwayRoutes())
 			{
 				RouteConfig routeConfig = routePool.get(subwayRoute);
-				for (StopLocation stopLocation : routeConfig.getStops())
+				if (routeConfig != null)
 				{
-					stopLocation.clearPredictions(routeConfig);
+					for (StopLocation stopLocation : routeConfig.getStops())
+					{
+						stopLocation.clearPredictions(routeConfig);
+					}
 				}
 			}
 		}
