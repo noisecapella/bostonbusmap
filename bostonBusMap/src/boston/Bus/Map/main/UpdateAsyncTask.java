@@ -496,11 +496,11 @@ public class UpdateAsyncTask extends AsyncTask<Object, Object, Locations>
 			if (null != index)
 			{
 				//two stops in one space. Just use the one overlay, and combine textboxes in an elegant manner
-				busLocations.get(index).addToSnippetAndTitle(selectedRouteConfig, busLocation, routeKeysToTitles);
+				busLocations.get(index).addToSnippetAndTitle(selectedRouteConfig, busLocation, routeKeysToTitles, context);
 			}
 			else
 			{
-				busLocation.makeSnippetAndTitle(selectedRouteConfig, routeKeysToTitles);
+				busLocation.makeSnippetAndTitle(selectedRouteConfig, routeKeysToTitles, context);
 			
 			
 				points.put(hash, i);

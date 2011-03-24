@@ -202,7 +202,7 @@ public class BusLocation implements Location {
 
 	@Override
 	public void addToSnippetAndTitle(RouteConfig routeConfig,
-			Location location, HashMap<String, String> routeKeysToTitles) {
+			Location location, HashMap<String, String> routeKeysToTitles, Context context) {
 		BusLocation busLocation = (BusLocation) location;
 
 		snippet += "<br />" + busLocation.makeSnippet(routeConfig);
@@ -218,7 +218,7 @@ public class BusLocation implements Location {
 
 	@Override
 	public void makeSnippetAndTitle(RouteConfig routeConfig,
-			HashMap<String, String> routeKeysToTitles) {
+			HashMap<String, String> routeKeysToTitles, Context context) {
 		snippet = makeSnippet(routeConfig);
 		snippetTitle = makeTitle();
 	}

@@ -124,14 +124,14 @@ public class StopLocation implements Location
 	}
 
 	@Override
-	public void makeSnippetAndTitle(RouteConfig routeConfig, HashMap<String, String> routeKeysToTitles) {
+	public void makeSnippetAndTitle(RouteConfig routeConfig, HashMap<String, String> routeKeysToTitles, Context context) {
 		TreeSet<String> routes = new TreeSet<String>();
 		routes.addAll(dirTags.keySet());
 		snippetRoutes = makeSnippetRoutes(routes, routeKeysToTitles);
 		snippetTitle = title;
 		snippetStop = tag;
 		
-		snippetPredictions = makeSnippet(routeConfig, predictions, routeKeysToTitles);
+		snippetPredictions = makeSnippet(routeConfig, predictions, routeKeysToTitles, context);
 		sharedSnippetStops = null;
 	}
 	
@@ -152,7 +152,7 @@ public class StopLocation implements Location
 	private TreeSet<String> combinedTitles;
 	
 	@Override
-	public void addToSnippetAndTitle(RouteConfig routeConfig, Location location, HashMap<String, String> routeKeysToTitles) {
+	public void addToSnippetAndTitle(RouteConfig routeConfig, Location location, HashMap<String, String> routeKeysToTitles, Context context) {
 		StopLocation stopLocation = (StopLocation)location;
 		
 		if (sharedSnippetStops == null)
@@ -210,7 +210,7 @@ public class StopLocation implements Location
 			}
 		}
 		
-		snippetPredictions = makeSnippet(routeConfig, combinedPredictions, routeKeysToTitles);
+		snippetPredictions = makeSnippet(routeConfig, combinedPredictions, routeKeysToTitles, context);
 	}
 	
 	private String makeSnippetTitle(Collection<String> combinedTitles) {
@@ -241,7 +241,8 @@ public class StopLocation implements Location
 		return ret;
 	}
 	
-	private String makeSnippet(RouteConfig routeConfig, ArrayList<Prediction> predictions, HashMap<String, String> routeKeysToTitles) {
+	private String makeSnippet(RouteConfig routeConfig, ArrayList<Prediction> predictions, HashMap<String, String> routeKeysToTitles,
+			Context context) {
 		String ret = "";
 		
 		if (predictions == null)
@@ -282,7 +283,7 @@ public class StopLocation implements Location
 					ret += "<br />";
 				}
 				
-				ret += "<br />" + prediction.makeSnippet(routeKeysToTitles);
+				ret += "<br />" + prediction.makeSnippet(routeKeysToTitles, context);
 
 				count++;
 				if (count >= max)

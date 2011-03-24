@@ -58,7 +58,7 @@ public class MoreInfo extends ListActivity {
 			{
 				Prediction prediction = (Prediction)predictionObj;
 				//data.add(prediction.generateMoreInfoMap());
-				HashMap<String, Spanned> map = prediction.makeSnippetMap(routeKeysToTitles);
+				HashMap<String, Spanned> map = prediction.makeSnippetMap(routeKeysToTitles, this);
 				data.add(map);
 			}
 		}

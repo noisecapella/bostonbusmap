@@ -35,15 +35,17 @@ public interface Location {
 	/**
 	 * Prepare the textbox text and store it in the class
 	 * @param selectedRoute show only this route, if not null
+	 * @param context used for formatting the time
 	 */
-	void makeSnippetAndTitle(RouteConfig selectedRoute, HashMap<String, String> routeKeysToTitles);
+	void makeSnippetAndTitle(RouteConfig selectedRoute, HashMap<String, String> routeKeysToTitles, Context context);
 
 	/**
 	 * In case two locations share the same space, combine the textbox text in a nice way
 	 * @param routeConfig show only this route, if not null
 	 * @param location whose textbox info you're adding to this class
+	 * @param context used for formatting the time
 	 */
-	void addToSnippetAndTitle(RouteConfig routeConfig, Location location, HashMap<String, String> routeKeysToTitles);
+	void addToSnippetAndTitle(RouteConfig routeConfig, Location location, HashMap<String, String> routeKeysToTitles, Context context);
 
 	/**
 	 * Get the title you previously created in makeSnippetAndTitle. This is HTML, so make sure newlines are <br />
