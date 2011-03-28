@@ -25,34 +25,48 @@ class ToSql(xml.sax.handler.ContentHandler):
     stopTagKey = "tag"
     dirTagKey = "dirTag"
 
+    toSql = False
+
+    routeHandle = None
+    stopHandle = None
+    stopMappingHandle = None
 
     def insertRoute(self, color, oppositeColor):
-        print "INSERT INTO " + self.routesTable,
-        #print "(" + self.routeKey + ", " + self.pathsBlobKey + ", " + self.colorKey + ", " + self.oppositeColorKey + ") ",
-        print " VALUES (",
-        print "'" + self.currentRoute + "', ",
-        print "x'00000000', ",
-        print "" + hexToDec(color) + ", ",
-        print "" + hexToDec(oppositeColor) + ");"
+        if self.toSql:
+            print "INSERT INTO " + self.routesTable,
+            #print "(" + self.routeKey + ", " + self.pathsBlobKey + ", " + self.colorKey + ", " + self.oppositeColorKey + ") ",
+            print " VALUES (",
+            print "'" + self.currentRoute + "', ",
+            print "x'00000000', ",
+            print "" + hexToDec(color) + ", ",
+            print "" + hexToDec(oppositeColor) + ");"
+        else:
+            self.routeHandle.write(self.currentRoute + "\t" + hexToDec(color) + "\t" + hexToDec(oppositeColor) + "\n")
+
 
     def insertStop(self, tag, lat, lon, title):
-        print "INSERT INTO " + self.stopsTable,
-        #print "(" + self.stopTagKey + ", " + self.latitudeKey + ", " + self.longitudeKey + ", " + self.stopTitleKey + ") "
-        print " VALUES (",
-        print "'" + tag + "', ",
-        print "" + lat + ", ",
-        print "" + lon + ", ",
-        print "'" + escaped(title) + "');"
+        if self.toSql:
+            print "INSERT INTO " + self.stopsTable,
+            #print "(" + self.stopTagKey + ", " + self.latitudeKey + ", " + self.longitudeKey + ", " + self.stopTitleKey + ") "
+            print " VALUES (",
+            print "'" + tag + "', ",
+            print "" + lat + ", ",
+            print "" + lon + ", ",
+            print "'" + escaped(title) + "');"
+        else:
+            self.stopHandle.write(tag + "\t" + lat + "\t" + lon + "\t" + title + "\n")
 
 
     def insertStopInDirection(self, tag):
-        print "INSERT INTO " + self.stopsRoutesMap,
-        #print " (" + routeKey + ", " + stopTagKey + ", " + dirTagKey + ") " 
-        print " VALUES (",
-        print "'" + self.currentRoute + "', ",
-        print "'" + tag + "', ",
-        print "'" + self.currentDirection + "');"
-
+        if self.toSql:
+            print "INSERT INTO " + self.stopsRoutesMap,
+            #print " (" + routeKey + ", " + stopTagKey + ", " + dirTagKey + ") " 
+            print " VALUES (",
+            print "'" + self.currentRoute + "', ",
+            print "'" + tag + "', ",
+            print "'" + self.currentDirection + "');"
+        else:
+            self.stopMappingHandle.write(self.currentRoute + "\t" + tag + "\t" + self.currentDirection + "\n")
 
     def createTables(self):
         print "CREATE TABLE IF NOT EXISTS " + self.routesTable + " (" + self.routeKey + " STRING PRIMARY KEY, " + self.colorKey + " INTEGER, " + self.oppositeColorKey + " INTEGER, " + self.pathsBlobKey + " BLOB);"
@@ -63,12 +77,22 @@ class ToSql(xml.sax.handler.ContentHandler):
 
 
 
-    def __init__(self):
+    def __init__(self, isSql):
         self.currentRoute = None
         self.currentDirection = None
         self.sharedStops = {}
 
         self.createTables()
+
+        if isSql.lower() != "true":
+            self.toSql = False
+        else:
+            self.toSql = True
+
+        if not self.toSql:
+            self.stopHandle = open("stop.csv", "w")
+            self.routeHandle = open("route.csv", "w")
+            self.stopMappingHandle = open("stopMapping.csv", "w")
 
     def startElement(self, name, attributes):
         if name == "route":
@@ -95,13 +119,13 @@ class ToSql(xml.sax.handler.ContentHandler):
             self.currentDirection = None
 
 if __name__ == "__main__":
-    if len(sys.argv) < 2:
-        print "arg required: routeConfig.xml"
+    if len(sys.argv) < 3:
+        print "arg required: routeConfig.xml (true if sql, false if csv using tabs)"
         exit(-1)
         
     #print "BEGIN TRANSACTION;"
     parser = xml.sax.make_parser()
-    handler = ToSql()
+    handler = ToSql(sys.argv[2])
     parser.setContentHandler(handler)
     parser.parse(sys.argv[1])
     #print "END TRANSACTION;"

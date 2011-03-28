@@ -496,18 +496,27 @@ public class MBTABusTransitSource implements TransitSource
 		
 		final int contentLength = 341586;
 		
-		InputStream in = new StreamCounter(context.getResources().openRawResource(boston.Bus.Map.R.raw.routeconfig),
+		InputStream routeIn = new StreamCounter(context.getResources().openRawResource(boston.Bus.Map.R.raw.routecsv),
 				task, contentLength); 
+		GZIPInputStream routeStream = new GZIPInputStream(routeIn); 
 		
-		GZIPInputStream stream = new GZIPInputStream(in); 
+		InputStream stopIn = new StreamCounter(context.getResources().openRawResource(boston.Bus.Map.R.raw.stopcsv),
+				task, contentLength); 
+		GZIPInputStream stopStream = new GZIPInputStream(stopIn); 
+		InputStream stopMappingIn = new StreamCounter(context.getResources().openRawResource(boston.Bus.Map.R.raw.stopmappingcsv),
+				task, contentLength); 
+		GZIPInputStream stopMappingStream = new GZIPInputStream(stopMappingIn); 
 		
-		RouteConfigFeedParser parser = new RouteConfigFeedParser(busStop, directions, null, this);
+
+		routeMapping.insertAll(routeStream, stopStream, stopMappingStream);
 		
-		parser.runParse(stream);
+		//RouteConfigFeedParser parser = new RouteConfigFeedParser(busStop, directions, null, this);
+		
+		//parser.runParse(stream);
 		
 
 		
-		parser.writeToDatabase(routeMapping, true, task);
+		//parser.writeToDatabase(routeMapping, true, task);
 		
 		
 	}

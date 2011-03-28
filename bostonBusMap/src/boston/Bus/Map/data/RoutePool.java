@@ -1,6 +1,7 @@
 package boston.Bus.Map.data;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.AbstractCollection;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -10,7 +11,9 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
+import java.util.zip.GZIPInputStream;
 
+import android.content.Context;
 import android.util.Log;
 import boston.Bus.Map.R;
 import boston.Bus.Map.database.DatabaseHelper;
@@ -289,6 +292,11 @@ public class RoutePool {
 		helper.getStops(tags, transitSystem, outputMapping);
 		
 		return outputMapping;
+	}
+
+	public void insertAll(InputStream routeStream, InputStream stopStream, InputStream stopMappingStream) {
+		helper.insertAll(routeStream, stopStream, stopMappingStream);
+		
 	}
 
 }

@@ -1,7 +1,11 @@
 package boston.Bus.Map.database;
 
+import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -30,6 +34,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteDiskIOException;
 import android.database.sqlite.SQLiteException;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.database.sqlite.SQLiteStatement;
 import android.database.sqlite.SQLiteDatabase.CursorFactory;
 import android.database.sqlite.SQLiteQueryBuilder;
 import android.graphics.drawable.Drawable;
@@ -103,8 +108,9 @@ public class DatabaseHelper extends SQLiteOpenHelper
 	public final static int VERBOSE_DB_4 = 16;
 	public final static int VERBOSE_DB_5 = 17;
 	public final static int VERBOSE_DB_6 = 18;
+	public final static int VERBOSE_DB_7 = 19;
 	
-	public final static int CURRENT_DB_VERSION = VERBOSE_DB_6;
+	public final static int CURRENT_DB_VERSION = VERBOSE_DB_7;
 	
 	public static final int ALWAYS_POPULATE = 3;
 	public static final int POPULATE_IF_UPGRADE = 2;
@@ -133,7 +139,7 @@ public class DatabaseHelper extends SQLiteOpenHelper
 				latitudeKey + " FLOAT, " + longitudeKey + " FLOAT, " + stopTitleKey + " STRING)");
 		
 		db.execSQL("CREATE TABLE IF NOT EXISTS " + stopsRoutesMap + " (" + routeKey + " STRING, " + stopTagKey + " STRING, " +
-				dirTagKey + " STRING, PRIMARY KEY (" + routeKey + ", " + stopTagKey + "))");
+				dirTagKey + " STRING)");
 		
 		db.execSQL("CREATE TABLE IF NOT EXISTS " + subwaySpecificTable + " (" + stopTagKey + " STRING PRIMARY KEY, " +
 				platformOrderKey + " INTEGER, " + 
@@ -402,12 +408,13 @@ public class DatabaseHelper extends SQLiteOpenHelper
 				}
 			}
 			
+			for (String dirTag : stop.getDirTagsForRoute(route))
 			{
 				//show that there's a relationship between the stop and this route
 				ContentValues values = new ContentValues();
 				values.put(routeKey, route);
 				values.put(stopTagKey, stopTag);
-				values.put(dirTagKey, stop.getDirTagForRoute(route));
+				values.put(dirTagKey, dirTag);
 				database.replace(stopsRoutesMap, null, values);
 			}
 		}
@@ -990,5 +997,74 @@ public class DatabaseHelper extends SQLiteOpenHelper
 			}
 			database.close();
 		}
+	}
+
+	public synchronized void insertAll(InputStream routeStream, InputStream stopStream, InputStream stopMappingStream)
+	{
+		SQLiteDatabase database = getWritableDatabase();
+		database.beginTransaction();
+		try
+		{
+			{
+				SQLiteStatement insertStatement = database.compileStatement("INSERT INTO " + verboseRoutes + " VALUES (?, ?, ?, ?)");
+				//path blob starts off as a single 4 byte int of the count of other serialized things. Make it 0 for now
+				byte[] zeros = new byte[4];
+				BufferedReader reader = new BufferedReader(new InputStreamReader(routeStream));
+				String line;
+				while ((line = reader.readLine()) != null)
+				{
+					String[] s = line.split("\t");
+					insertStatement.bindString(1, s[0]); //route name
+					insertStatement.bindBlob(2, zeros); //path count
+					insertStatement.bindLong(3, Integer.parseInt(s[1])); //color
+					insertStatement.bindLong(4, Integer.parseInt(s[2])); //oppositeColor
+					insertStatement.execute();
+				}
+			}
+
+			{
+				SQLiteStatement insertStatement = database.compileStatement("INSERT INTO " + verboseStops + " VALUES (?,?,?,?)");
+				//path blob starts off as a single 4 byte int of the count of other serialized things. Make it 0 for now
+				BufferedReader reader = new BufferedReader(new InputStreamReader(routeStream));
+				String line;
+				while ((line = reader.readLine()) != null)
+				{
+					String[] s = line.split("\t");
+					insertStatement.bindString(1, s[0]); //tag
+					insertStatement.bindDouble(2, Double.parseDouble(s[1])); //lat
+					insertStatement.bindDouble(3, Double.parseDouble(s[2])); //lon
+					insertStatement.bindString(4, s[3]); //title
+					insertStatement.execute();
+				}
+			}
+			
+			{
+				SQLiteStatement insertStatement = database.compileStatement("INSERT INTO " + stopsRoutesMap + " VALUES (?,?,?)");
+
+				//path blob starts off as a single 4 byte int of the count of other serialized things. Make it 0 for now
+				BufferedReader reader = new BufferedReader(new InputStreamReader(routeStream));
+				String line;
+				while ((line = reader.readLine()) != null)
+				{
+					String[] s = line.split("\t");
+					insertStatement.bindString(1, s[0]); //route
+					insertStatement.bindString(2, s[1]); //tag
+					insertStatement.bindString(3, s[2]); //dirTag
+					insertStatement.execute();
+				}
+			}
+			
+			database.setTransactionSuccessful();
+			database.endTransaction();
+		}
+		catch (IOException e)
+		{
+			Log.e("BostonBusMap", e.getMessage());
+		}
+		finally
+		{
+			database.close();
+		}
+		
 	}
 }

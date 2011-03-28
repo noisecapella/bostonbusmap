@@ -168,6 +168,7 @@ public final class Locations
 			}
 			else
 			{
+				
 				//populate route overlay (just in case we didn't already)
 				//updateAsyncTask.publish(new ProgressMessage(ProgressMessage.PROGRESS_DIALOG_ON, "Downloading data for route " + routeToUpdate, null));
 				populateStops(routeToUpdate, routeConfig, updateAsyncTask);

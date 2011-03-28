@@ -5,12 +5,14 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
 import java.util.SortedSet;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
-import boston.Bus.Map.database.DatabaseHelper;
 import boston.Bus.Map.math.Geometry;
+import boston.Bus.Map.database.DatabaseHelper;
 import boston.Bus.Map.transit.MBTABusTransitSource;
 import boston.Bus.Map.transit.SubwayTransitSource;
 import boston.Bus.Map.transit.TransitSystem;
@@ -45,7 +47,7 @@ public class StopLocation implements Location
 	private boolean isFavorite;
 	
 	/**
-	 * A mapping of routes to dirTags
+	 * A mapping of dirTags to routes
 	 */
 	private final HashMap<String, String> dirTags;
 	
@@ -82,7 +84,7 @@ public class StopLocation implements Location
 	{
 		synchronized (dirTags)
 		{
-			dirTags.put(route, dirTag);
+			dirTags.put(dirTag, route);
 		}
 	}
 	
@@ -126,7 +128,7 @@ public class StopLocation implements Location
 	@Override
 	public void makeSnippetAndTitle(RouteConfig routeConfig, HashMap<String, String> routeKeysToTitles, Context context) {
 		TreeSet<String> routes = new TreeSet<String>();
-		routes.addAll(dirTags.keySet());
+		routes.addAll(dirTags.values());
 		snippetRoutes = makeSnippetRoutes(routes, routeKeysToTitles);
 		snippetTitle = title;
 		snippetStop = tag;
@@ -189,7 +191,7 @@ public class StopLocation implements Location
 		snippetStop += ", " + stopLocation.tag;
 		
 		combinedRoutes = new TreeSet<String>();
-		combinedRoutes.addAll(dirTags.keySet());
+		combinedRoutes.addAll(dirTags.values());
 		for (StopLocation s : sharedSnippetStops)
 		{
 			combinedRoutes.addAll(s.getRoutes());
@@ -370,18 +372,27 @@ public class StopLocation implements Location
 		if (routeName != null)
 		{
 			//only do it for the given route
-			MBTABusTransitSource.bindPredictionElementsForUrl(urlString, routeName, tag, dirTags.get(routeName));
+			for (String dirTag : dirTags.keySet())
+			{
+				if (dirTags.get(dirTag).equals(routeName))
+				{
+					MBTABusTransitSource.bindPredictionElementsForUrl(urlString, routeName, tag, dirTag);
+				}
+			}
 		}
 		else
 		{
 			//do it for all routes we know about
 			synchronized (dirTags)
 			{
-				for (String route : dirTags.keySet())
+				HashSet<String> routesUsed = new HashSet<String>();
+				for (String dirTag : dirTags.keySet())
 				{
-					if (SubwayTransitSource.isSubway(route) == false)
+					String route = dirTags.get(dirTag);
+					if (SubwayTransitSource.isSubway(route) == false && routesUsed.contains(route) == false)
 					{
-						MBTABusTransitSource.bindPredictionElementsForUrl(urlString, route, tag, dirTags.get(route));
+						routesUsed.add(route);
+						MBTABusTransitSource.bindPredictionElementsForUrl(urlString, route, tag, dirTag);
 					}
 				}
 			}
@@ -402,12 +413,14 @@ public class StopLocation implements Location
 	 * @return
 	 */
 	public Collection<String> getRoutes() {
-		return dirTags.keySet();
+		HashSet<String> ret = new HashSet<String>();
+		ret.addAll(dirTags.values());
+		return ret;
 	}
 
 	public String getFirstRoute() {
 		TreeSet<String> ret = new TreeSet<String>();
-		ret.addAll(dirTags.keySet());
+		ret.addAll(dirTags.values());
 		return ret.first();
 	}
 
@@ -441,10 +454,6 @@ public class StopLocation implements Location
 		}
 	}
 
-	public String getDirTagForRoute(String route) {
-		return dirTags.get(route);
-	}
-
 	public String getCombinedStops() {
 		if (snippetStop != null)
 		{
@@ -473,5 +482,18 @@ public class StopLocation implements Location
 			}
 		}
 		return false;
+	}
+
+	public Collection<String> getDirTagsForRoute(String route) {
+		HashSet<String> ret = new HashSet<String>();
+		for (String dirTag : dirTags.keySet())
+		{
+			String dirTagRoute = dirTags.get(dirTag);
+			if (route.equals(dirTagRoute))
+			{
+				ret.add(route);
+			}
+		}
+		return ret;
 	}
 }
