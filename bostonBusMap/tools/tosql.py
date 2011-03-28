@@ -8,6 +8,7 @@ def escaped(s):
 def hexToDec(s):
     return str(int(s, 16))
 
+
 class ToSql(xml.sax.handler.ContentHandler):
     routesTable = "routes"
     stopsTable = "stops"
@@ -24,48 +25,66 @@ class ToSql(xml.sax.handler.ContentHandler):
     stopTagKey = "tag"
     dirTagKey = "dirTag"
 
+
+    def insertRoute(self, color, oppositeColor):
+        print "INSERT INTO " + self.routesTable,
+        #print "(" + self.routeKey + ", " + self.pathsBlobKey + ", " + self.colorKey + ", " + self.oppositeColorKey + ") ",
+        print " VALUES (",
+        print "'" + self.currentRoute + "', ",
+        print "x'00000000', ",
+        print "" + hexToDec(color) + ", ",
+        print "" + hexToDec(oppositeColor) + ");"
+
+    def insertStop(self, tag, lat, lon, title):
+        print "INSERT INTO " + self.stopsTable,
+        #print "(" + self.stopTagKey + ", " + self.latitudeKey + ", " + self.longitudeKey + ", " + self.stopTitleKey + ") "
+        print " VALUES (",
+        print "'" + tag + "', ",
+        print "" + lat + ", ",
+        print "" + lon + ", ",
+        print "'" + escaped(title) + "');"
+
+
+    def insertStopInDirection(self, tag):
+        print "INSERT INTO " + self.stopsRoutesMap,
+        #print " (" + routeKey + ", " + stopTagKey + ", " + dirTagKey + ") " 
+        print " VALUES (",
+        print "'" + self.currentRoute + "', ",
+        print "'" + tag + "', ",
+        print "'" + self.currentDirection + "');"
+
+
+    def createTables(self):
+        print "CREATE TABLE IF NOT EXISTS " + self.routesTable + " (" + self.routeKey + " STRING PRIMARY KEY, " + self.colorKey + " INTEGER, " + self.oppositeColorKey + " INTEGER, " + self.pathsBlobKey + " BLOB);"
+        print "CREATE TABLE IF NOT EXISTS " + self.stopsTable + " (" + self.stopTagKey + " STRING PRIMARY KEY, " + self.latitudeKey + " FLOAT, " + self.longitudeKey + " FLOAT, " + self.stopTitleKey + " STRING);"
+        print "CREATE TABLE IF NOT EXISTS " + self.stopsRoutesMap + " (" + self.routeKey + " STRING, " + self.stopTagKey + " STRING, " + self.dirTagKey + " STRING);"
+
+
+
+
+
     def __init__(self):
         self.currentRoute = None
         self.currentDirection = None
         self.sharedStops = {}
 
-        print "CREATE TABLE IF NOT EXISTS " + self.routesTable + " (" + self.routeKey + " STRING PRIMARY KEY, " + self.colorKey + " INTEGER, " + self.oppositeColorKey + " INTEGER, " + self.pathsBlobKey + " BLOB);"
-        print "CREATE TABLE IF NOT EXISTS " + self.stopsTable + " (" + self.stopTagKey + " STRING PRIMARY KEY, " + self.latitudeKey + " FLOAT, " + self.longitudeKey + " FLOAT, " + self.stopTitleKey + " STRING);"
-        print "CREATE TABLE IF NOT EXISTS " + self.stopsRoutesMap + " (" + self.routeKey + " STRING, " + self.stopTagKey + " STRING, " + self.dirTagKey + " STRING);"
+        self.createTables()
 
     def startElement(self, name, attributes):
         if name == "route":
             self.currentRoute = attributes["tag"]
             
-            print "INSERT INTO " + self.routesTable,
-            #print "(" + self.routeKey + ", " + self.pathsBlobKey + ", " + self.colorKey + ", " + self.oppositeColorKey + ") ",
-            print " VALUES (",
-            print "'" + self.currentRoute + "', ",
-            print "x'00000000', ",
-            print "" + hexToDec(attributes["color"]) + ", ",
-            print "" + hexToDec(attributes["oppositeColor"]) + ");"
+            self.insertRoute(attributes["color"], attributes["oppositeColor"])
         elif name == "stop":
+            tag = attributes["tag"]
             if not self.currentDirection:
-                tag = attributes["tag"]
                 if tag not in self.sharedStops:
                     self.sharedStops[tag] = True
-                    print "INSERT INTO " + self.stopsTable,
-                    #print "(" + self.stopTagKey + ", " + self.latitudeKey + ", " + self.longitudeKey + ", " + self.stopTitleKey + ") "
-                    print " VALUES (",
-                    print "'" + attributes["tag"] + "', ",
-                    print "" + attributes["lat"] + ", ",
-                    print "" + attributes["lon"] + ", ",
-                    print "'" + escaped(attributes["title"]) + "');"
+                    self.insertStop(tag, attributes["lat"], attributes["lon"], attributes["title"])
             else:
-                print "INSERT INTO " + self.stopsRoutesMap,
-                #print " (" + routeKey + ", " + stopTagKey + ", " + dirTagKey + ") " 
-                print " VALUES (",
-                print "'" + self.currentRoute + "', ",
-                print "'" + attributes["tag"] + "', ",
-                print "'" + self.currentDirection + "');"
+                self.insertStopInDirection(tag)
         elif name == "direction": #band attributes["useForUI"] == "true":
             self.currentDirection = attributes["tag"]
-                
             
             
 
@@ -80,9 +99,9 @@ if __name__ == "__main__":
         print "arg required: routeConfig.xml"
         exit(-1)
         
-    print "BEGIN TRANSACTION;"
+    #print "BEGIN TRANSACTION;"
     parser = xml.sax.make_parser()
     handler = ToSql()
     parser.setContentHandler(handler)
     parser.parse(sys.argv[1])
-    print "END TRANSACTION;"
+    #print "END TRANSACTION;"
