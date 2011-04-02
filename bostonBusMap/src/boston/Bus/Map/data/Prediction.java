@@ -49,7 +49,8 @@ public class Prediction implements Comparable<Prediction>, Parcelable
 		this.vehicleId = vehicleId;
 		this.direction = direction;
 		this.routeName = routeName;
-		arrivalTime = new Date(epochTime);
+		//arrivalTime = new Date().;
+		arrivalTime = new Date(System.currentTimeMillis() + minutes * 60 * 1000);
 		this.affectedByLayover = affectedByLayover;
 		this.isDelayed = isDelayed;
 	}
