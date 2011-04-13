@@ -3,7 +3,6 @@ package boston.Bus.Map.data;
 import java.io.IOException;
 
 import java.text.DateFormat;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 
@@ -92,6 +91,7 @@ public class Prediction implements Comparable<Prediction>, Parcelable
 			else
 			{
 				DateFormat dateFormat = android.text.format.DateFormat.getTimeFormat(context);
+
 				String formatted = dateFormat.format(arrivalTime);
 				ret += "<br />Arriving in <b>" + minutes + " min</b> at " + formatted.trim();
 			}
