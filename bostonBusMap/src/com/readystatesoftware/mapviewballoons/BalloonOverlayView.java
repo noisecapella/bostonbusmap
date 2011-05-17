@@ -49,6 +49,7 @@ public class BalloonOverlayView<Item extends OverlayItem> extends FrameLayout {
 	protected LinearLayout layout;
 	private TextView title;
 	private TextView snippet;
+	protected View layoutView;
 
 	/**
 	 * Create a new BalloonOverlayView.
@@ -57,7 +58,7 @@ public class BalloonOverlayView<Item extends OverlayItem> extends FrameLayout {
 	 * @param balloonBottomOffset - The bottom padding (in pixels) to be applied
 	 * when rendering this view.
 	 */
-	public BalloonOverlayView(Context context, int balloonBottomOffset, boolean addView) {
+	protected BalloonOverlayView(Context context, int balloonBottomOffset) {
 
 		super(context);
 
@@ -67,9 +68,9 @@ public class BalloonOverlayView<Item extends OverlayItem> extends FrameLayout {
 
 		LayoutInflater inflater = (LayoutInflater) context
 				.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-		View v = inflater.inflate(R.layout.balloon_map_overlay, layout);
-		title = (TextView) v.findViewById(R.id.balloon_item_title);
-		snippet = (TextView) v.findViewById(R.id.balloon_item_snippet);
+		layoutView = inflater.inflate(R.layout.balloon_map_overlay, layout);
+		title = (TextView) layoutView.findViewById(R.id.balloon_item_title);
+		snippet = (TextView) layoutView.findViewById(R.id.balloon_item_snippet);
 
 
 	}

@@ -44,18 +44,16 @@ public class BusPopupView extends BalloonOverlayView<BusOverlayItem>
 	private Location location;
 	
 	public BusPopupView(final Context context, int balloonBottomOffset, Locations locations, HashMap<String, String> routeKeysToTitles) {
-		super(context, balloonBottomOffset, false);
+		super(context, balloonBottomOffset);
 		
 		this.locations = locations;
 		this.routeKeysToTitles = routeKeysToTitles;
 		
-		LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-		View v = inflater.inflate(R.layout.balloon_map_overlay, layout);
-		favorite = (ImageView) v.findViewById(R.id.balloon_item_favorite);
+		favorite = (ImageView) layoutView.findViewById(R.id.balloon_item_favorite);
 
-		moreInfo = (TextView)v.findViewById(R.id.balloon_item_moreinfo);
+		moreInfo = (TextView) layoutView.findViewById(R.id.balloon_item_moreinfo);
 		
-		reportProblem = (TextView)v.findViewById(R.id.balloon_item_report);
+		reportProblem = (TextView) layoutView.findViewById(R.id.balloon_item_report);
 		
 		favorite.setOnClickListener(new OnClickListener() {
 			

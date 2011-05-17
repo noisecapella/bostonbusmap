@@ -27,6 +27,7 @@ import java.util.List;
 
 import boston.Bus.Map.R;
 import boston.Bus.Map.data.BusLocation;
+import boston.Bus.Map.data.Directions;
 import boston.Bus.Map.data.Locations;
 import boston.Bus.Map.data.StopLocation;
 
@@ -157,6 +158,8 @@ public class BusOverlay extends BalloonItemizedOverlay<BusOverlayItem> {
 				}
 			}
 		});
+		
+		setBalloonBottomOffset(40);
 	}
 
 	public void setUpdateable(UpdateHandler updateable)
