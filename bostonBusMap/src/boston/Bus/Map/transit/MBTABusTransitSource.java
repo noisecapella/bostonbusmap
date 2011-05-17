@@ -43,21 +43,21 @@ public class MBTABusTransitSource implements TransitSource
 
 	private static final String mbtaRouteConfigDataUrl = "http://webservices.nextbus.com/service/publicXMLFeed?command=routeConfig&a=mbta&r=";
 	private static final String mbtaRouteConfigDataUrlAllRoutes = "http://webservices.nextbus.com/service/publicXMLFeed?command=routeConfig&a=mbta";
-	
+
 	private static final String mbtaPredictionsDataUrl = "http://webservices.nextbus.com/service/publicXMLFeed?command=predictionsForMultiStops&a=mbta";
 
 	private final Drawable busStop;
 	private final Drawable bus;
 	private final Drawable arrow;
-	
+
 	public MBTABusTransitSource(Drawable busStop, Drawable bus, Drawable arrow)
 	{
 		this.busStop = busStop;
 		this.bus = bus;
 		this.arrow = arrow;
-		
+
 		tempRoutes = new ArrayList<String>();
-		
+
 		addRoute("1", "1");
 		addRoute("4", "4");
 		addRoute("5", "5");
@@ -91,7 +91,6 @@ public class MBTABusTransitSource implements TransitSource
 		addRoute("34E", "34E");
 		addRoute("35", "35");
 		addRoute("36", "36");
-
 		addRoute("37", "37");
 		addRoute("38", "38");
 		addRoute("3738", "37/38");
@@ -109,7 +108,6 @@ public class MBTABusTransitSource implements TransitSource
 		addRoute("51", "51");
 		addRoute("52", "52");
 		addRoute("55", "55");
-
 		addRoute("57", "57");
 		addRoute("57A", "57A");
 		addRoute("59", "59");
@@ -127,7 +125,6 @@ public class MBTABusTransitSource implements TransitSource
 		addRoute("71", "71");
 		addRoute("72", "72");
 		addRoute("725", "72/75");
-
 		addRoute("73", "73");
 		addRoute("74", "74");
 		addRoute("75", "75");
@@ -145,7 +142,6 @@ public class MBTABusTransitSource implements TransitSource
 		addRoute("89", "89");
 		addRoute("8993", "89/93");
 		addRoute("90", "90");
-
 		addRoute("91", "91");
 		addRoute("92", "92");
 		addRoute("93", "93");
@@ -163,7 +159,6 @@ public class MBTABusTransitSource implements TransitSource
 		addRoute("109", "109");
 		addRoute("110", "110");
 		addRoute("111", "111");
-
 		addRoute("112", "112");
 		addRoute("114", "114");
 		addRoute("116", "116");
@@ -181,7 +176,6 @@ public class MBTABusTransitSource implements TransitSource
 		addRoute("171", "171");
 		addRoute("191", "191");
 		addRoute("192", "192");
-
 		addRoute("193", "193");
 		addRoute("201", "201");
 		addRoute("202", "202");
@@ -199,7 +193,6 @@ public class MBTABusTransitSource implements TransitSource
 		addRoute("225", "225");
 		addRoute("230", "230");
 		addRoute("236", "236");
-
 		addRoute("238", "238");
 		addRoute("240", "240");
 		addRoute("245", "245");
@@ -217,7 +210,6 @@ public class MBTABusTransitSource implements TransitSource
 		addRoute("411", "411");
 		addRoute("424", "424");
 		addRoute("426", "426");
-
 		addRoute("426439", "426/439");
 		addRoute("426455", "426/455");
 		addRoute("428", "428");
@@ -235,7 +227,6 @@ public class MBTABusTransitSource implements TransitSource
 		addRoute("449", "449");
 		addRoute("450", "450");
 		addRoute("451", "451");
-
 		addRoute("455", "455");
 		addRoute("456", "456");
 		addRoute("459", "459");
@@ -253,14 +244,13 @@ public class MBTABusTransitSource implements TransitSource
 		addRoute("556", "556");
 		addRoute("558", "558");
 		addRoute("701", "CT1");
-
 		addRoute("747", "CT2");
 		addRoute("708", "CT3");
-		addRoute("746", "SL");
-		addRoute("741", "SL1");
-		addRoute("742", "SL2");
-		addRoute("751", "SL4");
-		addRoute("749", "SL5");
+		addRoute("746", "Silver Line SL");
+		addRoute("741", "Silver Line SL1");
+		addRoute("742", "Silver Line SL2");
+		addRoute("751", "Silver Line SL4");
+		addRoute("749", "Silver Line SL5");
 		addRoute("9109", "9109");
 		addRoute("9111", "9111");
 		addRoute("9501", "9501");
@@ -268,43 +258,45 @@ public class MBTABusTransitSource implements TransitSource
 		addRoute("9701", "9701");
 		addRoute("9702", "9702");
 		addRoute("9703", "9703");
+		addRoute("602", "Green Line Shuttle");
+
 
 		routes = tempRoutes.toArray(new String[0]);
 		tempRoutes.clear();
 		tempRoutes = null;
 	}
-	
+
 	private void addRoute(String key, String title) {
 		tempRoutes.add(key);
 
 		routeKeysToTitles.put(key, title);
-		
+
 	}
 
 	private final String[] routes;
 	private ArrayList<String> tempRoutes;
 	private final HashMap<String, String> routeKeysToTitles = new HashMap<String, String>();
-	
-	
+
+
 	@Override
 	public void populateStops(RoutePool routeMapping, String routeToUpdate,
 			RouteConfig oldRouteConfig, Directions directions, UpdateAsyncTask task) 
-			throws ClientProtocolException, IOException, ParserConfigurationException, SAXException 
+	throws ClientProtocolException, IOException, ParserConfigurationException, SAXException 
 	{
 		final String urlString = getRouteConfigUrl(routeToUpdate);
 
 		DownloadHelper downloadHelper = new DownloadHelper(urlString);
-		
+
 		downloadHelper.connect();
 		//just initialize the route and then end for this round
-		
+
 		RouteConfigFeedParser parser = new RouteConfigFeedParser(busStop, directions, oldRouteConfig,
 				this);
 
 		parser.runParse(downloadHelper.getResponseData()); 
 
 		parser.writeToDatabase(routeMapping, false, task);
-		
+
 	}
 
 
@@ -329,7 +321,7 @@ public class MBTABusTransitSource implements TransitSource
 			{
 				return;
 			}
-			
+
 			downloadHelper = new DownloadHelper(url);
 		}
 		break;
@@ -337,14 +329,14 @@ public class MBTABusTransitSource implements TransitSource
 		case Main.BUS_PREDICTIONS_STAR:
 		{
 			List<Location> locations = locationsObj.getLocations(maxStops, centerLatitude, centerLongitude, false);
-			
+
 			String url = getPredictionsUrl(locations, maxStops, null);
 
 			if (url == null)
 			{
 				return;
 			}
-			
+
 			downloadHelper = new DownloadHelper(url);
 		}
 		break;
@@ -414,19 +406,19 @@ public class MBTABusTransitSource implements TransitSource
 			}
 		}
 	}
-	
+
 	private String getPredictionsUrl(List<Location> locations, int maxStops, String route)
 	{
 		//TODO: technically we should be checking that it is a bus route, not that it's not a subway route
 		//but this is probably more efficient
-		
+
 		if (SubwayTransitSource.isSubway(route))
 		{
 			return null;
 		}
-		
+
 		StringBuilder urlString = new StringBuilder(mbtaPredictionsDataUrl);
-		
+
 		for (Location location : locations)
 		{
 			if (location instanceof StopLocation)
@@ -435,15 +427,15 @@ public class MBTABusTransitSource implements TransitSource
 				stopLocation.createBusPredictionsUrl(urlString, route);
 			}
 		}
-		
+
 		//TODO: hard limit this to 150 requests
-		
+
 		Log.v("BostonBusMap", "urlString for bus predictions, all: " + urlString);
-		
+
 		return urlString.toString();
 	}
-	
-	
+
+
 
 	public static void bindPredictionElementsForUrl(StringBuilder urlString,
 			String routeName, String stopId, String direction) {
@@ -452,9 +444,9 @@ public class MBTABusTransitSource implements TransitSource
 		{
 			urlString.append(direction);
 		}
-		
+
 		urlString.append("%7C").append(stopId);
-		
+
 	}
 
 	private static String getVehicleLocationsUrl(long time, String route)
@@ -468,7 +460,7 @@ public class MBTABusTransitSource implements TransitSource
 			return mbtaLocationsDataUrlAllRoutes + time;
 		}
 	}
-	
+
 	private static String getRouteConfigUrl(String route)
 	{
 		if (route == null)
@@ -491,25 +483,25 @@ public class MBTABusTransitSource implements TransitSource
 	@Override
 	public void initializeAllRoutes(UpdateAsyncTask task, Context context, Directions directions,
 			RoutePool routeMapping)
-		throws IOException, ParserConfigurationException, SAXException {
+	throws IOException, ParserConfigurationException, SAXException {
 		task.publish(new ProgressMessage(ProgressMessage.PROGRESS_DIALOG_ON, "Decompressing route data", null));
-		
+
 		final int contentLength = 341586;
-		
+
 		InputStream in = new StreamCounter(context.getResources().openRawResource(boston.Bus.Map.R.raw.routeconfig),
 				task, contentLength); 
-		
-		GZIPInputStream stream = new GZIPInputStream(in); 
-		
-		RouteConfigFeedParser parser = new RouteConfigFeedParser(busStop, directions, null, this);
-		
-		parser.runParse(stream);
-		
 
-		
+		GZIPInputStream stream = new GZIPInputStream(in); 
+
+		RouteConfigFeedParser parser = new RouteConfigFeedParser(busStop, directions, null, this);
+
+		parser.runParse(stream);
+
+
+
 		parser.writeToDatabase(routeMapping, true, task);
-		
-		
+
+
 	}
 
 
@@ -539,6 +531,6 @@ public class MBTABusTransitSource implements TransitSource
 		stop.addRouteAndDirTag(route, dirTag);
 		return stop;
 	}
-	
+
 
 }

@@ -16,6 +16,7 @@ import android.widget.Toast;
 import boston.Bus.Map.database.DatabaseHelper;
 import boston.Bus.Map.main.GeocoderAsyncTask;
 import boston.Bus.Map.main.Main;
+import boston.Bus.Map.transit.MBTABusTransitSource;
 
 public class SearchHelper
 {
@@ -189,6 +190,15 @@ public class SearchHelper
 
 	private int getAsRoute(String indexingQuery, String lowercaseQuery)
 	{
+		if ("sl1".equals(lowercaseQuery) || 
+				"sl2".equals(lowercaseQuery) ||
+				"sl".equals(lowercaseQuery) ||
+				"sl4".equals(lowercaseQuery) ||
+				"sl5".equals(lowercaseQuery))
+		{
+			lowercaseQuery = "silver line " + lowercaseQuery;
+		}
+		
 		int position = Arrays.asList(dropdownRoutes).indexOf(indexingQuery);
 
 		if (position != -1)
