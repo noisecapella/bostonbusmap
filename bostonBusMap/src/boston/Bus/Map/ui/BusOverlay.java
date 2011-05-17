@@ -159,7 +159,7 @@ public class BusOverlay extends BalloonItemizedOverlay<BusOverlayItem> {
 			}
 		});
 		
-		setBalloonBottomOffset(40);
+		setBalloonBottomOffset(busPicture.getIntrinsicHeight() + 4);
 	}
 
 	public void setUpdateable(UpdateHandler updateable)

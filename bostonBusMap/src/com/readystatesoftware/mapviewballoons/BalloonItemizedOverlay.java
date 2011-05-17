@@ -193,7 +193,7 @@ public abstract class BalloonItemizedOverlay<Item extends OverlayItem> extends I
 					if (d.setState(states)) {
 						d.invalidateSelf();
 					}
-					return true;
+					
 				} else if (event.getAction() == MotionEvent.ACTION_UP) {
 					int newStates[] = {};
 					if (d.setState(newStates)) {
@@ -201,11 +201,9 @@ public abstract class BalloonItemizedOverlay<Item extends OverlayItem> extends I
 					}
 					// call overridden method
 					onBalloonTap(currentFocussedIndex, currentFocussedItem);
-					return true;
-				} else {
-					return false;
 				}
 				
+				return false;
 			}
 		};
 	}
