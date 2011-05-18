@@ -64,6 +64,7 @@ public class SearchHelper
 	 */
 	private void searchRoutes(final Runnable onFinish) {
 		String lowercaseQuery = query.toLowerCase();
+		String printableQuery = query;
 		
 		//remove these words from the search
 		String[] wordsToRemove = new String[] {"route", "subway", "bus", "line", "stop"};
@@ -121,6 +122,7 @@ public class SearchHelper
 		//NOTE: the next section is currently never run since we set queryContainsStop to true if queryContainsRoute was false
 		final String finalLowercaseQuery = lowercaseQuery;
 		final String finalIndexingQuery = indexingQuery;
+		final String finalPrintableQuery = printableQuery;
 		if (queryContainsRoute == false && queryContainsStop == false)
 		{
 			//route or stop? maybe both? if both, pop up a choice to the user
@@ -138,21 +140,21 @@ public class SearchHelper
 						queryContainsStop = true;
 					}
 					
-					returnResults(onFinish, finalIndexingQuery, finalLowercaseQuery);
+					returnResults(onFinish, finalIndexingQuery, finalLowercaseQuery, finalPrintableQuery);
 				}
 			});
 			builder.show();
 		}
 		else
 		{
-			returnResults(onFinish, finalIndexingQuery, finalLowercaseQuery);
+			returnResults(onFinish, finalIndexingQuery, finalLowercaseQuery, finalPrintableQuery);
 		}
 	}
 
-	private void returnResults(Runnable onFinish, String indexingQuery, String lowercaseQuery) {
+	private void returnResults(Runnable onFinish, String indexingQuery, String lowercaseQuery, String printableQuery) {
 		if (queryContainsRoute)
 		{
-			suggestionsQuery = "route " + indexingQuery;
+			suggestionsQuery = "route " + printableQuery;
 			int position = getAsRoute(indexingQuery, lowercaseQuery);
 
 			if (position >= 0)
@@ -162,12 +164,12 @@ public class SearchHelper
 			}
 			else
 			{
-				Toast.makeText(context, "Route number '" + indexingQuery + "' doesn't exist. Did you mistype it?", Toast.LENGTH_LONG).show();
+				Toast.makeText(context, "Route number '" + printableQuery + "' doesn't exist. Did you mistype it?", Toast.LENGTH_LONG).show();
 			}
 		}
 		else if (queryContainsStop)
 		{
-			suggestionsQuery = "stop " + indexingQuery;
+			suggestionsQuery = "stop " + printableQuery;
 			ArrayList<String> routesForStop = databaseHelper.isStop(indexingQuery);
 			if (routesForStop.size() > 0)
 			{
@@ -176,7 +178,7 @@ public class SearchHelper
 			else
 			{
 				//invalid stop id
-				Toast.makeText(context, "Stop number '" + indexingQuery + "' doesn't exist. Did you mistype it?", Toast.LENGTH_LONG).show();
+				Toast.makeText(context, "Stop number '" + printableQuery + "' doesn't exist. Did you mistype it?", Toast.LENGTH_LONG).show();
 			}
 		}
 		else
@@ -190,13 +192,19 @@ public class SearchHelper
 
 	private int getAsRoute(String indexingQuery, String lowercaseQuery)
 	{
+		//TODO: don't hard code this
 		if ("sl1".equals(lowercaseQuery) || 
 				"sl2".equals(lowercaseQuery) ||
 				"sl".equals(lowercaseQuery) ||
 				"sl4".equals(lowercaseQuery) ||
 				"sl5".equals(lowercaseQuery))
 		{
-			lowercaseQuery = "silver line " + lowercaseQuery;
+			lowercaseQuery = "silverline" + lowercaseQuery;
+		}
+		else if (lowercaseQuery.startsWith("silver"))
+		{
+			//ugh, what a hack
+			lowercaseQuery = lowercaseQuery.substring(0, 6) + "line" + lowercaseQuery.substring(6);
 		}
 		
 		int position = Arrays.asList(dropdownRoutes).indexOf(indexingQuery);
@@ -211,9 +219,13 @@ public class SearchHelper
 			for (int i = 0; i < dropdownRoutes.length; i++)
 			{
 				String title = dropdownRouteKeysToTitles.get(dropdownRoutes[i]);
-				if (title != null && title.toLowerCase().equals(lowercaseQuery))
+				if (title != null)
 				{
-					return i;
+					String titleWithoutSpaces = title.toLowerCase().replaceAll(" ", "");
+					if (titleWithoutSpaces.equals(lowercaseQuery))
+					{
+						return i;
+					}
 				}
 			}
 			
@@ -222,8 +234,8 @@ public class SearchHelper
 		}
 	}
 
-	public String getSuggestionsQuery() {
+	public String getSuggestionsQuery()
+	{
 		return suggestionsQuery;
 	}
-
 }
