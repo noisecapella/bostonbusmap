@@ -58,6 +58,7 @@ public class MBTABusTransitSource implements TransitSource
 
 		tempRoutes = new ArrayList<String>();
 
+		addRoute("602", "Green Shuttle");
 		addRoute("1", "1");
 		addRoute("4", "4");
 		addRoute("5", "5");
@@ -258,7 +259,7 @@ public class MBTABusTransitSource implements TransitSource
 		addRoute("9701", "9701");
 		addRoute("9702", "9702");
 		addRoute("9703", "9703");
-		addRoute("602", "Green Line Shuttle");
+		addRoute("602", "Green Shuttle");
 
 
 		routes = tempRoutes.toArray(new String[0]);
