@@ -11,6 +11,7 @@ import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
 
 import android.text.Html;
+import android.text.Spanned;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -42,6 +43,8 @@ public class BusPopupView extends BalloonOverlayView<BusOverlayItem>
 	private final Locations locations;
 	private final HashMap<String, String> routeKeysToTitles;
 	private Location location;
+	private final Spanned moreInfoText;
+	private final Spanned reportProblemText;
 	
 	public BusPopupView(final Context context, int balloonBottomOffset, Locations locations, HashMap<String, String> routeKeysToTitles) {
 		super(context, balloonBottomOffset);
@@ -52,9 +55,10 @@ public class BusPopupView extends BalloonOverlayView<BusOverlayItem>
 		favorite = (ImageView) layoutView.findViewById(R.id.balloon_item_favorite);
 
 		moreInfo = (TextView) layoutView.findViewById(R.id.balloon_item_moreinfo);
+		moreInfoText = Html.fromHtml("\n<a href='com.bostonbusmap://moreinfo'>More info</a>\n");
 		
 		reportProblem = (TextView) layoutView.findViewById(R.id.balloon_item_report);
-		
+		reportProblemText = Html.fromHtml("\n<a href='com.bostonbusmap://reportproblem'>Report<br/>Problem</a>\n");
 		favorite.setOnClickListener(new OnClickListener() {
 			
 			@Override
@@ -82,35 +86,38 @@ public class BusPopupView extends BalloonOverlayView<BusOverlayItem>
 				{
 					//ignore for now, we can't print route information without it
 				}
-				
-				StopLocation stopLocation = (StopLocation)location;
-				Intent intent = new Intent(context, MoreInfo.class);
-
-				ArrayList<Prediction> predictionArrayList = stopLocation.getCombinedPredictions();
-				if (predictionArrayList != null)
+				//user shouldn't be able to click this if this is a BusLocation, but just in case...
+				if (location instanceof StopLocation)
 				{
-					intent.putExtra(MoreInfo.predictionsKey, predictionArrayList.toArray(new Prediction[0]));
+					StopLocation stopLocation = (StopLocation)location;
+					Intent intent = new Intent(context, MoreInfo.class);
+
+					ArrayList<Prediction> predictionArrayList = stopLocation.getCombinedPredictions();
+					if (predictionArrayList != null)
+					{
+						intent.putExtra(MoreInfo.predictionsKey, predictionArrayList.toArray(new Prediction[0]));
+					}
+					String[] keys = BusPopupView.this.routeKeysToTitles.keySet().toArray(new String[0]);
+					String[] values = new String[keys.length];
+					for (int i = 0; i < keys.length; i++)
+					{
+						values[i] = BusPopupView.this.routeKeysToTitles.get(keys[i]);
+					}
+
+					intent.putExtra(MoreInfo.routeKeysKey, keys);
+					intent.putExtra(MoreInfo.routeTitlesKey, values);
+
+					String[] combinedTitles = stopLocation.getCombinedTitles();
+					intent.putExtra(MoreInfo.titleKey, combinedTitles);
+
+					String combinedRoutes = stopLocation.getCombinedRoutes();
+					intent.putExtra(MoreInfo.routeKey, combinedRoutes);
+
+					String combinedStops = stopLocation.getCombinedStops();
+					intent.putExtra(MoreInfo.stopsKey, combinedStops);
+
+					context.startActivity(intent);
 				}
-				String[] keys = BusPopupView.this.routeKeysToTitles.keySet().toArray(new String[0]);
-				String[] values = new String[keys.length];
-				for (int i = 0; i < keys.length; i++)
-				{
-					values[i] = BusPopupView.this.routeKeysToTitles.get(keys[i]);
-				}
-
-				intent.putExtra(MoreInfo.routeKeysKey, keys);
-				intent.putExtra(MoreInfo.routeTitlesKey, values);
-
-				String[] combinedTitles = stopLocation.getCombinedTitles();
-				intent.putExtra(MoreInfo.titleKey, combinedTitles);
-
-				String combinedRoutes = stopLocation.getCombinedRoutes();
-				intent.putExtra(MoreInfo.routeKey, combinedRoutes);
-
-				String combinedStops = stopLocation.getCombinedStops();
-				intent.putExtra(MoreInfo.stopsKey, combinedStops);
-
-				context.startActivity(intent);
 			}
 		}
 		);
@@ -267,17 +274,32 @@ public class BusPopupView extends BalloonOverlayView<BusOverlayItem>
 		super.setData(item);
 		
 		//NOTE: originally this was going to be an actual link, but we can't click it on the popup except through its onclick listener
-		moreInfo.setText(Html.fromHtml("\n<a href='com.bostonbusmap://moreinfo'>More info</a>\n"));
-		reportProblem.setText(Html.fromHtml("\n<a href='com.bostonbusmap://reportproblem'>Report<br/>Problem</a>\n"));
+		moreInfo.setText(moreInfoText);
+		reportProblem.setText(reportProblemText);
 
 	}
 	
 	public void setState(boolean isFavorite, boolean favoriteVisible, boolean moreInfoVisible,
 			Location location)
 	{
-		favorite.setBackgroundResource(isFavorite ? boston.Bus.Map.R.drawable.full_star : R.drawable.empty_star);
-		favorite.setVisibility(favoriteVisible ? View.VISIBLE : View.GONE);
-		moreInfo.setVisibility(moreInfoVisible ? View.VISIBLE : View.GONE);
+		//TODO: figure out a more elegant way to make the layout use these items even if they're invisible
+		if (favoriteVisible)
+		{
+			favorite.setBackgroundResource(isFavorite ? boston.Bus.Map.R.drawable.full_star : R.drawable.empty_star);
+		}
+		else
+		{
+			favorite.setBackgroundResource(boston.Bus.Map.R.drawable.null_star);
+		}
+		
+		if (moreInfoVisible)
+		{
+			moreInfo.setText(moreInfoText);
+		}
+		else
+		{
+			moreInfo.setText("");
+		}
 		
 		this.location = location;
 	}
