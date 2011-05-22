@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 import boston.Bus.Map.math.Geometry;
+import boston.Bus.Map.transit.TransitSystem;
 import boston.Bus.Map.ui.BusDrawable;
 import boston.Bus.Map.util.Constants;
 import android.content.Context;
@@ -49,7 +50,7 @@ public class BusLocation implements Location {
 	/**
 	 * Creation time of this bus object
 	 */
-	public double lastUpdateInMillis;
+	public long lastUpdateInMillis;
 
 	/**
 	 * Distance in miles of the bus from its previous location, in the x
@@ -104,7 +105,7 @@ public class BusLocation implements Location {
 	public static final int NO_HEADING = -1;
 
 	public BusLocation(float latitude, float longitude, int id, int seconds,
-			double lastUpdateInMillis, String heading, boolean predictable,
+			long lastUpdateInMillis, String heading, boolean predictable,
 			String dirTag, String inferBusRoute, Drawable bus, Drawable arrow,
 			String routeName, Directions directions, String routeTitle,
 			boolean disappearAfterRefresh, boolean showBusNumber,
@@ -240,9 +241,8 @@ public class BusLocation implements Location {
 			snippet += "Bus number: " + id + "<br />";
 		}
 
-		snippet += "Last update: "
-				+ (int) (seconds + (System.currentTimeMillis() - lastUpdateInMillis) / 1000)
-				+ " seconds ago";
+		int secondsAgo = (int) (seconds + (TransitSystem.currentTimeMillis() - lastUpdateInMillis) / 1000); 
+		snippet += "Last update: " + secondsAgo	+ " seconds ago";
 		String direction = getDirection();
 		if (direction.length() != 0 && predictable == false) {
 			snippet += "<br />Estimated direction: " + direction;

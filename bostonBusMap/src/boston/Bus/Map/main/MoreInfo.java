@@ -57,9 +57,12 @@ public class MoreInfo extends ListActivity {
 			for (Object predictionObj : predictions)
 			{
 				Prediction prediction = (Prediction)predictionObj;
-				//data.add(prediction.generateMoreInfoMap());
-				HashMap<String, Spanned> map = prediction.makeSnippetMap(routeKeysToTitles, this);
-				data.add(map);
+				if (prediction.getMinutes() >= 0)
+				{
+					//data.add(prediction.generateMoreInfoMap());
+					HashMap<String, Spanned> map = prediction.makeSnippetMap(routeKeysToTitles, this);
+					data.add(map);
+				}
 			}
 		}
 		SimpleAdapter adapter = new SimpleAdapter(this, data, R.layout.moreinfo_row,

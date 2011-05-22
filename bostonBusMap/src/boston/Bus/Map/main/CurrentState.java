@@ -23,7 +23,7 @@ import com.google.android.maps.Projection;
  *
  */
 public class CurrentState {
-	private final double lastUpdateTime;
+	private final long lastUpdateTime;
 	private final Locations busLocations;
 	private final boolean updateConstantly;
 	private int selectedRouteIndex;
@@ -33,7 +33,7 @@ public class CurrentState {
 	private final boolean progressState;
 	private final UpdateAsyncTask majorHandler;
 	
-	public CurrentState(Locations busLocations, double lastUpdateTime, boolean updateConstantly,
+	public CurrentState(Locations busLocations, long lastUpdateTime, boolean updateConstantly,
 			int selectedRouteIndex, int selectedBusPredictions, BusOverlay busOverlay, RouteOverlay routeOverlay,
 			UpdateAsyncTask majorHandler, boolean progressState) 
 	{
@@ -48,7 +48,7 @@ public class CurrentState {
 		this.majorHandler = majorHandler;
 	}
 
-	public double getLastUpdateTime()
+	public long getLastUpdateTime()
 	{
 		return lastUpdateTime;
 	}

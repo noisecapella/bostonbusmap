@@ -293,7 +293,7 @@ public class Main extends MapActivity
 		float density = metrics.density;
 		
         //get the busLocations variable if it already exists. We need to do that step here since handler
-        double lastUpdateTime = 0;
+        long lastUpdateTime = 0;
         boolean previousUpdateConstantly = false;
 
         UpdateAsyncTask majorHandler = null;

@@ -60,6 +60,9 @@ public class SubwayPredictionsFeedParser
 		this.rail = bus;
 		this.railArrow = railArrow;
 		this.busMapping = busMapping;
+		
+		format = new SimpleDateFormat("M/d/y K:m:s");
+		format.setTimeZone(TransitSystem.getTimeZone());
 	}
 	
 	private void clearPredictions(String route) throws IOException
@@ -143,7 +146,9 @@ public class SubwayPredictionsFeedParser
 
 				Date date = parseTime(object.getString("Time"));
 				long epochTime = date.getTime();
-				long currentMillis = System.currentTimeMillis();
+				epochTime += TransitSystem.getTimeZone().getOffset(epochTime);
+				
+				long currentMillis = TransitSystem.currentTimeMillis();
 				long diff = epochTime - currentMillis;
 				int minutes = (int)(diff / 1000 / 60);
 				
@@ -158,7 +163,7 @@ public class SubwayPredictionsFeedParser
 				String direction = route + stopDirection + branch;
 				int vehicleId = 0;
 
-				predictions.add(new Prediction(minutes, epochTime, vehicleId, directions.getTitleAndName(direction),
+				predictions.add(new Prediction(minutes, vehicleId, directions.getTitleAndName(direction),
 						routeConfig.getRouteName(), false, false));
 				stopLocations.add(stopLocation);
 
@@ -306,7 +311,7 @@ public class SubwayPredictionsFeedParser
 		return ret.toString();
 	}
 
-	private final SimpleDateFormat format = new SimpleDateFormat("M/d/y K:m:s");
+	private final SimpleDateFormat format;
 
 
 	public Date parseTime(String time) throws ParseException {

@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.TimeZone;
 import java.util.concurrent.ConcurrentHashMap;
 
 import javax.xml.parsers.ParserConfigurationException;
@@ -188,4 +189,20 @@ public class TransitSystem {
 		
 		return source.createStop(lat, lon, stopTag, title, platformOrder, branch, route, dirTag);
 	}
+
+	public static TimeZone getTimeZone()
+	{
+		return TimeZone.getTimeZone("America/New_York");
+	}
+
+	/**
+	 * Return current time in GMT
+	 * @return
+	 */
+	public static long currentTimeMillis()
+	{
+		long now = System.currentTimeMillis();
+		return now + getTimeZone().getOffset(now);
+	}
+
 }

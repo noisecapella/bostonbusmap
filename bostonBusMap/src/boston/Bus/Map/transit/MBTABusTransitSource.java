@@ -393,7 +393,7 @@ public class MBTABusTransitSource implements TransitSource
 				for (Integer id : busMapping.keySet())
 				{
 					BusLocation busLocation = busMapping.get(id);
-					if (busLocation.lastUpdateInMillis + 180000 < System.currentTimeMillis())
+					if (busLocation.lastUpdateInMillis + 180000 < TransitSystem.currentTimeMillis())
 					{
 						//put this old dog to sleep
 						busesToBeDeleted.add(id);

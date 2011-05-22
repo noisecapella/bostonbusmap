@@ -346,7 +346,7 @@ public class StopLocation implements Location
 		
 		synchronized (predictions)
 		{
-			Prediction prediction = new Prediction(minutes, epochTime, vehicleId, 
+			Prediction prediction = new Prediction(minutes, vehicleId, 
 					directions.getTitleAndName(direction), route.getRouteName(), affectedByLayover, isDelayed);
 			if (predictions.contains(prediction) == false)
 			{
