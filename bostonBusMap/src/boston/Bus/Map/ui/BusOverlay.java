@@ -93,6 +93,9 @@ public class BusOverlay extends BalloonItemizedOverlay<BusOverlayItem> {
 	private final HashMap<String, String> routeKeysToTitles;
 	private final float density;
 	
+	private final Point circleCenter = new Point();
+	private final Point drawingPoint = new Point();
+	
 	private Locations locationsObj;
 	
 	public BusOverlay(BusOverlay busOverlay, Main context, MapView mapView, HashMap<String, String> routeKeysToTitles, float density)
@@ -280,6 +283,8 @@ public class BusOverlay extends BalloonItemizedOverlay<BusOverlayItem> {
 			
 		if (drawHighlightCircle && overlays.size() > 0)
 		{
+			final Point drawingPoint = this.drawingPoint;
+			final Point circleCenter = this.circleCenter;
 			//draw a circle showing the area where overlays are currently shown
 			//first overlayitem will be closest to center
 			Projection projection = mapView.getProjection();
@@ -287,7 +292,7 @@ public class BusOverlay extends BalloonItemizedOverlay<BusOverlayItem> {
 			//get screen location
 			OverlayItem first = overlays.get(0);
 			GeoPoint firstPoint = first.getPoint();
-			Point circleCenter = projection.toPixels(firstPoint, null); 
+			projection.toPixels(firstPoint, circleCenter); 
 
 			//find out farthest point from bus that's closest to center
 			//these points are sorted by distance from center of screen, but we want
@@ -298,10 +303,10 @@ public class BusOverlay extends BalloonItemizedOverlay<BusOverlayItem> {
 				OverlayItem item = overlays.get(i);
 				
 				GeoPoint geoPoint = item.getPoint();
-				Point point = projection.toPixels(geoPoint, null);
+				projection.toPixels(geoPoint, drawingPoint);
 
-				int dx = circleCenter.x - point.x;
-				int dy = circleCenter.y - point.y;
+				int dx = circleCenter.x - drawingPoint.x;
+				int dy = circleCenter.y - drawingPoint.y;
 				int distance = dx*dx + dy*dy;
 				if (distance > lastDistance)
 				{

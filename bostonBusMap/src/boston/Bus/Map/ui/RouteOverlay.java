@@ -130,15 +130,20 @@ public class RouteOverlay extends Overlay
 		float prevLastLon = 0;
 		float prevLastLat = 0;
 
-		//swap these two back and forth so we don't 
-		Point pixelPoint1 = new Point();
-		Point pixelPoint2 = new Point();
-
 		android.graphics.Path drawingPath = new android.graphics.Path();
-		int floatIndex = 0;
 		
 		prevLastLat = 0;
 		prevLastLon = 0;
+		
+		int width = canvas.getWidth();
+		int height = canvas.getHeight();
+		GeoPoint bottomRight = projection.fromPixels(width, height);
+		GeoPoint topLeft = projection.fromPixels(0, 0);
+		
+		int maxLat = topLeft.getLatitudeE6();
+		int minLat = bottomRight.getLatitudeE6();
+		int minLon = topLeft.getLongitudeE6();
+		int maxLon = bottomRight.getLongitudeE6();
 		
 		//make sure the JVM knows this doesn't change unexpectedly
 		Point pixelPoint = new Point();
@@ -146,16 +151,35 @@ public class RouteOverlay extends Overlay
 		{
 			int pointsSize = path.getPointsSize();
 
+			boolean startNewLine = true;
+			boolean prevPointOutOfBounds = false;
 			for (int i = 0; i < pointsSize; i++)
 			{
 				float pointLat = path.getPointLat(i);
+				int pointLatInt = (int)(pointLat * Constants.E6);
 				float pointLon = path.getPointLon(i);
+				int pointLonInt = (int)(pointLon * Constants.E6);
+
+				if (pointLatInt < minLat || pointLatInt > maxLat || pointLonInt < minLon || pointLonInt > maxLon)
+				{
+					startNewLine = true;
+					if (prevPointOutOfBounds)
+					{
+						continue;
+					}
+					prevPointOutOfBounds = true;
+				}
+				else
+				{
+					prevPointOutOfBounds = false;
+				}
 				
-				GeoPoint geoPoint = new GeoPoint((int)(pointLat * Constants.E6), (int)(pointLon * Constants.E6));
+				
+				GeoPoint geoPoint = new GeoPoint(pointLatInt, pointLonInt);
 				
 				projection.toPixels(geoPoint, pixelPoint);
 				
-				if (i == 0 && prevLastLat != pointLat && prevLastLon != pointLon)
+				if (startNewLine && prevLastLat != pointLat && prevLastLon != pointLon)
 				{
 					drawingPath.moveTo(pixelPoint.x, pixelPoint.y);
 				}
@@ -163,7 +187,8 @@ public class RouteOverlay extends Overlay
 				{
 					drawingPath.lineTo(pixelPoint.x, pixelPoint.y);
 				}
-				
+
+				startNewLine = false;
 				prevLastLat = pointLat;
 				prevLastLon = pointLon;
 			}
