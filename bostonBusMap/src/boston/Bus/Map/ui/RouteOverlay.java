@@ -136,13 +136,10 @@ public class RouteOverlay extends Overlay
 		}
 		
 
-		float prevLastLon = 0;
-		float prevLastLat = 0;
+		int prevLastLon = Integer.MAX_VALUE;
+		int prevLastLat = Integer.MAX_VALUE;
 
 		android.graphics.Path drawingPath = new android.graphics.Path();
-		
-		prevLastLat = 0;
-		prevLastLon = 0;
 		
 		int width = canvas.getWidth();
 		int height = canvas.getHeight();
@@ -160,35 +157,22 @@ public class RouteOverlay extends Overlay
 		{
 			int pointsSize = path.getPointsSize();
 
-			boolean startNewLine = true;
-			boolean prevPointOutOfBounds = false;
+			boolean prevOutOfBounds = true;
 			for (int i = 0; i < pointsSize; i++)
 			{
 				float pointLat = path.getPointLat(i);
 				int pointLatInt = (int)(pointLat * Constants.E6);
 				float pointLon = path.getPointLon(i);
 				int pointLonInt = (int)(pointLon * Constants.E6);
-
-				if (pointLatInt < minLat || pointLatInt > maxLat || pointLonInt < minLon || pointLonInt > maxLon)
-				{
-					startNewLine = true;
-					if (prevPointOutOfBounds)
-					{
-						continue;
-					}
-					prevPointOutOfBounds = true;
-				}
-				else
-				{
-					prevPointOutOfBounds = false;
-				}
 				
+				boolean currentOutOfBounds = pointLatInt < minLat || pointLatInt > maxLat ||
+						pointLonInt < minLon || pointLonInt > maxLon;
 				
 				GeoPoint geoPoint = new GeoPoint(pointLatInt, pointLonInt);
 				
 				projection.toPixels(geoPoint, pixelPoint);
 				
-				if (startNewLine && prevLastLat != pointLat && prevLastLon != pointLon)
+				if (i == 0 || (prevOutOfBounds && currentOutOfBounds))
 				{
 					drawingPath.moveTo(pixelPoint.x, pixelPoint.y);
 				}
@@ -197,9 +181,9 @@ public class RouteOverlay extends Overlay
 					drawingPath.lineTo(pixelPoint.x, pixelPoint.y);
 				}
 
-				startNewLine = false;
-				prevLastLat = pointLat;
-				prevLastLon = pointLon;
+				prevLastLat = pointLatInt;
+				prevLastLon = pointLonInt;
+				prevOutOfBounds = currentOutOfBounds;
 			}
 		}
 		
