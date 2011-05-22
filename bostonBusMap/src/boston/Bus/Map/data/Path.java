@@ -64,6 +64,7 @@ public class Path implements CanBeSerialized
 	 * @return
 	 */
 	public int getPointsSize() {
-		return points.length / 2;
+		//divide by half
+		return points.length >> 1;
 	}
 }
