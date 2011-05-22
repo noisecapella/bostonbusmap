@@ -5,6 +5,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.TreeMap;
 
+import com.google.android.maps.Projection;
+
 import boston.Bus.Map.util.Box;
 import boston.Bus.Map.util.CanBeSerialized;
 
@@ -23,7 +25,7 @@ public class Path implements CanBeSerialized
 			this.points[i] = points.get(i);
 		}
 	}
-	
+
 	@Override
 	public void serialize(Box dest) throws IOException {
 		dest.writeInt(points.length);

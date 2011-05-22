@@ -270,47 +270,39 @@ public class BusOverlay extends BalloonItemizedOverlay<BusOverlayItem> {
 			
 		if (drawHighlightCircle && overlays.size() > 0)
 		{
+			final Point circleCenter = this.circleCenter;
+			final Point radiusPoint = this.radiusPoint;
+			
 			//get screen location
 			GeoPoint firstPoint = overlays.get(0).getPoint();
-			float lat1 = firstPoint.getLatitudeE6() * Constants.InvE6;
-			float lon1 = firstPoint.getLongitudeE6() * Constants.InvE6;
 
-			GeoPoint lastPoint = null;
+			Projection projection = mapView.getProjection();
+			projection.toPixels(firstPoint, circleCenter);
+			final int circleCenterX = circleCenter.x;
+			final int circleCenterY = circleCenter.y;
+
 			//find out farthest point from bus that's closest to center
 			//these points are sorted by distance from center of screen, but we want
 			//distance from the bus closest to the center, which is not quite the same
-			float lastDistance = 0;
+			int lastDistance = 0;
 			for (int i = 1; i < overlaysSize; i++)
 			{
 				OverlayItem item = overlays.get(i);
 				
 				GeoPoint geoPoint = item.getPoint();
-				float lat2 = geoPoint.getLatitudeE6() * Constants.InvE6;
-				float lon2 = geoPoint.getLongitudeE6() * Constants.InvE6;
-				float distance = Geometry.computeCompareDistance(lat1, lon1, lat2, lon2);
-
+				projection.toPixels(geoPoint, radiusPoint);
+				final int diffX = radiusPoint.x - circleCenterX;
+				final int diffY = radiusPoint.y - circleCenterY;
+				final int distance = diffX*diffX + diffY*diffY;
+				
 				if (lastDistance < distance)
 				{
 					lastDistance = distance;
-					lastPoint = geoPoint;
 				}
 			}
 		
 			//draw a circle showing which buses are currently displayed
-			Projection projection = mapView.getProjection();
-			projection.toPixels(firstPoint, circleCenter);
-			projection.toPixels(lastPoint, radiusPoint);
-			
-			final float circleCenterX = circleCenter.x;
-			final float circleCenterY = circleCenter.y - busHeight / 2;
-			final float radiusPointX = radiusPoint.x;
-			final float radiusPointY = radiusPoint.y - busHeight / 2;
-			final float diffX = radiusPointX - circleCenterX;
-			final float diffY = radiusPointY - circleCenterY;
-			
-			final float circleDistance = diffX*diffX + diffY*diffY;
-			
-			float radius = FloatMath.sqrt(circleDistance);
+			float radius = FloatMath.sqrt(lastDistance);
 
 			canvas.drawCircle(circleCenterX, circleCenterY, radius, paint);
 		}
