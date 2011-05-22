@@ -159,8 +159,8 @@ public class RouteOverlay extends Overlay
 
 			boolean prevOutOfBounds = true;
 			boolean prevWasMoveTo = true;
-			int moveToX = Integer.MAX_VALUE;
-			int moveToY = Integer.MAX_VALUE;
+			int moveToLat = Integer.MAX_VALUE;
+			int moveToLon = Integer.MAX_VALUE;
 			for (int i = 0; i < pointsSize; i++)
 			{
 				float pointLat = path.getPointLat(i);
@@ -171,24 +171,26 @@ public class RouteOverlay extends Overlay
 				boolean currentOutOfBounds = pointLatInt < minLat || pointLatInt > maxLat ||
 						pointLonInt < minLon || pointLonInt > maxLon;
 				
-				GeoPoint geoPoint = new GeoPoint(pointLatInt, pointLonInt);
-				
-				projection.toPixels(geoPoint, pixelPoint);
-				
 				if (i == 0 || (prevOutOfBounds && currentOutOfBounds))
 				{
 					//be lazy about moveTo in case it incurs a performance hit
-					moveToX = pixelPoint.x;
-					moveToY = pixelPoint.y;
+					moveToLat = pointLatInt;
+					moveToLon = pointLonInt;
 					prevWasMoveTo = true;
 				}
 				else
 				{
 					if (prevWasMoveTo)
 					{
-						drawingPath.moveTo(moveToX, moveToY);
+						GeoPoint geoPoint = new GeoPoint(moveToLat, moveToLon);
+						projection.toPixels(geoPoint, pixelPoint);
+						
+						drawingPath.moveTo(pixelPoint.x, pixelPoint.y);
 						prevWasMoveTo = false;
 					}
+					GeoPoint geoPoint = new GeoPoint(pointLatInt, pointLonInt);
+					projection.toPixels(geoPoint, pixelPoint);
+					
 					drawingPath.lineTo(pixelPoint.x, pixelPoint.y);
 				}
 
