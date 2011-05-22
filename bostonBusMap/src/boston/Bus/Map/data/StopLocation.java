@@ -214,23 +214,6 @@ public class StopLocation implements Location
 		snippetPredictions = makeSnippet(routeConfig, combinedPredictions, routeKeysToTitles, context);
 	}
 	
-	private String makeSnippetTitle(Collection<String> combinedTitles) {
-		String ret = "";
-		boolean first = true;
-		for (String title : combinedTitles)
-		{
-			if (first == false)
-			{
-				ret += "<br />";
-			}
-			
-			ret += title;
-			
-			first = false;
-		}
-		return ret;
-	}
-
 	@Override
 	public String getSnippet() {
 		return snippetPredictions;
