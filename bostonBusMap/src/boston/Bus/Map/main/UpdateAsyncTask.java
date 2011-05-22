@@ -416,12 +416,12 @@ public class UpdateAsyncTask extends AsyncTask<Object, Object, Locations>
 		//routeOverlay.setDrawCoarseLine(showCoarseRouteLine);
 		
 		//get a list of lat/lon pairs which describe the route
-        ArrayList<Path> paths;
+        Path[] paths;
 		try {
 			paths = busLocationsObject.getSelectedPaths();
 		} catch (IOException e) {
 			Log.e("BostonBusMap", "Exception thrown from getSelectedPaths: " + e.getMessage());
-			paths = new ArrayList<Path>();
+			paths = RouteConfig.nullPaths;
 		}
 		
 		RouteConfig selectedRouteConfig;

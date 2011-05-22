@@ -5,6 +5,7 @@ import java.util.Collection;
 import java.util.LinkedList;
 import java.util.ListIterator;
 import java.util.TreeSet;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 import android.graphics.Canvas;
 import android.graphics.Color;
@@ -56,7 +57,7 @@ public class RouteOverlay extends Overlay
 	 * Add the collection of paths, such that the head of one path touches the tail of another when possible
 	 * @param paths
 	 */
-	private void addPaths(Collection<Path> paths) {
+	private void addPaths(Iterable<Path> paths) {
 		for (Path path : paths)
 		{
 			int size = path.getPointsSize();
@@ -111,19 +112,19 @@ public class RouteOverlay extends Overlay
 	 * @param paths
 	 * @param color assumes something like "1234ef"
 	 */
-	public void setPathsAndColor(ArrayList<Path> paths, int color, String newRoute)
+	public void setPathsAndColor(Path[] paths, int color, String newRoute)
 	{
 		paint.setColor(color);
 		paint.setAlpha(0x99);
 		
-		if (newRoute != null && currentRoute != null && currentRoute.equals(newRoute) && this.paths.size() == paths.size())
+		if (newRoute != null && currentRoute != null && currentRoute.equals(newRoute) && this.paths.size() == paths.length)
 		{
 			//don't delete and add paths if we already have them
 		}
 		else
 		{
 			this.paths.clear();
-			addPaths(paths);
+			addPaths(new CopyOnWriteArrayList<Path>(paths));
 		}
 		currentRoute = newRoute;
 	}

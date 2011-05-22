@@ -161,7 +161,7 @@ public final class Locations
 		RouteConfig routeConfig = routeMapping.get(routeToUpdate);
 		if (routeConfig != null)
 		{
-			if (routeConfig.getStops().size() != 0 && (showRoute == false || routeConfig.getPaths().size() != 0 || 
+			if (routeConfig.getStops().size() != 0 && (showRoute == false || routeConfig.getPaths().length != 0 || 
 					routeConfig.hasPaths() == false))
 			{
 				//everything's ok
@@ -355,16 +355,16 @@ public final class Locations
 		selectedBusPredictions = busPredictions;
 	}
 
-	public ArrayList<Path> getSelectedPaths() throws IOException {
-		ArrayList<Path> ret = new ArrayList<Path>();
-
+	public Path[] getSelectedPaths() throws IOException {
 		RouteConfig routeConfig = routeMapping.get(selectedRoute);
 		if (routeConfig != null)
 		{
-			ret.addAll(routeConfig.getPaths());
+			return routeConfig.getPaths();
 		}
-		
-		return ret;
+		else
+		{
+			return RouteConfig.nullPaths;
+		}
 	}
 
 	

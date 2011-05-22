@@ -371,9 +371,9 @@ public class Box {
 		}
 	}
 
-	public void writePathsList(ArrayList<Path> paths) throws IOException {
+	public void writePathsList(Path[] paths) throws IOException {
 		showProgress("writePathsMap");
-		int size = paths.size();
+		int size = paths.length;
 		writeInt(size);
 		
 		for (Path path : paths)
@@ -382,7 +382,7 @@ public class Box {
 		}
 	}
 
-	public ArrayList<Path> readPathsList() throws IOException {
+	public Path[] readPathsList() throws IOException {
 		showProgress("readPathsMap");
 		int size = readInt();
 		
@@ -394,7 +394,7 @@ public class Box {
 			paths.add(value);
 		}
 		
-		return paths;
+		return paths.toArray(RouteConfig.nullPaths);
 	}
 
 	public void writeDouble(double d) throws IOException {
