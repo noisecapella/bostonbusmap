@@ -150,7 +150,7 @@ public final class Locations
 	 * @throws FactoryConfigurationError
 	 * @throws FeedException 
 	 */
-	public void Refresh(boolean inferBusRoutes, String routeToUpdate,
+	public void refresh(boolean inferBusRoutes, String routeToUpdate,
 			int selectedBusPredictions, float centerLatitude, float centerLongitude,
 			UpdateAsyncTask updateAsyncTask, boolean showRoute) throws SAXException, IOException,
 			ParserConfigurationException, FactoryConfigurationError 
