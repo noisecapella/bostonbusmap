@@ -430,21 +430,12 @@ public class UpdateAsyncTask extends AsyncTask<Object, Object, Locations>
 			try {
 				//get the currently drawn route's color
 				RouteConfig route = busLocationsObject.getSelectedRoute();
-				int color;
-				if (route != null)
-				{
-					color = route.getColor();
-				}
-				else
-				{
-					color = Color.BLUE;
-				}
-				
-				routeOverlay.setPathsAndColor(paths, color);
+				String routeName = route != null ? route.getRouteName() : "";
+				routeOverlay.setPathsAndColor(paths, Color.BLUE, routeName);
 
 			} catch (IOException e) {
 				Log.e("BostonBusMap", "Exception thrown from getSelectedRoute: " + e.getMessage());
-				routeOverlay.setPathsAndColor(paths, Color.BLUE);
+				routeOverlay.setPathsAndColor(paths, Color.BLUE, null);
 			}
 			selectedRouteConfig = null;
 		}
@@ -459,7 +450,7 @@ public class UpdateAsyncTask extends AsyncTask<Object, Object, Locations>
 			
 			if (selectedRouteConfig != null)
 			{
-				routeOverlay.setPathsAndColor(paths, selectedRouteConfig.getColor());
+				routeOverlay.setPathsAndColor(paths, selectedRouteConfig.getColor(), selectedRouteConfig.getRouteName());
 			}
 		}
 		

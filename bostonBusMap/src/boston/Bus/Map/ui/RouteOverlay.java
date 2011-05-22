@@ -31,6 +31,7 @@ public class RouteOverlay extends Overlay
 	private boolean showRouteLine;
 	
 	private final Paint paint;
+	private String currentRoute;
 	
 	public RouteOverlay(Projection projection)
 	{
@@ -110,13 +111,21 @@ public class RouteOverlay extends Overlay
 	 * @param paths
 	 * @param color assumes something like "1234ef"
 	 */
-	public void setPathsAndColor(ArrayList<Path> paths, int color)
+	public void setPathsAndColor(ArrayList<Path> paths, int color, String newRoute)
 	{
 		paint.setColor(color);
 		paint.setAlpha(0x99);
 		
-		this.paths.clear();
-		addPaths(paths);
+		if (newRoute != null && currentRoute != null && currentRoute.equals(newRoute) && this.paths.size() == paths.size())
+		{
+			//don't delete and add paths if we already have them
+		}
+		else
+		{
+			this.paths.clear();
+			addPaths(paths);
+		}
+		currentRoute = newRoute;
 	}
 	
 	@Override
