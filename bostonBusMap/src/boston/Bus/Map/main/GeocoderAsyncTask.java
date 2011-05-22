@@ -39,8 +39,8 @@ public class GeocoderAsyncTask extends AsyncTask<Object, String, List<Address>> 
 		this.query = query;
 		
 		GeoPoint geoPoint = mapView.getMapCenter();
-		currentLat = geoPoint.getLatitudeE6() / (float)Constants.E6;
-		currentLon = geoPoint.getLongitudeE6() / (float)Constants.E6;
+		currentLat = geoPoint.getLatitudeE6() * Constants.InvE6;
+		currentLon = geoPoint.getLongitudeE6() * Constants.InvE6;
 	}
 
 	@Override

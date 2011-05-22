@@ -363,9 +363,10 @@ public class UpdateAsyncTask extends AsyncTask<Object, Object, Locations>
 		}
 		
 		GeoPoint center = mapView.getMapCenter();
+		final float inve6 = Constants.InvE6;
 		final float e6 = Constants.E6;
-		final float latitude = center.getLatitudeE6() / e6;
-		final float longitude = center.getLongitudeE6() / e6;
+		final float latitude = center.getLatitudeE6() * inve6;
+		final float longitude = center.getLongitudeE6() * inve6;
 		
 		
 		final ArrayList<Location> busLocations = new ArrayList<Location>();

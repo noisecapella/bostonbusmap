@@ -142,8 +142,8 @@ public class UpdateHandler extends Handler {
 			}
 
 			GeoPoint geoPoint = mapView.getMapCenter();
-			float centerLatitude = geoPoint.getLatitudeE6() / (float)Constants.E6;
-			float centerLongitude = geoPoint.getLongitudeE6() / (float)Constants.E6;
+			float centerLatitude = geoPoint.getLatitudeE6() * Constants.InvE6;
+			float centerLongitude = geoPoint.getLongitudeE6() * Constants.InvE6;
 			
 			//remove duplicate messages
 			removeMessages(MINOR);
@@ -209,8 +209,8 @@ public class UpdateHandler extends Handler {
 		}
 		
 		GeoPoint geoPoint = mapView.getMapCenter();
-		float centerLatitude = geoPoint.getLatitudeE6() / (float)Constants.E6;
-		float centerLongitude = geoPoint.getLongitudeE6() / (float)Constants.E6;
+		float centerLatitude = geoPoint.getLatitudeE6() * Constants.InvE6;
+		float centerLongitude = geoPoint.getLongitudeE6() * Constants.InvE6;
 
 		
 		updateAsyncTask = new UpdateAsyncTask(progress, mapView, locationOverlay, getShowUnpredictable(), true, maxOverlays,

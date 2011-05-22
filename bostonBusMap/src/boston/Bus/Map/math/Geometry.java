@@ -19,6 +19,7 @@ public class Geometry {
 
 	public static final float radiansToDegrees = (float)(180.0 / java.lang.Math.PI);
 
+	private static final float InvPITimes180 = (1 / (float)Math.PI) * 180;
 	
 	/**
 	 * Returns a compare distance, or a distance which is distorted for efficiency sake but comparisons are always correct 
@@ -33,8 +34,8 @@ public class Geometry {
 	{
 		//great circle distance
 		//double dist = Math.acos(Math.sin(lat1) * Math.sin(lat2) + Math.cos(lat1) * Math.cos(lat2) * Math.cos(lon2 - lon1));
-		return (((1 - Math.cos((lat1 - lat2))) / 2) + Math.cos(lat1) * Math.cos(lat2) * 
-				((1 - Math.cos((lon1 - lon2))) / 2)) * radiusOfEarthInMiles;
+		return (((1 - Math.cos((lat1 - lat2))) * 0.5) + Math.cos(lat1) * Math.cos(lat2) * 
+				((1 - Math.cos((lon1 - lon2))) * 0.5)) * radiusOfEarthInMiles;
 	}
 	
 	public static int getDegreesFromSlope(double y, double x)
@@ -55,7 +56,7 @@ public class Geometry {
 	public static int mathRadiansToDegrees(double thetaAsRadians)
 	{
 		//NOTE: degrees will be 0 == north, going clockwise
-		int degrees = (int)(thetaAsRadians * 180.0 / Math.PI);
+		int degrees = (int)(thetaAsRadians * InvPITimes180);
 		if (degrees < 0)
 		{
 			degrees += 360;
