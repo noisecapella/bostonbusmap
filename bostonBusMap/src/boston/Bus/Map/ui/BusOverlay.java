@@ -35,6 +35,8 @@ import boston.Bus.Map.data.Location;
 import boston.Bus.Map.database.DatabaseHelper;
 import boston.Bus.Map.main.Main;
 import boston.Bus.Map.main.UpdateHandler;
+import boston.Bus.Map.math.Geometry;
+import boston.Bus.Map.util.Constants;
 
 import com.google.android.maps.GeoPoint;
 import com.google.android.maps.ItemizedOverlay;
@@ -92,9 +94,6 @@ public class BusOverlay extends BalloonItemizedOverlay<BusOverlayItem> {
 	
 	private final HashMap<String, String> routeKeysToTitles;
 	private final float density;
-	
-	private final Point circleCenter = new Point();
-	private final Point drawingPoint = new Point();
 	
 	private Locations locationsObj;
 	
@@ -266,35 +265,25 @@ public class BusOverlay extends BalloonItemizedOverlay<BusOverlayItem> {
 			
 		if (drawHighlightCircle && overlays.size() > 0)
 		{
-			final Point drawingPoint = this.drawingPoint;
-			final Point circleCenter = this.circleCenter;
-			//draw a circle showing the area where overlays are currently shown
-			//first overlayitem will be closest to center
-			Projection projection = mapView.getProjection();
-
 			//get screen location
-			OverlayItem first = overlays.get(0);
-			GeoPoint firstPoint = first.getPoint();
-			projection.toPixels(firstPoint, circleCenter); 
+			GeoPoint firstPoint = overlays.get(0).getPoint();
+			float lat1 = firstPoint.getLatitudeE6() * Constants.InvE6;
+			float lon1 = firstPoint.getLongitudeE6() * Constants.InvE6;
 
 			//find out farthest point from bus that's closest to center
 			//these points are sorted by distance from center of screen, but we want
 			//distance from the bus closest to the center, which is not quite the same
-			int lastDistance = 0;
+			float lastDistance = 0;
 			for (int i = 1; i < overlaysSize; i++)
 			{
 				OverlayItem item = overlays.get(i);
 				
 				GeoPoint geoPoint = item.getPoint();
-				projection.toPixels(geoPoint, drawingPoint);
+				float lat2 = geoPoint.getLatitudeE6() * Constants.InvE6;
+				float lon2 = geoPoint.getLongitudeE6() * Constants.InvE6;
+				float distance = Geometry.computeCompareDistance(lat1, lon1, lat2, lon2);
 
-				int dx = circleCenter.x - drawingPoint.x;
-				int dy = circleCenter.y - drawingPoint.y;
-				int distance = dx*dx + dy*dy;
-				if (distance > lastDistance)
-				{
-					lastDistance = distance;  
-				}
+				lastDistance = Math.max(lastDistance, distance);
 			}
 		
 
@@ -303,6 +292,9 @@ public class BusOverlay extends BalloonItemizedOverlay<BusOverlayItem> {
 			float radius = (float)Math.sqrt(lastDistance);
 
 			//draw a circle showing which buses are currently displayed
+			Projection projection = mapView.getProjection();
+			Point circleCenter = new Point();
+			projection.toPixels(firstPoint, circleCenter);
 			float circleCenterX = circleCenter.x;
 			float circleCenterY = circleCenter.y - busHeight / 2; 
 			canvas.drawCircle(circleCenterX, circleCenterY, radius, paint);

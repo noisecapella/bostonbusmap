@@ -49,7 +49,7 @@ public class UpdateHandler extends Handler {
 	
 	public final static int predictionsFetchDelay = 15000;
 	
-	private final int maxOverlays = 23;
+	private final int maxOverlays = 50;
 
 	private final int IMMEDIATE_REFRESH = 1;
 

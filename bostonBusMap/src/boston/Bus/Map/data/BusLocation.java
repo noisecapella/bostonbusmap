@@ -55,12 +55,12 @@ public class BusLocation implements Location {
 	 * Distance in miles of the bus from its previous location, in the x
 	 * dimension, squared
 	 */
-	private double distanceFromLastX;
+	private float distanceFromLastX;
 	/**
 	 * Distance in miles of the bus from its previous location, in the y
 	 * dimension, squared
 	 */
-	private double distanceFromLastY;
+	private float distanceFromLastY;
 
 	/**
 	 * What is the heading mentioned for the bus?
@@ -171,11 +171,12 @@ public class BusLocation implements Location {
 
 	}
 
-	public double distanceFrom(double lat2, double lon2) {
+	@Override
+	public float distanceFrom(float lat2, float lon2) {
 		return Geometry.computeCompareDistance(latitude, longitude, lat2, lon2);
 	}
 
-	public void movedFrom(double oldLatitude, double oldLongitude) {
+	public void movedFrom(float oldLatitude, float oldLongitude) {
 		if (oldLatitude == latitude && oldLongitude == longitude) {
 			// ignore
 			return;
@@ -369,7 +370,7 @@ public class BusLocation implements Location {
 		return disappearAfterRefresh;
 	}
 
-	public void movedTo(double latitudeAsDegrees, double longitudeAsDegrees) {
+	public void movedTo(float latitudeAsDegrees, float longitudeAsDegrees) {
 		movedFrom(latitudeAsDegrees * Geometry.degreesToRadians,
 				longitudeAsDegrees * Geometry.degreesToRadians);
 
