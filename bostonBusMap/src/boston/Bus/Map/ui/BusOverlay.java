@@ -106,10 +106,7 @@ public class BusOverlay extends BalloonItemizedOverlay<BusOverlayItem> {
 		
 		this.locations.addAll(busOverlay.locations);
 		
-		for (BusOverlayItem overlayItem : busOverlay.overlays)
-		{
-			addOverlay(overlayItem);
-		}
+		overlays.addAll(busOverlay.overlays);
 		
 		populate();
 		
@@ -144,7 +141,6 @@ public class BusOverlay extends BalloonItemizedOverlay<BusOverlayItem> {
 
 		this.density = density;
 
-		
 		//NOTE: remember to set updateable!
 		this.setOnFocusChangeListener(new OnFocusChangeListener() {
 
@@ -227,19 +223,6 @@ public class BusOverlay extends BalloonItemizedOverlay<BusOverlayItem> {
 		return overlays.size();
 	}
 	
-	private void addOverlay(BusOverlayItem item)
-	{
-		overlays.add(item);
-		
-		populate();
-	}
-
-	public void addOverlays(Collection<BusOverlayItem> overlayItems)
-	{
-		overlays.addAll(overlayItems);
-		
-		populate();
-	}
 	
 	@Override
 	protected BusOverlayItem createItem(int i)
@@ -391,15 +374,19 @@ public class BusOverlay extends BalloonItemizedOverlay<BusOverlayItem> {
 		return busPicture;
 	}
 
-	public void addOverlaysFromLocations(ArrayList<GeoPoint> points) {
+	public void addOverlaysFromLocations(ArrayList<GeoPoint> points)
+	{
+		overlays.ensureCapacity(overlays.size() + locations.size());
+		
 		for (int i = 0; i < locations.size(); i++)
 		{
 			Location location = locations.get(i);
 			String titleText = location.getSnippetTitle();
 			String snippetText = location.getSnippet();
 			BusOverlayItem overlayItem = new BusOverlayItem(points.get(i),titleText, snippetText);
-			addOverlay(overlayItem);
+			overlays.add(overlayItem);
 		}
+		populate();
 	}
 	
 	@Override
