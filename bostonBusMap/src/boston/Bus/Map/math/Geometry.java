@@ -17,11 +17,11 @@ public class Geometry {
 	
 	private static final float radiusOfEarthInMiles = radiusOfEarthInKilo / kilometersPerMile;
 
-	public static final float degreesToRadians = (float)(java.lang.Math.PI / 180.0);
+	public static final float degreesToRadians = (float)(java.lang.Math.PI / 180.0f);
 
-	public static final float radiansToDegrees = (float)(180.0 / java.lang.Math.PI);
+	public static final float radiansToDegrees = (float)(180.0f / java.lang.Math.PI);
 
-	private static final float InvPITimes180 = (1 / (float)Math.PI) * 180;
+	private static final float InvPITimes180 = (1.0f / (float)Math.PI) * 180f;
 	
 	/**
 	 * Returns a compare distance, or a distance which is distorted for efficiency sake but comparisons are always correct 
@@ -46,7 +46,6 @@ public class Geometry {
 		double thetaInRadians = Math.atan2(y, x);
 		
 		int degrees = mathRadiansToDegrees(thetaInRadians);
-		
 		return degrees;
 	}
 	

@@ -61,6 +61,7 @@ import android.graphics.drawable.shapes.OvalShape;
 import android.graphics.drawable.shapes.Shape;
 import android.text.TextPaint;
 import android.text.method.HideReturnsTransformationMethod;
+import android.util.FloatMath;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
@@ -94,6 +95,10 @@ public class BusOverlay extends BalloonItemizedOverlay<BusOverlayItem> {
 	
 	private final HashMap<String, String> routeKeysToTitles;
 	private final float density;
+	
+	//these two are temporary variables stored here so we don't create a new Point every time we draw
+	private final Point circleCenter = new Point();
+	private final Point radiusPoint = new Point();
 	
 	private Locations locationsObj;
 	
@@ -270,6 +275,7 @@ public class BusOverlay extends BalloonItemizedOverlay<BusOverlayItem> {
 			float lat1 = firstPoint.getLatitudeE6() * Constants.InvE6;
 			float lon1 = firstPoint.getLongitudeE6() * Constants.InvE6;
 
+			GeoPoint lastPoint = null;
 			//find out farthest point from bus that's closest to center
 			//these points are sorted by distance from center of screen, but we want
 			//distance from the bus closest to the center, which is not quite the same
@@ -283,20 +289,29 @@ public class BusOverlay extends BalloonItemizedOverlay<BusOverlayItem> {
 				float lon2 = geoPoint.getLongitudeE6() * Constants.InvE6;
 				float distance = Geometry.computeCompareDistance(lat1, lon1, lat2, lon2);
 
-				lastDistance = Math.max(lastDistance, distance);
+				if (lastDistance < distance)
+				{
+					lastDistance = distance;
+					lastPoint = geoPoint;
+				}
 			}
 		
-
-			
-
-			float radius = (float)Math.sqrt(lastDistance);
-
 			//draw a circle showing which buses are currently displayed
 			Projection projection = mapView.getProjection();
-			Point circleCenter = new Point();
 			projection.toPixels(firstPoint, circleCenter);
-			float circleCenterX = circleCenter.x;
-			float circleCenterY = circleCenter.y - busHeight / 2; 
+			projection.toPixels(lastPoint, radiusPoint);
+			
+			final float circleCenterX = circleCenter.x;
+			final float circleCenterY = circleCenter.y - busHeight / 2;
+			final float radiusPointX = radiusPoint.x;
+			final float radiusPointY = radiusPoint.y - busHeight / 2;
+			final float diffX = radiusPointX - circleCenterX;
+			final float diffY = radiusPointY - circleCenterY;
+			
+			final float circleDistance = diffX*diffX + diffY*diffY;
+			
+			float radius = FloatMath.sqrt(circleDistance);
+
 			canvas.drawCircle(circleCenterX, circleCenterY, radius, paint);
 		}
 		super.draw(canvas, mapView, shadow);
