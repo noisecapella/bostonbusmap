@@ -81,8 +81,9 @@ public class CurrentState {
 	 * @param mapView
 	 * @return
 	 */
-	public BusOverlay cloneBusOverlay(Main context, MapView mapView, HashMap<String, String> routeKeysToTitles) {
-		BusOverlay ret = new BusOverlay(busOverlay, context, mapView, routeKeysToTitles);
+	public BusOverlay cloneBusOverlay(Main context, MapView mapView, HashMap<String, String> routeKeysToTitles, float density)
+	{
+		BusOverlay ret = new BusOverlay(busOverlay, context, mapView, routeKeysToTitles, density);
 		
 		return ret;
 	}

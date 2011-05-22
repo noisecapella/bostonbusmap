@@ -46,8 +46,10 @@ public class BusPopupView extends BalloonOverlayView<BusOverlayItem>
 	private final Spanned moreInfoText;
 	private final Spanned reportProblemText;
 	
-	public BusPopupView(final Context context, int balloonBottomOffset, Locations locations, HashMap<String, String> routeKeysToTitles) {
-		super(context, balloonBottomOffset);
+	public BusPopupView(final Context context, int balloonBottomOffset, Locations locations,
+			HashMap<String, String> routeKeysToTitles, float density)
+	{
+		super(context, balloonBottomOffset, density);
 		
 		this.locations = locations;
 		this.routeKeysToTitles = routeKeysToTitles;
@@ -147,6 +149,8 @@ public class BusPopupView extends BalloonOverlayView<BusOverlayItem>
 		params.gravity = Gravity.NO_GRAVITY;
 		addView(layout, params);
 	}
+
+	
 	
 	protected void createInfoForDeveloper(Context context, StringBuilder otherText, int selectedBusPredictions, String selectedRoute)
 	{

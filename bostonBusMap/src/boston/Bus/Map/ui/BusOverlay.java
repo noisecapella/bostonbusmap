@@ -91,12 +91,13 @@ public class BusOverlay extends BalloonItemizedOverlay<BusOverlayItem> {
 	private final Paint paint;
 	
 	private final HashMap<String, String> routeKeysToTitles;
+	private final float density;
 	
 	private Locations locationsObj;
 	
-	public BusOverlay(BusOverlay busOverlay, Main context, MapView mapView, HashMap<String, String> routeKeysToTitles)
+	public BusOverlay(BusOverlay busOverlay, Main context, MapView mapView, HashMap<String, String> routeKeysToTitles, float density)
 	{
-		this(busOverlay.busPicture, context, mapView, routeKeysToTitles);
+		this(busOverlay.busPicture, context, mapView, routeKeysToTitles, density);
 		
 		this.drawHighlightCircle = busOverlay.drawHighlightCircle;
 		
@@ -112,7 +113,6 @@ public class BusOverlay extends BalloonItemizedOverlay<BusOverlayItem> {
 		this.selectedBusIndex = busOverlay.getLastFocusedIndex();
 		
 		
-		
 		if (selectedBusIndex != NOT_SELECTED)
 		{
 			//Log.v("BostonBusMap", "calling onTap: " + selectedBusIndex);
@@ -123,8 +123,8 @@ public class BusOverlay extends BalloonItemizedOverlay<BusOverlayItem> {
 	}
 	
 	
-	public BusOverlay(Drawable busPicture, Main context, 
-			MapView mapView, HashMap<String, String> routeKeysToTitles) {
+	public BusOverlay(Drawable busPicture, Main context, MapView mapView, HashMap<String, String> routeKeysToTitles, float density)
+	{
 		super(boundCenterBottom(busPicture), mapView);
 
 		this.context = context;
@@ -139,6 +139,7 @@ public class BusOverlay extends BalloonItemizedOverlay<BusOverlayItem> {
 		paint.setAntiAlias(true);
 		paint.setAlpha(0x70);
 
+		this.density = density;
 
 		
 		//NOTE: remember to set updateable!
@@ -412,7 +413,8 @@ public class BusOverlay extends BalloonItemizedOverlay<BusOverlayItem> {
 	}
 	
 	protected BalloonOverlayView<BusOverlayItem> createBalloonOverlayView() {
-		BusPopupView view = new BusPopupView(getMapView().getContext(), getBalloonBottomOffset(), locationsObj, routeKeysToTitles);
+		BusPopupView view = new BusPopupView(getMapView().getContext(), getBalloonBottomOffset(), locationsObj, routeKeysToTitles,
+				density);
 		return view;
 	}
 

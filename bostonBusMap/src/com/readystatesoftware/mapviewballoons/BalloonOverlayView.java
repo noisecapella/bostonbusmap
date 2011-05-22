@@ -50,7 +50,8 @@ public class BalloonOverlayView<Item extends OverlayItem> extends FrameLayout {
 	private TextView title;
 	private TextView snippet;
 	protected View layoutView;
-
+	private final float density;
+	
 	/**
 	 * Create a new BalloonOverlayView.
 	 * 
@@ -58,10 +59,12 @@ public class BalloonOverlayView<Item extends OverlayItem> extends FrameLayout {
 	 * @param balloonBottomOffset - The bottom padding (in pixels) to be applied
 	 * when rendering this view.
 	 */
-	protected BalloonOverlayView(Context context, int balloonBottomOffset) {
+	protected BalloonOverlayView(Context context, int balloonBottomOffset, float density) {
 
 		super(context);
 
+		this.density = density;
+		
 		setPadding(10, 0, 10, balloonBottomOffset);
 		layout = new LinearLayout(context);
 		layout.setVisibility(VISIBLE);
@@ -69,10 +72,27 @@ public class BalloonOverlayView<Item extends OverlayItem> extends FrameLayout {
 		LayoutInflater inflater = (LayoutInflater) context
 				.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 		layoutView = inflater.inflate(R.layout.balloon_map_overlay, layout);
+		
 		title = (TextView) layoutView.findViewById(R.id.balloon_item_title);
 		snippet = (TextView) layoutView.findViewById(R.id.balloon_item_snippet);
 
 
+	}
+	
+	@Override
+	protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+		int widthSpecMode = MeasureSpec.getMode(widthMeasureSpec);
+		int widthSpecSize = MeasureSpec.getSize(widthMeasureSpec);
+		
+		
+		
+		if (widthSpecMode == MeasureSpec.AT_MOST)
+		{
+			widthSpecSize = Math.min(widthSpecSize, (int)(480 * density));
+		}
+		widthMeasureSpec = MeasureSpec.makeMeasureSpec(widthSpecSize, widthSpecMode);
+		
+		super.onMeasure(widthMeasureSpec, heightMeasureSpec);
 	}
 	
 	/**
