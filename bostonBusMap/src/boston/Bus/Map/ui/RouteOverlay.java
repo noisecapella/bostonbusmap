@@ -137,9 +137,6 @@ public class RouteOverlay extends Overlay
 		}
 		
 
-		int prevLastLon = Integer.MAX_VALUE;
-		int prevLastLat = Integer.MAX_VALUE;
-
 		android.graphics.Path drawingPath = new android.graphics.Path();
 		
 		int width = canvas.getWidth();
@@ -195,8 +192,6 @@ public class RouteOverlay extends Overlay
 					drawingPath.lineTo(pixelPoint.x, pixelPoint.y);
 				}
 
-				prevLastLat = pointLatInt;
-				prevLastLon = pointLonInt;
 				prevOutOfBounds = currentOutOfBounds;
 			}
 		}
