@@ -86,6 +86,13 @@ public class TransitSystem {
 			transitSourceMap.put(SubwayTransitSource.OrangeLine, subwayTransitSource);
 			transitSourceMap.put(SubwayTransitSource.BlueLine, subwayTransitSource);
 			
+			CommuterRailTransitSource commuterRailTransitSource = new CommuterRailTransitSource(busStop, rail, railArrow);
+			for (String route : commuterRailTransitSource.getRoutes())
+			{
+				transitSourceMap.put(route, commuterRailTransitSource);
+			}
+			
+			transitSources.add(commuterRailTransitSource);
 			transitSources.add(subwayTransitSource);
 			transitSources.add(defaultTransitSource);
 		}

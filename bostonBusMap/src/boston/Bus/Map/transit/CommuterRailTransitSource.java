@@ -26,6 +26,7 @@ import boston.Bus.Map.data.RoutePool;
 import boston.Bus.Map.data.StopLocation;
 import boston.Bus.Map.main.Main;
 import boston.Bus.Map.main.UpdateAsyncTask;
+import boston.Bus.Map.parser.CommuterRailPredictionsFeedParser;
 import boston.Bus.Map.parser.CommuterRailRouteConfigParser;
 import boston.Bus.Map.parser.SubwayPredictionsFeedParser;
 import boston.Bus.Map.parser.SubwayRouteConfigFeedParser;
@@ -37,7 +38,7 @@ public class CommuterRailTransitSource implements TransitSource {
 	private final Drawable rail;
 	private final Drawable railArrow;
 	private final ArrayList<String> routes = new ArrayList<String>(12);
-	private final HashMap<String, String> routeKeysToTitles = new HashMap(12);
+	private final HashMap<String, String> routeKeysToTitles = new HashMap<String, String>(12);
 	
 	public CommuterRailTransitSource(Drawable busStop, Drawable rail, Drawable railArrow)
 	{
@@ -130,7 +131,7 @@ public class CommuterRailTransitSource implements TransitSource {
 
 		}
 
-		Log.v("BostonBusMap", "refreshing subway data for " + outputUrls.size() + " routes");
+		Log.v("BostonBusMap", "refreshing commuter data for " + outputUrls.size() + " routes");
 
 		for (String url : outputUrls)
 		{
@@ -142,18 +143,22 @@ public class CommuterRailTransitSource implements TransitSource {
 
 			//bus prediction
 
-			SubwayPredictionsFeedParser parser = new SubwayPredictionsFeedParser(routePool, directions, rail, railArrow, busMapping);
+			String id = url.substring(dataUrlPrefix.length());
+			id = id.substring(0, id.length() - 5);
+			RouteConfig railRouteConfig = routePool.get("CR-" + id);
+			CommuterRailPredictionsFeedParser parser = new CommuterRailPredictionsFeedParser(railRouteConfig, directions,
+					rail, railArrow, busMapping);
 
 			parser.runParse(data);
 		}
 		
 	}
+	private static final String dataUrlPrefix = "http://developer.mbta.com/lib/RTCR/RailLine_";
 
 	private void getPredictionsUrl(List<Location> locations, int maxStops,
 			String routeName, HashSet<String> outputUrls,
 			int mode) {
 		//http://developer.mbta.com/lib/RTCR/RailLine_1.json
-		final String dataUrlPrefix = "http://developer.mbta.com/lib/RTCR/RailLine_";
 		
 		//BUS_PREDICTIONS_ONE or VEHICLE_LOCATIONS_ONE
 		if (routeName != null)
@@ -207,7 +212,6 @@ public class CommuterRailTransitSource implements TransitSource {
 				
 				for (int i = 1; i <= 12; i++)
 				{
-					
 					outputUrls.add(dataUrlPrefix + i + ".json");
 				}
 			}
@@ -235,7 +239,7 @@ public class CommuterRailTransitSource implements TransitSource {
 	public void initializeAllRoutes(UpdateAsyncTask task, Context context,
 			Directions directions, RoutePool routeMapping) throws IOException,
 			ParserConfigurationException, SAXException {
-		task.publish(new ProgressMessage(ProgressMessage.PROGRESS_DIALOG_ON, "Downloading subway info", null));
+		task.publish(new ProgressMessage(ProgressMessage.PROGRESS_DIALOG_ON, "Downloading commuter info", null));
 		//final String subwayUrl = getRouteConfigUrl();
 		//URL url = new URL(subwayUrl);
 		//InputStream in = Locations.downloadStream(url, task);
