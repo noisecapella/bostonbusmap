@@ -101,7 +101,8 @@ public class CommuterRailPredictionsFeedParser
 		String route = null;
 		try
 		{
-			JSONObject root = (JSONObject)tokener.nextValue();
+			Object jsonObj = tokener.nextValue();
+			JSONObject root = (JSONObject)jsonObj;
 			JSONArray array = root.getJSONArray("Messages");
 
 			//TODO: there's a bug here where it doesn't interpret time after midnight correctly
@@ -121,7 +122,7 @@ public class CommuterRailPredictionsFeedParser
 				
 				String stopKey = (String)propertyMap.get("GTFS Stop Id");
 
-				StopLocation stopLocation = (StopLocation)routeConfig.getStop(stopKey);
+				StopLocation stopLocation = (StopLocation)routeConfig.getStop("CRK-" + stopKey);
 
 				if (stopLocation == null)
 				{
