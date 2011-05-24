@@ -18,7 +18,6 @@ import boston.Bus.Map.transit.CommuterRailTransitSource;
  */
 public class CommuterRailRouteConfigParser
 {
-	private final Drawable busStop;
 	private final Directions directions;
 	private final HashMap<String, RouteConfig> map = new HashMap<String, RouteConfig>();
 	private final HashMap<String, StopLocation> stops = new HashMap<String, StopLocation>();
@@ -28,7 +27,6 @@ public class CommuterRailRouteConfigParser
 	public CommuterRailRouteConfigParser(Drawable busStop, Directions directions, RouteConfig oldRouteConfig,
 			CommuterRailTransitSource source) 
 	{
-		this.busStop = busStop;
 		this.directions = directions;
 		this.source = source;
 	}
