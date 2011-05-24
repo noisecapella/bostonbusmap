@@ -176,6 +176,14 @@ public class CommuterRailRouteConfigParser
 
 		tempCurrentRoute = map.get("CR-3");
 
+		addStop("Kingston", 41.978548,-70.720315);
+		addStop("Plymouth", 41.981184,-70.692514);
+		addStop("Halifax", 42.012867,-70.820832);
+		addStop("Hanson", 42.043262,-70.881553);
+		addStop("Whitman", 42.083563,-70.923204);
+		addStop("Abington", 42.108034,-70.935296);
+		addStop("South Weymouth", 42.153747,-70.952490);
+		
 		addStop("Middleboro/ Lakeville", 41.878210,-70.918444);
 		addStop("Bridgewater", 41.986355,-70.966625);
 		addStop("Campello", 42.060038,-71.012460);
