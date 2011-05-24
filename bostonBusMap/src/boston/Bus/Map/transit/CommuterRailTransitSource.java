@@ -80,11 +80,11 @@ public class CommuterRailTransitSource implements TransitSource {
 	{
 		
 		//this will probably never be executed
-		final String urlString = getRouteConfigUrl();
+		//final String urlString = getRouteConfigUrl();
 
-		DownloadHelper downloadHelper = new DownloadHelper(urlString);
+		//DownloadHelper downloadHelper = new DownloadHelper(urlString);
 		
-		downloadHelper.connect();
+		//downloadHelper.connect();
 		//just initialize the route and then end for this round
 		
 		CommuterRailRouteConfigParser parser = new CommuterRailRouteConfigParser(busStop,

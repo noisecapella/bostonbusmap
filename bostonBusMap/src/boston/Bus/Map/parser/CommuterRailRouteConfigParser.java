@@ -262,18 +262,19 @@ public class CommuterRailRouteConfigParser
 		{
 			stopLocation.addRouteAndDirTag(tempCurrentRoute.getRouteName(), null);
 		}
+		tempCurrentRoute.addStop(stopLocation.getStopTag(), stopLocation);
 	}
 
 	public void runParse() throws IOException
 	{
 		
 		//StopLocation stopLocation = new StopLocation(latitudeAsDegrees, longitudeAsDegrees, busStop, tag, title);
-		populateStops();
 		
 		for (String route : source.getRoutes())
 		{
 			map.put(route, new RouteConfig(route, 0, 0, source));
 		}
+		populateStops();
 
 		
 	}
