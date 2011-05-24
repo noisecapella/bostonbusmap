@@ -268,7 +268,7 @@ public class UpdateAsyncTask extends AsyncTask<Object, Object, Locations>
 				}
 				busLocations.initializeAllRoutes(this, context, allRoutes);
 				
-				busLocations.Refresh(inferBusRoutes, routeToUpdate, selectedBusPredictions,
+				busLocations.refresh(inferBusRoutes, routeToUpdate, selectedBusPredictions,
 						centerLatitude, centerLongitude, this, showRouteLine);
 			}
 			catch (IOException e)
@@ -363,9 +363,10 @@ public class UpdateAsyncTask extends AsyncTask<Object, Object, Locations>
 		}
 		
 		GeoPoint center = mapView.getMapCenter();
+		final float inve6 = Constants.InvE6;
 		final float e6 = Constants.E6;
-		final float latitude = center.getLatitudeE6() / e6;
-		final float longitude = center.getLongitudeE6() / e6;
+		final float latitude = center.getLatitudeE6() * inve6;
+		final float longitude = center.getLongitudeE6() * inve6;
 		
 		
 		final ArrayList<Location> busLocations = new ArrayList<Location>();
@@ -415,12 +416,12 @@ public class UpdateAsyncTask extends AsyncTask<Object, Object, Locations>
 		//routeOverlay.setDrawCoarseLine(showCoarseRouteLine);
 		
 		//get a list of lat/lon pairs which describe the route
-        ArrayList<Path> paths;
+        Path[] paths;
 		try {
 			paths = busLocationsObject.getSelectedPaths();
 		} catch (IOException e) {
 			Log.e("BostonBusMap", "Exception thrown from getSelectedPaths: " + e.getMessage());
-			paths = new ArrayList<Path>();
+			paths = RouteConfig.nullPaths;
 		}
 		
 		RouteConfig selectedRouteConfig;
@@ -430,21 +431,12 @@ public class UpdateAsyncTask extends AsyncTask<Object, Object, Locations>
 			try {
 				//get the currently drawn route's color
 				RouteConfig route = busLocationsObject.getSelectedRoute();
-				int color;
-				if (route != null)
-				{
-					color = route.getColor();
-				}
-				else
-				{
-					color = Color.BLUE;
-				}
-				
-				routeOverlay.setPathsAndColor(paths, color);
+				String routeName = route != null ? route.getRouteName() : "";
+				routeOverlay.setPathsAndColor(paths, Color.BLUE, routeName);
 
 			} catch (IOException e) {
 				Log.e("BostonBusMap", "Exception thrown from getSelectedRoute: " + e.getMessage());
-				routeOverlay.setPathsAndColor(paths, Color.BLUE);
+				routeOverlay.setPathsAndColor(paths, Color.BLUE, null);
 			}
 			selectedRouteConfig = null;
 		}
@@ -459,7 +451,7 @@ public class UpdateAsyncTask extends AsyncTask<Object, Object, Locations>
 			
 			if (selectedRouteConfig != null)
 			{
-				routeOverlay.setPathsAndColor(paths, selectedRouteConfig.getColor());
+				routeOverlay.setPathsAndColor(paths, selectedRouteConfig.getColor(), selectedRouteConfig.getRouteName());
 			}
 		}
 		
@@ -496,11 +488,11 @@ public class UpdateAsyncTask extends AsyncTask<Object, Object, Locations>
 			if (null != index)
 			{
 				//two stops in one space. Just use the one overlay, and combine textboxes in an elegant manner
-				busLocations.get(index).addToSnippetAndTitle(selectedRouteConfig, busLocation, routeKeysToTitles);
+				busLocations.get(index).addToSnippetAndTitle(selectedRouteConfig, busLocation, routeKeysToTitles, context);
 			}
 			else
 			{
-				busLocation.makeSnippetAndTitle(selectedRouteConfig, routeKeysToTitles);
+				busLocation.makeSnippetAndTitle(selectedRouteConfig, routeKeysToTitles, context);
 			
 			
 				points.put(hash, i);

@@ -5,6 +5,7 @@ import java.util.Collection;
 import java.util.LinkedList;
 import java.util.ListIterator;
 import java.util.TreeSet;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 import android.graphics.Canvas;
 import android.graphics.Color;
@@ -31,6 +32,7 @@ public class RouteOverlay extends Overlay
 	private boolean showRouteLine;
 	
 	private final Paint paint;
+	private String currentRoute;
 	
 	public RouteOverlay(Projection projection)
 	{
@@ -55,7 +57,7 @@ public class RouteOverlay extends Overlay
 	 * Add the collection of paths, such that the head of one path touches the tail of another when possible
 	 * @param paths
 	 */
-	private void addPaths(Collection<Path> paths) {
+	private void addPaths(Iterable<Path> paths) {
 		for (Path path : paths)
 		{
 			int size = path.getPointsSize();
@@ -110,13 +112,21 @@ public class RouteOverlay extends Overlay
 	 * @param paths
 	 * @param color assumes something like "1234ef"
 	 */
-	public void setPathsAndColor(ArrayList<Path> paths, int color)
+	public void setPathsAndColor(Path[] paths, int color, String newRoute)
 	{
 		paint.setColor(color);
 		paint.setAlpha(0x99);
 		
-		this.paths.clear();
-		addPaths(paths);
+		if (newRoute != null && currentRoute != null && currentRoute.equals(newRoute) && this.paths.size() == paths.length)
+		{
+			//don't delete and add paths if we already have them
+		}
+		else
+		{
+			this.paths.clear();
+			addPaths(new CopyOnWriteArrayList<Path>(paths));
+		}
+		currentRoute = newRoute;
 	}
 	
 	@Override
@@ -127,18 +137,17 @@ public class RouteOverlay extends Overlay
 		}
 		
 
-		float prevLastLon = 0;
-		float prevLastLat = 0;
-
-		//swap these two back and forth so we don't 
-		Point pixelPoint1 = new Point();
-		Point pixelPoint2 = new Point();
-
 		android.graphics.Path drawingPath = new android.graphics.Path();
-		int floatIndex = 0;
 		
-		prevLastLat = 0;
-		prevLastLon = 0;
+		int width = canvas.getWidth();
+		int height = canvas.getHeight();
+		GeoPoint bottomRight = projection.fromPixels(width, height);
+		GeoPoint topLeft = projection.fromPixels(0, 0);
+		
+		int maxLat = topLeft.getLatitudeE6();
+		int minLat = bottomRight.getLatitudeE6();
+		int minLon = topLeft.getLongitudeE6();
+		int maxLon = bottomRight.getLongitudeE6();
 		
 		//make sure the JVM knows this doesn't change unexpectedly
 		Point pixelPoint = new Point();
@@ -146,26 +155,44 @@ public class RouteOverlay extends Overlay
 		{
 			int pointsSize = path.getPointsSize();
 
+			boolean prevOutOfBounds = true;
+			boolean prevWasMoveTo = true;
+			int moveToLat = Integer.MAX_VALUE;
+			int moveToLon = Integer.MAX_VALUE;
 			for (int i = 0; i < pointsSize; i++)
 			{
 				float pointLat = path.getPointLat(i);
+				int pointLatInt = (int)(pointLat * Constants.E6);
 				float pointLon = path.getPointLon(i);
+				int pointLonInt = (int)(pointLon * Constants.E6);
 				
-				GeoPoint geoPoint = new GeoPoint((int)(pointLat * Constants.E6), (int)(pointLon * Constants.E6));
+				boolean currentOutOfBounds = pointLatInt < minLat || pointLatInt > maxLat ||
+						pointLonInt < minLon || pointLonInt > maxLon;
 				
-				projection.toPixels(geoPoint, pixelPoint);
-				
-				if (i == 0 && prevLastLat != pointLat && prevLastLon != pointLon)
+				if (i == 0 || (prevOutOfBounds && currentOutOfBounds))
 				{
-					drawingPath.moveTo(pixelPoint.x, pixelPoint.y);
+					//be lazy about moveTo in case it incurs a performance hit
+					moveToLat = pointLatInt;
+					moveToLon = pointLonInt;
+					prevWasMoveTo = true;
 				}
 				else
 				{
+					if (prevWasMoveTo)
+					{
+						GeoPoint geoPoint = new GeoPoint(moveToLat, moveToLon);
+						projection.toPixels(geoPoint, pixelPoint);
+						
+						drawingPath.moveTo(pixelPoint.x, pixelPoint.y);
+						prevWasMoveTo = false;
+					}
+					GeoPoint geoPoint = new GeoPoint(pointLatInt, pointLonInt);
+					projection.toPixels(geoPoint, pixelPoint);
+					
 					drawingPath.lineTo(pixelPoint.x, pixelPoint.y);
 				}
-				
-				prevLastLat = pointLat;
-				prevLastLon = pointLon;
+
+				prevOutOfBounds = currentOutOfBounds;
 			}
 		}
 		

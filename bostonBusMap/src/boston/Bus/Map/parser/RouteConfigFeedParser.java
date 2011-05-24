@@ -93,6 +93,7 @@ public class RouteConfigFeedParser extends DefaultHandler
 	private boolean inPath;
 	
 	private RouteConfig currentRouteConfig;
+	private ArrayList<Path> currentPaths;
 	private String currentRoute;
 	
 	private ArrayList<Float> currentPathPoints;
@@ -160,6 +161,7 @@ public class RouteConfigFeedParser extends DefaultHandler
 			try
 			{
 				currentRouteConfig = new RouteConfig(currentRoute, color, oppositeColor, transitSource);
+				currentPaths = new ArrayList<Path>(1);
 			}
 			catch (IOException e)
 			{
@@ -223,10 +225,13 @@ public class RouteConfigFeedParser extends DefaultHandler
 		{
 			inRoute = false;
 			
+			currentRouteConfig.setPaths(currentPaths.toArray(RouteConfig.nullPaths));
+			
 			map.put(currentRoute, currentRouteConfig);
 
 			currentRoute = null;
 			currentRouteConfig = null;
+			currentPaths = null;
 		}
 		else if (pathKey.equals(localName))
 		{
@@ -235,7 +240,7 @@ public class RouteConfigFeedParser extends DefaultHandler
 			if (currentRouteConfig != null)
 			{
 				Path path = new Path(currentPathPoints);
-				currentRouteConfig.addPath(path);
+				currentPaths.add(path);
 			}
 		}
 		

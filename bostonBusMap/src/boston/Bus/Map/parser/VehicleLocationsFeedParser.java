@@ -55,7 +55,7 @@ public class VehicleLocationsFeedParser extends DefaultHandler
 		data.close();
 	}
 
-	private double lastUpdateTime;
+	private long lastUpdateTime;
 	private final HashMap<Integer, BusLocation> busMapping = new HashMap<Integer, BusLocation>();
 	
 	private static final String vehicleKey = "vehicle";
@@ -105,7 +105,7 @@ public class VehicleLocationsFeedParser extends DefaultHandler
 		}
 		else if (localName.equals(lastTimeKey))
 		{
-			lastUpdateTime = Double.parseDouble(attributes.getValue(timeKey));
+			lastUpdateTime = Long.parseLong(attributes.getValue(timeKey));
 			
 			for (Integer key : busMapping.keySet())
 			{

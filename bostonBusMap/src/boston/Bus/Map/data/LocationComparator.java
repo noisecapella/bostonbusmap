@@ -5,11 +5,11 @@ import java.util.Comparator;
 import boston.Bus.Map.math.Geometry;
 
 public class LocationComparator implements Comparator<boston.Bus.Map.data.Location> {
-	private final double centerLatitudeAsRadians; 
-	private final double centerLongitudeAsRadians;
+	private final float centerLatitudeAsRadians; 
+	private final float centerLongitudeAsRadians;
 
 
-	public LocationComparator(double centerLatitude, double centerLongitude)
+	public LocationComparator(float centerLatitude, float centerLongitude)
 	{
 		centerLatitudeAsRadians = centerLatitude * Geometry.degreesToRadians;
 		centerLongitudeAsRadians = centerLongitude * Geometry.degreesToRadians;

@@ -165,6 +165,7 @@ public class SubwayRouteConfigFeedParser
 		//path
 		for (String route : orderedStations.keySet())
 		{
+			
 			HashMap<String, TreeMap<Short, StopLocation>> innerMapping = orderedStations.get(route);
 			for (String directionHash : innerMapping.keySet())
 			{
@@ -190,7 +191,9 @@ public class SubwayRouteConfigFeedParser
 						floats.add((float)jfkStation.getLongitudeAsDegrees());
 					}
 				}
-				map.get(route).addPath(new Path(floats));
+				Path path = new Path(floats);
+				Path[] paths = new Path[] {path};
+				map.get(route).setPaths(paths);
 			}
 		}
 	}

@@ -23,13 +23,15 @@ public class RouteConfig
 {
 
 	private final HashMap<String, StopLocation> stops;
-	private final ArrayList<Path> paths;
+	private Path[] paths;
 	private final String route;
 	
 	private final int color;
 	private final int oppositeColor;
 	
 	private final TransitSource transitSource;
+	
+	public static final Path[] nullPaths = new Path[0];
 	
 	public RouteConfig(String route, int color, int oppositeColor, TransitSource transitAgency) throws IOException
 	{
@@ -60,14 +62,7 @@ public class RouteConfig
 		return route;
 	}
 
-
-
-	public void addPath(Path currentPath) {
-		paths.add(currentPath);
-		
-	}
-
-	public ArrayList<Path> getPaths() {
+	public Path[] getPaths() {
 		return paths;
 	}
 
@@ -96,7 +91,7 @@ public class RouteConfig
 		}
 		else
 		{
-			paths = new ArrayList<Path>();
+			paths = nullPaths;
 		}
 	}
 
@@ -113,5 +108,10 @@ public class RouteConfig
 
 	public int getOppositeColor() {
 		return oppositeColor;
+	}
+
+	public void setPaths(Path[] paths)
+	{
+		this.paths = paths;
 	}
 }

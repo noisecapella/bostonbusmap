@@ -27,6 +27,7 @@ import java.util.List;
 
 import boston.Bus.Map.R;
 import boston.Bus.Map.data.BusLocation;
+import boston.Bus.Map.data.Directions;
 import boston.Bus.Map.data.Locations;
 import boston.Bus.Map.data.StopLocation;
 
@@ -34,6 +35,8 @@ import boston.Bus.Map.data.Location;
 import boston.Bus.Map.database.DatabaseHelper;
 import boston.Bus.Map.main.Main;
 import boston.Bus.Map.main.UpdateHandler;
+import boston.Bus.Map.math.Geometry;
+import boston.Bus.Map.util.Constants;
 
 import com.google.android.maps.GeoPoint;
 import com.google.android.maps.ItemizedOverlay;
@@ -41,6 +44,7 @@ import com.google.android.maps.MapView;
 import com.google.android.maps.OverlayItem;
 import com.google.android.maps.Projection;
 import com.readystatesoftware.mapviewballoons.BalloonItemizedOverlay;
+import com.readystatesoftware.mapviewballoons.BalloonOverlayView;
 
 import android.content.Context;
 import android.graphics.Canvas;
@@ -57,6 +61,7 @@ import android.graphics.drawable.shapes.OvalShape;
 import android.graphics.drawable.shapes.Shape;
 import android.text.TextPaint;
 import android.text.method.HideReturnsTransformationMethod;
+import android.util.FloatMath;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
@@ -75,10 +80,10 @@ import android.widget.Toast;
  * Much of this was borrowed from the helpful tutorial at http://developer.android.com/guide/tutorials/views/hello-mapview.html
  * 
  */
-public class BusOverlay extends BalloonItemizedOverlay<OverlayItem> {
+public class BusOverlay extends BalloonItemizedOverlay<BusOverlayItem> {
 
 	public static final int NOT_SELECTED = -1;
-	private final ArrayList<OverlayItem> overlays = new ArrayList<OverlayItem>();
+	private final ArrayList<BusOverlayItem> overlays = new ArrayList<BusOverlayItem>();
 	private Main context;
 	private final List<Location> locations = new ArrayList<Location>();
 	private int selectedBusIndex;
@@ -89,26 +94,27 @@ public class BusOverlay extends BalloonItemizedOverlay<OverlayItem> {
 	private final Paint paint;
 	
 	private final HashMap<String, String> routeKeysToTitles;
+	private final float density;
+	
+	//these two are temporary variables stored here so we don't create a new Point every time we draw
+	private final Point circleCenter = new Point();
+	private final Point radiusPoint = new Point();
 	
 	private Locations locationsObj;
 	
-	public BusOverlay(BusOverlay busOverlay, Main context, MapView mapView, HashMap<String, String> routeKeysToTitles)
+	public BusOverlay(BusOverlay busOverlay, Main context, MapView mapView, HashMap<String, String> routeKeysToTitles, float density)
 	{
-		this(busOverlay.busPicture, context, mapView, routeKeysToTitles);
+		this(busOverlay.busPicture, context, mapView, routeKeysToTitles, density);
 		
 		this.drawHighlightCircle = busOverlay.drawHighlightCircle;
 		
 		this.locations.addAll(busOverlay.locations);
 		
-		for (OverlayItem overlayItem : busOverlay.overlays)
-		{
-			addOverlay(overlayItem);
-		}
+		overlays.addAll(busOverlay.overlays);
 		
 		populate();
 		
 		this.selectedBusIndex = busOverlay.getLastFocusedIndex();
-		
 		
 		
 		if (selectedBusIndex != NOT_SELECTED)
@@ -121,8 +127,8 @@ public class BusOverlay extends BalloonItemizedOverlay<OverlayItem> {
 	}
 	
 	
-	public BusOverlay(Drawable busPicture, Main context, 
-			MapView mapView, HashMap<String, String> routeKeysToTitles) {
+	public BusOverlay(Drawable busPicture, Main context, MapView mapView, HashMap<String, String> routeKeysToTitles, float density)
+	{
 		super(boundCenterBottom(busPicture), mapView);
 
 		this.context = context;
@@ -137,10 +143,9 @@ public class BusOverlay extends BalloonItemizedOverlay<OverlayItem> {
 		paint.setAntiAlias(true);
 		paint.setAlpha(0x70);
 
+		this.density = density;
 
-		
 		//NOTE: remember to set updateable!
-		
 		this.setOnFocusChangeListener(new OnFocusChangeListener() {
 
 			@Override
@@ -150,7 +155,7 @@ public class BusOverlay extends BalloonItemizedOverlay<OverlayItem> {
 				//but in certain cases (you click away from any bus, then click on the bus again) it got confused and didn't draw
 				//things right. This corrects that (hopefully)
 				setLastFocusedIndex(NOT_SELECTED);
-				setFocus(newFocus);
+				setFocus((BusOverlayItem)newFocus);
 				if (newFocus == null)
 				{
 					hideBalloon();
@@ -158,7 +163,7 @@ public class BusOverlay extends BalloonItemizedOverlay<OverlayItem> {
 			}
 		});
 		
-		setBalloonBottomOffset(40);
+		setBalloonBottomOffset(busPicture.getIntrinsicHeight() + 4);
 	}
 
 	public void setUpdateable(UpdateHandler updateable)
@@ -217,27 +222,14 @@ public class BusOverlay extends BalloonItemizedOverlay<OverlayItem> {
 	}
 	
 	@Override
-	public int size() {
-		// TODO Auto-generated method stub
+	public int size() 
+	{
 		return overlays.size();
 	}
 	
-	private void addOverlay(OverlayItem item)
-	{
-		overlays.add(item);
-		
-		populate();
-	}
-
-	public void addOverlays(Collection<OverlayItem> overlayItems)
-	{
-		overlays.addAll(overlayItems);
-		
-		populate();
-	}
 	
 	@Override
-	protected com.google.android.maps.OverlayItem createItem(int i)
+	protected BusOverlayItem createItem(int i)
 	{
 		return overlays.get(i);
 	}
@@ -278,14 +270,16 @@ public class BusOverlay extends BalloonItemizedOverlay<OverlayItem> {
 			
 		if (drawHighlightCircle && overlays.size() > 0)
 		{
-			//draw a circle showing the area where overlays are currently shown
-			//first overlayitem will be closest to center
-			Projection projection = mapView.getProjection();
-
+			final Point circleCenter = this.circleCenter;
+			final Point radiusPoint = this.radiusPoint;
+			
 			//get screen location
-			OverlayItem first = overlays.get(0);
-			GeoPoint firstPoint = first.getPoint();
-			Point circleCenter = projection.toPixels(firstPoint, null); 
+			GeoPoint firstPoint = overlays.get(0).getPoint();
+
+			Projection projection = mapView.getProjection();
+			projection.toPixels(firstPoint, circleCenter);
+			final int circleCenterX = circleCenter.x;
+			final int circleCenterY = circleCenter.y;
 
 			//find out farthest point from bus that's closest to center
 			//these points are sorted by distance from center of screen, but we want
@@ -294,28 +288,22 @@ public class BusOverlay extends BalloonItemizedOverlay<OverlayItem> {
 			for (int i = 1; i < overlaysSize; i++)
 			{
 				OverlayItem item = overlays.get(i);
-				Location location = locations.get(i);
 				
 				GeoPoint geoPoint = item.getPoint();
-				Point point = projection.toPixels(geoPoint, null);
-
-				int dx = circleCenter.x - point.x;
-				int dy = circleCenter.y - point.y;
-				int distance = dx*dx + dy*dy;
-				if (distance > lastDistance)
+				projection.toPixels(geoPoint, radiusPoint);
+				final int diffX = radiusPoint.x - circleCenterX;
+				final int diffY = radiusPoint.y - circleCenterY;
+				final int distance = diffX*diffX + diffY*diffY;
+				
+				if (lastDistance < distance)
 				{
-					lastDistance = distance;  
+					lastDistance = distance;
 				}
 			}
 		
-
-			
-
-			float radius = (float)Math.sqrt(lastDistance);
-
 			//draw a circle showing which buses are currently displayed
-			float circleCenterX = circleCenter.x;
-			float circleCenterY = circleCenter.y - busHeight / 2; 
+			float radius = FloatMath.sqrt(lastDistance);
+
 			canvas.drawCircle(circleCenterX, circleCenterY, radius, paint);
 		}
 		super.draw(canvas, mapView, shadow);
@@ -385,36 +373,40 @@ public class BusOverlay extends BalloonItemizedOverlay<OverlayItem> {
 		return busPicture;
 	}
 
-
-
-	public void addOverlaysFromLocations(ArrayList<GeoPoint> points) {
+	public void addOverlaysFromLocations(ArrayList<GeoPoint> points)
+	{
+		overlays.ensureCapacity(overlays.size() + locations.size());
+		
 		for (int i = 0; i < locations.size(); i++)
 		{
 			Location location = locations.get(i);
 			String titleText = location.getSnippetTitle();
 			String snippetText = location.getSnippet();
-			OverlayItem overlayItem = new OverlayItem(points.get(i),titleText, snippetText);
-			addOverlay(overlayItem);
+			BusOverlayItem overlayItem = new BusOverlayItem(points.get(i),titleText, snippetText);
+			overlays.add(overlayItem);
 		}
+		populate();
 	}
 	
 	@Override
-	protected boolean onBalloonTap(int index) {
-		Log.v("BostonBusMap", "Balloon was tapped");
-		balloonView.setCurrentLocation(locationsObj, locations.get(index), routeKeysToTitles);
+	protected boolean onTap(int index) {
+		boolean ret = super.onTap(index);
 		
-		//let things underneath handle this too
-		return false;
-	}
-	
-	@Override
-	protected void setOtherData(int index) {
-		Log.v("BostonBusMap", "Balloon was tapped");
 		Location location = locations.get(index);
-		balloonView.setCurrentLocation(locationsObj, location, routeKeysToTitles);
+		BusOverlayItem item = currentFocussedItem;
+		item.setCurrentLocation(location);
 		
-		//only show the favorite star and more info link if it's a bus stop
+		BusPopupView view = (BusPopupView)balloonView;
 		boolean isVisible = location instanceof StopLocation;
-		balloonView.setDrawableState(location.isFavorite(), isVisible, isVisible);
+		view.setState(location.isFavorite(), isVisible, isVisible, location);
+		
+		return ret;
 	}
+	
+	protected BalloonOverlayView<BusOverlayItem> createBalloonOverlayView() {
+		BusPopupView view = new BusPopupView(getMapView().getContext(), getBalloonBottomOffset(), locationsObj, routeKeysToTitles,
+				density);
+		return view;
+	}
+
 }

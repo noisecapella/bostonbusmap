@@ -39,7 +39,7 @@ public class UpdateHandler extends Handler {
 	 * The last time we updated, in milliseconds. Used to make sure we don't update more frequently than
 	 * every 10 seconds, to avoid unnecessary strain on their server
 	 */
-	private double lastUpdateTime;
+	private long lastUpdateTime;
 
 	/**
 	 * The minimum time in milliseconds between updates. The XML feed requires a minimum of 10 seconds,
@@ -49,7 +49,7 @@ public class UpdateHandler extends Handler {
 	
 	public final static int predictionsFetchDelay = 15000;
 	
-	private final int maxOverlays = 23;
+	private final int maxOverlays = 75;
 
 	private final int IMMEDIATE_REFRESH = 1;
 
@@ -88,7 +88,7 @@ public class UpdateHandler extends Handler {
 		this.busOverlay = busOverlay;
 		this.routeOverlay = routeOverlay;
 		this.locationOverlay = locationOverlay;
-		lastUpdateTime = System.currentTimeMillis();
+		lastUpdateTime = TransitSystem.currentTimeMillis();
 		
 		this.context = context;
 		this.updateAsyncTask = majorHandler;
@@ -106,7 +106,7 @@ public class UpdateHandler extends Handler {
 		case MAJOR:
 			Log.v("BostonBusMap", "received major message");
 			//remove duplicates
-			double currentTime = System.currentTimeMillis();
+			long currentTime = TransitSystem.currentTimeMillis();
 			
 			int fetchDelay = getCurrentFetchDelay();
 			
@@ -142,8 +142,8 @@ public class UpdateHandler extends Handler {
 			}
 
 			GeoPoint geoPoint = mapView.getMapCenter();
-			float centerLatitude = geoPoint.getLatitudeE6() / (float)Constants.E6;
-			float centerLongitude = geoPoint.getLongitudeE6() / (float)Constants.E6;
+			float centerLatitude = geoPoint.getLatitudeE6() * Constants.InvE6;
+			float centerLongitude = geoPoint.getLongitudeE6() * Constants.InvE6;
 			
 			//remove duplicate messages
 			removeMessages(MINOR);
@@ -195,7 +195,7 @@ public class UpdateHandler extends Handler {
 	 */
 	private void runUpdateTask(boolean isFirstTime) {
 		//make sure we don't update too often
-		lastUpdateTime = System.currentTimeMillis();
+		lastUpdateTime = TransitSystem.currentTimeMillis();
 
 		//don't do two updates at once
 		if (updateAsyncTask != null)
@@ -209,8 +209,8 @@ public class UpdateHandler extends Handler {
 		}
 		
 		GeoPoint geoPoint = mapView.getMapCenter();
-		float centerLatitude = geoPoint.getLatitudeE6() / (float)Constants.E6;
-		float centerLongitude = geoPoint.getLongitudeE6() / (float)Constants.E6;
+		float centerLatitude = geoPoint.getLatitudeE6() * Constants.InvE6;
+		float centerLongitude = geoPoint.getLongitudeE6() * Constants.InvE6;
 
 		
 		updateAsyncTask = new UpdateAsyncTask(progress, mapView, locationOverlay, getShowUnpredictable(), true, maxOverlays,
@@ -232,7 +232,7 @@ public class UpdateHandler extends Handler {
 			sendEmptyMessageDelayed(MAJOR, (long)(fetchDelay * 1.5));
 		}
 		
-		if (System.currentTimeMillis() - lastUpdateTime < fetchDelay)
+		if (TransitSystem.currentTimeMillis() - lastUpdateTime < fetchDelay)
 		{
 			return false;
 		}
@@ -262,13 +262,13 @@ public class UpdateHandler extends Handler {
 		hideHighlightCircle = b;
 	}
 	
-	public void setLastUpdateTime(double lastUpdateTime) {
+	public void setLastUpdateTime(long lastUpdateTime) {
 		this.lastUpdateTime = lastUpdateTime;
 		
 	}
 
 
-	public double getLastUpdateTime() {
+	public long getLastUpdateTime() {
 		return lastUpdateTime;
 	}
 	

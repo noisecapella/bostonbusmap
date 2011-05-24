@@ -87,7 +87,8 @@ public class StopLocation implements Location
 	}
 	
 	@Override
-	public double distanceFrom(double centerLatitude, double centerLongitude) {
+	public float distanceFrom(float centerLatitude, float centerLongitude)
+	{
 		return Geometry.computeCompareDistance(latitude, longitude, centerLatitude, centerLongitude);
 	}
 
@@ -124,14 +125,14 @@ public class StopLocation implements Location
 	}
 
 	@Override
-	public void makeSnippetAndTitle(RouteConfig routeConfig, HashMap<String, String> routeKeysToTitles) {
+	public void makeSnippetAndTitle(RouteConfig routeConfig, HashMap<String, String> routeKeysToTitles, Context context) {
 		TreeSet<String> routes = new TreeSet<String>();
 		routes.addAll(dirTags.keySet());
 		snippetRoutes = makeSnippetRoutes(routes, routeKeysToTitles);
 		snippetTitle = title;
 		snippetStop = tag;
 		
-		snippetPredictions = makeSnippet(routeConfig, predictions, routeKeysToTitles);
+		snippetPredictions = makeSnippet(routeConfig, predictions, routeKeysToTitles, context);
 		sharedSnippetStops = null;
 	}
 	
@@ -152,7 +153,7 @@ public class StopLocation implements Location
 	private TreeSet<String> combinedTitles;
 	
 	@Override
-	public void addToSnippetAndTitle(RouteConfig routeConfig, Location location, HashMap<String, String> routeKeysToTitles) {
+	public void addToSnippetAndTitle(RouteConfig routeConfig, Location location, HashMap<String, String> routeKeysToTitles, Context context) {
 		StopLocation stopLocation = (StopLocation)location;
 		
 		if (sharedSnippetStops == null)
@@ -210,26 +211,9 @@ public class StopLocation implements Location
 			}
 		}
 		
-		snippetPredictions = makeSnippet(routeConfig, combinedPredictions, routeKeysToTitles);
+		snippetPredictions = makeSnippet(routeConfig, combinedPredictions, routeKeysToTitles, context);
 	}
 	
-	private String makeSnippetTitle(Collection<String> combinedTitles) {
-		String ret = "";
-		boolean first = true;
-		for (String title : combinedTitles)
-		{
-			if (first == false)
-			{
-				ret += "<br />";
-			}
-			
-			ret += title;
-			
-			first = false;
-		}
-		return ret;
-	}
-
 	@Override
 	public String getSnippet() {
 		return snippetPredictions;
@@ -241,7 +225,8 @@ public class StopLocation implements Location
 		return ret;
 	}
 	
-	private String makeSnippet(RouteConfig routeConfig, ArrayList<Prediction> predictions, HashMap<String, String> routeKeysToTitles) {
+	private String makeSnippet(RouteConfig routeConfig, ArrayList<Prediction> predictions, HashMap<String, String> routeKeysToTitles,
+			Context context) {
 		String ret = "";
 		
 		if (predictions == null)
@@ -282,7 +267,7 @@ public class StopLocation implements Location
 					ret += "<br />";
 				}
 				
-				ret += "<br />" + prediction.makeSnippet(routeKeysToTitles);
+				ret += "<br />" + prediction.makeSnippet(routeKeysToTitles, context);
 
 				count++;
 				if (count >= max)
@@ -344,7 +329,7 @@ public class StopLocation implements Location
 		
 		synchronized (predictions)
 		{
-			Prediction prediction = new Prediction(minutes, epochTime, vehicleId, 
+			Prediction prediction = new Prediction(minutes, vehicleId, 
 					directions.getTitleAndName(direction), route.getRouteName(), affectedByLayover, isDelayed);
 			if (predictions.contains(prediction) == false)
 			{

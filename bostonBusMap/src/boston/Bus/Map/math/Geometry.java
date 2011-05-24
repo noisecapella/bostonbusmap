@@ -1,5 +1,7 @@
 package boston.Bus.Map.math;
 
+import android.util.FloatMath;
+
 /**
  * All non-specific math stuff used to calculate angles and distances should go in here
  * @author schneg
@@ -10,15 +12,16 @@ public class Geometry {
 	/**
 	 * Used in calculating the distance between coordinates
 	 */
-	private static final double radiusOfEarthInKilo = 6371.2;
-	private static final double kilometersPerMile = 1.609344;
+	private static final float radiusOfEarthInKilo = 6371.2f;
+	private static final float kilometersPerMile = 1.609344f;
 	
-	private static final double radiusOfEarthInMiles = radiusOfEarthInKilo / kilometersPerMile;
+	private static final float radiusOfEarthInMiles = radiusOfEarthInKilo / kilometersPerMile;
 
-	public static final float degreesToRadians = (float)(java.lang.Math.PI / 180.0);
+	public static final float degreesToRadians = (float)(java.lang.Math.PI / 180.0f);
 
-	public static final float radiansToDegrees = (float)(180.0 / java.lang.Math.PI);
+	public static final float radiansToDegrees = (float)(180.0f / java.lang.Math.PI);
 
+	private static final float InvPITimes180 = (1.0f / (float)Math.PI) * 180f;
 	
 	/**
 	 * Returns a compare distance, or a distance which is distorted for efficiency sake but comparisons are always correct 
@@ -29,12 +32,13 @@ public class Geometry {
 	 * @param lon2 longitude in radians
 	 * @return distance in miles
 	 */
-	public static double computeCompareDistance(double lat1, double lon1, double lat2, double lon2)
+	public static float computeCompareDistance(float lat1, float lon1, float lat2, float lon2)
 	{
 		//great circle distance
 		//double dist = Math.acos(Math.sin(lat1) * Math.sin(lat2) + Math.cos(lat1) * Math.cos(lat2) * Math.cos(lon2 - lon1));
-		return (((1 - Math.cos((lat1 - lat2))) / 2) + Math.cos(lat1) * Math.cos(lat2) * 
-				((1 - Math.cos((lon1 - lon2))) / 2)) * radiusOfEarthInMiles;
+		float dist = (((1.0f - FloatMath.cos(lat1 - lat2)) * 0.5f) + FloatMath.cos(lat1) * FloatMath.cos(lat2) * 
+				((1.0f - FloatMath.cos(lon1 - lon2)) * 0.5f)); 
+		return dist * radiusOfEarthInMiles;
 	}
 	
 	public static int getDegreesFromSlope(double y, double x)
@@ -42,7 +46,6 @@ public class Geometry {
 		double thetaInRadians = Math.atan2(y, x);
 		
 		int degrees = mathRadiansToDegrees(thetaInRadians);
-		
 		return degrees;
 	}
 	
@@ -55,7 +58,7 @@ public class Geometry {
 	public static int mathRadiansToDegrees(double thetaAsRadians)
 	{
 		//NOTE: degrees will be 0 == north, going clockwise
-		int degrees = (int)(thetaAsRadians * 180.0 / Math.PI);
+		int degrees = (int)(thetaAsRadians * InvPITimes180);
 		if (degrees < 0)
 		{
 			degrees += 360;

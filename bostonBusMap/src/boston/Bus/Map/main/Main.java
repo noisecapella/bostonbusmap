@@ -87,6 +87,7 @@ import android.os.Handler.Callback;
 import android.preference.PreferenceActivity;
 import android.preference.PreferenceManager;
 import android.provider.SearchRecentSuggestions;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.Menu;
@@ -287,8 +288,12 @@ public class Main extends MapActivity
 		routeChooserDialog = builder.create();
 		
 		
+		DisplayMetrics metrics = new DisplayMetrics();
+		getWindowManager().getDefaultDisplay().getMetrics(metrics);
+		float density = metrics.density;
+		
         //get the busLocations variable if it already exists. We need to do that step here since handler
-        double lastUpdateTime = 0;
+        long lastUpdateTime = 0;
         boolean previousUpdateConstantly = false;
 
         UpdateAsyncTask majorHandler = null;
@@ -299,7 +304,7 @@ public class Main extends MapActivity
         	CurrentState currentState = (CurrentState)lastNonConfigurationInstance;
         	currentState.restoreWidgets();
         	
-        	busOverlay = currentState.cloneBusOverlay(this, mapView, dropdownRouteKeysToTitles);
+        	busOverlay = currentState.cloneBusOverlay(this, mapView, dropdownRouteKeysToTitles, density);
         	routeOverlay = currentState.cloneRouteOverlay(mapView.getProjection());
         	myLocationOverlay = new LocationOverlay(this, mapView);
         	
@@ -329,7 +334,7 @@ public class Main extends MapActivity
         }
         else
         {
-        	busOverlay = new BusOverlay(busPicture, this, mapView, dropdownRouteKeysToTitles);
+        	busOverlay = new BusOverlay(busPicture, this, mapView, dropdownRouteKeysToTitles, density);
         	routeOverlay = new RouteOverlay(mapView.getProjection());
         	myLocationOverlay = new LocationOverlay(this, mapView);
         }

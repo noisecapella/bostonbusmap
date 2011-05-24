@@ -1,13 +1,18 @@
 package boston.Bus.Map.data;
 
 import java.io.IOException;
+
 import java.text.DateFormat;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.TimeZone;
 
 import boston.Bus.Map.main.MoreInfo;
+import boston.Bus.Map.transit.TransitSystem;
 import boston.Bus.Map.util.Box;
 import boston.Bus.Map.util.CanBeSerialized;
+import android.content.Context;
 import android.graphics.Paint.Style;
 import android.graphics.Typeface;
 import android.os.Parcel;
@@ -17,6 +22,7 @@ import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.SpannableStringBuilder;
 import android.text.Spanned;
+
 import android.text.style.ImageSpan;
 import android.text.style.StyleSpan;
 import android.text.style.TypefaceSpan;
@@ -29,30 +35,31 @@ import android.text.style.TypefaceSpan;
  */
 public class Prediction implements Comparable<Prediction>, Parcelable
 {
-	private static final String hourMinuteFormatString = "%l:%M%P";
-	private final int minutes;
-	private final long epochTime;
 	private final int vehicleId;
 	private final String direction;
 	private final String routeName;
-	private final Date arrivalTime;
+	private final long arrivalTimeMillis;
 	private final boolean affectedByLayover;
 	private final boolean isDelayed;
 	
-	public Prediction(int minutes, long epochTime, int vehicleId,
-			String direction, String routeName, boolean affectedByLayover, boolean isDelayed) {
-		this.minutes = minutes;
-		this.epochTime = epochTime;
+	public Prediction(int minutes, int vehicleId,
+			String direction, String routeName, boolean affectedByLayover, boolean isDelayed)
+	{
 		this.vehicleId = vehicleId;
 		this.direction = direction;
 		this.routeName = routeName;
-		arrivalTime = new Date(epochTime);
+
+		arrivalTimeMillis = TransitSystem.currentTimeMillis() + minutes * 60 * 1000;
+		
+		
 		this.affectedByLayover = affectedByLayover;
 		this.isDelayed = isDelayed;
 	}
 
-	public String makeSnippet(HashMap<String, String> routeKeysToTitles) {
+	public String makeSnippet(HashMap<String, String> routeKeysToTitles, Context context) {
 		String ret;
+		
+		int minutes = getMinutes();
 		if (minutes < 0)
 		{
 			ret = "";
@@ -86,9 +93,10 @@ public class Prediction implements Comparable<Prediction>, Parcelable
 			}
 			else
 			{
-				DateFormat dateFormat = DateFormat.getTimeInstance(DateFormat.SHORT);
+				DateFormat dateFormat = android.text.format.DateFormat.getTimeFormat(context);
 
-				String formatted = dateFormat.format(arrivalTime);
+				Date date = new Date(arrivalTimeMillis - TransitSystem.getTimeZone().getOffset(arrivalTimeMillis));
+				String formatted = dateFormat.format(date);
 				ret += "<br />Arriving in <b>" + minutes + " min</b> at " + formatted.trim();
 			}
 		}
@@ -96,14 +104,15 @@ public class Prediction implements Comparable<Prediction>, Parcelable
 	}
 
 	@Override
-	public int compareTo(Prediction another) {
-		return new Integer(minutes).compareTo(another.minutes);
+	public int compareTo(Prediction another)
+	{
+		return new Long(arrivalTimeMillis).compareTo(another.arrivalTimeMillis);
 		
 	}
 
 	@Override
 	public int hashCode() {
-		return (int) (minutes ^ epochTime ^ vehicleId);
+		return (int) (arrivalTimeMillis ^ vehicleId);
 	}
 	
 	@Override
@@ -111,7 +120,7 @@ public class Prediction implements Comparable<Prediction>, Parcelable
 		if (o instanceof Prediction)
 		{
 			Prediction other = (Prediction)o;
-			if (other.minutes == minutes && other.epochTime == epochTime && other.vehicleId == vehicleId)
+			if (other.arrivalTimeMillis == arrivalTimeMillis && other.vehicleId == vehicleId)
 			{
 				//most likely the same
 				return true;
@@ -124,8 +133,14 @@ public class Prediction implements Comparable<Prediction>, Parcelable
 		return routeName;
 	}
 
-	public int getMinutes() {
-		return minutes;
+	public static int calcMinutes(long arrivalTimeMillis)
+	{
+		return (int)(arrivalTimeMillis - TransitSystem.currentTimeMillis()) / 1000 / 60;
+	}
+	
+	public int getMinutes()
+	{
+		return calcMinutes(arrivalTimeMillis);
 	}
 
 	@Override
@@ -135,8 +150,7 @@ public class Prediction implements Comparable<Prediction>, Parcelable
 
 	@Override
 	public void writeToParcel(Parcel dest, int flags) {
-		dest.writeInt(minutes);
-		dest.writeLong(epochTime);
+		dest.writeLong(arrivalTimeMillis);
 		dest.writeInt(vehicleId);
 		dest.writeString(direction);
 		dest.writeString(routeName);
@@ -153,15 +167,15 @@ public class Prediction implements Comparable<Prediction>, Parcelable
 		
 		@Override
 		public Prediction createFromParcel(Parcel source) {
-			int minutes = source.readInt();
-			long epochTime = source.readLong();
+			long arrivalTimeMillis = source.readLong();
 			int vehicleId = source.readInt();
 			String direction = source.readString();
 			String routeName = source.readString();
 			boolean affectedByLayover = readBoolean(source);
 			boolean isDelayed = readBoolean(source);
 			
-			Prediction prediction = new Prediction(minutes, epochTime, vehicleId, direction, routeName, affectedByLayover, isDelayed);
+			int minutes = calcMinutes(arrivalTimeMillis);
+			Prediction prediction = new Prediction(minutes, vehicleId, direction, routeName, affectedByLayover, isDelayed);
 			return prediction;
 		}
 	};
@@ -171,10 +185,10 @@ public class Prediction implements Comparable<Prediction>, Parcelable
 	 * @param routeKeysToTitles
 	 * @return
 	 */
-	public HashMap<String, Spanned> makeSnippetMap(HashMap<String, String> routeKeysToTitles) {
+	public HashMap<String, Spanned> makeSnippetMap(HashMap<String, String> routeKeysToTitles, Context context) {
 		HashMap<String, Spanned> map = new HashMap<String, Spanned>();
 		
-		String ret = makeSnippet(routeKeysToTitles);
+		String ret = makeSnippet(routeKeysToTitles, context);
 		
 		map.put(MoreInfo.textKey, Html.fromHtml(ret));
 		

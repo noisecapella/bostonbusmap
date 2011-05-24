@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 import boston.Bus.Map.math.Geometry;
+import boston.Bus.Map.transit.TransitSystem;
 import boston.Bus.Map.ui.BusDrawable;
 import boston.Bus.Map.util.Constants;
 import android.content.Context;
@@ -49,18 +50,18 @@ public class BusLocation implements Location {
 	/**
 	 * Creation time of this bus object
 	 */
-	public double lastUpdateInMillis;
+	public long lastUpdateInMillis;
 
 	/**
 	 * Distance in miles of the bus from its previous location, in the x
 	 * dimension, squared
 	 */
-	private double distanceFromLastX;
+	private float distanceFromLastX;
 	/**
 	 * Distance in miles of the bus from its previous location, in the y
 	 * dimension, squared
 	 */
-	private double distanceFromLastY;
+	private float distanceFromLastY;
 
 	/**
 	 * What is the heading mentioned for the bus?
@@ -104,7 +105,7 @@ public class BusLocation implements Location {
 	public static final int NO_HEADING = -1;
 
 	public BusLocation(float latitude, float longitude, int id, int seconds,
-			double lastUpdateInMillis, String heading, boolean predictable,
+			long lastUpdateInMillis, String heading, boolean predictable,
 			String dirTag, String inferBusRoute, Drawable bus, Drawable arrow,
 			String routeName, Directions directions, String routeTitle,
 			boolean disappearAfterRefresh, boolean showBusNumber,
@@ -171,11 +172,12 @@ public class BusLocation implements Location {
 
 	}
 
-	public double distanceFrom(double lat2, double lon2) {
+	@Override
+	public float distanceFrom(float lat2, float lon2) {
 		return Geometry.computeCompareDistance(latitude, longitude, lat2, lon2);
 	}
 
-	public void movedFrom(double oldLatitude, double oldLongitude) {
+	public void movedFrom(float oldLatitude, float oldLongitude) {
 		if (oldLatitude == latitude && oldLongitude == longitude) {
 			// ignore
 			return;
@@ -202,7 +204,7 @@ public class BusLocation implements Location {
 
 	@Override
 	public void addToSnippetAndTitle(RouteConfig routeConfig,
-			Location location, HashMap<String, String> routeKeysToTitles) {
+			Location location, HashMap<String, String> routeKeysToTitles, Context context) {
 		BusLocation busLocation = (BusLocation) location;
 
 		snippet += "<br />" + busLocation.makeSnippet(routeConfig);
@@ -218,7 +220,7 @@ public class BusLocation implements Location {
 
 	@Override
 	public void makeSnippetAndTitle(RouteConfig routeConfig,
-			HashMap<String, String> routeKeysToTitles) {
+			HashMap<String, String> routeKeysToTitles, Context context) {
 		snippet = makeSnippet(routeConfig);
 		snippetTitle = makeTitle();
 	}
@@ -239,9 +241,8 @@ public class BusLocation implements Location {
 			snippet += "Bus number: " + id + "<br />";
 		}
 
-		snippet += "Last update: "
-				+ (int) (seconds + (System.currentTimeMillis() - lastUpdateInMillis) / 1000)
-				+ " seconds ago";
+		int secondsAgo = (int) (seconds + (TransitSystem.currentTimeMillis() - lastUpdateInMillis) / 1000); 
+		snippet += "Last update: " + secondsAgo	+ " seconds ago";
 		String direction = getDirection();
 		if (direction.length() != 0 && predictable == false) {
 			snippet += "<br />Estimated direction: " + direction;
@@ -369,7 +370,7 @@ public class BusLocation implements Location {
 		return disappearAfterRefresh;
 	}
 
-	public void movedTo(double latitudeAsDegrees, double longitudeAsDegrees) {
+	public void movedTo(float latitudeAsDegrees, float longitudeAsDegrees) {
 		movedFrom(latitudeAsDegrees * Geometry.degreesToRadians,
 				longitudeAsDegrees * Geometry.degreesToRadians);
 
