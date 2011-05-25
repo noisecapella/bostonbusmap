@@ -320,7 +320,7 @@ public class CommuterRailPredictionsFeedParser
 			}
 		}
 
-		String route = null;
+		String route = routeConfig.getRouteName();
 		try
 		{
 			Object jsonObj = tokener.nextValue();
@@ -427,8 +427,7 @@ public class CommuterRailPredictionsFeedParser
 						int id = 0;
 						try
 						{
-							
-							id = Integer.parseInt((String)propertyMap.get("Trip Id"));
+							id = (Integer)propertyMap.get("Trip Id");
 						}
 						catch (NumberFormatException e)
 						{
