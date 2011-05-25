@@ -257,7 +257,7 @@ public class StopLocation implements Location
 				
 				if (prediction.getMinutes() < 0)
 				{
-					continue;
+					//continue;
 				}
 
 				

@@ -51,6 +51,228 @@ public class CommuterRailPredictionsFeedParser
 	private final Drawable rail;
 	private final Drawable railArrow;
 
+	public static final String fakeData = "{"+
+	"    \"Messages\": ["+
+	"        ["+
+	"            {"+
+	"                \"Key\": \"Time Stamp\","+
+	"                \"Value\": \"/Date(1306205146386-0400)/\""+
+	"            },"+
+	"            {"+
+	"                \"Key\": \"GTFS Stop Id\","+
+	"                \"Value\": \"Nantasket Junction\""+
+	"            },"+
+	"            {"+
+	"                \"Key\": \"Vehicle Id\","+
+	"                \"Value\": \"1507\""+
+	"            },"+
+	"            {"+
+	"                \"Key\": \"Trip Id\","+
+	"                \"Value\": 93"+
+	"            },"+
+	"            {"+
+	"                \"Key\": \"GTFS Trip Id\","+
+	"                \"Value\": \"093\""+
+	"            },"+
+	"            {"+
+	"                \"Key\": \"Destination GTFS Id\","+
+	"                \"Value\": \"Greenbush\""+
+	"            },"+
+	"            {"+
+	"                \"Key\": \"Vehicle Latitude\","+
+	"                \"Value\": \"42.24497\""+
+	"            },"+
+	"            {"+
+	"                \"Key\": \"Vehicle Longitude\","+
+	"                \"Value\": \"-70.8688\""+
+	"            },"+
+	"            {"+
+	"                \"Key\": \"Scheduled Arrival Time\","+
+	"                \"Value\": \"5/23/2011 10:37:00 PM\""+
+	"            },"+
+	"            {"+
+	"                \"Key\": \"Train Lateness in Seconds\","+
+	"                \"Value\": \"\""+
+	"            },"+
+	"            {"+
+	"                \"Key\": \"Event Flag Name\","+
+	"                \"Value\": \"Approaching\""+
+	"            },"+
+	"            {"+
+	"                \"Key\": \"Heading\","+
+	"                \"Value\": 5"+
+	"            },"+
+	"            {"+
+	"                \"Key\": \"Speed\","+
+	"                \"Value\": 90"+
+	"            }"+
+	"        ],"+
+	"        ["+
+	"            {"+
+	"                \"Key\": \"Time Stamp\","+
+	"                \"Value\": \"/Date(1306205146386-0400)/\""+
+	"            },"+
+	"            {"+
+	"                \"Key\": \"GTFS Stop Id\","+
+	"                \"Value\": \"Cohasset\""+
+	"            },"+
+	"            {"+
+	"                \"Key\": \"Vehicle Id\","+
+	"                \"Value\": \"1507\""+
+	"            },"+
+	"            {"+
+	"                \"Key\": \"Trip Id\","+
+	"                \"Value\": 93"+
+	"            },"+
+	"            {"+
+	"                \"Key\": \"GTFS Trip Id\","+
+	"                \"Value\": \"093\""+
+	"            },"+
+	"            {"+
+	"                \"Key\": \"Destination GTFS Id\","+
+	"                \"Value\": \"Greenbush\""+
+	"            },"+
+	"            {"+
+	"                \"Key\": \"Vehicle Latitude\","+
+	"                \"Value\": \"42.24497\""+
+	"            },"+
+	"            {"+
+	"                \"Key\": \"Vehicle Longitude\","+
+	"                \"Value\": \"-70.8688\""+
+	"            },"+
+	"            {"+
+	"                \"Key\": \"Scheduled Arrival Time\","+
+	"                \"Value\": \"5/23/2011 10:40:00 PM\""+
+	"            },"+
+	"            {"+
+	"                \"Key\": \"Train Lateness in Seconds\","+
+	"                \"Value\": \"540\""+
+	"            },"+
+	"            {"+
+	"                \"Key\": \"Event Flag Name\","+
+	"                \"Value\": \"Notification\""+
+	"            },"+
+	"            {"+
+	"                \"Key\": \"Heading\","+
+	"                \"Value\": 5"+
+	"            },"+
+	"            {"+
+	"                \"Key\": \"Speed\","+
+	"                \"Value\": 90"+
+	"            }"+
+	"        ],"+
+	"        ["+
+	"            {"+
+	"                \"Key\": \"Time Stamp\","+
+	"                \"Value\": \"/Date(1306205146386-0400)/\""+
+	"            },"+
+	"            {"+
+	"                \"Key\": \"GTFS Stop Id\","+
+	"                \"Value\": \"North Scituate\""+
+	"            },"+
+	"            {"+
+	"                \"Key\": \"Vehicle Id\","+
+	"                \"Value\": \"1507\""+
+	"            },"+
+	"            {"+
+	"                \"Key\": \"Trip Id\","+
+	"                \"Value\": 93"+
+	"            },"+
+	"            {"+
+	"                \"Key\": \"GTFS Trip Id\","+
+	"                \"Value\": \"093\""+
+	"            },"+
+	"            {"+
+	"                \"Key\": \"Destination GTFS Id\","+
+	"                \"Value\": \"Greenbush\""+
+	"            },"+
+	"            {"+
+	"                \"Key\": \"Vehicle Latitude\","+
+	"                \"Value\": \"42.24497\""+
+	"            },"+
+	"            {"+
+	"                \"Key\": \"Vehicle Longitude\","+
+	"                \"Value\": \"-70.8688\""+
+	"            },"+
+	"            {"+
+	"                \"Key\": \"Scheduled Arrival Time\","+
+	"                \"Value\": \"5/23/2011 10:48:00 PM\""+
+	"            },"+
+	"            {"+
+	"                \"Key\": \"Train Lateness in Seconds\","+
+	"                \"Value\": \"540\""+
+	"            },"+
+	"            {"+
+	"                \"Key\": \"Event Flag Name\","+
+	"                \"Value\": \"Notification\""+
+	"            },"+
+	"            {"+
+	"                \"Key\": \"Heading\","+
+	"                \"Value\": 5"+
+	"            },"+
+	"            {"+
+	"                \"Key\": \"Speed\","+
+	"                \"Value\": 90"+
+	"            }"+
+	"        ],"+
+	"        ["+
+	"            {"+
+	"                \"Key\": \"Time Stamp\","+
+	"                \"Value\": \"/Date(1306205146386-0400)/\""+
+	"            },"+
+	"            {"+
+	"                \"Key\": \"GTFS Stop Id\","+
+	"                \"Value\": \"Greenbush\""+
+	"            },"+
+	"            {"+
+	"                \"Key\": \"Vehicle Id\","+
+	"                \"Value\": \"1507\""+
+	"            },"+
+	"            {"+
+	"                \"Key\": \"Trip Id\","+
+	"                \"Value\": 93"+
+	"            },"+
+	"            {"+
+	"                \"Key\": \"GTFS Trip Id\","+
+	"                \"Value\": \"093\""+
+	"            },"+
+	"            {"+
+	"                \"Key\": \"Destination GTFS Id\","+
+	"                \"Value\": \"Greenbush\""+
+	"            },"+
+	"            {"+
+	"                \"Key\": \"Vehicle Latitude\","+
+	"                \"Value\": \"42.24497\""+
+	"            },"+
+	"            {"+
+	"                \"Key\": \"Vehicle Longitude\","+
+	"                \"Value\": \"-70.8688\""+
+	"            },"+
+	"            {"+
+	"                \"Key\": \"Scheduled Arrival Time\","+
+	"                \"Value\": \"5/23/2011 10:58:00 PM\""+
+	"            },"+
+	"            {"+
+	"                \"Key\": \"Train Lateness in Seconds\","+
+	"                \"Value\": \"540\""+
+	"            },"+
+	"            {"+
+	"                \"Key\": \"Event Flag Name\","+
+	"                \"Value\": \"Pre\""+
+	"            },"+
+	"            {"+
+	"                \"Key\": \"Heading\","+
+	"                \"Value\": 0"+
+	"            },"+
+	"            {"+
+	"                \"Key\": \"Speed\","+
+	"                \"Value\": 0"+
+	"            }"+
+	"        ]"+
+	"    ],"+
+	"    \"UpdateDate\": \"/Date(1306205147293-0400)/\""+
+	"}";;
+	
 	private final ConcurrentHashMap<Integer, BusLocation> busMapping;
 
 	public CommuterRailPredictionsFeedParser(RouteConfig routeConfig, Directions directions, Drawable bus, Drawable railArrow, 

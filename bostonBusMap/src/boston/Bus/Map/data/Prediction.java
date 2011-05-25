@@ -63,7 +63,7 @@ public class Prediction implements Comparable<Prediction>, Parcelable
 		String ret;
 		
 		int minutes = getMinutes();
-		if (minutes < 0)
+		if (false && minutes < 0)
 		{
 			ret = "";
 		}
