@@ -302,7 +302,7 @@ public class MBTABusTransitSource implements TransitSource
 
 	@Override
 	public void refreshData(RouteConfig routeConfig, int selectedBusPredictions, int maxStops,
-			float centerLatitude, float centerLongitude, ConcurrentHashMap<Integer, BusLocation> busMapping, 
+			double centerLatitude, double centerLongitude, ConcurrentHashMap<Integer, BusLocation> busMapping, 
 			String selectedRoute, RoutePool routePool, Directions directions, Locations locationsObj)
 	throws IOException, ParserConfigurationException, SAXException {
 		//read data from the URL

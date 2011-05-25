@@ -110,8 +110,8 @@ public class BusLocation implements Location {
 			String routeName, Directions directions, String routeTitle,
 			boolean disappearAfterRefresh, boolean showBusNumber,
 			int arrowTopDiff) {
-		this.latitude = latitude * Geometry.degreesToRadians;
-		this.longitude = longitude * Geometry.degreesToRadians;
+		this.latitude = (float) (latitude * Geometry.degreesToRadians);
+		this.longitude = (float) (longitude * Geometry.degreesToRadians);
 		this.latitudeAsDegrees = latitude;
 		this.longitudeAsDegrees = longitude;
 		this.id = id;
@@ -173,7 +173,7 @@ public class BusLocation implements Location {
 	}
 
 	@Override
-	public float distanceFrom(float lat2, float lon2) {
+	public float distanceFrom(double lat2, double lon2) {
 		return Geometry.computeCompareDistance(latitude, longitude, lat2, lon2);
 	}
 
@@ -371,8 +371,8 @@ public class BusLocation implements Location {
 	}
 
 	public void movedTo(float latitudeAsDegrees, float longitudeAsDegrees) {
-		movedFrom(latitudeAsDegrees * Geometry.degreesToRadians,
-				longitudeAsDegrees * Geometry.degreesToRadians);
+		movedFrom(((float)(latitudeAsDegrees * Geometry.degreesToRadians)),
+				((float)(longitudeAsDegrees * Geometry.degreesToRadians)));
 
 		distanceFromLastX *= -1;
 		distanceFromLastY *= -1;

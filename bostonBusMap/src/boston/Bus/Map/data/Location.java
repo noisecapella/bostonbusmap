@@ -28,7 +28,7 @@ public interface Location {
 	 * @param lon2 longitude in radians
 	 * @return distance in miles
 	 */
-	float distanceFrom(float centerLatitude, float centerLongitude);
+	float distanceFrom(double centerLatitudeAsRadians, double centerLongitudeAsRadians);
 
 	boolean isFavorite();
 

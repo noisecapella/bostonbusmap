@@ -65,8 +65,8 @@ public class StopLocation implements Location
 	{
 		this.latitudeAsDegrees = latitudeAsDegrees;
 		this.longitudeAsDegrees = longitudeAsDegrees;
-		this.latitude = latitudeAsDegrees * Geometry.degreesToRadians;
-		this.longitude = longitudeAsDegrees * Geometry.degreesToRadians;
+		this.latitude = (float) (latitudeAsDegrees * Geometry.degreesToRadians);
+		this.longitude = (float) (longitudeAsDegrees * Geometry.degreesToRadians);
 		this.busStop = busStop;
 		this.tag = tag;
 		this.title = title;
@@ -87,7 +87,7 @@ public class StopLocation implements Location
 	}
 	
 	@Override
-	public float distanceFrom(float centerLatitude, float centerLongitude)
+	public float distanceFrom(double centerLatitude, double centerLongitude)
 	{
 		return Geometry.computeCompareDistance(latitude, longitude, centerLatitude, centerLongitude);
 	}
