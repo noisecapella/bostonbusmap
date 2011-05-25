@@ -328,9 +328,9 @@ public class TestFloatVsDouble extends AndroidTestCase {
 			
 			@Override
 			public int compare(Place place1, Place place2) {
-				float centerLat = centerLatInt * Constants.InvE6;
+				float centerLat = centerLatInt * (float)Constants.InvE6;
 				centerLat *= Geometry.degreesToRadians;
-				float centerLon = centerLonInt * Constants.InvE6;
+				float centerLon = centerLonInt * (float)Constants.InvE6;
 				centerLon *= Geometry.degreesToRadians;
 				
 				float distance1 = Geometry.computeCompareDistanceFloat(centerLat, centerLon, (float)(place1.lat * Geometry.degreesToRadians), (float)(place1.lon * Geometry.degreesToRadians));

@@ -150,7 +150,7 @@ public class UpdateAsyncTask extends AsyncTask<Object, Object, Locations>
 	 * A type safe wrapper around execute
 	 * @param busLocations
 	 */
-	public void runUpdate(Locations locations, float centerLatitude, float centerLongitude, Context context)
+	public void runUpdate(Locations locations, double centerLatitude, double centerLongitude, Context context)
 	{
 		execute(locations, centerLatitude, centerLongitude, context);
 	}
@@ -158,7 +158,7 @@ public class UpdateAsyncTask extends AsyncTask<Object, Object, Locations>
 	@Override
 	protected Locations doInBackground(Object... args) {
 		//number of bus pictures to draw. Too many will make things slow
-		return updateBusLocations((Locations)args[0], (Float)args[1], (Float)args[2], (Context)args[3]);
+		return updateBusLocations((Locations)args[0], (Double)args[1], (Double)args[2], (Context)args[3]);
 	}
 
 	@Override
@@ -232,7 +232,7 @@ public class UpdateAsyncTask extends AsyncTask<Object, Object, Locations>
 		}
 	}
 
-	public Locations updateBusLocations(Locations busLocations, float centerLatitude, float centerLongitude, Context context)
+	public Locations updateBusLocations(Locations busLocations, double centerLatitude, double centerLongitude, Context context)
 	{
 		Log.v("BostonBusMap", "in updateBusLocations, centerLatitude is " + centerLatitude);
 		if (doRefresh == false)
@@ -363,10 +363,10 @@ public class UpdateAsyncTask extends AsyncTask<Object, Object, Locations>
 		}
 		
 		GeoPoint center = mapView.getMapCenter();
-		final float inve6 = Constants.InvE6;
-		final float e6 = Constants.E6;
-		final float latitude = center.getLatitudeE6() * inve6;
-		final float longitude = center.getLongitudeE6() * inve6;
+		final double inve6 = Constants.InvE6;
+		final double e6 = Constants.E6;
+		final double latitude = center.getLatitudeE6() * inve6;
+		final double longitude = center.getLongitudeE6() * inve6;
 		
 		
 		final ArrayList<Location> busLocations = new ArrayList<Location>();

@@ -151,7 +151,7 @@ public final class Locations
 	 * @throws FeedException 
 	 */
 	public void refresh(boolean inferBusRoutes, String routeToUpdate,
-			int selectedBusPredictions, float centerLatitude, float centerLongitude,
+			int selectedBusPredictions, double centerLatitude, double centerLongitude,
 			UpdateAsyncTask updateAsyncTask, boolean showRoute) throws SAXException, IOException,
 			ParserConfigurationException, FactoryConfigurationError 
 	{
@@ -231,7 +231,7 @@ public final class Locations
 	 * @return
 	 * @throws IOException 
 	 */
-	public List<Location> getLocations(int maxLocations, float centerLatitude, float centerLongitude, 
+	public List<Location> getLocations(int maxLocations, double centerLatitude, double centerLongitude, 
 			boolean doShowUnpredictable) throws IOException {
 
 		TreeSet<Location> newLocations = new TreeSet<Location>(new LocationComparator(centerLatitude, centerLongitude));

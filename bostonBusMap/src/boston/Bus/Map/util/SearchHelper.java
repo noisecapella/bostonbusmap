@@ -14,7 +14,6 @@ import android.content.DialogInterface;
 import android.util.Log;
 import android.widget.Toast;
 import boston.Bus.Map.database.DatabaseHelper;
-import boston.Bus.Map.main.GeocoderAsyncTask;
 import boston.Bus.Map.main.Main;
 import boston.Bus.Map.transit.MBTABusTransitSource;
 

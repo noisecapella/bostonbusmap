@@ -173,7 +173,7 @@ public class BusLocation implements Location {
 	}
 
 	@Override
-	public float distanceFrom(float lat2, float lon2) {
+	public float distanceFrom(double lat2, double lon2) {
 		return Geometry.computeCompareDistance(latitude, longitude, lat2, lon2);
 	}
 

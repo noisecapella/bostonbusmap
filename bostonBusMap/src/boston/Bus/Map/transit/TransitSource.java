@@ -26,7 +26,7 @@ public interface TransitSource {
 		throws ClientProtocolException, IOException, ParserConfigurationException, SAXException ;
 
 	void refreshData(RouteConfig routeConfig, int selectedBusPredictions,
-			int maxStops, float centerLatitude, float centerLongitude,
+			int maxStops, double centerLatitude, double centerLongitude,
 			ConcurrentHashMap<Integer, BusLocation> busMapping, String selectedRoute,
 			RoutePool routePool, Directions directions, Locations locationsObj)
 	throws IOException, ParserConfigurationException, SAXException;

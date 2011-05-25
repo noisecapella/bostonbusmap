@@ -87,7 +87,7 @@ public class StopLocation implements Location
 	}
 	
 	@Override
-	public float distanceFrom(float centerLatitude, float centerLongitude)
+	public float distanceFrom(double centerLatitude, double centerLongitude)
 	{
 		return Geometry.computeCompareDistance(latitude, longitude, centerLatitude, centerLongitude);
 	}
