@@ -149,12 +149,44 @@ public class CommuterRailPredictionsFeedParser
 				directions.add(direction, direction, "", routeConfig.getRouteName());
 				int vehicleId = 0;
 
+				int lateness = Prediction.NULL_LATENESS;
+				Object latenessObj = propertyMap.get("Train Lateness in Seconds");
+				if (latenessObj != null && latenessObj instanceof String)
+				{
+					String latenessStr = (String)latenessObj;
+					try
+					{
+						lateness = Integer.parseInt(latenessStr);
+					}
+					catch (NumberFormatException e)
+					{
+						//oh well
+					}
+					
+				}
+				 
+				
 				predictions.add(new Prediction(minutes, vehicleId, directions.getTitleAndName(direction),
-						routeConfig.getRouteName(), false, false));
+						routeConfig.getRouteName(), false, false, lateness));
 				stopLocations.add(stopLocation);
 
+				float lat = 0;
+				float lon = 0;
+				String latString = (String)propertyMap.get("Vehicle Latitude");
+				String lonString = (String)propertyMap.get("Vehicle Longitude");
+				
+				try
+				{
+					lat = Float.parseFloat(latString);
+					lon = Float.parseFloat(lonString);
+				}
+				catch (NumberFormatException e)
+				{
+					//oh well
+				}
+				
 				String informationType = (String)propertyMap.get("Event Flag Name");
-				if ("Notification".equals(informationType))
+				if (lat != 0 && lon != 0)
 				{
 					int seconds = (int)-(diff / 1000);
 
@@ -174,7 +206,7 @@ public class CommuterRailPredictionsFeedParser
 						try
 						{
 							
-							id = Integer.parseInt((String)propertyMap.get("Vehicle Id"));
+							id = Integer.parseInt((String)propertyMap.get("Trip Id"));
 						}
 						catch (NumberFormatException e)
 						{
@@ -182,7 +214,7 @@ public class CommuterRailPredictionsFeedParser
 							id = -1;
 						}
 
-						busLocation = new BusLocation(stopLocation.getLatitudeAsDegrees(), stopLocation.getLongitudeAsDegrees(),
+						busLocation = new BusLocation(lat, lon,
 								id, seconds, currentMillis, null, true, direction, null, rail, 
 								railArrow, route, directions, route + " at " + stopLocation.getTitle(), true, false, arrowTopDiff);
 						busMapping.put(id, busLocation);
@@ -231,58 +263,6 @@ public class CommuterRailPredictionsFeedParser
 		for (Integer id : toRemove)
 		{
 			busMapping.remove(id);
-		}
-	}
-
-	/**
-	 * Get the next stop in the route, going in the same general direction, on the same branch
-	 * @param routeConfig
-	 * @param stopLocation
-	 * @return
-	 */
-	private StopLocation getNextStop(RouteConfig routeConfig, SubwayStopLocation stopLocation, String dirTag) {
-		String stoptag = stopLocation.getStopTag();
-		String dirSuffix = stoptag.substring(stoptag.length() - 1);
-		String fromBranch = stopLocation.getBranch();
-
-		//first, check special cases, those that go to different branches
-		//JFK is on Trunk, as well as anything north of it
-		if (stoptag.equals("RSAVN") || stoptag.equals("RNQUN"))
-		{
-			return routeConfig.getStopMapping().get("RJFKN");
-		}
-		else if (stoptag.equals("RJFKS"))
-		{
-			if (dirTag.equals(SubwayRouteConfigFeedParser.RedSouthToAshmont))
-			{
-				return routeConfig.getStopMapping().get("RSAVS");
-			}
-			else
-			{
-				return routeConfig.getStopMapping().get("RNQUS");
-			}
-		}
-		else
-		{
-
-			int stopLocationPlatformOrder = stopLocation.getPlatformOrder();
-
-			for (StopLocation stop : routeConfig.getStops())
-			{
-				//this is a subway route so we can cast all stops on it
-				SubwayStopLocation subwayStop = (SubwayStopLocation)stop;
-
-				String toBranch = subwayStop.getBranch();
-
-				//Log.v("BostonBusMap", "from " + fromBranch + " to " + toBranch);
-				if (subwayStop.getPlatformOrder() == stopLocationPlatformOrder + 1 && fromBranch.equals(toBranch) &&
-						subwayStop.getStopTag().endsWith(dirSuffix))
-				{
-					return subwayStop;
-				}
-			}
-
-			return null;
 		}
 	}
 

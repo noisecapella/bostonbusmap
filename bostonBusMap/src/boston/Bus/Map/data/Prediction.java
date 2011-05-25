@@ -35,15 +35,17 @@ import android.text.style.TypefaceSpan;
  */
 public class Prediction implements Comparable<Prediction>, Parcelable
 {
+	public static final int NULL_LATENESS = -1;
 	private final int vehicleId;
 	private final String direction;
 	private final String routeName;
 	private final long arrivalTimeMillis;
 	private final boolean affectedByLayover;
 	private final boolean isDelayed;
+	private final int lateness;
 	
 	public Prediction(int minutes, int vehicleId,
-			String direction, String routeName, boolean affectedByLayover, boolean isDelayed)
+			String direction, String routeName, boolean affectedByLayover, boolean isDelayed, int lateness)
 	{
 		this.vehicleId = vehicleId;
 		this.direction = direction;
@@ -54,6 +56,7 @@ public class Prediction implements Comparable<Prediction>, Parcelable
 		
 		this.affectedByLayover = affectedByLayover;
 		this.isDelayed = isDelayed;
+		this.lateness = lateness;
 	}
 
 	public String makeSnippet(HashMap<String, String> routeKeysToTitles, Context context) {
@@ -85,6 +88,11 @@ public class Prediction implements Comparable<Prediction>, Parcelable
 			if (affectedByLayover)
 			{
 				//hmm...
+			}
+			
+			if (lateness != NULL_LATENESS)
+			{
+				ret += "<br />Seconds late: " + lateness;
 			}
 			
 			if (minutes == 0)
@@ -156,6 +164,7 @@ public class Prediction implements Comparable<Prediction>, Parcelable
 		dest.writeString(routeName);
 		writeBoolean(dest, affectedByLayover);
 		writeBoolean(dest, isDelayed);
+		dest.writeInt(lateness);
 	}
 	
 	public static final Parcelable.Creator<Prediction> CREATOR = new Creator<Prediction>() {
@@ -173,9 +182,10 @@ public class Prediction implements Comparable<Prediction>, Parcelable
 			String routeName = source.readString();
 			boolean affectedByLayover = readBoolean(source);
 			boolean isDelayed = readBoolean(source);
+			int lateness = source.readInt();
 			
 			int minutes = calcMinutes(arrivalTimeMillis);
-			Prediction prediction = new Prediction(minutes, vehicleId, direction, routeName, affectedByLayover, isDelayed);
+			Prediction prediction = new Prediction(minutes, vehicleId, direction, routeName, affectedByLayover, isDelayed, lateness);
 			return prediction;
 		}
 	};
