@@ -150,10 +150,6 @@ public class CommuterRailTransitSource implements TransitSource {
 			CommuterRailPredictionsFeedParser parser = new CommuterRailPredictionsFeedParser(railRouteConfig, directions,
 					rail, railArrow, busMapping);
 
-			if ("1".equals(id))
-			{
-				data = new ByteArrayInputStream(CommuterRailPredictionsFeedParser.fakeData.getBytes());
-			}
 			parser.runParse(data);
 		}
 		
