@@ -12,16 +12,35 @@ public class Geometry {
 	/**
 	 * Used in calculating the distance between coordinates
 	 */
-	private static final float radiusOfEarthInKilo = 6371.2f;
-	private static final float kilometersPerMile = 1.609344f;
+	private static final double radiusOfEarthInKilo = 6371.2;
+	private static final double kilometersPerMile = 1.609344;
 	
-	private static final float radiusOfEarthInMiles = radiusOfEarthInKilo / kilometersPerMile;
+	
+	private static final double radiusOfEarthInMiles = radiusOfEarthInKilo / kilometersPerMile;
 
-	public static final float degreesToRadians = (float)(java.lang.Math.PI / 180.0f);
+	public static final double degreesToRadians = java.lang.Math.PI / 180.0;
 
-	public static final float radiansToDegrees = (float)(180.0f / java.lang.Math.PI);
+	public static final double radiansToDegrees = 180.0 / java.lang.Math.PI;
 
-	private static final float InvPITimes180 = (1.0f / (float)Math.PI) * 180f;
+	private static final double InvPITimes180 = (1.0 / Math.PI) * 180;
+	
+	/**
+	 * For testing only
+	 * 
+	 * @param lat1
+	 * @param lon1
+	 * @param lat2
+	 * @param lon2
+	 * @return
+	 */
+	public static float computeCompareDistanceFloat(float lat1, float lon1, float lat2, float lon2)
+	{
+		//great circle distance
+		//double dist = Math.acos(Math.sin(lat1) * Math.sin(lat2) + Math.cos(lat1) * Math.cos(lat2) * Math.cos(lon2 - lon1));
+		float dist = (((1.0f - FloatMath.cos(lat1 - lat2)) * 0.5f) + FloatMath.cos(lat1) * FloatMath.cos(lat2) * 
+				((1.0f - FloatMath.cos(lon1 - lon2)) * 0.5f)); 
+		return dist * (float)radiusOfEarthInMiles;
+	}
 	
 	/**
 	 * Returns a compare distance, or a distance which is distorted for efficiency sake but comparisons are always correct 
@@ -32,15 +51,13 @@ public class Geometry {
 	 * @param lon2 longitude in radians
 	 * @return distance in miles
 	 */
-	public static float computeCompareDistance(float lat1, float lon1, float lat2, float lon2)
+	public static float computeCompareDistance(float lat1,	float lon1, float lat2, float lon2)
 	{
-		//great circle distance
-		//double dist = Math.acos(Math.sin(lat1) * Math.sin(lat2) + Math.cos(lat1) * Math.cos(lat2) * Math.cos(lon2 - lon1));
-		float dist = (((1.0f - FloatMath.cos(lat1 - lat2)) * 0.5f) + FloatMath.cos(lat1) * FloatMath.cos(lat2) * 
-				((1.0f - FloatMath.cos(lon1 - lon2)) * 0.5f)); 
-		return dist * radiusOfEarthInMiles;
+		double dist = (((1.0 - Math.cos(lat1 - lat2)) * 0.5) + Math.cos(lat1) * Math.cos(lat2) * 
+				((1.0 - Math.cos(lon1 - lon2)) * 0.5)); 
+		return (float) (dist * radiusOfEarthInMiles);
 	}
-	
+
 	public static int getDegreesFromSlope(double y, double x)
 	{
 		double thetaInRadians = Math.atan2(y, x);
@@ -73,6 +90,7 @@ public class Geometry {
 		
 		return degrees;
 	}
+
 
 	
 }

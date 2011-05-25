@@ -11,8 +11,8 @@ public class LocationComparator implements Comparator<boston.Bus.Map.data.Locati
 
 	public LocationComparator(float centerLatitude, float centerLongitude)
 	{
-		centerLatitudeAsRadians = centerLatitude * Geometry.degreesToRadians;
-		centerLongitudeAsRadians = centerLongitude * Geometry.degreesToRadians;
+		centerLatitudeAsRadians = (float) (centerLatitude * Geometry.degreesToRadians);
+		centerLongitudeAsRadians = (float) (centerLongitude * Geometry.degreesToRadians);
 	}
 
 	public int compare(Location a, Location b)

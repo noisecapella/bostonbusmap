@@ -65,8 +65,8 @@ public class StopLocation implements Location
 	{
 		this.latitudeAsDegrees = latitudeAsDegrees;
 		this.longitudeAsDegrees = longitudeAsDegrees;
-		this.latitude = latitudeAsDegrees * Geometry.degreesToRadians;
-		this.longitude = longitudeAsDegrees * Geometry.degreesToRadians;
+		this.latitude = (float) (latitudeAsDegrees * Geometry.degreesToRadians);
+		this.longitude = (float) (longitudeAsDegrees * Geometry.degreesToRadians);
 		this.busStop = busStop;
 		this.tag = tag;
 		this.title = title;
