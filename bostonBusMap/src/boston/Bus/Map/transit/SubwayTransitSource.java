@@ -141,7 +141,7 @@ public class SubwayTransitSource implements TransitSource {
 			//we know we're updating only one route
 			if (isSubway(routeName))
 			{
-				outputUrls.add(dataUrlPrefix + routeName + ".json");
+				outputUrls.add(dataUrlPrefix + routeName + ".txt");
 				return;
 			}
 		}
