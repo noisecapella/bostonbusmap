@@ -106,7 +106,6 @@ public class CommuterRailPredictionsFeedParser
 			JSONObject root = (JSONObject)jsonObj;
 			JSONArray array = root.getJSONArray("Messages");
 
-			//TODO: there's a bug here where it doesn't interpret time after midnight correctly
 			for (int i = 0; i < array.length(); i++)
 			{
 				JSONArray properties = (JSONArray)array.get(i);
@@ -189,51 +188,42 @@ public class CommuterRailPredictionsFeedParser
 				String informationType = (String)propertyMap.get("Event Flag Name");
 				if (lat != 0 && lon != 0)
 				{
-					int seconds = (int)-(diff / 1000);
+					//StopLocation nextStop = getNextStop(routeConfig, stopLocation, direction);
 
-					//NOTE: I'm not sure if I want to keep subway cars around for a long time, but there's no good way of knowing
-					//when they're not around
+					final int arrowTopDiff = 9;
 
-					//if (seconds < 300)
-					if (true)
+					//first, see if there's a subway car which pretty much matches an old BusLocation
+					BusLocation busLocation = null;
+					int id = 0;
+					try
 					{
-						//StopLocation nextStop = getNextStop(routeConfig, stopLocation, direction);
-
-						final int arrowTopDiff = 9;
-
-						//first, see if there's a subway car which pretty much matches an old BusLocation
-						BusLocation busLocation = null;
-						int id = 0;
-						try
-						{
-							id = (Integer)propertyMap.get("Trip Id");
-						}
-						catch (NumberFormatException e)
-						{
-							Log.e("BostonBusMap", e.getMessage());
-							id = -1;
-						}
-
-						busLocation = new BusLocation(lat, lon,
-								id, seconds, currentMillis, null, true, direction, null, rail, 
-								railArrow, route, directions, route + " at " + stopLocation.getTitle(), true, false, arrowTopDiff);
-						busMapping.put(id, busLocation);
-
-						toRemove.remove(id);
-
-
-						//set arrow to point to correct direction
-
-						/*if (nextStop != null)
-						{
-							//Log.v("BostonBusMap", "at " + stopLocation.getTitle() + " moving to " + nextStop.getTitle());
-							busLocation.movedTo(nextStop.getLatitudeAsDegrees(), nextStop.getLongitudeAsDegrees());
-						}
-						else
-						{
-							//Log.v("BostonBusMap", "at " + stopLocation.getTitle() + ", nothing to move to");
-						}*/
+						id = (Integer)propertyMap.get("Trip Id");
 					}
+					catch (NumberFormatException e)
+					{
+						Log.e("BostonBusMap", e.getMessage());
+						id = -1;
+					}
+
+					busLocation = new BusLocation(lat, lon,
+							id, epochTime, currentMillis, null, true, direction, null, rail, 
+							railArrow, route, directions, route + " at " + stopLocation.getTitle(), true, false, arrowTopDiff);
+					busMapping.put(id, busLocation);
+
+					toRemove.remove(id);
+
+
+					//set arrow to point to correct direction
+
+					/*if (nextStop != null)
+					{
+						//Log.v("BostonBusMap", "at " + stopLocation.getTitle() + " moving to " + nextStop.getTitle());
+						busLocation.movedTo(nextStop.getLatitudeAsDegrees(), nextStop.getLongitudeAsDegrees());
+					}
+					else
+					{
+						//Log.v("BostonBusMap", "at " + stopLocation.getTitle() + ", nothing to move to");
+					}*/
 				}
 			}
 
