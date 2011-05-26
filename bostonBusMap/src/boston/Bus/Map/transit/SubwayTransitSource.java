@@ -141,7 +141,7 @@ public class SubwayTransitSource implements TransitSource {
 			//we know we're updating only one route
 			if (isSubway(routeName))
 			{
-				outputUrls.add(dataUrlPrefix + routeName + ".json");
+				outputUrls.add(dataUrlPrefix + routeName + ".txt");
 				return;
 			}
 		}
@@ -161,7 +161,7 @@ public class SubwayTransitSource implements TransitSource {
 						{
 							if (isSubway(route))
 							{
-								outputUrls.add(dataUrlPrefix + route + ".json");
+								outputUrls.add(dataUrlPrefix + route + ".txt");
 							}
 						}
 					}
@@ -173,7 +173,7 @@ public class SubwayTransitSource implements TransitSource {
 
 						if (isSubway(route))
 						{
-							outputUrls.add(dataUrlPrefix + route + ".json");
+							outputUrls.add(dataUrlPrefix + route + ".txt");
 						}
 					}
 				}
@@ -183,7 +183,7 @@ public class SubwayTransitSource implements TransitSource {
 				//add all three
 				for (String route : subwayRoutes)
 				{
-					outputUrls.add(dataUrlPrefix + route + ".json");
+					outputUrls.add(dataUrlPrefix + route + ".txt");
 				}
 			}
 		}

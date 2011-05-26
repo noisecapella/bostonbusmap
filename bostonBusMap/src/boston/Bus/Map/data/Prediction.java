@@ -189,6 +189,7 @@ public class Prediction implements Comparable<Prediction>, Parcelable
 			return prediction;
 		}
 	};
+	public static final int NULL_LATENESS = -1;
 
 	/**
 	 * Create 
