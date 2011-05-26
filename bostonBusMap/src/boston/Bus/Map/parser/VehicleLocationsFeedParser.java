@@ -108,6 +108,7 @@ public class VehicleLocationsFeedParser extends DefaultHandler
 		else if (localName.equals(lastTimeKey))
 		{
 			lastUpdateTime = Long.parseLong(attributes.getValue(timeKey));
+			lastUpdateTime += TransitSystem.getTimeZone().getOffset(lastUpdateTime);
 			
 			for (Integer key : busMapping.keySet())
 			{
