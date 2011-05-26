@@ -93,8 +93,6 @@ public class SubwayRouteConfigFeedParser
 		HashMap<String, HashMap<String, TreeMap<Short, StopLocation>>> orderedStations =
 			new HashMap<String, HashMap<String, TreeMap<Short, StopLocation>>>();
 		
-		HashMap<String, String> pathDirection = new HashMap<String, String>();
-		
 		String line;
 		while ((line = reader.readLine()) != null)
 		{

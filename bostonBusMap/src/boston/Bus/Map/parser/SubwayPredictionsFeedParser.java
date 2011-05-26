@@ -52,6 +52,15 @@ public class SubwayPredictionsFeedParser
 	
 	private final ConcurrentHashMap<Integer, BusLocation> busMapping;
 	
+	private static final int ROUTE_INDEX = 0;
+	private static final int TRIP_ID_INDEX = 1;
+	private static final int STOP_TAG_INDEX = 2;
+	private static final int ARRIVAL_STATUS_INDEX = 3;
+	private static final int TIME_INDEX = 4;
+	private static final int TIME_DIFF_INDEX = 5;
+	private static final int REVENUE_INDEX = 6;
+	private static final int BRANCH_INDEX = 7;
+	
 	public SubwayPredictionsFeedParser(RoutePool routePool, Directions directions, Drawable bus, Drawable railArrow, 
 			ConcurrentHashMap<Integer, BusLocation> busMapping)
 	{
@@ -98,7 +107,6 @@ public class SubwayPredictionsFeedParser
 	{
 		String string = streamToString(data);
 
-		JSONTokener tokener = new JSONTokener(string);
 		
 		//store everything here, then write out all out at once
 		ArrayList<Prediction> predictions = new ArrayList<Prediction>(); 
@@ -118,14 +126,16 @@ public class SubwayPredictionsFeedParser
 		String route = null;
 		try
 		{
-			JSONArray array = (JSONArray)tokener.nextValue();
-
 			//TODO: there's a bug here where it doesn't interpret time after midnight correctly
-			for (int i = 0; i < array.length(); i++)
+			String[] array = string.split("\n");
+			for (int i = 0; i < array.length; i++)
 			{
-				JSONObject object = (JSONObject)array.get(i);
-
-				route = object.getString("Line");
+				String line = array[i].trim();
+				String[] lineArray = line.split(",");
+				
+				
+				
+				route = lineArray[ROUTE_INDEX].trim();
 				RouteConfig routeConfig = routePool.get(route);
 
 				if (routeConfig == null)
@@ -134,7 +144,7 @@ public class SubwayPredictionsFeedParser
 					continue;
 				}
 				
-				String stopKey = object.getString("PlatformKey");
+				String stopKey = lineArray[STOP_TAG_INDEX].trim();
 				
 				//this is a subway route so all StopLocations should be SubwayStopLocations 
 				SubwayStopLocation stopLocation = (SubwayStopLocation)routeConfig.getStop(stopKey);
@@ -143,10 +153,12 @@ public class SubwayPredictionsFeedParser
 				{
 					continue;
 				}
-
-				Date date = parseTime(object.getString("Time"));
+				
+				String timeString = lineArray[TIME_INDEX].trim();
+				Date date = parseTime(timeString);
 				long lastFeedUpdateTime = date.getTime();
-				lastFeedUpdateTime += TransitSystem.getTimeZone().getOffset(lastFeedUpdateTime);
+				int offset = TransitSystem.getTimeZone().getOffset(lastFeedUpdateTime);
+				lastFeedUpdateTime += offset;
 				
 				long currentMillis = TransitSystem.currentTimeMillis();
 				long diff = lastFeedUpdateTime - currentMillis;
@@ -159,7 +171,7 @@ public class SubwayPredictionsFeedParser
 				}
 				
 				String stopDirection = stopKey.charAt(4) + "B";
-				String branch = object.getString("Route");
+				String branch = lineArray[BRANCH_INDEX].trim();
 				String direction = route + stopDirection + branch;
 				int vehicleId = 0;
 
@@ -167,7 +179,7 @@ public class SubwayPredictionsFeedParser
 						routeConfig.getRouteName(), false, false));
 				stopLocations.add(stopLocation);
 
-				String informationType = object.getString("InformationType");
+				String informationType = lineArray[ARRIVAL_STATUS_INDEX].trim();
 				if ("Arrived".equals(informationType))
 				{
 					StopLocation nextStop = getNextStop(routeConfig, stopLocation, direction);
@@ -179,7 +191,8 @@ public class SubwayPredictionsFeedParser
 					int id = 0;
 					try
 					{
-						id = Integer.parseInt(object.getString("Trip"));
+						String tripId = lineArray[TRIP_ID_INDEX].trim();
+						id = Integer.parseInt(tripId);
 					}
 					catch (NumberFormatException e)
 					{
@@ -204,10 +217,6 @@ public class SubwayPredictionsFeedParser
 				}
 			}
 
-		}
-		catch (JSONException e)
-		{
-			Log.e("BostonBusMap", e.getMessage());
 		}
 		catch (ParseException e)
 		{
