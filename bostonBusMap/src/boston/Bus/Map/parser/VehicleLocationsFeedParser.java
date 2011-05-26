@@ -24,6 +24,7 @@ import boston.Bus.Map.data.BusLocation;
 import boston.Bus.Map.data.Directions;
 import boston.Bus.Map.data.RouteConfig;
 import boston.Bus.Map.data.RoutePool;
+import boston.Bus.Map.transit.TransitSystem;
 
 public class VehicleLocationsFeedParser extends DefaultHandler
 {
@@ -85,12 +86,13 @@ public class VehicleLocationsFeedParser extends DefaultHandler
 			boolean predictable = Boolean.parseBoolean(attributes.getValue(predictableKey)); 
 			String dirTag = attributes.getValue(dirTagKey);
 
-
+			long lastFeedUpdate = TransitSystem.currentTimeMillis() - (seconds * 1000);
+			
 			String inferBusRoute = null;
 
 			final int arrowTopDiff = 7;
 			
-			BusLocation newBusLocation = new BusLocation(lat, lon, id, seconds, lastUpdateTime, 
+			BusLocation newBusLocation = new BusLocation(lat, lon, id, lastFeedUpdate, lastUpdateTime, 
 					heading, predictable, dirTag, inferBusRoute, bus, arrow, route, directions, routeKeysToTitles.get(route),
 					false, true, arrowTopDiff);
 
@@ -109,7 +111,7 @@ public class VehicleLocationsFeedParser extends DefaultHandler
 			
 			for (Integer key : busMapping.keySet())
 			{
-				busMapping.get(key).lastUpdateInMillis = lastUpdateTime;
+				busMapping.get(key).setLastUpdateInMillis(lastUpdateTime);
 			}
 		}
 

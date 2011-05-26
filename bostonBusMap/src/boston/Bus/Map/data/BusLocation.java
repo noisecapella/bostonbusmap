@@ -43,15 +43,15 @@ public class BusLocation implements Location {
 	private final String routeName;
 
 	/**
-	 * seconds since the bus last sent GPS data to the server. This comes from
-	 * the XML; we don't calculate this
-	 */
-	public final int seconds;
-	/**
-	 * Creation time of this bus object
+	 * Time of last refresh of this bus object
 	 */
 	public long lastUpdateInMillis;
 
+	/**
+	 * When the feed says the information was last updated.
+	 */
+	public final long lastFeedUpdateInMillis;
+	
 	/**
 	 * Distance in miles of the bus from its previous location, in the x
 	 * dimension, squared
@@ -104,8 +104,8 @@ public class BusLocation implements Location {
 	private static final int LOCATIONTYPE = 1;
 	public static final int NO_HEADING = -1;
 
-	public BusLocation(float latitude, float longitude, int id, int seconds,
-			long lastUpdateInMillis, String heading, boolean predictable,
+	public BusLocation(float latitude, float longitude, int id,
+			long lastFeedUpdateInMillis, long lastUpdateInMillis, String heading, boolean predictable,
 			String dirTag, String inferBusRoute, Drawable bus, Drawable arrow,
 			String routeName, Directions directions, String routeTitle,
 			boolean disappearAfterRefresh, boolean showBusNumber,
@@ -115,8 +115,8 @@ public class BusLocation implements Location {
 		this.latitudeAsDegrees = latitude;
 		this.longitudeAsDegrees = longitude;
 		this.id = id;
-		this.seconds = seconds;
 		this.lastUpdateInMillis = lastUpdateInMillis;
+		this.lastFeedUpdateInMillis = lastFeedUpdateInMillis;
 		this.heading = heading;
 		this.predictable = predictable;
 		this.dirTag = dirTag;
@@ -241,7 +241,7 @@ public class BusLocation implements Location {
 			snippet += "Bus number: " + id + "<br />";
 		}
 
-		int secondsAgo = (int) (seconds + (TransitSystem.currentTimeMillis() - lastUpdateInMillis) / 1000); 
+		int secondsAgo = (int) (TransitSystem.currentTimeMillis() - lastFeedUpdateInMillis) / 1000; 
 		snippet += "Last update: " + secondsAgo	+ " seconds ago";
 		String direction = getDirection();
 		if (direction.length() != 0 && predictable == false) {
@@ -381,5 +381,13 @@ public class BusLocation implements Location {
 	@Override
 	public boolean containsId(int selectedBusId) {
 		return selectedBusId == getId();
+	}
+
+	public long getLastUpdateInMillis() {
+		return lastUpdateInMillis;
+	}
+
+	public void setLastUpdateInMillis(long lastUpdateTime) {
+		this.lastUpdateInMillis = lastUpdateTime;
 	}
 }

@@ -145,11 +145,11 @@ public class SubwayPredictionsFeedParser
 				}
 
 				Date date = parseTime(object.getString("Time"));
-				long epochTime = date.getTime();
-				epochTime += TransitSystem.getTimeZone().getOffset(epochTime);
+				long lastFeedUpdateTime = date.getTime();
+				lastFeedUpdateTime += TransitSystem.getTimeZone().getOffset(lastFeedUpdateTime);
 				
 				long currentMillis = TransitSystem.currentTimeMillis();
-				long diff = epochTime - currentMillis;
+				long diff = lastFeedUpdateTime - currentMillis;
 				int minutes = (int)(diff / 1000 / 60);
 				
 				if (diff < 0 && minutes == 0)
@@ -170,50 +170,36 @@ public class SubwayPredictionsFeedParser
 				String informationType = object.getString("InformationType");
 				if ("Arrived".equals(informationType))
 				{
-					int seconds = (int)-(diff / 1000);
+					StopLocation nextStop = getNextStop(routeConfig, stopLocation, direction);
 
-					//NOTE: I'm not sure if I want to keep subway cars around for a long time, but there's no good way of knowing
-					//when they're not around
-					
-					//if (seconds < 300)
-					if (true)
+					final int arrowTopDiff = 9;
+
+					//first, see if there's a subway car which pretty much matches an old BusLocation
+					BusLocation busLocation = null;
+					int id = 0;
+					try
 					{
-						StopLocation nextStop = getNextStop(routeConfig, stopLocation, direction);
+						id = Integer.parseInt(object.getString("Trip"));
+					}
+					catch (NumberFormatException e)
+					{
+						Log.e("BostonBusMap", e.getMessage());
+						id = -1;
+					}
 
-						final int arrowTopDiff = 9;
+					busLocation = new BusLocation(stopLocation.getLatitudeAsDegrees(), stopLocation.getLongitudeAsDegrees(),
+							id, lastFeedUpdateTime, currentMillis, null, true, direction, null, rail, 
+							railArrow, route, directions, route + " at " + stopLocation.getTitle(), true, false, arrowTopDiff);
+					busMapping.put(id, busLocation);
 
-						//first, see if there's a subway car which pretty much matches an old BusLocation
-						BusLocation busLocation = null;
-						int id = 0;
-						try
-						{
-							id = Integer.parseInt(object.getString("Trip"));
-						}
-						catch (NumberFormatException e)
-						{
-							Log.e("BostonBusMap", e.getMessage());
-							id = -1;
-						}
-						
-						busLocation = new BusLocation(stopLocation.getLatitudeAsDegrees(), stopLocation.getLongitudeAsDegrees(),
-								id, seconds, currentMillis, null, true, direction, null, rail, 
-								railArrow, route, directions, route + " at " + stopLocation.getTitle(), true, false, arrowTopDiff);
-						busMapping.put(id, busLocation);
-						
-						toRemove.remove(id);
+					toRemove.remove(id);
 
 
-						//set arrow to point to correct direction
+					//set arrow to point to correct direction
 
-						if (nextStop != null)
-						{
-							//Log.v("BostonBusMap", "at " + stopLocation.getTitle() + " moving to " + nextStop.getTitle());
-							busLocation.movedTo(nextStop.getLatitudeAsDegrees(), nextStop.getLongitudeAsDegrees());
-						}
-						else
-						{
-							//Log.v("BostonBusMap", "at " + stopLocation.getTitle() + ", nothing to move to");
-						}
+					if (nextStop != null)
+					{
+						busLocation.movedTo(nextStop.getLatitudeAsDegrees(), nextStop.getLongitudeAsDegrees());
 					}
 				}
 			}
