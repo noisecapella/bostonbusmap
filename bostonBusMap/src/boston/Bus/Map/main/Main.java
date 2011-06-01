@@ -196,6 +196,8 @@ public class Main extends MapActivity
         
         firstRunMode = true;
         
+        TransitSystem.setDefaultTimeFormat(this);
+        
         //get widgets
         mapView = (MapView)findViewById(R.id.mapview);
         toggleButton = (Spinner)findViewById(R.id.predictionsOrLocations);

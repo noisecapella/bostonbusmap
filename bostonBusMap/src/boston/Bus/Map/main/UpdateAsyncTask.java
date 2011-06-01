@@ -469,22 +469,21 @@ public class UpdateAsyncTask extends AsyncTask<Object, Object, Locations>
 		//point hash to index in busLocations
 		HashMap<Long, Integer> points = new HashMap<Long, Integer>();
 		
-		ArrayList<GeoPoint> geoPointsToAdd = new ArrayList<GeoPoint>();
+		ArrayList<GeoPoint> geoPointsToAdd = new ArrayList<GeoPoint>(busLocations.size());
 		//draw the buses on the map
 		int newSelectedBusId = selectedBusId;
 		for (int i = 0; i < busLocations.size(); i++)
 		{
 			Location busLocation = busLocations.get(i);
 			
-			int latInt = (int)(busLocation.getLatitudeAsDegrees() * e6);
-			int lonInt = (int)(busLocation.getLongitudeAsDegrees() * e6);
-			GeoPoint point = new GeoPoint(latInt, lonInt);
+			final int latInt = (int)(busLocation.getLatitudeAsDegrees() * e6);
+			final int lonInt = (int)(busLocation.getLongitudeAsDegrees() * e6);
 					
 			//make a hash to easily compare this location's position against others
 			//get around sign extension issues by making them all positive numbers
-			latInt = (latInt < 0 ? -latInt : latInt);
-			lonInt = (lonInt < 0 ? -lonInt : lonInt);
-			long hash = (long)((long)latInt << 32) | (long)lonInt;
+			final int latIntHash = (latInt < 0 ? -latInt : latInt);
+			final int lonIntHash = (lonInt < 0 ? -lonInt : lonInt);
+			long hash = (long)((long)latIntHash << 32) | (long)lonIntHash;
 			Integer index = points.get(hash);
 			if (null != index)
 			{
@@ -507,6 +506,7 @@ public class UpdateAsyncTask extends AsyncTask<Object, Object, Locations>
 		
 				//the title is displayed when someone taps on the icon
 				busOverlay.addLocation(busLocation);
+				GeoPoint point = new GeoPoint(latInt, lonInt);
 				geoPointsToAdd.add(point);
 			}
 		}

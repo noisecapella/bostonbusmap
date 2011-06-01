@@ -127,8 +127,9 @@ public class StopLocation implements Location
 
 	@Override
 	public void makeSnippetAndTitle(RouteConfig routeConfig, HashMap<String, String> routeKeysToTitles, Context context) {
-		TreeSet<String> routes = new TreeSet<String>();
+		ArrayList<String> routes = new ArrayList<String>();
 		routes.addAll(dirTags.keySet());
+		Collections.sort(routes);
 		snippetRoutes = makeSnippetRoutes(routes, routeKeysToTitles);
 		snippetTitle = title;
 		snippetStop = tag;
