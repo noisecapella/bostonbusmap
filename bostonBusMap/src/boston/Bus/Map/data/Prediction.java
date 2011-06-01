@@ -107,7 +107,6 @@ public class Prediction implements Comparable<Prediction>, Parcelable
 	public int compareTo(Prediction another)
 	{
 		return new Long(arrivalTimeMillis).compareTo(another.arrivalTimeMillis);
-		
 	}
 
 	@Override

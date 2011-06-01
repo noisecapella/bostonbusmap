@@ -241,6 +241,32 @@ public class StopLocation implements Location
 				return null;
 			}
 
+			boolean anyNulls = false;
+			for (Prediction prediction : predictions)
+			{
+				if (prediction == null)
+				{
+					anyNulls = true;
+					break;
+				}
+			}
+			
+			if (anyNulls)
+			{
+				//argh, this shouldn't happen but one person reported a null ref with a prediction in predictions,
+				//so I should handle it. This isn't a bottleneck so it shouldn't matter that I'm cloning the list
+				
+				ArrayList<Prediction> newPredictions = new ArrayList<Prediction>(predictions.size());
+				for (Prediction prediction : predictions)
+				{
+					if (prediction != null)
+					{
+						newPredictions.add(prediction);
+					}
+				}
+				predictions = newPredictions;
+			}
+			
 			Collections.sort(predictions);
 
 			final int max = 3;
