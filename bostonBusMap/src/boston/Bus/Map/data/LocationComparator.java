@@ -21,7 +21,20 @@ public class LocationComparator implements Comparator<boston.Bus.Map.data.Locati
 				a.getLongitudeAsDegrees() == b.getLongitudeAsDegrees())
 		{
 			//if they share a location, don't bother with a full comparison
-			return 0;
+			int aId = a.getId();
+			int bId = b.getId();
+			if (aId < bId)
+			{
+				return -1;
+			}
+			else if (aId > bId)
+			{
+				return 1;
+			}
+			else
+			{
+				return 0;
+			}
 		}
 		
 		double dist = a.distanceFrom(centerLatitudeAsRadians, centerLongitudeAsRadians);

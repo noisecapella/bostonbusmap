@@ -526,4 +526,9 @@ public class StopLocation implements Location
 		
 		return ret2.toArray(new StopLocation[0]);
 	}
+	
+	@Override
+	public String toString() {
+		return "Stop@" + getStopTag();
+	}
 }

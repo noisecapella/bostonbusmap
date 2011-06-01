@@ -471,6 +471,7 @@ public class UpdateAsyncTask extends AsyncTask<Object, Object, Locations>
 		
 		ArrayList<GeoPoint> geoPointsToAdd = new ArrayList<GeoPoint>();
 		//draw the buses on the map
+		int newSelectedBusId = selectedBusId;
 		for (int i = 0; i < busLocations.size(); i++)
 		{
 			Location busLocation = busLocations.get(i);
@@ -488,7 +489,14 @@ public class UpdateAsyncTask extends AsyncTask<Object, Object, Locations>
 			if (null != index)
 			{
 				//two stops in one space. Just use the one overlay, and combine textboxes in an elegant manner
-				busLocations.get(index).addToSnippetAndTitle(selectedRouteConfig, busLocation, routeKeysToTitles, context);
+				Location parent = busLocations.get(index);
+				parent.addToSnippetAndTitle(selectedRouteConfig, busLocation, routeKeysToTitles, context);
+				
+				if (busLocation.getId() == selectedBusId)
+				{
+					//the thing we want to select isn't available anymore, choose the other icon
+					newSelectedBusId = parent.getId();
+				}
 			}
 			else
 			{
@@ -504,7 +512,7 @@ public class UpdateAsyncTask extends AsyncTask<Object, Object, Locations>
 		}
 		busOverlay.addOverlaysFromLocations(geoPointsToAdd);
 		
-		busOverlay.setSelectedBusId(selectedBusId);
+		busOverlay.setSelectedBusId(newSelectedBusId);
 		busOverlay.refreshBalloons();
 		
 		mapView.getOverlays().clear();

@@ -933,7 +933,7 @@ public class Main extends MapActivity
 		
 		
 		final int id = stopLocation.getId();
-		handler.triggerUpdateAndSelect(id);
+		handler.triggerUpdateThenSelect(id);
 
 		
 		

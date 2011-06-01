@@ -325,7 +325,7 @@ public class UpdateHandler extends Handler {
 		
 	}
 
-	public void triggerUpdateAndSelect(int id)
+	public void triggerUpdateThenSelect(int id)
 	{
 		Message msg = new Message();
 		msg.arg1 = id;
