@@ -401,6 +401,11 @@ public final class Locations
 		return routeMapping.setFavorite(location, !isFavorite);
 	}
 
+	public StopLocation[] getCurrentFavorites()
+	{
+		return routeMapping.getFavoriteStops();
+	}
+	
 	public void setLastUpdateTime(double lastUpdateTime) {
 		this.lastUpdateTime = lastUpdateTime;
 	}

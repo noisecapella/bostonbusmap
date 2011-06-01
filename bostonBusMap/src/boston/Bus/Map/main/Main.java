@@ -162,6 +162,7 @@ public class Main extends MapActivity
 	private String[] dropdownRoutes;
 	private HashMap<String, String> dropdownRouteKeysToTitles;
 	private AlertDialog routeChooserDialog;
+
 	private ProgressBar progress;
 	private ImageButton searchButton;
 	
@@ -275,18 +276,18 @@ public class Main extends MapActivity
         dropdownRoutes = transitSystem.getRoutes();
         dropdownRouteKeysToTitles = transitSystem.getRouteKeysToTitles();
         
-        String[] routeTitles = getRouteTitles(dropdownRoutes, dropdownRouteKeysToTitles);
-        
-		AlertDialog.Builder builder = new AlertDialog.Builder(this);
-		builder.setTitle("Choose a route");
-		builder.setItems(routeTitles, new DialogInterface.OnClickListener() {
-		    public void onClick(DialogInterface dialog, int item) {
-		    	setNewRoute(item);
-		    	
-		    }
-		});
-		routeChooserDialog = builder.create();
-		
+        {
+            String[] routeTitles = getRouteTitles(dropdownRoutes, dropdownRouteKeysToTitles);
+            
+        	AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        	builder.setTitle(getString(R.string.chooseRouteInBuilder));
+        	builder.setItems(routeTitles, new DialogInterface.OnClickListener() {
+        		public void onClick(DialogInterface dialog, int item) {
+        			setNewRoute(item, true);
+        		}
+        	});
+        	routeChooserDialog = builder.create();
+        }
 		
 		DisplayMetrics metrics = new DisplayMetrics();
 		getWindowManager().getDefaultDisplay().getMetrics(metrics);
@@ -449,8 +450,9 @@ public class Main extends MapActivity
 	 * This should be called only by SearchHelper 
 	 * 
 	 * @param position
+	 * @param saveNewQuery save a search term in the search history as if user typed it in
 	 */
-	public void setNewRoute(int position)
+	public void setNewRoute(int position, boolean saveNewQuery)
     {
 		if (busLocations != null && handler != null)
 		{
@@ -462,13 +464,21 @@ public class Main extends MapActivity
 			handler.triggerUpdate();
 
 			String routeTitle = dropdownRouteKeysToTitles.get(route);
+			if (routeTitle == null)
+			{
+				routeTitle = route;
+			}
+
 			if (searchView != null)
 			{
-				if (routeTitle == null)
-				{
-					routeTitle = route;
-				}
 				searchView.setText("Route " + routeTitle);
+			}
+
+			if (saveNewQuery)
+			{
+				final SearchRecentSuggestions suggestions = new SearchRecentSuggestions(Main.this, TransitContentProvider.AUTHORITY,
+						TransitContentProvider.MODE);
+				suggestions.saveRecentQuery("route " + routeTitle, null);
 			}
 		}
     }
@@ -651,10 +661,41 @@ public class Main extends MapActivity
     	
     	
     	case R.id.chooseRoute:
-    		Log.v("BostonBusMap", "choosing a route");
-
     		routeChooserDialog.show();
     		
+    		break;
+    		
+    	case R.id.chooseStop:
+    		if (busLocations != null)
+    		{
+    			final StopLocation[] stops = busLocations.getCurrentFavorites();
+
+    			String[] titles = new String[stops.length];
+    			for (int i = 0; i < stops.length; i++)
+    			{
+    				StopLocation stop = stops[i];
+    				String title = stop.getStopTag() + " - " + stop.getTitle();
+    				titles[i] = title;
+    			}
+    			
+    			AlertDialog.Builder builder = new AlertDialog.Builder(this);
+    			builder.setTitle(getString(R.string.chooseStopInBuilder));
+    			builder.setItems(titles, new DialogInterface.OnClickListener() {
+
+    				@Override
+    				public void onClick(DialogInterface dialog, int which) {
+    					if (which >= 0 && which < stops.length)
+    					{
+    						StopLocation stop = stops[which];
+    						
+    						String route = stop.getFirstRoute();
+    						setNewStop(route, stop.getStopTag(), true);
+    					}
+    				}
+    			});
+    			AlertDialog stopChooserDialog = builder.create();
+    			stopChooserDialog.show();
+    		}
     		break;
     	}
     	return true;
@@ -815,7 +856,6 @@ public class Main extends MapActivity
 	@Override
 	public void onNewIntent(Intent newIntent) {
 		//since Main is marked singletop, it only uses one activity and onCreate won't get called. Use this to handle search requests 
-		Log.v("BostonBusMap", "onNewIntent called");
 		if (Intent.ACTION_SEARCH.equals(newIntent.getAction()))
 		{
 			String query = newIntent.getStringExtra(SearchManager.QUERY);
@@ -867,8 +907,9 @@ public class Main extends MapActivity
 	 * Sets the current selected stop to stopTag, moves map over it, sets route to route, sets mode to stops for one route
 	 * @param route
 	 * @param stopTag
+	 * @param saveNewQuery act as if user typed in the query as a search phrase (save in search history)
 	 */
-	public void setNewStop(String route, String stopTag)
+	public void setNewStop(String route, String stopTag, boolean saveNewQuery)
 	{
 		StopLocation stopLocation = busLocations.setSelectedStop(route, stopTag);
 
@@ -901,7 +942,7 @@ public class Main extends MapActivity
 			if (stopLocation.getRoutes().contains(currentRoute) == false)
 			{
 				//only set it if some route which contains this stop isn't already set
-				setNewRoute(routePosition);
+				setNewRoute(routePosition, false);
 			}
 		}
 		
@@ -914,6 +955,13 @@ public class Main extends MapActivity
 		
 		GeoPoint geoPoint = new GeoPoint(latE6, lonE6);
 		controller.setCenter(geoPoint);
+		
+		if (saveNewQuery)
+		{
+			final SearchRecentSuggestions suggestions = new SearchRecentSuggestions(Main.this, TransitContentProvider.AUTHORITY,
+					TransitContentProvider.MODE);
+			suggestions.saveRecentQuery("stop " + stopLocation.getStopTag(), null);
+		}
 	}
 
 	private String getRoute() {

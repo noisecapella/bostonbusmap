@@ -32,8 +32,11 @@ Are any enabled (like GPS) in your system settings?</string>
 <string name="commentStop">Stops: </string>
 <string name="commentOther">Problem?</string>
 <string name="commentSubmit">Send feedback</string>
-<string name="moreinfo">More info</string>
+<string name="moreinfo">More Info</string>
 <string name="reportproblem">Report problem</string>
 <string name="basicInstructions">Hello &lt;br /&gt; World\n
 3</string>
+<string name="chooseStop">Favorite Stops</string>
+<string name="chooseStopInBuilder">Choose a stop</string>
+<string name="chooseRouteInBuilder">Choose a route</string>
 </resources>
