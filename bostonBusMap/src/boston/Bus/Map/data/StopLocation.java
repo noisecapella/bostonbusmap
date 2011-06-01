@@ -53,6 +53,7 @@ public class StopLocation implements Location
 	private String snippetStop;
 	private String snippetRoutes;
 	private String snippetPredictions;
+	
 	/**
 	 * Other stops which are temporarily using the same overlay
 	 */
@@ -483,5 +484,46 @@ public class StopLocation implements Location
 			}
 		}
 		return false;
+	}
+
+	/**
+	 * Remove 
+	 * @param stops
+	 * @return
+	 */
+	public static StopLocation[] consolidateStops(StopLocation[] stops) {
+		if (stops.length < 2)
+		{
+			return stops;
+		}
+		
+		ArrayList<StopLocation> ret = new ArrayList<StopLocation>();
+		for (int i = 0; i < stops.length; i++)
+		{
+			ret.add(stops[i]);
+		}
+		
+		//make sure stops sharing a location are touching each other
+		final StopLocation firstStop = stops[0];
+		Collections.sort(ret, new LocationComparator(firstStop.getLatitudeAsDegrees(), firstStop.getLongitudeAsDegrees()));
+		
+		ArrayList<StopLocation> ret2 = new ArrayList<StopLocation>(stops.length);
+		StopLocation prev = null;
+		for (StopLocation stop : ret)
+		{
+			if (prev != null && prev.getLatitudeAsDegrees() == stop.getLatitudeAsDegrees() &&
+					prev.getLongitudeAsDegrees() == stop.getLongitudeAsDegrees())
+			{
+				//skip
+			}
+			else
+			{
+				ret2.add(stop);
+			}
+			
+			prev = stop;
+		}
+		
+		return ret2.toArray(new StopLocation[0]);
 	}
 }

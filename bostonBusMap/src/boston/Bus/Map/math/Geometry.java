@@ -53,7 +53,8 @@ public class Geometry {
 	 */
 	public static float computeCompareDistance(double lat1, double lon1, double lat2, double lon2)
 	{
-		double dist = (((1.0 - Math.cos(lat1 - lat2)) * 0.5) + Math.cos(lat1) * Math.cos(lat2) * 
+		//great circle distance
+		double dist = ((1.0 - Math.cos(lat1 - lat2)) * 0.5) + (Math.cos(lat1) * Math.cos(lat2) * 
 				((1.0 - Math.cos(lon1 - lon2)) * 0.5)); 
 		return (float) (dist * radiusOfEarthInMiles);
 	}

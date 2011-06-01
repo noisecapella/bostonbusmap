@@ -9,14 +9,21 @@ public class LocationComparator implements Comparator<boston.Bus.Map.data.Locati
 	private final double centerLongitudeAsRadians;
 
 
-	public LocationComparator(double centerLatitude, double centerLongitude)
+	public LocationComparator(double centerLatitudeAsDegrees, double centerLongitudeAsDegrees)
 	{
-		centerLatitudeAsRadians = centerLatitude * Geometry.degreesToRadians;
-		centerLongitudeAsRadians = centerLongitude * Geometry.degreesToRadians;
+		centerLatitudeAsRadians = centerLatitudeAsDegrees * Geometry.degreesToRadians;
+		centerLongitudeAsRadians = centerLongitudeAsDegrees * Geometry.degreesToRadians;
 	}
 
 	public int compare(Location a, Location b)
 	{
+		if (a.getLatitudeAsDegrees() == b.getLatitudeAsDegrees() &&
+				a.getLongitudeAsDegrees() == b.getLongitudeAsDegrees())
+		{
+			//if they share a location, don't bother with a full comparison
+			return 0;
+		}
+		
 		double dist = a.distanceFrom(centerLatitudeAsRadians, centerLongitudeAsRadians);
 		double otherDist = b.distanceFrom(centerLatitudeAsRadians, centerLongitudeAsRadians);
 

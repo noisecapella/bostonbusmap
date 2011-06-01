@@ -668,7 +668,9 @@ public class Main extends MapActivity
     	case R.id.chooseStop:
     		if (busLocations != null)
     		{
-    			final StopLocation[] stops = busLocations.getCurrentFavorites();
+    			StopLocation[] favoriteStops = busLocations.getCurrentFavorites();
+    			
+    			final StopLocation[] stops = StopLocation.consolidateStops(favoriteStops);
 
     			String[] titles = new String[stops.length];
     			for (int i = 0; i < stops.length; i++)
