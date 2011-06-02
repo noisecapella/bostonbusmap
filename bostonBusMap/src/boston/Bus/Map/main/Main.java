@@ -24,6 +24,7 @@ import java.io.InputStream;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 
@@ -257,7 +258,10 @@ public class Main extends MapActivity
 				}
 				else if (busLocations != null && handler != null)
 				{
-					setMode(position);
+					if (position >= 0 && position < modesSupported.length)
+					{
+						setMode(modesSupported[position]);
+					}
 				}				
 			}
 
@@ -667,6 +671,7 @@ public class Main extends MapActivity
     						
     						String route = stop.getFirstRoute();
     						setNewStop(route, stop.getStopTag(), true);
+    						setMode(BUS_PREDICTIONS_STAR);
     					}
     				}
     			});
@@ -865,16 +870,19 @@ public class Main extends MapActivity
 		}
 	}
 
-	public void setMode(int position)
+	public void setMode(int mode)
 	{
-		if (position < 0 || position >= modesSupported.length)
+		int setTo = VEHICLE_LOCATIONS_ALL; 
+		for (int i = 0; i < modesSupported.length; i++)
 		{
-			handler.setSelectedBusPredictions(VEHICLE_LOCATIONS_ALL);
+			if (modesSupported[i] == mode)
+			{
+				setTo = mode;
+				break;
+			}
 		}
-		else
-		{
-			handler.setSelectedBusPredictions(modesSupported[position]);
-		}
+		
+		handler.setSelectedBusPredictions(setTo);
 
 		handler.triggerUpdate();
 		handler.immediateRefresh();
