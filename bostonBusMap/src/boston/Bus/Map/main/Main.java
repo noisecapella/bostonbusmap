@@ -260,7 +260,7 @@ public class Main extends MapActivity
 				{
 					if (position >= 0 && position < modesSupported.length)
 					{
-						setMode(modesSupported[position]);
+						setMode(modesSupported[position], false);
 					}
 				}				
 			}
@@ -671,7 +671,7 @@ public class Main extends MapActivity
     						
     						String route = stop.getFirstRoute();
     						setNewStop(route, stop.getStopTag(), true);
-    						setMode(BUS_PREDICTIONS_STAR);
+    						setMode(BUS_PREDICTIONS_STAR, true);
     					}
     				}
     			});
@@ -870,7 +870,7 @@ public class Main extends MapActivity
 		}
 	}
 
-	public void setMode(int mode)
+	public void setMode(int mode, boolean updateIcon)
 	{
 		int setTo = VEHICLE_LOCATIONS_ALL; 
 		for (int i = 0; i < modesSupported.length; i++)
@@ -881,6 +881,12 @@ public class Main extends MapActivity
 				break;
 			}
 		}
+		
+		if (updateIcon)
+		{
+			setSelectedBusPredictions(mode);
+		}
+		
 		
 		handler.setSelectedBusPredictions(setTo);
 
@@ -931,7 +937,7 @@ public class Main extends MapActivity
 			}
 		}
 		
-		setMode(BUS_PREDICTIONS_ONE);
+		setMode(BUS_PREDICTIONS_ONE, true);
 		
 		MapController controller = mapView.getController();
 		
