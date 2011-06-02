@@ -22,7 +22,6 @@ public class SearchHelper
 	private final Main context;
 	private final String[] dropdownRoutes;
 	private final HashMap<String, String> dropdownRouteKeysToTitles;
-	private final MapView mapView;
 	private final String query;
 	private String suggestionsQuery;
 	private final DatabaseHelper databaseHelper;
@@ -36,7 +35,6 @@ public class SearchHelper
 		this.context = context;
 		this.dropdownRoutes = dropdownRoutes;
 		this.dropdownRouteKeysToTitles = dropdownRouteKeysToTitles;
-		this.mapView = mapView;
 		this.query = query;
 		this.databaseHelper = databaseHelper;
 	}

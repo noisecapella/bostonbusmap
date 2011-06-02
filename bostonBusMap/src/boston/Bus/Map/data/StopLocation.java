@@ -49,7 +49,7 @@ public class StopLocation implements Location
 	 */
 	private final HashMap<String, String> dirTags;
 
-	private static final int LOCATIONTYPE = 3; 
+	private static final int LOCATIONTYPE = 3;
 	
 	public StopLocation(float latitudeAsDegrees, float longitudeAsDegrees,
 			Drawable busStop, String tag, String title)
