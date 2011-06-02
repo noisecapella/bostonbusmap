@@ -655,7 +655,16 @@ public class Main extends MapActivity
     			for (int i = 0; i < stops.length; i++)
     			{
     				StopLocation stop = stops[i];
-    				String title = stop.getTitle();
+    				String routes;
+    				if (stop.getCombinedRoutes() != null)
+    				{
+    					routes = stop.getCombinedRoutes();
+    				}
+    				else
+    				{
+    					routes = stop.getFirstRoute();
+    				}
+    				String title = stop.getTitle() + " (route " + routes + ")";
     				titles[i] = title;
     			}
     			
