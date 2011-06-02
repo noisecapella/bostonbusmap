@@ -485,33 +485,6 @@ public class Main extends MapActivity
 		}
     }
 
-    private SpinnerAdapter makeRouteSpinnerAdapter(String[] routes, HashMap<String, String> routeKeysToTitles) {
-    	final ArrayList<HashMap<String, String>> routeList = new ArrayList<HashMap<String, String>>();
-        
-        for (String route : routes)
-        {
-        	HashMap<String, String> map = new HashMap<String, String>();
-       		map.put("key", route);
-       		String title = routeKeysToTitles.get(route);
-       		if (title == null || title.length() == 0)
-       		{
-       			map.put("name", route);
-       		}
-       		else
-       		{
-       			map.put("name", title);
-       		}
-        	routeList.add(map);
-        }
-        
-        
-        SimpleAdapter adapter = new SimpleAdapter(this, routeList, android.R.layout.simple_spinner_item, new String[]{"name"}, 
-        		new int[]{android.R.id.text1});
-
-        adapter.setDropDownViewResource(android.R.layout.simple_dropdown_item_1line);
-        return adapter;
-	}
-
 
 	private SpinnerAdapter makeModeSpinner() {
     	final ArrayList<ViewingMode> modes = new ArrayList<ViewingMode>();
