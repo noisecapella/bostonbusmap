@@ -946,6 +946,7 @@ public class Main extends MapActivity
 		
 		GeoPoint geoPoint = new GeoPoint(latE6, lonE6);
 		controller.setCenter(geoPoint);
+		controller.scrollBy(0, -100);
 		
 		if (saveNewQuery)
 		{
