@@ -284,7 +284,9 @@ public class BusPopupView extends BalloonOverlayView<BusOverlayItem>
 		
 		//NOTE: originally this was going to be an actual link, but we can't click it on the popup except through its onclick listener
 		moreInfo.setText(moreInfoText);
+		/*
 		reportProblem.setText(reportProblemText);
+		*/
 
 	}
 	
