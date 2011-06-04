@@ -1,4 +1,4 @@
-package boston.Bus.Map.main;
+package com.schneeloch.latransit.main;
 
 import java.util.HashMap;
 import java.util.List;

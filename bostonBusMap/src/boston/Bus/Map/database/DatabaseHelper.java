@@ -10,13 +10,13 @@ import java.util.List;
 
 import com.google.android.maps.GeoPoint;
 import com.google.android.maps.Projection;
+import com.schneeloch.latransit.main.UpdateAsyncTask;
 
 import boston.Bus.Map.data.Path;
 
 import boston.Bus.Map.data.RouteConfig;
 import boston.Bus.Map.data.StopLocation;
 import boston.Bus.Map.data.SubwayStopLocation;
-import boston.Bus.Map.main.UpdateAsyncTask;
 import boston.Bus.Map.transit.TransitSource;
 import boston.Bus.Map.transit.TransitSystem;
 import boston.Bus.Map.ui.ProgressMessage;

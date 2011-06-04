@@ -16,7 +16,7 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
     */
-package boston.Bus.Map.main;
+package com.schneeloch.latransit.main;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;

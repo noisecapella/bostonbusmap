@@ -16,7 +16,6 @@ import android.os.Debug;
 import android.util.Log;
 import android.widget.PopupWindow;
 import boston.Bus.Map.data.Path;
-import boston.Bus.Map.main.Main;
 import boston.Bus.Map.util.Constants;
 
 
@@ -24,6 +23,7 @@ import com.google.android.maps.GeoPoint;
 import com.google.android.maps.MapView;
 import com.google.android.maps.Overlay;
 import com.google.android.maps.Projection;
+import com.schneeloch.latransit.main.Main;
 
 public class RouteOverlay extends Overlay
 {

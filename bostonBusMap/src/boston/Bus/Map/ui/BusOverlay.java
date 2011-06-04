@@ -26,6 +26,8 @@ import java.util.List;
 
 
 import com.schneeloch.latransit.R;
+import com.schneeloch.latransit.main.Main;
+import com.schneeloch.latransit.main.UpdateHandler;
 
 import boston.Bus.Map.data.BusLocation;
 import boston.Bus.Map.data.Directions;
@@ -34,8 +36,6 @@ import boston.Bus.Map.data.StopLocation;
 
 import boston.Bus.Map.data.Location;
 import boston.Bus.Map.database.DatabaseHelper;
-import boston.Bus.Map.main.Main;
-import boston.Bus.Map.main.UpdateHandler;
 import boston.Bus.Map.math.Geometry;
 import boston.Bus.Map.util.Constants;
 

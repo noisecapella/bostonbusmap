@@ -12,6 +12,8 @@ import javax.xml.parsers.ParserConfigurationException;
 
 import org.xml.sax.SAXException;
 
+import com.schneeloch.latransit.main.Main;
+
 import android.R.string;
 import android.content.Context;
 import android.graphics.drawable.Drawable;
@@ -23,7 +25,6 @@ import boston.Bus.Map.data.Locations;
 import boston.Bus.Map.data.RouteConfig;
 import boston.Bus.Map.data.RoutePool;
 import boston.Bus.Map.data.StopLocation;
-import boston.Bus.Map.main.Main;
 import boston.Bus.Map.util.Constants;
 /**
  * Any transit-system specific stuff should go here, if possible
