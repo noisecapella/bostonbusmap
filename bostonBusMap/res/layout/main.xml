@@ -31,7 +31,7 @@ android:src="@drawable/ic_btn_search"
 		android:layout_alignParentBottom="true"
 		android:layout_below="@id/predictionsOrLocations"
 		
-		android:apiKey="04_mZq9Q_5sL2pltlDIYof4iIQimS_U5YPnRafg"
+		android:apiKey="04_mZq9Q_5sLuwYr34MsxnZKCXGYZR06-1pRSwg"
 		 />
 	<!-- debug key: 0UeumldxhB0bPpe6UgModFrG5tLPAwclzgqJhRg -->
 	<!-- release key: 04_mZq9Q_5sL2pltlDIYof4iIQimS_U5YPnRafg -->
