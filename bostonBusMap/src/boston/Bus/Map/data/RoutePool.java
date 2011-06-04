@@ -11,8 +11,9 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
 
+import com.schneeloch.latransit.R;
+
 import android.util.Log;
-import boston.Bus.Map.R;
 import boston.Bus.Map.database.DatabaseHelper;
 import boston.Bus.Map.main.UpdateAsyncTask;
 import boston.Bus.Map.transit.TransitSystem;

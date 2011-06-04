@@ -24,7 +24,8 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnTouchListener;
 
-import boston.Bus.Map.R;
+import com.schneeloch.latransit.R;
+
 
 import com.google.android.maps.GeoPoint;
 import com.google.android.maps.ItemizedOverlay;

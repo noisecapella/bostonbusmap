@@ -1,6 +1,7 @@
 package boston.Bus.Map.main;
 
-import boston.Bus.Map.R;
+import com.schneeloch.latransit.R;
+
 import android.app.Activity;
 import android.os.Bundle;
 

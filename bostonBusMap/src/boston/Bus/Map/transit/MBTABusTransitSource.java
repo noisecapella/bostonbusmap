@@ -13,6 +13,8 @@ import javax.xml.parsers.ParserConfigurationException;
 import org.apache.http.client.ClientProtocolException;
 import org.xml.sax.SAXException;
 
+import com.schneeloch.latransit.R;
+
 import android.content.Context;
 import android.graphics.drawable.Drawable;
 import android.util.Log;
@@ -472,7 +474,7 @@ public class MBTABusTransitSource implements TransitSource
 
 		final int contentLength = 341522;
 
-		InputStream in = new StreamCounter(context.getResources().openRawResource(boston.Bus.Map.R.raw.routeconfig),
+		InputStream in = new StreamCounter(context.getResources().openRawResource(R.raw.routeconfig),
 				task, contentLength); 
 
 		GZIPInputStream stream = new GZIPInputStream(in); 

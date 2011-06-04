@@ -3,7 +3,9 @@ package boston.Bus.Map.main;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import boston.Bus.Map.R;
+import com.schneeloch.latransit.R;
+
+
 import boston.Bus.Map.data.Prediction;
 import boston.Bus.Map.ui.TextViewBinder;
 import android.app.Activity;

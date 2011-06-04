@@ -49,7 +49,6 @@ import org.xml.sax.SAXException;
 import android.content.Context;
 import android.graphics.drawable.Drawable;
 import android.util.Log;
-import boston.Bus.Map.R;
 import boston.Bus.Map.database.DatabaseHelper;
 import boston.Bus.Map.main.Main;
 import boston.Bus.Map.main.UpdateAsyncTask;
