@@ -58,9 +58,11 @@ public class BusPopupView extends BalloonOverlayView<BusOverlayItem>
 
 		moreInfo = (TextView) layoutView.findViewById(R.id.balloon_item_moreinfo);
 		moreInfoText = Html.fromHtml("\n<a href='com.bostonbusmap://moreinfo'>More info</a>\n");
-		
-		reportProblem = (TextView) layoutView.findViewById(R.id.balloon_item_report);
+
 		reportProblemText = Html.fromHtml("\n<a href='com.bostonbusmap://reportproblem'>Report<br/>Problem</a>\n");
+		
+		/*
+		reportProblem = (TextView) layoutView.findViewById(R.id.balloon_item_report);
 		favorite.setOnClickListener(new OnClickListener() {
 			
 			@Override
@@ -77,7 +79,7 @@ public class BusPopupView extends BalloonOverlayView<BusOverlayItem>
 				}
 			}
 		});
-		
+		*/
 		moreInfo.setOnClickListener(new OnClickListener() {
 			
 			@Override
@@ -124,7 +126,7 @@ public class BusPopupView extends BalloonOverlayView<BusOverlayItem>
 			}
 		}
 		);
-
+/*
 		reportProblem.setOnClickListener(new OnClickListener() {
 			
 			@Override
@@ -143,7 +145,7 @@ public class BusPopupView extends BalloonOverlayView<BusOverlayItem>
 				context.startActivity(Intent.createChooser(intent, "Send email..."));
 			}
 		});
-		
+		*/
 
 		FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(
 				LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);

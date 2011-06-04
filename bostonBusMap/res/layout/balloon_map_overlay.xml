@@ -32,6 +32,7 @@
 		android:layout_alignRight="@+id/balloon_item_favorite"
 		android:layout_below="@+id/balloon_item_moreinfo" android:text="@string/reportproblem"
 		android:layout_marginTop="10dip" android:paddingTop="5dip"
+		android:visibility="gone"
 		android:paddingLeft="5dip" android:paddingBottom="10dip"></TextView>
 
 

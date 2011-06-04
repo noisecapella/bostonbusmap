@@ -31,37 +31,39 @@ import boston.Bus.Map.util.Constants;
  *
  */
 public class TransitSystem {
-	private static final double bostonLatitude = 42.3583333;
-	private static final double bostonLongitude = -71.0602778;
+	private static final double laLatitude = 34.0522222;
+	private static final double laLongitude = -118.2427778;
 	
 	private static final String website = "http://www.terribleinformation.org/george/bostonbusmap";
 	
 	//these four variables cover a very wide area just in case
+	/*
 	public static final double lowerLeftLat = 41.582579601430346;
 	public static final double lowerLeftLon = -72.0428466796875;
 	public static final double upperRightLat = 42.74701217318067;
 	public static final double upperRightLon = -69.774169921875;
-
-	public static final String[] emails = new String[]{"bostonbusmap@gmail.com", "t-trackertrial@mbta.com"};
-	public static final String emailSubject = "BostonBusMap error report";
+*/
+	
+	public static final String[] emails = new String[]{"bostonbusmap@gmail.com"/*, "t-trackertrial@mbta.com"*/};
+	public static final String emailSubject = "Los Transit-les error report";
 	
 	
 	public static double getCenterLat() {
-		return bostonLatitude;
+		return laLatitude;
 	}
 
 	public static double getCenterLon() {
-		return bostonLongitude;
+		return laLongitude;
 	}
 
 	public static int getCenterLatAsInt()
 	{
-		return (int)(bostonLatitude * Constants.E6);
+		return (int)(laLatitude * Constants.E6);
 	}
 	
 	public static int getCenterLonAsInt()
 	{
-		return (int)(bostonLongitude * Constants.E6);
+		return (int)(laLongitude * Constants.E6);
 	}
 
 	public static String getWebSite() {
@@ -83,12 +85,6 @@ public class TransitSystem {
 		if (defaultTransitSource == null)
 		{
 			defaultTransitSource = new MBTABusTransitSource(busStop, bus, arrow);
-			SubwayTransitSource subwayTransitSource = new SubwayTransitSource(busStop, rail, railArrow);
-			transitSourceMap.put(SubwayTransitSource.RedLine, subwayTransitSource);
-			transitSourceMap.put(SubwayTransitSource.OrangeLine, subwayTransitSource);
-			transitSourceMap.put(SubwayTransitSource.BlueLine, subwayTransitSource);
-			
-			transitSources.add(subwayTransitSource);
 			transitSources.add(defaultTransitSource);
 		}
 	}
