@@ -65,6 +65,7 @@ public class BusPopupView extends BalloonOverlayView<BusOverlayItem>
 		
 		/*
 		reportProblem = (TextView) layoutView.findViewById(R.id.balloon_item_report);
+		*/
 		favorite.setOnClickListener(new OnClickListener() {
 			
 			@Override
@@ -81,7 +82,7 @@ public class BusPopupView extends BalloonOverlayView<BusOverlayItem>
 				}
 			}
 		});
-		*/
+
 		moreInfo.setOnClickListener(new OnClickListener() {
 			
 			@Override
