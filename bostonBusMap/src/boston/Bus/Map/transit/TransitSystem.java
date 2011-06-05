@@ -85,7 +85,7 @@ public class TransitSystem {
 	{
 		if (defaultTransitSource == null)
 		{
-			defaultTransitSource = new MBTABusTransitSource(busStop, bus, arrow);
+			defaultTransitSource = new NextBusTransitSource(busStop, bus, arrow);
 			transitSources.add(defaultTransitSource);
 		}
 	}

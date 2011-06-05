@@ -15,7 +15,7 @@ import android.content.DialogInterface;
 import android.util.Log;
 import android.widget.Toast;
 import boston.Bus.Map.database.DatabaseHelper;
-import boston.Bus.Map.transit.MBTABusTransitSource;
+import boston.Bus.Map.transit.NextBusTransitSource;
 
 public class SearchHelper
 {

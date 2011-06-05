@@ -11,7 +11,7 @@ import java.util.TreeSet;
 
 import boston.Bus.Map.database.DatabaseHelper;
 import boston.Bus.Map.math.Geometry;
-import boston.Bus.Map.transit.MBTABusTransitSource;
+import boston.Bus.Map.transit.NextBusTransitSource;
 import boston.Bus.Map.transit.SubwayTransitSource;
 import boston.Bus.Map.transit.TransitSystem;
 import boston.Bus.Map.util.Box;
@@ -222,7 +222,7 @@ public class StopLocation implements Location
 		if (routeName != null)
 		{
 			//only do it for the given route
-			MBTABusTransitSource.bindPredictionElementsForUrl(urlString, routeName, tag, dirTags.get(routeName));
+			NextBusTransitSource.bindPredictionElementsForUrl(urlString, routeName, tag, dirTags.get(routeName));
 		}
 		else
 		{
@@ -233,7 +233,7 @@ public class StopLocation implements Location
 				{
 					if (SubwayTransitSource.isSubway(route) == false)
 					{
-						MBTABusTransitSource.bindPredictionElementsForUrl(urlString, route, tag, dirTags.get(route));
+						NextBusTransitSource.bindPredictionElementsForUrl(urlString, route, tag, dirTags.get(route));
 					}
 				}
 			}

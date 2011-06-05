@@ -88,7 +88,7 @@ public class SubwayTransitSource implements TransitSource {
 		//read data from the URL
 		
 		Log.v("BostonBusMap", "refreshing subway data");
-		HashSet<String> outputUrls = new HashSet<String>();
+		HashSet<String> outputRoutes = new HashSet<String>();
 		switch (selectedBusPredictions)
 		{
 		case  Main.BUS_PREDICTIONS_ONE:
@@ -98,7 +98,7 @@ public class SubwayTransitSource implements TransitSource {
 			List<Location> locations = locationsObj.getLocations(maxStops, centerLatitude, centerLongitude, false);
 
 			//ok, do predictions now
-			getPredictionsUrl(locations, maxStops, routeConfig.getRouteName(), outputUrls, selectedBusPredictions);
+			getPredictionsRoutes(locations, maxStops, routeConfig.getRouteName(), outputRoutes, selectedBusPredictions);
 			break;
 		}
 		case Main.BUS_PREDICTIONS_ALL:
@@ -107,17 +107,18 @@ public class SubwayTransitSource implements TransitSource {
 		{
 			List<Location> locations = locationsObj.getLocations(maxStops, centerLatitude, centerLongitude, false);
 			
-			getPredictionsUrl(locations, maxStops, null, outputUrls, selectedBusPredictions);
+			getPredictionsRoutes(locations, maxStops, null, outputRoutes, selectedBusPredictions);
 
 		}
 		break;
 
 		}
 
-		Log.v("BostonBusMap", "refreshing subway data for " + outputUrls.size() + " routes");
+		Log.v("BostonBusMap", "refreshing subway data for " + outputRoutes.size() + " routes");
 
-		for (String url : outputUrls)
+		for (String route : outputRoutes)
 		{
+			String url = getPredictionsUrl(route);
 			DownloadHelper downloadHelper = new DownloadHelper(url);
 			
 			downloadHelper.connect();
@@ -126,15 +127,21 @@ public class SubwayTransitSource implements TransitSource {
 
 			//bus prediction
 
-			SubwayPredictionsFeedParser parser = new SubwayPredictionsFeedParser(routePool, directions, rail, railArrow, busMapping);
+			SubwayPredictionsFeedParser parser = new SubwayPredictionsFeedParser(route, routePool, directions, rail, railArrow, busMapping);
 
 			parser.runParse(data);
 		}
 	}
 
-	private void getPredictionsUrl(List<Location> locations, int maxStops,
-			String routeName, HashSet<String> outputUrls, int mode) {
+	private static String getPredictionsUrl(String route)
+	{
 		final String dataUrlPrefix = "http://developer.mbta.com/Data/";
+
+		return dataUrlPrefix + route + ".txt";
+	}
+	
+	private static void getPredictionsRoutes(List<Location> locations, int maxStops,
+			String routeName, HashSet<String> outputRoutes, int mode) {
 		
 		//BUS_PREDICTIONS_ONE or VEHICLE_LOCATIONS_ONE
 		if (routeName != null)
@@ -142,7 +149,7 @@ public class SubwayTransitSource implements TransitSource {
 			//we know we're updating only one route
 			if (isSubway(routeName))
 			{
-				outputUrls.add(dataUrlPrefix + routeName + ".txt");
+				outputRoutes.add(routeName);
 				return;
 			}
 		}
@@ -162,7 +169,7 @@ public class SubwayTransitSource implements TransitSource {
 						{
 							if (isSubway(route))
 							{
-								outputUrls.add(dataUrlPrefix + route + ".txt");
+								outputRoutes.add(route);
 							}
 						}
 					}
@@ -174,7 +181,7 @@ public class SubwayTransitSource implements TransitSource {
 
 						if (isSubway(route))
 						{
-							outputUrls.add(dataUrlPrefix + route + ".txt");
+							outputRoutes.add(route);
 						}
 					}
 				}
@@ -184,7 +191,7 @@ public class SubwayTransitSource implements TransitSource {
 				//add all three
 				for (String route : subwayRoutes)
 				{
-					outputUrls.add(dataUrlPrefix + route + ".txt");
+					outputRoutes.add(route);
 				}
 			}
 		}

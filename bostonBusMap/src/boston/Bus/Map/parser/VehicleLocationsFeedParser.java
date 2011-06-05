@@ -90,7 +90,7 @@ public class VehicleLocationsFeedParser extends DefaultHandler
 			
 			String inferBusRoute = null;
 
-			final int arrowTopDiff = 7;
+			final int arrowTopDiff = bus.getIntrinsicHeight() / 5;
 			
 			BusLocation newBusLocation = new BusLocation(lat, lon, id, lastFeedUpdate, lastUpdateTime, 
 					heading, predictable, dirTag, inferBusRoute, bus, arrow, route, directions, routeKeysToTitles.get(route),
