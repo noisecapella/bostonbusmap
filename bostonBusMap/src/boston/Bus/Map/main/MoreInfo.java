@@ -56,12 +56,15 @@ public class MoreInfo extends ListActivity {
 		{
 			for (Object predictionObj : predictions)
 			{
-				Prediction prediction = (Prediction)predictionObj;
-				if (prediction.getMinutes() >= 0)
+				if (predictionObj != null)
 				{
-					//data.add(prediction.generateMoreInfoMap());
-					HashMap<String, Spanned> map = prediction.makeSnippetMap(routeKeysToTitles, this);
-					data.add(map);
+					Prediction prediction = (Prediction)predictionObj;
+					if (prediction.getMinutes() >= 0)
+					{
+						//data.add(prediction.generateMoreInfoMap());
+						HashMap<String, Spanned> map = prediction.makeSnippetMap(routeKeysToTitles, this);
+						data.add(map);
+					}
 				}
 			}
 		}

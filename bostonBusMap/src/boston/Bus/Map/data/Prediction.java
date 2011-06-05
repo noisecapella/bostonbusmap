@@ -101,7 +101,7 @@ public class Prediction implements Comparable<Prediction>, Parcelable
 			}
 			else
 			{
-				DateFormat dateFormat = android.text.format.DateFormat.getTimeFormat(context);
+				DateFormat dateFormat = TransitSystem.getDefaultTimeFormat();
 
 				Date date = new Date(arrivalTimeMillis - TransitSystem.getTimeZone().getOffset(arrivalTimeMillis));
 				String formatted = dateFormat.format(date);
@@ -115,7 +115,6 @@ public class Prediction implements Comparable<Prediction>, Parcelable
 	public int compareTo(Prediction another)
 	{
 		return new Long(arrivalTimeMillis).compareTo(another.arrivalTimeMillis);
-		
 	}
 
 	@Override

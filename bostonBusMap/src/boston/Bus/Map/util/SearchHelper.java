@@ -162,7 +162,7 @@ public class SearchHelper
 			if (position >= 0)
 			{
 				//done!
-				context.setNewRoute(position);
+				context.setNewRoute(position, false);
 			}
 			else
 			{
@@ -178,7 +178,7 @@ public class SearchHelper
 			ArrayList<String> routesForStop = databaseHelper.isStop(indexingQuery);
 			if (routesForStop.size() > 0)
 			{
-				context.setNewStop(routesForStop.get(0), lowercaseQuery);
+				context.setNewStop(routesForStop.get(0), lowercaseQuery, false);
 			}
 			else
 			{

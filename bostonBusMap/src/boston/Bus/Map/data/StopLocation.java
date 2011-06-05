@@ -53,6 +53,7 @@ public class StopLocation implements Location
 	private String snippetStop;
 	private String snippetRoutes;
 	private String snippetPredictions;
+	
 	/**
 	 * Other stops which are temporarily using the same overlay
 	 */
@@ -126,8 +127,9 @@ public class StopLocation implements Location
 
 	@Override
 	public void makeSnippetAndTitle(RouteConfig routeConfig, HashMap<String, String> routeKeysToTitles, Context context) {
-		TreeSet<String> routes = new TreeSet<String>();
+		ArrayList<String> routes = new ArrayList<String>();
 		routes.addAll(dirTags.keySet());
+		Collections.sort(routes);
 		snippetRoutes = makeSnippetRoutes(routes, routeKeysToTitles);
 		snippetTitle = title;
 		snippetStop = tag;
@@ -241,6 +243,32 @@ public class StopLocation implements Location
 				return null;
 			}
 
+			boolean anyNulls = false;
+			for (Prediction prediction : predictions)
+			{
+				if (prediction == null)
+				{
+					anyNulls = true;
+					break;
+				}
+			}
+			
+			if (anyNulls)
+			{
+				//argh, this shouldn't happen but one person reported a null ref with a prediction in predictions,
+				//so I should handle it. This isn't a bottleneck so it shouldn't matter that I'm cloning the list
+				
+				ArrayList<Prediction> newPredictions = new ArrayList<Prediction>(predictions.size());
+				for (Prediction prediction : predictions)
+				{
+					if (prediction != null)
+					{
+						newPredictions.add(prediction);
+					}
+				}
+				predictions = newPredictions;
+			}
+			
 			Collections.sort(predictions);
 
 			final int max = 3;
@@ -457,5 +485,51 @@ public class StopLocation implements Location
 			}
 		}
 		return false;
+	}
+
+	/**
+	 * Remove 
+	 * @param stops
+	 * @return
+	 */
+	public static StopLocation[] consolidateStops(StopLocation[] stops) {
+		if (stops.length < 2)
+		{
+			return stops;
+		}
+		
+		ArrayList<StopLocation> ret = new ArrayList<StopLocation>();
+		for (int i = 0; i < stops.length; i++)
+		{
+			ret.add(stops[i]);
+		}
+		
+		//make sure stops sharing a location are touching each other
+		final StopLocation firstStop = stops[0];
+		Collections.sort(ret, new LocationComparator(firstStop.getLatitudeAsDegrees(), firstStop.getLongitudeAsDegrees()));
+		
+		ArrayList<StopLocation> ret2 = new ArrayList<StopLocation>(stops.length);
+		StopLocation prev = null;
+		for (StopLocation stop : ret)
+		{
+			if (prev != null && prev.getLatitudeAsDegrees() == stop.getLatitudeAsDegrees() &&
+					prev.getLongitudeAsDegrees() == stop.getLongitudeAsDegrees())
+			{
+				//skip
+			}
+			else
+			{
+				ret2.add(stop);
+			}
+			
+			prev = stop;
+		}
+		
+		return ret2.toArray(new StopLocation[0]);
+	}
+	
+	@Override
+	public String toString() {
+		return "Stop@" + getStopTag();
 	}
 }

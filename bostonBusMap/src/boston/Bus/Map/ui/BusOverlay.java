@@ -237,6 +237,7 @@ public class BusOverlay extends BalloonItemizedOverlay<BusOverlayItem> {
 
 	public void clear() {
 		overlays.clear();
+		
 		locations.clear();
 		
 		setFocus(null);
@@ -408,5 +409,4 @@ public class BusOverlay extends BalloonItemizedOverlay<BusOverlayItem> {
 				density);
 		return view;
 	}
-
 }

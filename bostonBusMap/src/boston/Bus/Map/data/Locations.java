@@ -25,6 +25,7 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -234,7 +235,8 @@ public final class Locations
 	public List<Location> getLocations(int maxLocations, double centerLatitude, double centerLongitude, 
 			boolean doShowUnpredictable) throws IOException {
 
-		TreeSet<Location> newLocations = new TreeSet<Location>(new LocationComparator(centerLatitude, centerLongitude));
+		ArrayList<Location> newLocations = new ArrayList<Location>(maxLocations);
+		
 		
 		HashSet<Integer> locationKeys = new HashSet<Integer>();
 
@@ -317,17 +319,16 @@ public final class Locations
 			maxLocations = newLocations.size();
 		}
 		
+
+		Collections.sort(newLocations, new LocationComparator(centerLatitude, centerLongitude));
 		
 		ArrayList<Location> ret = new ArrayList<Location>(maxLocations);
-		Iterator<Location> iterator = newLocations.iterator();
-		
 		//add the first n-th locations, where n is the maximum number of icons we can display on screen without slowing things down
 		//however, we shouldn't cut two locations off where they would get combined into one icon anyway
 		int count = 0;
 		Location lastLocation = null;
-		while (iterator.hasNext())
+		for (Location location : newLocations)
 		{
-			Location location = iterator.next();
 			if (count >= maxLocations)
 			{
 				if (lastLocation != null && 
@@ -401,6 +402,11 @@ public final class Locations
 		return routeMapping.setFavorite(location, !isFavorite);
 	}
 
+	public StopLocation[] getCurrentFavorites()
+	{
+		return routeMapping.getFavoriteStops();
+	}
+	
 	public void setLastUpdateTime(double lastUpdateTime) {
 		this.lastUpdateTime = lastUpdateTime;
 	}

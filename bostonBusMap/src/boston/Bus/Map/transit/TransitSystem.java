@@ -1,6 +1,7 @@
 package boston.Bus.Map.transit;
 
 import java.io.IOException;
+import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -12,6 +13,7 @@ import javax.xml.parsers.ParserConfigurationException;
 import org.xml.sax.SAXException;
 
 import android.R.string;
+import android.content.Context;
 import android.graphics.drawable.Drawable;
 import android.util.Log;
 import boston.Bus.Map.data.BusLocation;
@@ -197,9 +199,12 @@ public class TransitSystem {
 		return source.createStop(lat, lon, stopTag, title, platformOrder, branch, route, dirTag);
 	}
 
+	private static final TimeZone bostonTimeZone = TimeZone.getTimeZone("America/New_York");
+	private static DateFormat defaultTimeFormat;
+		
 	public static TimeZone getTimeZone()
 	{
-		return TimeZone.getTimeZone("America/New_York");
+		return bostonTimeZone;
 	}
 
 	/**
@@ -210,6 +215,15 @@ public class TransitSystem {
 	{
 		long now = System.currentTimeMillis();
 		return now + getTimeZone().getOffset(now);
+	}
+
+	public static void setDefaultTimeFormat(Context context)
+	{
+		defaultTimeFormat = android.text.format.DateFormat.getTimeFormat(context);
+	}
+	
+	public static DateFormat getDefaultTimeFormat() {
+		return defaultTimeFormat;
 	}
 
 }
