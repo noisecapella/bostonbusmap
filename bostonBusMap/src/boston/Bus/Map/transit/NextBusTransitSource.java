@@ -32,25 +32,27 @@ import boston.Bus.Map.ui.ProgressMessage;
 import boston.Bus.Map.util.DownloadHelper;
 import boston.Bus.Map.util.StreamCounter;
 
-public class MBTABusTransitSource implements TransitSource
+public class NextBusTransitSource implements TransitSource
 {
+	private static final String agency = "mbta";
+	
 	/**
 	 * The XML feed URL
 	 */
-	private static final String mbtaLocationsDataUrlOneRoute = "http://webservices.nextbus.com/service/publicXMLFeed?command=vehicleLocations&a=mbta&t=";
+	private static final String mbtaLocationsDataUrlOneRoute = "http://webservices.nextbus.com/service/publicXMLFeed?command=vehicleLocations&a=" + agency + "&t=";
 
-	private static final String mbtaLocationsDataUrlAllRoutes = "http://webservices.nextbus.com/service/publicXMLFeed?command=vehicleLocations&a=mbta&t=";
+	private static final String mbtaLocationsDataUrlAllRoutes = "http://webservices.nextbus.com/service/publicXMLFeed?command=vehicleLocations&a=" + agency + "&t=";
 
-	private static final String mbtaRouteConfigDataUrl = "http://webservices.nextbus.com/service/publicXMLFeed?command=routeConfig&a=mbta&r=";
-	private static final String mbtaRouteConfigDataUrlAllRoutes = "http://webservices.nextbus.com/service/publicXMLFeed?command=routeConfig&a=mbta";
+	private static final String mbtaRouteConfigDataUrl = "http://webservices.nextbus.com/service/publicXMLFeed?command=routeConfig&a=" + agency + "&r=";
+	private static final String mbtaRouteConfigDataUrlAllRoutes = "http://webservices.nextbus.com/service/publicXMLFeed?command=routeConfig&a=" + agency;
 
-	private static final String mbtaPredictionsDataUrl = "http://webservices.nextbus.com/service/publicXMLFeed?command=predictionsForMultiStops&a=mbta";
+	private static final String mbtaPredictionsDataUrl = "http://webservices.nextbus.com/service/publicXMLFeed?command=predictionsForMultiStops&a=" + agency;
 
 	private final Drawable busStop;
 	private final Drawable bus;
 	private final Drawable arrow;
 
-	public MBTABusTransitSource(Drawable busStop, Drawable bus, Drawable arrow)
+	public NextBusTransitSource(Drawable busStop, Drawable bus, Drawable arrow)
 	{
 		this.busStop = busStop;
 		this.bus = bus;
