@@ -45,6 +45,7 @@ import boston.Bus.Map.transit.TransitSystem;
 
 public class SubwayPredictionsFeedParser 
 {
+	private final String currentRoute;
 	private final RoutePool routePool;
 	private final Directions directions;
 	private final Drawable rail;
@@ -61,9 +62,10 @@ public class SubwayPredictionsFeedParser
 	private static final int REVENUE_INDEX = 6;
 	private static final int BRANCH_INDEX = 7;
 	
-	public SubwayPredictionsFeedParser(RoutePool routePool, Directions directions, Drawable bus, Drawable railArrow, 
+	public SubwayPredictionsFeedParser(String route, RoutePool routePool, Directions directions, Drawable bus, Drawable railArrow, 
 			ConcurrentHashMap<Integer, BusLocation> busMapping)
 	{
+		this.currentRoute = route;
 		this.routePool = routePool;
 		this.directions = directions;
 		this.rail = bus;
@@ -117,7 +119,7 @@ public class SubwayPredictionsFeedParser
 		for (Integer id : busMapping.keySet())
 		{
 			BusLocation busLocation = busMapping.get(id);
-			if (busLocation.isDisappearAfterRefresh())
+			if (busLocation.isDisappearAfterRefresh() && currentRoute.equals(busLocation.getRouteId()))
 			{
 				toRemove.add(id);
 			}
