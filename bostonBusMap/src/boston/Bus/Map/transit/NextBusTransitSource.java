@@ -348,6 +348,7 @@ public class NextBusTransitSource implements TransitSource
 			final String urlString = getVehicleLocationsUrl(locationsObj.getLastUpdateTime(), routeConfig.getRouteName());
 			downloadHelper = new DownloadHelper(urlString);
 		}
+		break;
 		case Main.VEHICLE_LOCATIONS_ALL:
 		default:
 		{
