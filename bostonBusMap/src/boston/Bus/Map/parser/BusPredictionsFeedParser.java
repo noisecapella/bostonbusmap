@@ -88,28 +88,23 @@ public class BusPredictionsFeedParser extends DefaultHandler
 		}
 		else if (localName.equals(predictionKey))
 		{
-			final int attributesLength = attributes.getLength();
-			for (int i = 0; i < attributesLength; i++)
-			{
-				String name = attributes.getLocalName(i);
-				tagCache.put(name, i);
-			}
+			clearAttributes(attributes);
 			
 			if (currentLocation != null && currentRoute != null)
 			{
-				int minutes = Integer.parseInt(attributes.getValue(tagCache.get(minutesKey)));
+				int minutes = Integer.parseInt(getAttribute(minutesKey, attributes));
 
-				long epochTime = Long.parseLong(attributes.getValue(tagCache.get(epochTimeKey)));
+				long epochTime = Long.parseLong(getAttribute(epochTimeKey, attributes));
 
-				int vehicleId = Integer.parseInt(attributes.getValue(tagCache.get(vehicleKey)));
+				int vehicleId = Integer.parseInt(getAttribute(vehicleKey, attributes));
 				
-				boolean affectedByLayover = Boolean.parseBoolean(attributes.getValue(tagCache.get(affectedByLayoverKey)));
+				boolean affectedByLayover = Boolean.parseBoolean(getAttribute(affectedByLayoverKey, attributes));
 				
-				boolean isDelayed = Boolean.parseBoolean(attributes.getValue(tagCache.get(delayedKey)));
+				boolean isDelayed = Boolean.parseBoolean(getAttribute(delayedKey, attributes));
 
 				
 				
-				String dirTag = attributes.getValue(dirTagKey);
+				String dirTag = getAttribute(dirTagKey, attributes);
 
 				currentLocation.addPrediction(minutes, epochTime, vehicleId, dirTag, currentRoute, directions, affectedByLayover,
 						isDelayed);
@@ -117,4 +112,33 @@ public class BusPredictionsFeedParser extends DefaultHandler
 		}
 	}
 	
+	private String getAttribute(String key, Attributes attributes)
+	{
+		Integer value = tagCache.get(key);
+		if (null == value || value.intValue() == -1)
+		{
+			return null;
+		}
+		else
+		{
+			return attributes.getValue(value);
+		}
+	}
+
+	private void clearAttributes(Attributes attributes)
+	{
+		final int attributesLength = attributes.getLength();
+		for (String key : tagCache.keySet())
+		{
+			tagCache.put(key, -1);
+		}
+		for (int i = 0; i < attributesLength; i++)
+		{
+			String name = attributes.getLocalName(i);
+			tagCache.put(name, i);
+		}
+		
+	}
+
+
 }
