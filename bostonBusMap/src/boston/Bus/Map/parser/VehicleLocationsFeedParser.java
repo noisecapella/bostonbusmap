@@ -58,12 +58,7 @@ public class VehicleLocationsFeedParser extends DefaultHandler
 	public void runParse(InputStream data)
 		throws SAXException, ParserConfigurationException, IOException
 	{
-		SAXParserFactory saxParserFactory = SAXParserFactory.newInstance();
-		SAXParser saxParser = saxParserFactory.newSAXParser();
-		XMLReader xmlReader = saxParser.getXMLReader();
-		xmlReader.setContentHandler(this);
-		InputSource source = new InputSource(data);
-		xmlReader.parse(source);
+		android.util.Xml.parse(data, Encoding.UTF_8, this);
 		data.close();
 	}
 
@@ -137,30 +132,12 @@ public class VehicleLocationsFeedParser extends DefaultHandler
 	
 	private String getAttribute(String key, Attributes attributes)
 	{
-		Integer value = tagCache.get(key);
-		if (null == value || value.intValue() == -1)
-		{
-			return null;
-		}
-		else
-		{
-			return attributes.getValue(value);
-		}
+		return XmlParserHelper.getAttribute(key, attributes, tagCache);
 	}
 
 	private void clearAttributes(Attributes attributes)
 	{
-		final int attributesLength = attributes.getLength();
-		for (String key : tagCache.keySet())
-		{
-			tagCache.put(key, -1);
-		}
-		for (int i = 0; i < attributesLength; i++)
-		{
-			String name = attributes.getLocalName(i);
-			tagCache.put(name, i);
-		}
-		
+		XmlParserHelper.clearAttributes(attributes, tagCache);
 	}
 
 	public double getLastUpdateTime() {

@@ -54,6 +54,7 @@ public class BusPredictionsFeedParser extends DefaultHandler
 	public void runParse(InputStream data) throws ParserConfigurationException, SAXException, IOException
 	{
 		android.util.Xml.parse(data, Encoding.UTF_8, this);
+		data.close();
 	}
 	
 	@Override
@@ -112,32 +113,15 @@ public class BusPredictionsFeedParser extends DefaultHandler
 		}
 	}
 	
+	
 	private String getAttribute(String key, Attributes attributes)
 	{
-		Integer value = tagCache.get(key);
-		if (null == value || value.intValue() == -1)
-		{
-			return null;
-		}
-		else
-		{
-			return attributes.getValue(value);
-		}
+		return XmlParserHelper.getAttribute(key, attributes, tagCache);
 	}
 
 	private void clearAttributes(Attributes attributes)
 	{
-		final int attributesLength = attributes.getLength();
-		for (String key : tagCache.keySet())
-		{
-			tagCache.put(key, -1);
-		}
-		for (int i = 0; i < attributesLength; i++)
-		{
-			String name = attributes.getLocalName(i);
-			tagCache.put(name, i);
-		}
-		
+		XmlParserHelper.clearAttributes(attributes, tagCache);
 	}
 
 
