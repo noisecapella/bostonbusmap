@@ -92,21 +92,16 @@ public class VehicleLocationsFeedParser extends DefaultHandler
 		
 		if (localName.equals(vehicleKey))
 		{
-			final int attributesLength = attributes.getLength();
-			for (int i = 0; i < attributesLength; i++)
-			{
-				String name = attributes.getLocalName(i);
-				tagCache.put(name, i);
-			}
+			clearAttributes(attributes);
 			
-			float lat = QuickParseUtil.parseFloat(attributes.getValue(tagCache.get(latKey)));
-			float lon = QuickParseUtil.parseFloat(attributes.getValue(tagCache.get(lonKey)));
-			int id = Integer.parseInt(attributes.getValue(tagCache.get(idKey)));
-			String route = attributes.getValue(tagCache.get(routeTagKey));
-			int seconds = Integer.parseInt(attributes.getValue(tagCache.get(secsSinceReportKey)));
-			String heading = attributes.getValue(tagCache.get(headingKey));
-			boolean predictable = Boolean.parseBoolean(attributes.getValue(tagCache.get(predictableKey))); 
-			String dirTag = attributes.getValue(tagCache.get(dirTagKey));
+			float lat = QuickParseUtil.parseFloat(getAttribute(latKey, attributes));
+			float lon = QuickParseUtil.parseFloat(getAttribute(lonKey, attributes));
+			int id = Integer.parseInt(getAttribute(idKey, attributes));
+			String route = getAttribute(routeTagKey, attributes);
+			int seconds = Integer.parseInt(getAttribute(secsSinceReportKey, attributes));
+			String heading = getAttribute(headingKey, attributes);
+			boolean predictable = Boolean.parseBoolean(getAttribute(predictableKey, attributes)); 
+			String dirTag = getAttribute(dirTagKey, attributes);
 			
 			long lastFeedUpdate = TransitSystem.currentTimeMillis() - (seconds * 1000);
 			
@@ -140,6 +135,34 @@ public class VehicleLocationsFeedParser extends DefaultHandler
 
 	}
 	
+	private String getAttribute(String key, Attributes attributes)
+	{
+		Integer value = tagCache.get(key);
+		if (null == value || value.intValue() == -1)
+		{
+			return null;
+		}
+		else
+		{
+			return attributes.getValue(value);
+		}
+	}
+
+	private void clearAttributes(Attributes attributes)
+	{
+		final int attributesLength = attributes.getLength();
+		for (String key : tagCache.keySet())
+		{
+			tagCache.put(key, -1);
+		}
+		for (int i = 0; i < attributesLength; i++)
+		{
+			String name = attributes.getLocalName(i);
+			tagCache.put(name, i);
+		}
+		
+	}
+
 	public double getLastUpdateTime() {
 		return lastUpdateTime;
 	}

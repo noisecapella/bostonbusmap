@@ -44,6 +44,8 @@ public class BusPredictionsFeedParser extends DefaultHandler
 	private RouteConfig currentRoute;
 	private final Directions directions;
 	
+	private final HashMap<String, Integer> tagCache = new HashMap<String, Integer>();
+	
 	public BusPredictionsFeedParser(RoutePool stopMapping, Directions directions) {
 		this.stopMapping = stopMapping;
 		this.directions = directions;
@@ -86,18 +88,24 @@ public class BusPredictionsFeedParser extends DefaultHandler
 		}
 		else if (localName.equals(predictionKey))
 		{
-
+			final int attributesLength = attributes.getLength();
+			for (int i = 0; i < attributesLength; i++)
+			{
+				String name = attributes.getLocalName(i);
+				tagCache.put(name, i);
+			}
+			
 			if (currentLocation != null && currentRoute != null)
 			{
-				int minutes = Integer.parseInt(attributes.getValue(minutesKey));
+				int minutes = Integer.parseInt(attributes.getValue(tagCache.get(minutesKey)));
 
-				long epochTime = Long.parseLong(attributes.getValue(epochTimeKey));
+				long epochTime = Long.parseLong(attributes.getValue(tagCache.get(epochTimeKey)));
 
-				int vehicleId = Integer.parseInt(attributes.getValue(vehicleKey));
+				int vehicleId = Integer.parseInt(attributes.getValue(tagCache.get(vehicleKey)));
 				
-				boolean affectedByLayover = Boolean.parseBoolean(attributes.getValue(affectedByLayoverKey));
+				boolean affectedByLayover = Boolean.parseBoolean(attributes.getValue(tagCache.get(affectedByLayoverKey)));
 				
-				boolean isDelayed = Boolean.parseBoolean(attributes.getValue(delayedKey));
+				boolean isDelayed = Boolean.parseBoolean(attributes.getValue(tagCache.get(delayedKey)));
 
 				
 				
