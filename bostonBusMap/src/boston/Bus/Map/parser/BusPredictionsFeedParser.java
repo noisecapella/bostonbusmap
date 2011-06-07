@@ -5,21 +5,22 @@ import java.io.InputStream;
 import java.io.PrintWriter;
 import java.io.StringReader;
 import java.io.StringWriter;
+import java.net.ContentHandler;
 import java.util.HashMap;
 
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 
-import org.w3c.dom.Element;
-import org.w3c.dom.NodeList;
 import org.xml.sax.Attributes;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 import org.xml.sax.XMLReader;
 import org.xml.sax.helpers.DefaultHandler;
 
+
 import android.util.Log;
+import android.util.Xml.Encoding;
 import boston.Bus.Map.data.Directions;
 import boston.Bus.Map.data.RouteConfig;
 import boston.Bus.Map.data.RoutePool;
@@ -50,12 +51,7 @@ public class BusPredictionsFeedParser extends DefaultHandler
 
 	public void runParse(InputStream data) throws ParserConfigurationException, SAXException, IOException
 	{
-		SAXParserFactory saxParserFactory = SAXParserFactory.newInstance();
-		SAXParser saxParser = saxParserFactory.newSAXParser();
-		XMLReader xmlReader = saxParser.getXMLReader();
-		xmlReader.setContentHandler(this);
-		xmlReader.parse(new InputSource(data));
-		 
+		android.util.Xml.parse(data, Encoding.UTF_8, this);
 	}
 	
 	@Override

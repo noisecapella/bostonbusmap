@@ -1,10 +1,15 @@
 package boston.Bus.Map.parser;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.PrintWriter;
+import java.io.Reader;
 import java.io.StringReader;
 import java.io.StringWriter;
+import java.io.UnsupportedEncodingException;
 import java.util.HashMap;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -16,10 +21,18 @@ import org.xml.sax.Attributes;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 import org.xml.sax.XMLReader;
+import org.xml.sax.helpers.AttributesImpl;
 import org.xml.sax.helpers.DefaultHandler;
+import org.xmlpull.v1.XmlPullParser;
+import org.xmlpull.v1.XmlPullParserException;
+
+import skylight1.opengl.files.QuickParseUtil;
+
 
 import android.graphics.drawable.Drawable;
 import android.util.Log;
+import android.util.Xml;
+import android.util.Xml.Encoding;
 import boston.Bus.Map.data.BusLocation;
 import boston.Bus.Map.data.Directions;
 import boston.Bus.Map.data.RouteConfig;
@@ -28,16 +41,14 @@ import boston.Bus.Map.transit.TransitSystem;
 
 public class VehicleLocationsFeedParser extends DefaultHandler
 {
-	private final RoutePool stopMapping;
 	private final Drawable bus;
 	private final Drawable arrow;
 	private final Directions directions;
 	private final HashMap<String, String> routeKeysToTitles;
 	
-	public VehicleLocationsFeedParser(RoutePool stopMapping, Drawable bus, Drawable arrow,
+	public VehicleLocationsFeedParser(Drawable bus, Drawable arrow,
 			Directions directions, HashMap<String, String> routeKeysToTitles)
 	{
-		this.stopMapping = stopMapping;
 		this.bus = bus;
 		this.arrow = arrow;
 		this.directions = directions;
@@ -58,6 +69,8 @@ public class VehicleLocationsFeedParser extends DefaultHandler
 
 	private long lastUpdateTime;
 	private final HashMap<Integer, BusLocation> busMapping = new HashMap<Integer, BusLocation>();
+	private final HashMap<String, Integer> tagCache = new HashMap<String, Integer>();
+	
 	
 	private static final String vehicleKey = "vehicle";
 	private static final String latKey = "lat";
@@ -70,6 +83,8 @@ public class VehicleLocationsFeedParser extends DefaultHandler
 	private static final String dirTagKey = "dirTag";
 	private static final String lastTimeKey = "lastTime";
 	private static final String timeKey = "time";
+	private static final String tripTagKey = "tripTag";
+	private static final String speedKmHrKey = "speedKmHr";
 	
 	@Override
 	public void startElement(String uri, String localName, String qName,
@@ -77,15 +92,22 @@ public class VehicleLocationsFeedParser extends DefaultHandler
 		
 		if (localName.equals(vehicleKey))
 		{
-			float lat = Float.parseFloat(attributes.getValue(latKey));
-			float lon = Float.parseFloat(attributes.getValue(lonKey));
-			int id = Integer.parseInt(attributes.getValue(idKey));
-			String route = attributes.getValue(routeTagKey);
-			int seconds = Integer.parseInt(attributes.getValue(secsSinceReportKey));
-			String heading = attributes.getValue(headingKey);
-			boolean predictable = Boolean.parseBoolean(attributes.getValue(predictableKey)); 
-			String dirTag = attributes.getValue(dirTagKey);
-
+			final int attributesLength = attributes.getLength();
+			for (int i = 0; i < attributesLength; i++)
+			{
+				String name = attributes.getLocalName(i);
+				tagCache.put(name, i);
+			}
+			
+			float lat = QuickParseUtil.parseFloat(attributes.getValue(tagCache.get(latKey)));
+			float lon = QuickParseUtil.parseFloat(attributes.getValue(tagCache.get(lonKey)));
+			int id = Integer.parseInt(attributes.getValue(tagCache.get(idKey)));
+			String route = attributes.getValue(tagCache.get(routeTagKey));
+			int seconds = Integer.parseInt(attributes.getValue(tagCache.get(secsSinceReportKey)));
+			String heading = attributes.getValue(tagCache.get(headingKey));
+			boolean predictable = Boolean.parseBoolean(attributes.getValue(tagCache.get(predictableKey))); 
+			String dirTag = attributes.getValue(tagCache.get(dirTagKey));
+			
 			long lastFeedUpdate = TransitSystem.currentTimeMillis() - (seconds * 1000);
 			
 			String inferBusRoute = null;
@@ -125,6 +147,4 @@ public class VehicleLocationsFeedParser extends DefaultHandler
 	public void fillMapping(ConcurrentHashMap<Integer, BusLocation> outputBusMapping) {
 		outputBusMapping.putAll(busMapping);
 	}
-	
-	
 }

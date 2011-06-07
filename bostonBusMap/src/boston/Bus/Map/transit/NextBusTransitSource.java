@@ -379,8 +379,7 @@ public class NextBusTransitSource implements TransitSource
 
 			//lastUpdateTime = parser.getLastUpdateTime();
 
-			VehicleLocationsFeedParser parser = new VehicleLocationsFeedParser(routePool,
-					bus, arrow, directions, routeKeysToTitles);
+			VehicleLocationsFeedParser parser = new VehicleLocationsFeedParser(bus, arrow, directions, routeKeysToTitles);
 			parser.runParse(data);
 
 			//get the time that this information is valid until
