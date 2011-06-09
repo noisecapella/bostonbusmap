@@ -46,7 +46,7 @@ public class TransitSystem {
 */
 	
 	public static final String[] emails = new String[]{"bostonbusmap@gmail.com"/*, "t-trackertrial@mbta.com"*/};
-	public static final String emailSubject = "Los Transit-les error report";
+	public static final String emailSubject = "Los AngelBus error report";
 	
 	
 	public static double getCenterLat() {
@@ -189,7 +189,7 @@ public class TransitSystem {
 		return source.createStop(lat, lon, stopTag, title, platformOrder, branch, route, dirTag);
 	}
 
-	private static final TimeZone bostonTimeZone = TimeZone.getTimeZone("America/New_York");
+	private static final TimeZone bostonTimeZone = TimeZone.getTimeZone("America/Los_Angeles");
 	private static DateFormat defaultTimeFormat;
 		
 	public static TimeZone getTimeZone()
