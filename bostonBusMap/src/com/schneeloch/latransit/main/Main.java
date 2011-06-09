@@ -38,7 +38,7 @@ import boston.Bus.Map.data.Locations;
 import boston.Bus.Map.data.RouteConfig;
 import boston.Bus.Map.data.StopLocation;
 import boston.Bus.Map.database.DatabaseHelper;
-import boston.Bus.Map.provider.TransitContentProvider;
+
 import boston.Bus.Map.transit.TransitSystem;
 import boston.Bus.Map.ui.BusOverlay;
 
@@ -58,6 +58,7 @@ import com.google.android.maps.MyLocationOverlay;
 import com.google.android.maps.Overlay;
 import com.google.android.maps.OverlayItem;
 import com.schneeloch.latransit.R;
+import com.schneeloch.latransit.provider.TransitContentProvider;
 
 import android.app.Activity;
 import android.app.AlertDialog;
