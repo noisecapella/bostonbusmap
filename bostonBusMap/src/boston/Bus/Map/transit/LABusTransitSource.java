@@ -198,4 +198,9 @@ public class LABusTransitSource extends NextBusTransitSource
 		addRoute("910", "910");
 	}
 
+	@Override
+	protected int getInitialContentLength() {
+		return 544267;
+	}
+
 }

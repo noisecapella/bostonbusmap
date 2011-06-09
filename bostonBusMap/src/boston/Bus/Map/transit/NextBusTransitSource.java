@@ -306,7 +306,7 @@ public abstract class NextBusTransitSource implements TransitSource
 	throws IOException, ParserConfigurationException, SAXException {
 		task.publish(new ProgressMessage(ProgressMessage.PROGRESS_DIALOG_ON, "Decompressing route data", null));
 
-		final int contentLength = 341522;
+		final int contentLength = getInitialContentLength();
 
 		InputStream in = new StreamCounter(context.getResources().openRawResource(initialRouteResource),
 				task, contentLength); 
@@ -324,6 +324,11 @@ public abstract class NextBusTransitSource implements TransitSource
 
 	}
 
+	/**
+	 * This is the size of the file at R.res.raw.routeconfig
+	 * @return
+	 */
+	protected abstract int getInitialContentLength();
 
 	@Override
 	public String[] getRoutes() {
