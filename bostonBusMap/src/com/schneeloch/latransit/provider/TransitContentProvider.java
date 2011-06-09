@@ -1,4 +1,4 @@
-package boston.Bus.Map.provider;
+package com.schneeloch.latransit.provider;
 
 import boston.Bus.Map.data.RoutePool;
 import boston.Bus.Map.database.DatabaseHelper;
@@ -17,7 +17,7 @@ public class TransitContentProvider extends SearchRecentSuggestionsProvider {
 	private UriMatcher matcher;
 	private DatabaseHelper helper;
 
-	public static final String AUTHORITY = "com.schneeloch.latransitprovider";
+	public static final String AUTHORITY = "com.bostonbusmap.latransitprovider";
 	public static final int MODE = SearchRecentSuggestionsProvider.DATABASE_MODE_QUERIES;
 	
 	
