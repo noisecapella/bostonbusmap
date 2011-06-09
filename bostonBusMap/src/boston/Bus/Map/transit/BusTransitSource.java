@@ -215,4 +215,9 @@ public class BusTransitSource extends NextBusTransitSource {
 		addRoute("9703", "9703");
 	}
 
+	@Override
+	protected int getInitialContentLength() {
+		return 341522;
+	}
+
 }
