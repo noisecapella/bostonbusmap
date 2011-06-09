@@ -57,8 +57,11 @@ public class Preferences extends PreferenceActivity
 			String preferenceKey = preference.getKey();
 			if ("about".equals(preferenceKey))
 			{
+				/*
 				Intent viewIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(TransitSystem.getWebSite()));
 				startActivity(viewIntent);
+				*/
+				//TODO
 			}
 			else if ("instructions".equals(preferenceKey))
 			{
