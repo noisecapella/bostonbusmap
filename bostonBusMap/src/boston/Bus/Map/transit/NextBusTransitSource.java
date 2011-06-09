@@ -38,17 +38,18 @@ public class NextBusTransitSource implements TransitSource
 {
 	private static final String agency = "lametro";
 	
+	private static final String prefix = "webservices";
 	/**
 	 * The XML feed URL
 	 */
-	private static final String mbtaLocationsDataUrlOneRoute = "http://webservices.nextbus.com/service/publicXMLFeed?command=vehicleLocations&a=" + agency + "&t=";
+	private static final String mbtaLocationsDataUrlOneRoute = "http://" + prefix + ".nextbus.com/service/publicXMLFeed?command=vehicleLocations&a=" + agency + "&t=";
 
-	private static final String mbtaLocationsDataUrlAllRoutes = "http://webservices.nextbus.com/service/publicXMLFeed?command=vehicleLocations&a=" + agency + "&t=";
+	private static final String mbtaLocationsDataUrlAllRoutes = "http://" + prefix + ".nextbus.com/service/publicXMLFeed?command=vehicleLocations&a=" + agency + "&t=";
 
-	private static final String mbtaRouteConfigDataUrl = "http://webservices.nextbus.com/service/publicXMLFeed?command=routeConfig&a=" + agency + "&r=";
-	private static final String mbtaRouteConfigDataUrlAllRoutes = "http://webservices.nextbus.com/service/publicXMLFeed?command=routeConfig&a=" + agency;
+	private static final String mbtaRouteConfigDataUrl = "http://" + prefix + ".nextbus.com/service/publicXMLFeed?command=routeConfig&a=" + agency + "&r=";
+	private static final String mbtaRouteConfigDataUrlAllRoutes = "http://" + prefix + ".nextbus.com/service/publicXMLFeed?command=routeConfig&a=" + agency;
 
-	private static final String mbtaPredictionsDataUrl = "http://webservices.nextbus.com/service/publicXMLFeed?command=predictionsForMultiStops&a=" + agency;
+	private static final String mbtaPredictionsDataUrl = "http://" + prefix + ".nextbus.com/service/publicXMLFeed?command=predictionsForMultiStops&a=" + agency;
 
 	private final Drawable busStop;
 	private final Drawable bus;
@@ -334,6 +335,7 @@ public class NextBusTransitSource implements TransitSource
 			final String urlString = getVehicleLocationsUrl(locationsObj.getLastUpdateTime(), routeConfig.getRouteName());
 			downloadHelper = new DownloadHelper(urlString);
 		}
+		break;
 		case Main.VEHICLE_LOCATIONS_ALL:
 		default:
 		{
@@ -364,8 +366,7 @@ public class NextBusTransitSource implements TransitSource
 
 			//lastUpdateTime = parser.getLastUpdateTime();
 
-			VehicleLocationsFeedParser parser = new VehicleLocationsFeedParser(routePool,
-					bus, arrow, directions, routeKeysToTitles);
+			VehicleLocationsFeedParser parser = new VehicleLocationsFeedParser(bus, arrow, directions, routeKeysToTitles);
 			parser.runParse(data);
 
 			//get the time that this information is valid until

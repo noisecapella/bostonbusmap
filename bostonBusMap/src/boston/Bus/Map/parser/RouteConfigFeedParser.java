@@ -19,6 +19,7 @@ import org.xml.sax.XMLReader;
 import org.xml.sax.helpers.DefaultHandler;
 
 import com.schneeloch.latransit.main.UpdateAsyncTask;
+import skylight1.opengl.files.QuickParseUtil;
 
 import boston.Bus.Map.data.Directions;
 import boston.Bus.Map.data.Path;
@@ -34,6 +35,7 @@ import boston.Bus.Map.util.FeedException;
 
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
+import android.util.Xml.Encoding;
 
 public class RouteConfigFeedParser extends DefaultHandler
 {
@@ -57,11 +59,7 @@ public class RouteConfigFeedParser extends DefaultHandler
 
 	public void runParse(InputStream inputStream)  throws ParserConfigurationException, SAXException, IOException
 	{
-		SAXParserFactory saxParserFactory = SAXParserFactory.newInstance();
-		SAXParser saxParser = saxParserFactory.newSAXParser();
-		XMLReader xmlReader = saxParser.getXMLReader();
-		xmlReader.setContentHandler(this);
-		xmlReader.parse(new InputSource(inputStream));
+		android.util.Xml.parse(inputStream, Encoding.UTF_8, this);
 	}
 	
 	private final Drawable busStop;
@@ -117,8 +115,8 @@ public class RouteConfigFeedParser extends DefaultHandler
 				{
 					String tag = attributes.getValue(tagKey);
 
-					float latitudeAsDegrees = Float.parseFloat(attributes.getValue(latitudeKey));
-					float longitudeAsDegrees = Float.parseFloat(attributes.getValue(longitudeKey));
+					float latitudeAsDegrees = QuickParseUtil.parseFloat(attributes.getValue(latitudeKey));
+					float longitudeAsDegrees = QuickParseUtil.parseFloat(attributes.getValue(longitudeKey));
 
 					String title = attributes.getValue(titleKey);
 
@@ -179,8 +177,8 @@ public class RouteConfigFeedParser extends DefaultHandler
 		}
 		else if (pointKey.equals(localName))
 		{
-			float lat = Float.parseFloat(attributes.getValue(latKey));
-			float lon = Float.parseFloat(attributes.getValue(lonKey));
+			float lat = QuickParseUtil.parseFloat(attributes.getValue(latKey));
+			float lon = QuickParseUtil.parseFloat(attributes.getValue(lonKey));
 			currentPathPoints.add(lat);
 			currentPathPoints.add(lon);
 		}
