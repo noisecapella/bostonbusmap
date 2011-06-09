@@ -57,4 +57,7 @@ public interface TransitSource {
 	 */
 	StopLocation createStop(float lat, float lon, String stopTag, String title,
 			int platformOrder, String branch, String route, String dirTag);
+
+	void bindPredictionElementsForUrl(StringBuilder urlString, String route,
+			String stopTag, String dirTag);
 }

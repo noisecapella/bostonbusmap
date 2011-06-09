@@ -209,7 +209,7 @@ public class SubwayTransitSource implements TransitSource {
 		return "http://developer.mbta.com/RT_Archive/RealTimeHeavyRailKeys.csv";
 	}
 
-	public static boolean isSubway(String route) {
+	private static boolean isSubway(String route) {
 		for (String subwayRoute : subwayRoutes)
 		{
 			if (subwayRoute.equals(route))
@@ -293,5 +293,14 @@ public class SubwayTransitSource implements TransitSource {
 		SubwayStopLocation stop = new SubwayStopLocation(lat, lon, busStop, stopTag, title, platformOrder, branch);
 		stop.addRouteAndDirTag(route, dirTag);
 		return stop;
+	}
+
+
+	@Override
+	public void bindPredictionElementsForUrl(StringBuilder urlString,
+			String route, String stopTag, String dirTag)
+	{
+		//do nothing
+		
 	}
 }

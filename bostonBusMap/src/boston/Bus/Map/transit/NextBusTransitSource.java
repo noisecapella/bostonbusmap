@@ -41,6 +41,8 @@ import boston.Bus.Map.util.StreamCounter;
  */
 public abstract class NextBusTransitSource implements TransitSource
 {
+	private final TransitSystem transitSystem;
+	
 	private static final String prefix = "webservices";
 	/**
 	 * The XML feed URL
@@ -56,8 +58,11 @@ public abstract class NextBusTransitSource implements TransitSource
 	private final Drawable bus;
 	private final Drawable arrow;
 
-	public NextBusTransitSource(Drawable busStop, Drawable bus, Drawable arrow, String agency, int initialRouteResource)
+	public NextBusTransitSource(TransitSystem transitSystem, 
+			Drawable busStop, Drawable bus, Drawable arrow, String agency, int initialRouteResource)
 	{
+		this.transitSystem = transitSystem;
+		
 		this.busStop = busStop;
 		this.bus = bus;
 		this.arrow = arrow;
@@ -221,16 +226,17 @@ public abstract class NextBusTransitSource implements TransitSource
 		}
 	}
 
-	private String getPredictionsUrl(List<Location> locations, int maxStops, String route)
+	protected String getPredictionsUrl(List<Location> locations, int maxStops, String route)
 	{
 		//TODO: technically we should be checking that it is a bus route, not that it's not a subway route
 		//but this is probably more efficient
-
-		if (SubwayTransitSource.isSubway(route))
+		TransitSource transitSource = transitSystem.getTransitSource(route);
+		if (!(transitSource instanceof NextBusTransitSource))
 		{
+			//there should only be one instance of a source in memory at a time, but just in case...
 			return null;
 		}
-
+		
 		StringBuilder urlString = new StringBuilder(mbtaPredictionsDataUrl);
 
 		for (Location location : locations)
@@ -238,7 +244,7 @@ public abstract class NextBusTransitSource implements TransitSource
 			if (location instanceof StopLocation)
 			{
 				StopLocation stopLocation = (StopLocation)location;
-				stopLocation.createBusPredictionsUrl(urlString, route);
+				stopLocation.createBusPredictionsUrl(transitSystem, urlString, route);
 			}
 		}
 
@@ -250,8 +256,8 @@ public abstract class NextBusTransitSource implements TransitSource
 	}
 
 
-
-	public static void bindPredictionElementsForUrl(StringBuilder urlString,
+	@Override
+	public void bindPredictionElementsForUrl(StringBuilder urlString,
 			String routeName, String stopId, String direction) {
 		urlString.append("&stops=").append(routeName).append("%7C");
 		if (direction != null)

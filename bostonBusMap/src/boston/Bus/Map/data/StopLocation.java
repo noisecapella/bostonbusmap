@@ -13,6 +13,7 @@ import boston.Bus.Map.database.DatabaseHelper;
 import boston.Bus.Map.math.Geometry;
 import boston.Bus.Map.transit.NextBusTransitSource;
 import boston.Bus.Map.transit.SubwayTransitSource;
+import boston.Bus.Map.transit.TransitSource;
 import boston.Bus.Map.transit.TransitSystem;
 import boston.Bus.Map.util.Box;
 import boston.Bus.Map.util.Constants;
@@ -218,11 +219,15 @@ public class StopLocation implements Location
 	 * 
 	 * @param urlString
 	 */
-	public void createBusPredictionsUrl(StringBuilder urlString, String routeName) {
+	public void createBusPredictionsUrl(TransitSystem system, StringBuilder urlString, String routeName) {
 		if (routeName != null)
 		{
 			//only do it for the given route
-			NextBusTransitSource.bindPredictionElementsForUrl(urlString, routeName, tag, dirTags.get(routeName));
+			TransitSource source = system.getTransitSource(routeName);
+			if (source != null)
+			{
+				source.bindPredictionElementsForUrl(urlString, routeName, tag, dirTags.get(routeName));
+			}
 		}
 		else
 		{
@@ -231,9 +236,10 @@ public class StopLocation implements Location
 			{
 				for (String route : dirTags.keySet())
 				{
-					if (SubwayTransitSource.isSubway(route) == false)
+					TransitSource source = system.getTransitSource(route);
+					if (source != null)
 					{
-						NextBusTransitSource.bindPredictionElementsForUrl(urlString, route, tag, dirTags.get(route));
+						source.bindPredictionElementsForUrl(urlString, route, tag, dirTags.get(route));
 					}
 				}
 			}

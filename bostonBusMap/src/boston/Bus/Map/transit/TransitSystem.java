@@ -85,7 +85,7 @@ public class TransitSystem {
 	{
 		if (defaultTransitSource == null)
 		{
-			defaultTransitSource = new LABusTransitSource(busStop, bus, arrow);
+			defaultTransitSource = new LABusTransitSource(this, busStop, bus, arrow);
 			transitSources.add(defaultTransitSource);
 		}
 	}
