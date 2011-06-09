@@ -4,9 +4,9 @@ import android.graphics.drawable.Drawable;
 
 public class BusTransitSource extends NextBusTransitSource {
 
-	public BusTransitSource(Drawable busStop, Drawable bus, Drawable arrow)
+	public BusTransitSource(TransitSystem transitSystem, Drawable busStop, Drawable bus, Drawable arrow)
 	{
-		super(busStop, bus, arrow, "mbta", boston.Bus.Map.R.raw.routeconfig);
+		super(transitSystem, busStop, bus, arrow, "mbta", boston.Bus.Map.R.raw.routeconfig);
 	}
 	
 	@Override
