@@ -114,4 +114,19 @@ public class RouteConfig
 	{
 		this.paths = paths;
 	}
+
+	/**
+	 * For efficiency's sake this should be called sparingly
+	 * @param path
+	 */
+	public void addPaths(Path path)
+	{
+		Path[] paths = new Path[this.paths.length + 1];
+		for (int i = 0; i < this.paths.length; i++)
+		{
+			paths[i] = this.paths[i];
+		}
+		paths[this.paths.length] = path;
+		this.paths = paths;
+	}
 }
