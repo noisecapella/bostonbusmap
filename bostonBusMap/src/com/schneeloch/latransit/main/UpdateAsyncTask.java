@@ -21,6 +21,8 @@ package com.schneeloch.latransit.main;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.net.SocketException;
+import java.net.SocketTimeoutException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -334,6 +336,63 @@ public class UpdateAsyncTask extends AsyncTask<Object, Object, Locations>
 				}
 			}
 			catch (Exception e)
+			{
+				publish(new ProgressMessage(ProgressMessage.TOAST, null, "Unknown exception occurred"));
+
+				StringWriter writer = new StringWriter();
+				e.printStackTrace(new PrintWriter(writer));
+				Log.e("BostonBusMap", writer.toString());
+				
+				return null;
+			}
+			catch (AssertionError e)
+			{
+				Throwable cause = e.getCause();
+				if (cause != null)
+				{
+					if (cause instanceof SocketTimeoutException)
+					{
+						publish(new ProgressMessage(ProgressMessage.TOAST, null, "Connection timed out"));
+
+						StringWriter writer = new StringWriter();
+						e.printStackTrace(new PrintWriter(writer));
+						Log.e("BostonBusMap", writer.toString());
+
+						return null;
+					}
+					else if (cause instanceof SocketException)
+					{
+						publish(new ProgressMessage(ProgressMessage.TOAST, null, "Connection error occurred"));
+
+						StringWriter writer = new StringWriter();
+						e.printStackTrace(new PrintWriter(writer));
+						Log.e("BostonBusMap", writer.toString());
+
+						return null;
+					}
+					else
+					{
+						publish(new ProgressMessage(ProgressMessage.TOAST, null, "Unknown exception occurred"));
+
+						StringWriter writer = new StringWriter();
+						e.printStackTrace(new PrintWriter(writer));
+						Log.e("BostonBusMap", writer.toString());
+
+						return null;
+					}
+				}
+				else
+				{
+					publish(new ProgressMessage(ProgressMessage.TOAST, null, "Unknown exception occurred"));
+
+					StringWriter writer = new StringWriter();
+					e.printStackTrace(new PrintWriter(writer));
+					Log.e("BostonBusMap", writer.toString());
+
+					return null;
+				}
+			}
+			catch (Error e)
 			{
 				publish(new ProgressMessage(ProgressMessage.TOAST, null, "Unknown exception occurred"));
 

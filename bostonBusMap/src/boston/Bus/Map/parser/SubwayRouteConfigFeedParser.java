@@ -191,8 +191,8 @@ public class SubwayRouteConfigFeedParser
 					}
 				}
 				Path path = new Path(floats);
-				Path[] paths = new Path[] {path};
-				map.get(route).setPaths(paths);
+				
+				map.get(route).addPaths(path);
 			}
 		}
 	}
