@@ -5,21 +5,22 @@ import java.io.InputStream;
 import java.io.PrintWriter;
 import java.io.StringReader;
 import java.io.StringWriter;
+import java.net.ContentHandler;
 import java.util.HashMap;
 
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 
-import org.w3c.dom.Element;
-import org.w3c.dom.NodeList;
 import org.xml.sax.Attributes;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 import org.xml.sax.XMLReader;
 import org.xml.sax.helpers.DefaultHandler;
 
+
 import android.util.Log;
+import android.util.Xml.Encoding;
 import boston.Bus.Map.data.Directions;
 import boston.Bus.Map.data.RouteConfig;
 import boston.Bus.Map.data.RoutePool;
@@ -43,6 +44,8 @@ public class BusPredictionsFeedParser extends DefaultHandler
 	private RouteConfig currentRoute;
 	private final Directions directions;
 	
+	private final HashMap<String, Integer> tagCache = new HashMap<String, Integer>();
+	
 	public BusPredictionsFeedParser(RoutePool stopMapping, Directions directions) {
 		this.stopMapping = stopMapping;
 		this.directions = directions;
@@ -50,12 +53,8 @@ public class BusPredictionsFeedParser extends DefaultHandler
 
 	public void runParse(InputStream data) throws ParserConfigurationException, SAXException, IOException
 	{
-		SAXParserFactory saxParserFactory = SAXParserFactory.newInstance();
-		SAXParser saxParser = saxParserFactory.newSAXParser();
-		XMLReader xmlReader = saxParser.getXMLReader();
-		xmlReader.setContentHandler(this);
-		xmlReader.parse(new InputSource(data));
-		 
+		android.util.Xml.parse(data, Encoding.UTF_8, this);
+		data.close();
 	}
 	
 	@Override
@@ -90,22 +89,23 @@ public class BusPredictionsFeedParser extends DefaultHandler
 		}
 		else if (localName.equals(predictionKey))
 		{
-
+			clearAttributes(attributes);
+			
 			if (currentLocation != null && currentRoute != null)
 			{
-				int minutes = Integer.parseInt(attributes.getValue(minutesKey));
+				int minutes = Integer.parseInt(getAttribute(minutesKey, attributes));
 
-				long epochTime = Long.parseLong(attributes.getValue(epochTimeKey));
+				long epochTime = Long.parseLong(getAttribute(epochTimeKey, attributes));
 
-				int vehicleId = Integer.parseInt(attributes.getValue(vehicleKey));
+				int vehicleId = Integer.parseInt(getAttribute(vehicleKey, attributes));
 				
-				boolean affectedByLayover = Boolean.parseBoolean(attributes.getValue(affectedByLayoverKey));
+				boolean affectedByLayover = Boolean.parseBoolean(getAttribute(affectedByLayoverKey, attributes));
 				
-				boolean isDelayed = Boolean.parseBoolean(attributes.getValue(delayedKey));
+				boolean isDelayed = Boolean.parseBoolean(getAttribute(delayedKey, attributes));
 
 				
 				
-				String dirTag = attributes.getValue(dirTagKey);
+				String dirTag = getAttribute(dirTagKey, attributes);
 
 				currentLocation.addPrediction(minutes, epochTime, vehicleId, dirTag, currentRoute, directions, affectedByLayover,
 						isDelayed);
@@ -113,4 +113,16 @@ public class BusPredictionsFeedParser extends DefaultHandler
 		}
 	}
 	
+	
+	private String getAttribute(String key, Attributes attributes)
+	{
+		return XmlParserHelper.getAttribute(key, attributes, tagCache);
+	}
+
+	private void clearAttributes(Attributes attributes)
+	{
+		XmlParserHelper.clearAttributes(attributes, tagCache);
+	}
+
+
 }

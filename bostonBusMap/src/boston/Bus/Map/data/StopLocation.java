@@ -11,8 +11,9 @@ import java.util.TreeSet;
 
 import boston.Bus.Map.database.DatabaseHelper;
 import boston.Bus.Map.math.Geometry;
-import boston.Bus.Map.transit.MBTABusTransitSource;
+import boston.Bus.Map.transit.NextBusTransitSource;
 import boston.Bus.Map.transit.SubwayTransitSource;
+import boston.Bus.Map.transit.TransitSource;
 import boston.Bus.Map.transit.TransitSystem;
 import boston.Bus.Map.util.Box;
 import boston.Bus.Map.util.Constants;
@@ -40,7 +41,7 @@ public class StopLocation implements Location
 	
 	private final String title;
 	
-	private ArrayList<Prediction> predictions = null;
+	private Predictions predictions;
 	
 	private boolean isFavorite;
 	
@@ -48,18 +49,8 @@ public class StopLocation implements Location
 	 * A mapping of routes to dirTags
 	 */
 	private final HashMap<String, String> dirTags;
-	
-	private String snippetTitle;
-	private String snippetStop;
-	private String snippetRoutes;
-	private String snippetPredictions;
-	
-	/**
-	 * Other stops which are temporarily using the same overlay
-	 */
-	private ArrayList<StopLocation> sharedSnippetStops;
-	
-	private static final int LOCATIONTYPE = 3; 
+
+	private static final int LOCATIONTYPE = 3;
 	
 	public StopLocation(float latitudeAsDegrees, float longitudeAsDegrees,
 			Drawable busStop, String tag, String title)
@@ -121,215 +112,75 @@ public class StopLocation implements Location
 
 	@Override
 	public boolean hasHeading() {
-		// TODO Auto-generated method stub
 		return false;
 	}
 
-	@Override
-	public void makeSnippetAndTitle(RouteConfig routeConfig, HashMap<String, String> routeKeysToTitles, Context context) {
-		ArrayList<String> routes = new ArrayList<String>();
-		routes.addAll(dirTags.keySet());
-		Collections.sort(routes);
-		snippetRoutes = makeSnippetRoutes(routes, routeKeysToTitles);
-		snippetTitle = title;
-		snippetStop = tag;
-		
-		snippetPredictions = makeSnippet(routeConfig, predictions, routeKeysToTitles, context);
-		sharedSnippetStops = null;
+	public Predictions getPredictions()
+	{
+		return predictions;
 	}
 	
-	private String makeSnippetRoutes(Collection<String> routes, HashMap<String, String> routeKeysToTitles) {
-		String ret = "";
-		
-		//java doesn't have a join function? seriously?
-		synchronized (routes)
+	@Override
+	public void makeSnippetAndTitle(RouteConfig routeConfig, HashMap<String, String> routeKeysToTitles, Context context)
+	{
+		if (predictions == null)
 		{
-			ret = StringUtil.join(routes, ", ");
+			predictions = new Predictions();
 		}
 		
-		return ret;
+		predictions.makeSnippetAndTitle(routeConfig, routeKeysToTitles, context, dirTags, title, tag);
 	}
-
-	private ArrayList<Prediction> combinedPredictions;
-	private TreeSet<String> combinedRoutes;
-	private TreeSet<String> combinedTitles;
 	
 	@Override
-	public void addToSnippetAndTitle(RouteConfig routeConfig, Location location, HashMap<String, String> routeKeysToTitles, Context context) {
+	public void addToSnippetAndTitle(RouteConfig routeConfig, Location location, HashMap<String, String> routeKeysToTitles,
+			Context context)
+	{
+		if (predictions == null)
+		{
+			predictions = new Predictions();
+		}
+		
 		StopLocation stopLocation = (StopLocation)location;
 		
-		if (sharedSnippetStops == null)
+		predictions.addToSnippetAndTitle(routeConfig, stopLocation, routeKeysToTitles, context, title, dirTags);
+	}
+	
+	@Override
+	public String getSnippet()
+	{
+		if (predictions != null)
 		{
-			sharedSnippetStops = new ArrayList<StopLocation>();
-		}
-		
-		
-		
-		sharedSnippetStops.add(stopLocation);
-		
-		combinedTitles = new TreeSet<String>();
-		combinedTitles.add(title);
-		
-		for (StopLocation s : sharedSnippetStops)
-		{
-			combinedTitles.add(s.getTitle());
-		}
-		
-		if (combinedTitles.size() > 1)
-		{
-			snippetTitle = title + ", ...";
+			return predictions.getSnippetPredictions();
 		}
 		else
 		{
-			snippetTitle = title;
+			return null;
 		}
-		
-		/*
-		 * uncomment to show all titles on front page
-		snippetTitle = makeSnippetTitle(combinedTitles);
-		*/
-		
-		snippetStop += ", " + stopLocation.tag;
-		
-		combinedRoutes = new TreeSet<String>();
-		combinedRoutes.addAll(dirTags.keySet());
-		for (StopLocation s : sharedSnippetStops)
-		{
-			combinedRoutes.addAll(s.getRoutes());
-		}
-		snippetRoutes = makeSnippetRoutes(combinedRoutes, routeKeysToTitles);
-		
-		combinedPredictions = new ArrayList<Prediction>();
+	}
+	
+	@Override
+	public String getSnippetTitle()
+	{
 		if (predictions != null)
 		{
-			combinedPredictions.addAll(predictions);
+			return predictions.getSnippetTitle();
 		}
-		for (StopLocation s : sharedSnippetStops)
+		else
 		{
-			if (s.predictions != null)
-			{
-				ArrayList<Prediction> predictions = s.predictions;
-				combinedPredictions.addAll(predictions);
-			}
+			return null;
 		}
-		
-		snippetPredictions = makeSnippet(routeConfig, combinedPredictions, routeKeysToTitles, context);
 	}
 	
-	@Override
-	public String getSnippet() {
-		return snippetPredictions;
-	}
-	
-	@Override
-	public String getSnippetTitle() {
-		String ret = snippetTitle;
-		return ret;
-	}
-	
-	private String makeSnippet(RouteConfig routeConfig, ArrayList<Prediction> predictions, HashMap<String, String> routeKeysToTitles,
-			Context context) {
-		String ret = "";
-		
-		if (predictions == null)
-		{
-			return ret;
-		}
-		
-		synchronized (predictions)
-		{
-			if (predictions.size() == 0)
-			{
-				return null;
-			}
-
-			boolean anyNulls = false;
-			for (Prediction prediction : predictions)
-			{
-				if (prediction == null)
-				{
-					anyNulls = true;
-					break;
-				}
-			}
-			
-			if (anyNulls)
-			{
-				//argh, this shouldn't happen but one person reported a null ref with a prediction in predictions,
-				//so I should handle it. This isn't a bottleneck so it shouldn't matter that I'm cloning the list
-				
-				ArrayList<Prediction> newPredictions = new ArrayList<Prediction>(predictions.size());
-				for (Prediction prediction : predictions)
-				{
-					if (prediction != null)
-					{
-						newPredictions.add(prediction);
-					}
-				}
-				predictions = newPredictions;
-			}
-			
-			Collections.sort(predictions);
-
-			final int max = 3;
-			int count = 0;
-			
-			
-			
-			for (Prediction prediction : predictions)
-			{
-				if (routeConfig != null && routeConfig.getRouteName().equals(prediction.getRouteName()) == false)
-				{
-					continue;
-				}
-				
-				if (prediction.getMinutes() < 0)
-				{
-					continue;
-				}
-
-				
-				
-				if (count != 0)
-				{
-					ret += "<br />";
-				}
-				
-				ret += "<br />" + prediction.makeSnippet(routeKeysToTitles, context);
-
-				count++;
-				if (count >= max)
-				{
-					break;
-				}
-			}
-		}
-		return ret;
-	}
-	
-	public String getStopTag() {
+	public String getStopTag()
+	{
 		return tag;
 	}
 
 	public void clearPredictions(RouteConfig routeConfig)
 	{
-		if (predictions == null)
+		if (predictions != null)
 		{
-			return;
-		}
-		
-		ArrayList<Prediction> newPredictions = new ArrayList<Prediction>();
-		synchronized (predictions)
-		{
-			for (Prediction prediction : predictions)
-			{
-				if (prediction.getRouteName().equals(routeConfig.getRouteName()) == false)
-				{
-					newPredictions.add(prediction);
-				}
-			}
-			predictions.clear();
-			predictions.addAll(newPredictions);
+			predictions.clearPredictions(routeConfig.getRouteName());
 		}
 	}
 	
@@ -337,37 +188,27 @@ public class StopLocation implements Location
 	{
 		if (predictions == null)
 		{
-			predictions = new ArrayList<Prediction>();
+			predictions = new Predictions();
 		}
 		
-		synchronized (predictions) {
-			if (predictions.contains(prediction) == false)
-			{
-				predictions.add(prediction);
-			}
-		}
+		predictions.addPredictionIfNotExists(prediction);
 	}
 	
 	public void addPrediction(int minutes, long epochTime, int vehicleId,
-			String direction, RouteConfig route, Directions directions, boolean affectedByLayover, boolean isDelayed) {
+			String direction, RouteConfig route, Directions directions, boolean affectedByLayover, boolean isDelayed)
+	{
 		if (predictions == null)
 		{
-			predictions = new ArrayList<Prediction>();
+			predictions = new Predictions();
 		}
 		
-		synchronized (predictions)
-		{
-			Prediction prediction = new Prediction(minutes, vehicleId, 
-					directions.getTitleAndName(direction), route.getRouteName(), affectedByLayover, isDelayed);
-			if (predictions.contains(prediction) == false)
-			{
-				predictions.add(prediction);
-			}
-		}
-		
+		Prediction prediction = new Prediction(minutes, vehicleId, 
+				directions.getTitleAndName(direction), route.getRouteName(), affectedByLayover, isDelayed);
+		predictions.addPredictionIfNotExists(prediction);
 	}
 
-	public String getTitle() {
+	public String getTitle()
+	{
 		return title;
 	}
 
@@ -378,11 +219,15 @@ public class StopLocation implements Location
 	 * 
 	 * @param urlString
 	 */
-	public void createBusPredictionsUrl(StringBuilder urlString, String routeName) {
+	public void createBusPredictionsUrl(TransitSystem system, StringBuilder urlString, String routeName) {
 		if (routeName != null)
 		{
 			//only do it for the given route
-			MBTABusTransitSource.bindPredictionElementsForUrl(urlString, routeName, tag, dirTags.get(routeName));
+			TransitSource source = system.getTransitSource(routeName);
+			if (source != null)
+			{
+				source.bindPredictionElementsForUrl(urlString, routeName, tag, dirTags.get(routeName));
+			}
 		}
 		else
 		{
@@ -391,9 +236,10 @@ public class StopLocation implements Location
 			{
 				for (String route : dirTags.keySet())
 				{
-					if (SubwayTransitSource.isSubway(route) == false)
+					TransitSource source = system.getTransitSource(route);
+					if (source != null)
 					{
-						MBTABusTransitSource.bindPredictionElementsForUrl(urlString, route, tag, dirTags.get(route));
+						source.bindPredictionElementsForUrl(urlString, route, tag, dirTags.get(route));
 					}
 				}
 			}
@@ -423,34 +269,42 @@ public class StopLocation implements Location
 		return ret.first();
 	}
 
-	public ArrayList<Prediction> getPredictions() {
-		return predictions;
-	}
-	
-	public ArrayList<Prediction> getCombinedPredictions() {
-		if (combinedPredictions == null)
+	public Prediction[] getCombinedPredictions()
+	{
+		if (predictions != null)
 		{
-			return predictions;
+			return predictions.getCombinedPredictions();
 		}
 		else
 		{
-			return combinedPredictions;
+			return null;
 		}
 	}
 	
-	public String getCombinedRoutes() {
-		return snippetRoutes;
-	}
-	
-	public String[] getCombinedTitles() {
-		if (combinedTitles != null)
+	public String getCombinedRoutes()
+	{
+		if (predictions != null)
 		{
-			return combinedTitles.toArray(new String[0]);
+			return predictions.getSnippetRoutes();
 		}
 		else
 		{
-			return new String[]{title};
+			return null;
 		}
+	}
+	
+	public String[] getCombinedTitles()
+	{
+		if (predictions != null)
+		{
+			String[] combinedTitles = predictions.getCombinedTitles();
+			if (combinedTitles != null)
+			{
+				return combinedTitles;
+			}
+		}
+		
+		return new String[]{title};
 	}
 
 	public String getDirTagForRoute(String route) {
@@ -458,9 +312,9 @@ public class StopLocation implements Location
 	}
 
 	public String getCombinedStops() {
-		if (snippetStop != null)
+		if (predictions != null)
 		{
-			return snippetStop;
+			return predictions.getCombinedStops();
 		}
 		else
 		{
@@ -474,21 +328,18 @@ public class StopLocation implements Location
 		{
 			return true;
 		}
-		else if (sharedSnippetStops != null)
+		else if (predictions != null)
 		{
-			for (StopLocation stop : sharedSnippetStops)
-			{
-				if (stop.getId() == selectedBusId)
-				{
-					return true;
-				}
-			}
+			return predictions.containsId(selectedBusId);
 		}
-		return false;
+		else
+		{
+			return false;
+		}
 	}
 
 	/**
-	 * Remove 
+	 * Only list stops once if they share the same location
 	 * @param stops
 	 * @return
 	 */
