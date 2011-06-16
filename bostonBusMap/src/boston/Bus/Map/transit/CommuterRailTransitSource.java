@@ -3,6 +3,7 @@ package boston.Bus.Map.transit;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.StringReader;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -25,6 +26,7 @@ import boston.Bus.Map.data.Locations;
 import boston.Bus.Map.data.RouteConfig;
 import boston.Bus.Map.data.RoutePool;
 import boston.Bus.Map.data.StopLocation;
+import boston.Bus.Map.data.SubwayStopLocation;
 import boston.Bus.Map.main.Main;
 import boston.Bus.Map.main.UpdateAsyncTask;
 import boston.Bus.Map.parser.CommuterRailPredictionsFeedParser;
@@ -35,11 +37,15 @@ import boston.Bus.Map.ui.ProgressMessage;
 import boston.Bus.Map.util.DownloadHelper;
 
 public class CommuterRailTransitSource implements TransitSource {
+	public static final String stopTagPrefix = "CRK-";
 	private final Drawable busStop;
 	private final Drawable rail;
 	private final Drawable railArrow;
 	private final ArrayList<String> routes = new ArrayList<String>(12);
 	private final HashMap<String, String> routeKeysToTitles = new HashMap<String, String>(12);
+	private static final String predictionsUrlSuffix = ".csv";
+	public static final String routeTagPrefix = "CR-";
+	private static final String dataUrlPrefix = "http://developer.mbta.com/lib/RTCR/RailLine_";
 	
 	public CommuterRailTransitSource(Drawable busStop, Drawable rail, Drawable railArrow)
 	{
@@ -47,18 +53,18 @@ public class CommuterRailTransitSource implements TransitSource {
 		this.rail = rail;
 		this.railArrow = railArrow;
 		
-		addRoute("CR-1","Greenbush");
-		addRoute("CR-2","Kingston");
-		addRoute("CR-3","Middleborough/Lakeville");
-		addRoute("CR-4","Fairmount");
-		addRoute("CR-5","Providence/Stoughton");
-		addRoute("CR-6","Franklin");
-		addRoute("CR-7","Needham");
-		addRoute("CR-8","Framingham/Worcester");
-		addRoute("CR-9","Fitchburg");
-		addRoute("CR-10","Lowell");
-		addRoute("CR-11","Haverhill");
-		addRoute("CR-12","Newburyport/Rockport");
+		addRoute(routeTagPrefix + "1","Greenbush Line");
+		addRoute(routeTagPrefix + "2","Kingston/Plymouth Line");
+		addRoute(routeTagPrefix + "3","Middleborough/Lakeville Line");
+		addRoute(routeTagPrefix + "4","Fairmount Line");
+		addRoute(routeTagPrefix + "5","Providence/Stoughton Line");
+		addRoute(routeTagPrefix + "6","Franklin Line");
+		addRoute(routeTagPrefix + "7","Needham Line");
+		addRoute(routeTagPrefix + "8","Framingham/Worcester Line");
+		addRoute(routeTagPrefix + "9","Fitchburg/South Acton Line");
+		addRoute(routeTagPrefix + "10","Lowell Line");
+		addRoute(routeTagPrefix + "11","Haverhill Line");
+		addRoute(routeTagPrefix + "12","Newburyport/Rockport Line");
 	}
 	
 	private void addRoute(String key, String title) {
@@ -92,7 +98,7 @@ public class CommuterRailTransitSource implements TransitSource {
 				directions, oldRouteConfig, this);
 
 		//parser.runParse(downloadHelper.getResponseData()); 
-		parser.runParse();
+		parser.runParse(new StringReader(CommuterRailRouteConfigParser.temporaryInputData));
 
 		parser.writeToDatabase(routeMapping, false, task);
 	}
@@ -145,8 +151,8 @@ public class CommuterRailTransitSource implements TransitSource {
 			//bus prediction
 
 			String id = url.substring(dataUrlPrefix.length());
-			id = id.substring(0, id.length() - 5);
-			RouteConfig railRouteConfig = routePool.get("CR-" + id);
+			id = id.substring(0, id.length() - predictionsUrlSuffix.length());
+			RouteConfig railRouteConfig = routePool.get(routeTagPrefix  + id);
 			CommuterRailPredictionsFeedParser parser = new CommuterRailPredictionsFeedParser(railRouteConfig, directions,
 					rail, railArrow, busMapping);
 
@@ -154,12 +160,11 @@ public class CommuterRailTransitSource implements TransitSource {
 		}
 		
 	}
-	private static final String dataUrlPrefix = "http://developer.mbta.com/lib/RTCR/RailLine_";
 
 	private void getPredictionsUrl(List<Location> locations, int maxStops,
 			String routeName, HashSet<String> outputUrls,
 			int mode) {
-		//http://developer.mbta.com/lib/RTCR/RailLine_1.json
+		//http://developer.mbta.com/lib/RTCR/RailLine_1.csv
 		
 		//BUS_PREDICTIONS_ONE or VEHICLE_LOCATIONS_ONE
 		if (routeName != null)
@@ -167,8 +172,8 @@ public class CommuterRailTransitSource implements TransitSource {
 			//we know we're updating only one route
 			if (isCommuterRail(routeName))
 			{
-				String index = routeName.substring(3); //snip off beginning "CR-"
-				outputUrls.add(dataUrlPrefix + index + ".json");
+				String index = routeName.substring(routeTagPrefix.length()); //snip off beginning "CR-"
+				outputUrls.add(dataUrlPrefix + index + predictionsUrlSuffix);
 				return;
 			}
 		}
@@ -188,8 +193,8 @@ public class CommuterRailTransitSource implements TransitSource {
 						{
 							if (isCommuterRail(route))
 							{
-								String index = route.substring(3);
-								outputUrls.add(dataUrlPrefix + index + ".json");
+								String index = route.substring(routeTagPrefix.length());
+								outputUrls.add(dataUrlPrefix + index + predictionsUrlSuffix);
 							}
 						}
 					}
@@ -202,7 +207,7 @@ public class CommuterRailTransitSource implements TransitSource {
 						if (isCommuterRail(route))
 						{
 							String index = route.substring(3);
-							outputUrls.add(dataUrlPrefix + index + ".json");
+							outputUrls.add(dataUrlPrefix + index + predictionsUrlSuffix);
 						}
 					}
 				}
@@ -213,7 +218,7 @@ public class CommuterRailTransitSource implements TransitSource {
 				
 				for (int i = 1; i <= 12; i++)
 				{
-					outputUrls.add(dataUrlPrefix + i + ".json");
+					outputUrls.add(dataUrlPrefix + i + predictionsUrlSuffix);
 				}
 			}
 		}
@@ -247,7 +252,7 @@ public class CommuterRailTransitSource implements TransitSource {
 		
 		CommuterRailRouteConfigParser subwayParser = new CommuterRailRouteConfigParser(busStop, directions, null, this);
 		
-		subwayParser.runParse();
+		subwayParser.runParse(new StringReader(CommuterRailRouteConfigParser.temporaryInputData));
 		
 		subwayParser.writeToDatabase(routeMapping, false, task);
 		
@@ -273,7 +278,8 @@ public class CommuterRailTransitSource implements TransitSource {
 	public StopLocation createStop(float lat, float lon, String stopTag,
 			String title, int platformOrder, String branch, String route,
 			String dirTag) {
-		StopLocation stopLocation = new StopLocation(lat, lon, busStop, stopTag, title);
+		SubwayStopLocation stopLocation = new SubwayStopLocation(lat, lon, busStop, stopTag, title,
+				platformOrder, branch);
 		stopLocation.addRouteAndDirTag(route, dirTag);
 		return stopLocation;
 	}

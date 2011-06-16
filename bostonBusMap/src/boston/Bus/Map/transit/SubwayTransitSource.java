@@ -37,6 +37,7 @@ import boston.Bus.Map.ui.ProgressMessage;
 import boston.Bus.Map.util.DownloadHelper;
 
 public class SubwayTransitSource implements TransitSource {
+	private static String predictionsUrlSuffix = ".txt";
 	private final Drawable busStop;
 	private final Drawable railArrow;
 	private final Drawable rail;
@@ -136,7 +137,7 @@ public class SubwayTransitSource implements TransitSource {
 	{
 		final String dataUrlPrefix = "http://developer.mbta.com/Data/";
 
-		return dataUrlPrefix + route + ".txt";
+		return dataUrlPrefix + route + predictionsUrlSuffix ;
 	}
 	
 	private static void getPredictionsRoutes(List<Location> locations, int maxStops,

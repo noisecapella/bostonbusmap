@@ -17,20 +17,6 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.parsers.SAXParser;
-import javax.xml.parsers.SAXParserFactory;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-import org.json.JSONTokener;
-import org.xml.sax.Attributes;
-import org.xml.sax.InputSource;
-import org.xml.sax.SAXException;
-import org.xml.sax.XMLReader;
-import org.xml.sax.helpers.DefaultHandler;
-
 import android.graphics.drawable.Drawable;
 import android.text.format.Time;
 import android.util.Log;
@@ -41,6 +27,7 @@ import boston.Bus.Map.data.RouteConfig;
 import boston.Bus.Map.data.RoutePool;
 import boston.Bus.Map.data.StopLocation;
 import boston.Bus.Map.data.SubwayStopLocation;
+import boston.Bus.Map.transit.CommuterRailTransitSource;
 import boston.Bus.Map.transit.SubwayTransitSource;
 import boston.Bus.Map.transit.TransitSystem;
 
@@ -50,6 +37,9 @@ public class CommuterRailPredictionsFeedParser
 	private final Directions directions;
 	private final Drawable rail;
 	private final Drawable railArrow;
+
+	private final SimpleDateFormat format;
+	private final HashMap<String, Integer> indexes = new HashMap<String, Integer>();
 
 	
 	private final ConcurrentHashMap<Integer, BusLocation> busMapping;
@@ -80,10 +70,15 @@ public class CommuterRailPredictionsFeedParser
 
 	public void runParse(InputStream data) throws IOException
 	{
-		String string = streamToString(data);
+		BufferedReader reader = new BufferedReader(new InputStreamReader(data));
 
-		JSONTokener tokener = new JSONTokener(string);
-
+		String[] definitions = reader.readLine().split(",");
+		
+		for (int i = 0; i < definitions.length; i++)
+		{
+			indexes.put(definitions[i], i);
+		}
+		
 		//store everything here, then write out all out at once
 		ArrayList<Prediction> predictions = new ArrayList<Prediction>(); 
 		ArrayList<StopLocation> stopLocations = new ArrayList<StopLocation>(); 
@@ -102,36 +97,23 @@ public class CommuterRailPredictionsFeedParser
 		String route = routeConfig.getRouteName();
 		try
 		{
-			Object jsonObj = tokener.nextValue();
-			JSONObject root = (JSONObject)jsonObj;
-			JSONArray array = root.getJSONArray("Messages");
-
-			for (int i = 0; i < array.length(); i++)
+			String line;
+			while ((line = reader.readLine()) != null)
 			{
-				JSONArray properties = (JSONArray)array.get(i);
+				String[] array = line.split(",");
+			
 
-				HashMap<String, Object> propertyMap = new HashMap<String, Object>();
-				for (int j = 0; j < properties.length(); j++)
-				{
-					JSONObject keyValue = (JSONObject)properties.get(j);
-					String key = keyValue.getString("Key");
-					Object value = keyValue.get("Value");
-					propertyMap.put(key, value);
-				}
-				
-				
-				String stopKey = (String)propertyMap.get("GTFS Stop Id");
+				String stopKey = getItem("Stop", array);
 
-				StopLocation stopLocation = (StopLocation)routeConfig.getStop("CRK-" + stopKey);
+				StopLocation stopLocation = (StopLocation)routeConfig.getStop(CommuterRailTransitSource.stopTagPrefix + stopKey);
 
 				if (stopLocation == null)
 				{
 					continue;
 				}
 
-				String time = (String)propertyMap.get("Scheduled Arrival Time");
-				Date date = parseTime(time);
-				long epochTime = date.getTime();
+				String timeStr = getItem("Scheduled", array);
+				long epochTime = Integer.parseInt(timeStr) * 1000l;
 				epochTime += TransitSystem.getTimeZone().getOffset(epochTime);
 
 				long currentMillis = TransitSystem.currentTimeMillis();
@@ -144,16 +126,14 @@ public class CommuterRailPredictionsFeedParser
 					minutes = -1;
 				}
 
-				String stopDirection = (String)propertyMap.get("Destination GTFS Id");
-				String direction = stopDirection;
+				String direction = getItem("Destination", array);
 				directions.add(direction, direction, "", routeConfig.getRouteName());
 				int vehicleId = 0;
 
 				int lateness = Prediction.NULL_LATENESS;
-				Object latenessObj = propertyMap.get("Train Lateness in Seconds");
-				if (latenessObj != null && latenessObj instanceof String)
+				String latenessStr = getItem("Lateness", array);
+				if (latenessStr.length() != 0)
 				{
-					String latenessStr = (String)latenessObj;
 					try
 					{
 						lateness = Integer.parseInt(latenessStr);
@@ -172,8 +152,8 @@ public class CommuterRailPredictionsFeedParser
 
 				float lat = 0;
 				float lon = 0;
-				String latString = (String)propertyMap.get("Vehicle Latitude");
-				String lonString = (String)propertyMap.get("Vehicle Longitude");
+				String latString = getItem("Latitude", array);
+				String lonString = getItem("Longitude", array);
 				
 				try
 				{
@@ -185,7 +165,7 @@ public class CommuterRailPredictionsFeedParser
 					//oh well
 				}
 				
-				String informationType = (String)propertyMap.get("Event Flag Name");
+				String informationType = getItem("Flag", array);
 				if (lat != 0 && lon != 0)
 				{
 					//StopLocation nextStop = getNextStop(routeConfig, stopLocation, direction);
@@ -197,7 +177,8 @@ public class CommuterRailPredictionsFeedParser
 					int id = 0;
 					try
 					{
-						id = (Integer)propertyMap.get("Trip Id");
+						String tripStr = getItem("Trip", array);
+						id = Integer.parseInt(tripStr);
 					}
 					catch (NumberFormatException e)
 					{
@@ -228,14 +209,6 @@ public class CommuterRailPredictionsFeedParser
 			}
 
 		}
-		catch (JSONException e)
-		{
-			Log.e("BostonBusMap", e.getMessage());
-		}
-		catch (ParseException e)
-		{
-			Log.e("BostonBusMap", e.getMessage());
-		}
 		catch (ClassCastException e)
 		{
 			//probably updating the wrong url?
@@ -256,20 +229,20 @@ public class CommuterRailPredictionsFeedParser
 		}
 	}
 
-	private String streamToString(InputStream data) throws IOException {
-		//java is so annoying sometimes
-		BufferedReader reader = new BufferedReader(new InputStreamReader(data));
-		String line;
-		StringBuilder ret = new StringBuilder();
-		while ((line = reader.readLine()) != null)
+
+	private String getItem(String key, String[] array)
+	{
+		Integer intKey = indexes.get(key);
+		if (null != intKey)
 		{
-			ret.append(line).append('\n');
+			int i = intKey.intValue();
+			if (i >= 0 && i < array.length)
+			{
+				return array[i];
+			}
 		}
-		return ret.toString();
+		return "";
 	}
-
-	private final SimpleDateFormat format;
-
 
 	public Date parseTime(String time) throws ParseException {
 		Date date = format.parse(time);
