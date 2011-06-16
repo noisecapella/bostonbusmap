@@ -24,6 +24,7 @@ import java.io.InputStream;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 
@@ -257,7 +258,10 @@ public class Main extends MapActivity
 				}
 				else if (busLocations != null && handler != null)
 				{
-					setMode(position);
+					if (position >= 0 && position < modesSupported.length)
+					{
+						setMode(modesSupported[position], false);
+					}
 				}				
 			}
 
@@ -485,33 +489,6 @@ public class Main extends MapActivity
 		}
     }
 
-    private SpinnerAdapter makeRouteSpinnerAdapter(String[] routes, HashMap<String, String> routeKeysToTitles) {
-    	final ArrayList<HashMap<String, String>> routeList = new ArrayList<HashMap<String, String>>();
-        
-        for (String route : routes)
-        {
-        	HashMap<String, String> map = new HashMap<String, String>();
-       		map.put("key", route);
-       		String title = routeKeysToTitles.get(route);
-       		if (title == null || title.length() == 0)
-       		{
-       			map.put("name", route);
-       		}
-       		else
-       		{
-       			map.put("name", title);
-       		}
-        	routeList.add(map);
-        }
-        
-        
-        SimpleAdapter adapter = new SimpleAdapter(this, routeList, android.R.layout.simple_spinner_item, new String[]{"name"}, 
-        		new int[]{android.R.id.text1});
-
-        adapter.setDropDownViewResource(android.R.layout.simple_dropdown_item_1line);
-        return adapter;
-	}
-
 
 	private SpinnerAdapter makeModeSpinner() {
     	final ArrayList<ViewingMode> modes = new ArrayList<ViewingMode>();
@@ -678,7 +655,16 @@ public class Main extends MapActivity
     			for (int i = 0; i < stops.length; i++)
     			{
     				StopLocation stop = stops[i];
-    				String title = stop.getStopTag() + " - " + stop.getTitle();
+    				String routes;
+    				if (stop.getCombinedRoutes() != null)
+    				{
+    					routes = stop.getCombinedRoutes();
+    				}
+    				else
+    				{
+    					routes = stop.getFirstRoute();
+    				}
+    				String title = stop.getTitle() + " (route " + routes + ")";
     				titles[i] = title;
     			}
     			
@@ -694,6 +680,7 @@ public class Main extends MapActivity
     						
     						String route = stop.getFirstRoute();
     						setNewStop(route, stop.getStopTag(), true);
+    						setMode(BUS_PREDICTIONS_STAR, true);
     					}
     				}
     			});
@@ -892,16 +879,25 @@ public class Main extends MapActivity
 		}
 	}
 
-	public void setMode(int position)
+	public void setMode(int mode, boolean updateIcon)
 	{
-		if (position < 0 || position >= modesSupported.length)
+		int setTo = VEHICLE_LOCATIONS_ALL; 
+		for (int i = 0; i < modesSupported.length; i++)
 		{
-			handler.setSelectedBusPredictions(VEHICLE_LOCATIONS_ALL);
+			if (modesSupported[i] == mode)
+			{
+				setTo = mode;
+				break;
+			}
 		}
-		else
+		
+		if (updateIcon)
 		{
-			handler.setSelectedBusPredictions(modesSupported[position]);
+			setSelectedBusPredictions(mode);
 		}
+		
+		
+		handler.setSelectedBusPredictions(setTo);
 
 		handler.triggerUpdate();
 		handler.immediateRefresh();
@@ -950,7 +946,7 @@ public class Main extends MapActivity
 			}
 		}
 		
-		setMode(BUS_PREDICTIONS_ONE);
+		setMode(BUS_PREDICTIONS_ONE, true);
 		
 		MapController controller = mapView.getController();
 		
@@ -959,6 +955,7 @@ public class Main extends MapActivity
 		
 		GeoPoint geoPoint = new GeoPoint(latE6, lonE6);
 		controller.setCenter(geoPoint);
+		controller.scrollBy(0, -100);
 		
 		if (saveNewQuery)
 		{

@@ -278,4 +278,10 @@ public class CommuterRailTransitSource implements TransitSource {
 		return stopLocation;
 	}
 
+	@Override
+	public void bindPredictionElementsForUrl(StringBuilder urlString,
+			String route, String stopTag, String dirTag) {
+		//do nothing
+	}
+
 }

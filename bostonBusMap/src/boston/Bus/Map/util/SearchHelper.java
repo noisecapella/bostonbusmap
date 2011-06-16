@@ -15,14 +15,13 @@ import android.util.Log;
 import android.widget.Toast;
 import boston.Bus.Map.database.DatabaseHelper;
 import boston.Bus.Map.main.Main;
-import boston.Bus.Map.transit.MBTABusTransitSource;
+import boston.Bus.Map.transit.NextBusTransitSource;
 
 public class SearchHelper
 {
 	private final Main context;
 	private final String[] dropdownRoutes;
 	private final HashMap<String, String> dropdownRouteKeysToTitles;
-	private final MapView mapView;
 	private final String query;
 	private String suggestionsQuery;
 	private final DatabaseHelper databaseHelper;
@@ -36,7 +35,6 @@ public class SearchHelper
 		this.context = context;
 		this.dropdownRoutes = dropdownRoutes;
 		this.dropdownRouteKeysToTitles = dropdownRouteKeysToTitles;
-		this.mapView = mapView;
 		this.query = query;
 		this.databaseHelper = databaseHelper;
 	}

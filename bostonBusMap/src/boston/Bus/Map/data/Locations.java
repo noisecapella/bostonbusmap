@@ -58,7 +58,7 @@ import boston.Bus.Map.parser.RouteConfigFeedParser;
 import boston.Bus.Map.parser.SubwayPredictionsFeedParser;
 import boston.Bus.Map.parser.SubwayRouteConfigFeedParser;
 import boston.Bus.Map.parser.VehicleLocationsFeedParser;
-import boston.Bus.Map.transit.MBTABusTransitSource;
+import boston.Bus.Map.transit.NextBusTransitSource;
 import boston.Bus.Map.transit.TransitSource;
 import boston.Bus.Map.transit.TransitSystem;
 import boston.Bus.Map.ui.ProgressMessage;

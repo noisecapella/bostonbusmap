@@ -94,11 +94,12 @@ public class BusPopupView extends BalloonOverlayView<BusOverlayItem>
 					StopLocation stopLocation = (StopLocation)location;
 					Intent intent = new Intent(context, MoreInfo.class);
 
-					ArrayList<Prediction> predictionArrayList = stopLocation.getCombinedPredictions();
-					if (predictionArrayList != null)
+					Prediction[] predictionArray = stopLocation.getCombinedPredictions();
+					if (predictionArray != null)
 					{
-						intent.putExtra(MoreInfo.predictionsKey, predictionArrayList.toArray(new Prediction[0]));
+						intent.putExtra(MoreInfo.predictionsKey, predictionArray);
 					}
+					
 					String[] keys = BusPopupView.this.routeKeysToTitles.keySet().toArray(new String[0]);
 					String[] values = new String[keys.length];
 					for (int i = 0; i < keys.length; i++)

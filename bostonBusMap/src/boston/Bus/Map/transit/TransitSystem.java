@@ -82,7 +82,7 @@ public class TransitSystem {
 	{
 		if (defaultTransitSource == null)
 		{
-			defaultTransitSource = new MBTABusTransitSource(busStop, bus, arrow);
+			defaultTransitSource = new BusTransitSource(this, busStop, bus, arrow);
 			SubwayTransitSource subwayTransitSource = new SubwayTransitSource(busStop, rail, railArrow);
 			transitSourceMap.put(SubwayTransitSource.RedLine, subwayTransitSource);
 			transitSourceMap.put(SubwayTransitSource.OrangeLine, subwayTransitSource);

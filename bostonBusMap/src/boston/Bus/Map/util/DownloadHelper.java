@@ -4,7 +4,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.CharBuffer;
+import java.util.zip.GZIPInputStream;
 
+import org.apache.http.Header;
+import org.apache.http.HeaderElement;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.ClientProtocolException;
@@ -36,7 +39,8 @@ public class DownloadHelper {
 		this.url = url;
 		
 		httpGet = new HttpGet(url);
-		
+		httpGet.addHeader("Accept-Encoding", "gzip");
+
 		HttpParams params = new BasicHttpParams();
 		HttpConnectionParams.setConnectionTimeout(params, 30000);
 		HttpConnectionParams.setSoTimeout(params, 30000);
@@ -48,6 +52,21 @@ public class DownloadHelper {
 		HttpEntity entity = httpResponse.getEntity();
 		inputStream = entity.getContent();
 		
+		//if gzip is supported, decode the stream
+		Header contentEncodingHeader = entity.getContentEncoding();
+		if (contentEncodingHeader != null)
+		{
+			HeaderElement[] codecs = contentEncodingHeader.getElements();
+			for (HeaderElement encoding : codecs)
+			{
+				if (encoding.getName().equalsIgnoreCase("gzip"))
+				{
+					inputStream = new GZIPInputStream(inputStream);
+				}
+			}
+		}
+		
+
 	}
 
 	public InputStream getResponseData()

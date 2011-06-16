@@ -104,8 +104,16 @@ public class Prediction implements Comparable<Prediction>, Parcelable
 				DateFormat dateFormat = TransitSystem.getDefaultTimeFormat();
 
 				Date date = new Date(arrivalTimeMillis - TransitSystem.getTimeZone().getOffset(arrivalTimeMillis));
-				String formatted = dateFormat.format(date);
-				ret += "<br />Arriving in <b>" + minutes + " min</b> at " + formatted.trim();
+				if (dateFormat != null)
+				{
+					//the vast majority of the time this should be true but someone reported an exception where it's not
+					String formatted = dateFormat.format(date);
+					ret += "<br />Arriving in <b>" + minutes + " min</b> at " + formatted.trim();
+				}
+				else
+				{
+					ret += "<br />Arriving in <b>" + minutes + " min</b>";
+				}
 			}
 		}
 		return ret;

@@ -1,10 +1,15 @@
 package boston.Bus.Map.parser;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.PrintWriter;
+import java.io.Reader;
 import java.io.StringReader;
 import java.io.StringWriter;
+import java.io.UnsupportedEncodingException;
 import java.util.HashMap;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -16,10 +21,18 @@ import org.xml.sax.Attributes;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 import org.xml.sax.XMLReader;
+import org.xml.sax.helpers.AttributesImpl;
 import org.xml.sax.helpers.DefaultHandler;
+import org.xmlpull.v1.XmlPullParser;
+import org.xmlpull.v1.XmlPullParserException;
+
+import skylight1.opengl.files.QuickParseUtil;
+
 
 import android.graphics.drawable.Drawable;
 import android.util.Log;
+import android.util.Xml;
+import android.util.Xml.Encoding;
 import boston.Bus.Map.data.BusLocation;
 import boston.Bus.Map.data.Directions;
 import boston.Bus.Map.data.RouteConfig;
@@ -28,16 +41,14 @@ import boston.Bus.Map.transit.TransitSystem;
 
 public class VehicleLocationsFeedParser extends DefaultHandler
 {
-	private final RoutePool stopMapping;
 	private final Drawable bus;
 	private final Drawable arrow;
 	private final Directions directions;
 	private final HashMap<String, String> routeKeysToTitles;
 	
-	public VehicleLocationsFeedParser(RoutePool stopMapping, Drawable bus, Drawable arrow,
+	public VehicleLocationsFeedParser(Drawable bus, Drawable arrow,
 			Directions directions, HashMap<String, String> routeKeysToTitles)
 	{
-		this.stopMapping = stopMapping;
 		this.bus = bus;
 		this.arrow = arrow;
 		this.directions = directions;
@@ -47,17 +58,14 @@ public class VehicleLocationsFeedParser extends DefaultHandler
 	public void runParse(InputStream data)
 		throws SAXException, ParserConfigurationException, IOException
 	{
-		SAXParserFactory saxParserFactory = SAXParserFactory.newInstance();
-		SAXParser saxParser = saxParserFactory.newSAXParser();
-		XMLReader xmlReader = saxParser.getXMLReader();
-		xmlReader.setContentHandler(this);
-		InputSource source = new InputSource(data);
-		xmlReader.parse(source);
+		android.util.Xml.parse(data, Encoding.UTF_8, this);
 		data.close();
 	}
 
 	private long lastUpdateTime;
 	private final HashMap<Integer, BusLocation> busMapping = new HashMap<Integer, BusLocation>();
+	private final HashMap<String, Integer> tagCache = new HashMap<String, Integer>();
+	
 	
 	private static final String vehicleKey = "vehicle";
 	private static final String latKey = "lat";
@@ -70,6 +78,8 @@ public class VehicleLocationsFeedParser extends DefaultHandler
 	private static final String dirTagKey = "dirTag";
 	private static final String lastTimeKey = "lastTime";
 	private static final String timeKey = "time";
+	private static final String tripTagKey = "tripTag";
+	private static final String speedKmHrKey = "speedKmHr";
 	
 	@Override
 	public void startElement(String uri, String localName, String qName,
@@ -77,20 +87,22 @@ public class VehicleLocationsFeedParser extends DefaultHandler
 		
 		if (localName.equals(vehicleKey))
 		{
-			float lat = Float.parseFloat(attributes.getValue(latKey));
-			float lon = Float.parseFloat(attributes.getValue(lonKey));
-			int id = Integer.parseInt(attributes.getValue(idKey));
-			String route = attributes.getValue(routeTagKey);
-			int seconds = Integer.parseInt(attributes.getValue(secsSinceReportKey));
-			String heading = attributes.getValue(headingKey);
-			boolean predictable = Boolean.parseBoolean(attributes.getValue(predictableKey)); 
-			String dirTag = attributes.getValue(dirTagKey);
-
+			clearAttributes(attributes);
+			
+			float lat = QuickParseUtil.parseFloat(getAttribute(latKey, attributes));
+			float lon = QuickParseUtil.parseFloat(getAttribute(lonKey, attributes));
+			int id = Integer.parseInt(getAttribute(idKey, attributes));
+			String route = getAttribute(routeTagKey, attributes);
+			int seconds = Integer.parseInt(getAttribute(secsSinceReportKey, attributes));
+			String heading = getAttribute(headingKey, attributes);
+			boolean predictable = Boolean.parseBoolean(getAttribute(predictableKey, attributes)); 
+			String dirTag = getAttribute(dirTagKey, attributes);
+			
 			long lastFeedUpdate = TransitSystem.currentTimeMillis() - (seconds * 1000);
 			
 			String inferBusRoute = null;
 
-			final int arrowTopDiff = 7;
+			final int arrowTopDiff = bus.getIntrinsicHeight() / 5;
 			
 			BusLocation newBusLocation = new BusLocation(lat, lon, id, lastFeedUpdate, lastUpdateTime, 
 					heading, predictable, dirTag, inferBusRoute, bus, arrow, route, directions, routeKeysToTitles.get(route),
@@ -118,6 +130,16 @@ public class VehicleLocationsFeedParser extends DefaultHandler
 
 	}
 	
+	private String getAttribute(String key, Attributes attributes)
+	{
+		return XmlParserHelper.getAttribute(key, attributes, tagCache);
+	}
+
+	private void clearAttributes(Attributes attributes)
+	{
+		XmlParserHelper.clearAttributes(attributes, tagCache);
+	}
+
 	public double getLastUpdateTime() {
 		return lastUpdateTime;
 	}
@@ -125,6 +147,4 @@ public class VehicleLocationsFeedParser extends DefaultHandler
 	public void fillMapping(ConcurrentHashMap<Integer, BusLocation> outputBusMapping) {
 		outputBusMapping.putAll(busMapping);
 	}
-	
-	
 }
