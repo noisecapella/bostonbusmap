@@ -1,16 +1,21 @@
 package boston.Bus.Map.data;
 
+import java.text.DateFormat;
 import java.util.Date;
 import java.util.HashMap;
 
 import boston.Bus.Map.main.AlertInfo;
 import boston.Bus.Map.main.MoreInfo;
+import boston.Bus.Map.transit.TransitSystem;
 
 import android.content.Context;
+import android.os.Parcel;
+import android.os.Parcelable;
 import android.text.Html;
 import android.text.Spanned;
 
-public class Alert
+
+public class Alert implements Parcelable
 {
 	private final Date date;
 	private final String title;
@@ -54,7 +59,71 @@ public class Alert
 
 	private String makeSnippet(Context context)
 	{
+		StringBuilder builder = new StringBuilder();
 		
+		if (title != null)
+		{
+			builder.append("<b>").append(title).append("</b><br />");
+		}
+		if (delay != null)
+		{
+			builder.append("<b>Delay: </b>").append(delay).append("<br />");
+		}
+		if (description != null)
+		{
+			builder.append(description).append("<br />");
+		}
+		if (date != null)
+		{
+			DateFormat format = TransitSystem.getDefaultTimeFormat();
+			String formattedTime = format.format(date);
+			builder.append("Reported at ").append(formattedTime);
+		}
+		
+		return builder.toString();
+	}
+
+	@Override
+	public int describeContents() {
+		return 0;
+	}
+
+	@Override
+	public void writeToParcel(Parcel dest, int flags)
+	{
+		long time;
+		if (date != null)
+		{
+			time = date.getTime();
+		}
+		else
+		{
+			time = 0;
+		}
+
+		dest.writeLong(time);
+		dest.writeString(title);
+		dest.writeString(description);
+		dest.writeString(delay);
 	}
 	
+	public static final Creator<Alert> CREATOR = new Creator<Alert>() {
+		
+		@Override
+		public Alert[] newArray(int size) {
+			return new Alert[size];
+		}
+		
+		@Override
+		public Alert createFromParcel(Parcel source) {
+			long epoch = source.readLong();
+			Date date = epoch == 0 ? null : new Date(epoch);
+			String title = source.readString();
+			String description = source.readString();
+			String delay = source.readString();
+			
+			Alert alert = new Alert(date, title, description, delay);
+			return alert;
+		}
+	};
 }

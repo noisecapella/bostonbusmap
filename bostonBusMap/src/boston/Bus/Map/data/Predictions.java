@@ -310,4 +310,8 @@ public class Predictions
 		}
 		return false;
 	}
+
+	public ArrayList<Alert> getSnippetAlerts() {
+		return snippetAlerts;
+	}
 }

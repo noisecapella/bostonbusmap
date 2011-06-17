@@ -386,7 +386,13 @@ public class StopLocation implements Location
 
 	@Override
 	public ArrayList<Alert> getSnippetAlerts() {
-		// TODO Auto-generated method stub
-		return null;
+		if (predictions != null)
+		{
+			return predictions.getSnippetAlerts();
+		}
+		else
+		{
+			return null;
+		}
 	}
 }

@@ -26,6 +26,7 @@ import java.util.List;
 
 
 import boston.Bus.Map.R;
+import boston.Bus.Map.data.Alert;
 import boston.Bus.Map.data.BusLocation;
 import boston.Bus.Map.data.Directions;
 import boston.Bus.Map.data.Locations;
@@ -384,7 +385,7 @@ public class BusOverlay extends BalloonItemizedOverlay<BusOverlayItem> {
 			String titleText = location.getSnippetTitle();
 			String snippetText = location.getSnippet();
 			ArrayList<Alert> alerts = location.getSnippetAlerts();
-			BusOverlayItem overlayItem = new BusOverlayItem(points.get(i),titleText, snippetText);
+			BusOverlayItem overlayItem = new BusOverlayItem(points.get(i),titleText, snippetText, alerts);
 			overlays.add(overlayItem);
 		}
 		populate();

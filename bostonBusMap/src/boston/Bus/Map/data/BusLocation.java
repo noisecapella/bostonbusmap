@@ -100,6 +100,7 @@ public class BusLocation implements Location {
 
 	private final boolean disappearAfterRefresh;
 	private final boolean showBusNumber;
+	private ArrayList<Alert> snippetAlerts;
 
 	private static final int LOCATIONTYPE = 1;
 	public static final int NO_HEADING = -1;
@@ -223,6 +224,7 @@ public class BusLocation implements Location {
 			HashMap<String, String> routeKeysToTitles, Context context) {
 		snippet = makeSnippet(routeConfig);
 		snippetTitle = makeTitle();
+		snippetAlerts = routeConfig.getAlerts();
 	}
 
 	@Override
@@ -389,5 +391,10 @@ public class BusLocation implements Location {
 
 	public void setLastUpdateInMillis(long lastUpdateTime) {
 		this.lastUpdateInMillis = lastUpdateTime;
+	}
+
+	@Override
+	public ArrayList<Alert> getSnippetAlerts() {
+		return snippetAlerts;
 	}
 }
