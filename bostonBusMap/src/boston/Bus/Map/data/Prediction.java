@@ -63,26 +63,28 @@ public class Prediction implements Comparable<Prediction>, Parcelable
 		String ret;
 		
 		int minutes = getMinutes();
-		if (false && minutes < 0)
+		if (minutes < 0)
 		{
 			ret = "";
 		}
 		else
 		{
-			ret = "Route <b>" + routeKeysToTitles.get(routeName) + "</b>";
+			StringBuilder builder = new StringBuilder();
+			
+			builder.append("Route <b>").append(routeKeysToTitles.get(routeName)).append("</b>");
 			if (vehicleId != 0)
 			{
-				ret += ", Bus <b>" + vehicleId + "</b>";
+				builder.append(", Bus <b>").append(vehicleId).append("</b>");
 			}
 
 			if (direction != null)
 			{
-				ret += "<br />" + direction;
+				builder.append("<br />").append(direction);
 			}
 
 			if (isDelayed)
 			{
-				ret += "<br /><b>Delayed</b>";
+				builder.append("<br /><b>Delayed</b>");
 			}
 			
 			if (affectedByLayover)
@@ -92,12 +94,12 @@ public class Prediction implements Comparable<Prediction>, Parcelable
 			
 			if (lateness != NULL_LATENESS)
 			{
-				ret += "<br />Seconds late: " + lateness;
+				builder.append("<br />Seconds late: ").append(lateness);
 			}
 			
 			if (minutes == 0)
 			{
-				ret += "<br />Arriving <b>now</b>!";
+				builder.append("<br />Arriving <b>now</b>!");
 			}
 			else
 			{
@@ -108,13 +110,16 @@ public class Prediction implements Comparable<Prediction>, Parcelable
 				{
 					//the vast majority of the time this should be true but someone reported an exception where it's not
 					String formatted = dateFormat.format(date);
-					ret += "<br />Arriving in <b>" + minutes + " min</b> at " + formatted.trim();
+					builder.append("<br />Arriving in <b>").append(minutes);
+					builder.append(" min</b> at ").append(formatted.trim());
 				}
 				else
 				{
-					ret += "<br />Arriving in <b>" + minutes + " min</b>";
+					builder.append("<br />Arriving in <b>").append(minutes).append(" min</b>");
 				}
 			}
+			
+			ret = builder.toString();
 		}
 		return ret;
 	}
