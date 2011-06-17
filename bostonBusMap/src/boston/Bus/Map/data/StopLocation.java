@@ -383,4 +383,10 @@ public class StopLocation implements Location
 	public String toString() {
 		return "Stop@" + getStopTag();
 	}
+
+	@Override
+	public ArrayList<Alert> getSnippetAlerts() {
+		// TODO Auto-generated method stub
+		return null;
+	}
 }

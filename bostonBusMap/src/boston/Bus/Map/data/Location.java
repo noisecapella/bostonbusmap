@@ -1,5 +1,6 @@
 package boston.Bus.Map.data;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 
 import android.content.Context;
@@ -65,4 +66,6 @@ public interface Location {
 	 * @return
 	 */
 	boolean containsId(int selectedBusId);
+
+	ArrayList<Alert> getSnippetAlerts();
 }

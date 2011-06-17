@@ -21,6 +21,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.FrameLayout.LayoutParams;
 import boston.Bus.Map.R;
+import boston.Bus.Map.data.Alert;
 import boston.Bus.Map.data.BusLocation;
 import boston.Bus.Map.data.Location;
 import boston.Bus.Map.data.Locations;
@@ -40,11 +41,14 @@ public class BusPopupView extends BalloonOverlayView<BusOverlayItem>
 	private ImageView favorite;
 	private TextView moreInfo;
 	private TextView reportProblem;
+	private TextView alertsTextView;
 	private final Locations locations;
 	private final HashMap<String, String> routeKeysToTitles;
 	private Location location;
 	private final Spanned moreInfoText;
 	private final Spanned reportProblemText;
+	private final Spanned noAlertsText;
+	private ArrayList<Alert> alertsList;
 	
 	public BusPopupView(final Context context, int balloonBottomOffset, Locations locations,
 			HashMap<String, String> routeKeysToTitles, float density)
@@ -61,6 +65,11 @@ public class BusPopupView extends BalloonOverlayView<BusOverlayItem>
 		
 		reportProblem = (TextView) layoutView.findViewById(R.id.balloon_item_report);
 		reportProblemText = Html.fromHtml("\n<a href='com.bostonbusmap://reportproblem'>Report<br/>Problem</a>\n");
+		
+		alertsTextView = (TextView) layoutView.findViewById(R.id.balloon_item_alerts);
+		alertsTextView.setVisibility(View.GONE);
+		noAlertsText = Html.fromHtml("<font color='grey'>No alerts</font>");
+		
 		favorite.setOnClickListener(new OnClickListener() {
 			
 			@Override
@@ -144,6 +153,48 @@ public class BusPopupView extends BalloonOverlayView<BusOverlayItem>
 			}
 		});
 		
+		alertsTextView.setOnClickListener(new OnClickListener() {
+			
+			@Override
+			public void onClick(View v) {
+				Log.v("BostonBusMap", "tapped Alerts link");
+
+				final ArrayList<Alert> alerts = alertsList;
+				
+				if (location instanceof StopLocation)
+				{
+					StopLocation stopLocation = (StopLocation)location;
+					Intent intent = new Intent(context, MoreInfo.class);
+
+					Prediction[] predictionArray = stopLocation.getCombinedPredictions();
+					if (predictionArray != null)
+					{
+						intent.putExtra(MoreInfo.predictionsKey, predictionArray);
+					}
+					
+					String[] keys = BusPopupView.this.routeKeysToTitles.keySet().toArray(new String[0]);
+					String[] values = new String[keys.length];
+					for (int i = 0; i < keys.length; i++)
+					{
+						values[i] = BusPopupView.this.routeKeysToTitles.get(keys[i]);
+					}
+
+					intent.putExtra(MoreInfo.routeKeysKey, keys);
+					intent.putExtra(MoreInfo.routeTitlesKey, values);
+
+					String[] combinedTitles = stopLocation.getCombinedTitles();
+					intent.putExtra(MoreInfo.titleKey, combinedTitles);
+
+					String combinedRoutes = stopLocation.getCombinedRoutes();
+					intent.putExtra(MoreInfo.routeKey, combinedRoutes);
+
+					String combinedStops = stopLocation.getCombinedStops();
+					intent.putExtra(MoreInfo.stopsKey, combinedStops);
+
+					context.startActivity(intent);
+				}
+			}
+		});
 
 		FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(
 				LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
@@ -281,7 +332,33 @@ public class BusPopupView extends BalloonOverlayView<BusOverlayItem>
 		//NOTE: originally this was going to be an actual link, but we can't click it on the popup except through its onclick listener
 		moreInfo.setText(moreInfoText);
 		reportProblem.setText(reportProblemText);
-
+		ArrayList<Alert> alerts = item.getAlerts();
+		alertsList = alerts;
+		
+		if (alerts != null && alerts.size() != 0)
+		{
+			int count = alerts.size();
+			alertsTextView.setVisibility(View.VISIBLE);
+			
+			String text;
+			if (count == 1)
+			{
+				text = "<font color='red'>1 Alert</font>";
+			}
+			else
+			{
+				text = "<font color='red'>" + count + " Alerts</font>";
+			}
+			
+			Spanned alertsText = Html.fromHtml(text);
+			alertsTextView.setText(alertsText);
+			alertsTextView.setClickable(true);
+		}
+		else
+		{
+			alertsTextView.setVisibility(View.GONE);
+			alertsTextView.setClickable(false);
+		}
 	}
 	
 	public void setState(boolean isFavorite, boolean favoriteVisible, boolean moreInfoVisible,

@@ -32,6 +32,7 @@ public class RouteConfig
 	private final TransitSource transitSource;
 	
 	public static final Path[] nullPaths = new Path[0];
+	private ArrayList<Alert> alerts;
 	
 	public RouteConfig(String route, int color, int oppositeColor, TransitSource transitAgency) throws IOException
 	{
@@ -128,5 +129,20 @@ public class RouteConfig
 		}
 		paths[this.paths.length] = path;
 		this.paths = paths;
+	}
+
+	public void addAlert(Alert alert)
+	{
+		if (alerts == null)
+		{
+			alerts = new ArrayList<Alert>();
+		}
+		
+		alerts.add(alert);
+	}
+	
+	public ArrayList<Alert> getAlerts()
+	{
+		return alerts;
 	}
 }

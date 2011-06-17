@@ -383,6 +383,7 @@ public class BusOverlay extends BalloonItemizedOverlay<BusOverlayItem> {
 			Location location = locations.get(i);
 			String titleText = location.getSnippetTitle();
 			String snippetText = location.getSnippet();
+			ArrayList<Alert> alerts = location.getSnippetAlerts();
 			BusOverlayItem overlayItem = new BusOverlayItem(points.get(i),titleText, snippetText);
 			overlays.add(overlayItem);
 		}
