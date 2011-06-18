@@ -45,7 +45,7 @@ public class AlertParser extends DefaultHandler
 		this.routeConfig = routeConfig;
 
 		// Fri, 17 Jun 2011 02:30:29 GMT
-		format = new SimpleDateFormat("E, d M y K:m:s");
+		format = new SimpleDateFormat("E, d MMM yyyy KK:mm:ss z");
 	}
 	public void runParse(Reader data) throws IOException, SAXException
 	{

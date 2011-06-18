@@ -31,6 +31,7 @@ import boston.Bus.Map.data.SubwayStopLocation;
 import boston.Bus.Map.transit.CommuterRailTransitSource;
 import boston.Bus.Map.transit.SubwayTransitSource;
 import boston.Bus.Map.transit.TransitSystem;
+import boston.Bus.Map.util.LogUtil;
 
 public class CommuterRailPredictionsFeedParser
 {
@@ -130,7 +131,6 @@ public class CommuterRailPredictionsFeedParser
 
 				String direction = getItem("Destination", array);
 				directions.add(direction, direction, "", routeConfig.getRouteName());
-				int vehicleId = 0;
 
 				int lateness = Prediction.NULL_LATENESS;
 				String latenessStr = getItem("Lateness", array);
@@ -147,6 +147,17 @@ public class CommuterRailPredictionsFeedParser
 					
 				}
 				 
+				int vehicleId = 0;
+				try
+				{
+					String idStr = getItem("Vehicle", array);
+					vehicleId = Integer.parseInt(idStr);
+				}
+				catch (NumberFormatException e)
+				{
+					LogUtil.e(e);
+				}
+
 				
 				predictions.add(new Prediction(minutes, vehicleId, directions.getTitleAndName(direction),
 						routeConfig.getRouteName(), false, false, lateness));
@@ -176,24 +187,13 @@ public class CommuterRailPredictionsFeedParser
 
 					//first, see if there's a subway car which pretty much matches an old BusLocation
 					BusLocation busLocation = null;
-					int id = 0;
-					try
-					{
-						String tripStr = getItem("Trip", array);
-						id = Integer.parseInt(tripStr);
-					}
-					catch (NumberFormatException e)
-					{
-						Log.e("BostonBusMap", e.getMessage());
-						id = -1;
-					}
 
 					busLocation = new BusLocation(lat, lon,
-							id, epochTime, currentMillis, null, true, direction, null, rail, 
+							vehicleId, epochTime, currentMillis, null, true, direction, null, rail, 
 							railArrow, route, directions, route + " at " + stopLocation.getTitle(), true, false, arrowTopDiff);
-					busMapping.put(id, busLocation);
+					busMapping.put(vehicleId, busLocation);
 
-					toRemove.remove(id);
+					toRemove.remove(vehicleId);
 
 
 					//set arrow to point to correct direction
