@@ -5,6 +5,7 @@ import java.io.InputStream;
 import java.io.Reader;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 
 import org.xml.sax.Attributes;
@@ -23,7 +24,6 @@ import boston.Bus.Map.transit.TransitSystem;
  */
 public class AlertParser extends DefaultHandler
 {
-	private final RouteConfig routeConfig;
 	private Date currentDate;
 	private final SimpleDateFormat format;
 	
@@ -39,11 +39,10 @@ public class AlertParser extends DefaultHandler
 	private String currentTitle;
 	private String currentDescription;
 	private String currentDelay;
+	private final ArrayList<Alert> alerts = new ArrayList<Alert>();
 	
-	public AlertParser(RouteConfig routeConfig)
+	public AlertParser()
 	{
-		this.routeConfig = routeConfig;
-
 		// Fri, 17 Jun 2011 02:30:29 GMT
 		format = new SimpleDateFormat("E, d MMM yyyy KK:mm:ss z");
 	}
@@ -117,7 +116,13 @@ public class AlertParser extends DefaultHandler
 	{
 		if ("item".equals(localName))
 		{
-			routeConfig.addAlert(new Alert(currentDate, currentTitle, currentDescription, currentDelay));
+			Alert alert = new Alert(currentDate, currentTitle, currentDescription, currentDelay);
+			alerts.add(alert);
 		}
+	}
+	
+	public ArrayList<Alert> getAlerts()
+	{
+		return alerts;
 	}
 }

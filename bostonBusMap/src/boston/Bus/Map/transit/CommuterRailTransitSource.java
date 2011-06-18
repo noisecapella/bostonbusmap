@@ -326,8 +326,9 @@ public class CommuterRailTransitSource implements TransitSource {
 
 			String route = outputRoutes.get(i);
 			RouteConfig railRouteConfig = routePool.get(route);
-			AlertParser parser = new AlertParser(railRouteConfig);
+			AlertParser parser = new AlertParser();
 			parser.runParse(data);
+			railRouteConfig.setAlerts(parser.getAlerts());
 			data.close();
 		}
 		

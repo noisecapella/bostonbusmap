@@ -58,22 +58,6 @@ public class AlertInfo extends ListActivity
 
 		setListAdapter(adapter);
 
-		title = (TextView)findViewById(R.id.moreinfo_title);
-
-		String[] stopTitles = extras.getStringArray(titleKey);
-		String routes = extras.getString(routeKey);
-
-		StringBuilder titleText = new StringBuilder();
-		for (int i = 0; i < stopTitles.length; i++)
-		{
-			titleText.append(stopTitles[i]);
-			if (i != stopTitles.length - 1)
-			{
-				titleText.append("<br />");
-			}
-		}
-
-		title.setText(Html.fromHtml("<b>" + titleText + "</b>"));
 	}
 
 }

@@ -131,14 +131,9 @@ public class RouteConfig
 		this.paths = paths;
 	}
 
-	public void addAlert(Alert alert)
+	public void setAlerts(ArrayList<Alert> alerts)
 	{
-		if (alerts == null)
-		{
-			alerts = new ArrayList<Alert>();
-		}
-		
-		alerts.add(alert);
+		this.alerts = alerts;
 	}
 	
 	public ArrayList<Alert> getAlerts()

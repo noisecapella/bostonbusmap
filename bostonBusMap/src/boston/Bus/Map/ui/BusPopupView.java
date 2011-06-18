@@ -167,9 +167,13 @@ public class BusPopupView extends BalloonOverlayView<BusOverlayItem>
 				{
 					Alert[] alertArray = alerts.toArray(new Alert[0]);
 					intent.putExtra(AlertInfo.alertsKey, alertArray);
+					
+					context.startActivity(intent);
 				}
-				
-				context.startActivity(intent);
+				else
+				{
+					Log.i("BostonBusMap", "alertsList is null");
+				}
 				
 			}
 		});
