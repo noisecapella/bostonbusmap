@@ -5,12 +5,15 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.TreeMap;
 
 import skylight1.opengl.files.QuickParseUtil;
 
 import android.graphics.drawable.Drawable;
 import boston.Bus.Map.data.Directions;
+import boston.Bus.Map.data.Path;
 import boston.Bus.Map.data.RouteConfig;
 import boston.Bus.Map.data.RoutePool;
 import boston.Bus.Map.data.StopLocation;
@@ -27,9 +30,7 @@ public class CommuterRailRouteConfigParser
 {
 	private final Directions directions;
 	private final HashMap<String, RouteConfig> map = new HashMap<String, RouteConfig>();
-	private final HashMap<String, StopLocation> stops = new HashMap<String, StopLocation>();
 	private final CommuterRailTransitSource source;
-	private RouteConfig tempCurrentRoute;
 	
 	public static final String temporaryInputData = "route_long_name,direction_id,stop_sequence,stop_id,stop_lat,stop_lon,Branch\n"+
 	"Fairmount Line,0,1,South Station,42.352614,-71.055364,Trunk\n"+
@@ -383,7 +384,14 @@ public class CommuterRailRouteConfigParser
 		}
 		
 		
-		
+		/**route to a mapping of
+	     direction + branch to a mapping of
+	       platform order numbers to stops
+		 * 
+		 */
+		HashMap<String, HashMap<String, TreeMap<Short, StopLocation>>> orderedStations =
+			new HashMap<String, HashMap<String, TreeMap<Short, StopLocation>>>();
+
 		HashMap<String, String> routeKeysToTitles = source.getRouteKeysToTitles();
 		HashMap<String, String> routeTitlesToKeys = new HashMap<String, String>();
 		for (String key : routeKeysToTitles.keySet())
@@ -405,7 +413,7 @@ public class CommuterRailRouteConfigParser
 			String stopTitle = array[indexes.get("stop_id")];
 			String direction = array[indexes.get("direction_id")];
 			String stopTag = CommuterRailTransitSource.stopTagPrefix + stopTitle;
-			int platformOrder = Integer.parseInt(array[indexes.get("stop_sequence")]);
+			short platformOrder = Short.parseShort(array[indexes.get("stop_sequence")]);
 			String branch = array[indexes.get("Branch")];
 			
 			Drawable busStop = source.getBusStopDrawable();
@@ -421,7 +429,65 @@ public class CommuterRailRouteConfigParser
 			stopLocation.addRouteAndDirTag(routeKey, direction);
 			
 			route.addStop(stopTag, stopLocation);
+			
+			HashMap<String, TreeMap<Short, StopLocation>> innerMapping = orderedStations.get(routeKey);
+			if (innerMapping == null)
+			{
+				innerMapping = new HashMap<String, TreeMap<Short, StopLocation>>();
+				orderedStations.put(routeKey, innerMapping);
+			}
+			
+			//mapping of (direction plus branch plus platform order) to a stop
+			//for example, key is NBAshmont3 for fields corner
+			
+			String combinedDirectionBranch = direction + branch;
+			TreeMap<Short, StopLocation> innerInnerMapping = innerMapping.get(combinedDirectionBranch);
+			if (innerInnerMapping == null)
+			{
+				innerInnerMapping = new TreeMap<Short, StopLocation>();
+				innerMapping.put(combinedDirectionBranch, innerInnerMapping);
+			}
+			
+			innerInnerMapping.put(platformOrder, stopLocation);
 		}
+		
+		//TODO: workarounds
+		
+		//path
+		for (String route : orderedStations.keySet())
+		{
+			
+			HashMap<String, TreeMap<Short, StopLocation>> innerMapping = orderedStations.get(route);
+			for (String directionHash : innerMapping.keySet())
+			{
+				TreeMap<Short, StopLocation> stations = innerMapping.get(directionHash);
+
+				ArrayList<Float> floats = new ArrayList<Float>();
+				for (Short platformOrder : stations.keySet())
+				{
+					StopLocation station = stations.get(platformOrder);
+
+					floats.add((float)station.getLatitudeAsDegrees());
+					floats.add((float)station.getLongitudeAsDegrees());
+				}
+				
+				//this is kind of a hack. We need to connect the southern branches of the red line to JFK manually
+				/*if (directionHash.equals("NBAshmont") || directionHash.equals("NBBraintree"))
+				{
+					final short jfkNorthBoundOrder = 5;
+					StopLocation jfkStation = innerMapping.get("NBTrunk").get(jfkNorthBoundOrder);
+					if (jfkStation != null)
+					{
+						floats.add((float)jfkStation.getLatitudeAsDegrees());
+						floats.add((float)jfkStation.getLongitudeAsDegrees());
+					}
+				}*/
+				Path path = new Path(floats);
+				
+				map.get(route).addPaths(path);
+			}
+		}
+
 	}
 	
 	public void runParse(Reader stream) throws IOException

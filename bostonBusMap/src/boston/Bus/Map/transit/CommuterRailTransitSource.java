@@ -50,7 +50,7 @@ public class CommuterRailTransitSource implements TransitSource {
 	private static final String dataUrlPrefix = "http://developer.mbta.com/lib/RTCR/RailLine_";
 	private static final String alertUrlPrefix = "http://talerts.com/rssfeed2/alertsrss.aspx?";
 	
-	private static final String hardcodedData = "TimeStamp,Trip,Destination,Stop,Scheduled,Flag,Vehicle,Latitude,Longitude,Heading,Speed,Lateness\n"+
+	/*private static final String hardcodedData = "TimeStamp,Trip,Destination,Stop,Scheduled,Flag,Vehicle,Latitude,Longitude,Heading,Speed,Lateness\n"+
 	"1308201549,P517,Worcester / Union Station,South Station,1308249600,sch,1508,41.88866,-71.38521,184,49,\n"+
 	"1308201549,P517,Worcester / Union Station,Back Bay,1308249960,sch,1508,41.88866,-71.38521,184,49,\n"+
 	"1308201549,P517,Worcester / Union Station,Newtonville,1308250680,sch,1508,41.88866,-71.38521,184,49,\n"+
@@ -177,7 +177,7 @@ public class CommuterRailTransitSource implements TransitSource {
 	" All trains at these stations will be boarded on the Inbound platform. Signs directing passengers to the Inbound platforms have been posted. \n"+
 	"\n"+
 	" We apologize for any inconvenience this may cause while the improvements to the Fairmount Line continue.</description><pubDate>Fri, 25 Mar 2011 14:35:11 GMT</pubDate><guid isPermaLink=\"false\">talerts122533121533136919</guid></item></channel></rss>\n";
-	
+	*/
 	private final HashMap<String, String> routeKeysToAlertUrls = new HashMap<String, String>();
 	
 	public CommuterRailTransitSource(Drawable busStop, Drawable rail, Drawable railArrow)
