@@ -2,6 +2,7 @@ package boston.Bus.Map.parser;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.Reader;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -46,9 +47,9 @@ public class AlertParser extends DefaultHandler
 		// Fri, 17 Jun 2011 02:30:29 GMT
 		format = new SimpleDateFormat("E, d M y K:m:s");
 	}
-	public void runParse(InputStream data) throws IOException, SAXException
+	public void runParse(Reader data) throws IOException, SAXException
 	{
-		android.util.Xml.parse(data, Encoding.UTF_8, this);
+		android.util.Xml.parse(data, this);
 	}
 	
 	@Override

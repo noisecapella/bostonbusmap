@@ -49,6 +49,133 @@ public class CommuterRailTransitSource implements TransitSource {
 	private static final String dataUrlPrefix = "http://developer.mbta.com/lib/RTCR/RailLine_";
 	private static final String alertUrlPrefix = "http://talerts.com/rssfeed2/alertsrss.aspx?";
 	
+	private static final String hardcodedData = "TimeStamp,Trip,Destination,Stop,Scheduled,Flag,Vehicle,Latitude,Longitude,Heading,Speed,Lateness\n"+
+	"1308201549,P517,Worcester / Union Station,South Station,1308249600,sch,1508,41.88866,-71.38521,184,49,\n"+
+	"1308201549,P517,Worcester / Union Station,Back Bay,1308249960,sch,1508,41.88866,-71.38521,184,49,\n"+
+	"1308201549,P517,Worcester / Union Station,Newtonville,1308250680,sch,1508,41.88866,-71.38521,184,49,\n"+
+	"1308201549,P517,Worcester / Union Station,West Newton,1308250860,sch,1508,41.88866,-71.38521,184,49,\n"+
+	"1308201549,P517,Worcester / Union Station,Auburndale,1308251040,sch,1508,41.88866,-71.38521,184,49,\n"+
+	"1308201549,P517,Worcester / Union Station,Wellesley Farms,1308251340,sch,1508,41.88866,-71.38521,184,49,\n"+
+	"1308201549,P517,Worcester / Union Station,Wellesley Hills,1308251520,sch,1508,41.88866,-71.38521,184,49,\n"+
+	"1308201549,P517,Worcester / Union Station,Wellesley Square,1308251760,sch,1508,41.88866,-71.38521,184,49,\n"+
+	"1308201549,P517,Worcester / Union Station,Natick,1308252120,sch,1508,41.88866,-71.38521,184,49,\n"+
+	"1308201549,P517,Worcester / Union Station,West Natick,1308252420,sch,1508,41.88866,-71.38521,184,49,\n"+
+	"1308201549,P517,Worcester / Union Station,Framingham,1308252780,sch,1508,41.88866,-71.38521,184,49,\n"+
+	"1308201549,P517,Worcester / Union Station,Ashland,1308253140,sch,1508,41.88866,-71.38521,184,49,\n"+
+	"1308201549,P517,Worcester / Union Station,Southborough,1308253440,sch,1508,41.88866,-71.38521,184,49,\n"+
+	"1308201549,P517,Worcester / Union Station,Westborough,1308253980,sch,1508,41.88866,-71.38521,184,49,\n"+
+	"1308201549,P517,Worcester / Union Station,Grafton,1308254340,sch,1508,41.88866,-71.38521,184,49,\n"+
+	"1308201549,P517,Worcester / Union Station,Worcester / Union Station,1308255180,sch,1508,41.88866,-71.38521,184,49,\n"+
+	"1308201549,P523,Worcester / Union Station,South Station,1308258000,sch,1701,42.26207,-71.79092,255,14,\n"+
+	"1308201549,P523,Worcester / Union Station,Back Bay,1308258360,sch,1701,42.26207,-71.79092,255,14,\n"+
+	"1308201549,P523,Worcester / Union Station,West Natick,1308259860,sch,1701,42.26207,-71.79092,255,14,\n"+
+	"1308201549,P523,Worcester / Union Station,Framingham,1308260220,sch,1701,42.26207,-71.79092,255,14,\n"+
+	"1308201549,P523,Worcester / Union Station,Ashland,1308260580,sch,1701,42.26207,-71.79092,255,14,\n"+
+	"1308201549,P523,Worcester / Union Station,Southborough,1308260880,sch,1701,42.26207,-71.79092,255,14,\n"+
+	"1308201549,P523,Worcester / Union Station,Westborough,1308261480,sch,1701,42.26207,-71.79092,255,14,\n"+
+	"1308201549,P523,Worcester / Union Station,Grafton,1308261900,sch,1701,42.26207,-71.79092,255,14,\n"+
+	"1308201549,P523,Worcester / Union Station,Worcester / Union Station,1308262800,sch,1701,42.26207,-71.79092,255,14,\n"+
+	"1308201549,P527,Worcester / Union Station,South Station,1308260100,sch,1715,42.26215,-71.79059,256,18,\n"+
+	"1308201549,P527,Worcester / Union Station,Back Bay,1308260460,sch,1715,42.26215,-71.79059,256,18,\n"+
+	"1308201549,P527,Worcester / Union Station,Yawkey,1308260760,sch,1715,42.26215,-71.79059,256,18,\n"+
+	"1308201549,P527,Worcester / Union Station,Newtonville,1308261360,sch,1715,42.26215,-71.79059,256,18,\n"+
+	"1308201549,P527,Worcester / Union Station,West Newton,1308261600,sch,1715,42.26215,-71.79059,256,18,\n"+
+	"1308201549,P527,Worcester / Union Station,Auburndale,1308261780,sch,1715,42.26215,-71.79059,256,18,\n"+
+	"1308201549,P527,Worcester / Union Station,Wellesley Farms,1308262080,sch,1715,42.26215,-71.79059,256,18,\n"+
+	"1308201549,P527,Worcester / Union Station,Wellesley Hills,1308262260,sch,1715,42.26215,-71.79059,256,18,\n"+
+	"1308201549,P527,Worcester / Union Station,Wellesley Square,1308262500,sch,1715,42.26215,-71.79059,256,18,\n"+
+	"1308201549,P527,Worcester / Union Station,Natick,1308262860,sch,1715,42.26215,-71.79059,256,18,\n"+
+	"1308201549,P527,Worcester / Union Station,West Natick,1308263160,sch,1715,42.26215,-71.79059,256,18,\n"+
+	"1308201549,P527,Worcester / Union Station,Framingham,1308263460,sch,1715,42.26215,-71.79059,256,18,\n"+
+	"1308201549,P527,Worcester / Union Station,Ashland,1308263880,sch,1715,42.26215,-71.79059,256,18,\n"+
+	"1308201549,P527,Worcester / Union Station,Southborough,1308264180,sch,1715,42.26215,-71.79059,256,18,\n"+
+	"1308201549,P527,Worcester / Union Station,Westborough,1308264720,sch,1715,42.26215,-71.79059,256,18,\n"+
+	"1308201549,P527,Worcester / Union Station,Grafton,1308265080,sch,1715,42.26215,-71.79059,256,18,\n"+
+	"1308201549,P527,Worcester / Union Station,Worcester / Union Station,1308265980,sch,1715,42.26215,-71.79059,256,18,\n"+
+	"1308201549,P533,Worcester / Union Station,South Station,1308266100,sch,1523,42.26177,-71.79212,248,20,\n"+
+	"1308201549,P533,Worcester / Union Station,Back Bay,1308266460,sch,1523,42.26177,-71.79212,248,20,\n"+
+	"1308201549,P533,Worcester / Union Station,Yawkey,1308266760,sch,1523,42.26177,-71.79212,248,20,\n"+
+	"1308201549,P533,Worcester / Union Station,Newtonville,1308267300,sch,1523,42.26177,-71.79212,248,20,\n"+
+	"1308201549,P533,Worcester / Union Station,West Newton,1308267540,sch,1523,42.26177,-71.79212,248,20,\n"+
+	"1308201549,P533,Worcester / Union Station,Auburndale,1308267720,sch,1523,42.26177,-71.79212,248,20,\n"+
+	"1308201549,P533,Worcester / Union Station,Wellesley Farms,1308268020,sch,1523,42.26177,-71.79212,248,20,\n"+
+	"1308201549,P533,Worcester / Union Station,Wellesley Hills,1308268200,sch,1523,42.26177,-71.79212,248,20,\n"+
+	"1308201549,P533,Worcester / Union Station,Wellesley Square,1308268440,sch,1523,42.26177,-71.79212,248,20,\n"+
+	"1308201549,P533,Worcester / Union Station,Natick,1308268800,sch,1523,42.26177,-71.79212,248,20,\n"+
+	"1308201549,P533,Worcester / Union Station,West Natick,1308269160,sch,1523,42.26177,-71.79212,248,20,\n"+
+	"1308201549,P533,Worcester / Union Station,Framingham,1308269460,sch,1523,42.26177,-71.79212,248,20,\n"+
+	"1308201549,P533,Worcester / Union Station,Ashland,1308269880,sch,1523,42.26177,-71.79212,248,20,\n"+
+	"1308201549,P533,Worcester / Union Station,Southborough,1308270180,sch,1523,42.26177,-71.79212,248,20,\n"+
+	"1308201549,P533,Worcester / Union Station,Westborough,1308270720,sch,1523,42.26177,-71.79212,248,20,\n"+
+	"1308201549,P533,Worcester / Union Station,Grafton,1308271080,sch,1523,42.26177,-71.79212,248,20,\n"+
+	"1308201549,P533,Worcester / Union Station,Worcester / Union Station,1308271920,sch,1523,42.26177,-71.79212,248,20,\n"+
+	"1308201549,P535,Worcester / Union Station,South Station,1308270000,sch,1529,42.26245,-71.7898,253,,\n"+
+	"1308201549,P535,Worcester / Union Station,Back Bay,1308270360,sch,1529,42.26245,-71.7898,253,,\n"+
+	"1308201549,P535,Worcester / Union Station,Yawkey,1308270660,sch,1529,42.26245,-71.7898,253,,\n"+
+	"1308201549,P535,Worcester / Union Station,Newtonville,1308271200,sch,1529,42.26245,-71.7898,253,,\n"+
+	"1308201549,P535,Worcester / Union Station,West Newton,1308271440,sch,1529,42.26245,-71.7898,253,,\n"+
+	"1308201549,P535,Worcester / Union Station,Auburndale,1308271620,sch,1529,42.26245,-71.7898,253,,\n"+
+	"1308201549,P535,Worcester / Union Station,Wellesley Farms,1308271920,sch,1529,42.26245,-71.7898,253,,\n"+
+	"1308201549,P535,Worcester / Union Station,Wellesley Hills,1308272100,sch,1529,42.26245,-71.7898,253,,\n"+
+	"1308201549,P535,Worcester / Union Station,Wellesley Square,1308272340,sch,1529,42.26245,-71.7898,253,,\n"+
+	"1308201549,P535,Worcester / Union Station,Natick,1308272700,sch,1529,42.26245,-71.7898,253,,\n"+
+	"1308201549,P535,Worcester / Union Station,West Natick,1308273060,sch,1529,42.26245,-71.7898,253,,\n"+
+	"1308201549,P535,Worcester / Union Station,Framingham,1308273360,sch,1529,42.26245,-71.7898,253,,\n"+
+	"1308201549,P535,Worcester / Union Station,Ashland,1308273720,sch,1529,42.26245,-71.7898,253,,\n"+
+	"1308201549,P535,Worcester / Union Station,Southborough,1308274020,sch,1529,42.26245,-71.7898,253,,\n"+
+	"1308201549,P535,Worcester / Union Station,Westborough,1308274560,sch,1529,42.26245,-71.7898,253,,\n"+
+	"1308201549,P535,Worcester / Union Station,Grafton,1308274920,sch,1529,42.26245,-71.7898,253,,\n"+
+	"1308201549,P535,Worcester / Union Station,Worcester / Union Station,1308275760,sch,1529,42.26245,-71.7898,253,,\n"+
+	"1308201549,P537,Worcester / Union Station,South Station,1308277200,sch,1526,42.34754,-71.08391,90,2,\n"+
+	"1308201549,P537,Worcester / Union Station,Back Bay,1308277560,sch,1526,42.34754,-71.08391,90,2,\n"+
+	"1308201549,P537,Worcester / Union Station,Yawkey,1308277860,sch,1526,42.34754,-71.08391,90,2,\n"+
+	"1308201549,P537,Worcester / Union Station,Newtonville,1308278400,sch,1526,42.34754,-71.08391,90,2,\n"+
+	"1308201549,P537,Worcester / Union Station,West Newton,1308278640,sch,1526,42.34754,-71.08391,90,2,\n"+
+	"1308201549,P537,Worcester / Union Station,Auburndale,1308278820,sch,1526,42.34754,-71.08391,90,2,\n"+
+	"1308201549,P537,Worcester / Union Station,Wellesley Farms,1308279120,sch,1526,42.34754,-71.08391,90,2,\n"+
+	"1308201549,P537,Worcester / Union Station,Wellesley Hills,1308279300,sch,1526,42.34754,-71.08391,90,2,\n"+
+	"1308201549,P537,Worcester / Union Station,Wellesley Square,1308279540,sch,1526,42.34754,-71.08391,90,2,\n"+
+	"1308201549,P537,Worcester / Union Station,Natick,1308279900,sch,1526,42.34754,-71.08391,90,2,\n"+
+	"1308201549,P537,Worcester / Union Station,West Natick,1308280260,sch,1526,42.34754,-71.08391,90,2,\n"+
+	"1308201549,P537,Worcester / Union Station,Framingham,1308280560,sch,1526,42.34754,-71.08391,90,2,\n"+
+	"1308201549,P537,Worcester / Union Station,Ashland,1308280920,sch,1526,42.34754,-71.08391,90,2,\n"+
+	"1308201549,P537,Worcester / Union Station,Southborough,1308281220,sch,1526,42.34754,-71.08391,90,2,\n"+
+	"1308201549,P537,Worcester / Union Station,Westborough,1308281760,sch,1526,42.34754,-71.08391,90,2,\n"+
+	"1308201549,P537,Worcester / Union Station,Grafton,1308282120,sch,1526,42.34754,-71.08391,90,2,\n"+
+	"1308201549,P537,Worcester / Union Station,Worcester / Union Station,1308282960,sch,1526,42.34754,-71.08391,90,2,\n"+
+	"1308201549,P538,South Station,Framingham,1308288660,sch,1515,42.34801,-71.07433,26,23,\n"+
+	"1308201549,P538,South Station,West Natick,1308288960,sch,1515,42.34801,-71.07433,26,23,\n"+
+	"1308201549,P538,South Station,Natick,1308289200,sch,1515,42.34801,-71.07433,26,23,\n"+
+	"1308201549,P538,South Station,Wellesley Square,1308289500,sch,1515,42.34801,-71.07433,26,23,\n"+
+	"1308201549,P538,South Station,Wellesley Hills,1308289680,sch,1515,42.34801,-71.07433,26,23,\n"+
+	"1308201549,P538,South Station,Wellesley Farms,1308289860,sch,1515,42.34801,-71.07433,26,23,\n"+
+	"1308201549,P538,South Station,Auburndale,1308290100,sch,1515,42.34801,-71.07433,26,23,\n"+
+	"1308201549,P538,South Station,West Newton,1308290280,sch,1515,42.34801,-71.07433,26,23,\n"+
+	"1308201549,P538,South Station,Newtonville,1308290460,sch,1515,42.34801,-71.07433,26,23,\n"+
+	"1308201549,P538,South Station,Back Bay,1308291420,sch,1515,42.34801,-71.07433,26,23,\n"+
+	"1308201549,P538,South Station,South Station,1308291780,sch,1515,42.34801,-71.07433,26,23,\n";
+	
+	private static final String hardcodedAlerts = "<?xml version=\"1.0\" encoding=\"utf-8\"?><rss version=\"2.0\"><channel><title>T-Alerts</title><link>http://www.mbta.com/rider_tools/transit_updates/</link><description>Recent MBTA T-Alerts</description><language>en-us</language><generator>eAlert Messaging System  http://www.ealet.com</generator><webMaster>hostmaster@mis-sciences.com</webMaster><ttl>15</ttl><item><title>Fairmount</title><link>http://www.mbta.com/rider_tools/transit_updates/</link><description>All Southside Lines/Routes experiencing delays due to Boston Bruins Victory Rolling Rally today. Please allow extra time for your commute. 6/18/2011 10:00 AM</description><pubDate>Sat, 18 Jun 2011 14:00:15 GMT</pubDate><guid isPermaLink=\"false\">talerts135794134794152229</guid></item><item><title>Fairmount</title><link>http://www.mbta.com/rider_tools/transit_updates/</link><description>Fairmount Line \n"+
+	" Tie Replacement Work \n"+
+	" Schedules Affected \n"+
+	"\n"+
+	" Beginning Saturday June 11th and continuing until mid September tie replacement will be done between Back Bay and Forest Hills. \n"+
+	"\n"+
+	" This will impact the schedules of Trains on the Fairmount Line. \n"+
+	"\n"+
+	" Please click on the link below to obtain a printable copy of the temporary schedule which will be in effect during the tie replacement work. \n"+
+	"\n"+
+	" Updated PDF Schedule - Fairmount\n"+
+	"\n"+
+	" We apologize for any inconvenience that may result from this project.</description><pubDate>Thu, 09 Jun 2011 20:45:47 GMT</pubDate><guid isPermaLink=\"false\">talerts134354133354150580</guid></item><item><title>Fairmount</title><link>http://www.mbta.com/rider_tools/transit_updates/</link><description>Fairmount Line \n"+
+	" Fairmount and Morton Street Stations \n"+
+	" Outbound Platforms Removed From Service \n"+
+	"\n"+
+	" Beginning Monday March 28th and continuing until further notice, the Outbound platforms at Fairmount and Morton Street stations will be closed because of continuing track and station improvements. \n"+
+	"\n"+
+	" All trains at these stations will be boarded on the Inbound platform. Signs directing passengers to the Inbound platforms have been posted. \n"+
+	"\n"+
+	" We apologize for any inconvenience this may cause while the improvements to the Fairmount Line continue.</description><pubDate>Fri, 25 Mar 2011 14:35:11 GMT</pubDate><guid isPermaLink=\"false\">talerts122533121533136919</guid></item></channel></rss>\n";
 	
 	private final HashMap<String, String> routeKeysToAlertUrls = new HashMap<String, String>();
 	
@@ -165,11 +292,14 @@ public class CommuterRailTransitSource implements TransitSource {
 
 		for (String url : outputUrls)
 		{
-			DownloadHelper downloadHelper = new DownloadHelper(url);
+			//DownloadHelper downloadHelper = new DownloadHelper(url);
 			
-			downloadHelper.connect();
+			//downloadHelper.connect();
+			
 
-			InputStream data = downloadHelper.getResponseData();
+			//InputStream data = downloadHelper.getResponseData();
+			//TODO: temporary
+			StringReader data = new StringReader(hardcodedData);
 
 			//bus prediction
 
@@ -185,10 +315,12 @@ public class CommuterRailTransitSource implements TransitSource {
 		
 		for (String url : outputAlertUrls)
 		{
-			DownloadHelper downloadHelper = new DownloadHelper(url);
+			/*DownloadHelper downloadHelper = new DownloadHelper(url);
 			downloadHelper.connect();
 			
-			InputStream data = downloadHelper.getResponseData();
+			InputStream data = downloadHelper.getResponseData();*/
+			
+			StringReader data = new StringReader(hardcodedAlerts);
 			
 			String id = url.substring(alertUrlPrefix.length());
 			RouteConfig railRouteConfig = routePool.get(routeTagPrefix + id);

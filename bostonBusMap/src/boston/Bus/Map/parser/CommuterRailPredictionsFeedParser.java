@@ -5,6 +5,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.Reader;
 import java.text.DateFormat;
 import java.text.NumberFormat;
 import java.text.ParseException;
@@ -68,9 +69,9 @@ public class CommuterRailPredictionsFeedParser
 		}
 	}
 
-	public void runParse(InputStream data) throws IOException
+	public void runParse(Reader data) throws IOException
 	{
-		BufferedReader reader = new BufferedReader(new InputStreamReader(data));
+		BufferedReader reader = new BufferedReader(data);
 
 		String[] definitions = reader.readLine().split(",");
 		
