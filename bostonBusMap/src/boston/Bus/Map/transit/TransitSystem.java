@@ -201,6 +201,7 @@ public class TransitSystem {
 
 	private static final TimeZone bostonTimeZone = TimeZone.getTimeZone("America/New_York");
 	private static DateFormat defaultTimeFormat;
+	private static DateFormat defaultDateFormat;
 		
 	public static TimeZone getTimeZone()
 	{
@@ -220,10 +221,16 @@ public class TransitSystem {
 	public static void setDefaultTimeFormat(Context context)
 	{
 		defaultTimeFormat = android.text.format.DateFormat.getTimeFormat(context);
+		defaultDateFormat = android.text.format.DateFormat.getDateFormat(context);
 	}
 	
 	public static DateFormat getDefaultTimeFormat() {
 		return defaultTimeFormat;
+	}
+	
+	public static DateFormat getDefaultDateFormat()
+	{
+		return defaultDateFormat;
 	}
 
 }

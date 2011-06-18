@@ -16,6 +16,7 @@ import android.util.Xml.Encoding;
 import boston.Bus.Map.data.Alert;
 import boston.Bus.Map.data.RouteConfig;
 import boston.Bus.Map.transit.TransitSystem;
+import boston.Bus.Map.util.LogUtil;
 
 /**
  * Parses the MBTA alerts RSS feed for information
@@ -36,9 +37,9 @@ public class AlertParser extends DefaultHandler
 	
 	private boolean beforeFirstItem = true;
 	private int currentState;
-	private String currentTitle;
-	private String currentDescription;
-	private String currentDelay;
+	private final StringBuilder currentTitle = new StringBuilder();
+	private final StringBuilder currentDescription = new StringBuilder();
+	private final StringBuilder currentDelay = new StringBuilder();
 	private final ArrayList<Alert> alerts = new ArrayList<Alert>();
 	
 	public AlertParser()
@@ -73,8 +74,12 @@ public class AlertParser extends DefaultHandler
 			else if ("metadata".equals(localName))
 			{
 				currentState = IN_METADATA;
-				
-				currentDelay = attributes.getValue("delayTime");
+
+				String value = attributes.getValue("delayTime");
+				if (value != null)
+				{
+					currentDelay.append(value);
+				}
 			}
 			else if ("pubDate".equals(localName))
 			{
@@ -94,17 +99,17 @@ public class AlertParser extends DefaultHandler
 		switch (currentState)
 		{
 		case IN_TITLE:
-			currentTitle = new String(ch, start, length);
+			currentTitle.append(new String(ch, start, length));
 			break;
 		case IN_DESCRIPTION:
-			currentDescription = new String(ch, start, length);
+			currentDescription.append(new String(ch, start, length));
 			break;
 		case IN_PUBDATE:
 			String currentDateString = new String(ch, start, length);
 			try {
 				currentDate = format.parse(currentDateString);
 			} catch (ParseException e) {
-				e.printStackTrace();
+				LogUtil.e(e);
 			}
 			break;
 		}
@@ -118,6 +123,9 @@ public class AlertParser extends DefaultHandler
 		{
 			Alert alert = new Alert(currentDate, currentTitle, currentDescription, currentDelay);
 			alerts.add(alert);
+			currentTitle.setLength(0);
+			currentDescription.setLength(0);
+			currentDelay.setLength(0);
 		}
 	}
 	

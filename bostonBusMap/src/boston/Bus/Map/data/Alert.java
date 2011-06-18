@@ -22,12 +22,12 @@ public class Alert implements Parcelable
 	private final String description;
 	private final String delay;
 	
-	public Alert(Date date, String title, String description, String delay)
+	public Alert(Date date, CharSequence title, CharSequence description, CharSequence delay)
 	{
 		this.date = date;
-		this.title = title;
-		this.description = description;
-		this.delay = delay;
+		this.title = title.toString();
+		this.description = description.toString();
+		this.delay = delay.toString();
 	}
 
 	public Date getDate() {
@@ -61,23 +61,27 @@ public class Alert implements Parcelable
 	{
 		StringBuilder builder = new StringBuilder();
 		
-		if (title != null)
+		if (title != null && title.length() != 0)
 		{
 			builder.append("<b>").append(title).append("</b><br />");
 		}
-		if (delay != null)
+		if (delay != null && delay.length() != 0)
 		{
 			builder.append("<b>Delay: </b>").append(delay).append("<br />");
 		}
-		if (description != null)
+		if (description != null && description.length() != 0)
 		{
 			builder.append(description).append("<br />");
 		}
 		if (date != null)
 		{
-			DateFormat format = TransitSystem.getDefaultTimeFormat();
-			String formattedTime = format.format(date);
-			builder.append("Reported at ").append(formattedTime);
+			DateFormat timeFormat = TransitSystem.getDefaultTimeFormat();
+			DateFormat dateFormat = TransitSystem.getDefaultDateFormat();
+			if (timeFormat != null && dateFormat != null)
+			{
+				String formattedTime = timeFormat.format(date) + " " + dateFormat.format(date);
+				builder.append("Reported at ").append(formattedTime);
+			}
 		}
 		
 		return builder.toString();
