@@ -71,7 +71,8 @@ public class Alert implements Parcelable
 		}
 		if (description != null && description.length() != 0)
 		{
-			builder.append(description).append("<br />");
+			String newDescription = description.replace("\n", "<br/>");
+			builder.append(newDescription).append("<br />");
 		}
 		if (date != null)
 		{

@@ -3,6 +3,7 @@ package boston.Bus.Map.transit;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.StringReader;
 import java.net.URL;
 import java.util.ArrayList;
@@ -294,14 +295,14 @@ public class CommuterRailTransitSource implements TransitSource {
 		for (int i = 0; i < outputUrls.size(); i++)
 		{
 			String url = outputUrls.get(i);
-			//DownloadHelper downloadHelper = new DownloadHelper(url);
+			DownloadHelper downloadHelper = new DownloadHelper(url);
 			
-			//downloadHelper.connect();
+			downloadHelper.connect();
 			
 
-			//InputStream data = downloadHelper.getResponseData();
-			//TODO: temporary
-			StringReader data = new StringReader(hardcodedData);
+			InputStream stream = downloadHelper.getResponseData();
+			InputStreamReader data = new InputStreamReader(stream);
+			//StringReader data = new StringReader(hardcodedData);
 
 			//bus prediction
 
@@ -317,13 +318,12 @@ public class CommuterRailTransitSource implements TransitSource {
 		for (int i = 0; i < outputAlertUrls.size(); i++)
 		{
 			String url = outputAlertUrls.get(i);
-			/*DownloadHelper downloadHelper = new DownloadHelper(url);
+			DownloadHelper downloadHelper = new DownloadHelper(url);
 			downloadHelper.connect();
 			
-			InputStream data = downloadHelper.getResponseData();*/
+			InputStream stream = downloadHelper.getResponseData();
+			InputStreamReader data = new InputStreamReader(stream);
 			
-			StringReader data = new StringReader(hardcodedAlerts);
-
 			String route = outputRoutes.get(i);
 			RouteConfig railRouteConfig = routePool.get(route);
 			AlertParser parser = new AlertParser();
