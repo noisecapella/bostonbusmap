@@ -46,7 +46,8 @@ public class MoreInfo extends ListActivity {
 	
 	
 	private Prediction[] predictions;
-	private TextView title;
+	private TextView title1;
+	private TextView title2;
 	private Spinner routeSpinner;
 	private HashMap<String, String> routeKeysToTitles;
 	
@@ -82,7 +83,8 @@ public class MoreInfo extends ListActivity {
 			routeKeysToTitles.put(keys[i], titles[i]);
 		}
 
-		title = (TextView)findViewById(R.id.moreinfo_title);
+		title1 = (TextView)findViewById(R.id.moreinfo_title1);
+		title2 = (TextView)findViewById(R.id.moreinfo_title2);
 		routeSpinner = (Spinner)findViewById(R.id.moreinfo_route_spinner);
 		
 		routes = extras.getStringArray(routeKey);
@@ -128,35 +130,45 @@ public class MoreInfo extends ListActivity {
 		
 		String[] stopTitles = extras.getStringArray(titleKey);
 		
-		StringBuilder titleText = new StringBuilder();
+		StringBuilder titleText1 = new StringBuilder();
 		for (int i = 0; i < stopTitles.length; i++)
 		{
-			titleText.append(stopTitles[i]);
+			titleText1.append(stopTitles[i]);
 			if (i != stopTitles.length - 1)
 			{
-				titleText.append("<br />");
+				titleText1.append("<br />");
 			}
 		}
 		
+		StringBuilder titleText2 = new StringBuilder();
 		String stopTags = extras.getString(stopsKey);
 		if (routes != null)
 		{
-			titleText.append("<br />Stop ids: ").append(stopTags);
+			titleText2.append("<br />Stop ids: ").append(stopTags);
 			String routesText = StringUtil.join(routes, ", ");
-			titleText.append("<br />Routes: ").append(routesText);
+			titleText2.append("<br />Routes: ").append(routesText);
 			
 		}
 		
-		title.setText(Html.fromHtml("<b>" + titleText + "</b>"));
+		title1.setText(Html.fromHtml("<b>" + titleText1 + "</b>"));
+		title2.setText(Html.fromHtml("<b>" + titleText2 + "</b>"));
 	}
 
 	private void refreshRouteAdapter()
 	{
 		ArrayAdapter<CharSequence> adapter = new ArrayAdapter<CharSequence>(this, android.R.layout.simple_spinner_item);
-		adapter.add("All routes");
-
-		if (routes != null)
+		if (routes == null)
 		{
+			//shouldn't happen, but just in case
+			adapter.add("All routes");
+		}
+		else
+		{
+			if (routes.length != 1)
+			{
+				//if there's only one route, don't bother with this
+				adapter.add("All routes");
+			}
 			for (String route : routes)
 			{
 				if (routeKeysToTitles != null)
