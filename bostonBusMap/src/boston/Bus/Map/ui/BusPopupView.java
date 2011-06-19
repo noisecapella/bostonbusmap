@@ -325,11 +325,11 @@ public class BusPopupView extends BalloonOverlayView<BusOverlayItem>
 			String text;
 			if (count == 1)
 			{
-				text = "<font color='red'>1 Alert</font>";
+				text = "<font color='red'><a href=\"com.bostonbusmap://alerts\">1 Alert</a></font> ";
 			}
 			else
 			{
-				text = "<font color='red'>" + count + " Alerts</font>";
+				text = "<font color='red'><a href=\"com.bostonbusmap://alerts\">" + count + " Alerts</a></font>";
 			}
 			
 			Spanned alertsText = Html.fromHtml(text);
