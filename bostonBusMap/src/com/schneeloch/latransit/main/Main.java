@@ -48,6 +48,7 @@ import boston.Bus.Map.ui.RouteOverlay;
 import boston.Bus.Map.ui.ViewingMode;
 import boston.Bus.Map.util.Constants;
 import boston.Bus.Map.util.SearchHelper;
+import boston.Bus.Map.util.StringUtil;
 
 
 import com.google.android.maps.GeoPoint;
@@ -660,7 +661,8 @@ public class Main extends MapActivity
     				String routes;
     				if (stop.getCombinedRoutes() != null)
     				{
-    					routes = stop.getCombinedRoutes();
+    					String[] array = stop.getCombinedRoutes();
+    					routes = StringUtil.join(array, ", ");
     				}
     				else
     				{
