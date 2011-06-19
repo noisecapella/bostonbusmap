@@ -48,7 +48,7 @@ public class CommuterRailTransitSource implements TransitSource {
 	private static final String predictionsUrlSuffix = ".csv";
 	public static final String routeTagPrefix = "CR-";
 	private static final String dataUrlPrefix = "http://developer.mbta.com/lib/RTCR/RailLine_";
-	private static final String alertUrlPrefix = "http://talerts.com/rssfeed2/alertsrss.aspx?";
+	private static final String alertUrlPrefix = "http://talerts.com/rssfeed/alertsrss.aspx?";
 	
 	/*private static final String hardcodedData = "TimeStamp,Trip,Destination,Stop,Scheduled,Flag,Vehicle,Latitude,Longitude,Heading,Speed,Lateness\n"+
 	"1308201549,P517,Worcester / Union Station,South Station,1308249600,sch,1508,41.88866,-71.38521,184,49,\n"+
