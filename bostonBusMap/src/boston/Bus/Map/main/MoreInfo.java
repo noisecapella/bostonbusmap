@@ -28,7 +28,7 @@ public class MoreInfo extends ListActivity {
 	
 	public static final String textKey = "text";
 	
-	private Parcelable[] predictions;
+	private Prediction[] predictions;
 	private TextView title;
 	
 	@Override
@@ -41,7 +41,7 @@ public class MoreInfo extends ListActivity {
 		
 		
 		
-		predictions = (Parcelable[])extras.getParcelableArray(predictionsKey);
+		predictions = (Prediction[])extras.getParcelableArray(predictionsKey);
 		String[] keys = extras.getStringArray(routeKeysKey);
 		String[] titles = extras.getStringArray(routeTitlesKey);
 		
@@ -54,17 +54,13 @@ public class MoreInfo extends ListActivity {
 		ArrayList<HashMap<String, Spanned>> data = new ArrayList<HashMap<String,Spanned>>();
 		if (predictions != null)
 		{
-			for (Object predictionObj : predictions)
+			for (Prediction prediction : predictions)
 			{
-				if (predictionObj != null)
+				if (prediction != null && prediction.getMinutes() >= 0)
 				{
-					Prediction prediction = (Prediction)predictionObj;
-					if (prediction.getMinutes() >= 0)
-					{
-						//data.add(prediction.generateMoreInfoMap());
-						HashMap<String, Spanned> map = prediction.makeSnippetMap(routeKeysToTitles, this);
-						data.add(map);
-					}
+					//data.add(prediction.generateMoreInfoMap());
+					HashMap<String, Spanned> map = prediction.makeSnippetMap(routeKeysToTitles, this);
+					data.add(map);
 				}
 			}
 		}
