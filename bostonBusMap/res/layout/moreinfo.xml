@@ -8,15 +8,19 @@
 			android:layout_width="wrap_content" android:id="@+id/moreinfo_route_spinner"
 			android:layout_alignParentRight="true"
 			></Spinner>
-		<TextView android:id="@+id/moreinfo_title"
-			android:layout_width="fill_parent" android:layout_height="wrap_content"
+		<TextView android:id="@+id/moreinfo_title1"
+			android:layout_width="wrap_content" android:layout_height="wrap_content"
 			android:bufferType="spannable" android:text=""
 			android:layout_toLeftOf="@+id/moreinfo_route_spinner"
 			android:layout_alignParentLeft="true"
 			></TextView>
+	</RelativeLayout>
+		<TextView android:id="@+id/moreinfo_title2"
+			android:layout_width="wrap_content" android:layout_height="wrap_content"
+			android:bufferType="spannable"
+			></TextView>
 			
 
-	</RelativeLayout>
 	<ListView android:id="@android:id/list" android:layout_width="fill_parent"
 		android:layout_height="wrap_content"></ListView>
 	<TextView android:id="@android:id/empty" android:layout_width="fill_parent"
