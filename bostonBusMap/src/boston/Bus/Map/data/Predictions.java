@@ -19,8 +19,8 @@ public class Predictions
 {
 	private String snippetTitle;
 	private String snippetStop;
-	private String snippetRoutes;
 	private String snippetPredictions;
+	private String[] snippetRoutes;
 	
 	/**
 	 * Other stops which are temporarily using the same overlay
@@ -43,7 +43,7 @@ public class Predictions
 		routes.addAll(dirTags.keySet());
 		Collections.sort(routes);
 		
-		snippetRoutes = makeSnippetRoutes(routes, routeKeysToTitles);
+		snippetRoutes = routes.toArray(new String[0]);
 		snippetTitle = title;
 		snippetStop = tag;
 		
@@ -135,18 +135,6 @@ public class Predictions
 	
 
 	
-	private String makeSnippetRoutes(Collection<String> routes, HashMap<String, String> routeKeysToTitles) {
-		String ret = "";
-		
-		//java doesn't have a join function? seriously?
-		synchronized (routes)
-		{
-			ret = StringUtil.join(routes, ", ");
-		}
-		
-		return ret;
-	}
-
 	public synchronized void addToSnippetAndTitle(RouteConfig routeConfig, StopLocation stopLocation, HashMap<String, String> routeKeysToTitles,
 			Context context, String title, HashMap<String, String> dirTags)
 	{
@@ -189,7 +177,7 @@ public class Predictions
 		{
 			combinedRoutes.addAll(s.getRoutes());
 		}
-		snippetRoutes = makeSnippetRoutes(combinedRoutes, routeKeysToTitles);
+		snippetRoutes = combinedRoutes.toArray(new String[0]);
 		
 		combinedPredictions = new ArrayList<Prediction>();
 		if (predictions != null)
@@ -265,7 +253,7 @@ public class Predictions
 		}
 	}
 
-	public String getSnippetRoutes()
+	public String[] getSnippetRoutes()
 	{
 		return snippetRoutes;
 	}

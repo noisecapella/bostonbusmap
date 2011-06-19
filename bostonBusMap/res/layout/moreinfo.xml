@@ -6,7 +6,8 @@
 		android:layout_height="wrap_content" android:orientation="horizontal">
 		<Spinner android:layout_height="wrap_content"
 			android:layout_width="wrap_content" android:id="@+id/moreinfo_route_spinner"
-			android:layout_alignParentRight="true"></Spinner>
+			android:layout_alignParentRight="true"
+			android:background="@android:drawable/btn_default"></Spinner>
 		<TextView android:id="@+id/moreinfo_title"
 			android:layout_width="fill_parent" android:layout_height="wrap_content"
 			android:bufferType="spannable" android:text=""
