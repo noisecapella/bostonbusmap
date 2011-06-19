@@ -1,6 +1,7 @@
 package boston.Bus.Map.data;
 
 import java.text.DateFormat;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 
@@ -46,18 +47,18 @@ public class Alert implements Parcelable
 		return delay;
 	}
 
-	public HashMap<String, Spanned> makeSnippetMap(Context context)
+	public HashMap<String, Spanned> makeSnippetMap(Context context, Calendar yesterday, Calendar now)
 	{
 		HashMap<String, Spanned> map = new HashMap<String, Spanned>();
 		
-		String ret = makeSnippet(context);
+		String ret = makeSnippet(context, yesterday, now);
 		
 		map.put(AlertInfo.textKey, Html.fromHtml(ret));
 		
 		return map;
 	}
 
-	private String makeSnippet(Context context)
+	private String makeSnippet(Context context, Calendar yesterday, Calendar now)
 	{
 		StringBuilder builder = new StringBuilder();
 		
@@ -82,10 +83,30 @@ public class Alert implements Parcelable
 			{
 				String formattedTime = timeFormat.format(date) + " " + dateFormat.format(date);
 				builder.append("Reported at ").append(formattedTime);
+
+				Calendar calendar = Calendar.getInstance();
+				calendar.setTime(date);
+				
+				if (sameDay(calendar, now))
+				{
+					builder.append(" (today)");
+				}
+				else if (sameDay(calendar, yesterday))
+				{
+					builder.append(" (yesterday)");
+				}
+				builder.append("<br />");
 			}
 		}
 		
 		return builder.toString();
+	}
+
+	private boolean sameDay(Calendar date1, Calendar date2)
+	{
+		return date1.get(Calendar.DATE) == date2.get(Calendar.DATE) &&
+				date1.get(Calendar.MONTH) == date2.get(Calendar.MONTH) &&
+				date1.get(Calendar.YEAR) == date2.get(Calendar.YEAR); 
 	}
 
 	@Override

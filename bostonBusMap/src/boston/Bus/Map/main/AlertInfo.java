@@ -1,6 +1,7 @@
 package boston.Bus.Map.main;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.HashMap;
 
 import boston.Bus.Map.R;
@@ -40,12 +41,16 @@ public class AlertInfo extends ListActivity
 		ArrayList<HashMap<String, Spanned>> data = new ArrayList<HashMap<String,Spanned>>();
 		if (alerts != null)
 		{
+			Calendar now = Calendar.getInstance();
+			Calendar yesterday = Calendar.getInstance();
+			yesterday.add(Calendar.DATE, -1);
+			
 			for (Object alertObj : alerts)
 			{
 				if (alertObj != null)
 				{
 					Alert alert = (Alert)alertObj;
-					HashMap<String, Spanned> map = alert.makeSnippetMap(this);
+					HashMap<String, Spanned> map = alert.makeSnippetMap(this, yesterday, now);
 					data.add(map);
 				}
 			}
