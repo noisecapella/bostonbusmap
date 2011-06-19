@@ -30,7 +30,7 @@ public class AlertInfo extends ListActivity
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
-		setContentView(R.layout.moreinfo);
+		setContentView(R.layout.alert);
 
 		Bundle extras = getIntent().getExtras();
 
