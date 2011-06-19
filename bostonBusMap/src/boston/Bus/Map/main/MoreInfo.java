@@ -162,11 +162,11 @@ public class MoreInfo extends ListActivity {
 					String title = routeKeysToTitles.get(route);
 					if (title != null)
 					{
-						adapter.add(title);
+						adapter.add("Route " + title);
 					}
 					else
 					{
-						adapter.add(route);
+						adapter.add("Route " + route);
 					}
 				}
 			}
