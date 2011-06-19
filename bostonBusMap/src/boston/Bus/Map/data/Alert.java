@@ -82,7 +82,7 @@ public class Alert implements Parcelable
 			if (timeFormat != null && dateFormat != null)
 			{
 				String formattedTime = timeFormat.format(date) + " " + dateFormat.format(date);
-				builder.append("Reported at ").append(formattedTime);
+				builder.append("<b>Reported at ").append(formattedTime);
 
 				Calendar calendar = Calendar.getInstance();
 				calendar.setTime(date);
@@ -95,7 +95,7 @@ public class Alert implements Parcelable
 				{
 					builder.append(" (yesterday)");
 				}
-				builder.append("<br />");
+				builder.append("</b><br />");
 			}
 		}
 		

@@ -325,7 +325,7 @@ public class BusPopupView extends BalloonOverlayView<BusOverlayItem>
 			String text;
 			if (count == 1)
 			{
-				text = "<font color='red'><a href=\"com.bostonbusmap://alerts\">1 Alert</a></font> ";
+				text = "<font color='red'><a href=\"com.bostonbusmap://alerts\">1 Alert</a></font>";
 			}
 			else
 			{
