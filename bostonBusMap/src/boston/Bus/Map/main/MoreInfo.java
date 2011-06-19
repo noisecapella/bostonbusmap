@@ -155,10 +155,18 @@ public class MoreInfo extends ListActivity {
 	private void refreshRouteAdapter()
 	{
 		ArrayAdapter<CharSequence> adapter = new ArrayAdapter<CharSequence>(this, android.R.layout.simple_spinner_item);
-		adapter.add("All routes");
-
-		if (routes != null)
+		if (routes == null)
 		{
+			//shouldn't happen, but just in case
+			adapter.add("All routes");
+		}
+		else
+		{
+			if (routes.length != 1)
+			{
+				//if there's only one route, don't bother with this
+				adapter.add("All routes");
+			}
 			for (String route : routes)
 			{
 				if (routeKeysToTitles != null)
