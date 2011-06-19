@@ -2,19 +2,32 @@ package boston.Bus.Map.main;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.SortedSet;
 
 import boston.Bus.Map.R;
 import boston.Bus.Map.data.Prediction;
 import boston.Bus.Map.ui.TextViewBinder;
+import boston.Bus.Map.util.StringUtil;
 import android.app.Activity;
 import android.app.ListActivity;
+import android.content.Context;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.text.Html;
 import android.text.SpannableString;
 import android.text.Spanned;
+import android.util.Log;
+import android.view.View;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
+import android.widget.AdapterView.OnItemSelectedListener;
+import android.widget.ArrayAdapter;
 import android.widget.ListAdapter;
 import android.widget.SimpleAdapter;
+import android.widget.Spinner;
+import android.widget.SpinnerAdapter;
 import android.widget.TextView;
 
 public class MoreInfo extends ListActivity {
@@ -27,9 +40,19 @@ public class MoreInfo extends ListActivity {
 	public static final String routeKey = "route";
 	
 	public static final String textKey = "text";
+	public static final String routeTextKey = "routeText";
 	
-	private Parcelable[] predictions;
+	
+	private Prediction[] predictions;
 	private TextView title;
+	private Spinner routeSpinner;
+	private HashMap<String, String> routeKeysToTitles;
+	
+	/**
+	 * If false, don't try accessing predictions or routeKeysToTitles because they may be being populated
+	 */
+	private boolean dataIsInitialized;
+	private String[] routes;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -41,25 +64,136 @@ public class MoreInfo extends ListActivity {
 		
 		
 		
-		predictions = (Parcelable[])extras.getParcelableArray(predictionsKey);
+		Parcelable[] parcelables = (Parcelable[])extras.getParcelableArray(predictionsKey);
+		predictions = new Prediction[parcelables.length];
+		for (int i = 0; i < predictions.length; i++)
+		{
+			predictions[i] = (Prediction)parcelables[i];
+		}
+		
 		String[] keys = extras.getStringArray(routeKeysKey);
 		String[] titles = extras.getStringArray(routeTitlesKey);
 		
-		HashMap<String, String> routeKeysToTitles = new HashMap<String, String>();
+		routeKeysToTitles = new HashMap<String, String>();
 		for (int i = 0; i < keys.length; i++)
 		{
 			routeKeysToTitles.put(keys[i], titles[i]);
+		}
+
+		title = (TextView)findViewById(R.id.moreinfo_title);
+		routeSpinner = (Spinner)findViewById(R.id.moreinfo_route_spinner);
+		
+		routes = extras.getStringArray(routeKey);
+		refreshRouteAdapter();
+		
+		dataIsInitialized = true;
+		
+		refreshAdapter(null);
+		
+		routeSpinner.setOnItemSelectedListener(new OnItemSelectedListener() {
+
+			@Override
+			public void onItemSelected(AdapterView<?> parent, View view,
+					int position, long id) {
+				if (routes == null)
+				{
+					return;
+				}
+				
+				if (position == 0)
+				{
+					refreshAdapter(null);
+				}
+				else
+				{
+					int index = position - 1;
+					if (index < 0 || index >= routes.length)
+					{
+						Log.e("BostonBusMap", "error, went past end of route list");
+					}
+					else
+					{
+						refreshAdapter(routes[index]);
+					}
+				}
+			}
+
+			@Override
+			public void onNothingSelected(AdapterView<?> parent) {
+				//leave the state the way it is
+			}
+		});
+		
+		String[] stopTitles = extras.getStringArray(titleKey);
+		
+		StringBuilder titleText = new StringBuilder();
+		for (int i = 0; i < stopTitles.length; i++)
+		{
+			titleText.append(stopTitles[i]);
+			if (i != stopTitles.length - 1)
+			{
+				titleText.append("<br />");
+			}
+		}
+		
+		String stopTags = extras.getString(stopsKey);
+		if (routes != null)
+		{
+			titleText.append("<br />Stop ids: ").append(stopTags);
+			String routesText = StringUtil.join(routes, ", ");
+			titleText.append("<br />Routes: ").append(routesText);
+			
+		}
+		
+		title.setText(Html.fromHtml("<b>" + titleText + "</b>"));
+	}
+
+	private void refreshRouteAdapter()
+	{
+		ArrayAdapter<CharSequence> adapter = new ArrayAdapter<CharSequence>(this, android.R.layout.simple_spinner_item);
+		adapter.add("All routes");
+
+		if (routes != null)
+		{
+			for (String route : routes)
+			{
+				if (routeKeysToTitles != null)
+				{
+					String title = routeKeysToTitles.get(route);
+					if (title != null)
+					{
+						adapter.add("Route " + title);
+					}
+					else
+					{
+						adapter.add("Route " + route);
+					}
+				}
+			}
+		}
+		
+		
+		adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+		
+		routeSpinner.setAdapter(adapter);
+	}
+
+	private void refreshAdapter(String route)
+	{
+		if (!dataIsInitialized)
+		{
+			return;
 		}
 		
 		ArrayList<HashMap<String, Spanned>> data = new ArrayList<HashMap<String,Spanned>>();
 		if (predictions != null)
 		{
-			for (Object predictionObj : predictions)
+			for (Prediction prediction : predictions)
 			{
-				if (predictionObj != null)
+				if (prediction != null && prediction.getMinutes() >= 0)
 				{
-					Prediction prediction = (Prediction)predictionObj;
-					if (prediction.getMinutes() >= 0)
+					//if a route is given, filter based on it, else show all routes
+					if (route == null || route.equals(prediction.getRouteName()))
 					{
 						//data.add(prediction.generateMoreInfoMap());
 						HashMap<String, Spanned> map = prediction.makeSnippetMap(routeKeysToTitles, this);
@@ -76,29 +210,5 @@ public class MoreInfo extends ListActivity {
 		
 		setListAdapter(adapter);
 		
-		title = (TextView)findViewById(R.id.moreinfo_title);
-		
-		String[] stopTitles = extras.getStringArray(titleKey);
-		String routes = extras.getString(routeKey);
-		
-		StringBuilder titleText = new StringBuilder();
-		for (int i = 0; i < stopTitles.length; i++)
-		{
-			titleText.append(stopTitles[i]);
-			if (i != stopTitles.length - 1)
-			{
-				titleText.append("<br />");
-			}
-		}
-		
-		String stopTags = extras.getString(stopsKey);
-		if (routes != null)
-		{
-			titleText.append("<br />Stop ids: ").append(stopTags);
-			titleText.append("<br />Routes: ").append(routes);
-			
-		}
-		
-		title.setText(Html.fromHtml("<b>" + titleText + "</b>"));
 	}
 }

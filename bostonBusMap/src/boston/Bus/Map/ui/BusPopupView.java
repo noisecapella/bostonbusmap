@@ -123,7 +123,7 @@ public class BusPopupView extends BalloonOverlayView<BusOverlayItem>
 					String[] combinedTitles = stopLocation.getCombinedTitles();
 					intent.putExtra(MoreInfo.titleKey, combinedTitles);
 
-					String combinedRoutes = stopLocation.getCombinedRoutes();
+					String[] combinedRoutes = stopLocation.getCombinedRoutes();
 					intent.putExtra(MoreInfo.routeKey, combinedRoutes);
 
 					String combinedStops = stopLocation.getCombinedStops();

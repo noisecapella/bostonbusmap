@@ -281,7 +281,7 @@ public class StopLocation implements Location
 		}
 	}
 	
-	public String getCombinedRoutes()
+	public String[] getCombinedRoutes()
 	{
 		if (predictions != null)
 		{
