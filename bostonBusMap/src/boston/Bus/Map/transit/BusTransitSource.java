@@ -13,6 +13,14 @@ public class BusTransitSource extends NextBusTransitSource {
 	protected void addRoutes()
 	{
 		addRoute("602", "Green Shuttle");
+		addRoute("701", "CT1");
+		addRoute("747", "CT2");
+		addRoute("708", "CT3");
+		addRoute("741", "Silver Line SL1");
+		addRoute("742", "Silver Line SL2");
+		addRoute("751", "Silver Line SL4");
+		addRoute("749", "Silver Line SL5");
+		addRoute("746", "Silver Line SL");
 		addRoute("1", "1");
 		addRoute("4", "4");
 		addRoute("5", "5");
@@ -198,14 +206,6 @@ public class BusTransitSource extends NextBusTransitSource {
 		addRoute("555", "555");
 		addRoute("556", "556");
 		addRoute("558", "558");
-		addRoute("701", "CT1");
-		addRoute("747", "CT2");
-		addRoute("708", "CT3");
-		addRoute("746", "Silver Line SL");
-		addRoute("741", "Silver Line SL1");
-		addRoute("742", "Silver Line SL2");
-		addRoute("751", "Silver Line SL4");
-		addRoute("749", "Silver Line SL5");
 		addRoute("9109", "9109");
 		addRoute("9111", "9111");
 		addRoute("9501", "9501");
