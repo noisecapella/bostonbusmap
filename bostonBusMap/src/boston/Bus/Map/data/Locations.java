@@ -426,10 +426,17 @@ public final class Locations
 		try
 		{
 			RouteConfig routeConfig = routeMapping.get(route);
-			StopLocation stopLocation = routeConfig.getStop(stopTag);
-			select(route, Main.BUS_PREDICTIONS_ONE);
+			if (routeConfig != null)
+			{
+				StopLocation stopLocation = routeConfig.getStop(stopTag);
+				select(route, Main.BUS_PREDICTIONS_ONE);
 			
-			return stopLocation;
+				return stopLocation;
+			}
+			else
+			{
+				Log.e("BostonBusMap", "bizarre... route doesn't exist: " + (route != null ? route : ""));
+			}
 		}
 		catch (IOException e)
 		{
