@@ -380,6 +380,10 @@ public class Main extends MapActivity
             selectedRouteIndex = prefs.getInt(selectedRouteIndexKey, 0);
             setSelectedBusPredictions(prefs.getInt(selectedBusPredictionsKey, VEHICLE_LOCATIONS_ALL));
             
+            if (selectedRouteIndex < 0 || selectedRouteIndex >= dropdownRoutes.length)
+            {
+            	selectedRouteIndex = dropdownRoutes.length - 1;
+            }
         	String route = dropdownRoutes[selectedRouteIndex];
         	String routeTitle = dropdownRouteKeysToTitles.get(route);
         	searchView.setText("Route " + routeTitle);
