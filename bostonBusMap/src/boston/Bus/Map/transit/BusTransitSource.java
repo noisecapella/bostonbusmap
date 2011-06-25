@@ -210,7 +210,7 @@ public class BusTransitSource extends NextBusTransitSource {
 
 	@Override
 	protected int getInitialContentLength() {
-		return 341522;
+		return 318419;
 	}
 
 }
