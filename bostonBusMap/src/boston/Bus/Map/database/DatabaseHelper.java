@@ -105,7 +105,7 @@ public class DatabaseHelper extends SQLiteOpenHelper
 	public final static int VERBOSE_DB_6 = 18;
 	public final static int VERBOSE_DB_7 = 19;
 	
-	public final static int CURRENT_DB_VERSION = VERBOSE_DB_7;
+	public final static int CURRENT_DB_VERSION = 20;
 	
 	public static final int ALWAYS_POPULATE = 3;
 	public static final int POPULATE_IF_UPGRADE = 2;
