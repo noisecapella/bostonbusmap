@@ -192,7 +192,7 @@ public class LABusTransitSource extends NextBusTransitSource
 
 	@Override
 	protected int getInitialContentLength() {
-		return 1069933;
+		return 525921;
 	}
 
 }
