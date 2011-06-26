@@ -19,7 +19,6 @@ public class LABusTransitSource extends NextBusTransitSource
 		addRoute("16", "16");
 		addRoute("18", "18");
 		addRoute("20", "20");
-		addRoute("26", "26");
 		addRoute("28", "28");
 		addRoute("30", "30");
 		addRoute("33", "33");
@@ -59,7 +58,6 @@ public class LABusTransitSource extends NextBusTransitSource
 		addRoute("115", "115");
 		addRoute("117", "117");
 		addRoute("120", "120");
-		addRoute("121", "121");
 		addRoute("125", "125");
 		addRoute("126", "126");
 		addRoute("127", "127");
@@ -116,7 +114,6 @@ public class LABusTransitSource extends NextBusTransitSource
 		addRoute("244", "244");
 		addRoute("245", "245");
 		addRoute("246", "246");
-		addRoute("247", "247");
 		addRoute("251", "251");
 		addRoute("252", "252");
 		addRoute("254", "254");
@@ -137,7 +134,6 @@ public class LABusTransitSource extends NextBusTransitSource
 		addRoute("311", "311");
 		addRoute("312", "312");
 		addRoute("316", "316");
-		addRoute("335", "335");
 		addRoute("344", "344");
 		addRoute("352", "352");
 		addRoute("353", "353");
@@ -146,10 +142,8 @@ public class LABusTransitSource extends NextBusTransitSource
 		addRoute("363", "363");
 		addRoute("364", "364");
 		addRoute("378", "378");
-		addRoute("422", "422");
 		addRoute("439", "439");
 		addRoute("442", "442");
-		addRoute("445", "445");
 		addRoute("450", "450");
 		addRoute("460", "460");
 		addRoute("485", "485");
@@ -165,7 +159,6 @@ public class LABusTransitSource extends NextBusTransitSource
 		addRoute("612", "612");
 		addRoute("620", "620");
 		addRoute("625", "625");
-		addRoute("634", "634");
 		addRoute("645", "645");
 		addRoute("656", "656");
 		addRoute("665", "665");
@@ -194,13 +187,12 @@ public class LABusTransitSource extends NextBusTransitSource
 		addRoute("780", "780");
 		addRoute("794", "794");
 		addRoute("901", "901");
-		addRoute("902", "902");
 		addRoute("910", "910");
 	}
 
 	@Override
 	protected int getInitialContentLength() {
-		return 544267;
+		return 1069933;
 	}
 
 }
