@@ -3,6 +3,7 @@
       package="com.schneeloch.latransit"
       android:versionName="3.32" android:versionCode="92">
 	<application android:label="@string/app_name" android:icon="@drawable/appicon" 
+
 	android:theme="@style/android:Theme.NoTitleBar"
 	>
 		<activity android:label="@string/app_name" android:name=".main.Main" android:launchMode="singleTop">

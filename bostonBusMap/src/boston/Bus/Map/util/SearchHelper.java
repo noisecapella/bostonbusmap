@@ -204,7 +204,7 @@ public class SearchHelper
 		{
 			lowercaseQuery = "silverline" + lowercaseQuery;
 		}
-		else if (lowercaseQuery.startsWith("silver"))
+		else if (lowercaseQuery.startsWith("silver") && lowercaseQuery.contains("line") == false)
 		{
 			//ugh, what a hack
 			lowercaseQuery = lowercaseQuery.substring(0, 6) + "line" + lowercaseQuery.substring(6);
