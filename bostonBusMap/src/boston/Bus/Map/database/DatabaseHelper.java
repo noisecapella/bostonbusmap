@@ -105,9 +105,9 @@ public class DatabaseHelper extends SQLiteOpenHelper
 	public final static int VERBOSE_DB_6 = 18;
 	public final static int VERBOSE_DB_7 = 19;
 
-	public final static int COMMUTER_DB = 20;
+	public final static int VERBOSE_DB_8 = 20;
 	
-	public final static int CURRENT_DB_VERSION = COMMUTER_DB;
+	public final static int CURRENT_DB_VERSION = VERBOSE_DB_8;
 	
 	public static final int ALWAYS_POPULATE = 3;
 	public static final int POPULATE_IF_UPGRADE = 2;
@@ -161,7 +161,7 @@ public class DatabaseHelper extends SQLiteOpenHelper
 			populateFavorites(favorites, true, db);
 		}
 
-		if (oldVersion < VERBOSE_DB_3)
+		if (oldVersion < VERBOSE_DB_8)
 		{
 			db.execSQL("DROP TABLE IF EXISTS " + directionsTable);
 			db.execSQL("DROP TABLE IF EXISTS " + stopsTable);
