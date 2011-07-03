@@ -16,6 +16,7 @@ import android.widget.Toast;
 import boston.Bus.Map.database.DatabaseHelper;
 import boston.Bus.Map.main.Main;
 import boston.Bus.Map.transit.NextBusTransitSource;
+import boston.Bus.Map.transit.TransitSystem;
 
 public class SearchHelper
 {
@@ -28,15 +29,17 @@ public class SearchHelper
 	
 	private boolean queryContainsRoute;
 	private boolean queryContainsStop;
+	private final TransitSystem transitSystem;
 	
 	public SearchHelper(Main context, String[] dropdownRoutes, HashMap<String, String> dropdownRouteKeysToTitles,
-			MapView mapView, String query, DatabaseHelper databaseHelper)
+			MapView mapView, String query, DatabaseHelper databaseHelper, TransitSystem transitSystem)
 	{
 		this.context = context;
 		this.dropdownRoutes = dropdownRoutes;
 		this.dropdownRouteKeysToTitles = dropdownRouteKeysToTitles;
 		this.query = query;
 		this.databaseHelper = databaseHelper;
+		this.transitSystem = transitSystem;
 	}
 	
 	/**
@@ -195,50 +198,53 @@ public class SearchHelper
 
 	private int getAsRoute(String indexingQuery, String lowercaseQuery)
 	{
-		//TODO: don't hard code this
-		if ("sl1".equals(lowercaseQuery) || 
-				"sl2".equals(lowercaseQuery) ||
-				"sl".equals(lowercaseQuery) ||
-				"sl4".equals(lowercaseQuery) ||
-				"sl5".equals(lowercaseQuery))
+		String route = transitSystem.searchForRoute(indexingQuery, lowercaseQuery);
+		if (route != null)
 		{
-			lowercaseQuery = "silverline" + lowercaseQuery;
-		}
-		else if (lowercaseQuery.startsWith("silver") && lowercaseQuery.contains("line") == false)
-		{
-			//ugh, what a hack
-			lowercaseQuery = lowercaseQuery.substring(0, 6) + "line" + lowercaseQuery.substring(6);
-		}
-		
-		int position = Arrays.asList(dropdownRoutes).indexOf(indexingQuery);
-
-		if (position != -1)
-		{
-			return position;
-		}
-		else
-		{
-			//try the titles
 			for (int i = 0; i < dropdownRoutes.length; i++)
 			{
-				String title = dropdownRouteKeysToTitles.get(dropdownRoutes[i]);
-				if (title != null)
+				String potentialRoute = dropdownRoutes[i];
+				if (route.equals(potentialRoute))
 				{
-					String titleWithoutSpaces = title.toLowerCase().replaceAll(" ", "");
-					if (titleWithoutSpaces.equals(lowercaseQuery))
-					{
-						return i;
-					}
+					return i;
 				}
 			}
-			
-			//no match
-			return -1;
 		}
+		return -1;
 	}
 
 	public String getSuggestionsQuery()
 	{
 		return suggestionsQuery;
+	}
+
+	public static String naiveSearch(String indexingQuery, String lowercaseQuery, String[] routes,
+			HashMap<String, String> routeKeysToTitles)
+	{
+		int position = Arrays.asList(routes).indexOf(indexingQuery);
+
+		if (position != -1)
+		{
+			return routes[position];
+		}
+		else
+		{
+			//try the titles
+			for (int i = 0; i < routes.length; i++)
+			{
+				String title = routeKeysToTitles.get(routes[i]);
+				if (title != null)
+				{
+					String titleWithoutSpaces = title.toLowerCase().replaceAll(" ", "");
+					if (titleWithoutSpaces.equals(lowercaseQuery))
+					{
+						return routes[i];
+					}
+				}
+			}
+			
+			//no match
+			return null;
+		}
 	}
 }

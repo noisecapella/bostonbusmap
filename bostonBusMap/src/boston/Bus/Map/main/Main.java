@@ -170,6 +170,7 @@ public class Main extends MapActivity
 	
 	private ProgressDialog progressDialog;
 	private DatabaseHelper databaseHelper;
+	private TransitSystem transitSystem;
 	
 	public static final int VEHICLE_LOCATIONS_ALL = 1;
 	public static final int BUS_PREDICTIONS_ONE = 2;
@@ -243,7 +244,7 @@ public class Main extends MapActivity
         
         busStop = resources.getDrawable(R.drawable.busstop_statelist);
         
-        final TransitSystem transitSystem = new TransitSystem();
+        transitSystem = new TransitSystem();
         transitSystem.setDefaultTransitSource(busStop, busPicture, arrow, rail, railArrow);
         
         SpinnerAdapter modeSpinnerAdapter = makeModeSpinner(); 
@@ -864,7 +865,7 @@ public class Main extends MapActivity
 
 			
 			final SearchHelper helper = new SearchHelper(this, dropdownRoutes, dropdownRouteKeysToTitles, mapView, query, 
-				databaseHelper);
+				databaseHelper, transitSystem);
 			helper.runSearch(new Runnable()
 			{
 				@Override
