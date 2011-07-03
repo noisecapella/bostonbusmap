@@ -46,6 +46,10 @@ import com.google.android.maps.OverlayItem;
  */
 public class BalloonOverlayView<Item extends OverlayItem> extends FrameLayout {
 
+	/**
+	 * The current max width of the popup in density pixels
+	 */
+	private static final float MAX_WIDTH = 480;
 	protected LinearLayout layout;
 	private TextView title;
 	private TextView snippet;
@@ -88,7 +92,7 @@ public class BalloonOverlayView<Item extends OverlayItem> extends FrameLayout {
 		
 		if (widthSpecMode == MeasureSpec.AT_MOST)
 		{
-			widthSpecSize = Math.min(widthSpecSize, (int)(480 * density));
+			widthSpecSize = Math.min(widthSpecSize, (int)(MAX_WIDTH * density));
 		}
 		widthMeasureSpec = MeasureSpec.makeMeasureSpec(widthSpecSize, widthSpecMode);
 		
