@@ -188,8 +188,9 @@ public class CommuterRailPredictionsFeedParser
 					//first, see if there's a subway car which pretty much matches an old BusLocation
 					BusLocation busLocation = null;
 
+					String heading = getItem("Heading", array);
 					busLocation = new BusLocation(lat, lon,
-							vehicleId, epochTime, currentMillis, null, true, direction, null, rail, 
+							vehicleId, epochTime, currentMillis, heading, true, direction, null, rail, 
 							railArrow, route, directions, route + " at " + stopLocation.getTitle(), true, false, arrowTopDiff);
 					busMapping.put(vehicleId, busLocation);
 
