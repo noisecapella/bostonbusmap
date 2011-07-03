@@ -120,32 +120,8 @@ public class SearchHelper
 		final String finalLowercaseQuery = lowercaseQuery;
 		final String finalIndexingQuery = indexingQuery;
 		final String finalPrintableQuery = printableQuery;
-		if (queryContainsRoute == false && queryContainsStop == false)
-		{
-			//route or stop? maybe both? if both, pop up a choice to the user
-			AlertDialog.Builder builder = new AlertDialog.Builder(context);
-			builder.setTitle("Is this a stop or route?");
-			builder.setItems(new String[] {"Route " + indexingQuery, "Stop " + indexingQuery},
-					new DialogInterface.OnClickListener() {
-				public void onClick(DialogInterface dialog, int item) {
-					if (item == 0)
-					{
-						queryContainsRoute = true;
-					}
-					else
-					{
-						queryContainsStop = true;
-					}
-					
-					returnResults(onFinish, finalIndexingQuery, finalLowercaseQuery, finalPrintableQuery);
-				}
-			});
-			builder.show();
-		}
-		else
-		{
-			returnResults(onFinish, finalIndexingQuery, finalLowercaseQuery, finalPrintableQuery);
-		}
+
+		returnResults(onFinish, finalIndexingQuery, finalLowercaseQuery, finalPrintableQuery);
 	}
 
 	private void returnResults(Runnable onFinish, String indexingQuery, String lowercaseQuery, String printableQuery) {
