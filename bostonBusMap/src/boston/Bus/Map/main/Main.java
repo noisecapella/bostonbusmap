@@ -517,7 +517,7 @@ public class Main extends MapActivity
     	{
     		return VEHICLE_LOCATIONS_ALL;
     	}
-    	elsehttp://www.yahoo.com/
+    	else
     	{
     		return modesSupported[pos];
     	}
