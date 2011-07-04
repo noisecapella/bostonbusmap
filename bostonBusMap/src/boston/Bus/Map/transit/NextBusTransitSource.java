@@ -3,6 +3,7 @@ package boston.Bus.Map.transit;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
@@ -30,6 +31,7 @@ import boston.Bus.Map.parser.RouteConfigFeedParser;
 import boston.Bus.Map.parser.VehicleLocationsFeedParser;
 import boston.Bus.Map.ui.ProgressMessage;
 import boston.Bus.Map.util.DownloadHelper;
+import boston.Bus.Map.util.SearchHelper;
 import boston.Bus.Map.util.StreamCounter;
 
 /**
@@ -348,12 +350,16 @@ public abstract class NextBusTransitSource implements TransitSource
 
 	@Override
 	public StopLocation createStop(float lat, float lon, String stopTag,
-			String title, int platformOrder, String branch, String route,
-			String dirTag) {
+			String title, int platformOrder, String branch, String route, String dirTag)
+	{
 		StopLocation stop = new StopLocation(lat, lon, busStop, stopTag, title);
 		stop.addRouteAndDirTag(route, dirTag);
 		return stop;
 	}
 
-
+	@Override
+	public String searchForRoute(String indexingQuery, String lowercaseQuery)
+	{
+		return SearchHelper.naiveSearch(indexingQuery, lowercaseQuery, routes, routeKeysToTitles);
+	}
 }

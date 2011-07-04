@@ -35,6 +35,7 @@ import boston.Bus.Map.parser.SubwayRouteConfigFeedParser;
 import boston.Bus.Map.parser.VehicleLocationsFeedParser;
 import boston.Bus.Map.ui.ProgressMessage;
 import boston.Bus.Map.util.DownloadHelper;
+import boston.Bus.Map.util.SearchHelper;
 
 public class SubwayTransitSource implements TransitSource {
 	private static String predictionsUrlSuffix = ".txt";
@@ -302,5 +303,12 @@ public class SubwayTransitSource implements TransitSource {
 	{
 		//do nothing
 		
+	}
+
+
+	@Override
+	public String searchForRoute(String indexingQuery, String lowercaseQuery)
+	{
+		return SearchHelper.naiveSearch(indexingQuery, lowercaseQuery, subwayRoutes, subwayRouteKeysToTitles);
 	}
 }

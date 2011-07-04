@@ -2,48 +2,60 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
 	android:layout_width="wrap_content" android:layout_height="wrap_content"
 	android:padding="3dp" android:background="#000000">
-
-
-
-	<EditText android:layout_width="wrap_content" android:id="@+id/searchTextView"
-		android:hint="@string/searchHint" android:layout_alignParentLeft="true"
-		android:inputType="text" android:imeActionId="1" android:imeOptions="actionGo"
-		android:focusable="false" android:focusableInTouchMode="false"
-		android:layout_height="wrap_content" android:textSize="16sp"></EditText>
+	<RelativeLayout android:layout_width="fill_parent" android:layout_height="wrap_content"
+android:id="@+id/linearLayoutMain" android:gravity="right">
 
 	<Spinner android:id="@+id/predictionsOrLocations"
 		
 		android:layout_height="wrap_content" android:layout_width="wrap_content"
-		android:layout_alignParentRight="true" android:layout_alignTop="@+id/searchTextView"
-		android:layout_alignParentBottom="@+id/searchTextView" android:background="@android:drawable/btn_default"></Spinner>
+		 android:background="@android:drawable/btn_default"
+		 android:layout_alignParentRight="true"
+		></Spinner>
 
-	<ImageButton android:layout_width="wrap_content"
-		android:layout_height="wrap_content" android:id="@+id/searchButton"
-		android:layout_toRightOf="@+id/searchTextView" 
-		android:layout_alignBottom="@+id/searchTextView"
-		android:layout_alignTop="@+id/searchTextView"
-android:src="@drawable/ic_btn_search"
-		></ImageButton>
- 
+    <ProgressBar android:id="@+id/progress"
+	android:layout_width="wrap_content" android:layout_height="wrap_content"
+	
+	android:indeterminateOnly="true" android:indeterminate="true"
+	android:layout_toLeftOf="@+id/predictionsOrLocations"
+	 />
+
+
+	<TableLayout android:layout_width="wrap_content" android:layout_height="wrap_content"
+	android:id="@+id/linearLayoutMainSmall" android:layout_toLeftOf="@+id/progress"
+	android:layout_alignParentLeft="true"
+	android:shrinkColumns="0"
+	>
+	<TableRow>
+	<EditText android:layout_width="wrap_content" android:id="@+id/searchTextView"
+		android:hint="@string/searchHint" android:inputType="text"
+		android:imeActionId="1" android:imeOptions="actionGo"
+		android:focusable="false" android:focusableInTouchMode="false"
+		android:layout_height="wrap_content" android:textSize="16sp"
+		
+		android:ellipsize="end" android:text="asjdwijfoiewjfoiewjfoiewjfoiewjfoiewjfoiewj"
+		></EditText>
+		<ImageButton android:layout_width="wrap_content"
+			android:layout_height="wrap_content" android:id="@+id/searchButton"
+			android:src="@drawable/ic_btn_search"
+			
+			
+			></ImageButton></TableRow>
+		</TableLayout>
+</RelativeLayout>
+
 	<com.google.android.maps.MapView
 		android:id="@+id/mapview" android:layout_width="fill_parent"
 		android:layout_height="fill_parent" android:clickable="true"
 		android:layout_alignParentBottom="true"
-		android:layout_below="@id/predictionsOrLocations"
+		android:layout_below="@+id/linearLayoutMain"
 		
 		android:apiKey="04_mZq9Q_5sL2pltlDIYof4iIQimS_U5YPnRafg"
 		 />
 	<!-- debug key: 0UeumldxhB0bPpe6UgModFrG5tLPAwclzgqJhRg -->
 	<!-- release key: 04_mZq9Q_5sL2pltlDIYof4iIQimS_U5YPnRafg -->
 
-    <ProgressBar android:id="@+id/progress"
-	android:layout_width="wrap_content" android:layout_height="wrap_content"
-	android:layout_toLeftOf="@+id/predictionsOrLocations"
-	android:indeterminateOnly="true" android:indeterminate="true"
-	android:layout_alignBottom="@+id/predictionsOrLocations"
-	android:layout_alignTop="@+id/predictionsOrLocations" />
 
 <!-- 
-		 -->
+		android:text="asjdwijfoiewjfoiewjfoiewjfoiewjfoiewjfoiewj" -->
 
 </RelativeLayout>
