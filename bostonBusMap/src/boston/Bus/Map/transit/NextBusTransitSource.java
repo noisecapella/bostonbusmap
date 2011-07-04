@@ -24,6 +24,7 @@ import boston.Bus.Map.data.Locations;
 import boston.Bus.Map.data.RouteConfig;
 import boston.Bus.Map.data.RoutePool;
 import boston.Bus.Map.data.StopLocation;
+import boston.Bus.Map.data.SubwayStopLocation;
 import boston.Bus.Map.main.Main;
 import boston.Bus.Map.main.UpdateAsyncTask;
 import boston.Bus.Map.parser.BusPredictionsFeedParser;
@@ -241,7 +242,7 @@ public abstract class NextBusTransitSource implements TransitSource
 
 		for (Location location : locations)
 		{
-			if (location instanceof StopLocation)
+			if ((location instanceof StopLocation) && !(location instanceof SubwayStopLocation))
 			{
 				StopLocation stopLocation = (StopLocation)location;
 				stopLocation.createBusPredictionsUrl(transitSystem, urlString, route);
