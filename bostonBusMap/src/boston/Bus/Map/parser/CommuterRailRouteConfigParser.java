@@ -422,7 +422,7 @@ public class CommuterRailRouteConfigParser
 			StopLocation stopLocation = route.getStop(stopTag);
 			if (stopLocation == null)
 			{
-				stopLocation = new SubwayStopLocation(lat, lon, busStop, stopTag, stopTitle, platformOrder, branch);
+				stopLocation = new SubwayStopLocation(lat, lon, busStop, stopTag, stopTitle, platformOrder, branch, true);
 				route.addStop(stopTag, stopLocation);
 			}
 			

@@ -15,13 +15,20 @@ public class SubwayStopLocation extends StopLocation {
 	 */
 	private String branch;
 
+	/**
+	 * Mark that these predictions are experimental
+	 */
+	private boolean isBeta;
+	
 	public SubwayStopLocation(float latitudeAsDegrees,
 			float longitudeAsDegrees, Drawable busStop, String tag,
-			String title, int platformOrder, String branch) {
+			String title, int platformOrder, String branch, boolean isBeta)
+	{
 		super(latitudeAsDegrees, longitudeAsDegrees, busStop, tag, title);
 		
 		this.platformOrder = platformOrder;
 		this.branch = branch;
+		this.isBeta = isBeta;
 
 	}
 	
@@ -34,5 +41,9 @@ public class SubwayStopLocation extends StopLocation {
 		return branch;
 	}
 
-
+	@Override
+	public boolean isBeta()
+	{
+		return isBeta;
+	}
 }

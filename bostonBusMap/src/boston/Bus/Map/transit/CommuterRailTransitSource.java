@@ -354,7 +354,7 @@ public class CommuterRailTransitSource implements TransitSource {
 			String title, int platformOrder, String branch, String route,
 			String dirTag) {
 		SubwayStopLocation stopLocation = new SubwayStopLocation(lat, lon, busStop, stopTag, title,
-				platformOrder, branch);
+				platformOrder, branch, true);
 		stopLocation.addRouteAndDirTag(route, dirTag);
 		return stopLocation;
 	}

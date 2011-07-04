@@ -22,6 +22,7 @@ import android.graphics.drawable.Drawable;
 import android.text.format.Time;
 import android.util.Log;
 import boston.Bus.Map.data.BusLocation;
+import boston.Bus.Map.data.CommuterRailPrediction;
 import boston.Bus.Map.data.Directions;
 import boston.Bus.Map.data.Prediction;
 import boston.Bus.Map.data.RouteConfig;
@@ -162,7 +163,7 @@ public class CommuterRailPredictionsFeedParser
 				}
 
 				
-				predictions.add(new Prediction(minutes, vehicleId, directions.getTitleAndName(direction),
+				predictions.add(new CommuterRailPrediction(minutes, vehicleId, directions.getTitleAndName(direction),
 						routeConfig.getRouteName(), false, false, lateness));
 				stopLocations.add(stopLocation);
 

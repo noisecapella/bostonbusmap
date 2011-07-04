@@ -148,13 +148,31 @@ public class StopLocation implements Location
 	@Override
 	public String getSnippet()
 	{
-		if (predictions != null)
+		if (isBeta() == false)
 		{
-			return predictions.getSnippetPredictions();
+			if (predictions != null)
+			{
+				return predictions.getSnippetPredictions();
+			}
+			else
+			{
+				return null;
+			}
 		}
 		else
 		{
-			return null;
+			StringBuilder ret = new StringBuilder();
+			ret.append("<font color='red' size='1'>Commuter rail predictions are experimental</font>");
+			if (predictions != null)
+			{
+				 String predictionsString = predictions.getSnippetPredictions();
+				 if (predictionsString != null)
+				 {
+					 ret.append("<br />").append(predictionsString);
+				 }
+			}
+			return ret.toString();
+
 		}
 	}
 	
@@ -394,5 +412,14 @@ public class StopLocation implements Location
 		{
 			return null;
 		}
+	}
+	
+	/**
+	 * Are these predictions experimental?
+	 * @return
+	 */
+	public boolean isBeta()
+	{
+		return false;
 	}
 }

@@ -41,6 +41,7 @@ public class MoreInfo extends ListActivity {
 	
 	public static final String textKey = "text";
 	public static final String routeTextKey = "routeText";
+	public static final String stopIsBetaKey = "stopIsBeta";
 	
 	
 	private Prediction[] predictions;
@@ -74,6 +75,7 @@ public class MoreInfo extends ListActivity {
 		
 		String[] keys = extras.getStringArray(routeKeysKey);
 		String[] titles = extras.getStringArray(routeTitlesKey);
+		boolean stopIsBeta = extras.getBoolean(stopIsBetaKey);
 		
 		routeKeysToTitles = new HashMap<String, String>();
 		for (int i = 0; i < keys.length; i++)
@@ -146,6 +148,11 @@ public class MoreInfo extends ListActivity {
 			String routesText = StringUtil.join(routes, ", ");
 			titleText2.append("<br />Routes: ").append(routesText);
 			
+		}
+		
+		if (stopIsBeta)
+		{
+			titleText2.append("<br /><font color='red'>Commuter rail predictions are experimental</font>");
 		}
 		
 		title1.setText(Html.fromHtml("<b>" + titleText1 + "</b>"));

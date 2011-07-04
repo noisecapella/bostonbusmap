@@ -36,13 +36,13 @@ import android.text.style.TypefaceSpan;
 public class Prediction implements Comparable<Prediction>, Parcelable
 {
 	public static final int NULL_LATENESS = -1;
-	private final int vehicleId;
-	private final String direction;
-	private final String routeName;
-	private final long arrivalTimeMillis;
-	private final boolean affectedByLayover;
-	private final boolean isDelayed;
-	private final int lateness;
+	protected final int vehicleId;
+	protected final String direction;
+	protected final String routeName;
+	protected final long arrivalTimeMillis;
+	protected final boolean affectedByLayover;
+	protected final boolean isDelayed;
+	protected final int lateness;
 	
 	public Prediction(int minutes, int vehicleId,
 			String direction, String routeName, boolean affectedByLayover, boolean isDelayed, int lateness)
@@ -90,11 +90,6 @@ public class Prediction implements Comparable<Prediction>, Parcelable
 			if (affectedByLayover)
 			{
 				//hmm...
-			}
-			
-			if (lateness != NULL_LATENESS)
-			{
-				builder.append("<br />Seconds late: ").append(lateness);
 			}
 			
 			if (minutes == 0)

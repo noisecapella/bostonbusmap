@@ -297,7 +297,7 @@ public class SubwayTransitSource implements TransitSource {
 	@Override
 	public StopLocation createStop(float lat, float lon, String stopTag, String title,
 			int platformOrder, String branch, String route, String dirTag) {
-		SubwayStopLocation stop = new SubwayStopLocation(lat, lon, busStop, stopTag, title, platformOrder, branch);
+		SubwayStopLocation stop = new SubwayStopLocation(lat, lon, busStop, stopTag, title, platformOrder, branch, false);
 		stop.addRouteAndDirTag(route, dirTag);
 		return stop;
 	}
