@@ -122,7 +122,7 @@ public class SubwayRouteConfigFeedParser
 			String branch = elements[indexes.get("Branch")];
 
 			StopLocation stopLocation = new SubwayStopLocation(latitudeAsDegrees, longitudeAsDegrees,
-					busStop, tag, title, platformOrder, branch, false);
+					busStop, tag, title, platformOrder, branch);
 
 			String dirTag = routeConfig.getRouteName() + elements[indexes.get("Direction")];
 			stopLocation.addRouteAndDirTag(routeConfig.getRouteName(), dirTag);

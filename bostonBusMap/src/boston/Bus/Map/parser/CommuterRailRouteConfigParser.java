@@ -12,6 +12,7 @@ import java.util.TreeMap;
 import skylight1.opengl.files.QuickParseUtil;
 
 import android.graphics.drawable.Drawable;
+import boston.Bus.Map.data.CommuterRailStopLocation;
 import boston.Bus.Map.data.Directions;
 import boston.Bus.Map.data.Path;
 import boston.Bus.Map.data.RouteConfig;
@@ -422,7 +423,7 @@ public class CommuterRailRouteConfigParser
 			StopLocation stopLocation = route.getStop(stopTag);
 			if (stopLocation == null)
 			{
-				stopLocation = new SubwayStopLocation(lat, lon, busStop, stopTag, stopTitle, platformOrder, branch, true);
+				stopLocation = new CommuterRailStopLocation(lat, lon, busStop, stopTag, stopTitle, platformOrder, branch);
 				route.addStop(stopTag, stopLocation);
 			}
 			

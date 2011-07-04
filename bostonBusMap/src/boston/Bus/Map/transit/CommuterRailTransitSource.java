@@ -21,6 +21,7 @@ import android.content.Context;
 import android.graphics.drawable.Drawable;
 import android.util.Log;
 import boston.Bus.Map.data.BusLocation;
+import boston.Bus.Map.data.CommuterRailStopLocation;
 import boston.Bus.Map.data.Directions;
 import boston.Bus.Map.data.Location;
 import boston.Bus.Map.data.Locations;
@@ -353,8 +354,8 @@ public class CommuterRailTransitSource implements TransitSource {
 	public StopLocation createStop(float lat, float lon, String stopTag,
 			String title, int platformOrder, String branch, String route,
 			String dirTag) {
-		SubwayStopLocation stopLocation = new SubwayStopLocation(lat, lon, busStop, stopTag, title,
-				platformOrder, branch, true);
+		SubwayStopLocation stopLocation = new CommuterRailStopLocation(lat, lon, busStop, stopTag, title,
+				platformOrder, branch);
 		stopLocation.addRouteAndDirTag(route, dirTag);
 		return stopLocation;
 	}
