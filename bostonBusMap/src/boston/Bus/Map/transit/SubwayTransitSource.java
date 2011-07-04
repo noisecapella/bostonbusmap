@@ -134,7 +134,7 @@ public class SubwayTransitSource implements TransitSource {
 
 			//bus prediction
 
-			SubwayPredictionsFeedParser parser = new SubwayPredictionsFeedParser(route, routePool, directions, rail, railArrow, busMapping);
+			SubwayPredictionsFeedParser parser = new SubwayPredictionsFeedParser(route, routePool, directions, rail, railArrow, busMapping, subwayRouteKeysToTitles);
 
 			parser.runParse(data);
 		}

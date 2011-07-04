@@ -197,7 +197,7 @@ public class CommuterRailTransitSource implements TransitSource {
 			String route = outputRoutes.get(i);
 			RouteConfig railRouteConfig = routePool.get(route);
 			CommuterRailPredictionsFeedParser parser = new CommuterRailPredictionsFeedParser(railRouteConfig, directions,
-					rail, railArrow, busMapping);
+					rail, railArrow, busMapping, routeKeysToTitles);
 
 			parser.runParse(data);
 			data.close();

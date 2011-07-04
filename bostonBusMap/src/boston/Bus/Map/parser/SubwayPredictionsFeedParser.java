@@ -43,6 +43,7 @@ public class SubwayPredictionsFeedParser
 	private final Drawable railArrow;
 	
 	private final ConcurrentHashMap<Integer, BusLocation> busMapping;
+	private final HashMap<String, String> routeKeysToTitles;
 	
 	private static final int ROUTE_INDEX = 0;
 	private static final int TRIP_ID_INDEX = 1;
@@ -54,7 +55,7 @@ public class SubwayPredictionsFeedParser
 	private static final int BRANCH_INDEX = 7;
 	
 	public SubwayPredictionsFeedParser(String route, RoutePool routePool, Directions directions, Drawable bus, Drawable railArrow, 
-			ConcurrentHashMap<Integer, BusLocation> busMapping)
+			ConcurrentHashMap<Integer, BusLocation> busMapping, HashMap<String, String> routeKeysToTitles)
 	{
 		this.currentRoute = route;
 		this.routePool = routePool;
@@ -62,6 +63,7 @@ public class SubwayPredictionsFeedParser
 		this.rail = bus;
 		this.railArrow = railArrow;
 		this.busMapping = busMapping;
+		this.routeKeysToTitles = routeKeysToTitles;
 		
 		format = new SimpleDateFormat("M/d/y K:m:s");
 		format.setTimeZone(TransitSystem.getTimeZone());
@@ -193,9 +195,15 @@ public class SubwayPredictionsFeedParser
 						id = -1;
 					}
 
+					String routeTitle = routeKeysToTitles.get(route);
+					if (routeTitle == null)
+					{
+						routeTitle = route;
+					}
+
 					busLocation = new BusLocation(stopLocation.getLatitudeAsDegrees(), stopLocation.getLongitudeAsDegrees(),
 							id, lastFeedUpdateTime, currentMillis, null, true, direction, null, rail, 
-							railArrow, route, directions, route + " at " + stopLocation.getTitle(), true, false, arrowTopDiff);
+							railArrow, route, directions, routeTitle + " at " + stopLocation.getTitle(), true, false, arrowTopDiff);
 					busMapping.put(id, busLocation);
 
 					toRemove.remove(id);

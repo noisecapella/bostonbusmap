@@ -46,15 +46,17 @@ public class CommuterRailPredictionsFeedParser
 
 	
 	private final ConcurrentHashMap<Integer, BusLocation> busMapping;
+	private final HashMap<String, String> routeKeysToTitles;
 
 	public CommuterRailPredictionsFeedParser(RouteConfig routeConfig, Directions directions, Drawable bus, Drawable railArrow, 
-			ConcurrentHashMap<Integer, BusLocation> busMapping)
+			ConcurrentHashMap<Integer, BusLocation> busMapping, HashMap<String, String> routeKeysToTitles)
 	{
 		this.routeConfig = routeConfig;
 		this.directions = directions;
 		this.rail = bus;
 		this.railArrow = railArrow;
 		this.busMapping = busMapping;
+		this.routeKeysToTitles = routeKeysToTitles;
 
 		format = new SimpleDateFormat("M/d/y K:m:s");
 		format.setTimeZone(TransitSystem.getTimeZone());
@@ -116,12 +118,17 @@ public class CommuterRailPredictionsFeedParser
 				}
 
 				String timeStr = getItem("Scheduled", array);
-				long epochTime = Long.parseLong(timeStr) * 1000;
-				int offset = TransitSystem.getTimeZone().getOffset(epochTime);;
-				epochTime += offset;
+				long scheduledArrivalEpochTime = Long.parseLong(timeStr) * 1000;
+				int offset = TransitSystem.getTimeZone().getOffset(scheduledArrivalEpochTime);
+				scheduledArrivalEpochTime += offset;
 
+				String nowStr = getItem("TimeStamp", array);
+				long nowEpochTime = Long.parseLong(nowStr) * 1000;
+				int nowOffset = TransitSystem.getTimeZone().getOffset(nowEpochTime);
+				nowEpochTime += nowOffset;
+				
 				long currentMillis = TransitSystem.currentTimeMillis();
-				long diff = epochTime - currentMillis;
+				long diff = scheduledArrivalEpochTime - currentMillis;
 				int minutes = (int)(diff / 1000 / 60);
 
 				if (diff < 0 && minutes == 0)
@@ -133,6 +140,10 @@ public class CommuterRailPredictionsFeedParser
 				String direction = getItem("Destination", array);
 				directions.add(direction, direction, "", routeConfig.getRouteName());
 
+				String informationType = getItem("Flag", array);
+
+				int flagEnum = CommuterRailPrediction.toFlagEnum(informationType);
+				
 				int lateness = Prediction.NULL_LATENESS;
 				String latenessStr = getItem("Lateness", array);
 				if (latenessStr.length() != 0)
@@ -164,7 +175,7 @@ public class CommuterRailPredictionsFeedParser
 
 				
 				predictions.add(new CommuterRailPrediction(minutes, vehicleId, directions.getTitleAndName(direction),
-						routeConfig.getRouteName(), false, false, lateness));
+						routeConfig.getRouteName(), false, false, lateness, flagEnum));
 				stopLocations.add(stopLocation);
 
 				float lat = 0;
@@ -182,7 +193,6 @@ public class CommuterRailPredictionsFeedParser
 					//oh well
 				}
 				
-				String informationType = getItem("Flag", array);
 				if (lat != 0 && lon != 0 && vehicleId != 0)
 				{
 					//StopLocation nextStop = getNextStop(routeConfig, stopLocation, direction);
@@ -193,9 +203,15 @@ public class CommuterRailPredictionsFeedParser
 					BusLocation busLocation = null;
 
 					String heading = getItem("Heading", array);
+					String routeTitle = routeKeysToTitles.get(route);
+					if (routeTitle == null)
+					{
+						routeTitle = route;
+					}
+					
 					busLocation = new BusLocation(lat, lon,
-							vehicleId, epochTime, currentMillis, heading, true, direction, null, rail, 
-							railArrow, route, directions, route + " at " + stopLocation.getTitle(), true, false, arrowTopDiff);
+							vehicleId, nowEpochTime, currentMillis, heading, true, direction, null, rail, 
+							railArrow, route, directions, routeTitle + " at " + stopLocation.getTitle(), true, false, arrowTopDiff);
 					busMapping.put(vehicleId, busLocation);
 
 					toRemove.remove(vehicleId);
@@ -236,6 +252,11 @@ public class CommuterRailPredictionsFeedParser
 		}
 	}
 
+
+	private int toFlagEnum(String informationType)
+	{
+		return 0;
+	}
 
 	private String getItem(String key, String[] array)
 	{
