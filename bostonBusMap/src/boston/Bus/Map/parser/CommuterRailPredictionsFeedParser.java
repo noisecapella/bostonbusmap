@@ -151,7 +151,10 @@ public class CommuterRailPredictionsFeedParser
 				try
 				{
 					String idStr = getItem("Vehicle", array);
-					vehicleId = Integer.parseInt(idStr);
+					if (idStr != null && idStr.length() != 0)
+					{
+						vehicleId = Integer.parseInt(idStr);
+					}
 				}
 				catch (NumberFormatException e)
 				{
@@ -179,7 +182,7 @@ public class CommuterRailPredictionsFeedParser
 				}
 				
 				String informationType = getItem("Flag", array);
-				if (lat != 0 && lon != 0)
+				if (lat != 0 && lon != 0 && vehicleId != 0)
 				{
 					//StopLocation nextStop = getNextStop(routeConfig, stopLocation, direction);
 
