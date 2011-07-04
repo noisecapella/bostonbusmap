@@ -37,13 +37,14 @@ import boston.Bus.Map.parser.SubwayPredictionsFeedParser;
 import boston.Bus.Map.parser.SubwayRouteConfigFeedParser;
 import boston.Bus.Map.ui.ProgressMessage;
 import boston.Bus.Map.util.DownloadHelper;
+import boston.Bus.Map.util.SearchHelper;
 
 public class CommuterRailTransitSource implements TransitSource {
 	public static final String stopTagPrefix = "CRK-";
 	private final Drawable busStop;
 	private final Drawable rail;
 	private final Drawable railArrow;
-	private final ArrayList<String> routes = new ArrayList<String>(12);
+	private final String[] routes;
 	private final HashMap<String, String> routeKeysToTitles = new HashMap<String, String>(12);
 	private static final String predictionsUrlSuffix = ".csv";
 	public static final String routeTagPrefix = "CR-";
@@ -58,40 +59,48 @@ public class CommuterRailTransitSource implements TransitSource {
 		this.rail = rail;
 		this.railArrow = railArrow;
 		
-		addRoute(routeTagPrefix + "1","Greenbush");
-		addRoute(routeTagPrefix + "2","Kingston/Plymouth");
-		addRoute(routeTagPrefix + "3","Middleborough/Lakeville");
-		addRoute(routeTagPrefix + "4","Fairmount");
-		addRoute(routeTagPrefix + "5","Providence/Stoughton");
-		addRoute(routeTagPrefix + "6","Franklin");
-		addRoute(routeTagPrefix + "7","Needham");
-		addRoute(routeTagPrefix + "8","Framingham/Worcester");
-		addRoute(routeTagPrefix + "9","Fitchburg/South Acton");
-		addRoute(routeTagPrefix + "10","Lowell");
-		addRoute(routeTagPrefix + "11","Haverhill");
-		addRoute(routeTagPrefix + "12","Newburyport/Rockport");
+		String[] routeNames = new String[] {
+				"Greenbush",
+				"Kingston/Plymouth",
+				"Middleborough/Lakeville",
+				"Fairmount",
+				"Providence/Stoughton",
+				"Franklin",
+				"Needham",
+				"Framingham/Worcester",
+				"Fitchburg/South Acton",
+				"Lowell",
+				"Haverhill",
+				"Newburyport/Rockport"
+
+		};
 		
-		addAlert(routeTagPrefix + "1", 232);
-		addAlert(routeTagPrefix + "2", 12);
-		addAlert(routeTagPrefix + "3", 9);
-		addAlert(routeTagPrefix + "4", 1);
-		addAlert(routeTagPrefix + "5", 14);
-		addAlert(routeTagPrefix + "6", 5);
-		addAlert(routeTagPrefix + "7", 10);
-		addAlert(routeTagPrefix + "8", 4);
-		addAlert(routeTagPrefix + "9", 2);
-		addAlert(routeTagPrefix + "10", 8);
-		addAlert(routeTagPrefix + "11", 7);
-		addAlert(routeTagPrefix + "12", 11);
+		//map alert keys to numbers
+		int[] alertNumbers = new int[] {
+				232, 12, 9, 1, 14, 5, 10, 4, 2, 8, 7, 11
+		};
+		
+		routes = new String[routeNames.length];
+		
+		for (int i = 0; i < routeNames.length; i++)
+		{
+			addRoute(routeTagPrefix + (i+1), routeNames[i], i);
+		}
+
+		
+		for (int i = 0; i < alertNumbers.length; i++)
+		{
+			addAlert(routeTagPrefix + (i+1), alertNumbers[i]);
+		}
 	}
 	
 	private void addAlert(String routeKey, int alertNum) {
 		routeKeysToAlertUrls.put(routeKey, alertUrlPrefix + alertNum);
 	}
 
-	private void addRoute(String key, String title) {
+	private void addRoute(String key, String title, int index) {
 		routeKeysToTitles.put(key, title);
-		routes.add(key);
+		routes[index] = key;
 	}
 
 	public static String getRouteConfigUrl()
@@ -321,7 +330,7 @@ public class CommuterRailTransitSource implements TransitSource {
 
 	@Override
 	public String[] getRoutes() {
-		return routes.toArray(new String[0]);
+		return routes;
 	}
 
 	@Override
@@ -350,4 +359,27 @@ public class CommuterRailTransitSource implements TransitSource {
 		//do nothing
 	}
 
+	@Override
+	public String searchForRoute(String indexingQuery, String lowercaseQuery)
+	{
+		//try splitting up the route keys along the diagonal and see if they match one piece of it
+		for (String route : routeKeysToTitles.keySet())
+		{
+			String title = routeKeysToTitles.get(route);
+			if (title.contains("/"))
+			{
+				String[] pieces = title.split("/");
+				for (int i = 0; i < pieces.length; i++)
+				{
+					if (lowercaseQuery.equals(pieces[i].toLowerCase()))
+					{
+						return route;
+					}
+				}
+			}
+		}
+		
+		return SearchHelper.naiveSearch(indexingQuery, lowercaseQuery, routes, routeKeysToTitles);
+		
+	}
 }
