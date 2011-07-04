@@ -32,7 +32,7 @@ android:id="@+id/linearLayoutMain" android:gravity="right">
 		android:focusable="false" android:focusableInTouchMode="false"
 		android:layout_height="wrap_content" android:textSize="16sp"
 		
-		android:ellipsize="end" android:text="asjdwijfoiewjfoiewjfoiewjfoiewjfoiewjfoiewj"
+		android:ellipsize="end" 
 		></EditText>
 		<ImageButton android:layout_width="wrap_content"
 			android:layout_height="wrap_content" android:id="@+id/searchButton"
