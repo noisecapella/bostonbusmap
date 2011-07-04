@@ -87,6 +87,12 @@ public class SubwayTransitSource implements TransitSource {
 			Locations locationsObj)
 			throws IOException, ParserConfigurationException, SAXException {
 		//read data from the URL
+		if (selectedBusPredictions == Main.VEHICLE_LOCATIONS_ALL)
+		{
+			//for now I'm only refreshing data for buses if this is checked
+			return;
+		}
+		
 		
 		Log.v("BostonBusMap", "refreshing subway data");
 		HashSet<String> outputRoutes = new HashSet<String>();

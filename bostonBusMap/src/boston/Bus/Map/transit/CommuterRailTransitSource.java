@@ -143,6 +143,12 @@ public class CommuterRailTransitSource implements TransitSource {
 			Locations locationsObj) throws IOException,
 			ParserConfigurationException, SAXException
 	{
+		if (selectedBusPredictions == Main.VEHICLE_LOCATIONS_ALL)
+		{
+			//for now I'm only refreshing data for buses if this is checked
+			return;
+		}
+		
 		ArrayList<String> outputUrls = new ArrayList<String>();
 		ArrayList<String> outputAlertUrls = new ArrayList<String>();
 		ArrayList<String> outputRoutes = new ArrayList<String>();
