@@ -47,7 +47,7 @@ public class Predictions
 		snippetRoutes = routes.toArray(new String[0]);
 		snippetTitle = title;
 		snippetStop = tag;
-		if (snippetAlerts == null)
+		if (routeConfig != null)
 		{
 			snippetAlerts = routeConfig.getAlerts();
 		}
