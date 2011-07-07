@@ -203,6 +203,11 @@ public class CommuterRailPredictionsFeedParser
 					BusLocation busLocation = null;
 
 					String heading = getItem("Heading", array);
+					if (heading != null && heading.length() == 0)
+					{
+						heading = null;
+					}
+					
 					String routeTitle = routeKeysToTitles.get(route);
 					if (routeTitle == null)
 					{

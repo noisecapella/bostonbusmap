@@ -392,6 +392,18 @@ public class UpdateAsyncTask extends AsyncTask<Object, Object, Locations>
 	@Override
 	protected void onPostExecute(final Locations busLocationsObject)
 	{
+		try
+		{
+			postExecute(busLocationsObject);
+		}
+		catch (Throwable t)
+		{
+			LogUtil.e(t);
+		}
+	}
+	
+	private void postExecute(final Locations busLocationsObject)
+	{
 		if (busLocationsObject == null)
 		{
 			//we probably posted an error message already; just return
