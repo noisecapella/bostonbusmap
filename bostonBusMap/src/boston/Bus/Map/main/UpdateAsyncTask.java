@@ -50,6 +50,7 @@ import boston.Bus.Map.ui.ProgressMessage;
 import boston.Bus.Map.ui.RouteOverlay;
 import boston.Bus.Map.util.Constants;
 import boston.Bus.Map.util.FeedException;
+import boston.Bus.Map.util.LogUtil;
 
 import com.google.android.maps.GeoPoint;
 import com.google.android.maps.MapView;
@@ -414,6 +415,18 @@ public class UpdateAsyncTask extends AsyncTask<Object, Object, Locations>
 	
 	@Override
 	protected void onPostExecute(final Locations busLocationsObject)
+	{
+		try
+		{
+			postExecute(busLocationsObject);
+		}
+		catch (Throwable t)
+		{
+			LogUtil.e(t);
+		}
+	}
+	
+	private void postExecute(final Locations busLocationsObject)
 	{
 		if (busLocationsObject == null)
 		{
