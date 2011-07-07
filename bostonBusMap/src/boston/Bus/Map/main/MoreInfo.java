@@ -152,7 +152,7 @@ public class MoreInfo extends ListActivity {
 		
 		if (stopIsBeta)
 		{
-			titleText2.append("<br /><font color='red'>Commuter rail predictions are experimental</font>");
+			titleText2.append("</b><br /><font color='red'>Commuter rail predictions are experimental</font><b>");
 		}
 		
 		title1.setText(Html.fromHtml("<b>" + titleText1 + "</b>"));
