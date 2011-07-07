@@ -406,6 +406,10 @@ public class CommuterRailRouteConfigParser
 		{
 			String[] array = line.split(",");
 			String routeTitle = array[indexes.get("route_long_name")];
+			if (routeTitle.endsWith(" Line"))
+			{
+				routeTitle = routeTitle.substring(0, routeTitle.length() - 5);
+			}
 			String routeKey = routeTitlesToKeys.get(routeTitle);
 			RouteConfig route = map.get(routeKey);
 			
