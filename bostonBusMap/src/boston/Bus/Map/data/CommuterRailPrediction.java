@@ -5,9 +5,11 @@ import java.util.Date;
 import java.util.HashMap;
 
 import android.content.Context;
+import android.os.Parcel;
+import android.os.Parcelable;
 import boston.Bus.Map.transit.TransitSystem;
 
-public class CommuterRailPrediction extends Prediction
+public class CommuterRailPrediction extends Prediction implements Parcelable
 {
 	/**
 	 * Record has scheduled time but not the vehicle lateness. May have vehicle ID and position.
@@ -128,5 +130,37 @@ lateness. Used at the trip’s origin.
 		return ret;
 	}
 
+	@Override
+	public void writeToParcel(Parcel dest, int flags) {
+		super.writeToParcel(dest, flags);
+		dest.writeInt(flag);
+	}
 	
+	public static final Creator<CommuterRailPrediction> CREATOR = new Creator<CommuterRailPrediction>() {
+		
+		@Override
+		public CommuterRailPrediction[] newArray(int size) {
+			return new CommuterRailPrediction[size];
+		}
+		
+		@Override
+		public CommuterRailPrediction createFromParcel(Parcel source)
+		{
+			//NOTE: if this changes you must also change Prediction.CREATOR.createFromParcel
+			long arrivalTimeMillis = source.readLong();
+			int vehicleId = source.readInt();
+			String direction = source.readString();
+			String routeName = source.readString();
+			boolean affectedByLayover = readBoolean(source);
+			boolean isDelayed = readBoolean(source);
+			int lateness = source.readInt();
+			
+			int minutes = calcMinutes(arrivalTimeMillis);
+			
+			int flag = source.readInt();
+			
+			CommuterRailPrediction prediction = new CommuterRailPrediction(minutes, vehicleId, direction, routeName, affectedByLayover, isDelayed, lateness, flag);
+			return prediction;
+		}
+	};
 }

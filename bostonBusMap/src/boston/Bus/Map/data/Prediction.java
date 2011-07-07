@@ -183,6 +183,7 @@ public class Prediction implements Comparable<Prediction>, Parcelable
 		
 		@Override
 		public Prediction createFromParcel(Parcel source) {
+			//NOTE: if this changes you must also change CommuterRailPrediction.CREATOR.createFromParcel
 			long arrivalTimeMillis = source.readLong();
 			int vehicleId = source.readInt();
 			String direction = source.readString();
@@ -212,11 +213,11 @@ public class Prediction implements Comparable<Prediction>, Parcelable
 		return map;
 	}
 
-	private static boolean readBoolean(Parcel source) {
+	protected static boolean readBoolean(Parcel source) {
 		return source.readInt() == 1;
 	}
 	
-	private static void writeBoolean(Parcel dest, boolean data)
+	protected static void writeBoolean(Parcel dest, boolean data)
 	{
 		dest.writeInt(data ? 1 : 0);
 	}
