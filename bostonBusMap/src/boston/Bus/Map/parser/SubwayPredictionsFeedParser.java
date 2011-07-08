@@ -203,7 +203,7 @@ public class SubwayPredictionsFeedParser
 
 					busLocation = new BusLocation(stopLocation.getLatitudeAsDegrees(), stopLocation.getLongitudeAsDegrees(),
 							id, lastFeedUpdateTime, currentMillis, null, true, direction, null, rail, 
-							railArrow, route, directions, routeTitle, true, false, arrowTopDiff);
+							railArrow, route + " at " + stopLocation.getTitle(), directions, routeTitle, true, false, arrowTopDiff);
 					busMapping.put(id, busLocation);
 
 					toRemove.remove(id);
