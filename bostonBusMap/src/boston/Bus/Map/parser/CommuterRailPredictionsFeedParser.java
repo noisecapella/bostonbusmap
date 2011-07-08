@@ -23,6 +23,7 @@ import android.text.format.Time;
 import android.util.Log;
 import boston.Bus.Map.data.BusLocation;
 import boston.Bus.Map.data.CommuterRailPrediction;
+import boston.Bus.Map.data.CommuterTrainLocation;
 import boston.Bus.Map.data.Directions;
 import boston.Bus.Map.data.Prediction;
 import boston.Bus.Map.data.RouteConfig;
@@ -221,9 +222,9 @@ public class CommuterRailPredictionsFeedParser
 						routeTitle = route;
 					}
 					
-					busLocation = new BusLocation(lat, lon,
+					busLocation = new CommuterTrainLocation(lat, lon,
 							vehicleId, nowEpochTime, currentMillis, heading, true, direction, null, rail, 
-							railArrow, route + " at " + stopLocation.getTitle(), directions, routeTitle, true, false, arrowTopDiff);
+							railArrow, route, directions, routeTitle, true, false, arrowTopDiff);
 					busMapping.put(vehicleId, busLocation);
 
 					toRemove.remove(vehicleId);

@@ -237,8 +237,13 @@ public class BusLocation implements Location {
 		return snippetTitle;
 	}
 
+	protected String getBetaWarning()
+	{
+		return "";
+	}
+	
 	private String makeSnippet(RouteConfig routeConfig) {
-		String snippet = "";
+		String snippet = getBetaWarning();
 		if (showBusNumber) {
 			snippet += "Bus number: " + id + "<br />";
 		}
