@@ -279,32 +279,6 @@ public class CommuterRailPredictionsFeedParser
 		return "";
 	}
 
-	public Date parseTime(String time) throws ParseException {
-		Date date = format.parse(time);
-
-		int hour = date.getHours();
-		if (time.endsWith("PM") || time.endsWith("pm"))
-		{
-			if (hour == 12)
-			{
-				//do nothing
-			}
-			else
-			{
-				date.setHours(date.getHours() + 12);
-			}
-
-		}
-		else
-		{
-			if (hour == 12)
-			{
-				date.setHours(0);
-			}
-		}
-		return date;
-	}
-
 	public Map<? extends Integer, ? extends BusLocation> getBusMapping() {
 		return busMapping;
 	}
