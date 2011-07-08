@@ -77,7 +77,14 @@ public class CommuterRailPredictionsFeedParser
 	{
 		BufferedReader reader = new BufferedReader(data);
 
-		String[] definitions = reader.readLine().split(",");
+		String line = reader.readLine();
+		if (line == null)
+		{
+			//bizarre; at least that line should exist
+			return;
+		}
+		
+		String[] definitions = line.split(",");
 		
 		for (int i = 0; i < definitions.length; i++)
 		{
