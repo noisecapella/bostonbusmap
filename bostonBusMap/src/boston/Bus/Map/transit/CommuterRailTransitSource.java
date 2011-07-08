@@ -205,19 +205,25 @@ public class CommuterRailTransitSource implements TransitSource {
 		
 		for (int i = 0; i < outputAlertUrls.size(); i++)
 		{
-			String url = outputAlertUrls.get(i);
-			DownloadHelper downloadHelper = new DownloadHelper(url);
-			downloadHelper.connect();
-			
-			InputStream stream = downloadHelper.getResponseData();
-			InputStreamReader data = new InputStreamReader(stream);
-			
 			String route = outputRoutes.get(i);
 			RouteConfig railRouteConfig = routePool.get(route);
-			AlertParser parser = new AlertParser();
-			parser.runParse(data);
-			railRouteConfig.setAlerts(parser.getAlerts());
-			data.close();
+
+			if (railRouteConfig.obtainedAlerts() == false)
+			{
+
+				String url = outputAlertUrls.get(i);
+				DownloadHelper downloadHelper = new DownloadHelper(url);
+				downloadHelper.connect();
+
+				InputStream stream = downloadHelper.getResponseData();
+				InputStreamReader data = new InputStreamReader(stream);
+
+				AlertParser parser = new AlertParser();
+				parser.runParse(data);
+				railRouteConfig.setAlerts(parser.getAlerts());
+				data.close();
+
+			}
 		}
 		
 	}

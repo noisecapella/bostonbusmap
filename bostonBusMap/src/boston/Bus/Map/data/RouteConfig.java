@@ -34,6 +34,8 @@ public class RouteConfig
 	public static final Path[] nullPaths = new Path[0];
 	private ArrayList<Alert> alerts;
 	
+	private boolean obtainedAlerts;
+	
 	public RouteConfig(String route, int color, int oppositeColor, TransitSource transitAgency) throws IOException
 	{
 		this(route, color, oppositeColor, transitAgency, null);
@@ -134,10 +136,15 @@ public class RouteConfig
 	public void setAlerts(ArrayList<Alert> alerts)
 	{
 		this.alerts = alerts;
+		obtainedAlerts = true;
 	}
 	
 	public ArrayList<Alert> getAlerts()
 	{
 		return alerts;
+	}
+
+	public boolean obtainedAlerts() {
+		return obtainedAlerts;
 	}
 }
