@@ -516,7 +516,7 @@ public class Main extends MapActivity
     	int pos = toggleButton.getSelectedItemPosition();
     	if (pos < 0 || pos >= modesSupported.length)
     	{
-    		return VEHICLE_LOCATIONS_ALL;
+    		return VEHICLE_LOCATIONS_ONE;
     	}
     	else
     	{
