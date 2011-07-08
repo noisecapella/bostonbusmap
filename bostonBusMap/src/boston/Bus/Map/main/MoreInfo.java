@@ -148,6 +148,7 @@ public class MoreInfo extends ListActivity {
 			String[] routeTitles = new String[routes.length];
 			for (int i = 0; i < routes.length; i++)
 			{
+				String route = routes[i];
 				routeTitles[i] = routeKeysToTitles.get(route);
 			}
 			String routesText = StringUtil.join(routeTitles, ", ");
