@@ -145,7 +145,13 @@ public class MoreInfo extends ListActivity {
 		if (routes != null)
 		{
 			titleText2.append("<br />Stop ids: ").append(stopTags);
-			String routesText = StringUtil.join(routes, ", ");
+			String routeTitles = new String[routes.length];
+			for (int i = 0; i < routes.length; i++)
+			{
+				routeTitles[i] = routeKeysToTitles.get(route);
+			}
+			String routesText = StringUtil.join(routeTitles, ", ");
+			
 			titleText2.append("<br />Routes: ").append(routesText);
 			
 		}

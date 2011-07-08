@@ -379,7 +379,7 @@ public class Main extends MapActivity
             int centerLon = prefs.getInt(centerLonKey, Integer.MAX_VALUE);
             int zoomLevel = prefs.getInt(zoomLevelKey, Integer.MAX_VALUE);
             selectedRouteIndex = prefs.getInt(selectedRouteIndexKey, 0);
-            setSelectedBusPredictions(prefs.getInt(selectedBusPredictionsKey, VEHICLE_LOCATIONS_ALL));
+            setSelectedBusPredictions(prefs.getInt(selectedBusPredictionsKey, VEHICLE_LOCATIONS_ONE));
             
             if (selectedRouteIndex < 0 || selectedRouteIndex >= dropdownRoutes.length)
             {
