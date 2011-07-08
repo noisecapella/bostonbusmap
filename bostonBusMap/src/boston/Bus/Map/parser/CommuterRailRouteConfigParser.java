@@ -490,7 +490,7 @@ public class CommuterRailRouteConfigParser
 			final String trunkBranch = "Trunk";
 			for (String directionHash : innerMapping.keySet())
 			{
-				String[] array = directionHash.split("|");
+				String[] array = directionHash.split("\\|");
 				String direction = array[0];
 				String branch = array[1];
 				
@@ -508,10 +508,17 @@ public class CommuterRailRouteConfigParser
 				String trunkDirectionHash = createDirectionHash(direction, trunkBranch);
 				TreeMap<Short, StopLocation> trunkInnerMapping = innerMapping.get(trunkDirectionHash);
 				
-				int minBranchOrder = 0;
+				int minBranchOrder = -1;
 				for (Short order : branchInnerMapping.keySet())
 				{
-					minBranchOrder = Math.min(order, minBranchOrder);
+					if (minBranchOrder == -1)
+					{
+						minBranchOrder = order;
+					}
+					else
+					{
+						minBranchOrder = Math.min(order, minBranchOrder);
+					}
 				}
 				
 				int maxTrunkOrder = 0;
@@ -528,13 +535,16 @@ public class CommuterRailRouteConfigParser
 				StopLocation branchStop = branchInnerMapping.get((short)minBranchOrder);
 				StopLocation trunkStop = trunkInnerMapping.get((short)maxTrunkOrder);
 				
-				points.add(trunkStop.getLatitudeAsDegrees());
-				points.add(trunkStop.getLongitudeAsDegrees());
-				points.add(branchStop.getLatitudeAsDegrees());
-				points.add(branchStop.getLongitudeAsDegrees());
-				
-				Path path = new Path(points);
-				map.get(route).addPaths(path);
+				if (trunkStop != null && branchStop != null)
+				{
+					points.add(trunkStop.getLatitudeAsDegrees());
+					points.add(trunkStop.getLongitudeAsDegrees());
+					points.add(branchStop.getLatitudeAsDegrees());
+					points.add(branchStop.getLongitudeAsDegrees());
+
+					Path path = new Path(points);
+					map.get(route).addPaths(path);
+				}
 			}
 		}
 
