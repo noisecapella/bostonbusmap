@@ -265,11 +265,6 @@ public class CommuterRailPredictionsFeedParser
 	}
 
 
-	private int toFlagEnum(String informationType)
-	{
-		return 0;
-	}
-
 	private String getItem(String key, String[] array)
 	{
 		Integer intKey = indexes.get(key);

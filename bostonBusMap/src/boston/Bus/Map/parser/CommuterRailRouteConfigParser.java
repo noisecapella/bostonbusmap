@@ -7,6 +7,7 @@ import java.io.InputStreamReader;
 import java.io.Reader;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.TreeMap;
 
 import skylight1.opengl.files.QuickParseUtil;
@@ -445,7 +446,7 @@ public class CommuterRailRouteConfigParser
 			//mapping of (direction plus branch plus platform order) to a stop
 			//for example, key is NBAshmont3 for fields corner
 			
-			String combinedDirectionBranch = direction + branch;
+			String combinedDirectionBranch = createDirectionHash(direction, branch);
 			TreeMap<Short, StopLocation> innerInnerMapping = innerMapping.get(combinedDirectionBranch);
 			if (innerInnerMapping == null)
 			{
@@ -463,6 +464,8 @@ public class CommuterRailRouteConfigParser
 		{
 			
 			HashMap<String, TreeMap<Short, StopLocation>> innerMapping = orderedStations.get(route);
+
+			
 			for (String directionHash : innerMapping.keySet())
 			{
 				TreeMap<Short, StopLocation> stations = innerMapping.get(directionHash);
@@ -476,23 +479,70 @@ public class CommuterRailRouteConfigParser
 					floats.add((float)station.getLongitudeAsDegrees());
 				}
 				
-				//this is kind of a hack. We need to connect the southern branches of the red line to JFK manually
-				/*if (directionHash.equals("NBAshmont") || directionHash.equals("NBBraintree"))
-				{
-					final short jfkNorthBoundOrder = 5;
-					StopLocation jfkStation = innerMapping.get("NBTrunk").get(jfkNorthBoundOrder);
-					if (jfkStation != null)
-					{
-						floats.add((float)jfkStation.getLatitudeAsDegrees());
-						floats.add((float)jfkStation.getLongitudeAsDegrees());
-					}
-				}*/
 				Path path = new Path(floats);
 				
 				map.get(route).addPaths(path);
 			}
+			
+			//match other branches to main branch if possible
+			HashSet<String> alreadyHandledDirections = new HashSet<String>();
+			
+			final String trunkBranch = "Trunk";
+			for (String directionHash : innerMapping.keySet())
+			{
+				String[] array = directionHash.split("|");
+				String direction = array[0];
+				String branch = array[1];
+				
+				if (alreadyHandledDirections.contains(direction))
+				{
+					continue;
+				}
+				
+				if (trunkBranch.equals(branch))
+				{
+					continue;
+				}
+				
+				TreeMap<Short, StopLocation> branchInnerMapping = innerMapping.get(directionHash);
+				String trunkDirectionHash = createDirectionHash(direction, trunkBranch);
+				TreeMap<Short, StopLocation> trunkInnerMapping = innerMapping.get(trunkDirectionHash);
+				
+				int minBranchOrder = 0;
+				for (Short order : branchInnerMapping.keySet())
+				{
+					minBranchOrder = Math.min(order, minBranchOrder);
+				}
+				
+				int maxTrunkOrder = 0;
+				for (Short order : trunkInnerMapping.keySet())
+				{
+					if (order < minBranchOrder)
+					{
+						maxTrunkOrder = Math.max(order, maxTrunkOrder);
+					}
+				}
+				
+				ArrayList<Float> points = new ArrayList<Float>();
+				
+				StopLocation branchStop = branchInnerMapping.get((short)minBranchOrder);
+				StopLocation trunkStop = trunkInnerMapping.get((short)maxTrunkOrder);
+				
+				points.add(trunkStop.getLatitudeAsDegrees());
+				points.add(trunkStop.getLongitudeAsDegrees());
+				points.add(branchStop.getLatitudeAsDegrees());
+				points.add(branchStop.getLongitudeAsDegrees());
+				
+				Path path = new Path(points);
+				map.get(route).addPaths(path);
+			}
 		}
 
+	}
+	
+	private static String createDirectionHash(String direction, String branch)
+	{
+		return direction + "|" + branch;
 	}
 	
 	public void runParse(Reader stream) throws IOException
