@@ -878,6 +878,11 @@ public class Main extends MapActivity
 						SearchRecentSuggestions suggestions = new SearchRecentSuggestions(Main.this, TransitContentProvider.AUTHORITY,
 								TransitContentProvider.MODE);
 						suggestions.saveRecentQuery(suggestionsQuery, null);
+						
+						if (handler != null)
+						{
+							handler.triggerUpdate();
+						}
 					}
 				}
 			});
