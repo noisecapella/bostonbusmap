@@ -6,12 +6,13 @@ import android.location.LocationProvider;
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.Toast;
-import boston.Bus.Map.R;
+
 import boston.Bus.Map.main.UpdateHandler;
 
 import com.google.android.maps.GeoPoint;
 import com.google.android.maps.MapView;
 import com.google.android.maps.MyLocationOverlay;
+import com.schneeloch.torontotransit.R;
 
 public class LocationOverlay extends MyLocationOverlay {
 	private final Context context; 

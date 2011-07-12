@@ -83,20 +83,8 @@ public class TransitSystem {
 	{
 		if (defaultTransitSource == null)
 		{
-			defaultTransitSource = new BusTransitSource(this, busStop, bus, arrow);
-			SubwayTransitSource subwayTransitSource = new SubwayTransitSource(busStop, rail, railArrow);
-			transitSourceMap.put(SubwayTransitSource.RedLine, subwayTransitSource);
-			transitSourceMap.put(SubwayTransitSource.OrangeLine, subwayTransitSource);
-			transitSourceMap.put(SubwayTransitSource.BlueLine, subwayTransitSource);
+			defaultTransitSource = new TorontoBusTransitSource(this, busStop, bus, arrow);
 			
-			CommuterRailTransitSource commuterRailTransitSource = new CommuterRailTransitSource(busStop, rail, railArrow);
-			for (String route : commuterRailTransitSource.getRoutes())
-			{
-				transitSourceMap.put(route, commuterRailTransitSource);
-			}
-			
-			transitSources.add(commuterRailTransitSource);
-			transitSources.add(subwayTransitSource);
 			transitSources.add(defaultTransitSource);
 		}
 	}

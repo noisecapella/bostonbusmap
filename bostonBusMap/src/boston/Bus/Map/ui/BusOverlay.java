@@ -25,7 +25,7 @@ import java.util.HashMap;
 import java.util.List;
 
 
-import boston.Bus.Map.R;
+
 import boston.Bus.Map.data.Alert;
 import boston.Bus.Map.data.BusLocation;
 import boston.Bus.Map.data.Directions;

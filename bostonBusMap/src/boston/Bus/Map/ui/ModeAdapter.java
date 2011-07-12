@@ -2,7 +2,9 @@ package boston.Bus.Map.ui;
 
 import java.util.ArrayList;
 
-import boston.Bus.Map.R;
+import com.schneeloch.torontotransit.R;
+
+
 import android.app.Activity;
 import android.content.Context;
 import android.graphics.drawable.Drawable;

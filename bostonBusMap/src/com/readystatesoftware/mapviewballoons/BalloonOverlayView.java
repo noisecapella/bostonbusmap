@@ -24,9 +24,10 @@ import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import boston.Bus.Map.R;
+
 
 import com.google.android.maps.OverlayItem;
+import com.schneeloch.torontotransit.R;
 
 /**
  * A view representing a MapView marker information balloon.

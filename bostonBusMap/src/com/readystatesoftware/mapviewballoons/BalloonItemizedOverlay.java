@@ -24,7 +24,7 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnTouchListener;
 
-import boston.Bus.Map.R;
+
 
 import com.google.android.maps.GeoPoint;
 import com.google.android.maps.ItemizedOverlay;
@@ -33,6 +33,7 @@ import com.google.android.maps.MapView;
 import com.google.android.maps.MapView.LayoutParams;
 import com.google.android.maps.Overlay;
 import com.google.android.maps.OverlayItem;
+import com.schneeloch.torontotransit.R;
 
 /**
  * An abstract extension of ItemizedOverlay for displaying an information balloon
