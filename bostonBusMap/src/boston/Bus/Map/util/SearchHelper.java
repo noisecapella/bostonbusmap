@@ -74,10 +74,31 @@ public class SearchHelper
 		String censoredQuery = query;
 		for (String wordToRemove : wordsToRemove)
 		{
-			if (lowercaseQuery.contains(wordToRemove))
+			boolean itEndsWith = lowercaseQuery.endsWith(" " + wordToRemove);
+			boolean itStartsWith = lowercaseQuery.startsWith(wordToRemove + " ");
+			boolean wholeWord = lowercaseQuery.equals(wordToRemove);
+			boolean middleWord = lowercaseQuery.contains(" " + wordToRemove + " ");
+			if (itEndsWith || itStartsWith || wholeWord || middleWord)
 			{
-				censoredQuery = censoredQuery.replaceAll(wordToRemove, "");
-				lowercaseQuery = censoredQuery.toLowerCase();
+				String adjustedCensoredQuery;
+				if (wholeWord)
+				{
+					adjustedCensoredQuery = "";
+				}
+				else if (itEndsWith)
+				{
+					adjustedCensoredQuery = censoredQuery.substring(0, 1 + wordToRemove.length());
+				}
+				else if (itStartsWith)
+				{
+					adjustedCensoredQuery = censoredQuery.substring(1 + wordToRemove.length());
+				}
+				else
+				{
+					adjustedCensoredQuery = censoredQuery.replace(" " + wordToRemove + " ", "");
+				}
+				lowercaseQuery = adjustedCensoredQuery.toLowerCase();
+				censoredQuery = adjustedCensoredQuery;
 				
 				if (wordToRemove.equals("route"))
 				{
