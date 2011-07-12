@@ -20,7 +20,7 @@ import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.FrameLayout.LayoutParams;
-import boston.Bus.Map.R;
+
 import boston.Bus.Map.data.Alert;
 import boston.Bus.Map.data.BusLocation;
 import boston.Bus.Map.data.Location;
@@ -35,6 +35,7 @@ import boston.Bus.Map.util.StringUtil;
 
 import com.google.android.maps.OverlayItem;
 import com.readystatesoftware.mapviewballoons.BalloonOverlayView;
+import com.schneeloch.torontotransit.R;
 
 
 public class BusPopupView extends BalloonOverlayView<BusOverlayItem>
@@ -351,11 +352,11 @@ public class BusPopupView extends BalloonOverlayView<BusOverlayItem>
 		//TODO: figure out a more elegant way to make the layout use these items even if they're invisible
 		if (favoriteVisible)
 		{
-			favorite.setBackgroundResource(isFavorite ? boston.Bus.Map.R.drawable.full_star : R.drawable.empty_star);
+			favorite.setBackgroundResource(isFavorite ? R.drawable.full_star : R.drawable.empty_star);
 		}
 		else
 		{
-			favorite.setBackgroundResource(boston.Bus.Map.R.drawable.null_star);
+			favorite.setBackgroundResource(R.drawable.null_star);
 		}
 		
 		if (moreInfoVisible)

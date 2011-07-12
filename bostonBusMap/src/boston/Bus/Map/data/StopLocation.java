@@ -12,7 +12,7 @@ import java.util.TreeSet;
 import boston.Bus.Map.database.DatabaseHelper;
 import boston.Bus.Map.math.Geometry;
 import boston.Bus.Map.transit.NextBusTransitSource;
-import boston.Bus.Map.transit.SubwayTransitSource;
+
 import boston.Bus.Map.transit.TransitSource;
 import boston.Bus.Map.transit.TransitSystem;
 import boston.Bus.Map.util.Box;

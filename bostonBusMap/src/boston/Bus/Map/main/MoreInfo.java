@@ -6,7 +6,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.SortedSet;
 
-import boston.Bus.Map.R;
+import com.schneeloch.torontotransit.R;
+
+
 import boston.Bus.Map.data.Prediction;
 import boston.Bus.Map.ui.TextViewBinder;
 import boston.Bus.Map.util.StringUtil;

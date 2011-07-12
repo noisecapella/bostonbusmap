@@ -32,37 +32,39 @@ import boston.Bus.Map.util.Constants;
  *
  */
 public class TransitSystem {
-	private static final double bostonLatitude = 42.3583333;
-	private static final double bostonLongitude = -71.0602778;
+	private static final double torontoLatitude = 43.6666667;
+	private static final double torontoLongitude = -79.4166667;
 	
 	private static final String website = "http://www.terribleinformation.org/george/bostonbusmap";
 	
 	//these four variables cover a very wide area just in case
+	/*
 	public static final double lowerLeftLat = 41.582579601430346;
 	public static final double lowerLeftLon = -72.0428466796875;
 	public static final double upperRightLat = 42.74701217318067;
 	public static final double upperRightLon = -69.774169921875;
-
-	public static final String[] emails = new String[]{"bostonbusmap@gmail.com", "t-trackertrial@mbta.com"};
-	public static final String emailSubject = "BostonBusMap error report";
+*/
+	
+	public static final String[] emails = new String[]{"bostonbusmap@gmail.com"/*, "t-trackertrial@mbta.com"*/};
+	public static final String emailSubject = "Toronto Transit error report";
 	
 	
 	public static double getCenterLat() {
-		return bostonLatitude;
+		return torontoLatitude;
 	}
 
 	public static double getCenterLon() {
-		return bostonLongitude;
+		return torontoLongitude;
 	}
 
 	public static int getCenterLatAsInt()
 	{
-		return (int)(bostonLatitude * Constants.E6);
+		return (int)(torontoLatitude * Constants.E6);
 	}
 	
 	public static int getCenterLonAsInt()
 	{
-		return (int)(bostonLongitude * Constants.E6);
+		return (int)(torontoLongitude * Constants.E6);
 	}
 
 	public static String getWebSite() {
@@ -83,20 +85,8 @@ public class TransitSystem {
 	{
 		if (defaultTransitSource == null)
 		{
-			defaultTransitSource = new BusTransitSource(this, busStop, bus, arrow);
-			SubwayTransitSource subwayTransitSource = new SubwayTransitSource(busStop, rail, railArrow);
-			transitSourceMap.put(SubwayTransitSource.RedLine, subwayTransitSource);
-			transitSourceMap.put(SubwayTransitSource.OrangeLine, subwayTransitSource);
-			transitSourceMap.put(SubwayTransitSource.BlueLine, subwayTransitSource);
+			defaultTransitSource = new TorontoBusTransitSource(this, busStop, bus, arrow);
 			
-			CommuterRailTransitSource commuterRailTransitSource = new CommuterRailTransitSource(busStop, rail, railArrow);
-			for (String route : commuterRailTransitSource.getRoutes())
-			{
-				transitSourceMap.put(route, commuterRailTransitSource);
-			}
-			
-			transitSources.add(commuterRailTransitSource);
-			transitSources.add(subwayTransitSource);
 			transitSources.add(defaultTransitSource);
 		}
 	}
@@ -200,13 +190,13 @@ public class TransitSystem {
 		return source.createStop(lat, lon, stopTag, title, platformOrder, branch, route, dirTag);
 	}
 
-	private static final TimeZone bostonTimeZone = TimeZone.getTimeZone("America/New_York");
+	private static final TimeZone torontoTimeZone = TimeZone.getTimeZone("America/Toronto");
 	private static DateFormat defaultTimeFormat;
 	private static DateFormat defaultDateFormat;
 		
 	public static TimeZone getTimeZone()
 	{
-		return bostonTimeZone;
+		return torontoTimeZone;
 	}
 
 	/**

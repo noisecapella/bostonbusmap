@@ -1,6 +1,8 @@
 package boston.Bus.Map.main;
 
-import boston.Bus.Map.R;
+
+import com.schneeloch.torontotransit.R;
+
 import android.app.Activity;
 import android.app.ListActivity;
 import android.content.Intent;

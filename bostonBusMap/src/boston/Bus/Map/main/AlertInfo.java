@@ -4,7 +4,9 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
 
-import boston.Bus.Map.R;
+import com.schneeloch.torontotransit.R;
+
+
 import boston.Bus.Map.data.Alert;
 import boston.Bus.Map.ui.TextViewBinder;
 import android.app.ListActivity;

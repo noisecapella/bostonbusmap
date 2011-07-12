@@ -49,14 +49,12 @@ import org.xml.sax.SAXException;
 import android.content.Context;
 import android.graphics.drawable.Drawable;
 import android.util.Log;
-import boston.Bus.Map.R;
 import boston.Bus.Map.database.DatabaseHelper;
 import boston.Bus.Map.main.Main;
 import boston.Bus.Map.main.UpdateAsyncTask;
 import boston.Bus.Map.parser.BusPredictionsFeedParser;
 import boston.Bus.Map.parser.RouteConfigFeedParser;
-import boston.Bus.Map.parser.SubwayPredictionsFeedParser;
-import boston.Bus.Map.parser.SubwayRouteConfigFeedParser;
+
 import boston.Bus.Map.parser.VehicleLocationsFeedParser;
 import boston.Bus.Map.transit.NextBusTransitSource;
 import boston.Bus.Map.transit.TransitSource;
