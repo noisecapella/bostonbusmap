@@ -46,7 +46,7 @@ public class TransitSystem {
 	public static final double upperRightLon = -69.774169921875;
 */
 	
-	public static final String[] emails = new String[]{"bostonbusmap@gmail.com"/*, "t-trackertrial@mbta.com"*/};
+	public static final String[] emails = new String[]{"bostonbusmap@gmail.com", "martineza@metro.net"};
 	public static final String emailSubject = "Los AngelBus error report";
 	
 	
