@@ -60,4 +60,6 @@ public interface TransitSource {
 
 	void bindPredictionElementsForUrl(StringBuilder urlString, String route,
 			String stopTag, String dirTag);
+
+	String searchForRoute(String indexingQuery, String lowercaseQuery);
 }

@@ -25,11 +25,13 @@ import com.schneeloch.latransit.R;
 import com.schneeloch.latransit.main.Main;
 import com.schneeloch.latransit.main.MoreInfo;
 
+import boston.Bus.Map.data.Alert;
 import boston.Bus.Map.data.BusLocation;
 import boston.Bus.Map.data.Location;
 import boston.Bus.Map.data.Locations;
 import boston.Bus.Map.data.Prediction;
 import boston.Bus.Map.data.StopLocation;
+import boston.Bus.Map.main.AlertInfo;
 import boston.Bus.Map.transit.TransitSystem;
 import boston.Bus.Map.util.StringUtil;
 
@@ -42,11 +44,14 @@ public class BusPopupView extends BalloonOverlayView<BusOverlayItem>
 	private ImageView favorite;
 	private TextView moreInfo;
 	private TextView reportProblem;
+	private TextView alertsTextView;
 	private final Locations locations;
 	private final HashMap<String, String> routeKeysToTitles;
 	private Location location;
 	private final Spanned moreInfoText;
 	private final Spanned reportProblemText;
+	private final Spanned noAlertsText;
+	private ArrayList<Alert> alertsList;
 	
 	public BusPopupView(final Context context, int balloonBottomOffset, Locations locations,
 			HashMap<String, String> routeKeysToTitles, float density)
@@ -61,11 +66,13 @@ public class BusPopupView extends BalloonOverlayView<BusOverlayItem>
 		moreInfo = (TextView) layoutView.findViewById(R.id.balloon_item_moreinfo);
 		moreInfoText = Html.fromHtml("\n<a href='com.bostonbusmap://moreinfo'>More info</a>\n");
 
+		reportProblem = (TextView) layoutView.findViewById(R.id.balloon_item_report);
 		reportProblemText = Html.fromHtml("\n<a href='com.bostonbusmap://reportproblem'>Report<br/>Problem</a>\n");
 		
-		/*
-		reportProblem = (TextView) layoutView.findViewById(R.id.balloon_item_report);
-		*/
+		alertsTextView = (TextView) layoutView.findViewById(R.id.balloon_item_alerts);
+		alertsTextView.setVisibility(View.GONE);
+		noAlertsText = Html.fromHtml("<font color='grey'>No alerts</font>");
+		
 		favorite.setOnClickListener(new OnClickListener() {
 			
 			@Override
@@ -124,12 +131,13 @@ public class BusPopupView extends BalloonOverlayView<BusOverlayItem>
 					String combinedStops = stopLocation.getCombinedStops();
 					intent.putExtra(MoreInfo.stopsKey, combinedStops);
 
+					intent.putExtra(MoreInfo.stopIsBetaKey, stopLocation.isBeta());
+					
 					context.startActivity(intent);
 				}
 			}
 		}
 		);
-/*
 		reportProblem.setOnClickListener(new OnClickListener() {
 			
 			@Override
@@ -148,7 +156,30 @@ public class BusPopupView extends BalloonOverlayView<BusOverlayItem>
 				context.startActivity(Intent.createChooser(intent, "Send email..."));
 			}
 		});
-		*/
+		
+		alertsTextView.setOnClickListener(new OnClickListener() {
+			
+			@Override
+			public void onClick(View v) {
+				Log.v("BostonBusMap", "tapped Alerts link");
+
+				final ArrayList<Alert> alerts = alertsList;
+				
+				Intent intent = new Intent(context, AlertInfo.class);
+				if (alerts != null)
+				{
+					Alert[] alertArray = alerts.toArray(new Alert[0]);
+					intent.putExtra(AlertInfo.alertsKey, alertArray);
+					
+					context.startActivity(intent);
+				}
+				else
+				{
+					Log.i("BostonBusMap", "alertsList is null");
+				}
+				
+			}
+		});
 
 		FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(
 				LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
@@ -285,10 +316,35 @@ public class BusPopupView extends BalloonOverlayView<BusOverlayItem>
 		
 		//NOTE: originally this was going to be an actual link, but we can't click it on the popup except through its onclick listener
 		moreInfo.setText(moreInfoText);
-		/*
 		reportProblem.setText(reportProblemText);
-		*/
 
+		ArrayList<Alert> alerts = item.getAlerts();
+		alertsList = alerts;
+		
+		if (alerts != null && alerts.size() != 0)
+		{
+			int count = alerts.size();
+			alertsTextView.setVisibility(View.VISIBLE);
+			
+			String text;
+			if (count == 1)
+			{
+				text = "<font color='red'><a href=\"com.bostonbusmap://alerts\">1 Alert</a></font>";
+			}
+			else
+			{
+				text = "<font color='red'><a href=\"com.bostonbusmap://alerts\">" + count + " Alerts</a></font>";
+			}
+			
+			Spanned alertsText = Html.fromHtml(text);
+			alertsTextView.setText(alertsText);
+			alertsTextView.setClickable(true);
+		}
+		else
+		{
+			alertsTextView.setVisibility(View.GONE);
+			alertsTextView.setClickable(false);
+		}
 	}
 	
 	public void setState(boolean isFavorite, boolean favoriteVisible, boolean moreInfoVisible,

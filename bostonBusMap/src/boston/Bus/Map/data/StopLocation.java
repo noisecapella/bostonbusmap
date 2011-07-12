@@ -12,7 +12,7 @@ import java.util.TreeSet;
 import boston.Bus.Map.database.DatabaseHelper;
 import boston.Bus.Map.math.Geometry;
 import boston.Bus.Map.transit.NextBusTransitSource;
-import boston.Bus.Map.transit.SubwayTransitSource;
+
 import boston.Bus.Map.transit.TransitSource;
 import boston.Bus.Map.transit.TransitSystem;
 import boston.Bus.Map.util.Box;
@@ -148,13 +148,31 @@ public class StopLocation implements Location
 	@Override
 	public String getSnippet()
 	{
-		if (predictions != null)
+		if (isBeta() == false)
 		{
-			return predictions.getSnippetPredictions();
+			if (predictions != null)
+			{
+				return predictions.getSnippetPredictions();
+			}
+			else
+			{
+				return null;
+			}
 		}
 		else
 		{
-			return null;
+			StringBuilder ret = new StringBuilder();
+			ret.append("<font color='red' size='1'>Commuter rail predictions are experimental</font>");
+			if (predictions != null)
+			{
+				 String predictionsString = predictions.getSnippetPredictions();
+				 if (predictionsString != null)
+				 {
+					 ret.append("<br />").append(predictionsString);
+				 }
+			}
+			return ret.toString();
+
 		}
 	}
 	
@@ -195,7 +213,7 @@ public class StopLocation implements Location
 	}
 	
 	public void addPrediction(int minutes, long epochTime, int vehicleId,
-			String direction, RouteConfig route, Directions directions, boolean affectedByLayover, boolean isDelayed)
+			String direction, RouteConfig route, Directions directions, boolean affectedByLayover, boolean isDelayed, int lateness)
 	{
 		if (predictions == null)
 		{
@@ -203,7 +221,7 @@ public class StopLocation implements Location
 		}
 		
 		Prediction prediction = new Prediction(minutes, vehicleId, 
-				directions.getTitleAndName(direction), route.getRouteName(), affectedByLayover, isDelayed);
+				directions.getTitleAndName(direction), route.getRouteName(), affectedByLayover, isDelayed, lateness);
 		predictions.addPredictionIfNotExists(prediction);
 	}
 
@@ -382,5 +400,26 @@ public class StopLocation implements Location
 	@Override
 	public String toString() {
 		return "Stop@" + getStopTag();
+	}
+
+	@Override
+	public ArrayList<Alert> getSnippetAlerts() {
+		if (predictions != null)
+		{
+			return predictions.getSnippetAlerts();
+		}
+		else
+		{
+			return null;
+		}
+	}
+	
+	/**
+	 * Are these predictions experimental?
+	 * @return
+	 */
+	public boolean isBeta()
+	{
+		return false;
 	}
 }

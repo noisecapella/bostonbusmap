@@ -36,15 +36,17 @@ import android.text.style.TypefaceSpan;
  */
 public class Prediction implements Comparable<Prediction>, Parcelable
 {
-	private final int vehicleId;
-	private final String direction;
-	private final String routeName;
-	private final long arrivalTimeMillis;
-	private final boolean affectedByLayover;
-	private final boolean isDelayed;
+	public static final int NULL_LATENESS = -1;
+	protected final int vehicleId;
+	protected final String direction;
+	protected final String routeName;
+	protected final long arrivalTimeMillis;
+	protected final boolean affectedByLayover;
+	protected final boolean isDelayed;
+	protected final int lateness;
 	
 	public Prediction(int minutes, int vehicleId,
-			String direction, String routeName, boolean affectedByLayover, boolean isDelayed)
+			String direction, String routeName, boolean affectedByLayover, boolean isDelayed, int lateness)
 	{
 		this.vehicleId = vehicleId;
 		this.direction = direction;
@@ -55,6 +57,7 @@ public class Prediction implements Comparable<Prediction>, Parcelable
 		
 		this.affectedByLayover = affectedByLayover;
 		this.isDelayed = isDelayed;
+		this.lateness = lateness;
 	}
 
 	public String makeSnippet(HashMap<String, String> routeKeysToTitles, Context context) {
@@ -67,20 +70,22 @@ public class Prediction implements Comparable<Prediction>, Parcelable
 		}
 		else
 		{
-			ret = "Route <b>" + routeKeysToTitles.get(routeName) + "</b>";
+			StringBuilder builder = new StringBuilder();
+			
+			builder.append("Route <b>").append(routeKeysToTitles.get(routeName)).append("</b>");
 			if (vehicleId != 0)
 			{
-				ret += ", Bus <b>" + vehicleId + "</b>";
+				builder.append(", Bus <b>").append(vehicleId).append("</b>");
 			}
 
 			if (direction != null)
 			{
-				ret += "<br />" + direction;
+				builder.append("<br />").append(direction);
 			}
 
 			if (isDelayed)
 			{
-				ret += "<br /><b>Delayed</b>";
+				builder.append("<br /><b>Delayed</b>");
 			}
 			
 			if (affectedByLayover)
@@ -90,7 +95,7 @@ public class Prediction implements Comparable<Prediction>, Parcelable
 			
 			if (minutes == 0)
 			{
-				ret += "<br />Arriving <b>now</b>!";
+				builder.append("<br />Arriving <b>now</b>!");
 			}
 			else
 			{
@@ -101,13 +106,16 @@ public class Prediction implements Comparable<Prediction>, Parcelable
 				{
 					//the vast majority of the time this should be true but someone reported an exception where it's not
 					String formatted = dateFormat.format(date);
-					ret += "<br />Arriving in <b>" + minutes + " min</b> at " + formatted.trim();
+					builder.append("<br />Arriving in <b>").append(minutes);
+					builder.append(" min</b> at ").append(formatted.trim());
 				}
 				else
 				{
-					ret += "<br />Arriving in <b>" + minutes + " min</b>";
+					builder.append("<br />Arriving in <b>").append(minutes).append(" min</b>");
 				}
 			}
+			
+			ret = builder.toString();
 		}
 		return ret;
 	}
@@ -164,6 +172,7 @@ public class Prediction implements Comparable<Prediction>, Parcelable
 		dest.writeString(routeName);
 		writeBoolean(dest, affectedByLayover);
 		writeBoolean(dest, isDelayed);
+		dest.writeInt(lateness);
 	}
 	
 	public static final Parcelable.Creator<Prediction> CREATOR = new Creator<Prediction>() {
@@ -175,19 +184,20 @@ public class Prediction implements Comparable<Prediction>, Parcelable
 		
 		@Override
 		public Prediction createFromParcel(Parcel source) {
+			//NOTE: if this changes you must also change CommuterRailPrediction.CREATOR.createFromParcel
 			long arrivalTimeMillis = source.readLong();
 			int vehicleId = source.readInt();
 			String direction = source.readString();
 			String routeName = source.readString();
 			boolean affectedByLayover = readBoolean(source);
 			boolean isDelayed = readBoolean(source);
+			int lateness = source.readInt();
 			
 			int minutes = calcMinutes(arrivalTimeMillis);
-			Prediction prediction = new Prediction(minutes, vehicleId, direction, routeName, affectedByLayover, isDelayed);
+			Prediction prediction = new Prediction(minutes, vehicleId, direction, routeName, affectedByLayover, isDelayed, lateness);
 			return prediction;
 		}
 	};
-	public static final int NULL_LATENESS = -1;
 
 	/**
 	 * Create 
@@ -204,11 +214,11 @@ public class Prediction implements Comparable<Prediction>, Parcelable
 		return map;
 	}
 
-	private static boolean readBoolean(Parcel source) {
+	protected static boolean readBoolean(Parcel source) {
 		return source.readInt() == 1;
 	}
 	
-	private static void writeBoolean(Parcel dest, boolean data)
+	protected static void writeBoolean(Parcel dest, boolean data)
 	{
 		dest.writeInt(data ? 1 : 0);
 	}

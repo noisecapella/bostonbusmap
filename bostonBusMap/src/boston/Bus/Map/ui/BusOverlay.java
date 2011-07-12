@@ -25,10 +25,7 @@ import java.util.HashMap;
 import java.util.List;
 
 
-import com.schneeloch.latransit.R;
-import com.schneeloch.latransit.main.Main;
-import com.schneeloch.latransit.main.UpdateHandler;
-
+import boston.Bus.Map.data.Alert;
 import boston.Bus.Map.data.BusLocation;
 import boston.Bus.Map.data.Directions;
 import boston.Bus.Map.data.Locations;
@@ -46,6 +43,8 @@ import com.google.android.maps.OverlayItem;
 import com.google.android.maps.Projection;
 import com.readystatesoftware.mapviewballoons.BalloonItemizedOverlay;
 import com.readystatesoftware.mapviewballoons.BalloonOverlayView;
+import com.schneeloch.latransit.main.Main;
+import com.schneeloch.latransit.main.UpdateHandler;
 
 import android.content.Context;
 import android.graphics.Canvas;
@@ -384,7 +383,8 @@ public class BusOverlay extends BalloonItemizedOverlay<BusOverlayItem> {
 			Location location = locations.get(i);
 			String titleText = location.getSnippetTitle();
 			String snippetText = location.getSnippet();
-			BusOverlayItem overlayItem = new BusOverlayItem(points.get(i),titleText, snippetText);
+			ArrayList<Alert> alerts = location.getSnippetAlerts();
+			BusOverlayItem overlayItem = new BusOverlayItem(points.get(i),titleText, snippetText, alerts);
 			overlays.add(overlayItem);
 		}
 		populate();

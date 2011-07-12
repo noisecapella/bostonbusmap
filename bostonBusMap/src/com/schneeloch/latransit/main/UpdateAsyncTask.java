@@ -50,6 +50,7 @@ import boston.Bus.Map.ui.ProgressMessage;
 import boston.Bus.Map.ui.RouteOverlay;
 import boston.Bus.Map.util.Constants;
 import boston.Bus.Map.util.FeedException;
+import boston.Bus.Map.util.LogUtil;
 
 import com.google.android.maps.GeoPoint;
 import com.google.android.maps.MapView;
@@ -278,9 +279,7 @@ public class UpdateAsyncTask extends AsyncTask<Object, Object, Locations>
 				//this probably means that there is no Internet available, or there's something wrong with the feed
 				publish(new ProgressMessage(ProgressMessage.TOAST, null, "Feed is inaccessible; try again later"));
 
-				StringWriter writer = new StringWriter();
-				e.printStackTrace(new PrintWriter(writer));
-				Log.e("BostonBusMap", writer.toString());
+				LogUtil.e(e);
 				
 				return null;
 
@@ -288,33 +287,25 @@ public class UpdateAsyncTask extends AsyncTask<Object, Object, Locations>
 				publish(new ProgressMessage(ProgressMessage.TOAST, null,
 						"XML parsing exception; cannot update. Maybe there was a hiccup in the feed?"));
 
-				StringWriter writer = new StringWriter();
-				e.printStackTrace(new PrintWriter(writer));
-				Log.e("BostonBusMap", writer.toString());
+				LogUtil.e(e);
 				
 				return null;
 			} catch (NumberFormatException e) {
 				publish(new ProgressMessage(ProgressMessage.TOAST, null, "XML number parsing exception; cannot update. Maybe there was a hiccup in the feed?"));
 
-				StringWriter writer = new StringWriter();
-				e.printStackTrace(new PrintWriter(writer));
-				Log.e("BostonBusMap", writer.toString());
+				LogUtil.e(e);
 				
 				return null;
 			} catch (ParserConfigurationException e) {
 				publish(new ProgressMessage(ProgressMessage.TOAST, null, "XML parser configuration exception; cannot update"));
 
-				StringWriter writer = new StringWriter();
-				e.printStackTrace(new PrintWriter(writer));
-				Log.e("BostonBusMap", writer.toString());
+				LogUtil.e(e);
 				
 				return null;
 			} catch (FactoryConfigurationError e) {
 				publish(new ProgressMessage(ProgressMessage.TOAST, null, "XML parser factory configuration exception; cannot update"));
 
-				StringWriter writer = new StringWriter();
-				e.printStackTrace(new PrintWriter(writer));
-				Log.e("BostonBusMap", writer.toString());
+				LogUtil.e(e);
 				
 				return null;
 			}
@@ -324,9 +315,7 @@ public class UpdateAsyncTask extends AsyncTask<Object, Object, Locations>
 				{
 					publish(new ProgressMessage(ProgressMessage.TOAST, null, "The feed is reporting an error"));
 
-					StringWriter writer = new StringWriter();
-					e.printStackTrace(new PrintWriter(writer));
-					Log.e("BostonBusMap", writer.toString());
+					LogUtil.e(e);
 					
 					return null;
 				}
@@ -339,9 +328,7 @@ public class UpdateAsyncTask extends AsyncTask<Object, Object, Locations>
 			{
 				publish(new ProgressMessage(ProgressMessage.TOAST, null, "Unknown exception occurred"));
 
-				StringWriter writer = new StringWriter();
-				e.printStackTrace(new PrintWriter(writer));
-				Log.e("BostonBusMap", writer.toString());
+				LogUtil.e(e);
 				
 				return null;
 			}
@@ -354,30 +341,24 @@ public class UpdateAsyncTask extends AsyncTask<Object, Object, Locations>
 					{
 						publish(new ProgressMessage(ProgressMessage.TOAST, null, "Connection timed out"));
 
-						StringWriter writer = new StringWriter();
-						e.printStackTrace(new PrintWriter(writer));
-						Log.e("BostonBusMap", writer.toString());
-
+						LogUtil.e(e);
+						
 						return null;
 					}
 					else if (cause instanceof SocketException)
 					{
 						publish(new ProgressMessage(ProgressMessage.TOAST, null, "Connection error occurred"));
 
-						StringWriter writer = new StringWriter();
-						e.printStackTrace(new PrintWriter(writer));
-						Log.e("BostonBusMap", writer.toString());
-
+						LogUtil.e(e);
+						
 						return null;
 					}
 					else
 					{
 						publish(new ProgressMessage(ProgressMessage.TOAST, null, "Unknown exception occurred"));
 
-						StringWriter writer = new StringWriter();
-						e.printStackTrace(new PrintWriter(writer));
-						Log.e("BostonBusMap", writer.toString());
-
+						LogUtil.e(e);
+						
 						return null;
 					}
 				}
@@ -385,10 +366,8 @@ public class UpdateAsyncTask extends AsyncTask<Object, Object, Locations>
 				{
 					publish(new ProgressMessage(ProgressMessage.TOAST, null, "Unknown exception occurred"));
 
-					StringWriter writer = new StringWriter();
-					e.printStackTrace(new PrintWriter(writer));
-					Log.e("BostonBusMap", writer.toString());
-
+					LogUtil.e(e);
+					
 					return null;
 				}
 			}
@@ -396,9 +375,7 @@ public class UpdateAsyncTask extends AsyncTask<Object, Object, Locations>
 			{
 				publish(new ProgressMessage(ProgressMessage.TOAST, null, "Unknown exception occurred"));
 
-				StringWriter writer = new StringWriter();
-				e.printStackTrace(new PrintWriter(writer));
-				Log.e("BostonBusMap", writer.toString());
+				LogUtil.e(e);
 				
 				return null;
 			}
@@ -414,6 +391,18 @@ public class UpdateAsyncTask extends AsyncTask<Object, Object, Locations>
 	
 	@Override
 	protected void onPostExecute(final Locations busLocationsObject)
+	{
+		try
+		{
+			postExecute(busLocationsObject);
+		}
+		catch (Throwable t)
+		{
+			LogUtil.e(t);
+		}
+	}
+	
+	private void postExecute(final Locations busLocationsObject)
 	{
 		if (busLocationsObject == null)
 		{

@@ -55,8 +55,6 @@ import android.util.Log;
 import boston.Bus.Map.database.DatabaseHelper;
 import boston.Bus.Map.parser.BusPredictionsFeedParser;
 import boston.Bus.Map.parser.RouteConfigFeedParser;
-import boston.Bus.Map.parser.SubwayPredictionsFeedParser;
-import boston.Bus.Map.parser.SubwayRouteConfigFeedParser;
 import boston.Bus.Map.parser.VehicleLocationsFeedParser;
 import boston.Bus.Map.transit.NextBusTransitSource;
 import boston.Bus.Map.transit.TransitSource;

@@ -172,6 +172,7 @@ public class Main extends MapActivity
 	
 	private ProgressDialog progressDialog;
 	private DatabaseHelper databaseHelper;
+	private TransitSystem transitSystem;
 	
 	public static final int VEHICLE_LOCATIONS_ALL = 1;
 	public static final int BUS_PREDICTIONS_ONE = 2;
@@ -188,7 +189,7 @@ public class Main extends MapActivity
 	};
 	
 	public static final String[] modeTextSupported = new String[]{
-		"All buses", "Buses on one route", "Stops and predictions on one route", "Favorite stops"
+		"All buses (no rail)", "Vehicles on one route", "Stops and predictions on one route", "Favorite stops"
 	};
 	
 	
@@ -245,7 +246,7 @@ public class Main extends MapActivity
         
         busStop = resources.getDrawable(R.drawable.busstop_statelist);
         
-        final TransitSystem transitSystem = new TransitSystem();
+        transitSystem = new TransitSystem();
         transitSystem.setDefaultTransitSource(busStop, busPicture, arrow, rail, railArrow);
         
         SpinnerAdapter modeSpinnerAdapter = makeModeSpinner(); 
@@ -380,7 +381,7 @@ public class Main extends MapActivity
             int centerLon = prefs.getInt(centerLonKey, Integer.MAX_VALUE);
             int zoomLevel = prefs.getInt(zoomLevelKey, Integer.MAX_VALUE);
             selectedRouteIndex = prefs.getInt(selectedRouteIndexKey, 0);
-            setSelectedBusPredictions(prefs.getInt(selectedBusPredictionsKey, VEHICLE_LOCATIONS_ALL));
+            setSelectedBusPredictions(prefs.getInt(selectedBusPredictionsKey, VEHICLE_LOCATIONS_ONE));
             
             if (selectedRouteIndex < 0 || selectedRouteIndex >= dropdownRoutes.length)
             {
@@ -517,7 +518,7 @@ public class Main extends MapActivity
     	int pos = toggleButton.getSelectedItemPosition();
     	if (pos < 0 || pos >= modesSupported.length)
     	{
-    		return VEHICLE_LOCATIONS_ALL;
+    		return VEHICLE_LOCATIONS_ONE;
     	}
     	else
     	{
@@ -866,7 +867,7 @@ public class Main extends MapActivity
 
 			
 			final SearchHelper helper = new SearchHelper(this, dropdownRoutes, dropdownRouteKeysToTitles, mapView, query, 
-				databaseHelper);
+				databaseHelper, transitSystem);
 			helper.runSearch(new Runnable()
 			{
 				@Override
@@ -879,6 +880,11 @@ public class Main extends MapActivity
 						SearchRecentSuggestions suggestions = new SearchRecentSuggestions(Main.this, TransitContentProvider.AUTHORITY,
 								TransitContentProvider.MODE);
 						suggestions.saveRecentQuery(suggestionsQuery, null);
+						
+						if (handler != null)
+						{
+							handler.triggerUpdate();
+						}
 					}
 				}
 			});

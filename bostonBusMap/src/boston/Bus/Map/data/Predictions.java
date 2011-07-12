@@ -32,6 +32,7 @@ public class Predictions
 	private TreeSet<String> combinedTitles;
 	
 	private final ArrayList<Prediction> predictions = new ArrayList<Prediction>();
+	private ArrayList<Alert> snippetAlerts;
 
 	private static final String[] nullStrings = new String[0];
 	private static final Prediction[] nullPredictions = new Prediction[0];
@@ -46,6 +47,10 @@ public class Predictions
 		snippetRoutes = routes.toArray(new String[0]);
 		snippetTitle = title;
 		snippetStop = tag;
+		if (routeConfig != null)
+		{
+			snippetAlerts = routeConfig.getAlerts();
+		}
 		
 		snippetPredictions = makeSnippet(routeConfig, predictions, routeKeysToTitles, context);
 		sharedSnippetStops = null;
@@ -295,5 +300,9 @@ public class Predictions
 			}
 		}
 		return false;
+	}
+
+	public ArrayList<Alert> getSnippetAlerts() {
+		return snippetAlerts;
 	}
 }

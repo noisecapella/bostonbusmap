@@ -14,15 +14,15 @@ public class SubwayStopLocation extends StopLocation {
 	 * What branch this subway is on. Optional, only used for subways
 	 */
 	private String branch;
-
+	
 	public SubwayStopLocation(float latitudeAsDegrees,
 			float longitudeAsDegrees, Drawable busStop, String tag,
-			String title, int platformOrder, String branch) {
+			String title, int platformOrder, String branch)
+	{
 		super(latitudeAsDegrees, longitudeAsDegrees, busStop, tag, title);
 		
 		this.platformOrder = platformOrder;
 		this.branch = branch;
-
 	}
 	
 
@@ -33,6 +33,4 @@ public class SubwayStopLocation extends StopLocation {
 	public String getBranch() {
 		return branch;
 	}
-
-
 }

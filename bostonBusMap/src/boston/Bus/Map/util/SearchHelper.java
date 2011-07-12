@@ -16,6 +16,7 @@ import android.util.Log;
 import android.widget.Toast;
 import boston.Bus.Map.database.DatabaseHelper;
 import boston.Bus.Map.transit.NextBusTransitSource;
+import boston.Bus.Map.transit.TransitSystem;
 
 public class SearchHelper
 {
@@ -28,15 +29,17 @@ public class SearchHelper
 	
 	private boolean queryContainsRoute;
 	private boolean queryContainsStop;
+	private final TransitSystem transitSystem;
 	
 	public SearchHelper(Main context, String[] dropdownRoutes, HashMap<String, String> dropdownRouteKeysToTitles,
-			MapView mapView, String query, DatabaseHelper databaseHelper)
+			MapView mapView, String query, DatabaseHelper databaseHelper, TransitSystem transitSystem)
 	{
 		this.context = context;
 		this.dropdownRoutes = dropdownRoutes;
 		this.dropdownRouteKeysToTitles = dropdownRouteKeysToTitles;
 		this.query = query;
 		this.databaseHelper = databaseHelper;
+		this.transitSystem = transitSystem;
 	}
 	
 	/**
@@ -71,10 +74,31 @@ public class SearchHelper
 		String censoredQuery = query;
 		for (String wordToRemove : wordsToRemove)
 		{
-			if (lowercaseQuery.contains(wordToRemove))
+			boolean itEndsWith = lowercaseQuery.endsWith(" " + wordToRemove);
+			boolean itStartsWith = lowercaseQuery.startsWith(wordToRemove + " ");
+			boolean wholeWord = lowercaseQuery.equals(wordToRemove);
+			boolean middleWord = lowercaseQuery.contains(" " + wordToRemove + " ");
+			if (itEndsWith || itStartsWith || wholeWord || middleWord)
 			{
-				censoredQuery = censoredQuery.replaceAll(wordToRemove, "");
-				lowercaseQuery = censoredQuery.toLowerCase();
+				String adjustedCensoredQuery;
+				if (wholeWord)
+				{
+					adjustedCensoredQuery = "";
+				}
+				else if (itEndsWith)
+				{
+					adjustedCensoredQuery = censoredQuery.substring(0, 1 + wordToRemove.length());
+				}
+				else if (itStartsWith)
+				{
+					adjustedCensoredQuery = censoredQuery.substring(1 + wordToRemove.length());
+				}
+				else
+				{
+					adjustedCensoredQuery = censoredQuery.replace(" " + wordToRemove + " ", "");
+				}
+				lowercaseQuery = adjustedCensoredQuery.toLowerCase();
+				censoredQuery = adjustedCensoredQuery;
 				
 				if (wordToRemove.equals("route"))
 				{
@@ -120,32 +144,8 @@ public class SearchHelper
 		final String finalLowercaseQuery = lowercaseQuery;
 		final String finalIndexingQuery = indexingQuery;
 		final String finalPrintableQuery = printableQuery;
-		if (queryContainsRoute == false && queryContainsStop == false)
-		{
-			//route or stop? maybe both? if both, pop up a choice to the user
-			AlertDialog.Builder builder = new AlertDialog.Builder(context);
-			builder.setTitle("Is this a stop or route?");
-			builder.setItems(new String[] {"Route " + indexingQuery, "Stop " + indexingQuery},
-					new DialogInterface.OnClickListener() {
-				public void onClick(DialogInterface dialog, int item) {
-					if (item == 0)
-					{
-						queryContainsRoute = true;
-					}
-					else
-					{
-						queryContainsStop = true;
-					}
-					
-					returnResults(onFinish, finalIndexingQuery, finalLowercaseQuery, finalPrintableQuery);
-				}
-			});
-			builder.show();
-		}
-		else
-		{
-			returnResults(onFinish, finalIndexingQuery, finalLowercaseQuery, finalPrintableQuery);
-		}
+
+		returnResults(onFinish, finalIndexingQuery, finalLowercaseQuery, finalPrintableQuery);
 	}
 
 	private void returnResults(Runnable onFinish, String indexingQuery, String lowercaseQuery, String printableQuery) {
@@ -195,50 +195,53 @@ public class SearchHelper
 
 	private int getAsRoute(String indexingQuery, String lowercaseQuery)
 	{
-		//TODO: don't hard code this
-		if ("sl1".equals(lowercaseQuery) || 
-				"sl2".equals(lowercaseQuery) ||
-				"sl".equals(lowercaseQuery) ||
-				"sl4".equals(lowercaseQuery) ||
-				"sl5".equals(lowercaseQuery))
+		String route = transitSystem.searchForRoute(indexingQuery, lowercaseQuery);
+		if (route != null)
 		{
-			lowercaseQuery = "silverline" + lowercaseQuery;
-		}
-		else if (lowercaseQuery.startsWith("silver") && lowercaseQuery.contains("line") == false)
-		{
-			//ugh, what a hack
-			lowercaseQuery = lowercaseQuery.substring(0, 6) + "line" + lowercaseQuery.substring(6);
-		}
-		
-		int position = Arrays.asList(dropdownRoutes).indexOf(indexingQuery);
-
-		if (position != -1)
-		{
-			return position;
-		}
-		else
-		{
-			//try the titles
 			for (int i = 0; i < dropdownRoutes.length; i++)
 			{
-				String title = dropdownRouteKeysToTitles.get(dropdownRoutes[i]);
-				if (title != null)
+				String potentialRoute = dropdownRoutes[i];
+				if (route.equals(potentialRoute))
 				{
-					String titleWithoutSpaces = title.toLowerCase().replaceAll(" ", "");
-					if (titleWithoutSpaces.equals(lowercaseQuery))
-					{
-						return i;
-					}
+					return i;
 				}
 			}
-			
-			//no match
-			return -1;
 		}
+		return -1;
 	}
 
 	public String getSuggestionsQuery()
 	{
 		return suggestionsQuery;
+	}
+
+	public static String naiveSearch(String indexingQuery, String lowercaseQuery, String[] routes,
+			HashMap<String, String> routeKeysToTitles)
+	{
+		int position = Arrays.asList(routes).indexOf(indexingQuery);
+
+		if (position != -1)
+		{
+			return routes[position];
+		}
+		else
+		{
+			//try the titles
+			for (int i = 0; i < routes.length; i++)
+			{
+				String title = routeKeysToTitles.get(routes[i]);
+				if (title != null)
+				{
+					String titleWithoutSpaces = title.toLowerCase().replaceAll(" ", "");
+					if (titleWithoutSpaces.equals(lowercaseQuery))
+					{
+						return routes[i];
+					}
+				}
+			}
+			
+			//no match
+			return null;
+		}
 	}
 }

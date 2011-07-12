@@ -3,6 +3,7 @@ package boston.Bus.Map.transit;
 import java.io.IOException;
 import java.text.DateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.TimeZone;
@@ -191,6 +192,7 @@ public class TransitSystem {
 
 	private static final TimeZone bostonTimeZone = TimeZone.getTimeZone("America/Los_Angeles");
 	private static DateFormat defaultTimeFormat;
+	private static DateFormat defaultDateFormat;
 		
 	public static TimeZone getTimeZone()
 	{
@@ -210,10 +212,35 @@ public class TransitSystem {
 	public static void setDefaultTimeFormat(Context context)
 	{
 		defaultTimeFormat = android.text.format.DateFormat.getTimeFormat(context);
+		defaultDateFormat = android.text.format.DateFormat.getDateFormat(context);
 	}
 	
 	public static DateFormat getDefaultTimeFormat() {
 		return defaultTimeFormat;
+	}
+	
+	public static DateFormat getDefaultDateFormat()
+	{
+		return defaultDateFormat;
+	}
+
+	/**
+	 * Looks for a route that's similar to the search term
+	 * @param indexingQuery
+	 * @param lowercaseQuery
+	 * @return null if nothing found, otherwise the route key 
+	 */
+	public String searchForRoute(String indexingQuery, String lowercaseQuery)
+	{
+		for (TransitSource source : transitSources)
+		{
+			String potentialRoute = source.searchForRoute(indexingQuery, lowercaseQuery);
+			if (potentialRoute != null)
+			{
+				return potentialRoute;
+			}
+		}
+		return null;
 	}
 
 }
