@@ -67,6 +67,8 @@ public class BusPopupView extends BalloonOverlayView<BusOverlayItem>
 		
 		reportProblem = (TextView) layoutView.findViewById(R.id.balloon_item_report);
 		reportProblemText = Html.fromHtml("\n<a href='com.bostonbusmap://reportproblem'>Report<br/>Problem</a>\n");
+
+		reportProblem.setVisibility(View.GONE);
 		
 		alertsTextView = (TextView) layoutView.findViewById(R.id.balloon_item_alerts);
 		alertsTextView.setVisibility(View.GONE);
