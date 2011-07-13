@@ -1,14 +1,33 @@
 package boston.Bus.Map.transit;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.Arrays;
+import java.util.HashMap;
+
+import org.apache.http.client.ClientProtocolException;
+import org.xml.sax.SAXException;
+
+import boston.Bus.Map.data.AlertsMapping;
+import boston.Bus.Map.data.RouteConfig;
+import boston.Bus.Map.parser.AlertParser;
+import boston.Bus.Map.util.DownloadHelper;
 
 import android.graphics.drawable.Drawable;
 
 public class BusTransitSource extends NextBusTransitSource {
 
-	public BusTransitSource(TransitSystem transitSystem, Drawable busStop, Drawable bus, Drawable arrow)
+	private final AlertsMapping alertsMapping;
+	private final HashMap<String, Integer> alertKeys;
+
+	public BusTransitSource(TransitSystem transitSystem, Drawable busStop, Drawable bus, Drawable arrow, AlertsMapping alertsMapping)
 	{
 		super(transitSystem, busStop, bus, arrow, "mbta", boston.Bus.Map.R.raw.routeconfig);
+		
+		this.alertsMapping = alertsMapping;
+		
+		alertKeys = alertsMapping.getAlertNumbers(getRoutes());
 	}
 	
 	@Override
@@ -233,6 +252,32 @@ public class BusTransitSource extends NextBusTransitSource {
 		}
 		
 		return super.searchForRoute(indexingQuery, lowercaseQuery);
+	}
+
+	@Override
+	protected void parseAlert(RouteConfig routeConfig) throws ClientProtocolException, IOException, SAXException {
+
+		String routeName = routeConfig.getRouteName();
+		if (alertKeys.containsKey(routeName) == false)
+		{
+			//can't do anything here
+			return;
+		}
+		
+		int alertKey = alertKeys.get(routeName);
+		String url = AlertsMapping.alertUrlPrefix + alertKey;
+		DownloadHelper downloadHelper = new DownloadHelper(url);
+		downloadHelper.connect();
+
+		InputStream stream = downloadHelper.getResponseData();
+		InputStreamReader data = new InputStreamReader(stream);
+
+		AlertParser parser = new AlertParser();
+		parser.runParse(data);
+		routeConfig.setAlerts(parser.getAlerts());
+		data.close();
+
+		
 	}
 
 }

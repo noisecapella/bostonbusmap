@@ -17,6 +17,7 @@ import android.R.string;
 import android.content.Context;
 import android.graphics.drawable.Drawable;
 import android.util.Log;
+import boston.Bus.Map.data.AlertsMapping;
 import boston.Bus.Map.data.BusLocation;
 import boston.Bus.Map.data.Directions;
 import boston.Bus.Map.data.Location;
@@ -45,7 +46,8 @@ public class TransitSystem {
 
 	public static final String[] emails = new String[]{"bostonbusmap@gmail.com", "t-trackertrial@mbta.com"};
 	public static final String emailSubject = "BostonBusMap error report";
-	
+
+	private static final AlertsMapping alertsMapping = new AlertsMapping();
 	
 	public static double getCenterLat() {
 		return bostonLatitude;
@@ -83,13 +85,13 @@ public class TransitSystem {
 	{
 		if (defaultTransitSource == null)
 		{
-			defaultTransitSource = new BusTransitSource(this, busStop, bus, arrow);
-			SubwayTransitSource subwayTransitSource = new SubwayTransitSource(busStop, rail, railArrow);
+			defaultTransitSource = new BusTransitSource(this, busStop, bus, arrow, alertsMapping);
+			SubwayTransitSource subwayTransitSource = new SubwayTransitSource(busStop, rail, railArrow, alertsMapping);
 			transitSourceMap.put(SubwayTransitSource.RedLine, subwayTransitSource);
 			transitSourceMap.put(SubwayTransitSource.OrangeLine, subwayTransitSource);
 			transitSourceMap.put(SubwayTransitSource.BlueLine, subwayTransitSource);
 			
-			CommuterRailTransitSource commuterRailTransitSource = new CommuterRailTransitSource(busStop, rail, railArrow);
+			CommuterRailTransitSource commuterRailTransitSource = new CommuterRailTransitSource(busStop, rail, railArrow, alertsMapping);
 			for (String route : commuterRailTransitSource.getRoutes())
 			{
 				transitSourceMap.put(route, commuterRailTransitSource);

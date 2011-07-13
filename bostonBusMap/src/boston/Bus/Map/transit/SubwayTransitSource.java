@@ -2,8 +2,10 @@ package boston.Bus.Map.transit;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -18,6 +20,7 @@ import android.content.Context;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.util.Log;
+import boston.Bus.Map.data.AlertsMapping;
 import boston.Bus.Map.data.BusLocation;
 import boston.Bus.Map.data.Directions;
 import boston.Bus.Map.data.Location;
@@ -28,6 +31,7 @@ import boston.Bus.Map.data.StopLocation;
 import boston.Bus.Map.data.SubwayStopLocation;
 import boston.Bus.Map.main.Main;
 import boston.Bus.Map.main.UpdateAsyncTask;
+import boston.Bus.Map.parser.AlertParser;
 import boston.Bus.Map.parser.BusPredictionsFeedParser;
 import boston.Bus.Map.parser.RouteConfigFeedParser;
 import boston.Bus.Map.parser.SubwayPredictionsFeedParser;
@@ -43,15 +47,17 @@ public class SubwayTransitSource implements TransitSource {
 	private final Drawable railArrow;
 	private final Drawable rail;
 	
-	public SubwayTransitSource(Drawable busStop, Drawable rail, Drawable railArrow)
+	public SubwayTransitSource(Drawable busStop, Drawable rail, Drawable railArrow, AlertsMapping alertsMapping)
 	{
 		this.busStop = busStop;
 		this.railArrow = railArrow;
 		this.rail = rail;
 		
+		alertKeys = alertsMapping.getAlertNumbers(subwayRoutes);
 		for (String route : subwayRoutes)
 		{
 			subwayRouteKeysToTitles.put(route, route);
+
 		}
 	}
 	
@@ -125,18 +131,41 @@ public class SubwayTransitSource implements TransitSource {
 
 		for (String route : outputRoutes)
 		{
-			String url = getPredictionsUrl(route);
-			DownloadHelper downloadHelper = new DownloadHelper(url);
+			{
+				String url = getPredictionsUrl(route);
+				DownloadHelper downloadHelper = new DownloadHelper(url);
+
+				downloadHelper.connect();
+
+				InputStream data = downloadHelper.getResponseData();
+
+				//bus prediction
+
+				SubwayPredictionsFeedParser parser = new SubwayPredictionsFeedParser(route, routePool, directions, rail, railArrow, busMapping, subwayRouteKeysToTitles);
+
+				parser.runParse(data);
+			}
 			
-			downloadHelper.connect();
+			//get alerts if necessary
+			int alertKey = alertKeys.get(route);
+			
+			RouteConfig railRouteConfig = routePool.get(route);
+			if (railRouteConfig.obtainedAlerts() == false)
+			{
+				String url = AlertsMapping.alertUrlPrefix + alertKey;
+				DownloadHelper downloadHelper = new DownloadHelper(url);
+				downloadHelper.connect();
 
-			InputStream data = downloadHelper.getResponseData();
+				InputStream stream = downloadHelper.getResponseData();
+				InputStreamReader data = new InputStreamReader(stream);
 
-			//bus prediction
+				AlertParser parser = new AlertParser();
+				parser.runParse(data);
+				railRouteConfig.setAlerts(parser.getAlerts());
+				data.close();
 
-			SubwayPredictionsFeedParser parser = new SubwayPredictionsFeedParser(route, routePool, directions, rail, railArrow, busMapping, subwayRouteKeysToTitles);
-
-			parser.runParse(data);
+			}
+			
 		}
 	}
 
@@ -231,6 +260,8 @@ public class SubwayTransitSource implements TransitSource {
 	public static final String OrangeLine = "Orange";
 	public static final String BlueLine = "Blue";
 	private static final String[] subwayRoutes = new String[] {RedLine, OrangeLine, BlueLine};
+	private final HashMap<String, Integer> alertKeys;
+	
 	
 	public static final int RedColor = Color.RED;
 	public static final int OrangeColor = 0xf88017; //orange isn't a built in color?

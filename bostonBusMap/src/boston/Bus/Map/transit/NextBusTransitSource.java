@@ -225,7 +225,19 @@ public abstract class NextBusTransitSource implements TransitSource
 				}
 			}
 		}
+		
+		//alerts
+		TransitSource transitSource = transitSystem.getTransitSource(routeConfig.getRouteName());
+		if (transitSource instanceof NextBusTransitSource)
+		{
+			if (routeConfig.obtainedAlerts() == false)
+			{
+				parseAlert(routeConfig);
+			}
+		}
 	}
+
+	protected abstract void parseAlert(RouteConfig routeConfig) throws ClientProtocolException, IOException, SAXException;
 
 	protected String getPredictionsUrl(List<Location> locations, int maxStops, String route)
 	{

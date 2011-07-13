@@ -20,6 +20,7 @@ import org.xml.sax.SAXException;
 import android.content.Context;
 import android.graphics.drawable.Drawable;
 import android.util.Log;
+import boston.Bus.Map.data.AlertsMapping;
 import boston.Bus.Map.data.BusLocation;
 import boston.Bus.Map.data.CommuterRailStopLocation;
 import boston.Bus.Map.data.Directions;
@@ -50,11 +51,11 @@ public class CommuterRailTransitSource implements TransitSource {
 	private static final String predictionsUrlSuffix = ".csv";
 	public static final String routeTagPrefix = "CR-";
 	private static final String dataUrlPrefix = "http://developer.mbta.com/lib/RTCR/RailLine_";
-	private static final String alertUrlPrefix = "http://talerts.com/rssfeed/alertsrss.aspx?";
 	
 	private final HashMap<String, String> routeKeysToAlertUrls = new HashMap<String, String>();
 	
-	public CommuterRailTransitSource(Drawable busStop, Drawable rail, Drawable railArrow)
+	
+	public CommuterRailTransitSource(Drawable busStop, Drawable rail, Drawable railArrow, AlertsMapping alertsMapping)
 	{
 		this.busStop = busStop;
 		this.rail = rail;
@@ -76,10 +77,10 @@ public class CommuterRailTransitSource implements TransitSource {
 
 		};
 		
+		
+		
 		//map alert keys to numbers
-		int[] alertNumbers = new int[] {
-				232, 12, 9, 1, 14, 5, 10, 4, 2, 8, 7, 11
-		};
+		HashMap<String, Integer> alertNumbers = alertsMapping.getAlertNumbers(routeNames);
 		
 		routes = new String[routeNames.length];
 		
@@ -89,14 +90,16 @@ public class CommuterRailTransitSource implements TransitSource {
 		}
 
 		
-		for (int i = 0; i < alertNumbers.length; i++)
+		for (int i = 0; i < routeNames.length; i++)
 		{
-			addAlert(routeTagPrefix + (i+1), alertNumbers[i]);
+			String routeTitle = routeNames[i];
+			int alertKey = alertNumbers.get(routeTitle);
+			addAlert(routeTagPrefix + (i+1), alertKey);
 		}
 	}
 	
 	private void addAlert(String routeKey, int alertNum) {
-		routeKeysToAlertUrls.put(routeKey, alertUrlPrefix + alertNum);
+		routeKeysToAlertUrls.put(routeKey, AlertsMapping.alertUrlPrefix + alertNum);
 	}
 
 	private void addRoute(String key, String title, int index) {
