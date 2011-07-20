@@ -224,7 +224,7 @@ public class CommuterRailPredictionsFeedParser
 					
 					busLocation = new CommuterTrainLocation(lat, lon,
 							vehicleId, nowEpochTime, currentMillis, heading, true, direction, null, rail, 
-							railArrow, route, directions, routeTitle, true, false, arrowTopDiff);
+							railArrow, route, directions, routeTitle, true, arrowTopDiff);
 					busMapping.put(vehicleId, busLocation);
 
 					toRemove.remove(vehicleId);

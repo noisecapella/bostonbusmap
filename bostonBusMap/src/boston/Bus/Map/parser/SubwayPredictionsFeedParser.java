@@ -31,6 +31,7 @@ import boston.Bus.Map.data.RouteConfig;
 import boston.Bus.Map.data.RoutePool;
 import boston.Bus.Map.data.StopLocation;
 import boston.Bus.Map.data.SubwayStopLocation;
+import boston.Bus.Map.data.SubwayTrainLocation;
 import boston.Bus.Map.transit.SubwayTransitSource;
 import boston.Bus.Map.transit.TransitSystem;
 
@@ -201,7 +202,7 @@ public class SubwayPredictionsFeedParser
 						routeTitle = route;
 					}
 
-					busLocation = new BusLocation(stopLocation.getLatitudeAsDegrees(), stopLocation.getLongitudeAsDegrees(),
+					busLocation = new SubwayTrainLocation(stopLocation.getLatitudeAsDegrees(), stopLocation.getLongitudeAsDegrees(),
 							id, lastFeedUpdateTime, currentMillis, null, true, direction, null, rail, 
 							railArrow, route, directions, routeTitle + " at " + stopLocation.getTitle(), true, arrowTopDiff);
 					busMapping.put(id, busLocation);

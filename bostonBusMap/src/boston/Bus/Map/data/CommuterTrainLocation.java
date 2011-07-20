@@ -9,7 +9,7 @@ public class CommuterTrainLocation extends BusLocation {
 			String heading, boolean predictable, String dirTag,
 			String inferBusRoute, Drawable bus, Drawable arrow,
 			String routeName, Directions directions, String routeTitle,
-			boolean disappearAfterRefresh, boolean showBusNumber,
+			boolean disappearAfterRefresh,
 			int arrowTopDiff) {
 		super(latitude, longitude, id, lastFeedUpdateInMillis, lastUpdateInMillis,
 				heading, predictable, dirTag, inferBusRoute, bus, arrow, routeName,
