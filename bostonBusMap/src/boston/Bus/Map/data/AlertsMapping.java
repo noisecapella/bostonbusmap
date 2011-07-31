@@ -226,7 +226,8 @@ public class AlertsMapping {
 		}
 	}
 
-	public HashMap<String, Integer> getAlertNumbers(String[] routeNames) {
+	public HashMap<String, Integer> getAlertNumbers(String[] routeNames, HashMap<String, String> routeKeysToTitles)
+	{
 		HashMap<String, Integer> ret = new HashMap<String, Integer>();
 		
 		for (String routeName : routeNames)
@@ -240,26 +241,13 @@ public class AlertsMapping {
 					break;
 				}
 			}
-			//try again if we didn't get an exact match
-			if (ret.containsKey(routeName) == false)
-			{
-				for (String routeDescription : routeDescriptionToAlertKey.keySet())
-				{
-					if (routeDescription.startsWith(routeName + " line") || 
-							routeDescription.startsWith(routeName + " Line"))
-					{
-						int value = routeDescriptionToAlertKey.get(routeDescription);
-						ret.put(routeName, value);
-						break;
-					}
-				}
-			}
+
 			//try startwith
 			if (ret.containsKey(routeName) == false)
 			{
 				for (String routeDescription : routeDescriptionToAlertKey.keySet())
 				{
-					if (routeDescription.startsWith(routeName))
+					if (routeDescription.startsWith(routeName + " "))
 					{
 						int value = routeDescriptionToAlertKey.get(routeDescription);
 						ret.put(routeName, value);
@@ -268,7 +256,32 @@ public class AlertsMapping {
 				}
 			}
 		}
+		
+		//special cases
+		addToList("CT1", 50, routeKeysToTitles, ret);
+		addToList("CT2", 51, routeKeysToTitles, ret);
+		addToList("CT3", 52, routeKeysToTitles, ret);
+
+		addToList("Silver Line SL1", 20, routeKeysToTitles, ret);
+		addToList("Silver Line SL2", 28, routeKeysToTitles, ret);
+		addToList("Silver Line SL4", 53, routeKeysToTitles, ret);
+		//which alert index number is SL5?
+		//addToList("Silver Line SL5", 50, routeKeysToTitles, ret);
+
 		return ret;
+	}
+
+	private void addToList(String routeTitle, int alertIndex, HashMap<String, String> routeKeysToTitles,
+			HashMap<String, Integer> alertsMapping) {
+		for (String routeKey : routeKeysToTitles.values())
+		{
+			String potentialRouteTitle = routeKeysToTitles.get(routeKey);
+			if (potentialRouteTitle.equals(routeTitle))
+			{
+				alertsMapping.put(routeKey, alertIndex);
+				return;
+			}
+		}
 	}
 	
 	

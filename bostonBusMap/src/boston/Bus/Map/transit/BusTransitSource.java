@@ -18,16 +18,15 @@ import android.graphics.drawable.Drawable;
 
 public class BusTransitSource extends NextBusTransitSource {
 
-	private final AlertsMapping alertsMapping;
+	
 	private final HashMap<String, Integer> alertKeys;
 
-	public BusTransitSource(TransitSystem transitSystem, Drawable busStop, Drawable bus, Drawable arrow, AlertsMapping alertsMapping)
+	public BusTransitSource(TransitSystem transitSystem, Drawable busStop, Drawable bus,
+			Drawable arrow, AlertsMapping alertsMapping)
 	{
 		super(transitSystem, busStop, bus, arrow, "mbta", boston.Bus.Map.R.raw.routeconfig);
 		
-		this.alertsMapping = alertsMapping;
-		
-		alertKeys = alertsMapping.getAlertNumbers(getRoutes());
+		alertKeys = alertsMapping.getAlertNumbers(getRoutes(), getRouteKeysToTitles());
 	}
 	
 	@Override
