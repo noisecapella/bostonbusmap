@@ -247,7 +247,8 @@ public class AlertsMapping {
 			{
 				for (String routeDescription : routeDescriptionToAlertKey.keySet())
 				{
-					if (routeDescription.startsWith(routeName + " "))
+					if (routeDescription.startsWith(routeName + " ") ||
+							routeDescription.startsWith(routeName + "/"))
 					{
 						int value = routeDescriptionToAlertKey.get(routeDescription);
 						ret.put(routeName, value);
@@ -280,7 +281,7 @@ public class AlertsMapping {
 		for (String routeKey : routeKeysToTitles.values())
 		{
 			String potentialRouteTitle = routeKeysToTitles.get(routeKey);
-			if (potentialRouteTitle.equals(routeTitle))
+			if (routeTitle.equals(potentialRouteTitle))
 			{
 				alertsMapping.put(routeKey, alertIndex);
 				return;
