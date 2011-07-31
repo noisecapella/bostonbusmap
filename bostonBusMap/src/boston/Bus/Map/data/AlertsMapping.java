@@ -268,6 +268,10 @@ public class AlertsMapping {
 		//which alert index number is SL5?
 		//addToList("Silver Line SL5", 50, routeKeysToTitles, ret);
 
+		ret.put("Red", 15);
+		ret.put("Orange", 16);
+		ret.put("Blue", 18);
+
 		return ret;
 	}
 
