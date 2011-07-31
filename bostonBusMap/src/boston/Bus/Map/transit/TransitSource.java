@@ -27,7 +27,7 @@ public interface TransitSource {
 
 	void refreshData(RouteConfig routeConfig, int selectedBusPredictions,
 			int maxStops, double centerLatitude, double centerLongitude,
-			ConcurrentHashMap<Integer, BusLocation> busMapping, String selectedRoute,
+			ConcurrentHashMap<String, BusLocation> busMapping, String selectedRoute,
 			RoutePool routePool, Directions directions, Locations locationsObj)
 	throws IOException, ParserConfigurationException, SAXException;
 

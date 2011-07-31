@@ -80,7 +80,7 @@ public class CommuterRailTransitSource implements TransitSource {
 		
 		
 		//map alert keys to numbers
-		HashMap<String, Integer> alertNumbers = alertsMapping.getAlertNumbers(routeNames);
+		HashMap<String, Integer> alertNumbers = alertsMapping.getAlertNumbers(routeNames, routeKeysToTitles);
 		
 		routes = new String[routeNames.length];
 		
@@ -142,7 +142,7 @@ public class CommuterRailTransitSource implements TransitSource {
 	public void refreshData(RouteConfig routeConfig,
 			int selectedBusPredictions, int maxStops, double centerLatitude,
 			double centerLongitude,
-			ConcurrentHashMap<Integer, BusLocation> busMapping,
+			ConcurrentHashMap<String, BusLocation> busMapping,
 			String selectedRoute, RoutePool routePool, Directions directions,
 			Locations locationsObj) throws IOException,
 			ParserConfigurationException, SAXException

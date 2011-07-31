@@ -122,7 +122,7 @@ public abstract class NextBusTransitSource implements TransitSource
 
 	@Override
 	public void refreshData(RouteConfig routeConfig, int selectedBusPredictions, int maxStops,
-			double centerLatitude, double centerLongitude, ConcurrentHashMap<Integer, BusLocation> busMapping, 
+			double centerLatitude, double centerLongitude, ConcurrentHashMap<String, BusLocation> busMapping, 
 			String selectedRoute, RoutePool routePool, Directions directions, Locations locationsObj)
 	throws IOException, ParserConfigurationException, SAXException {
 		//read data from the URL
@@ -208,8 +208,8 @@ public abstract class NextBusTransitSource implements TransitSource
 				parser.fillMapping(busMapping);
 
 				//delete old buses
-				List<Integer> busesToBeDeleted = new ArrayList<Integer>();
-				for (Integer id : busMapping.keySet())
+				List<String> busesToBeDeleted = new ArrayList<String>();
+				for (String id : busMapping.keySet())
 				{
 					BusLocation busLocation = busMapping.get(id);
 					if (busLocation.getLastUpdateInMillis() + 180000 < TransitSystem.currentTimeMillis())
@@ -219,7 +219,7 @@ public abstract class NextBusTransitSource implements TransitSource
 					}
 				}
 
-				for (Integer id : busesToBeDeleted)
+				for (String id : busesToBeDeleted)
 				{
 					busMapping.remove(id);
 				}

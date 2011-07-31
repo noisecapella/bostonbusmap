@@ -53,7 +53,7 @@ public class SubwayTransitSource implements TransitSource {
 		this.railArrow = railArrow;
 		this.rail = rail;
 		
-		alertKeys = alertsMapping.getAlertNumbers(subwayRoutes);
+		alertKeys = alertsMapping.getAlertNumbers(subwayRoutes, subwayRouteKeysToTitles);
 		for (String route : subwayRoutes)
 		{
 			subwayRouteKeysToTitles.put(route, route);
@@ -88,7 +88,7 @@ public class SubwayTransitSource implements TransitSource {
 	@Override
 	public void refreshData(RouteConfig routeConfig,
 			int selectedBusPredictions, int maxStops, double centerLatitude,
-			double centerLongitude, ConcurrentHashMap<Integer, BusLocation> busMapping,
+			double centerLongitude, ConcurrentHashMap<String, BusLocation> busMapping,
 			String selectedRoute, RoutePool routePool, Directions directions,
 			Locations locationsObj)
 			throws IOException, ParserConfigurationException, SAXException {

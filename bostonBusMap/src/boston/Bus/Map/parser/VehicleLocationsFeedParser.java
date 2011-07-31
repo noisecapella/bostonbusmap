@@ -63,7 +63,7 @@ public class VehicleLocationsFeedParser extends DefaultHandler
 	}
 
 	private long lastUpdateTime;
-	private final HashMap<Integer, BusLocation> busMapping = new HashMap<Integer, BusLocation>();
+	private final HashMap<String, BusLocation> busMapping = new HashMap<String, BusLocation>();
 	private final HashMap<String, Integer> tagCache = new HashMap<String, Integer>();
 	
 	
@@ -91,7 +91,7 @@ public class VehicleLocationsFeedParser extends DefaultHandler
 			
 			float lat = QuickParseUtil.parseFloat(getAttribute(latKey, attributes));
 			float lon = QuickParseUtil.parseFloat(getAttribute(lonKey, attributes));
-			int id = Integer.parseInt(getAttribute(idKey, attributes));
+			String id = getAttribute(idKey, attributes);
 			String route = getAttribute(routeTagKey, attributes);
 			int seconds = Integer.parseInt(getAttribute(secsSinceReportKey, attributes));
 			String heading = getAttribute(headingKey, attributes);
@@ -108,21 +108,20 @@ public class VehicleLocationsFeedParser extends DefaultHandler
 					heading, predictable, dirTag, inferBusRoute, bus, arrow, route, directions, routeKeysToTitles.get(route),
 					false, arrowTopDiff);
 
-			Integer idInt = new Integer(id);
-			if (busMapping.containsKey(idInt))
+			if (busMapping.containsKey(id))
 			{
 				//calculate the direction of the bus from the current and previous locations
-				newBusLocation.movedFrom(busMapping.get(idInt));
+				newBusLocation.movedFrom(busMapping.get(id));
 			}
 
-			busMapping.put(idInt, newBusLocation);
+			busMapping.put(id, newBusLocation);
 		}
 		else if (localName.equals(lastTimeKey))
 		{
 			lastUpdateTime = Long.parseLong(attributes.getValue(timeKey));
 			lastUpdateTime += TransitSystem.getTimeZone().getOffset(lastUpdateTime);
 			
-			for (Integer key : busMapping.keySet())
+			for (String key : busMapping.keySet())
 			{
 				busMapping.get(key).setLastUpdateInMillis(lastUpdateTime);
 			}
@@ -144,7 +143,7 @@ public class VehicleLocationsFeedParser extends DefaultHandler
 		return lastUpdateTime;
 	}
 
-	public void fillMapping(ConcurrentHashMap<Integer, BusLocation> outputBusMapping) {
+	public void fillMapping(ConcurrentHashMap<String, BusLocation> outputBusMapping) {
 		outputBusMapping.putAll(busMapping);
 	}
 }

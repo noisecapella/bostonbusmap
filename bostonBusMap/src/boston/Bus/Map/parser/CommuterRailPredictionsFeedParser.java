@@ -46,11 +46,11 @@ public class CommuterRailPredictionsFeedParser
 	private final HashMap<String, Integer> indexes = new HashMap<String, Integer>();
 
 	
-	private final ConcurrentHashMap<Integer, BusLocation> busMapping;
+	private final ConcurrentHashMap<String, BusLocation> busMapping;
 	private final HashMap<String, String> routeKeysToTitles;
 
 	public CommuterRailPredictionsFeedParser(RouteConfig routeConfig, Directions directions, Drawable bus, Drawable railArrow, 
-			ConcurrentHashMap<Integer, BusLocation> busMapping, HashMap<String, String> routeKeysToTitles)
+			ConcurrentHashMap<String, BusLocation> busMapping, HashMap<String, String> routeKeysToTitles)
 	{
 		this.routeConfig = routeConfig;
 		this.directions = directions;
@@ -97,8 +97,8 @@ public class CommuterRailPredictionsFeedParser
 		ArrayList<StopLocation> stopLocations = new ArrayList<StopLocation>(); 
 
 		//start off with all the buses to be removed, and if they're still around remove them from toRemove
-		HashSet<Integer> toRemove = new HashSet<Integer>();
-		for (Integer id : busMapping.keySet())
+		HashSet<String> toRemove = new HashSet<String>();
+		for (String id : busMapping.keySet())
 		{
 			BusLocation busLocation = busMapping.get(id);
 			if (busLocation.isDisappearAfterRefresh())
@@ -167,20 +167,7 @@ public class CommuterRailPredictionsFeedParser
 					
 				}
 				 
-				int vehicleId = 0;
-				try
-				{
-					String idStr = getItem("Vehicle", array);
-					if (idStr != null && idStr.length() != 0)
-					{
-						vehicleId = Integer.parseInt(idStr);
-					}
-				}
-				catch (NumberFormatException e)
-				{
-					LogUtil.e(e);
-				}
-
+				String vehicleId = getItem("Trip", array);
 				
 				predictions.add(new CommuterRailPrediction(minutes, vehicleId, directions.getTitleAndName(direction),
 						routeConfig.getRouteName(), false, false, lateness, flagEnum));
@@ -201,7 +188,7 @@ public class CommuterRailPredictionsFeedParser
 					//oh well
 				}
 				
-				if (lat != 0 && lon != 0 && vehicleId != 0)
+				if (lat != 0 && lon != 0 && vehicleId != null)
 				{
 					//StopLocation nextStop = getNextStop(routeConfig, stopLocation, direction);
 
@@ -259,7 +246,7 @@ public class CommuterRailPredictionsFeedParser
 			stopLocation.addPrediction(predictions.get(i));
 		}
 
-		for (Integer id : toRemove)
+		for (String id : toRemove)
 		{
 			busMapping.remove(id);
 		}
@@ -280,7 +267,7 @@ public class CommuterRailPredictionsFeedParser
 		return "";
 	}
 
-	public Map<? extends Integer, ? extends BusLocation> getBusMapping() {
+	public Map<? extends String, ? extends BusLocation> getBusMapping() {
 		return busMapping;
 	}
 }

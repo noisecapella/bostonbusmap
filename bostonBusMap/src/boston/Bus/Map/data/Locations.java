@@ -71,7 +71,7 @@ public final class Locations
 	/**
 	 * A mapping of the bus number to bus location
 	 */
-	private ConcurrentHashMap<Integer, BusLocation> busMapping = new ConcurrentHashMap<Integer, BusLocation>();
+	private ConcurrentHashMap<String, BusLocation> busMapping = new ConcurrentHashMap<String, BusLocation>();
 	
 	/**
 	 * A mapping of a route id to a RouteConfig object.

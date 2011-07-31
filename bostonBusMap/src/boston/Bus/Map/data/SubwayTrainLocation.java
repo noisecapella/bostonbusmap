@@ -4,7 +4,7 @@ import android.graphics.drawable.Drawable;
 
 public class SubwayTrainLocation extends BusLocation {
 
-	public SubwayTrainLocation(float latitude, float longitude, int id,
+	public SubwayTrainLocation(float latitude, float longitude, String id,
 			long lastFeedUpdateInMillis, long lastUpdateInMillis,
 			String heading, boolean predictable, String dirTag,
 			String inferBusRoute, Drawable bus, Drawable arrow,

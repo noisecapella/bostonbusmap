@@ -76,7 +76,7 @@ lateness. Used at the trip’s origin.
 
 	private final int flag; 
 	
-	public CommuterRailPrediction(int minutes, int vehicleId, String direction,
+	public CommuterRailPrediction(int minutes, String vehicleId, String direction,
 			String routeName, boolean affectedByLayover, boolean isDelayed,
 			int lateness, int flag)
 	{
@@ -99,7 +99,7 @@ lateness. Used at the trip’s origin.
 			StringBuilder builder = new StringBuilder();
 			
 			builder.append("Line <b>").append(routeKeysToTitles.get(routeName)).append("</b>");
-			if (vehicleId != 0)
+			if (vehicleId != null)
 			{
 				builder.append(", Train <b>").append(vehicleId).append("</b>");
 			}
@@ -148,7 +148,11 @@ lateness. Used at the trip’s origin.
 		{
 			//NOTE: if this changes you must also change Prediction.CREATOR.createFromParcel
 			long arrivalTimeMillis = source.readLong();
-			int vehicleId = source.readInt();
+			String vehicleId = source.readString();
+			if (vehicleId.length() == 0)
+			{
+				vehicleId = null;
+			}
 			String direction = source.readString();
 			String routeName = source.readString();
 			boolean affectedByLayover = readBoolean(source);

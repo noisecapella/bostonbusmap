@@ -36,9 +36,9 @@ public class BusLocation implements Location {
 	public final float longitudeAsDegrees;
 
 	/**
-	 * The bus id. This uniquely identifies a bus
+	 * Unique id for a vehicle. Never null
 	 */
-	public final int id;
+	public final String busId;
 
 	private final String routeName;
 
@@ -104,7 +104,7 @@ public class BusLocation implements Location {
 	private static final int LOCATIONTYPE = 1;
 	public static final int NO_HEADING = -1;
 
-	public BusLocation(float latitude, float longitude, int id,
+	public BusLocation(float latitude, float longitude, String id,
 			long lastFeedUpdateInMillis, long lastUpdateInMillis, String heading, boolean predictable,
 			String dirTag, String inferBusRoute, Drawable bus, Drawable arrow,
 			String routeName, Directions directions, String routeTitle,
@@ -113,7 +113,7 @@ public class BusLocation implements Location {
 		this.longitude = (float) (longitude * Geometry.degreesToRadians);
 		this.latitudeAsDegrees = latitude;
 		this.longitudeAsDegrees = longitude;
-		this.id = id;
+		this.busId = id;
 		this.lastUpdateInMillis = lastUpdateInMillis;
 		this.lastFeedUpdateInMillis = lastFeedUpdateInMillis;
 		this.heading = heading;
@@ -265,8 +265,9 @@ public class BusLocation implements Location {
 		return snippet;
 	}
 
-	protected String getBusNumberMessage() {
-		return "Bus number: " + id + "<br />";
+	protected String getBusNumberMessage()
+	{
+		return "Bus number: " + busId + "<br />";
 	}
 
 	private String makeTitle() {
@@ -323,12 +324,12 @@ public class BusLocation implements Location {
 
 	@Override
 	public int getId() {
-		return id | LOCATIONTYPE << 24;
+		return (busId.hashCode() & 0xffffff) | LOCATIONTYPE << 24;
 	}
 
-	public int getBusNumber()
+	public String getBusNumber()
 	{
-		return id;
+		return busId;
 	}
 	
 	public Drawable getDrawable(Context context, boolean shadow,

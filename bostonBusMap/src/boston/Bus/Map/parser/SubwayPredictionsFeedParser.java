@@ -43,7 +43,7 @@ public class SubwayPredictionsFeedParser
 	private final Drawable rail;
 	private final Drawable railArrow;
 	
-	private final ConcurrentHashMap<Integer, BusLocation> busMapping;
+	private final ConcurrentHashMap<String, BusLocation> busMapping;
 	private final HashMap<String, String> routeKeysToTitles;
 	
 	private static final int ROUTE_INDEX = 0;
@@ -56,7 +56,7 @@ public class SubwayPredictionsFeedParser
 	private static final int BRANCH_INDEX = 7;
 	
 	public SubwayPredictionsFeedParser(String route, RoutePool routePool, Directions directions, Drawable bus, Drawable railArrow, 
-			ConcurrentHashMap<Integer, BusLocation> busMapping, HashMap<String, String> routeKeysToTitles)
+			ConcurrentHashMap<String, BusLocation> busMapping, HashMap<String, String> routeKeysToTitles)
 	{
 		this.currentRoute = route;
 		this.routePool = routePool;
@@ -109,8 +109,8 @@ public class SubwayPredictionsFeedParser
 		ArrayList<StopLocation> stopLocations = new ArrayList<StopLocation>(); 
 		
 		//start off with all the buses to be removed, and if they're still around remove them from toRemove
-		HashSet<Integer> toRemove = new HashSet<Integer>();
-		for (Integer id : busMapping.keySet())
+		HashSet<String> toRemove = new HashSet<String>();
+		for (String id : busMapping.keySet())
 		{
 			BusLocation busLocation = busMapping.get(id);
 			if (busLocation.isDisappearAfterRefresh() && currentRoute.equals(busLocation.getRouteId()))
@@ -169,7 +169,7 @@ public class SubwayPredictionsFeedParser
 				String stopDirection = stopKey.charAt(4) + "B";
 				String branch = lineArray[BRANCH_INDEX].trim();
 				String direction = route + stopDirection + branch;
-				int vehicleId = 0;
+				String vehicleId = null;
 
 				predictions.add(new Prediction(minutes, vehicleId, directions.getTitleAndName(direction),
 						routeConfig.getRouteName(), false, false, Prediction.NULL_LATENESS));
@@ -184,17 +184,7 @@ public class SubwayPredictionsFeedParser
 
 					//first, see if there's a subway car which pretty much matches an old BusLocation
 					BusLocation busLocation = null;
-					int id = 0;
-					try
-					{
-						String tripId = lineArray[TRIP_ID_INDEX].trim();
-						id = Integer.parseInt(tripId);
-					}
-					catch (NumberFormatException e)
-					{
-						Log.e("BostonBusMap", e.getMessage());
-						id = -1;
-					}
+					String tripId = lineArray[TRIP_ID_INDEX].trim();
 
 					String routeTitle = routeKeysToTitles.get(route);
 					if (routeTitle == null)
@@ -203,11 +193,11 @@ public class SubwayPredictionsFeedParser
 					}
 
 					busLocation = new SubwayTrainLocation(stopLocation.getLatitudeAsDegrees(), stopLocation.getLongitudeAsDegrees(),
-							id, lastFeedUpdateTime, currentMillis, null, true, direction, null, rail, 
+							tripId, lastFeedUpdateTime, currentMillis, null, true, direction, null, rail, 
 							railArrow, route, directions, routeTitle + " at " + stopLocation.getTitle(), true, arrowTopDiff);
-					busMapping.put(id, busLocation);
+					busMapping.put(tripId, busLocation);
 
-					toRemove.remove(id);
+					toRemove.remove(tripId);
 
 
 					//set arrow to point to correct direction
@@ -238,7 +228,7 @@ public class SubwayPredictionsFeedParser
 			stopLocation.addPrediction(predictions.get(i));
 		}
 		
-		for (Integer id : toRemove)
+		for (String id : toRemove)
 		{
 			busMapping.remove(id);
 		}
@@ -337,7 +327,7 @@ public class SubwayPredictionsFeedParser
 		return date;
 	}
 
-	public Map<? extends Integer, ? extends BusLocation> getBusMapping() {
+	public Map<? extends String, ? extends BusLocation> getBusMapping() {
 		return busMapping;
 	}
 }

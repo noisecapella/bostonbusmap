@@ -36,7 +36,10 @@ import android.text.style.TypefaceSpan;
 public class Prediction implements Comparable<Prediction>, Parcelable
 {
 	public static final int NULL_LATENESS = -1;
-	protected final int vehicleId;
+	/**
+	 * This may be null
+	 */
+	protected final String vehicleId;
 	protected final String direction;
 	protected final String routeName;
 	protected final long arrivalTimeMillis;
@@ -44,7 +47,7 @@ public class Prediction implements Comparable<Prediction>, Parcelable
 	protected final boolean isDelayed;
 	protected final int lateness;
 	
-	public Prediction(int minutes, int vehicleId,
+	public Prediction(int minutes, String vehicleId,
 			String direction, String routeName, boolean affectedByLayover, boolean isDelayed, int lateness)
 	{
 		this.vehicleId = vehicleId;
@@ -72,7 +75,7 @@ public class Prediction implements Comparable<Prediction>, Parcelable
 			StringBuilder builder = new StringBuilder();
 			
 			builder.append("Route <b>").append(routeKeysToTitles.get(routeName)).append("</b>");
-			if (vehicleId != 0)
+			if (vehicleId != null)
 			{
 				builder.append(", Bus <b>").append(vehicleId).append("</b>");
 			}
@@ -127,7 +130,12 @@ public class Prediction implements Comparable<Prediction>, Parcelable
 
 	@Override
 	public int hashCode() {
-		return (int) (arrivalTimeMillis ^ vehicleId);
+		int vehicleIdHash = 0;
+		if (vehicleId != null)
+		{
+			vehicleIdHash = vehicleId.hashCode();
+		}
+		return (int) (arrivalTimeMillis ^ vehicleIdHash);
 	}
 	
 	@Override
@@ -166,7 +174,7 @@ public class Prediction implements Comparable<Prediction>, Parcelable
 	@Override
 	public void writeToParcel(Parcel dest, int flags) {
 		dest.writeLong(arrivalTimeMillis);
-		dest.writeInt(vehicleId);
+		dest.writeString(vehicleId != null ? vehicleId : "");
 		dest.writeString(direction);
 		dest.writeString(routeName);
 		writeBoolean(dest, affectedByLayover);
@@ -185,7 +193,11 @@ public class Prediction implements Comparable<Prediction>, Parcelable
 		public Prediction createFromParcel(Parcel source) {
 			//NOTE: if this changes you must also change CommuterRailPrediction.CREATOR.createFromParcel
 			long arrivalTimeMillis = source.readLong();
-			int vehicleId = source.readInt();
+			String vehicleId = source.readString();
+			if (vehicleId.length() == 0)
+			{
+				vehicleId = null;
+			}
 			String direction = source.readString();
 			String routeName = source.readString();
 			boolean affectedByLayover = readBoolean(source);

@@ -4,7 +4,7 @@ import android.graphics.drawable.Drawable;
 
 public class CommuterTrainLocation extends BusLocation {
 
-	public CommuterTrainLocation(float latitude, float longitude, int id,
+	public CommuterTrainLocation(float latitude, float longitude, String id,
 			long lastFeedUpdateInMillis, long lastUpdateInMillis,
 			String heading, boolean predictable, String dirTag,
 			String inferBusRoute, Drawable bus, Drawable arrow,
@@ -26,6 +26,6 @@ public class CommuterTrainLocation extends BusLocation {
 	
 	@Override
 	protected String getBusNumberMessage() {
-		return "Train number: " + id + "<br />\n";
+		return "Train number: " + busId + "<br />\n";
 	}
 }
