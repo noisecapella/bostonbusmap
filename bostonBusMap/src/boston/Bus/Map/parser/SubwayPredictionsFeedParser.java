@@ -219,6 +219,11 @@ public class SubwayPredictionsFeedParser
 			//probably updating the wrong url?
 			Log.e("BostonBusMap", e.getMessage());
 		}
+		catch (ArrayIndexOutOfBoundsException e)
+		{
+			//probably a hiccup in the subway feed
+			Log.e("BostonBusMap", e.getMessage());
+		}
 		
 		clearPredictions(route);
 
