@@ -757,6 +757,11 @@ public class DatabaseHelper extends SQLiteOpenHelper
 			for (String dirTag : indexes.keySet())
 			{
 				Integer i = indexes.get(dirTag);
+				if (i >= names.size() || i >= titles.size() || i >= routes.size())
+				{
+					//should be a rare case hopefully
+					continue;
+				}
 				String name = names.get(i);
 				String title = titles.get(i);
 				String route = routes.get(i);
