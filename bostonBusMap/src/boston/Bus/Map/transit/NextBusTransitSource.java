@@ -32,6 +32,7 @@ import boston.Bus.Map.parser.RouteConfigFeedParser;
 import boston.Bus.Map.parser.VehicleLocationsFeedParser;
 import boston.Bus.Map.ui.ProgressMessage;
 import boston.Bus.Map.util.DownloadHelper;
+import boston.Bus.Map.util.LogUtil;
 import boston.Bus.Map.util.SearchHelper;
 import boston.Bus.Map.util.StreamCounter;
 
@@ -232,7 +233,15 @@ public abstract class NextBusTransitSource implements TransitSource
 		{
 			if (routeConfig.obtainedAlerts() == false)
 			{
-				parseAlert(routeConfig);
+				try
+				{
+					parseAlert(routeConfig);
+				}
+				catch (Exception e)
+				{
+					LogUtil.e(e);
+					//I'm silencing these since alerts aren't necessary to use the rest of the app
+				}
 			}
 		}
 	}
