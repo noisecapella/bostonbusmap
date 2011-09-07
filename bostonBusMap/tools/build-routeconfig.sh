@@ -17,4 +17,4 @@ for each in `cat routes`; do cat routeConfig$each | awk 'BEGIN { in_path = 0 } $
 
 echo "</body>" >> routeconfig_full.xml
 
-gzip routeconfig_full.xml
+gzip -f routeconfig_full.xml
