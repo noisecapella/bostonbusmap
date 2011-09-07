@@ -2,3 +2,4 @@
 bin/*
 gen/*
 *.properties
+tools/route*
