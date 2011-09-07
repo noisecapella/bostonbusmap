@@ -108,7 +108,8 @@ public class DatabaseHelper extends SQLiteOpenHelper
 	public final static int VERBOSE_DB_8 = 20;
 	public final static int COMMUTER_DB_1 = 21;
 	public final static int TORONTO_DB_1 = 22;
-	public final static int CURRENT_DB_VERSION = TORONTO_DB_1;
+	public final static int TORONTO_DB_2 = 23;
+	public final static int CURRENT_DB_VERSION = TORONTO_DB_2;
 	
 	public static final int ALWAYS_POPULATE = 3;
 	public static final int POPULATE_IF_UPGRADE = 2;
