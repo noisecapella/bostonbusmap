@@ -9,7 +9,7 @@ import javax.xml.parsers.ParserConfigurationException;
 import org.apache.http.client.ClientProtocolException;
 import org.xml.sax.SAXException;
 
-import com.schneeloch.latransit.main.UpdateAsyncTask;
+import com.schneeloch.sftransit.main.UpdateAsyncTask;
 
 import android.content.Context;
 import android.graphics.drawable.Drawable;

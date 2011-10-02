@@ -21,9 +21,9 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.FrameLayout.LayoutParams;
 
-import com.schneeloch.latransit.R;
-import com.schneeloch.latransit.main.Main;
-import com.schneeloch.latransit.main.MoreInfo;
+import com.schneeloch.sftransit.R;
+import com.schneeloch.sftransit.main.Main;
+import com.schneeloch.sftransit.main.MoreInfo;
 
 import boston.Bus.Map.data.Alert;
 import boston.Bus.Map.data.BusLocation;

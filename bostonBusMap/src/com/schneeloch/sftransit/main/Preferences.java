@@ -16,10 +16,10 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
     */
-package com.schneeloch.latransit.main;
+package com.schneeloch.sftransit.main;
 
-import com.schneeloch.latransit.R;
-import com.schneeloch.latransit.provider.TransitContentProvider;
+import com.schneeloch.sftransit.R;
+import com.schneeloch.sftransit.provider.TransitContentProvider;
 
 import boston.Bus.Map.transit.TransitSystem;
 import android.app.AlertDialog;

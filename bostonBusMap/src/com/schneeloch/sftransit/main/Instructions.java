@@ -1,6 +1,6 @@
-package com.schneeloch.latransit.main;
+package com.schneeloch.sftransit.main;
 
-import com.schneeloch.latransit.R;
+import com.schneeloch.sftransit.R;
 
 import android.app.Activity;
 import android.os.Bundle;

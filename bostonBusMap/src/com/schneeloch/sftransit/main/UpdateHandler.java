@@ -1,4 +1,4 @@
-package com.schneeloch.latransit.main;
+package com.schneeloch.sftransit.main;
 
 import org.apache.http.impl.conn.tsccm.RouteSpecificPool;
 

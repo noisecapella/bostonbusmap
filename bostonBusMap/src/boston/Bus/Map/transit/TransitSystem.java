@@ -13,7 +13,7 @@ import javax.xml.parsers.ParserConfigurationException;
 
 import org.xml.sax.SAXException;
 
-import com.schneeloch.latransit.main.Main;
+import com.schneeloch.sftransit.main.Main;
 
 import android.R.string;
 import android.content.Context;
@@ -33,8 +33,8 @@ import boston.Bus.Map.util.Constants;
  *
  */
 public class TransitSystem {
-	private static final double laLatitude = 34.0522222;
-	private static final double laLongitude = -118.2427778;
+	private static final double sfLatitude = 37.766667;
+	private static final double sfLongitude = -122.433333;
 	
 	private static final String website = "http://www.terribleinformation.org/george/bostonbusmap";
 	
@@ -46,26 +46,26 @@ public class TransitSystem {
 	public static final double upperRightLon = -69.774169921875;
 */
 	
-	public static final String[] emails = new String[]{"bostonbusmap@gmail.com", "martineza@metro.net"};
-	public static final String emailSubject = "Los AngelBus error report";
+	public static final String[] emails = new String[]{"bostonbusmap@gmail.com"};
+	public static final String emailSubject = "SF BusMap error report";
 	
 	
 	public static double getCenterLat() {
-		return laLatitude;
+		return sfLatitude;
 	}
 
 	public static double getCenterLon() {
-		return laLongitude;
+		return sfLongitude;
 	}
 
 	public static int getCenterLatAsInt()
 	{
-		return (int)(laLatitude * Constants.E6);
+		return (int)(sfLatitude * Constants.E6);
 	}
 	
 	public static int getCenterLonAsInt()
 	{
-		return (int)(laLongitude * Constants.E6);
+		return (int)(sfLongitude * Constants.E6);
 	}
 
 	public static String getWebSite() {
@@ -86,7 +86,7 @@ public class TransitSystem {
 	{
 		if (defaultTransitSource == null)
 		{
-			defaultTransitSource = new LABusTransitSource(this, busStop, bus, arrow);
+			defaultTransitSource = new SFBusTransitSource(this, busStop, bus, arrow);
 			transitSources.add(defaultTransitSource);
 		}
 	}
@@ -190,13 +190,13 @@ public class TransitSystem {
 		return source.createStop(lat, lon, stopTag, title, platformOrder, branch, route, dirTag);
 	}
 
-	private static final TimeZone bostonTimeZone = TimeZone.getTimeZone("America/Los_Angeles");
+	private static final TimeZone sfTimeZone = TimeZone.getTimeZone("America/San_Francisco");
 	private static DateFormat defaultTimeFormat;
 	private static DateFormat defaultDateFormat;
 		
 	public static TimeZone getTimeZone()
 	{
-		return bostonTimeZone;
+		return sfTimeZone;
 	}
 
 	/**

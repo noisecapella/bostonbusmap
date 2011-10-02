@@ -16,7 +16,7 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
     */
-package com.schneeloch.latransit.main;
+package com.schneeloch.sftransit.main;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -58,8 +58,8 @@ import com.google.android.maps.MapView;
 import com.google.android.maps.MyLocationOverlay;
 import com.google.android.maps.Overlay;
 import com.google.android.maps.OverlayItem;
-import com.schneeloch.latransit.R;
-import com.schneeloch.latransit.provider.TransitContentProvider;
+import com.schneeloch.sftransit.R;
+import com.schneeloch.sftransit.provider.TransitContentProvider;
 
 import android.app.Activity;
 import android.app.AlertDialog;

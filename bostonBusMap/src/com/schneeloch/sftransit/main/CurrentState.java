@@ -1,4 +1,4 @@
-package com.schneeloch.latransit.main;
+package com.schneeloch.sftransit.main;
 
 import java.util.HashMap;
 import java.util.List;

@@ -2,7 +2,7 @@ package boston.Bus.Map.ui;
 
 import java.util.ArrayList;
 
-import com.schneeloch.latransit.R;
+import com.schneeloch.sftransit.R;
 
 import android.app.Activity;
 import android.content.Context;
