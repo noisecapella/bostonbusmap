@@ -24,7 +24,7 @@ import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import com.schneeloch.sftransit.R;
+import com.schneeloch.latransit.R;
 
 
 import com.google.android.maps.OverlayItem;

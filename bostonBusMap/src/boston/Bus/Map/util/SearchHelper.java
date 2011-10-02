@@ -5,7 +5,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 
 import com.google.android.maps.MapView;
-import com.schneeloch.sftransit.main.Main;
+import com.schneeloch.latransit.main.Main;
 
 import android.app.AlertDialog;
 import android.app.AlertDialog.Builder;

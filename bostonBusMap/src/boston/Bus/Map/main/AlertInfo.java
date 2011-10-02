@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
 
-import com.schneeloch.sftransit.R;
+import com.schneeloch.latransit.R;
 
 
 import boston.Bus.Map.data.Alert;

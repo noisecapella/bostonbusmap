@@ -7,8 +7,8 @@ import android.os.Bundle;
 import android.util.Log;
 import android.widget.Toast;
 
-import com.schneeloch.sftransit.R;
-import com.schneeloch.sftransit.main.UpdateHandler;
+import com.schneeloch.latransit.R;
+import com.schneeloch.latransit.main.UpdateHandler;
 
 
 import com.google.android.maps.GeoPoint;

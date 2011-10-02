@@ -24,7 +24,7 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnTouchListener;
 
-import com.schneeloch.sftransit.R;
+import com.schneeloch.latransit.R;
 
 
 import com.google.android.maps.GeoPoint;

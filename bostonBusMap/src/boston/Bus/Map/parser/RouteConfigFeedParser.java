@@ -18,8 +18,7 @@ import org.xml.sax.SAXException;
 import org.xml.sax.XMLReader;
 import org.xml.sax.helpers.DefaultHandler;
 
-import com.schneeloch.sftransit.main.UpdateAsyncTask;
-
+import com.schneeloch.latransit.main.UpdateAsyncTask;
 import skylight1.opengl.files.QuickParseUtil;
 
 import boston.Bus.Map.data.Directions;
