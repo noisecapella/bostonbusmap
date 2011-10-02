@@ -1,5 +1,5 @@
 #!/bin/sh
-agency="lametro"
+agency="sf-muni"
 prefix="webservices"
 
 wget "http://$prefix.nextbus.com/service/publicXMLFeed?a=$agency&command=routeList" -O routeList
