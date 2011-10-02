@@ -10,7 +10,7 @@ import java.util.List;
 
 import com.google.android.maps.GeoPoint;
 import com.google.android.maps.Projection;
-import com.schneeloch.latransit.main.UpdateAsyncTask;
+import com.schneeloch.sftransit.main.UpdateAsyncTask;
 
 import boston.Bus.Map.data.Path;
 

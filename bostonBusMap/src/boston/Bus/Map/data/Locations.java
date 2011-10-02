@@ -45,8 +45,8 @@ import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
-import com.schneeloch.latransit.main.Main;
-import com.schneeloch.latransit.main.UpdateAsyncTask;
+import com.schneeloch.sftransit.main.Main;
+import com.schneeloch.sftransit.main.UpdateAsyncTask;
 
 
 import android.content.Context;
