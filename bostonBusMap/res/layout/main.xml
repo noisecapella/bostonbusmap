@@ -49,10 +49,10 @@ android:id="@+id/linearLayoutMain" android:gravity="right">
 		android:layout_alignParentBottom="true"
 		android:layout_below="@+id/linearLayoutMain"
 		
-		android:apiKey="04_mZq9Q_5sLuwYr34MsxnZKCXGYZR06-1pRSwg"
+		android:apiKey="0UeumldxhB0b__5t51Ur68rQe4VVYMQGxzy7UAg"
 		 />
 	<!-- debug key: 0UeumldxhB0bPpe6UgModFrG5tLPAwclzgqJhRg -->
-	<!-- release key: 04_mZq9Q_5sL2pltlDIYof4iIQimS_U5YPnRafg -->
+	<!-- release key: 0UeumldxhB0b__5t51Ur68rQe4VVYMQGxzy7UAg -->
 
 
 <!-- 
