@@ -5,7 +5,7 @@ prefix="webservices"
 wget "http://$prefix.nextbus.com/service/publicXMLFeed?a=$agency&command=routeList" -O routeList
 cat routeList | grep route | awk -F"\"" '{ print $2 }' > routes
 
-for each in `cat routes`; do wget "http://$prefix.nextbus.com/service/publicXMLFeed?a=$agency&command=routeConfig&verbose&r=$each" -O routeConfig$each; sleep 10; done
+cat routes | while read each; do wget "http://$prefix.nextbus.com/service/publicXMLFeed?a=$agency&command=routeConfig&verbose&r=$each" -O routeConfig$each; sleep 10; done
 
 touch routeconfig_full.xml
 echo "<?xml version=\"1.0\" encoding=\"utf-8\" ?> " >> routeconfig_full.xml
