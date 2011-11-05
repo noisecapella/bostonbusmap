@@ -32,7 +32,6 @@ public class BusTransitSource extends NextBusTransitSource {
 	@Override
 	protected void addRoutes()
 	{
-		addRoute("602", "Green Shuttle");
 		addRoute("701", "CT1");
 		addRoute("747", "CT2");
 		addRoute("708", "CT3");
@@ -233,7 +232,6 @@ public class BusTransitSource extends NextBusTransitSource {
 		addRoute("9701", "9701");
 		addRoute("9702", "9702");
 		addRoute("9703", "9703");
-		
 		
 
 	}
