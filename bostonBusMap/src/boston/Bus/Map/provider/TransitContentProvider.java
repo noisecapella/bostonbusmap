@@ -3,6 +3,7 @@ package boston.Bus.Map.provider;
 import boston.Bus.Map.data.RoutePool;
 import boston.Bus.Map.database.DatabaseHelper;
 import boston.Bus.Map.transit.TransitSystem;
+import android.app.SearchManager;
 import android.content.ContentProvider;
 import android.content.ContentValues;
 import android.content.SearchRecentSuggestionsProvider;
@@ -24,6 +25,7 @@ public class TransitContentProvider extends SearchRecentSuggestionsProvider {
 	private static final int ROUTES_CODE = 1;
 	private static final int DIRECTIONS_CODE = 3;
 	private static final int DIRECTION_ID_CODE = 4;
+	private static final int SUGGESTIONS_CODE = 5;
 	
 	public static final Uri CONTENT_URI = Uri.parse("content://" + AUTHORITY);
 	
@@ -34,10 +36,17 @@ public class TransitContentProvider extends SearchRecentSuggestionsProvider {
 		matcher.addURI(AUTHORITY, "directions", DIRECTIONS_CODE);
 		matcher.addURI(AUTHORITY, "directions/#", DIRECTION_ID_CODE);*/
 		
-		
+		matcher.addURI(AUTHORITY, SearchManager.SUGGEST_URI_PATH_QUERY, SUGGESTIONS_CODE);
 		setupSuggestions(AUTHORITY, MODE);
-		helper = new DatabaseHelper(this.getContext());
 	}
+	
+	@Override
+	public boolean onCreate() {
+		boolean create = super.onCreate();
+		helper = new DatabaseHelper(this.getContext());
+		return create;
+	}
+	
 	/*
 	@Override
 	public int delete(Uri arg0, String arg1, String[] arg2) {
@@ -67,32 +76,27 @@ public class TransitContentProvider extends SearchRecentSuggestionsProvider {
 		return null;
 	}
 */
-/*	@Override
+	@Override
 	public Cursor query(Uri uri, String[] projection, String selection,
 			String[] selectionArgs, String sortOrder)
 	{
 		int code = matcher.match(uri);
-		Cursor cursor;
 		switch (code)
 		{
 		case ROUTES_CODE:
-			 cursor = helper.getCursorForRoutes();
-			 break;
+			 return helper.getCursorForRoutes();
 		case DIRECTIONS_CODE:
-			cursor = helper.getCursorForDirections();
-			break;
+			return helper.getCursorForDirections();
 		case DIRECTION_ID_CODE:
 			String dirTag = uri.getPathSegments().get(1);
-			cursor = helper.getCursorForDirection(dirTag);
-			break;
+			return helper.getCursorForDirection(dirTag);
+		case SUGGESTIONS_CODE:
+			return helper.getCursorForRoutes(selectionArgs != null && selectionArgs.length >= 1 ? selectionArgs[0] : null);
 		default:
 			return super.query(uri, projection, selection, selectionArgs, sortOrder);
 		}
-		
-		cursor.setNotificationUri(getContext().getContentResolver(), uri);
-		return cursor;
 	}
-
+/*
 	@Override
 	public int update(Uri uri, ContentValues values, String selection,
 			String[] selectionArgs) {

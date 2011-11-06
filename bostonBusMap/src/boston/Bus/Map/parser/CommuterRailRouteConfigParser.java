@@ -557,9 +557,11 @@ public class CommuterRailRouteConfigParser
 	
 	public void runParse(Reader stream) throws IOException
 	{
+		HashMap<String, String> routeKeysToTitles = source.getRouteKeysToTitles();
 		for (String route : source.getRoutes())
 		{
-			map.put(route, new RouteConfig(route, 0, 0, source));
+			String routeTitle = routeKeysToTitles.get(route);
+			map.put(route, new RouteConfig(route, routeTitle, 0, 0, source));
 		}
 
 		populateStops(stream);

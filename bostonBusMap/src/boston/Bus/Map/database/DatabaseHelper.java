@@ -23,9 +23,11 @@ import boston.Bus.Map.ui.ProgressMessage;
 import boston.Bus.Map.util.Box;
 import boston.Bus.Map.util.Constants;
 
+import android.app.SearchManager;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
+import android.database.MatrixCursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteDiskIOException;
 import android.database.sqlite.SQLiteException;
@@ -37,6 +39,7 @@ import android.net.wifi.WifiConfiguration.PairwiseCipher;
 import android.os.Debug;
 import android.os.Parcel;
 import android.os.StatFs;
+import android.provider.BaseColumns;
 import android.util.Log;
 
 /**
@@ -68,6 +71,7 @@ public class DatabaseHelper extends SQLiteOpenHelper
 	private final static String verboseFavorites = "favorites";
 	
 	private final static String routeKey = "route";
+	private final static String routeTitleKey = "routetitle";
 	private final static String newFavoritesTagKey = "tag";
 	private final static String latitudeKey = "lat";
 	private final static String longitudeKey = "lon";
@@ -109,8 +113,10 @@ public class DatabaseHelper extends SQLiteOpenHelper
 	public final static int VERBOSE_DB_9 = 21;
 	public final static int VERBOSE_DB_10 = 22;
 	public final static int VERBOSE_DB_11 = 23;
+
+	public final static int VERBOSE_DBV2_1 = 24;
 	
-	public final static int CURRENT_DB_VERSION = VERBOSE_DB_11;
+	public final static int CURRENT_DB_VERSION = VERBOSE_DBV2_1;
 	
 	public static final int ALWAYS_POPULATE = 3;
 	public static final int POPULATE_IF_UPGRADE = 2;
@@ -163,8 +169,8 @@ public class DatabaseHelper extends SQLiteOpenHelper
 			favorites = new HashSet<String>();
 			populateFavorites(favorites, true, db);
 		}
-
-		if (oldVersion < VERBOSE_DB_8)
+		
+		if (oldVersion < VERBOSE_DBV2_1)
 		{
 			db.execSQL("DROP TABLE IF EXISTS " + directionsTable);
 			db.execSQL("DROP TABLE IF EXISTS " + stopsTable);
@@ -178,6 +184,7 @@ public class DatabaseHelper extends SQLiteOpenHelper
 			db.execSQL("DROP TABLE IF EXISTS " + oldFavoritesTable);
 			db.execSQL("DROP TABLE IF EXISTS " + newFavoritesTable);
 		}
+
 		//if it's verboseFavorites, we want to save it since it's user specified data
 
 		onCreate(db);
@@ -186,6 +193,7 @@ public class DatabaseHelper extends SQLiteOpenHelper
 		{
 			writeVerboseFavorites(db, favorites);
 		}
+
 		db.setTransactionSuccessful();
 		db.endTransaction();
 		
@@ -324,7 +332,8 @@ public class DatabaseHelper extends SQLiteOpenHelper
 				RouteConfig routeConfig = mapping.get(route);
 				if (routeConfig != null)
 				{
-					saveMappingKernel(database, route, routeConfig, sharedStops);
+					String routeTitle = routeConfig.getRouteTitle();
+					saveMappingKernel(database, route, routeTitle, routeConfig, sharedStops);
 				}
 				
 				count++;
@@ -349,7 +358,7 @@ public class DatabaseHelper extends SQLiteOpenHelper
 	 * @param useInsert insert all rows, don't replace them. I assume this is faster since there's no lookup involved
 	 * @throws IOException 
 	 */
-	private void saveMappingKernel(SQLiteDatabase database, String route, RouteConfig routeConfig,
+	private void saveMappingKernel(SQLiteDatabase database, String route, String routeTitle, RouteConfig routeConfig,
 			HashSet<String> sharedStops) throws IOException
 	{
 		Box serializedPath = new Box(null, CURRENT_DB_VERSION);
@@ -361,6 +370,7 @@ public class DatabaseHelper extends SQLiteOpenHelper
 		{
 			ContentValues values = new ContentValues();
 			values.put(routeKey, route);
+			values.put(routeTitleKey, routeTitle);
 			values.put(pathsBlobKey, serializedPathBlob);
 			values.put(colorKey, routeConfig.getColor());
 			values.put(oppositeColorKey, routeConfig.getOppositeColor());
@@ -560,7 +570,7 @@ public class DatabaseHelper extends SQLiteOpenHelper
 					" INTEGER, " + oppositeColorKey + " INTEGER, " + pathsBlobKey + " BLOB)");*/
 
 			//get the route-specific information, like the path outline and the color
-			routeCursor = database.query(verboseRoutes, new String[]{colorKey, oppositeColorKey, pathsBlobKey}, routeKey + "=?",
+			routeCursor = database.query(verboseRoutes, new String[]{colorKey, oppositeColorKey, pathsBlobKey, routeTitleKey}, routeKey + "=?",
 					new String[]{routeToUpdate}, null, null, null);
 			if (routeCursor.getCount() == 0)
 			{
@@ -574,9 +584,10 @@ public class DatabaseHelper extends SQLiteOpenHelper
 			int color = routeCursor.getInt(0);
 			int oppositeColor = routeCursor.getInt(1);
 			byte[] pathsBlob = routeCursor.getBlob(2);
+			String routeTitle = routeCursor.getString(3);
 			Box pathsBlobBox = new Box(pathsBlob, CURRENT_DB_VERSION);
 
-			RouteConfig routeConfig = new RouteConfig(routeToUpdate, color, oppositeColor, source, pathsBlobBox);
+			RouteConfig routeConfig = new RouteConfig(routeToUpdate, routeTitle, color, oppositeColor, source, pathsBlobBox);
 
 			
 			
@@ -826,6 +837,36 @@ public class DatabaseHelper extends SQLiteOpenHelper
 		SQLiteDatabase database = getReadableDatabase();
 		
 		return database.query(verboseRoutes, new String[]{routeKey}, null, null, null, null, null);
+	}
+
+	public synchronized Cursor getCursorForRoutes(String search) {
+		String[] columns = new String[] {BaseColumns._ID, SearchManager.SUGGEST_COLUMN_TEXT_1, SearchManager.SUGGEST_COLUMN_TEXT_2};
+		MatrixCursor ret = new MatrixCursor(columns);
+		if (search == null)
+		{
+			return ret;
+		}
+		
+		SQLiteDatabase database = getReadableDatabase();
+		
+		Cursor cursor = database.query(verboseRoutes, new String[]{routeKey, routeTitleKey}, routeTitleKey + " LIKE ?", new String[]{search}, null, null, null);
+		if (cursor.moveToFirst() == false)
+		{
+			return ret;
+		}
+		
+		int count = 0;
+		while (!cursor.isAfterLast())
+		{
+			String route = cursor.getString(0);
+			String routeTitle = cursor.getString(1);
+			
+			ret.addRow(new Object[]{count, route, routeTitle});
+			
+			cursor.moveToNext();
+			count++;
+		}
+		return ret;
 	}
 
 	public synchronized Cursor getCursorForDirection(String dirTag) {

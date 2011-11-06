@@ -93,6 +93,7 @@ public class SubwayRouteConfigFeedParser
 		HashMap<String, HashMap<String, TreeMap<Short, StopLocation>>> orderedStations =
 			new HashMap<String, HashMap<String, TreeMap<Short, StopLocation>>>();
 		
+		HashMap<String, String> routeKeysToTitles = transitSource.getRouteKeysToTitles();
 		String line;
 		while ((line = reader.readLine()) != null)
 		{
@@ -107,7 +108,8 @@ public class SubwayRouteConfigFeedParser
 			RouteConfig routeConfig = map.get(routeName);
 			if (routeConfig == null)
 			{
-				routeConfig = new RouteConfig(routeName, SubwayTransitSource.getSubwayColor(routeName),
+				String routeTitle = routeKeysToTitles.get(routeName);
+				routeConfig = new RouteConfig(routeName, routeTitle, SubwayTransitSource.getSubwayColor(routeName),
 						SubwayTransitSource.BlueColor,
 						transitSource);
 				map.put(routeName, routeConfig);

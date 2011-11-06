@@ -159,7 +159,9 @@ public class RouteConfigFeedParser extends DefaultHandler
 			int oppositeColor = parseColor(attributes.getValue(oppositeColorKey));
 			try
 			{
-				currentRouteConfig = new RouteConfig(currentRoute, color, oppositeColor, transitSource);
+				HashMap<String, String> routeKeysToTitles = transitSource.getRouteKeysToTitles();
+				String currentRouteTitle = routeKeysToTitles.get(currentRoute);
+				currentRouteConfig = new RouteConfig(currentRoute, currentRouteTitle, color, oppositeColor, transitSource);
 				currentPaths = new ArrayList<Path>(1);
 			}
 			catch (IOException e)
