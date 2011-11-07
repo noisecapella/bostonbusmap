@@ -1,6 +1,13 @@
 package boston.Bus.Map.transit;
 
 
+import java.io.IOException;
+
+import org.apache.http.client.ClientProtocolException;
+import org.xml.sax.SAXException;
+
+import boston.Bus.Map.data.RouteConfig;
+
 import com.schneeloch.torontotransit.R;
 
 import android.graphics.drawable.Drawable;
@@ -197,6 +204,12 @@ public class TorontoBusTransitSource extends NextBusTransitSource {
 	@Override
 	protected int getInitialContentLength() {
 		return 446551;
+	}
+
+	@Override
+	protected void parseAlert(RouteConfig routeConfig)
+			throws ClientProtocolException, IOException, SAXException {
+		// we don't support alerts for toronto right now
 	}
 
 }

@@ -17,6 +17,7 @@ import android.R.string;
 import android.content.Context;
 import android.graphics.drawable.Drawable;
 import android.util.Log;
+import boston.Bus.Map.data.AlertsMapping;
 import boston.Bus.Map.data.BusLocation;
 import boston.Bus.Map.data.Directions;
 import boston.Bus.Map.data.Location;
@@ -48,6 +49,7 @@ public class TransitSystem {
 	public static final String[] emails = new String[]{"bostonbusmap@gmail.com"/*, "t-trackertrial@mbta.com"*/};
 	public static final String emailSubject = "Toronto Transit error report";
 	
+	private static final AlertsMapping alertsMapping = new AlertsMapping();
 	
 	public static double getCenterLat() {
 		return torontoLatitude;
@@ -158,7 +160,7 @@ public class TransitSystem {
 
 	public void refreshData(RouteConfig routeConfig,
 			int selectedBusPredictions, int maxStops, double centerLatitude,
-			double centerLongitude, ConcurrentHashMap<Integer, BusLocation> busMapping,
+			double centerLongitude, ConcurrentHashMap<String, BusLocation> busMapping,
 			String selectedRoute, RoutePool routePool,
 			Directions directions, Locations locations) throws IOException, ParserConfigurationException, SAXException {
 		for (TransitSource source : transitSources)
