@@ -25,6 +25,7 @@ public class RouteConfig
 	private final HashMap<String, StopLocation> stops;
 	private Path[] paths;
 	private final String route;
+	private final String routeTitle;
 	
 	private final int color;
 	private final int oppositeColor;
@@ -36,9 +37,9 @@ public class RouteConfig
 	
 	private boolean obtainedAlerts;
 	
-	public RouteConfig(String route, int color, int oppositeColor, TransitSource transitAgency) throws IOException
+	public RouteConfig(String route, String routeTitle, int color, int oppositeColor, TransitSource transitAgency) throws IOException
 	{
-		this(route, color, oppositeColor, transitAgency, null);
+		this(route, routeTitle, color, oppositeColor, transitAgency, null);
 	}
 	
 	public void addStop(String tag, StopLocation stopLocation) {
@@ -64,6 +65,11 @@ public class RouteConfig
 	public String getRouteName() {
 		return route;
 	}
+	
+	public String getRouteTitle()
+	{
+		return routeTitle;
+	}
 
 	public Path[] getPaths() {
 		return paths;
@@ -79,9 +85,10 @@ public class RouteConfig
 		dest.writePathsList(paths);
 	}
 	
-	public RouteConfig(String route, int color, int oppositeColor, TransitSource transitAgency, Box serializedPath)
+	public RouteConfig(String route, String routeTitle, int color, int oppositeColor, TransitSource transitAgency, Box serializedPath)
 			throws IOException {
 		this.route = route;
+		this.routeTitle = routeTitle;
 		stops = new HashMap<String, StopLocation>();
 		
 		this.color = color;

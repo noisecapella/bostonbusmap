@@ -36,9 +36,9 @@ public class BusLocation implements Location {
 	public final float longitudeAsDegrees;
 
 	/**
-	 * The bus id. This uniquely identifies a bus
+	 * Unique id for a vehicle. Never null
 	 */
-	public final int id;
+	public final String busId;
 
 	private final String routeName;
 
@@ -99,23 +99,21 @@ public class BusLocation implements Location {
 	private String snippetTitle;
 
 	private final boolean disappearAfterRefresh;
-	private final boolean showBusNumber;
 	private ArrayList<Alert> snippetAlerts;
 
 	private static final int LOCATIONTYPE = 1;
 	public static final int NO_HEADING = -1;
 
-	public BusLocation(float latitude, float longitude, int id,
+	public BusLocation(float latitude, float longitude, String id,
 			long lastFeedUpdateInMillis, long lastUpdateInMillis, String heading, boolean predictable,
 			String dirTag, String inferBusRoute, Drawable bus, Drawable arrow,
 			String routeName, Directions directions, String routeTitle,
-			boolean disappearAfterRefresh, boolean showBusNumber,
-			int arrowTopDiff) {
+			boolean disappearAfterRefresh, int arrowTopDiff) {
 		this.latitude = (float) (latitude * Geometry.degreesToRadians);
 		this.longitude = (float) (longitude * Geometry.degreesToRadians);
 		this.latitudeAsDegrees = latitude;
 		this.longitudeAsDegrees = longitude;
-		this.id = id;
+		this.busId = id;
 		this.lastUpdateInMillis = lastUpdateInMillis;
 		this.lastFeedUpdateInMillis = lastFeedUpdateInMillis;
 		this.heading = heading;
@@ -128,7 +126,6 @@ public class BusLocation implements Location {
 		this.directions = directions;
 		this.routeTitle = routeTitle;
 		this.disappearAfterRefresh = disappearAfterRefresh;
-		this.showBusNumber = showBusNumber;
 		this.arrowTopDiff = arrowTopDiff;
 	}
 
@@ -244,9 +241,7 @@ public class BusLocation implements Location {
 	
 	private String makeSnippet(RouteConfig routeConfig) {
 		String snippet = getBetaWarning();
-		if (showBusNumber) {
-			snippet += "Bus number: " + id + "<br />";
-		}
+		snippet += getBusNumberMessage();
 
 		int secondsAgo = (int) (TransitSystem.currentTimeMillis() - lastFeedUpdateInMillis) / 1000; 
 		snippet += "Last update: " + secondsAgo	+ " seconds ago";
@@ -268,6 +263,11 @@ public class BusLocation implements Location {
 		}
 
 		return snippet;
+	}
+
+	protected String getBusNumberMessage()
+	{
+		return "Bus number: " + busId + "<br />";
 	}
 
 	private String makeTitle() {
@@ -324,12 +324,12 @@ public class BusLocation implements Location {
 
 	@Override
 	public int getId() {
-		return id | LOCATIONTYPE << 24;
+		return (busId.hashCode() & 0xffffff) | LOCATIONTYPE << 24;
 	}
 
-	public int getBusNumber()
+	public String getBusNumber()
 	{
-		return id;
+		return busId;
 	}
 	
 	public Drawable getDrawable(Context context, boolean shadow,
