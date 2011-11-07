@@ -945,6 +945,7 @@ public class DatabaseHelper extends SQLiteOpenHelper
 					// do nothing, first row
 					prevStopTag = stopTag;
 					prevStopTitle = stopTitle;
+					routeCount++;
 					routes.append(routeTitle);
 				}
 				else if (!prevStopTag.equals(stopTag))
