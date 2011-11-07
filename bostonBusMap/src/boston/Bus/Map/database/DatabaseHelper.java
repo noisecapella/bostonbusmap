@@ -22,6 +22,7 @@ import boston.Bus.Map.transit.TransitSystem;
 import boston.Bus.Map.ui.ProgressMessage;
 import boston.Bus.Map.util.Box;
 import boston.Bus.Map.util.Constants;
+import boston.Bus.Map.util.StringUtil;
 
 import android.app.SearchManager;
 import android.content.ContentValues;
@@ -839,36 +840,157 @@ public class DatabaseHelper extends SQLiteOpenHelper
 		return database.query(verboseRoutes, new String[]{routeKey}, null, null, null, null, null);
 	}
 
-	public synchronized Cursor getCursorForRoutes(String search) {
-		String[] columns = new String[] {BaseColumns._ID, SearchManager.SUGGEST_COLUMN_TEXT_1, SearchManager.SUGGEST_COLUMN_TEXT_2};
+	public synchronized Cursor getCursorForSearch(String search) {
+		String[] columns = new String[] {BaseColumns._ID, SearchManager.SUGGEST_COLUMN_TEXT_1, SearchManager.SUGGEST_COLUMN_QUERY, SearchManager.SUGGEST_COLUMN_TEXT_2};
 		MatrixCursor ret = new MatrixCursor(columns);
-		if (search == null)
-		{
-			return ret;
-		}
 		
 		SQLiteDatabase database = getReadableDatabase();
-		
-		Cursor cursor = database.query(verboseRoutes, new String[]{routeKey, routeTitleKey}, routeTitleKey + " LIKE ?", new String[]{search}, null, null, null);
-		if (cursor.moveToFirst() == false)
+		try
 		{
-			return ret;
+			addSearchRoutes(database, search, ret);
+			addSearchStops(database, search, ret);
+		}
+		finally
+		{
+			database.close();
 		}
 		
-		int count = 0;
-		while (!cursor.isAfterLast())
-		{
-			String route = cursor.getString(0);
-			String routeTitle = cursor.getString(1);
-			
-			ret.addRow(new Object[]{count, route, routeTitle});
-			
-			cursor.moveToNext();
-			count++;
-		}
+		
 		return ret;
 	}
 
+	private void addSearchRoutes(SQLiteDatabase database, String search, MatrixCursor ret)
+	{
+		if (search == null)
+		{
+			return;
+		}
+		
+		Cursor cursor = null;
+		try
+		{
+			cursor = database.query(verboseRoutes, new String[]{routeTitleKey, routeKey}, routeTitleKey + " LIKE ?",
+					new String[]{"%" + search + "%"}, null, null, routeTitleKey);
+			if (cursor.moveToFirst() == false)
+			{
+				return;
+			}
+
+			int count = 0;
+			while (!cursor.isAfterLast())
+			{
+				String routeTitle = cursor.getString(0);
+				String routeKey = cursor.getString(1);
+
+				ret.addRow(new Object[]{count, routeTitle, "route " + routeKey, "Route"});
+
+				cursor.moveToNext();
+				count++;
+			}
+		}
+		finally
+		{
+			if (cursor != null)
+			{
+				cursor.close();
+			}
+		}
+	}
+	
+	private void addSearchStops(SQLiteDatabase database, String search, MatrixCursor ret)
+	{
+		if (search == null)
+		{
+			return;
+		}
+		
+		Cursor cursor = null;
+		try
+		{
+			SQLiteQueryBuilder builder = new SQLiteQueryBuilder();
+			
+			String tables = verboseStops +
+			" JOIN " + stopsRoutesMap + " AS sm1 ON (" + verboseStops + "." + stopTagKey + " = sm1." + stopTagKey + ")" +
+			" JOIN " + verboseRoutes + " AS r1 ON (sm1." + routeKey + " = r1." + routeKey + ")";
+
+			
+			builder.setTables(tables);
+			
+			
+			String thisStopTitleKey = verboseStops + "." + stopTitleKey;
+			String[] projectionIn = new String[] {thisStopTitleKey, verboseStops + "." + stopTagKey, "r1." + routeTitleKey};
+			String select = thisStopTitleKey + " LIKE ?";
+			String[] selectArray = new String[]{"%" + search + "%"};
+			
+			cursor = builder.query(database, projectionIn, select, selectArray, null, null, thisStopTitleKey);
+
+			if (cursor.moveToFirst() == false)
+			{
+				return;
+			}
+
+			int count = 0;
+			String prevStopTag = null;
+			String prevStopTitle = null;
+			StringBuilder routes = new StringBuilder();
+			int routeCount = 0;
+			while (!cursor.isAfterLast())
+			{
+				String stopTitle = cursor.getString(0);
+				String stopTag = cursor.getString(1);
+				String routeTitle = cursor.getString(2);
+
+				if (prevStopTag == null)
+				{
+					// do nothing, first row
+					prevStopTag = stopTag;
+					prevStopTitle = stopTitle;
+					routes.append(routeTitle);
+				}
+				else if (!prevStopTag.equals(stopTag))
+				{
+					// change in row. write out this row
+					String routeString = routeCount == 0 ? "Stop" 
+							: routeCount == 1 ? ("Stop on route " + routes.toString())
+									: ("Stop on routes " + routes);
+					ret.addRow(new Object[]{count, prevStopTitle, "stop " + prevStopTag, routeString});
+					prevStopTag = stopTag;
+					prevStopTitle = stopTitle;
+					routeCount = 1;
+					routes.setLength(0);
+					routes.append(routeTitle);
+				}
+				else
+				{
+					// just add a new route
+					routes.append(", ");
+					routes.append(routeTitle);
+					routeCount++;
+				}
+				
+
+				cursor.moveToNext();
+				count++;
+			}
+			
+			if (prevStopTag != null)
+			{
+				// at least one row
+				String routeString = routeCount == 0 ? "Stop" 
+						: routeCount == 1 ? ("Stop on route " + routes.toString())
+								: ("Stop on routes " + routes);
+				ret.addRow(new Object[]{count, prevStopTitle, "stop " + prevStopTag, routeString});
+			}
+		}
+		finally
+		{
+			if (cursor != null)
+			{
+				cursor.close();
+			}
+		}
+	}
+	
 	public synchronized Cursor getCursorForDirection(String dirTag) {
 		SQLiteDatabase database = getReadableDatabase();
 		
