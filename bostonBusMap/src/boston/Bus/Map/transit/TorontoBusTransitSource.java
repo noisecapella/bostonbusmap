@@ -203,7 +203,7 @@ public class TorontoBusTransitSource extends NextBusTransitSource {
 
 	@Override
 	protected int getInitialContentLength() {
-		return 446551;
+		return 445356;
 	}
 
 	@Override
