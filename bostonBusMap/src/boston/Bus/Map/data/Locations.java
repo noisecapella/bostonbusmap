@@ -292,6 +292,12 @@ public final class Locations
 		{
 			//Log.v("BostonBusMap", "allStops size is " + allStops.size());
 			
+			ArrayList<StopLocation> stops = routeMapping.getClosestStops(centerLatitude, centerLongitude);
+			for (StopLocation stop : stops)
+			{
+				newLocations.add(stop);
+				locationKeys.add(stop.getId());
+			}
 			/*for (StopLocation location : allStops)
 			{
 				if (location.distanceFrom(centerLatitude * LocationComparator.degreesToRadians,

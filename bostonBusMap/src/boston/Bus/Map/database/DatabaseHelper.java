@@ -17,6 +17,7 @@ import boston.Bus.Map.data.RouteConfig;
 import boston.Bus.Map.data.StopLocation;
 import boston.Bus.Map.data.SubwayStopLocation;
 import boston.Bus.Map.main.UpdateAsyncTask;
+import boston.Bus.Map.math.Geometry;
 import boston.Bus.Map.transit.TransitSource;
 import boston.Bus.Map.transit.TransitSystem;
 import boston.Bus.Map.ui.ProgressMessage;
@@ -989,6 +990,66 @@ public class DatabaseHelper extends SQLiteOpenHelper
 			{
 				cursor.close();
 			}
+		}
+	}
+	public synchronized ArrayList<StopLocation> getClosestStops(double currentLat, double currentLon, TransitSystem transitSystem, HashMap<String, StopLocation> sharedStops, int limit)
+	{
+		SQLiteDatabase database = getReadableDatabase();
+		Cursor cursor = null;
+		try
+		{
+			// what we should scale longitude by for 1 unit longitude to roughly equal 1 unit latitude
+			double lonFactor = Math.cos(currentLat * Geometry.degreesToRadians);
+			
+			
+			SQLiteQueryBuilder builder = new SQLiteQueryBuilder();
+			
+			String tables = verboseStops;
+
+			builder.setTables(tables);
+			
+			final String distanceKey = "distance";
+			String[] projectionIn = new String[] {stopTagKey, distanceKey};
+			HashMap<String, String> projectionMap = new HashMap<String, String>();
+			projectionMap.put(stopTagKey, stopTagKey);
+
+			String latDiff = "(" + latitudeKey + " - " + currentLat + ")";
+			String lonDiff = "((" + longitudeKey + " - " + currentLon + ")*" + lonFactor + ")";
+			projectionMap.put("distance", latDiff + "*" + latDiff + " + " + lonDiff + "*" + lonDiff + " AS " + distanceKey);
+			builder.setProjectionMap(projectionMap);
+			cursor = builder.query(database, projectionIn, null, null, null, null, distanceKey, new Integer(limit).toString());
+			
+			if (cursor.moveToFirst() == false)
+			{
+				return new ArrayList<StopLocation>();
+			}
+			
+			ArrayList<String> stopTags = new ArrayList<String>();
+			while (!cursor.isAfterLast())
+			{
+				String id = cursor.getString(0);
+				stopTags.add(id);
+				
+				cursor.moveToNext();
+			}
+			
+			getStops(stopTags, transitSystem, sharedStops);
+			
+			ArrayList<StopLocation> ret = new ArrayList<StopLocation>();
+			for (String stopTag : stopTags)
+			{
+				ret.add(sharedStops.get(stopTag));
+			}
+			
+			return ret;
+		}
+		finally
+		{
+			if (cursor != null)
+			{
+				cursor.close();
+			}
+			database.close();
 		}
 	}
 	
