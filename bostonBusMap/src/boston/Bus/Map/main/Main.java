@@ -333,7 +333,6 @@ public class Main extends MapActivity
         	{
         		locationEnabled = true;
         		myLocationOverlay.enableMyLocation();
-        		myLocationOverlay.enableCompass();
         	}
         	
         	busOverlay.refreshBalloons();
@@ -579,7 +578,6 @@ public class Main extends MapActivity
 		if (myLocationOverlay != null)
 		{
 			myLocationOverlay.disableMyLocation();
-			myLocationOverlay.disableCompass();
 		}
 		
 		if (progressDialog != null)
@@ -650,7 +648,6 @@ public class Main extends MapActivity
     			if (myLocationOverlay.isMyLocationEnabled() == false)
     			{
     				myLocationOverlay.enableMyLocation();
-    				myLocationOverlay.enableCompass();
     				
     				locationEnabled = true;
     				
@@ -747,7 +744,6 @@ public class Main extends MapActivity
 		if (locationEnabled && myLocationOverlay != null)
 		{
 			myLocationOverlay.enableMyLocation();
-			myLocationOverlay.enableCompass();
 		}
 		
 		//check the result
