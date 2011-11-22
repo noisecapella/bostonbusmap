@@ -235,7 +235,7 @@ public class Main extends MapActivity
         Resources resources = getResources();
 
         Drawable busPicture = resources.getDrawable(R.drawable.bus_statelist);
-        Drawable busStopUpdated = resources.getDrawable(R.drawable.busstop_updated);
+        Drawable busStopUpdated = resources.getDrawable(R.drawable.busstop_statelist_updated);
         Drawable arrow = resources.getDrawable(R.drawable.arrow);
         Drawable tooltip = resources.getDrawable(R.drawable.tooltip);
         Drawable rail = resources.getDrawable(R.drawable.rail_statelist);
