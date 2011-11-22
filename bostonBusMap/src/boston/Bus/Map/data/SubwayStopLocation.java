@@ -16,10 +16,10 @@ public class SubwayStopLocation extends StopLocation {
 	private String branch;
 	
 	public SubwayStopLocation(float latitudeAsDegrees,
-			float longitudeAsDegrees, Drawable busStop, String tag,
+			float longitudeAsDegrees, Drawable busStop, Drawable busStopUpdated, String tag,
 			String title, int platformOrder, String branch)
 	{
-		super(latitudeAsDegrees, longitudeAsDegrees, busStop, tag, title);
+		super(latitudeAsDegrees, longitudeAsDegrees, busStop, busStopUpdated, tag, title);
 		
 		this.platformOrder = platformOrder;
 		this.branch = branch;

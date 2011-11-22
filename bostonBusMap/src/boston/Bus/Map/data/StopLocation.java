@@ -36,6 +36,7 @@ public class StopLocation implements Location
 	private final float latitudeAsDegrees;
 	private final float longitudeAsDegrees;
 	private final Drawable busStop;
+	private final Drawable busStopUpdated;
 	
 	private final String tag;
 	
@@ -44,6 +45,7 @@ public class StopLocation implements Location
 	private Predictions predictions;
 	
 	private boolean isFavorite;
+	private boolean recentlyUpdated;
 	
 	/**
 	 * A mapping of routes to dirTags
@@ -53,13 +55,14 @@ public class StopLocation implements Location
 	private static final int LOCATIONTYPE = 3;
 	
 	public StopLocation(float latitudeAsDegrees, float longitudeAsDegrees,
-			Drawable busStop, String tag, String title)
+			Drawable busStop, Drawable busStopUpdated, String tag, String title)
 	{
 		this.latitudeAsDegrees = latitudeAsDegrees;
 		this.longitudeAsDegrees = longitudeAsDegrees;
 		this.latitude = (float) (latitudeAsDegrees * Geometry.degreesToRadians);
 		this.longitude = (float) (longitudeAsDegrees * Geometry.degreesToRadians);
 		this.busStop = busStop;
+		this.busStopUpdated = busStopUpdated;
 		this.tag = tag;
 		this.title = title;
 		this.dirTags = new HashMap<String, String>();
@@ -87,9 +90,14 @@ public class StopLocation implements Location
 	@Override
 	public Drawable getDrawable(Context context, boolean shadow,
 			boolean isSelected) {
-		return busStop;
+		return recentlyUpdated ? busStopUpdated : busStop;
 	}
 
+	public void clearRecentlyUpdated()
+	{
+		recentlyUpdated = false;
+	}
+	
 	@Override
 	public int getHeading() {
 		return 0;
@@ -200,6 +208,8 @@ public class StopLocation implements Location
 		{
 			predictions.clearPredictions(routeConfig.getRouteName());
 		}
+		
+		recentlyUpdated = true;
 	}
 	
 	public void addPrediction(Prediction prediction)

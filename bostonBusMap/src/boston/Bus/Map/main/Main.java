@@ -157,7 +157,6 @@ public class Main extends MapActivity
 	private LocationOverlay myLocationOverlay;
 	
 	private Spinner toggleButton;
-	private Drawable busStop;
 	/**
 	 * The list of routes that's selectable in the routes dropdown list
 	 */
@@ -236,16 +235,16 @@ public class Main extends MapActivity
         Resources resources = getResources();
 
         Drawable busPicture = resources.getDrawable(R.drawable.bus_statelist);
-        
+        Drawable busStopUpdated = resources.getDrawable(R.drawable.busstop_updated);
         Drawable arrow = resources.getDrawable(R.drawable.arrow);
         Drawable tooltip = resources.getDrawable(R.drawable.tooltip);
         Drawable rail = resources.getDrawable(R.drawable.rail_statelist);
         Drawable railArrow = resources.getDrawable(R.drawable.rail_arrow);
         
-        busStop = resources.getDrawable(R.drawable.busstop_statelist);
+        Drawable busStop = resources.getDrawable(R.drawable.busstop_statelist);
         
         transitSystem = new TransitSystem();
-        transitSystem.setDefaultTransitSource(busStop, busPicture, arrow, rail, railArrow);
+        transitSystem.setDefaultTransitSource(busStop, busStopUpdated, busPicture, arrow, rail, railArrow);
         
         SpinnerAdapter modeSpinnerAdapter = makeModeSpinner(); 
 
@@ -596,7 +595,6 @@ public class Main extends MapActivity
 		
 		searchView = null;
 		
-		busStop = null;
 		toggleButton = null;
 		
 		

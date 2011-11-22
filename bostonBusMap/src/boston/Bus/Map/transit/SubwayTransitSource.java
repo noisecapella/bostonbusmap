@@ -44,12 +44,14 @@ import boston.Bus.Map.util.SearchHelper;
 public class SubwayTransitSource implements TransitSource {
 	private static String predictionsUrlSuffix = ".txt";
 	private final Drawable busStop;
+	private final Drawable busStopUpdated;
 	private final Drawable railArrow;
 	private final Drawable rail;
 	
-	public SubwayTransitSource(Drawable busStop, Drawable rail, Drawable railArrow, AlertsMapping alertsMapping)
+	public SubwayTransitSource(Drawable busStop, Drawable busStopUpdated, Drawable rail, Drawable railArrow, AlertsMapping alertsMapping)
 	{
 		this.busStop = busStop;
+		this.busStopUpdated = busStopUpdated;
 		this.railArrow = railArrow;
 		this.rail = rail;
 		
@@ -76,7 +78,7 @@ public class SubwayTransitSource implements TransitSource {
 		downloadHelper.connect();
 		//just initialize the route and then end for this round
 		
-		SubwayRouteConfigFeedParser parser = new SubwayRouteConfigFeedParser(busStop,
+		SubwayRouteConfigFeedParser parser = new SubwayRouteConfigFeedParser(busStop, busStopUpdated,
 				directions, oldRouteConfig, this);
 
 		parser.runParse(downloadHelper.getResponseData()); 
@@ -298,7 +300,7 @@ public class SubwayTransitSource implements TransitSource {
 		URL url = new URL(subwayUrl);
 		InputStream in = Locations.downloadStream(url, task);
 		
-		SubwayRouteConfigFeedParser subwayParser = new SubwayRouteConfigFeedParser(busStop, directions, null, this);
+		SubwayRouteConfigFeedParser subwayParser = new SubwayRouteConfigFeedParser(busStop, busStopUpdated, directions, null, this);
 		
 		subwayParser.runParse(in);
 		
@@ -324,11 +326,15 @@ public class SubwayTransitSource implements TransitSource {
 		return busStop;
 	}
 
-
+	@Override
+	public Drawable getBusStopUpdatedDrawable() {
+		return busStopUpdated;
+	}
+	
 	@Override
 	public StopLocation createStop(float lat, float lon, String stopTag, String title,
 			int platformOrder, String branch, String route, String dirTag) {
-		SubwayStopLocation stop = new SubwayStopLocation(lat, lon, busStop, stopTag, title, platformOrder, branch);
+		SubwayStopLocation stop = new SubwayStopLocation(lat, lon, busStop, busStopUpdated, stopTag, title, platformOrder, branch);
 		stop.addRouteAndDirTag(route, dirTag);
 		return stop;
 	}

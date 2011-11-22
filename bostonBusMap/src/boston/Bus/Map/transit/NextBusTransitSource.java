@@ -57,16 +57,18 @@ public abstract class NextBusTransitSource implements TransitSource
 	private final int initialRouteResource;
 
 	private final Drawable busStop;
+	private final Drawable busStopUpdated;
 	private final Drawable bus;
 	private final Drawable arrow;
 
 	public NextBusTransitSource(TransitSystem transitSystem, 
-			Drawable busStop, Drawable bus, Drawable arrow, String agency, int initialRouteResource)
+			Drawable busStop, Drawable busStopUpdated, Drawable bus, Drawable arrow, String agency, int initialRouteResource)
 	{
 		this.transitSystem = transitSystem;
 		
 		this.busStop = busStop;
 		this.bus = bus;
+		this.busStopUpdated = busStopUpdated;
 		this.arrow = arrow;
 
 		mbtaLocationsDataUrlOneRoute = "http://" + prefix + ".nextbus.com/service/publicXMLFeed?command=vehicleLocations&a=" + agency + "&t=";
@@ -111,7 +113,7 @@ public abstract class NextBusTransitSource implements TransitSource
 		downloadHelper.connect();
 		//just initialize the route and then end for this round
 
-		RouteConfigFeedParser parser = new RouteConfigFeedParser(busStop, directions, oldRouteConfig,
+		RouteConfigFeedParser parser = new RouteConfigFeedParser(busStop, busStopUpdated, directions, oldRouteConfig,
 				this);
 
 		parser.runParse(downloadHelper.getResponseData()); 
@@ -131,27 +133,24 @@ public abstract class NextBusTransitSource implements TransitSource
 		switch (selectedBusPredictions)
 		{
 		case  Main.BUS_PREDICTIONS_ONE:
+		case  Main.BUS_PREDICTIONS_STAR:
+		case  Main.BUS_PREDICTIONS_ALL:
 		{
 
 			List<Location> locations = locationsObj.getLocations(maxStops, centerLatitude, centerLongitude, false);
 
-			//ok, do predictions now
-			String url = getPredictionsUrl(locations, maxStops, routeConfig.getRouteName());
-
-			if (url == null)
+			for (Location location : locations)
 			{
-				return;
+				if (location instanceof StopLocation)
+				{
+					StopLocation stopLocation = (StopLocation)location;
+					stopLocation.clearRecentlyUpdated();
+				}
 			}
-
-			downloadHelper = new DownloadHelper(url);
-		}
-		break;
-		case Main.BUS_PREDICTIONS_ALL:
-		case Main.BUS_PREDICTIONS_STAR:
-		{
-			List<Location> locations = locationsObj.getLocations(maxStops, centerLatitude, centerLongitude, false);
-
-			String url = getPredictionsUrl(locations, maxStops, null);
+			
+			//ok, do predictions now
+			String routeName = selectedBusPredictions == Main.BUS_PREDICTIONS_ONE ? routeConfig.getRouteName() : null;
+			String url = getPredictionsUrl(locations, maxStops, routeName);
 
 			if (url == null)
 			{
@@ -335,7 +334,7 @@ public abstract class NextBusTransitSource implements TransitSource
 
 		GZIPInputStream stream = new GZIPInputStream(in); 
 
-		RouteConfigFeedParser parser = new RouteConfigFeedParser(busStop, directions, null, this);
+		RouteConfigFeedParser parser = new RouteConfigFeedParser(busStop, busStopUpdated, directions, null, this);
 
 		parser.runParse(stream);
 
@@ -369,12 +368,16 @@ public abstract class NextBusTransitSource implements TransitSource
 		return busStop;
 	}
 
+	@Override
+	public Drawable getBusStopUpdatedDrawable() {
+		return busStopUpdated;
+	}
 
 	@Override
 	public StopLocation createStop(float lat, float lon, String stopTag,
 			String title, int platformOrder, String branch, String route, String dirTag)
 	{
-		StopLocation stop = new StopLocation(lat, lon, busStop, stopTag, title);
+		StopLocation stop = new StopLocation(lat, lon, busStop, busStopUpdated, stopTag, title);
 		stop.addRouteAndDirTag(route, dirTag);
 		return stop;
 	}

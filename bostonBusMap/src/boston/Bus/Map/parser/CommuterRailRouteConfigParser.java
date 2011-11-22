@@ -423,12 +423,13 @@ public class CommuterRailRouteConfigParser
 			String branch = array[indexes.get("Branch")];
 			
 			Drawable busStop = source.getBusStopDrawable();
+			Drawable busStopUpdated = source.getBusStopUpdatedDrawable();
 			
 			
 			StopLocation stopLocation = route.getStop(stopTag);
 			if (stopLocation == null)
 			{
-				stopLocation = new CommuterRailStopLocation(lat, lon, busStop, stopTag, stopTitle, platformOrder, branch);
+				stopLocation = new CommuterRailStopLocation(lat, lon, busStop, busStopUpdated, stopTag, stopTitle, platformOrder, branch);
 				route.addStop(stopTag, stopLocation);
 			}
 			

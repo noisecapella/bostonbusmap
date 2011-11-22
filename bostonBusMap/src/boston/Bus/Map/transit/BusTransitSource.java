@@ -21,10 +21,10 @@ public class BusTransitSource extends NextBusTransitSource {
 	
 	private final HashMap<String, Integer> alertKeys;
 
-	public BusTransitSource(TransitSystem transitSystem, Drawable busStop, Drawable bus,
+	public BusTransitSource(TransitSystem transitSystem, Drawable busStop, Drawable busStopUpdated, Drawable bus,
 			Drawable arrow, AlertsMapping alertsMapping)
 	{
-		super(transitSystem, busStop, bus, arrow, "mbta", boston.Bus.Map.R.raw.routeconfig);
+		super(transitSystem, busStop, busStopUpdated, bus, arrow, "mbta", boston.Bus.Map.R.raw.routeconfig);
 		
 		alertKeys = alertsMapping.getAlertNumbers(getRoutes(), getRouteKeysToTitles());
 	}

@@ -44,6 +44,7 @@ import boston.Bus.Map.util.SearchHelper;
 public class CommuterRailTransitSource implements TransitSource {
 	public static final String stopTagPrefix = "CRK-";
 	private final Drawable busStop;
+	private final Drawable busStopUpdated;
 	private final Drawable rail;
 	private final Drawable railArrow;
 	private final String[] routes;
@@ -55,9 +56,10 @@ public class CommuterRailTransitSource implements TransitSource {
 	private final HashMap<String, String> routeKeysToAlertUrls = new HashMap<String, String>();
 	
 	
-	public CommuterRailTransitSource(Drawable busStop, Drawable rail, Drawable railArrow, AlertsMapping alertsMapping)
+	public CommuterRailTransitSource(Drawable busStop, Drawable busStopUpdated, Drawable rail, Drawable railArrow, AlertsMapping alertsMapping)
 	{
 		this.busStop = busStop;
+		this.busStopUpdated = busStopUpdated;
 		this.rail = rail;
 		this.railArrow = railArrow;
 		
@@ -360,10 +362,16 @@ public class CommuterRailTransitSource implements TransitSource {
 	}
 
 	@Override
+	public Drawable getBusStopUpdatedDrawable()
+	{
+		return busStopUpdated;
+	}
+	
+	@Override
 	public StopLocation createStop(float lat, float lon, String stopTag,
 			String title, int platformOrder, String branch, String route,
 			String dirTag) {
-		SubwayStopLocation stopLocation = new CommuterRailStopLocation(lat, lon, busStop, stopTag, title,
+		SubwayStopLocation stopLocation = new CommuterRailStopLocation(lat, lon, busStop, busStopUpdated, stopTag, title,
 				platformOrder, branch);
 		stopLocation.addRouteAndDirTag(route, dirTag);
 		return stopLocation;
