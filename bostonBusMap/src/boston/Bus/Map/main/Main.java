@@ -194,7 +194,7 @@ public class Main extends MapActivity
 	};
 	
 	public static final String[] modeTextSupported = new String[]{
-		"All buses (no rail)", "Vehicles on one route", "Stops and predictions on all routes", "Stops and predictions on one route", "Favorite stops"
+		"All buses (no rail)", "Vehicles on one route", "Stops and predictions on all routes (only bus)", "Stops and predictions on one route", "Favorite stops"
 	};
 	
 	
