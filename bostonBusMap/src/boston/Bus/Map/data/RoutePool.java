@@ -308,9 +308,9 @@ public class RoutePool {
 	}
 	
 	public ArrayList<StopLocation> getClosestStops(double centerLatitude,
-			double centerLongitude)
+			double centerLongitude, int maxStops)
 	{
-		return helper.getClosestStops(centerLatitude, centerLongitude, transitSystem, sharedStops, 30);
+		return helper.getClosestStops(centerLatitude, centerLongitude, transitSystem, sharedStops, maxStops);
 
 	}
 
