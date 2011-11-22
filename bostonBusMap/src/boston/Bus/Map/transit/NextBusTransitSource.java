@@ -137,17 +137,10 @@ public abstract class NextBusTransitSource implements TransitSource
 		case  Main.BUS_PREDICTIONS_ALL:
 		{
 
+			routePool.clearRecentlyUpdated();
+
 			List<Location> locations = locationsObj.getLocations(maxStops, centerLatitude, centerLongitude, false);
 
-			for (Location location : locations)
-			{
-				if (location instanceof StopLocation)
-				{
-					StopLocation stopLocation = (StopLocation)location;
-					stopLocation.clearRecentlyUpdated();
-				}
-			}
-			
 			//ok, do predictions now
 			String routeName = selectedBusPredictions == Main.BUS_PREDICTIONS_ONE ? routeConfig.getRouteName() : null;
 			String url = getPredictionsUrl(locations, maxStops, routeName);

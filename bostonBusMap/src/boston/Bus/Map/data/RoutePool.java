@@ -291,4 +291,19 @@ public class RoutePool {
 		return outputMapping;
 	}
 
+	public void clearRecentlyUpdated() {
+		for (StopLocation stop : sharedStops.values())
+		{
+			stop.clearRecentlyUpdated();
+		}
+		
+		for (RouteConfig route : pool.values())
+		{
+			for (StopLocation stop : route.getStopMapping().values())
+			{
+				stop.clearRecentlyUpdated();
+			}
+		}
+	}
+
 }
