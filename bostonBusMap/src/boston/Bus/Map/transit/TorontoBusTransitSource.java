@@ -15,8 +15,8 @@ import android.graphics.drawable.Drawable;
 public class TorontoBusTransitSource extends NextBusTransitSource {
 
 	public TorontoBusTransitSource(TransitSystem transitSystem,
-			Drawable busStop, Drawable bus, Drawable arrow) {
-		super(transitSystem, busStop, bus, arrow, "ttc", R.raw.routeconfig);
+			Drawable busStop, Drawable busStopUpdated, Drawable bus, Drawable arrow) {
+		super(transitSystem, busStop, busStopUpdated, bus, arrow, "ttc", R.raw.routeconfig);
 	}
 
 	@Override
