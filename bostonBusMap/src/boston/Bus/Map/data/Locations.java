@@ -69,7 +69,7 @@ public final class Locations
 	/**
 	 * A mapping of the bus number to bus location
 	 */
-	private ConcurrentHashMap<Integer, BusLocation> busMapping = new ConcurrentHashMap<Integer, BusLocation>();
+	private ConcurrentHashMap<String, BusLocation> busMapping = new ConcurrentHashMap<String, BusLocation>();
 	
 	/**
 	 * A mapping of a route id to a RouteConfig object.
@@ -184,18 +184,28 @@ public final class Locations
 		
 		switch (selectedBusPredictions)
 		{
-		case Main.BUS_PREDICTIONS_ALL:
 		case Main.BUS_PREDICTIONS_STAR:
 		case Main.VEHICLE_LOCATIONS_ALL:
 			//get data from many transit sources
 			transitSystem.refreshData(routeConfig, selectedBusPredictions, maxStops, centerLatitude,
 					centerLongitude, busMapping, selectedRoute, routeMapping, directions, this);
 			break;
+		case Main.BUS_PREDICTIONS_ALL:
+		{
+			TransitSource transitSource = transitSystem.getTransitSource(null);
+			transitSource.refreshData(routeConfig, selectedBusPredictions, maxStops,
+					centerLatitude, centerLongitude, busMapping,
+					selectedRoute, routeMapping, directions, this);
+		}
+			break;
 		default:
+		{
 			TransitSource transitSource = routeConfig.getTransitSource();
 			transitSource.refreshData(routeConfig, selectedBusPredictions, maxStops,
 					centerLatitude, centerLongitude, busMapping,
 					selectedRoute, routeMapping, directions, this);
+		}
+			break;
 		}
 	}
 
@@ -290,6 +300,12 @@ public final class Locations
 		{
 			//Log.v("BostonBusMap", "allStops size is " + allStops.size());
 			
+			ArrayList<StopLocation> stops = routeMapping.getClosestStops(centerLatitude, centerLongitude, maxLocations);
+			for (StopLocation stop : stops)
+			{
+				newLocations.add(stop);
+				locationKeys.add(stop.getId());
+			}
 			/*for (StopLocation location : allStops)
 			{
 				if (location.distanceFrom(centerLatitude * LocationComparator.degreesToRadians,

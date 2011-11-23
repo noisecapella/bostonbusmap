@@ -3,6 +3,7 @@ package boston.Bus.Map.data;
 import java.io.IOException;
 import java.util.AbstractCollection;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -290,6 +291,28 @@ public class RoutePool {
 		helper.getStops(tags, transitSystem, outputMapping);
 		
 		return outputMapping;
+	}
+
+	public void clearRecentlyUpdated() {
+		for (StopLocation stop : sharedStops.values())
+		{
+			stop.clearRecentlyUpdated();
+		}
+		
+		for (RouteConfig route : pool.values())
+		{
+			for (StopLocation stop : route.getStopMapping().values())
+			{
+				stop.clearRecentlyUpdated();
+			}
+		}
+	}
+	
+	public ArrayList<StopLocation> getClosestStops(double centerLatitude,
+			double centerLongitude, int maxStops)
+	{
+		return helper.getClosestStops(centerLatitude, centerLongitude, transitSystem, sharedStops, maxStops);
+
 	}
 
 }

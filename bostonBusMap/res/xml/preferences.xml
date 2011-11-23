@@ -1,10 +1,10 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
-<CheckBoxPreference android:key="@string/runInBackgroundCheckbox" android:title="Update continuously"></CheckBoxPreference>
-<CheckBoxPreference android:key="@string/showUnpredictableBusesCheckbox" android:title="Show unpredictable buses?"></CheckBoxPreference>
-<CheckBoxPreference android:key="@string/hideCircleCheckbox" android:title="Hide blue circle?" android:summary="This shows what buses are being viewed"/>
+<CheckBoxPreference android:key="@string/runInBackgroundCheckbox" android:title="@string/updateContinuously"></CheckBoxPreference>
+<CheckBoxPreference android:key="@string/showUnpredictableBusesCheckbox" android:title="@string/showUnpredictableBuses"></CheckBoxPreference>
+<CheckBoxPreference android:key="@string/hideCircleCheckbox" android:title="@string/hideBlueCircle" android:summary="@string/hideBlueCircleSummary"/>
 
-<CheckBoxPreference android:title="Show route path?" android:key="@string/showRouteLineCheckbox" android:summary="Draws a line along the selected route"></CheckBoxPreference>
-
+<CheckBoxPreference android:title="@string/showRoutePath" android:key="@string/showRouteLineCheckbox" android:summary="@string/showRoutePathSummary"></CheckBoxPreference>
+<CheckBoxPreference android:title="@string/alwaysShowLocation" android:key="@string/alwaysShowLocationCheckbox" android:summary="@string/alwaysShowLocationSummary"></CheckBoxPreference>
 
 <!-- 
 <CheckBoxPreference android:key="@string/showCoarseRouteLineCheckbox" 

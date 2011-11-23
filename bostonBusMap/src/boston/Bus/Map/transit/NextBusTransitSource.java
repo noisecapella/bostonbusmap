@@ -34,6 +34,7 @@ import boston.Bus.Map.parser.RouteConfigFeedParser;
 import boston.Bus.Map.parser.VehicleLocationsFeedParser;
 import boston.Bus.Map.ui.ProgressMessage;
 import boston.Bus.Map.util.DownloadHelper;
+import boston.Bus.Map.util.LogUtil;
 import boston.Bus.Map.util.SearchHelper;
 import boston.Bus.Map.util.StreamCounter;
 
@@ -58,16 +59,18 @@ public abstract class NextBusTransitSource implements TransitSource
 	private final int initialRouteResource;
 
 	private final Drawable busStop;
+	private final Drawable busStopUpdated;
 	private final Drawable bus;
 	private final Drawable arrow;
 
 	public NextBusTransitSource(TransitSystem transitSystem, 
-			Drawable busStop, Drawable bus, Drawable arrow, String agency, int initialRouteResource)
+			Drawable busStop, Drawable busStopUpdated, Drawable bus, Drawable arrow, String agency, int initialRouteResource)
 	{
 		this.transitSystem = transitSystem;
 		
 		this.busStop = busStop;
 		this.bus = bus;
+		this.busStopUpdated = busStopUpdated;
 		this.arrow = arrow;
 
 		mbtaLocationsDataUrlOneRoute = "http://" + prefix + ".nextbus.com/service/publicXMLFeed?command=vehicleLocations&a=" + agency + "&t=";
@@ -112,7 +115,7 @@ public abstract class NextBusTransitSource implements TransitSource
 		downloadHelper.connect();
 		//just initialize the route and then end for this round
 
-		RouteConfigFeedParser parser = new RouteConfigFeedParser(busStop, directions, oldRouteConfig,
+		RouteConfigFeedParser parser = new RouteConfigFeedParser(busStop, busStopUpdated, directions, oldRouteConfig,
 				this);
 
 		parser.runParse(downloadHelper.getResponseData()); 
@@ -124,7 +127,7 @@ public abstract class NextBusTransitSource implements TransitSource
 
 	@Override
 	public void refreshData(RouteConfig routeConfig, int selectedBusPredictions, int maxStops,
-			double centerLatitude, double centerLongitude, ConcurrentHashMap<Integer, BusLocation> busMapping, 
+			double centerLatitude, double centerLongitude, ConcurrentHashMap<String, BusLocation> busMapping, 
 			String selectedRoute, RoutePool routePool, Directions directions, Locations locationsObj)
 	throws IOException, ParserConfigurationException, SAXException {
 		//read data from the URL
@@ -132,27 +135,17 @@ public abstract class NextBusTransitSource implements TransitSource
 		switch (selectedBusPredictions)
 		{
 		case  Main.BUS_PREDICTIONS_ONE:
+		case  Main.BUS_PREDICTIONS_STAR:
+		case  Main.BUS_PREDICTIONS_ALL:
 		{
+
+			routePool.clearRecentlyUpdated();
 
 			List<Location> locations = locationsObj.getLocations(maxStops, centerLatitude, centerLongitude, false);
 
 			//ok, do predictions now
-			String url = getPredictionsUrl(locations, maxStops, routeConfig.getRouteName());
-
-			if (url == null)
-			{
-				return;
-			}
-
-			downloadHelper = new DownloadHelper(url);
-		}
-		break;
-		case Main.BUS_PREDICTIONS_ALL:
-		case Main.BUS_PREDICTIONS_STAR:
-		{
-			List<Location> locations = locationsObj.getLocations(maxStops, centerLatitude, centerLongitude, false);
-
-			String url = getPredictionsUrl(locations, maxStops, null);
+			String routeName = selectedBusPredictions == Main.BUS_PREDICTIONS_ONE ? routeConfig.getRouteName() : null;
+			String url = getPredictionsUrl(locations, maxStops, routeName);
 
 			if (url == null)
 			{
@@ -210,8 +203,8 @@ public abstract class NextBusTransitSource implements TransitSource
 				parser.fillMapping(busMapping);
 
 				//delete old buses
-				List<Integer> busesToBeDeleted = new ArrayList<Integer>();
-				for (Integer id : busMapping.keySet())
+				List<String> busesToBeDeleted = new ArrayList<String>();
+				for (String id : busMapping.keySet())
 				{
 					BusLocation busLocation = busMapping.get(id);
 					if (busLocation.getLastUpdateInMillis() + 180000 < TransitSystem.currentTimeMillis())
@@ -221,13 +214,33 @@ public abstract class NextBusTransitSource implements TransitSource
 					}
 				}
 
-				for (Integer id : busesToBeDeleted)
+				for (String id : busesToBeDeleted)
 				{
 					busMapping.remove(id);
 				}
 			}
 		}
+		
+		//alerts
+		TransitSource transitSource = transitSystem.getTransitSource(routeConfig.getRouteName());
+		if (transitSource instanceof NextBusTransitSource)
+		{
+			if (routeConfig.obtainedAlerts() == false)
+			{
+				try
+				{
+					parseAlert(routeConfig);
+				}
+				catch (Exception e)
+				{
+					LogUtil.e(e);
+					//I'm silencing these since alerts aren't necessary to use the rest of the app
+				}
+			}
+		}
 	}
+
+	protected abstract void parseAlert(RouteConfig routeConfig) throws ClientProtocolException, IOException, SAXException;
 
 	protected String getPredictionsUrl(List<Location> locations, int maxStops, String route)
 	{
@@ -316,7 +329,7 @@ public abstract class NextBusTransitSource implements TransitSource
 
 		GZIPInputStream stream = new GZIPInputStream(in); 
 
-		RouteConfigFeedParser parser = new RouteConfigFeedParser(busStop, directions, null, this);
+		RouteConfigFeedParser parser = new RouteConfigFeedParser(busStop, busStopUpdated, directions, null, this);
 
 		parser.runParse(stream);
 
@@ -350,12 +363,16 @@ public abstract class NextBusTransitSource implements TransitSource
 		return busStop;
 	}
 
+	@Override
+	public Drawable getBusStopUpdatedDrawable() {
+		return busStopUpdated;
+	}
 
 	@Override
 	public StopLocation createStop(float lat, float lon, String stopTag,
 			String title, int platformOrder, String branch, String route, String dirTag)
 	{
-		StopLocation stop = new StopLocation(lat, lon, busStop, stopTag, title);
+		StopLocation stop = new StopLocation(lat, lon, busStop, busStopUpdated, stopTag, title);
 		stop.addRouteAndDirTag(route, dirTag);
 		return stop;
 	}

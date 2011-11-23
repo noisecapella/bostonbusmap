@@ -28,7 +28,7 @@ public interface TransitSource {
 
 	void refreshData(RouteConfig routeConfig, int selectedBusPredictions,
 			int maxStops, double centerLatitude, double centerLongitude,
-			ConcurrentHashMap<Integer, BusLocation> busMapping, String selectedRoute,
+			ConcurrentHashMap<String, BusLocation> busMapping, String selectedRoute,
 			RoutePool routePool, Directions directions, Locations locationsObj)
 	throws IOException, ParserConfigurationException, SAXException;
 
@@ -42,8 +42,10 @@ public interface TransitSource {
 	
 	public HashMap<String, String> getRouteKeysToTitles();
 
-	Drawable getBusStopDrawable();
-
+	public Drawable getBusStopDrawable();
+	
+	public Drawable getBusStopUpdatedDrawable();
+	
 	/**
 	 * Create a StopLocation using the parameters
 	 * @param lat

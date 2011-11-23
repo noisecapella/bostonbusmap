@@ -22,8 +22,12 @@
 <string name="noProviders">Cannot use any location service.
 Are any enabled (like GPS) in your system settings?</string>
 <string name="locationUnavailable">Current location is unavailable</string>
-
-
+<string name="showRoutePath">Show route path?</string>
+<string name="updateContinuously">Update continuously</string>
+<string name="showUnpredictableBuses">Show unpredictable buses?</string>
+<string name="hideBlueCircle">Hide blue circle?</string>
+<string name="hideBlueCircleSummary">This shows what buses are being viewed</string>
+<string name="showRoutePathSummary">Draws a line along the selected route</string>
 <string name="search_hint">Search routes and places</string>
 <string name="search">Search</string>
 <string name="chooseRoute">Routes</string>
@@ -40,4 +44,8 @@ Are any enabled (like GPS) in your system settings?</string>
 <string name="chooseStopInBuilder">Choose a stop</string>
 <string name="chooseRouteInBuilder">Choose a route</string>
 <string name="noalerts">No Alerts</string>
+
+    <string name="alwaysShowLocation">Always show location?</string>
+    <string name="alwaysShowLocationCheckbox">gpsAlwaysOn</string>
+    <string name="alwaysShowLocationSummary">Turns on location when app is in use</string>
 </resources>

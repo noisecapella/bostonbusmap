@@ -98,7 +98,7 @@ public class BusPredictionsFeedParser extends DefaultHandler
 
 				long epochTime = Long.parseLong(getAttribute(epochTimeKey, attributes));
 
-				int vehicleId = Integer.parseInt(getAttribute(vehicleKey, attributes));
+				String vehicleId = getAttribute(vehicleKey, attributes);
 				
 				boolean affectedByLayover = Boolean.parseBoolean(getAttribute(affectedByLayoverKey, attributes));
 				

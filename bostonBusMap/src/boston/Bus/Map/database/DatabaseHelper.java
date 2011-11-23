@@ -17,15 +17,19 @@ import boston.Bus.Map.data.Path;
 import boston.Bus.Map.data.RouteConfig;
 import boston.Bus.Map.data.StopLocation;
 import boston.Bus.Map.data.SubwayStopLocation;
+import boston.Bus.Map.math.Geometry;
 import boston.Bus.Map.transit.TransitSource;
 import boston.Bus.Map.transit.TransitSystem;
 import boston.Bus.Map.ui.ProgressMessage;
 import boston.Bus.Map.util.Box;
 import boston.Bus.Map.util.Constants;
+import boston.Bus.Map.util.StringUtil;
 
+import android.app.SearchManager;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
+import android.database.MatrixCursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteDiskIOException;
 import android.database.sqlite.SQLiteException;
@@ -37,6 +41,7 @@ import android.net.wifi.WifiConfiguration.PairwiseCipher;
 import android.os.Debug;
 import android.os.Parcel;
 import android.os.StatFs;
+import android.provider.BaseColumns;
 import android.util.Log;
 
 /**
@@ -68,6 +73,7 @@ public class DatabaseHelper extends SQLiteOpenHelper
 	private final static String verboseFavorites = "favorites";
 	
 	private final static String routeKey = "route";
+	private final static String routeTitleKey = "routetitle";
 	private final static String newFavoritesTagKey = "tag";
 	private final static String latitudeKey = "lat";
 	private final static String longitudeKey = "lon";
@@ -106,9 +112,13 @@ public class DatabaseHelper extends SQLiteOpenHelper
 	public final static int VERBOSE_DB_7 = 19;
 
 	public final static int VERBOSE_DB_8 = 20;
-	public final static int COMMUTER_DB_1 = 21;
+	public final static int VERBOSE_DB_9 = 21;
+	public final static int VERBOSE_DB_10 = 22;
+	public final static int VERBOSE_DB_11 = 23;
+
+	public final static int VERBOSE_DBV2_1 = 24;
 	
-	public final static int CURRENT_DB_VERSION = VERBOSE_DB_8;
+	public final static int CURRENT_DB_VERSION = VERBOSE_DBV2_1;
 	
 	public static final int ALWAYS_POPULATE = 3;
 	public static final int POPULATE_IF_UPGRADE = 2;
@@ -131,7 +141,7 @@ public class DatabaseHelper extends SQLiteOpenHelper
 				dirNameKey + " STRING, " + dirTitleKey + " STRING, " + dirRouteKey + " STRING)");
 		
 		db.execSQL("CREATE TABLE IF NOT EXISTS " + verboseRoutes + " (" + routeKey + " STRING PRIMARY KEY, " + colorKey + 
-				" INTEGER, " + oppositeColorKey + " INTEGER, " + pathsBlobKey + " BLOB)");
+				" INTEGER, " + oppositeColorKey + " INTEGER, " + pathsBlobKey + " BLOB, " + routeTitleKey + " STRING)");
 		
 		db.execSQL("CREATE TABLE IF NOT EXISTS " + verboseStops + " (" + stopTagKey + " STRING PRIMARY KEY, " + 
 				latitudeKey + " FLOAT, " + longitudeKey + " FLOAT, " + stopTitleKey + " STRING)");
@@ -161,8 +171,8 @@ public class DatabaseHelper extends SQLiteOpenHelper
 			favorites = new HashSet<String>();
 			populateFavorites(favorites, true, db);
 		}
-
-		if (oldVersion < VERBOSE_DB_8)
+		
+		if (oldVersion < VERBOSE_DBV2_1)
 		{
 			db.execSQL("DROP TABLE IF EXISTS " + directionsTable);
 			db.execSQL("DROP TABLE IF EXISTS " + stopsTable);
@@ -176,6 +186,7 @@ public class DatabaseHelper extends SQLiteOpenHelper
 			db.execSQL("DROP TABLE IF EXISTS " + oldFavoritesTable);
 			db.execSQL("DROP TABLE IF EXISTS " + newFavoritesTable);
 		}
+
 		//if it's verboseFavorites, we want to save it since it's user specified data
 
 		onCreate(db);
@@ -184,6 +195,7 @@ public class DatabaseHelper extends SQLiteOpenHelper
 		{
 			writeVerboseFavorites(db, favorites);
 		}
+
 		db.setTransactionSuccessful();
 		db.endTransaction();
 		
@@ -322,7 +334,8 @@ public class DatabaseHelper extends SQLiteOpenHelper
 				RouteConfig routeConfig = mapping.get(route);
 				if (routeConfig != null)
 				{
-					saveMappingKernel(database, route, routeConfig, sharedStops);
+					String routeTitle = routeConfig.getRouteTitle();
+					saveMappingKernel(database, route, routeTitle, routeConfig, sharedStops);
 				}
 				
 				count++;
@@ -347,7 +360,7 @@ public class DatabaseHelper extends SQLiteOpenHelper
 	 * @param useInsert insert all rows, don't replace them. I assume this is faster since there's no lookup involved
 	 * @throws IOException 
 	 */
-	private void saveMappingKernel(SQLiteDatabase database, String route, RouteConfig routeConfig,
+	private void saveMappingKernel(SQLiteDatabase database, String route, String routeTitle, RouteConfig routeConfig,
 			HashSet<String> sharedStops) throws IOException
 	{
 		Box serializedPath = new Box(null, CURRENT_DB_VERSION);
@@ -359,6 +372,7 @@ public class DatabaseHelper extends SQLiteOpenHelper
 		{
 			ContentValues values = new ContentValues();
 			values.put(routeKey, route);
+			values.put(routeTitleKey, routeTitle);
 			values.put(pathsBlobKey, serializedPathBlob);
 			values.put(colorKey, routeConfig.getColor());
 			values.put(oppositeColorKey, routeConfig.getOppositeColor());
@@ -558,7 +572,7 @@ public class DatabaseHelper extends SQLiteOpenHelper
 					" INTEGER, " + oppositeColorKey + " INTEGER, " + pathsBlobKey + " BLOB)");*/
 
 			//get the route-specific information, like the path outline and the color
-			routeCursor = database.query(verboseRoutes, new String[]{colorKey, oppositeColorKey, pathsBlobKey}, routeKey + "=?",
+			routeCursor = database.query(verboseRoutes, new String[]{colorKey, oppositeColorKey, pathsBlobKey, routeTitleKey}, routeKey + "=?",
 					new String[]{routeToUpdate}, null, null, null);
 			if (routeCursor.getCount() == 0)
 			{
@@ -572,9 +586,10 @@ public class DatabaseHelper extends SQLiteOpenHelper
 			int color = routeCursor.getInt(0);
 			int oppositeColor = routeCursor.getInt(1);
 			byte[] pathsBlob = routeCursor.getBlob(2);
+			String routeTitle = routeCursor.getString(3);
 			Box pathsBlobBox = new Box(pathsBlob, CURRENT_DB_VERSION);
 
-			RouteConfig routeConfig = new RouteConfig(routeToUpdate, color, oppositeColor, source, pathsBlobBox);
+			RouteConfig routeConfig = new RouteConfig(routeToUpdate, routeTitle, color, oppositeColor, source, pathsBlobBox);
 
 			
 			
@@ -757,6 +772,11 @@ public class DatabaseHelper extends SQLiteOpenHelper
 			for (String dirTag : indexes.keySet())
 			{
 				Integer i = indexes.get(dirTag);
+				if (i >= names.size() || i >= titles.size() || i >= routes.size())
+				{
+					//should be a rare case hopefully
+					continue;
+				}
 				String name = names.get(i);
 				String title = titles.get(i);
 				String route = routes.get(i);
@@ -821,6 +841,218 @@ public class DatabaseHelper extends SQLiteOpenHelper
 		return database.query(verboseRoutes, new String[]{routeKey}, null, null, null, null, null);
 	}
 
+	public synchronized Cursor getCursorForSearch(String search) {
+		String[] columns = new String[] {BaseColumns._ID, SearchManager.SUGGEST_COLUMN_TEXT_1, SearchManager.SUGGEST_COLUMN_QUERY, SearchManager.SUGGEST_COLUMN_TEXT_2};
+		MatrixCursor ret = new MatrixCursor(columns);
+		
+		SQLiteDatabase database = getReadableDatabase();
+		try
+		{
+			addSearchRoutes(database, search, ret);
+			addSearchStops(database, search, ret);
+		}
+		finally
+		{
+			database.close();
+		}
+		
+		
+		return ret;
+	}
+
+	private void addSearchRoutes(SQLiteDatabase database, String search, MatrixCursor ret)
+	{
+		if (search == null)
+		{
+			return;
+		}
+		
+		Cursor cursor = null;
+		try
+		{
+			cursor = database.query(verboseRoutes, new String[]{routeTitleKey, routeKey}, routeTitleKey + " LIKE ?",
+					new String[]{"%" + search + "%"}, null, null, routeTitleKey);
+			if (cursor.moveToFirst() == false)
+			{
+				return;
+			}
+
+			int count = 0;
+			while (!cursor.isAfterLast())
+			{
+				String routeTitle = cursor.getString(0);
+				String routeKey = cursor.getString(1);
+
+				ret.addRow(new Object[]{count, routeTitle, "route " + routeKey, "Route"});
+
+				cursor.moveToNext();
+				count++;
+			}
+		}
+		finally
+		{
+			if (cursor != null)
+			{
+				cursor.close();
+			}
+		}
+	}
+	
+	private void addSearchStops(SQLiteDatabase database, String search, MatrixCursor ret)
+	{
+		if (search == null)
+		{
+			return;
+		}
+		
+		Cursor cursor = null;
+		try
+		{
+			SQLiteQueryBuilder builder = new SQLiteQueryBuilder();
+			
+			String tables = verboseStops +
+			" JOIN " + stopsRoutesMap + " AS sm1 ON (" + verboseStops + "." + stopTagKey + " = sm1." + stopTagKey + ")" +
+			" JOIN " + verboseRoutes + " AS r1 ON (sm1." + routeKey + " = r1." + routeKey + ")";
+
+			
+			builder.setTables(tables);
+			
+			
+			String thisStopTitleKey = verboseStops + "." + stopTitleKey;
+			String[] projectionIn = new String[] {thisStopTitleKey, verboseStops + "." + stopTagKey, "r1." + routeTitleKey};
+			String select = thisStopTitleKey + " LIKE ?";
+			String[] selectArray = new String[]{"%" + search + "%"};
+			
+			cursor = builder.query(database, projectionIn, select, selectArray, null, null, thisStopTitleKey);
+
+			if (cursor.moveToFirst() == false)
+			{
+				return;
+			}
+
+			int count = 0;
+			String prevStopTag = null;
+			String prevStopTitle = null;
+			StringBuilder routes = new StringBuilder();
+			int routeCount = 0;
+			while (!cursor.isAfterLast())
+			{
+				String stopTitle = cursor.getString(0);
+				String stopTag = cursor.getString(1);
+				String routeTitle = cursor.getString(2);
+
+				if (prevStopTag == null)
+				{
+					// do nothing, first row
+					prevStopTag = stopTag;
+					prevStopTitle = stopTitle;
+					routeCount++;
+					routes.append(routeTitle);
+				}
+				else if (!prevStopTag.equals(stopTag))
+				{
+					// change in row. write out this row
+					String routeString = routeCount == 0 ? "Stop" 
+							: routeCount == 1 ? ("Stop on route " + routes.toString())
+									: ("Stop on routes " + routes);
+					ret.addRow(new Object[]{count, prevStopTitle, "stop " + prevStopTag, routeString});
+					prevStopTag = stopTag;
+					prevStopTitle = stopTitle;
+					routeCount = 1;
+					routes.setLength(0);
+					routes.append(routeTitle);
+				}
+				else
+				{
+					// just add a new route
+					routes.append(", ");
+					routes.append(routeTitle);
+					routeCount++;
+				}
+				
+
+				cursor.moveToNext();
+				count++;
+			}
+			
+			if (prevStopTag != null)
+			{
+				// at least one row
+				String routeString = routeCount == 0 ? "Stop" 
+						: routeCount == 1 ? ("Stop on route " + routes.toString())
+								: ("Stop on routes " + routes);
+				ret.addRow(new Object[]{count, prevStopTitle, "stop " + prevStopTag, routeString});
+			}
+		}
+		finally
+		{
+			if (cursor != null)
+			{
+				cursor.close();
+			}
+		}
+	}
+	public synchronized ArrayList<StopLocation> getClosestStops(double currentLat, double currentLon, TransitSystem transitSystem, HashMap<String, StopLocation> sharedStops, int limit)
+	{
+		SQLiteDatabase database = getReadableDatabase();
+		Cursor cursor = null;
+		try
+		{
+			// what we should scale longitude by for 1 unit longitude to roughly equal 1 unit latitude
+			double lonFactor = Math.cos(currentLat * Geometry.degreesToRadians);
+			
+			
+			SQLiteQueryBuilder builder = new SQLiteQueryBuilder();
+			
+			String tables = verboseStops;
+
+			builder.setTables(tables);
+			
+			final String distanceKey = "distance";
+			String[] projectionIn = new String[] {stopTagKey, distanceKey};
+			HashMap<String, String> projectionMap = new HashMap<String, String>();
+			projectionMap.put(stopTagKey, stopTagKey);
+
+			String latDiff = "(" + latitudeKey + " - " + currentLat + ")";
+			String lonDiff = "((" + longitudeKey + " - " + currentLon + ")*" + lonFactor + ")";
+			projectionMap.put("distance", latDiff + "*" + latDiff + " + " + lonDiff + "*" + lonDiff + " AS " + distanceKey);
+			builder.setProjectionMap(projectionMap);
+			cursor = builder.query(database, projectionIn, null, null, null, null, distanceKey, new Integer(limit).toString());
+			
+			if (cursor.moveToFirst() == false)
+			{
+				return new ArrayList<StopLocation>();
+			}
+			
+			ArrayList<String> stopTags = new ArrayList<String>();
+			while (!cursor.isAfterLast())
+			{
+				String id = cursor.getString(0);
+				stopTags.add(id);
+				
+				cursor.moveToNext();
+			}
+			
+			getStops(stopTags, transitSystem, sharedStops);
+			
+			ArrayList<StopLocation> ret = new ArrayList<StopLocation>();
+			for (String stopTag : stopTags)
+			{
+				ret.add(sharedStops.get(stopTag));
+			}
+			
+			return ret;
+		}
+		finally
+		{
+			if (cursor != null)
+			{
+				cursor.close();
+			}
+			database.close();
+		}
+	}
+	
 	public synchronized Cursor getCursorForDirection(String dirTag) {
 		SQLiteDatabase database = getReadableDatabase();
 		

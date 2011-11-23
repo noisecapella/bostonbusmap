@@ -19,6 +19,7 @@ import android.R.string;
 import android.content.Context;
 import android.graphics.drawable.Drawable;
 import android.util.Log;
+import boston.Bus.Map.data.AlertsMapping;
 import boston.Bus.Map.data.BusLocation;
 import boston.Bus.Map.data.Directions;
 import boston.Bus.Map.data.Location;
@@ -44,11 +45,19 @@ public class TransitSystem {
 	public static final double lowerLeftLon = -72.0428466796875;
 	public static final double upperRightLat = 42.74701217318067;
 	public static final double upperRightLon = -69.774169921875;
+<<<<<<< HEAD
 */
 	
 	public static final String[] emails = new String[]{"bostonbusmap@gmail.com"};
 	public static final String emailSubject = "SF BusMap error report";
 	
+=======
+
+	public static final String[] emails = new String[]{"bostonbusmap@gmail.com", "t-trackertrial@mbta.com"};
+	public static final String emailSubject = "BostonBusMap error report";
+
+	private static final AlertsMapping alertsMapping = new AlertsMapping();
+>>>>>>> master
 	
 	public static double getCenterLat() {
 		return sfLatitude;
@@ -82,11 +91,28 @@ public class TransitSystem {
 	 */
 	private TransitSource defaultTransitSource;
 	
-	public void setDefaultTransitSource(Drawable busStop, Drawable bus, Drawable arrow, Drawable rail, Drawable railArrow)
+	public void setDefaultTransitSource(Drawable busStop, Drawable busStopUpdated, Drawable bus, Drawable arrow, Drawable rail, Drawable railArrow)
 	{
 		if (defaultTransitSource == null)
 		{
+<<<<<<< HEAD
 			defaultTransitSource = new SFBusTransitSource(this, busStop, bus, arrow);
+=======
+			defaultTransitSource = new BusTransitSource(this, busStop, busStopUpdated, bus, arrow, alertsMapping);
+			SubwayTransitSource subwayTransitSource = new SubwayTransitSource(busStop, busStopUpdated, rail, railArrow, alertsMapping);
+			transitSourceMap.put(SubwayTransitSource.RedLine, subwayTransitSource);
+			transitSourceMap.put(SubwayTransitSource.OrangeLine, subwayTransitSource);
+			transitSourceMap.put(SubwayTransitSource.BlueLine, subwayTransitSource);
+			
+			CommuterRailTransitSource commuterRailTransitSource = new CommuterRailTransitSource(busStop, busStopUpdated, rail, railArrow, alertsMapping);
+			for (String route : commuterRailTransitSource.getRoutes())
+			{
+				transitSourceMap.put(route, commuterRailTransitSource);
+			}
+			
+			transitSources.add(commuterRailTransitSource);
+			transitSources.add(subwayTransitSource);
+>>>>>>> master
 			transitSources.add(defaultTransitSource);
 		}
 	}
@@ -158,7 +184,7 @@ public class TransitSystem {
 
 	public void refreshData(RouteConfig routeConfig,
 			int selectedBusPredictions, int maxStops, double centerLatitude,
-			double centerLongitude, ConcurrentHashMap<Integer, BusLocation> busMapping,
+			double centerLongitude, ConcurrentHashMap<String, BusLocation> busMapping,
 			String selectedRoute, RoutePool routePool,
 			Directions directions, Locations locations) throws IOException, ParserConfigurationException, SAXException {
 		for (TransitSource source : transitSources)
