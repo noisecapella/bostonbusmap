@@ -88,25 +88,8 @@ public class TransitSystem {
 	{
 		if (defaultTransitSource == null)
 		{
-<<<<<<< HEAD
-			defaultTransitSource = new LABusTransitSource(this, busStop, bus, arrow);
+			defaultTransitSource = new LABusTransitSource(this, busStop, busStopUpdated, bus, arrow);
 
-=======
-			defaultTransitSource = new BusTransitSource(this, busStop, busStopUpdated, bus, arrow, alertsMapping);
-			SubwayTransitSource subwayTransitSource = new SubwayTransitSource(busStop, busStopUpdated, rail, railArrow, alertsMapping);
-			transitSourceMap.put(SubwayTransitSource.RedLine, subwayTransitSource);
-			transitSourceMap.put(SubwayTransitSource.OrangeLine, subwayTransitSource);
-			transitSourceMap.put(SubwayTransitSource.BlueLine, subwayTransitSource);
-			
-			CommuterRailTransitSource commuterRailTransitSource = new CommuterRailTransitSource(busStop, busStopUpdated, rail, railArrow, alertsMapping);
-			for (String route : commuterRailTransitSource.getRoutes())
-			{
-				transitSourceMap.put(route, commuterRailTransitSource);
-			}
-			
-			transitSources.add(commuterRailTransitSource);
-			transitSources.add(subwayTransitSource);
->>>>>>> master
 			transitSources.add(defaultTransitSource);
 		}
 	}
