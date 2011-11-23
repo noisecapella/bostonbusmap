@@ -176,7 +176,7 @@ public class SearchHelper
 			ArrayList<String> routesForStop = databaseHelper.isStop(indexingQuery);
 			if (routesForStop.size() > 0)
 			{
-				context.setNewStop(routesForStop.get(0), lowercaseQuery, false);
+				context.setNewStop(routesForStop.get(0), indexingQuery, false);
 			}
 			else
 			{

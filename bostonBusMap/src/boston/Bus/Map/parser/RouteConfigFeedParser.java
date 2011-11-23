@@ -43,10 +43,11 @@ public class RouteConfigFeedParser extends DefaultHandler
 	private final Directions directions;
 	private final RouteConfig oldRouteConfig;
 	
-	public RouteConfigFeedParser(Drawable busStop, Directions directions,
+	public RouteConfigFeedParser(Drawable busStop, Drawable busStopUpdated, Directions directions,
 			RouteConfig oldRouteConfig, NextBusTransitSource transitSource)
 	{
 		this.busStop = busStop;
+		this.busStopUpdated = busStopUpdated;
 		this.directions = directions;
 		this.oldRouteConfig = oldRouteConfig;
 		
@@ -63,6 +64,7 @@ public class RouteConfigFeedParser extends DefaultHandler
 	}
 	
 	private final Drawable busStop;
+	private final Drawable busStopUpdated;
 	
 	private static final String routeKey = "route";
 	private static final String directionKey = "direction";
@@ -123,7 +125,7 @@ public class RouteConfigFeedParser extends DefaultHandler
 					StopLocation stopLocation = allStops.get(tag);
 					if (stopLocation == null)
 					{
-						stopLocation = new StopLocation(latitudeAsDegrees, longitudeAsDegrees, busStop, tag,
+						stopLocation = new StopLocation(latitudeAsDegrees, longitudeAsDegrees, busStop, busStopUpdated, tag,
 								title);
 						allStops.put(tag, stopLocation);
 					}

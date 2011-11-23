@@ -473,7 +473,8 @@ public class UpdateAsyncTask extends AsyncTask<Object, Object, Locations>
 		}
 		
 		RouteConfig selectedRouteConfig;
-		if (selectedBusPredictions == Main.BUS_PREDICTIONS_STAR)
+		if (selectedBusPredictions == Main.BUS_PREDICTIONS_STAR || 
+				selectedBusPredictions == Main.BUS_PREDICTIONS_ALL)
 		{
 			//we want this to be null. Else, the snippet drawing code would only show data for a particular route
 			try {

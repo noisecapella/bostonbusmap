@@ -32,10 +32,11 @@ public class CurrentState {
 	private final RouteOverlay routeOverlay;
 	private final boolean progressState;
 	private final UpdateAsyncTask majorHandler;
+	private final boolean locationEnabled;
 	
 	public CurrentState(Locations busLocations, long lastUpdateTime, boolean updateConstantly,
 			int selectedRouteIndex, int selectedBusPredictions, BusOverlay busOverlay, RouteOverlay routeOverlay,
-			UpdateAsyncTask majorHandler, boolean progressState) 
+			UpdateAsyncTask majorHandler, boolean progressState, boolean locationEnabled) 
 	{
 		this.busLocations = busLocations;
 		this.lastUpdateTime = lastUpdateTime;
@@ -46,6 +47,7 @@ public class CurrentState {
 		this.routeOverlay = routeOverlay;
 		this.progressState = progressState;
 		this.majorHandler = majorHandler;
+		this.locationEnabled = locationEnabled;
 	}
 
 	public long getLastUpdateTime()
@@ -110,6 +112,10 @@ public class CurrentState {
 		RouteOverlay ret = new RouteOverlay(routeOverlay, projection);
 		
 		return ret;
+	}
+
+	public boolean getLocationEnabled() {
+		return locationEnabled;
 	}
 	
 }

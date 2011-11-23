@@ -47,7 +47,7 @@ public class TransitContentProvider extends SearchRecentSuggestionsProvider {
 		int code = matcher.match(uri);
 		switch (code)
 		{
-		/*case SUGGESTIONS_CODE:
+		case SUGGESTIONS_CODE:
 			if (selectionArgs == null || selectionArgs.length == 0 || selectionArgs[0].trim().length() == 0)
 			{
 				return super.query(uri, projection, selection, selectionArgs, sortOrder);
@@ -55,7 +55,7 @@ public class TransitContentProvider extends SearchRecentSuggestionsProvider {
 			else
 			{
 				return helper.getCursorForSearch(selectionArgs != null && selectionArgs.length >= 1 ? selectionArgs[0] : null);
-			}*/
+			}
 		default:
 			return super.query(uri, projection, selection, selectionArgs, sortOrder);
 		}
