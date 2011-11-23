@@ -76,7 +76,7 @@ public class CommuterRailPredictionsFeedParser
 
 	public void runParse(Reader data) throws IOException
 	{
-		BufferedReader reader = new BufferedReader(data);
+		BufferedReader reader = new BufferedReader(data, 2048);
 
 		String firstLine = reader.readLine();
 		if (firstLine == null)

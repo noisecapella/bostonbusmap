@@ -293,7 +293,7 @@ public class SubwayPredictionsFeedParser
 
 	private String streamToString(InputStream data) throws IOException {
 		//java is so annoying sometimes
-		BufferedReader reader = new BufferedReader(new InputStreamReader(data));
+		BufferedReader reader = new BufferedReader(new InputStreamReader(data), 2048);
 		String line;
 		StringBuilder ret = new StringBuilder();
 		while ((line = reader.readLine()) != null)

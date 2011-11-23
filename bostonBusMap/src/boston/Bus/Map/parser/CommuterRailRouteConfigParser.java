@@ -377,7 +377,7 @@ public class CommuterRailRouteConfigParser
 
 	private void populateStops(Reader inputStreamReader) throws IOException
 	{
-		BufferedReader reader = new BufferedReader(inputStreamReader);
+		BufferedReader reader = new BufferedReader(inputStreamReader, 2048);
 		String[] definitions = reader.readLine().split(",");
 		
 		for (int i = 0; i < definitions.length; i++)

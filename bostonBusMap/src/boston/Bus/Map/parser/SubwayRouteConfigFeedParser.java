@@ -79,7 +79,7 @@ public class SubwayRouteConfigFeedParser
 	}
 	
 	public void runParse(InputStream inputStream) throws ParserConfigurationException, SAXException, IOException {
-		BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
+		BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream), 2048);
 		String[] definitions = reader.readLine().split(",");
 		
 		for (int i = 0; i < definitions.length; i++)
