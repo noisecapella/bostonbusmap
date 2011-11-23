@@ -1,12 +1,18 @@
 package boston.Bus.Map.transit;
 
+import java.io.IOException;
+
+import org.apache.http.client.ClientProtocolException;
+import org.xml.sax.SAXException;
+
+import boston.Bus.Map.data.RouteConfig;
 import android.graphics.drawable.Drawable;
 
 public class SFBusTransitSource extends NextBusTransitSource
 {
-	public SFBusTransitSource(TransitSystem system, Drawable busStop, Drawable bus, Drawable arrow)
+	public SFBusTransitSource(TransitSystem system, Drawable busStop, Drawable busStopUpdated, Drawable bus, Drawable arrow)
 	{
-		super(system, busStop, bus, arrow, "sf-muni", com.schneeloch.sftransit.R.raw.routeconfig);
+		super(system, busStop, busStopUpdated, bus, arrow, "sf-muni", com.schneeloch.sftransit.R.raw.routeconfig);
 	}
 
 	@Override
@@ -98,6 +104,13 @@ public class SFBusTransitSource extends NextBusTransitSource
 	@Override
 	protected int getInitialContentLength() {
 		return 125167;
+	}
+
+	@Override
+	protected void parseAlert(RouteConfig routeConfig)
+			throws ClientProtocolException, IOException, SAXException {
+		// do nothing
+		
 	}
 
 }

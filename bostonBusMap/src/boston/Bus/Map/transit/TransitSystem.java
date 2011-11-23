@@ -40,24 +40,15 @@ public class TransitSystem {
 	private static final String website = "http://www.terribleinformation.org/george/bostonbusmap";
 	
 	//these four variables cover a very wide area just in case
-	/*
 	public static final double lowerLeftLat = 41.582579601430346;
 	public static final double lowerLeftLon = -72.0428466796875;
 	public static final double upperRightLat = 42.74701217318067;
 	public static final double upperRightLon = -69.774169921875;
-<<<<<<< HEAD
-*/
 	
 	public static final String[] emails = new String[]{"bostonbusmap@gmail.com"};
 	public static final String emailSubject = "SF BusMap error report";
-	
-=======
-
-	public static final String[] emails = new String[]{"bostonbusmap@gmail.com", "t-trackertrial@mbta.com"};
-	public static final String emailSubject = "BostonBusMap error report";
 
 	private static final AlertsMapping alertsMapping = new AlertsMapping();
->>>>>>> master
 	
 	public static double getCenterLat() {
 		return sfLatitude;
@@ -95,24 +86,7 @@ public class TransitSystem {
 	{
 		if (defaultTransitSource == null)
 		{
-<<<<<<< HEAD
-			defaultTransitSource = new SFBusTransitSource(this, busStop, bus, arrow);
-=======
-			defaultTransitSource = new BusTransitSource(this, busStop, busStopUpdated, bus, arrow, alertsMapping);
-			SubwayTransitSource subwayTransitSource = new SubwayTransitSource(busStop, busStopUpdated, rail, railArrow, alertsMapping);
-			transitSourceMap.put(SubwayTransitSource.RedLine, subwayTransitSource);
-			transitSourceMap.put(SubwayTransitSource.OrangeLine, subwayTransitSource);
-			transitSourceMap.put(SubwayTransitSource.BlueLine, subwayTransitSource);
-			
-			CommuterRailTransitSource commuterRailTransitSource = new CommuterRailTransitSource(busStop, busStopUpdated, rail, railArrow, alertsMapping);
-			for (String route : commuterRailTransitSource.getRoutes())
-			{
-				transitSourceMap.put(route, commuterRailTransitSource);
-			}
-			
-			transitSources.add(commuterRailTransitSource);
-			transitSources.add(subwayTransitSource);
->>>>>>> master
+			defaultTransitSource = new SFBusTransitSource(this, busStop, busStopUpdated, bus, arrow);
 			transitSources.add(defaultTransitSource);
 		}
 	}
