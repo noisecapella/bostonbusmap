@@ -221,7 +221,10 @@ public class BusLocation implements Location {
 			HashMap<String, String> routeKeysToTitles, Context context) {
 		snippet = makeSnippet(routeConfig);
 		snippetTitle = makeTitle();
-		snippetAlerts = routeConfig.getAlerts();
+		if (routeConfig.getRouteName().equals(routeName))
+		{
+			snippetAlerts = routeConfig.getAlerts();
+		}
 	}
 
 	@Override

@@ -1,5 +1,6 @@
 package boston.Bus.Map.util;
 
+import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -66,7 +67,7 @@ public class DownloadHelper {
 			}
 		}
 		
-
+		inputStream = new BufferedInputStream(inputStream, 2048);
 	}
 
 	public InputStream getResponseData()

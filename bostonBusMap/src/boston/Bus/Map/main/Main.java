@@ -133,6 +133,9 @@ public class Main extends MapActivity
 	private static final String centerLatKey = "centerLat";
 	private static final String centerLonKey = "centerLon";
 	private static final String zoomLevelKey = "zoomLevel";
+	//private static final String gpsAlwaysOn = "gpsAlwaysOn";
+	private static final String markUpdatedStops = "markUpdatedStops";
+	
 	private static final String introScreenKey = "introScreen";
 	private MapView mapView;
 	private EditText searchView;
@@ -157,8 +160,12 @@ public class Main extends MapActivity
 	private RouteOverlay routeOverlay;
 	private LocationOverlay myLocationOverlay;
 	
+	/**
+	 * Is location overlay supposed to be enabled? Used mostly for onResume()
+	 */
+	private boolean locationEnabled; 
+	
 	private Spinner toggleButton;
-	private Drawable busStop;
 	/**
 	 * The list of routes that's selectable in the routes dropdown list
 	 */
@@ -180,15 +187,15 @@ public class Main extends MapActivity
 	public static final int BUS_PREDICTIONS_STAR = 5;
 	
 	public static final int[] modesSupported = new int[]{
-		VEHICLE_LOCATIONS_ALL, VEHICLE_LOCATIONS_ONE, BUS_PREDICTIONS_ONE, BUS_PREDICTIONS_STAR
+		VEHICLE_LOCATIONS_ALL, VEHICLE_LOCATIONS_ONE, BUS_PREDICTIONS_ALL, BUS_PREDICTIONS_ONE, BUS_PREDICTIONS_STAR
 	};
 	
 	public static final int[] modeIconsSupported = new int[]{
-		R.drawable.bus_all, R.drawable.bus_one, R.drawable.busstop_one, R.drawable.busstop_star
+		R.drawable.bus_all, R.drawable.bus_one, R.drawable.busstop_all, R.drawable.busstop_one, R.drawable.busstop_star
 	};
 	
 	public static final String[] modeTextSupported = new String[]{
-		"All buses (no rail)", "Vehicles on one route", "Stops and predictions on one route", "Favorite stops"
+		"All buses (no rail)", "Vehicles on one route", "Stops and predictions on all routes\n (only bus)", "Stops and predictions on one route", "Favorite stops"
 	};
 	
 	
@@ -237,16 +244,16 @@ public class Main extends MapActivity
         Resources resources = getResources();
 
         Drawable busPicture = resources.getDrawable(R.drawable.bus_statelist);
-        
+        Drawable busStopUpdated = resources.getDrawable(R.drawable.busstop_statelist_updated);
         Drawable arrow = resources.getDrawable(R.drawable.arrow);
         Drawable tooltip = resources.getDrawable(R.drawable.tooltip);
         Drawable rail = resources.getDrawable(R.drawable.rail_statelist);
         Drawable railArrow = resources.getDrawable(R.drawable.rail_arrow);
         
-        busStop = resources.getDrawable(R.drawable.busstop_statelist);
+        Drawable busStop = resources.getDrawable(R.drawable.busstop_statelist);
         
         transitSystem = new TransitSystem();
-        transitSystem.setDefaultTransitSource(busStop, busPicture, arrow, rail, railArrow);
+        transitSystem.setDefaultTransitSource(busStop, busStopUpdated, busPicture, arrow, rail, railArrow);
         
         SpinnerAdapter modeSpinnerAdapter = makeModeSpinner(); 
 
@@ -323,6 +330,12 @@ public class Main extends MapActivity
         	mapView.getOverlays().add(myLocationOverlay);
         	mapView.getOverlays().add(busOverlay);
         	
+        	if (currentState.getLocationEnabled())
+        	{
+        		locationEnabled = true;
+        		myLocationOverlay.enableMyLocation();
+        	}
+        	
         	busOverlay.refreshBalloons();
         	
         	busLocations = currentState.getBusLocations();
@@ -347,6 +360,8 @@ public class Main extends MapActivity
         	busOverlay = new BusOverlay(busPicture, this, mapView, dropdownRouteKeysToTitles, density);
         	routeOverlay = new RouteOverlay(mapView.getProjection());
         	myLocationOverlay = new LocationOverlay(this, mapView);
+        	
+        	locationEnabled = prefs.getBoolean(getString(R.string.alwaysShowLocationCheckbox), true);
         }
 
         //final boolean showIntroScreen = prefs.getBoolean(introScreenKey, true);
@@ -362,7 +377,6 @@ public class Main extends MapActivity
         		this, databaseHelper, busOverlay, routeOverlay, myLocationOverlay, majorHandler,
         		transitSystem, progressDialog);
         busOverlay.setUpdateable(handler);
-        myLocationOverlay.setUpdateable(handler);
         
         populateHandlerSettings();
         
@@ -565,7 +579,6 @@ public class Main extends MapActivity
 		if (myLocationOverlay != null)
 		{
 			myLocationOverlay.disableMyLocation();
-			myLocationOverlay.setUpdateable(null);
 		}
 		
 		if (progressDialog != null)
@@ -597,7 +610,6 @@ public class Main extends MapActivity
 		
 		searchView = null;
 		
-		busStop = null;
 		toggleButton = null;
 		
 		
@@ -637,6 +649,9 @@ public class Main extends MapActivity
     			if (myLocationOverlay.isMyLocationEnabled() == false)
     			{
     				myLocationOverlay.enableMyLocation();
+    				
+    				locationEnabled = true;
+    				
     				Toast.makeText(this, getString(R.string.findingCurrentLocation), Toast.LENGTH_SHORT).show();
     			}
    				myLocationOverlay.updateMapViewPosition();
@@ -727,6 +742,11 @@ public class Main extends MapActivity
 	protected void onResume() {
 		super.onResume();
 
+		if (locationEnabled && myLocationOverlay != null)
+		{
+			myLocationOverlay.enableMyLocation();
+		}
+		
 		//check the result
 		populateHandlerSettings();
 		handler.resume();
@@ -781,9 +801,15 @@ public class Main extends MapActivity
     	//handler.setInitAllRouteInfo(prefs.getBoolean(getString(R.string.initAllRouteInfoCheckbox2), true));
     	handler.setInitAllRouteInfo(true);
     	
+    	boolean alwaysUpdateLocationValue = prefs.getBoolean(getString(R.string.alwaysShowLocationCheckbox), true);
+    	
     	//since the default value for this flag is true, make sure we let the preferences know of this
-    	prefs.edit().putBoolean(getString(R.string.runInBackgroundCheckbox), runInBackgroundCheckboxValue).
-    		putBoolean(getString(R.string.showCoarseRouteLineCheckbox), showCoarseRouteLineCheckboxValue).commit();
+    	prefs.edit().
+    		putBoolean(getString(R.string.alwaysShowLocationCheckbox), alwaysUpdateLocationValue).
+    		putBoolean(getString(R.string.runInBackgroundCheckbox), runInBackgroundCheckboxValue).
+    		putBoolean(getString(R.string.showCoarseRouteLineCheckbox), showCoarseRouteLineCheckboxValue)
+    		
+    		.commit();
     }
 
 	@Override
@@ -793,7 +819,7 @@ public class Main extends MapActivity
 		
 		return new CurrentState(busLocations, handler.getLastUpdateTime(), updateConstantly,
 				selectedRouteIndex, getSelectedBusPredictions(), busOverlay, routeOverlay,
-				handler.getMajorHandler(), progress.getVisibility() == View.VISIBLE);
+				handler.getMajorHandler(), progress.getVisibility() == View.VISIBLE, locationEnabled);
 	}
 
 	
