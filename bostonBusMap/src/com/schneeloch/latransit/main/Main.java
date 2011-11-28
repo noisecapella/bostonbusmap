@@ -324,7 +324,7 @@ public class Main extends MapActivity
         	
         	busOverlay = currentState.cloneBusOverlay(this, mapView, dropdownRouteKeysToTitles, density);
         	routeOverlay = currentState.cloneRouteOverlay(mapView.getProjection());
-        	myLocationOverlay = new LocationOverlay(this, mapView);
+        	myLocationOverlay = new LocationOverlay(this, mapView, handler);
         	
         	mapView.getOverlays().clear();
         	mapView.getOverlays().add(routeOverlay);
@@ -360,7 +360,7 @@ public class Main extends MapActivity
         {
         	busOverlay = new BusOverlay(busPicture, this, mapView, dropdownRouteKeysToTitles, density);
         	routeOverlay = new RouteOverlay(mapView.getProjection());
-        	myLocationOverlay = new LocationOverlay(this, mapView);
+        	myLocationOverlay = new LocationOverlay(this, mapView, handler);
         	
         	locationEnabled = prefs.getBoolean(getString(R.string.alwaysShowLocationCheckbox), true);
         }
