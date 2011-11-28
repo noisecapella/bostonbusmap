@@ -16,12 +16,14 @@ import com.google.android.maps.MyLocationOverlay;
 public class LocationOverlay extends MyLocationOverlay {
 	private final Context context; 
 	private final MapView mapView;
+	private final UpdateHandler handler;
 	
-	public LocationOverlay(Context context, MapView mapView) {
+	public LocationOverlay(Context context, MapView mapView, UpdateHandler handler) {
 		super(context, mapView);
 		
 		this.context = context;
 		this.mapView = mapView;
+		this.handler = handler;
 	}
 	
 	@Override
@@ -44,6 +46,12 @@ public class LocationOverlay extends MyLocationOverlay {
 			@Override
 			public void run() {
 				mapView.getController().animateTo(getMyLocation());
+				
+				if (handler != null)
+				{
+					// after 1.5 seconds, tell UpdateHandler to redraw stops near our new map position
+					handler.triggerUpdate(1500);
+				}
 			}
 		});
 	}
