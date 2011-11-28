@@ -12,7 +12,7 @@ public class LABusTransitSource extends NextBusTransitSource
 {
 	public LABusTransitSource(TransitSystem system, Drawable busStop, Drawable busStopUpdated, Drawable bus, Drawable arrow)
 	{
-		super(system, busStop, bus, busStopUpdated, arrow, "lametro", com.schneeloch.latransit.R.raw.routeconfig);
+		super(system, busStop, busStopUpdated, bus, arrow, "lametro", com.schneeloch.latransit.R.raw.routeconfig);
 	}
 
 	@Override
