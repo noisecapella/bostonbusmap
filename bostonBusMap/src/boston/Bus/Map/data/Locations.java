@@ -305,8 +305,11 @@ public final class Locations
 			ArrayList<StopLocation> stops = routeMapping.getClosestStops(centerLatitude, centerLongitude, maxLocations);
 			for (StopLocation stop : stops)
 			{
-				newLocations.add(stop);
-				locationKeys.add(stop.getId());
+				if (!(stop instanceof SubwayStopLocation))
+				{
+					newLocations.add(stop);
+					locationKeys.add(stop.getId());
+				}
 			}
 			/*for (StopLocation location : allStops)
 			{
