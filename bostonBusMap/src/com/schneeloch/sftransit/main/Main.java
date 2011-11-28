@@ -196,7 +196,7 @@ public class Main extends MapActivity
 	};
 	
 	public static final String[] modeTextSupported = new String[]{
-		"All buses (no rail)", "Vehicles on one route", "Stops and predictions on all routes\n (only bus)", "Stops and predictions on one route", "Favorite stops"
+		"All buses (no rail)", "Vehicles on one route", "Stops and predictions on all routes\n (no rail)", "Stops and predictions on one route", "Favorite stops"
 	};
 	
 	
@@ -324,7 +324,7 @@ public class Main extends MapActivity
         	
         	busOverlay = currentState.cloneBusOverlay(this, mapView, dropdownRouteKeysToTitles, density);
         	routeOverlay = currentState.cloneRouteOverlay(mapView.getProjection());
-        	myLocationOverlay = new LocationOverlay(this, mapView);
+        	myLocationOverlay = new LocationOverlay(this, mapView, handler);
         	
         	mapView.getOverlays().clear();
         	mapView.getOverlays().add(routeOverlay);
@@ -360,7 +360,7 @@ public class Main extends MapActivity
         {
         	busOverlay = new BusOverlay(busPicture, this, mapView, dropdownRouteKeysToTitles, density);
         	routeOverlay = new RouteOverlay(mapView.getProjection());
-        	myLocationOverlay = new LocationOverlay(this, mapView);
+        	myLocationOverlay = new LocationOverlay(this, mapView, handler);
         	
         	locationEnabled = prefs.getBoolean(getString(R.string.alwaysShowLocationCheckbox), true);
         }
