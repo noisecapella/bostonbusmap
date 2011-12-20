@@ -116,9 +116,10 @@ public class DatabaseHelper extends SQLiteOpenHelper
 	public final static int TORONTO_DB_1 = 22;
 	public final static int TORONTO_DB_2 = 23;
 
-	public final static int VERBOSE_DBV2_1 = 24;
+	public final static int VERBOSE_DBV2_1 = 25;
+	public final static int VERBOSE_DBV2_2 = 26;
 	
-	public final static int CURRENT_DB_VERSION = VERBOSE_DBV2_1;
+	public final static int CURRENT_DB_VERSION = VERBOSE_DBV2_2;
 	
 	public static final int ALWAYS_POPULATE = 3;
 	public static final int POPULATE_IF_UPGRADE = 2;
@@ -169,10 +170,10 @@ public class DatabaseHelper extends SQLiteOpenHelper
 		else if (oldVersion >= VERBOSE_DB)
 		{
 			favorites = new HashSet<String>();
-			populateFavorites(favorites, true, db);
+			populateFavorites(favorites, false, db);
 		}
 
-		if (oldVersion < VERBOSE_DBV2_1)
+		if (oldVersion < VERBOSE_DBV2_2)
 		{
 			db.execSQL("DROP TABLE IF EXISTS " + directionsTable);
 			db.execSQL("DROP TABLE IF EXISTS " + stopsTable);
@@ -182,7 +183,10 @@ public class DatabaseHelper extends SQLiteOpenHelper
 			db.execSQL("DROP TABLE IF EXISTS " + verboseRoutes);
 			db.execSQL("DROP TABLE IF EXISTS " + verboseStops);
 			db.execSQL("DROP TABLE IF EXISTS " + stopsRoutesMap);
-
+		}
+		
+		if (oldVersion < VERBOSE_DBV2_1)
+		{
 			db.execSQL("DROP TABLE IF EXISTS " + oldFavoritesTable);
 			db.execSQL("DROP TABLE IF EXISTS " + newFavoritesTable);
 		}
