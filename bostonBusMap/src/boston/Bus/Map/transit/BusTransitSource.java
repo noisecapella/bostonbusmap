@@ -171,7 +171,6 @@ public class BusTransitSource extends NextBusTransitSource {
 		addRoute("220", "220");
 		addRoute("221", "221");
 		addRoute("222", "222");
-		addRoute("222P", "222P");
 		addRoute("225", "225");
 		addRoute("230", "230");
 		addRoute("236", "236");
