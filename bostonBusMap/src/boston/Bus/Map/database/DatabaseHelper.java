@@ -163,7 +163,7 @@ public class DatabaseHelper extends SQLiteOpenHelper
 		HashSet<String> favorites = null;
 
 		db.beginTransaction();
-		if (oldVersion > STOP_LOCATIONS_STORE_ROUTE_STRINGS && oldVersion < VERBOSE_DB)
+		/*if (oldVersion > STOP_LOCATIONS_STORE_ROUTE_STRINGS && oldVersion < VERBOSE_DB)
 		{
 			favorites = readOldFavorites(db);
 		}
@@ -171,7 +171,7 @@ public class DatabaseHelper extends SQLiteOpenHelper
 		{
 			favorites = new HashSet<String>();
 			populateFavorites(favorites, false, db);
-		}
+		}*/
 		
 		if (oldVersion < VERBOSE_DBV2_2)
 		{
@@ -195,10 +195,10 @@ public class DatabaseHelper extends SQLiteOpenHelper
 
 		onCreate(db);
 
-		if (favorites != null)
+		/*if (favorites != null)
 		{
 			writeVerboseFavorites(db, favorites);
-		}
+		}*/
 
 		db.setTransactionSuccessful();
 		db.endTransaction();
