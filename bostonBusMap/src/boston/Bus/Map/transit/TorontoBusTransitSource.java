@@ -22,7 +22,7 @@ public class TorontoBusTransitSource extends NextBusTransitSource {
 	@Override
 	protected void addRoutes() 
 	{
-		addRoute("1S", "1S-Yonge Subway Replacement Shuttle");
+		addRoute("1S", "1S-Yonge Subway Shuttle");
 		addRoute("5", "5-Avenue Rd");
 		addRoute("6", "6-Bay");
 		addRoute("7", "7-Bathurst");
@@ -111,12 +111,12 @@ public class TorontoBusTransitSource extends NextBusTransitSource {
 		addRoute("95", "95-York Mills");
 		addRoute("96", "96-Wilson");
 		addRoute("97", "97-Yonge");
-		addRoute("98", "98-Willowdale-Senlac");
+		addRoute("98", "98-Willowdale - Senlac");
 		addRoute("99", "99-Arrow Road");
 		addRoute("100", "100-Flemingdon Park");
 		addRoute("101", "101-Downsview Park");
 		addRoute("102", "102-Markham Rd");
-		addRoute("103", "103-Mount Pleasant North");
+		addRoute("103", "103-Mt Pleasant North");
 		addRoute("104", "104-Faywood");
 		addRoute("105", "105-Dufferin North");
 		addRoute("106", "106-York University");
@@ -152,7 +152,7 @@ public class TorontoBusTransitSource extends NextBusTransitSource {
 		addRoute("145", "145-Downtown/Humber Bay Express");
 		addRoute("160", "160-Bathurst North");
 		addRoute("161", "161-Rogers Rd");
-		addRoute("162", "162-Lawrence-Donway");
+		addRoute("162", "162-Lawrence - Donway");
 		addRoute("165", "165-Weston Rd North");
 		addRoute("167", "167-Pharmacy North");
 		addRoute("168", "168-Symington");
@@ -164,9 +164,9 @@ public class TorontoBusTransitSource extends NextBusTransitSource {
 		addRoute("196", "196-York University Rocket");
 		addRoute("199", "199-Finch Rocket");
 		addRoute("224", "224-Victoria Park North");
-		addRoute("300", "300-Bloor-Danforth");
+		addRoute("300", "300-Bloor - Danforth");
 		addRoute("301", "301-Queen");
-		addRoute("302", "302-Danforth Rd-McCowan");
+		addRoute("302", "302-Danforth Rd - Mccowan");
 		addRoute("303", "303-Don Mills");
 		addRoute("305", "305-Eglinton East");
 		addRoute("306", "306-Carlton");
@@ -176,7 +176,7 @@ public class TorontoBusTransitSource extends NextBusTransitSource {
 		addRoute("310", "310-Bathurst");
 		addRoute("311", "311-Islington");
 		addRoute("312", "312-St Clair");
-		addRoute("313", "313-Jane Night");
+		addRoute("313", "313-Jane");
 		addRoute("316", "316-Ossington");
 		addRoute("319", "319-Wilson");
 		addRoute("320", "320-Yonge");
