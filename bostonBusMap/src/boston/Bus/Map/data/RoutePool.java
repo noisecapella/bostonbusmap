@@ -217,7 +217,7 @@ public class RoutePool {
 		
 		clearAll();
 		populateFavorites(true);
-		saveFavoritesToDatabase();
+		//saveFavoritesToDatabase();
 	}
 
 	
