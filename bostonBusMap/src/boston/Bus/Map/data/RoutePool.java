@@ -13,7 +13,7 @@ import java.util.List;
 import java.util.Queue;
 
 import com.schneeloch.latransit.R;
-import com.schneeloch.latransit.main.UpdateAsyncTask;
+import boston.Bus.Map.main.UpdateAsyncTask;
 
 import android.util.Log;
 import boston.Bus.Map.database.DatabaseHelper;

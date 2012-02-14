@@ -8,7 +8,7 @@ import android.util.Log;
 import android.widget.Toast;
 
 import com.schneeloch.latransit.R;
-import com.schneeloch.latransit.main.UpdateHandler;
+import boston.Bus.Map.main.UpdateHandler;
 
 
 import com.google.android.maps.GeoPoint;

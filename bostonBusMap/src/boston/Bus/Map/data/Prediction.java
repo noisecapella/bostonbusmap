@@ -8,7 +8,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.TimeZone;
 
-import com.schneeloch.latransit.main.MoreInfo;
+import boston.Bus.Map.main.MoreInfo;
 
 import boston.Bus.Map.transit.TransitSystem;
 import boston.Bus.Map.util.Box;

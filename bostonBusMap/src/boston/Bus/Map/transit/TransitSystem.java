@@ -13,7 +13,7 @@ import javax.xml.parsers.ParserConfigurationException;
 
 import org.xml.sax.SAXException;
 
-import com.schneeloch.latransit.main.Main;
+import boston.Bus.Map.main.Main;
 
 import android.R.string;
 import android.content.Context;

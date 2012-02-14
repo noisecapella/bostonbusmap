@@ -19,7 +19,7 @@
 package boston.Bus.Map.main;
 
 import com.schneeloch.latransit.R;
-import com.schneeloch.latransit.provider.TransitContentProvider;
+import boston.Bus.Map.provider.TransitContentProvider;
 
 import boston.Bus.Map.transit.TransitSystem;
 import android.app.AlertDialog;

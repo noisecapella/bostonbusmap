@@ -3,7 +3,7 @@ package boston.Bus.Map.util;
 import java.io.IOException;
 import java.io.InputStream;
 
-import com.schneeloch.latransit.main.UpdateAsyncTask;
+import boston.Bus.Map.main.UpdateAsyncTask;
 
 import boston.Bus.Map.ui.ProgressMessage;
 

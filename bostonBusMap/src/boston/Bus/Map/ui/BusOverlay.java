@@ -43,8 +43,8 @@ import com.google.android.maps.OverlayItem;
 import com.google.android.maps.Projection;
 import com.readystatesoftware.mapviewballoons.BalloonItemizedOverlay;
 import com.readystatesoftware.mapviewballoons.BalloonOverlayView;
-import com.schneeloch.latransit.main.Main;
-import com.schneeloch.latransit.main.UpdateHandler;
+import boston.Bus.Map.main.Main;
+import boston.Bus.Map.main.UpdateHandler;
 
 import android.content.Context;
 import android.graphics.Canvas;

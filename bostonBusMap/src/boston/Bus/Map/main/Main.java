@@ -59,7 +59,7 @@ import com.google.android.maps.MyLocationOverlay;
 import com.google.android.maps.Overlay;
 import com.google.android.maps.OverlayItem;
 import com.schneeloch.latransit.R;
-import com.schneeloch.latransit.provider.TransitContentProvider;
+import boston.Bus.Map.provider.TransitContentProvider;
 
 import android.app.Activity;
 import android.app.AlertDialog;

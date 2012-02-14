@@ -5,7 +5,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 
 import com.google.android.maps.MapView;
-import com.schneeloch.latransit.main.Main;
+import boston.Bus.Map.main.Main;
 
 import android.app.AlertDialog;
 import android.app.AlertDialog.Builder;

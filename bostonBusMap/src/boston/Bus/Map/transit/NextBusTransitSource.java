@@ -15,8 +15,8 @@ import org.apache.http.client.ClientProtocolException;
 import org.xml.sax.SAXException;
 
 import com.schneeloch.latransit.R;
-import com.schneeloch.latransit.main.Main;
-import com.schneeloch.latransit.main.UpdateAsyncTask;
+import boston.Bus.Map.main.Main;
+import boston.Bus.Map.main.UpdateAsyncTask;
 
 import android.content.Context;
 import android.graphics.drawable.Drawable;

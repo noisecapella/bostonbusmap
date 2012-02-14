@@ -45,8 +45,8 @@ import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
-import com.schneeloch.latransit.main.Main;
-import com.schneeloch.latransit.main.UpdateAsyncTask;
+import boston.Bus.Map.main.Main;
+import boston.Bus.Map.main.UpdateAsyncTask;
 
 
 import android.content.Context;
