@@ -1,4 +1,4 @@
-package com.schneeloch.latransit.main;
+package boston.Bus.Map.main;
 
 import com.schneeloch.latransit.R;
 

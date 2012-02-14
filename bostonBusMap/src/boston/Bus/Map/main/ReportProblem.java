@@ -1,16 +1,17 @@
-package com.schneeloch.latransit.main;
+package boston.Bus.Map.main;
 
 import com.schneeloch.latransit.R;
 
 import android.app.Activity;
 import android.os.Bundle;
 
-public class Instructions extends Activity {
+public class ReportProblem extends Activity {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.instructions);
 		
-		setTitle("Instructions");
+		setContentView(R.layout.comment);
+		
+		
 	}
 }

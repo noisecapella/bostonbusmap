@@ -1,4 +1,4 @@
-package com.schneeloch.latransit.provider;
+package boston.Bus.Map.provider;
 
 import boston.Bus.Map.data.RoutePool;
 import boston.Bus.Map.database.DatabaseHelper;
