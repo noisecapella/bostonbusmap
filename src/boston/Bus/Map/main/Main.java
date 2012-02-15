@@ -486,7 +486,7 @@ public class Main extends MapActivity
 			selectedRouteIndex = position;
 			String route = dropdownRoutes[position];
 			handler.setRouteToUpdate(route);
-			Log.v("BostonBusMap", "setting route to " + route);
+
 			handler.immediateRefresh();
 			handler.triggerUpdate();
 
@@ -643,7 +643,6 @@ public class Main extends MapActivity
     		break;
     	
     	case R.id.centerOnLocationMenuItem:
-    		Log.v("BostonBusMap", "clicked My Location, which is " + (myLocationOverlay == null ? "null" : "not null"));
     		if (myLocationOverlay != null)
     		{
     			if (myLocationOverlay.isMyLocationEnabled() == false)
