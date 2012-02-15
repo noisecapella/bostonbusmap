@@ -102,7 +102,6 @@ public class SubwayTransitSource implements TransitSource {
 		}
 		
 		
-		Log.v("BostonBusMap", "refreshing subway data");
 		HashSet<String> outputRoutes = new HashSet<String>();
 		switch (selectedBusPredictions)
 		{
@@ -128,8 +127,6 @@ public class SubwayTransitSource implements TransitSource {
 		break;
 
 		}
-
-		Log.v("BostonBusMap", "refreshing subway data for " + outputRoutes.size() + " routes");
 
 		for (String route : outputRoutes)
 		{

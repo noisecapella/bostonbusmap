@@ -44,7 +44,7 @@ public class Directions {
 		Integer i = indexes.get(dirTag);
 		if (i == null)
 		{
-			Log.v("BostonBusMap", "strange, dirTag + " + dirTag + " doesnt exist. If you see this many times, we're having trouble storing the data in the database. Too much DB activity causes objects to persist which causes a crash");
+			Log.i("BostonBusMap", "strange, dirTag + " + dirTag + " doesnt exist. If you see this many times, we're having trouble storing the data in the database. Too much DB activity causes objects to persist which causes a crash");
 			if (isRefreshed == false)
 			{
 				synchronized(indexes)

@@ -64,6 +64,7 @@ import boston.Bus.Map.transit.TransitSystem;
 import boston.Bus.Map.ui.ProgressMessage;
 import boston.Bus.Map.util.DownloadHelper;
 import boston.Bus.Map.util.FeedException;
+import boston.Bus.Map.util.LogUtil;
 import boston.Bus.Map.util.StreamCounter;
 
 public final class Locations
@@ -300,8 +301,6 @@ public final class Locations
 		}
 		else if (selectedBusPredictions == Main.BUS_PREDICTIONS_ALL)
 		{
-			//Log.v("BostonBusMap", "allStops size is " + allStops.size());
-			
 			ArrayList<StopLocation> stops = routeMapping.getClosestStops(centerLatitude, centerLongitude, maxLocations);
 			for (StopLocation stop : stops)
 			{
@@ -311,18 +310,6 @@ public final class Locations
 					locationKeys.add(stop.getId());
 				}
 			}
-			/*for (StopLocation location : allStops)
-			{
-				if (location.distanceFrom(centerLatitude * LocationComparator.degreesToRadians,
-						centerLongitude * LocationComparator.degreesToRadians) < 1)
-				{
-					if (locationKeys.contains(location.getId()) == false)
-					{
-						newLocations.add(location);
-						locationKeys.add(location.getId());
-					}
-				}
-			}*/
 		}
 		else if (selectedBusPredictions == Main.BUS_PREDICTIONS_STAR)
 		{
@@ -459,7 +446,7 @@ public final class Locations
 		}
 		catch (IOException e)
 		{
-			Log.e("BostonBusMap", "Exception thrown from setSelectedStop: " + e.getMessage());
+			LogUtil.e(e);
 		}
 		
 		return null;

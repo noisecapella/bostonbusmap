@@ -120,7 +120,6 @@ public class BusOverlay extends BalloonItemizedOverlay<BusOverlayItem> {
 		
 		if (selectedBusIndex != NOT_SELECTED)
 		{
-			//Log.v("BostonBusMap", "calling onTap: " + selectedBusIndex);
 			onTap(selectedBusIndex);
 		}
 		
@@ -315,7 +314,6 @@ public class BusOverlay extends BalloonItemizedOverlay<BusOverlayItem> {
 	
 	public int getSelectedBusId() {
 		int selectedBusIndex = getLastFocusedIndex();
-		//Log.v("BostonBusMap", "getLastFocusedIndex() value is " + selectedBusIndex);
 		if (selectedBusIndex == NOT_SELECTED)
 		{
 			return NOT_SELECTED;
@@ -368,7 +366,6 @@ public class BusOverlay extends BalloonItemizedOverlay<BusOverlayItem> {
 				}
 			}
 		}
-		Log.v("BostonBusMap", "setSelectedBusId param was " + selectedBusId);
 	}
 
 	public Drawable getBusPicture() {

@@ -183,8 +183,6 @@ public class CommuterRailTransitSource implements TransitSource {
 
 		}
 
-		Log.v("BostonBusMap", "refreshing commuter data for " + outputUrls.size() + " routes");
-
 		for (int i = 0; i < outputUrls.size(); i++)
 		{
 			String url = outputUrls.get(i);

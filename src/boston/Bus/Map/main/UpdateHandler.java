@@ -104,7 +104,6 @@ public class UpdateHandler extends Handler {
 		switch (msg.what)
 		{
 		case MAJOR:
-			Log.v("BostonBusMap", "received major message");
 			//remove duplicates
 			long currentTime = TransitSystem.currentTimeMillis();
 			
@@ -128,13 +127,11 @@ public class UpdateHandler extends Handler {
 
 			break;
 		case MINOR:
-			Log.v("BostonBusMap", "received minor message");
 			//don't do two updates at once
 			if (minorUpdate != null)
 			{
 				if (minorUpdate.getStatus().equals(UpdateAsyncTask.Status.FINISHED) == false)
 				{
-					Log.v("BostonBusMap", "ignoring minor message since it's already in progress");
 					//task is not finished yet
 					return;
 				}
@@ -314,13 +311,11 @@ public class UpdateHandler extends Handler {
 	
 	
 	public void triggerUpdate(int millis) {
-		//Log.v("BostonBusMap", "minor update triggered in, " + millis);
 		sendEmptyMessageDelayed(MINOR, millis);
 		
 	}
 	
 	public void triggerUpdate() {
-		//Log.v("BostonBusMap", "minor update triggered");
 		sendEmptyMessage(MINOR);
 		
 	}

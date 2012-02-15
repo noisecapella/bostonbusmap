@@ -196,23 +196,10 @@ public class RouteOverlay extends Overlay
 			}
 		}
 		
-		//Log.v("BostonBusMap", "Number of floats in array drawn in RouteOverlay: " + floats.length);
 		canvas.drawPath(drawingPath, paint);
 	}
 
 	public void setDrawLine(boolean showRouteLine) {
 		this.showRouteLine = showRouteLine;
 	}
-
-	/*public void setDrawCoarseLine(boolean showCoarseRouteLine) {
-		if (showCoarseRouteLine)
-		{
-			increment = COARSE_INCREMENT;
-		}
-		else
-		{
-			increment = FINE_INCREMENT;
-		}
-		
-	}*/
 }

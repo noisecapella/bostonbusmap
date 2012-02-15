@@ -120,8 +120,6 @@ public class RoutePool {
 	}
 
 	public RouteConfig get(String routeToUpdate) throws IOException {
-		debugStateOfPool();
-		
 		RouteConfig routeConfig = pool.get(routeToUpdate);
 		if (routeConfig != null)
 		{
@@ -149,21 +147,6 @@ public class RoutePool {
 				}
 			}
 		}
-	}
-
-	private void debugStateOfPool() {
-		//commenting this out since it seems to have caused a crash on some computer
-		/*ArrayList<String> routes = new ArrayList<String>(pool.size());
-		routes.addAll(pool.keySet());
-		Collections.sort(routes);
-		
-		StringBuffer joinable = new StringBuffer();
-		for (String route : routes)
-		{
-			joinable.append(route).append(", ");
-		}
-		
-		Log.v("BostonBusMap", "routes currently in pool: " + joinable);*/
 	}
 
 	private void addARoute(String routeToUpdate, RouteConfig routeConfig) {

@@ -235,7 +235,7 @@ public class CommuterRailPredictionsFeedParser
 		catch (ClassCastException e)
 		{
 			//probably updating the wrong url?
-			Log.e("BostonBusMap", e.getMessage());
+			LogUtil.e(e);
 		}
 
 		clearPredictions(route);

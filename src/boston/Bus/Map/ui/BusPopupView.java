@@ -75,15 +75,12 @@ public class BusPopupView extends BalloonOverlayView<BusOverlayItem>
 			
 			@Override
 			public void onClick(View v) {
-				Log.v("BostonBusMap", "tapped star icon");
 				if (location instanceof StopLocation)
 				{
 					StopLocation stopLocation = (StopLocation)location;
 
 					int result = BusPopupView.this.locations.toggleFavorite(stopLocation);
 					favorite.setBackgroundResource(result);
-	    			Log.v("BostonBusMap", "setting favorite icon to " +
-	    					(result == R.drawable.full_star ? "full star" : "empty star"));
 				}
 			}
 		});
@@ -92,8 +89,6 @@ public class BusPopupView extends BalloonOverlayView<BusOverlayItem>
 			
 			@Override
 			public void onClick(View v) {
-				Log.v("BostonBusMap", "tapped More info link");
-
 				if (BusPopupView.this.routeKeysToTitles == null)
 				{
 					//ignore for now, we can't print route information without it
@@ -160,8 +155,6 @@ public class BusPopupView extends BalloonOverlayView<BusOverlayItem>
 			
 			@Override
 			public void onClick(View v) {
-				Log.v("BostonBusMap", "tapped Alerts link");
-
 				final ArrayList<Alert> alerts = alertsList;
 				
 				Intent intent = new Intent(context, AlertInfo.class);
