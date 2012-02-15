@@ -23,7 +23,7 @@ import boston.Bus.Map.data.StopLocation;
 public interface TransitSource {
 
 	void populateStops(RoutePool routeMapping, String routeToUpdate,
-			RouteConfig oldRouteConfig, Directions directions, UpdateAsyncTask task)
+			RouteConfig oldRouteConfig, Directions directions, UpdateAsyncTask task, boolean silent)
 		throws ClientProtocolException, IOException, ParserConfigurationException, SAXException ;
 
 	void refreshData(RouteConfig routeConfig, int selectedBusPredictions,

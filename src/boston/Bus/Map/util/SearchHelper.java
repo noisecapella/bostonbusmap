@@ -14,6 +14,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.util.Log;
 import android.widget.Toast;
+import boston.Bus.Map.data.StopLocation;
 import boston.Bus.Map.database.DatabaseHelper;
 import boston.Bus.Map.transit.NextBusTransitSource;
 import boston.Bus.Map.transit.TransitSystem;
@@ -151,47 +152,45 @@ public class SearchHelper
 	private void returnResults(Runnable onFinish, String indexingQuery, String lowercaseQuery, String printableQuery) {
 		if (queryContainsRoute)
 		{
-			if (printableQuery.startsWith("route ") == false)
-			{
-				suggestionsQuery = "route " + printableQuery;
-			}
-			else
-			{
-				suggestionsQuery = printableQuery;
-			}
-			
 			int position = getAsRoute(indexingQuery, lowercaseQuery);
 
 			if (position >= 0)
 			{
 				//done!
 				context.setNewRoute(position, false);
+				String routeKey = dropdownRoutes[position];
+				String routeTitle = dropdownRouteKeysToTitles.get(routeKey);
+				suggestionsQuery = "route " + routeTitle;
 			}
 			else
 			{
-				Toast.makeText(context, "Route number '" + printableQuery + "' doesn't exist. Did you mistype it?", Toast.LENGTH_LONG).show();
+				Toast.makeText(context, "Route '" + printableQuery + "' doesn't exist. Did you mistype it?", Toast.LENGTH_LONG).show();
 			}
 		}
 		else if (queryContainsStop)
 		{
-			if (printableQuery.startsWith("stop ") == false)
+			// ideally we'd use RoutePool instead of DatabaseHelper, since RoutePool will
+			// reuse existing stops if they match. But stop is temporary so it doesn't really matter
+			String exactQuery;
+			if (printableQuery.startsWith("stop "))
 			{
-				suggestionsQuery = "stop " + printableQuery;
+				exactQuery = printableQuery.substring(5);
 			}
 			else
 			{
-				suggestionsQuery = printableQuery;
+				exactQuery = printableQuery;
 			}
 			
-			ArrayList<String> routesForStop = databaseHelper.isStop(indexingQuery);
-			if (routesForStop.size() > 0)
-			{
-				context.setNewStop(routesForStop.get(0), indexingQuery, false);
+			StopLocation stop = databaseHelper.getStopByTagOrTitle(indexingQuery, exactQuery, transitSystem);
+			if (stop != null)
+			{	
+				context.setNewStop(stop.getFirstRoute(), stop.getStopTag());
+				suggestionsQuery = "stop " + stop.getTitle();
 			}
 			else
 			{
 				//invalid stop id
-				Toast.makeText(context, "Stop number '" + printableQuery + "' doesn't exist. Did you mistype it?", Toast.LENGTH_LONG).show();
+				Toast.makeText(context, "Stop '" + printableQuery + "' doesn't exist. Did you mistype it?", Toast.LENGTH_LONG).show();
 			}
 		}
 		else
