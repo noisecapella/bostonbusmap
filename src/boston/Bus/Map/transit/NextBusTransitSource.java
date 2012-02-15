@@ -103,7 +103,7 @@ public abstract class NextBusTransitSource implements TransitSource
 
 	@Override
 	public void populateStops(RoutePool routeMapping, String routeToUpdate,
-			RouteConfig oldRouteConfig, Directions directions, UpdateAsyncTask task) 
+			RouteConfig oldRouteConfig, Directions directions, UpdateAsyncTask task, boolean silent) 
 	throws ClientProtocolException, IOException, ParserConfigurationException, SAXException 
 	{
 		final String urlString = getRouteConfigUrl(routeToUpdate);
@@ -118,7 +118,7 @@ public abstract class NextBusTransitSource implements TransitSource
 
 		parser.runParse(downloadHelper.getResponseData()); 
 
-		parser.writeToDatabase(routeMapping, false, task);
+		parser.writeToDatabase(routeMapping, false, task, silent);
 
 	}
 
@@ -331,7 +331,7 @@ public abstract class NextBusTransitSource implements TransitSource
 
 
 
-		parser.writeToDatabase(routeMapping, true, task);
+		parser.writeToDatabase(routeMapping, true, task, false);
 
 
 	}

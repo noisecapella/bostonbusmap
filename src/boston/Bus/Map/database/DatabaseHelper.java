@@ -1075,40 +1075,72 @@ public class DatabaseHelper extends SQLiteOpenHelper
 		
 	}
 
-	/**
-	 * Is stopTag a stop? Returns the number of routes it's on
-	 * @param stopTag
-	 * @return
-	 */
-	public ArrayList<String> isStop(String stopTag)
+
+	public StopLocation getStopByTagOrTitle(String tagQuery, String titleQuery, TransitSystem transitSystem)
 	{
 		SQLiteDatabase database = getReadableDatabase();
-		Cursor cursor = null;
+		Cursor stopCursor = null;
 		try
 		{
+			//TODO: we should have a factory somewhere to abstract details away regarding subway vs bus
+
+			//get stop with name stopTag, joining with the subway table
 			SQLiteQueryBuilder builder = new SQLiteQueryBuilder();
-			builder.setTables(stopsRoutesMap);
-			String[] projectionIn = new String[] {routeKey};
-			
-			cursor = builder.query(database, projectionIn, stopTagKey + " = ?", new String[] {stopTag}, null, null, null);
-			
-			ArrayList<String> routes = new ArrayList<String>(3);
-			cursor.moveToFirst();
-			while (cursor.isAfterLast() == false)
-			{
-				String route = cursor.getString(0);
-				routes.add(route);
+			String tables = verboseStops + " JOIN " + stopsRoutesMap + " ON (" + verboseStops + "." + stopTagKey + " = " +
+			stopsRoutesMap + "." + stopTagKey + ") LEFT OUTER JOIN " +
+			subwaySpecificTable + " ON (" + verboseStops + "." + stopTagKey + " = " + 
+			subwaySpecificTable + "." + stopTagKey + ")";
+
+
+			builder.setTables(tables);
+
+			String[] projectionIn = new String[] {verboseStops + "." + stopTagKey, latitudeKey, longitudeKey, 
+					stopTitleKey, platformOrderKey, branchKey, stopsRoutesMap + "." + routeKey, stopsRoutesMap + "." + dirTagKey};
+
+			//if size == 1, where clause is tag = ?. if size > 1, where clause is "IN (tag1, tag2, tag3...)"
+			StringBuilder select;
+			String[] selectArray;
 				
-				cursor.moveToNext();
+			select = new StringBuilder(verboseStops + "." + stopTagKey + "=? OR " + verboseStops + "." + stopTitleKey + "=?");
+			selectArray = new String[]{tagQuery, titleQuery};
+
+			stopCursor = builder.query(database, projectionIn, select.toString(), selectArray, null, null, null);
+
+			stopCursor.moveToFirst();
+			
+			if (stopCursor.isAfterLast() == false)
+			{
+				String stopTag = stopCursor.getString(0);
+				
+				String route = stopCursor.getString(6);
+				String dirTag = stopCursor.getString(7);
+
+				float lat = stopCursor.getFloat(1);
+				float lon = stopCursor.getFloat(2);
+				String title = stopCursor.getString(3);
+
+				int platformOrder = 0;
+				String branch = null;
+				if (stopCursor.isNull(4) == false)
+				{
+					platformOrder = stopCursor.getInt(4);
+					branch = stopCursor.getString(5);
+				}
+
+				StopLocation stop = transitSystem.createStop(lat, lon, stopTag, title, platformOrder, branch, route, dirTag);
+				return stop;
+			}
+			else
+			{
+				return null;
 			}
 			
-			return routes;
 		}
 		finally
 		{
-			if (cursor != null)
+			if (stopCursor != null)
 			{
-				cursor.close();
+				stopCursor.close();
 			}
 			database.close();
 		}

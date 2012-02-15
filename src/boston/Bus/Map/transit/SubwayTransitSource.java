@@ -66,7 +66,7 @@ public class SubwayTransitSource implements TransitSource {
 	
 	@Override
 	public void populateStops(RoutePool routeMapping, String routeToUpdate,
-			RouteConfig oldRouteConfig, Directions directions, UpdateAsyncTask task)
+			RouteConfig oldRouteConfig, Directions directions, UpdateAsyncTask task, boolean silent)
 			throws ClientProtocolException, IOException,
 			ParserConfigurationException, SAXException {
 		
@@ -83,7 +83,7 @@ public class SubwayTransitSource implements TransitSource {
 
 		parser.runParse(downloadHelper.getResponseData()); 
 
-		parser.writeToDatabase(routeMapping, false, task);
+		parser.writeToDatabase(routeMapping, false, task, silent);
 
 	}
 
@@ -301,7 +301,7 @@ public class SubwayTransitSource implements TransitSource {
 		
 		subwayParser.runParse(in);
 		
-		subwayParser.writeToDatabase(routeMapping, false, task);
+		subwayParser.writeToDatabase(routeMapping, false, task, false);
 		
 	}
 

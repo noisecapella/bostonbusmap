@@ -172,7 +172,7 @@ public final class Locations
 			{
 				//populate route overlay (just in case we didn't already)
 				//updateAsyncTask.publish(new ProgressMessage(ProgressMessage.PROGRESS_DIALOG_ON, "Downloading data for route " + routeToUpdate, null));
-				populateStops(routeToUpdate, routeConfig, updateAsyncTask);
+				populateStops(routeToUpdate, routeConfig, updateAsyncTask, true);
 				
 				return;
 			}
@@ -181,7 +181,7 @@ public final class Locations
 		{
 			//populate route overlay (just in case we didn't already)
 			updateAsyncTask.publish(new ProgressMessage(ProgressMessage.PROGRESS_DIALOG_ON, "Downloading data for route " + routeToUpdate, null));
-			populateStops(routeToUpdate, routeConfig, updateAsyncTask);
+			populateStops(routeToUpdate, routeConfig, updateAsyncTask, false);
 			return;
 		}
 		
@@ -212,7 +212,7 @@ public final class Locations
 		}
 	}
 
-	private void populateStops(String routeToUpdate, RouteConfig oldRouteConfig, UpdateAsyncTask task) 
+	private void populateStops(String routeToUpdate, RouteConfig oldRouteConfig, UpdateAsyncTask task, boolean silent) 
 		throws IOException, ParserConfigurationException, SAXException
 	{
 		
@@ -226,7 +226,7 @@ public final class Locations
 			transitSource = transitSystem.getTransitSource(routeToUpdate);
 		}
 		
-		transitSource.populateStops(routeMapping, routeToUpdate, oldRouteConfig, directions, task);
+		transitSource.populateStops(routeMapping, routeToUpdate, oldRouteConfig, directions, task, silent);
 	}
 
 	public int getSelectedBusPredictions()

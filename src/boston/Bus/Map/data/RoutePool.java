@@ -191,8 +191,11 @@ public class RoutePool {
 		}
 	}
 
-	public void writeToDatabase(HashMap<String, RouteConfig> map, boolean wipe, UpdateAsyncTask task) throws IOException {
-		task.publish(new ProgressMessage(ProgressMessage.PROGRESS_DIALOG_ON, "Saving to database", null));
+	public void writeToDatabase(HashMap<String, RouteConfig> map, boolean wipe, UpdateAsyncTask task, boolean silent) throws IOException {
+		if (!silent)
+		{
+			task.publish(new ProgressMessage(ProgressMessage.PROGRESS_DIALOG_ON, "Saving to database", null));
+		}
 		
 		HashSet<String> stopTags = new HashSet<String>();
 		helper.saveMapping(map, wipe, stopTags, task);

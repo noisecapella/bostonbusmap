@@ -119,7 +119,7 @@ public class CommuterRailTransitSource implements TransitSource {
 	@Override
 	public void populateStops(RoutePool routeMapping, String routeToUpdate,
 			RouteConfig oldRouteConfig, Directions directions,
-			UpdateAsyncTask task) throws ClientProtocolException, IOException,
+			UpdateAsyncTask task, boolean silent) throws ClientProtocolException, IOException,
 			ParserConfigurationException, SAXException
 	{
 		
@@ -137,7 +137,7 @@ public class CommuterRailTransitSource implements TransitSource {
 		//parser.runParse(downloadHelper.getResponseData()); 
 		parser.runParse(new StringReader(CommuterRailRouteConfigParser.temporaryInputData));
 
-		parser.writeToDatabase(routeMapping, false, task);
+		parser.writeToDatabase(routeMapping, false, task, silent);
 	}
 
 	@Override
@@ -339,7 +339,7 @@ public class CommuterRailTransitSource implements TransitSource {
 		
 		subwayParser.runParse(new StringReader(CommuterRailRouteConfigParser.temporaryInputData));
 		
-		subwayParser.writeToDatabase(routeMapping, false, task);
+		subwayParser.writeToDatabase(routeMapping, false, task, false);
 		
 		
 	}

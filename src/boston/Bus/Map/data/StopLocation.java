@@ -292,9 +292,23 @@ public class StopLocation implements Location
 	}
 
 	public String getFirstRoute() {
-		TreeSet<String> ret = new TreeSet<String>();
-		ret.addAll(dirTags.keySet());
-		return ret.first();
+		String ret = null;
+		for (String route : dirTags.keySet())
+		{
+			if (ret == null)
+			{
+				ret = route;
+			}
+			else
+			{
+				int c = ret.compareTo(route);
+				if (c > 0)
+				{
+					ret = route;
+				}
+			}
+		}
+		return ret;
 	}
 
 	public Prediction[] getCombinedPredictions()
