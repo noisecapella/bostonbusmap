@@ -26,7 +26,6 @@ public class SearchHelper
 	private final HashMap<String, String> dropdownRouteKeysToTitles;
 	private final String query;
 	private String suggestionsQuery;
-	private String suggestionsQueryLine2;
 	private final DatabaseHelper databaseHelper;
 	
 	private boolean queryContainsRoute;
@@ -165,26 +164,23 @@ public class SearchHelper
 			}
 			else
 			{
-				Toast.makeText(context, "Route number '" + printableQuery + "' doesn't exist. Did you mistype it?", Toast.LENGTH_LONG).show();
+				Toast.makeText(context, "Route '" + printableQuery + "' doesn't exist. Did you mistype it?", Toast.LENGTH_LONG).show();
 			}
 		}
 		else if (queryContainsStop)
 		{
-			ArrayList<String> stopTags = new ArrayList<String>(1);
-			stopTags.add(indexingQuery);
-			HashMap<String, StopLocation> outputMapping = new HashMap<String, StopLocation>();
-			databaseHelper.getStops(stopTags, transitSystem, outputMapping);
-			if (outputMapping.size() > 0)
+			// ideally we'd use RoutePool instead of DatabaseHelper, since RoutePool will
+			// reuse existing stops if they match. But stop is temporary so it doesn't really matter
+			StopLocation stop = databaseHelper.getStopByTagOrTitle(indexingQuery, transitSystem);
+			if (stop != null)
 			{
-				StopLocation stop = outputMapping.get(indexingQuery);
-				context.setNewStop(stop.getFirstRoute(), indexingQuery, false);
-				suggestionsQuery = "stop " + stop.getStopTag();
-				suggestionsQueryLine2 = stop.getTitle();
+				context.setNewStop(stop.getFirstRoute(), stop.getStopTag(), false);
+				suggestionsQuery = "stop " + stop.getTitle();
 			}
 			else
 			{
 				//invalid stop id
-				Toast.makeText(context, "Stop number '" + printableQuery + "' doesn't exist. Did you mistype it?", Toast.LENGTH_LONG).show();
+				Toast.makeText(context, "Stop '" + printableQuery + "' doesn't exist. Did you mistype it?", Toast.LENGTH_LONG).show();
 			}
 		}
 		else
@@ -216,11 +212,6 @@ public class SearchHelper
 	public String getSuggestionsQuery()
 	{
 		return suggestionsQuery;
-	}
-
-	public String getSuggestionsQueryLine2()
-	{
-		return suggestionsQueryLine2;
 	}
 
 	public static String naiveSearch(String indexingQuery, String lowercaseQuery, String[] routes,
