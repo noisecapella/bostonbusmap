@@ -701,7 +701,7 @@ public class Main extends MapActivity
     						StopLocation stop = stops[which];
     						
     						String route = stop.getFirstRoute();
-    						setNewStop(route, stop.getStopTag(), true);
+    						setNewStop(route, stop.getStopTag());
     						setMode(BUS_PREDICTIONS_STAR, true);
     					}
     				}
@@ -945,9 +945,8 @@ public class Main extends MapActivity
 	 * Sets the current selected stop to stopTag, moves map over it, sets route to route, sets mode to stops for one route
 	 * @param route
 	 * @param stopTag
-	 * @param saveNewQuery act as if user typed in the query as a search phrase (save in search history)
 	 */
-	public void setNewStop(String route, String stopTag, boolean saveNewQuery)
+	public void setNewStop(String route, String stopTag)
 	{
 		StopLocation stopLocation = busLocations.setSelectedStop(route, stopTag);
 
@@ -994,13 +993,6 @@ public class Main extends MapActivity
 		GeoPoint geoPoint = new GeoPoint(latE6, lonE6);
 		controller.setCenter(geoPoint);
 		controller.scrollBy(0, -100);
-		
-		if (saveNewQuery)
-		{
-			final SearchRecentSuggestions suggestions = new SearchRecentSuggestions(Main.this, TransitContentProvider.AUTHORITY,
-					TransitContentProvider.MODE);
-			suggestions.saveRecentQuery("stop " + stopLocation.getStopTag(), null);
-		}
 	}
 
 	private String getRoute() {

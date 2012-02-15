@@ -256,8 +256,8 @@ public class RouteConfigFeedParser extends DefaultHandler
 		}
 	}
 
-	public void writeToDatabase(RoutePool routeMapping, boolean wipe, UpdateAsyncTask task) throws IOException {
-		routeMapping.writeToDatabase(map, wipe, task);
+	public void writeToDatabase(RoutePool routeMapping, boolean wipe, UpdateAsyncTask task, boolean silent) throws IOException {
+		routeMapping.writeToDatabase(map, wipe, task, silent);
 		directions.writeToDatabase(wipe);
 	}
 	

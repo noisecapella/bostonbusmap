@@ -54,7 +54,7 @@ public class TransitContentProvider extends SearchRecentSuggestionsProvider {
 			}
 			else
 			{
-				return helper.getCursorForSearch(selectionArgs != null && selectionArgs.length >= 1 ? selectionArgs[0] : null);
+				return helper.getCursorForSearch(selectionArgs[0]);
 			}
 		default:
 			return super.query(uri, projection, selection, selectionArgs, sortOrder);
