@@ -301,8 +301,6 @@ public final class Locations
 		}
 		else if (selectedBusPredictions == Main.BUS_PREDICTIONS_ALL)
 		{
-			//Log.v("BostonBusMap", "allStops size is " + allStops.size());
-			
 			ArrayList<StopLocation> stops = routeMapping.getClosestStops(centerLatitude, centerLongitude, maxLocations);
 			for (StopLocation stop : stops)
 			{
@@ -312,18 +310,6 @@ public final class Locations
 					locationKeys.add(stop.getId());
 				}
 			}
-			/*for (StopLocation location : allStops)
-			{
-				if (location.distanceFrom(centerLatitude * LocationComparator.degreesToRadians,
-						centerLongitude * LocationComparator.degreesToRadians) < 1)
-				{
-					if (locationKeys.contains(location.getId()) == false)
-					{
-						newLocations.add(location);
-						locationKeys.add(location.getId());
-					}
-				}
-			}*/
 		}
 		else if (selectedBusPredictions == Main.BUS_PREDICTIONS_STAR)
 		{
