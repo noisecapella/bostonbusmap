@@ -369,9 +369,9 @@ public class CommuterRailRouteConfigParser
 		this.source = source;
 	}
 
-	public void writeToDatabase(RoutePool routeMapping, boolean wipe, UpdateAsyncTask task) throws IOException
+	public void writeToDatabase(RoutePool routeMapping, boolean wipe, UpdateAsyncTask task, boolean silent) throws IOException
 	{
-		routeMapping.writeToDatabase(map, wipe, task);
+		routeMapping.writeToDatabase(map, wipe, task, silent);
 		directions.writeToDatabase(wipe);
 	}
 
