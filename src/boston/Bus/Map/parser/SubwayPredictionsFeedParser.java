@@ -34,6 +34,7 @@ import boston.Bus.Map.data.SubwayStopLocation;
 import boston.Bus.Map.data.SubwayTrainLocation;
 import boston.Bus.Map.transit.SubwayTransitSource;
 import boston.Bus.Map.transit.TransitSystem;
+import boston.Bus.Map.util.LogUtil;
 
 public class SubwayPredictionsFeedParser 
 {
@@ -217,12 +218,12 @@ public class SubwayPredictionsFeedParser
 		catch (ClassCastException e)
 		{
 			//probably updating the wrong url?
-			Log.e("BostonBusMap", e.getMessage());
+			LogUtil.e(e);
 		}
 		catch (ArrayIndexOutOfBoundsException e)
 		{
 			//probably a hiccup in the subway feed
-			Log.e("BostonBusMap", e.getMessage());
+			LogUtil.e(e);
 		}
 		
 		clearPredictions(route);
