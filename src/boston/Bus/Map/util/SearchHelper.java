@@ -13,6 +13,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.util.Log;
 import android.widget.Toast;
+import boston.Bus.Map.data.StopLocation;
 import boston.Bus.Map.database.DatabaseHelper;
 import boston.Bus.Map.main.Main;
 import boston.Bus.Map.transit.NextBusTransitSource;
@@ -25,6 +26,7 @@ public class SearchHelper
 	private final HashMap<String, String> dropdownRouteKeysToTitles;
 	private final String query;
 	private String suggestionsQuery;
+	private String suggestionsQueryLine2;
 	private final DatabaseHelper databaseHelper;
 	
 	private boolean queryContainsRoute;
@@ -151,21 +153,15 @@ public class SearchHelper
 	private void returnResults(Runnable onFinish, String indexingQuery, String lowercaseQuery, String printableQuery) {
 		if (queryContainsRoute)
 		{
-			if (printableQuery.startsWith("route ") == false)
-			{
-				suggestionsQuery = "route " + printableQuery;
-			}
-			else
-			{
-				suggestionsQuery = printableQuery;
-			}
-			
 			int position = getAsRoute(indexingQuery, lowercaseQuery);
 
 			if (position >= 0)
 			{
 				//done!
 				context.setNewRoute(position, false);
+				String routeKey = dropdownRoutes[position];
+				String routeTitle = dropdownRouteKeysToTitles.get(routeKey);
+				suggestionsQuery = "route " + routeTitle;
 			}
 			else
 			{
@@ -174,19 +170,16 @@ public class SearchHelper
 		}
 		else if (queryContainsStop)
 		{
-			if (printableQuery.startsWith("stop ") == false)
+			ArrayList<String> stopTags = new ArrayList<String>(1);
+			stopTags.add(indexingQuery);
+			HashMap<String, StopLocation> outputMapping = new HashMap<String, StopLocation>();
+			databaseHelper.getStops(stopTags, transitSystem, outputMapping);
+			if (outputMapping.size() > 0)
 			{
-				suggestionsQuery = "stop " + printableQuery;
-			}
-			else
-			{
-				suggestionsQuery = printableQuery;
-			}
-			
-			ArrayList<String> routesForStop = databaseHelper.isStop(indexingQuery);
-			if (routesForStop.size() > 0)
-			{
-				context.setNewStop(routesForStop.get(0), indexingQuery, false);
+				StopLocation stop = outputMapping.get(indexingQuery);
+				context.setNewStop(stop.getFirstRoute(), indexingQuery, false);
+				suggestionsQuery = "stop " + stop.getStopTag();
+				suggestionsQueryLine2 = stop.getTitle();
 			}
 			else
 			{
@@ -223,6 +216,11 @@ public class SearchHelper
 	public String getSuggestionsQuery()
 	{
 		return suggestionsQuery;
+	}
+
+	public String getSuggestionsQueryLine2()
+	{
+		return suggestionsQueryLine2;
 	}
 
 	public static String naiveSearch(String indexingQuery, String lowercaseQuery, String[] routes,

@@ -900,9 +900,10 @@ public class Main extends MapActivity
 					String suggestionsQuery = helper.getSuggestionsQuery();
 					if (suggestionsQuery != null)
 					{
+						String suggestionsQueryLine2 = helper.getSuggestionsQueryLine2();
 						SearchRecentSuggestions suggestions = new SearchRecentSuggestions(Main.this, TransitContentProvider.AUTHORITY,
 								TransitContentProvider.MODE);
-						suggestions.saveRecentQuery(suggestionsQuery, null);
+						suggestions.saveRecentQuery(suggestionsQuery, suggestionsQueryLine2);
 						
 						if (handler != null)
 						{
