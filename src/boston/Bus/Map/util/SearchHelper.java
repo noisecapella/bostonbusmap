@@ -155,6 +155,11 @@ public class SearchHelper
 			{
 				suggestionsQuery = "route " + printableQuery;
 			}
+			else
+			{
+				suggestionsQuery = printableQuery;
+			}
+			
 			int position = getAsRoute(indexingQuery, lowercaseQuery);
 
 			if (position >= 0)
@@ -173,6 +178,11 @@ public class SearchHelper
 			{
 				suggestionsQuery = "stop " + printableQuery;
 			}
+			else
+			{
+				suggestionsQuery = printableQuery;
+			}
+			
 			ArrayList<String> routesForStop = databaseHelper.isStop(indexingQuery);
 			if (routesForStop.size() > 0)
 			{

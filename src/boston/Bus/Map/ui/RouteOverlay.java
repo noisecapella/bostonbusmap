@@ -157,6 +157,12 @@ public class RouteOverlay extends Overlay
 
 			boolean prevOutOfBounds = true;
 			boolean prevWasMoveTo = true;
+			boolean prevOutOfBoundsLeft = true;
+			boolean prevOutOfBoundsRight = true;
+			boolean prevOutOfBoundsAbove = true;
+			boolean prevOutOfBoundsBelow = true;
+			
+			int prevPointLonInt = 0;
 			int moveToLat = Integer.MAX_VALUE;
 			int moveToLon = Integer.MAX_VALUE;
 			for (int i = 0; i < pointsSize; i++)
@@ -166,10 +172,22 @@ public class RouteOverlay extends Overlay
 				float pointLon = path.getPointLon(i);
 				int pointLonInt = (int)(pointLon * Constants.E6);
 				
-				boolean currentOutOfBounds = pointLatInt < minLat || pointLatInt > maxLat ||
-						pointLonInt < minLon || pointLonInt > maxLon;
+				boolean currentOutOfBoundsLeft = pointLatInt < minLat;
+				boolean currentOutOfBoundsRight = pointLatInt > maxLat;
+				boolean currentOutOfBoundsAbove = pointLonInt < minLon;
+				boolean currentOutOfBoundsBelow = pointLonInt > maxLon;
 				
-				if (i == 0 || (prevOutOfBounds && currentOutOfBounds))
+				boolean currentOutOfBounds = currentOutOfBoundsLeft || currentOutOfBoundsRight ||
+					currentOutOfBoundsAbove || currentOutOfBoundsBelow;
+				
+				// this boolean won't make sense unless both points are out of bounds
+				// don't do any hard work here. We just need to specify the most common impossible cases
+				boolean impossibleIntercept = ((currentOutOfBoundsLeft && prevOutOfBoundsLeft) ||
+											   (currentOutOfBoundsRight && prevOutOfBoundsRight) ||
+											   (currentOutOfBoundsAbove && prevOutOfBoundsAbove) ||
+											   (currentOutOfBoundsBelow && prevOutOfBoundsBelow));
+						
+				if (i == 0 || (prevOutOfBounds && currentOutOfBounds && impossibleIntercept))
 				{
 					//be lazy about moveTo in case it incurs a performance hit
 					moveToLat = pointLatInt;
@@ -193,6 +211,10 @@ public class RouteOverlay extends Overlay
 				}
 
 				prevOutOfBounds = currentOutOfBounds;
+				prevOutOfBoundsLeft = currentOutOfBoundsLeft;
+				prevOutOfBoundsRight = currentOutOfBoundsRight;
+				prevOutOfBoundsAbove = currentOutOfBoundsAbove;
+				prevOutOfBoundsBelow = currentOutOfBoundsBelow;
 			}
 		}
 		
