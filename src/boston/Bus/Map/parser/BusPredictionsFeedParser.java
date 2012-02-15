@@ -26,6 +26,7 @@ import boston.Bus.Map.data.Prediction;
 import boston.Bus.Map.data.RouteConfig;
 import boston.Bus.Map.data.RoutePool;
 import boston.Bus.Map.data.StopLocation;
+import boston.Bus.Map.util.LogUtil;
 
 public class BusPredictionsFeedParser extends DefaultHandler
 {
@@ -70,9 +71,7 @@ public class BusPredictionsFeedParser extends DefaultHandler
 			}
 			catch (IOException e)
 			{
-				StringWriter writer = new StringWriter();
-				e.printStackTrace(new PrintWriter(writer));
-				Log.e("BostonBusMap", writer.toString());
+				LogUtil.e(e);
 				currentRoute = null;
 			}
 			

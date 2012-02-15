@@ -62,6 +62,7 @@ import boston.Bus.Map.transit.TransitSystem;
 import boston.Bus.Map.ui.ProgressMessage;
 import boston.Bus.Map.util.DownloadHelper;
 import boston.Bus.Map.util.FeedException;
+import boston.Bus.Map.util.LogUtil;
 import boston.Bus.Map.util.StreamCounter;
 
 public final class Locations
@@ -457,7 +458,7 @@ public final class Locations
 		}
 		catch (IOException e)
 		{
-			Log.e("BostonBusMap", "Exception thrown from setSelectedStop: " + e.getMessage());
+			LogUtil.e(e);
 		}
 		
 		return null;
