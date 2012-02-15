@@ -530,8 +530,6 @@ public class DatabaseHelper extends SQLiteOpenHelper
 	
 	
 	public synchronized void saveFavorite(String stopTag, ArrayList<String> stopTags, boolean isFavorite) {
-		//Log.v("BostonBusMap", "Saving favorite " + lat + ", " + lon + " as " + isFavorite);
-
 		if (isFavorite)
 		{
 			storeFavorite(stopTags);
@@ -619,8 +617,8 @@ public class DatabaseHelper extends SQLiteOpenHelper
 			String select = "sm1." + routeKey + "=?";
 			String[] selectArray = new String[]{routeToUpdate};
 			
-			Log.v("BostonBusMap", SQLiteQueryBuilder.buildQueryString(false, tables, projectionIn, "sm1." + routeKey + "=\"" + routeToUpdate + "\"",
-					null, null, null, null));
+			//Log.v("BostonBusMap", SQLiteQueryBuilder.buildQueryString(false, tables, projectionIn, "sm1." + routeKey + "=\"" + routeToUpdate + "\"",
+			//		null, null, null, null));
 			
 			stopCursor = builder.query(database, projectionIn, select, selectArray, null, null, null);
 			
@@ -666,7 +664,6 @@ public class DatabaseHelper extends SQLiteOpenHelper
 				}
 				stopCursor.moveToNext();
 			}
-			Log.v("BostonBusMap", "getRoute ended successfully");
 			
 			return routeConfig;
 		}
@@ -1159,8 +1156,8 @@ public class DatabaseHelper extends SQLiteOpenHelper
 				select = new StringBuilder(verboseStops + "." + stopTagKey + "=?");
 				selectArray = new String[]{stopTag};
 
-				Log.v("BostonBusMap", SQLiteQueryBuilder.buildQueryString(false, tables, projectionIn, verboseStops + "." + stopTagKey + "=\"" + stopTagKey + "\"",
-						null, null, null, null));
+				//Log.v("BostonBusMap", SQLiteQueryBuilder.buildQueryString(false, tables, projectionIn, verboseStops + "." + stopTagKey + "=\"" + stopTagKey + "\"",
+				//		null, null, null, null));
 			}
 			else
 			{
@@ -1181,7 +1178,7 @@ public class DatabaseHelper extends SQLiteOpenHelper
 				}
 				selectArray = null;
 				
-				Log.v("BostonBusMap", select.toString());
+				//Log.v("BostonBusMap", select.toString());
 			}
 
 			stopCursor = builder.query(database, projectionIn, select.toString(), selectArray, null, null, null);

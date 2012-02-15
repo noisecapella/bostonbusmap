@@ -266,8 +266,6 @@ public abstract class NextBusTransitSource implements TransitSource
 
 		//TODO: hard limit this to 150 requests
 
-		Log.v("BostonBusMap", "urlString for bus predictions, all: " + urlString);
-
 		return urlString.toString();
 	}
 
