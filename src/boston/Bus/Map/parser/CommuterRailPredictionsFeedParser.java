@@ -192,7 +192,7 @@ public class CommuterRailPredictionsFeedParser
 				{
 					//StopLocation nextStop = getNextStop(routeConfig, stopLocation, direction);
 
-					final int arrowTopDiff = 9;
+					final int arrowTopDiff = rail.getIntrinsicHeight() / 5;
 
 					//first, see if there's a subway car which pretty much matches an old BusLocation
 					BusLocation busLocation = null;
