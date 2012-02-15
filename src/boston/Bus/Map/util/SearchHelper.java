@@ -184,7 +184,7 @@ public class SearchHelper
 			StopLocation stop = databaseHelper.getStopByTagOrTitle(indexingQuery, exactQuery, transitSystem);
 			if (stop != null)
 			{	
-				context.setNewStop(stop.getFirstRoute(), stop.getStopTag(), false);
+				context.setNewStop(stop.getFirstRoute(), stop.getStopTag());
 				suggestionsQuery = "stop " + stop.getTitle();
 			}
 			else
