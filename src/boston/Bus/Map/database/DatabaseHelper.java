@@ -1076,13 +1076,8 @@ public class DatabaseHelper extends SQLiteOpenHelper
 	}
 
 
-	public StopLocation getStopByTagOrTitle(String tagOrTitle, TransitSystem transitSystem)
+	public StopLocation getStopByTagOrTitle(String tagQuery, String titleQuery, TransitSystem transitSystem)
 	{
-		if (tagOrTitle == null)
-		{
-			return null;
-		}
-		
 		SQLiteDatabase database = getReadableDatabase();
 		Cursor stopCursor = null;
 		try
@@ -1107,7 +1102,7 @@ public class DatabaseHelper extends SQLiteOpenHelper
 			String[] selectArray;
 				
 			select = new StringBuilder(verboseStops + "." + stopTagKey + "=? OR " + verboseStops + "." + stopTitleKey + "=?");
-			selectArray = new String[]{tagOrTitle};
+			selectArray = new String[]{tagQuery, titleQuery};
 
 			stopCursor = builder.query(database, projectionIn, select.toString(), selectArray, null, null, null);
 

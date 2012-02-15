@@ -171,9 +171,19 @@ public class SearchHelper
 		{
 			// ideally we'd use RoutePool instead of DatabaseHelper, since RoutePool will
 			// reuse existing stops if they match. But stop is temporary so it doesn't really matter
-			StopLocation stop = databaseHelper.getStopByTagOrTitle(indexingQuery, transitSystem);
-			if (stop != null)
+			String exactQuery;
+			if (printableQuery.startsWith("stop "))
 			{
+				exactQuery = printableQuery.substring(5);
+			}
+			else
+			{
+				exactQuery = printableQuery;
+			}
+			
+			StopLocation stop = databaseHelper.getStopByTagOrTitle(indexingQuery, exactQuery, transitSystem);
+			if (stop != null)
+			{	
 				context.setNewStop(stop.getFirstRoute(), stop.getStopTag(), false);
 				suggestionsQuery = "stop " + stop.getTitle();
 			}
