@@ -468,7 +468,7 @@ public class UpdateAsyncTask extends AsyncTask<Object, Object, Locations>
 		try {
 			paths = busLocationsObject.getSelectedPaths();
 		} catch (IOException e) {
-			Log.e("BostonBusMap", "Exception thrown from getSelectedPaths: " + e.getMessage());
+			LogUtil.e(e);
 			paths = RouteConfig.nullPaths;
 		}
 		
@@ -484,7 +484,7 @@ public class UpdateAsyncTask extends AsyncTask<Object, Object, Locations>
 				routeOverlay.setPathsAndColor(paths, Color.BLUE, routeName);
 
 			} catch (IOException e) {
-				Log.e("BostonBusMap", "Exception thrown from getSelectedRoute: " + e.getMessage());
+				LogUtil.e(e);
 				routeOverlay.setPathsAndColor(paths, Color.BLUE, null);
 			}
 			selectedRouteConfig = null;
@@ -494,7 +494,7 @@ public class UpdateAsyncTask extends AsyncTask<Object, Object, Locations>
 			try {
 				selectedRouteConfig = busLocationsObject.getSelectedRoute();
 			} catch (IOException e) {
-				Log.e("BostonBusMap", "Exception thrown from getSelectedRoute: " + e.getMessage());
+				LogUtil.e(e);
 				selectedRouteConfig = null;
 			}
 			
