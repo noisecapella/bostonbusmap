@@ -176,7 +176,7 @@ public class DatabaseHelper extends SQLiteOpenHelper
 			populateFavorites(favorites, false, db);
 		}*/
 		
-		if (oldVersion < VERBOSE_DBV2_4)
+		if (oldVersion < VERBOSE_DBV2_5)
 		{
 			db.execSQL("DROP TABLE IF EXISTS " + directionsTable);
 			db.execSQL("DROP TABLE IF EXISTS " + stopsTable);
