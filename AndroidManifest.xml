@@ -6,7 +6,7 @@
 
 	android:theme="@style/android:Theme.NoTitleBar"
 	>
-		<activity android:label="@string/app_name" android:name=".main.Main" android:launchMode="singleTop">
+		<activity android:label="@string/app_name" android:name="boston.Bus.Map.main.Main" android:launchMode="singleTop">
 			<intent-filter>
 				<action android:name="android.intent.action.MAIN" />
 				<category android:name="android.intent.category.LAUNCHER" />
@@ -17,20 +17,20 @@
 			<meta-data android:name="android.app.searchable" android:resource="@xml/searchable" 
 			/>
 		</activity>
-		<activity android:name=".main.SearchResults">
+		<activity android:name="boston.Bus.Map.main.SearchResults">
 		</activity>
-		<activity android:name=".main.MoreInfo" ></activity>
-		<activity android:name=".main.AlertInfo" ></activity>
-		<activity android:name=".main.ReportProblem" ></activity>
-		<activity android:name=".main.Preferences" android:label="@string/app_name">
+		<activity android:name="boston.Bus.Map.main.MoreInfo" ></activity>
+		<activity android:name="boston.Bus.Map.main.AlertInfo" ></activity>
+		<activity android:name="boston.Bus.Map.main.ReportProblem" ></activity>
+		<activity android:name="boston.Bus.Map.main.Preferences" android:label="@string/app_name">
 		</activity> 
-		<activity android:name="main.Instructions" android:theme="@android:style/Theme.Dialog"></activity>
+		<activity android:name="boston.Bus.Map.main.Instructions" android:theme="@android:style/Theme.Dialog"></activity>
 		<uses-library android:name="com.google.android.maps"></uses-library>
 		<meta-data android:name="android.app.default_searchable"
-               android:value=".main.SearchResults" />
+               android:value="boston.Bus.Map.main.SearchResults" />
 		
 	<uses-library android:name="android.test.runner"></uses-library>
-	<provider android:name=".provider.TransitContentProvider" android:authorities="com.bostonbusmap.latransitprovider"></provider>
+	<provider android:name="boston.Bus.Map.provider.TransitContentProvider" android:authorities="com.bostonbusmap.latransitprovider"></provider>
 </application>
 
 	<!-- <supports-screens></supports-screens>-->
