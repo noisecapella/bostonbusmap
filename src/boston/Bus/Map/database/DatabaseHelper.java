@@ -118,6 +118,7 @@ public class DatabaseHelper extends SQLiteOpenHelper
 
 	public final static int VERBOSE_DBV2_1 = 24;
 	public final static int VERBOSE_DBV2_2 = 26;
+	public final static int VERBOSE_DBV2_3 = 27;
 	
 	public final static int CURRENT_DB_VERSION = VERBOSE_DBV2_2;
 	
@@ -173,7 +174,7 @@ public class DatabaseHelper extends SQLiteOpenHelper
 			populateFavorites(favorites, false, db);
 		}*/
 		
-		if (oldVersion < VERBOSE_DBV2_2)
+		if (oldVersion < VERBOSE_DBV2_3)
 		{
 			db.execSQL("DROP TABLE IF EXISTS " + directionsTable);
 			db.execSQL("DROP TABLE IF EXISTS " + stopsTable);
