@@ -195,8 +195,8 @@ public class Main extends MapActivity
 		R.drawable.bus_all, R.drawable.bus_one, R.drawable.busstop_all, R.drawable.busstop_one, R.drawable.busstop_star
 	};
 	
-	public static final String[] modeTextSupported = new String[]{
-		"All buses (no rail)", "Vehicles on one route", "Stops and predictions on all routes\n (no rail)", "Stops and predictions on one route", "Favorite stops"
+	public static final int[] modeTextSupported = new int[]{
+		R.string.all_buses, R.string.vehicles_on_one_route, R.string.stops_and_predictions_on_all_routes, R.string.stops_and_predictions_on_one_route, R.string.favorite_stops
 	};
 	
 	
