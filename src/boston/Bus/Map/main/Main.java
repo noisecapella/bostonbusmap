@@ -796,8 +796,8 @@ public class Main extends MapActivity
     private void populateHandlerSettings() {
     	SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
     	
-    	int runInBackgroundCheckboxValue = getUpdateInterval(prefs);
-    	handler.setUpdateConstantlyInterval(runInBackgroundCheckboxValue);
+    	int updateInterval = getUpdateInterval(prefs);
+    	handler.setUpdateConstantlyInterval(updateInterval);
     	handler.setShowUnpredictable(prefs.getBoolean(getString(R.string.showUnpredictableBusesCheckbox), false));
     	handler.setHideHighlightCircle(prefs.getBoolean(getString(R.string.hideCircleCheckbox), false));
     	handler.setInferBusRoutes(false);
@@ -808,12 +808,12 @@ public class Main extends MapActivity
     	
     	boolean alwaysUpdateLocationValue = prefs.getBoolean(getString(R.string.alwaysShowLocationCheckbox), true);
     	
+    	String intervalString = new Integer(updateInterval).toString();
     	//since the default value for this flag is true, make sure we let the preferences know of this
     	prefs.edit().
     		putBoolean(getString(R.string.alwaysShowLocationCheckbox), alwaysUpdateLocationValue).
-    		putInt(getString(R.string.updateContinuously), runInBackgroundCheckboxValue).
+    		putString(getString(R.string.updateContinuouslyInterval), intervalString).
     		putBoolean(getString(R.string.showCoarseRouteLineCheckbox), showCoarseRouteLineCheckboxValue)
-    		
     		.commit();
     }
 
@@ -829,9 +829,14 @@ public class Main extends MapActivity
 
 	
 	private int getUpdateInterval(SharedPreferences prefs) {
-		int interval = prefs.getInt(getString(R.string.updateContinuouslyInterval), UPDATE_INTERVAL_INVALID); 
-		if (interval == UPDATE_INTERVAL_INVALID) {
+		String intervalString = prefs.getString(getString(R.string.updateContinuouslyInterval), "");
+		int interval;
+		if (intervalString.length() == 0) {
 			interval = prefs.getBoolean(getString(R.string.runInBackgroundCheckbox), true) ? UPDATE_INTERVAL_SHORT : UPDATE_INTERVAL_NONE;
+		}
+		else
+		{
+			interval = Integer.parseInt(intervalString);
 		}
 		return interval;
 	}
