@@ -53,7 +53,7 @@ public class UpdateHandler extends Handler {
 
 	private final int IMMEDIATE_REFRESH = 1;
 
-	private boolean updateConstantly;
+	private int updateConstantlyInterval;
 	private boolean hideHighlightCircle;
 	private boolean showUnpredictable;
 	private UpdateAsyncTask updateAsyncTask;
@@ -222,7 +222,7 @@ public class UpdateHandler extends Handler {
 		
 		int fetchDelay = getCurrentFetchDelay();
 		
-		if(getUpdateConstantly())
+		if(getUpdateConstantlyInterval() != Main.UPDATE_INTERVAL_NONE)
 		{
 			//if the runInBackground checkbox is clicked, start the handler updating
 			removeMessages(MAJOR);
@@ -240,13 +240,13 @@ public class UpdateHandler extends Handler {
 
 	}
 
-	public boolean getUpdateConstantly() {
-		return updateConstantly;
+	public int getUpdateConstantlyInterval() {
+		return updateConstantlyInterval;
 	}
 	
-	public void setUpdateConstantly(boolean b)
+	public void setUpdateConstantlyInterval(int updateConstantlyInterval)
 	{
-		updateConstantly = b;
+		this.updateConstantlyInterval = updateConstantlyInterval;
 	}
 	
 	public boolean getHideHighlightCircle()
@@ -330,7 +330,7 @@ public class UpdateHandler extends Handler {
 
 	public void resume() {
 		//removeAllMessages();
-		if(getUpdateConstantly())
+		if(getUpdateConstantlyInterval() != Main.UPDATE_INTERVAL_NONE)
 		{
 			//if the runInBackground checkbox is clicked, start the handler updating
 		    instantRefresh();
