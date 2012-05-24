@@ -171,6 +171,7 @@ public class Main extends MapActivity
 	private String[] dropdownRoutes;
 	private HashMap<String, String> dropdownRouteKeysToTitles;
 	private AlertDialog routeChooserDialog;
+	private AlertDialog getDirectionsDialog;
 
 	private ProgressBar progress;
 	private ImageButton searchButton;
@@ -308,6 +309,22 @@ public class Main extends MapActivity
         		}
         	});
         	routeChooserDialog = builder.create();
+        }
+        
+        {
+        	AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        	
+        	builder.setTitle(getString(R.string.getDirections));
+        	builder.setNeutralButton("Click", new DialogInterface.OnClickListener() {
+				
+				@Override
+				public void onClick(DialogInterface dialog, int which) {
+					handler.getDirections();
+					
+				}
+			});
+        	
+        	getDirectionsDialog = builder.create();
         }
 		
 		DisplayMetrics metrics = new DisplayMetrics();
@@ -628,6 +645,10 @@ public class Main extends MapActivity
     	//when the menu button is clicked, a menu comes up
     	switch (item.getItemId())
     	{
+    	case R.id.getDirections:
+    		getDirectionsDialog.show();
+    		
+    		break;
     	case R.id.refreshItem:
     		boolean b = handler.instantRefresh();
     		if (b == false)

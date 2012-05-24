@@ -33,6 +33,7 @@ public class UpdateHandler extends Handler {
 	 */
 	public static final int MINOR = 2;
 	
+	public static final int GET_DIRECTIONS = 3;
 
 	
 	/**
@@ -52,6 +53,7 @@ public class UpdateHandler extends Handler {
 	private boolean showUnpredictable;
 	private UpdateAsyncTask updateAsyncTask;
 	private UpdateAsyncTask minorUpdate;
+	private GetDirectionsAsyncTask getDirectionsTask;
 	
 	private final ProgressBar progress;
 	private final ProgressDialog progressDialog;
@@ -97,6 +99,22 @@ public class UpdateHandler extends Handler {
 	public void handleMessage(Message msg) {
 		switch (msg.what)
 		{
+		case GET_DIRECTIONS:
+			//TODO: arguments for stop ids
+			if (getDirectionsTask != null) {
+				if (getDirectionsTask.getStatus().equals(GetDirectionsAsyncTask.Status.FINISHED) == false) {
+					// task is not finished yet
+					return;
+				}
+			}
+			
+			String start = "8128";
+			String end = "2550";
+			
+			getDirectionsTask = new GetDirectionsAsyncTask();
+			getDirectionsTask.runTask(start, end);
+			break;
+		
 		case MAJOR:
 			//remove duplicates
 			long currentTime = TransitSystem.currentTimeMillis();
@@ -365,6 +383,10 @@ public class UpdateHandler extends Handler {
 			//probably not in the middle of something but just in case
 			minorUpdate.nullifyProgress();
 		}
+	}
+
+	public void getDirections() {
+		
 	}
 
 
