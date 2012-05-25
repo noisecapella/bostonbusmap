@@ -20,5 +20,5 @@
 		android:layout_height="wrap_content"></ListView>
 	<TextView android:id="@android:id/empty" android:layout_width="fill_parent"
 		android:layout_height="wrap_content"
-		android:text="There are currently no predictions for this stop"></TextView>
+		android:text="@string/thereAreCurrentlyNoPredictions"></TextView>
 </LinearLayout>

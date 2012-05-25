@@ -18,7 +18,7 @@
 <string name="bostonsLocation">Boston</string>
 <string name="myLocation">My Location</string>
 <string name="settings">Settings</string>
-<string name="findingCurrentLocation">Finding current location...</string>
+<string name="findingCurrentLocation">Finding current location&#8230;</string>
 <string name="noProviders">Cannot use any location service.
 Are any enabled (like GPS) in your system settings?</string>
 <string name="locationUnavailable">Current location is unavailable</string>
@@ -55,4 +55,8 @@ Are any enabled (like GPS) in your system settings?</string>
     <string name="favorite_stops">Favorite stops</string>
     <string name="updateContinuouslyInterval">UpdateContinuouslyInterval</string>
     <string name="getDirections">Get Directions</string>
+    <string name="thereAreNoAlerts">There are currently no alerts</string>
+    <string name="thereAreCurrentlyNoPredictions">There are currently no predictions for this stop</string>
+    <string name="chooseMode">Choose Mode</string>
+    <string name="modeOption">Mode Option</string>
 </resources>

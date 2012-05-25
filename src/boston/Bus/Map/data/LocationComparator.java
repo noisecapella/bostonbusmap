@@ -60,7 +60,7 @@ public class LocationComparator implements Comparator<boston.Bus.Map.data.Locati
 			//two different stops or buses at same location
 			//if it's equal, the TreeSet may just remove one, assuming equality
 			//so we need something else to compare to show that it's not exactly the same stop
-			return new Integer(a.getId()).compareTo(b.getId());
+			return Integer.valueOf(a.getId()).compareTo(b.getId());
 		}
 		else
 		{

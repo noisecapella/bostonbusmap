@@ -2,9 +2,16 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
       package="boston.Bus.Map"
       android:installLocation="auto" android:versionCode="100" android:versionName="4.07">
-	<application android:label="@string/app_name" android:icon="@drawable/appicon" 
+	<!-- <supports-screens></supports-screens>-->
+	<uses-permission android:name="android.permission.INTERNET"></uses-permission>
 
-	android:theme="@style/android:Theme.NoTitleBar"
+	<uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"></uses-permission>
+	<uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"></uses-permission>
+	<instrumentation android:name="android.test.InstrumentationTestRunner" android:targetPackage="boston.Bus.Map"></instrumentation>
+    <uses-sdk android:minSdkVersion="3" android:targetSdkVersion="4"></uses-sdk>
+   	<application android:label="@string/app_name" android:icon="@drawable/appicon" 
+
+	android:theme="@style/Theme.NoBackground"
 	>
 		<activity android:label="@string/app_name" android:name=".main.Main" android:launchMode="singleTop">
 			<intent-filter>
@@ -33,12 +40,4 @@
 	<provider android:name=".provider.TransitContentProvider" android:authorities="com.bostonbusmap.transitprovider"></provider>
 </application>
 
-	<!-- <supports-screens></supports-screens>-->
-	<uses-sdk android:minSdkVersion="3" ></uses-sdk>
-	<uses-sdk android:targetSdkVersion="4"></uses-sdk>
-	<uses-permission android:name="android.permission.INTERNET"></uses-permission>
-
-	<uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"></uses-permission>
-	<uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"></uses-permission>
-<instrumentation android:name="android.test.InstrumentationTestRunner" android:targetPackage="boston.Bus.Map"></instrumentation>
 </manifest>

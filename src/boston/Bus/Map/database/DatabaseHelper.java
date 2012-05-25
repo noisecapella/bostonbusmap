@@ -1018,7 +1018,7 @@ public class DatabaseHelper extends SQLiteOpenHelper
 			String lonDiff = "((" + longitudeKey + " - " + currentLon + ")*" + lonFactor + ")";
 			projectionMap.put("distance", latDiff + "*" + latDiff + " + " + lonDiff + "*" + lonDiff + " AS " + distanceKey);
 			builder.setProjectionMap(projectionMap);
-			cursor = builder.query(database, projectionIn, null, null, null, null, distanceKey, new Integer(limit).toString());
+			cursor = builder.query(database, projectionIn, null, null, null, null, distanceKey, Integer.valueOf(limit).toString());
 			
 			if (cursor.moveToFirst() == false)
 			{
