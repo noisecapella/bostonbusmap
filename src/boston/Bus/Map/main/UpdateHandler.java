@@ -108,10 +108,10 @@ public class UpdateHandler extends Handler {
 				}
 			}
 			
-			String start = "8128";
+			String start = "8178";
 			String end = "2550";
 			
-			getDirectionsTask = new GetDirectionsAsyncTask();
+			getDirectionsTask = new GetDirectionsAsyncTask(busLocations);
 			getDirectionsTask.runTask(start, end);
 			break;
 		
@@ -386,7 +386,9 @@ public class UpdateHandler extends Handler {
 	}
 
 	public void getDirections() {
-		
+		Message msg = new Message();
+		msg.what = GET_DIRECTIONS;
+		sendMessage(msg);
 	}
 
 

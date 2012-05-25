@@ -37,9 +37,23 @@ public class LocationComparator implements Comparator<boston.Bus.Map.data.Locati
 			}
 		}
 		
-		double dist = a.distanceFrom(centerLatitudeAsRadians, centerLongitudeAsRadians);
+		double lonFactor = Math.cos(centerLatitudeAsRadians);
+		double aLat = (a.getLatitudeAsDegrees() * Geometry.degreesToRadians);
+		double aLon = (a.getLongitudeAsDegrees() * Geometry.degreesToRadians);
+		double bLat = (b.getLatitudeAsDegrees() * Geometry.degreesToRadians);
+		double bLon = (b.getLongitudeAsDegrees() * Geometry.degreesToRadians);
+		
+		double aDistX = (centerLatitudeAsRadians - aLat);
+		double aDistY = (centerLongitudeAsRadians - aLon)*lonFactor; 
+		double bDistX = (centerLatitudeAsRadians - bLat);
+		double bDistY = (centerLongitudeAsRadians - bLon)*lonFactor; 
+		
+		double dist = aDistX*aDistX+aDistY*aDistY;
+		double otherDist = bDistX*bDistX+bDistY*bDistY;
+		
+/*		double dist = a.distanceFrom(centerLatitudeAsRadians, centerLongitudeAsRadians);
 		double otherDist = b.distanceFrom(centerLatitudeAsRadians, centerLongitudeAsRadians);
-
+*/
 		int comparison = java.lang.Double.compare(dist, otherDist);
 		if (comparison == 0)
 		{

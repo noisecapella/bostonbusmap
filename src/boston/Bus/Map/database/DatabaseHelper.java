@@ -1153,11 +1153,6 @@ public class DatabaseHelper extends SQLiteOpenHelper
 	 * @return
 	 */
 	public void getStops(List<String> stopTags, TransitSystem transitSystem, HashMap<String, StopLocation> outputMapping) {
-		if (stopTags == null || stopTags.size() == 0)
-		{
-			return;
-		}
-		
 		SQLiteDatabase database = getReadableDatabase();
 		Cursor stopCursor = null;
 		try
@@ -1180,7 +1175,13 @@ public class DatabaseHelper extends SQLiteOpenHelper
 			//if size == 1, where clause is tag = ?. if size > 1, where clause is "IN (tag1, tag2, tag3...)"
 			StringBuilder select;
 			String[] selectArray;
-			if (stopTags.size() == 1)
+			
+			if (stopTags == null || stopTags.size() == 0)
+			{
+				select = new StringBuilder();
+				selectArray = null;
+			}
+			else if (stopTags.size() == 1)
 			{
 				String stopTag = stopTags.get(0);
 				

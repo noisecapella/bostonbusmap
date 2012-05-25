@@ -18,6 +18,7 @@ import boston.Bus.Map.database.DatabaseHelper;
 import boston.Bus.Map.main.UpdateAsyncTask;
 import boston.Bus.Map.transit.TransitSystem;
 import boston.Bus.Map.ui.ProgressMessage;
+import boston.Bus.Map.util.Smoothsort;
 
 public class RoutePool {
 	private final DatabaseHelper helper;
@@ -27,12 +28,16 @@ public class RoutePool {
 	private final HashMap<String, RouteConfig> pool = new HashMap<String, RouteConfig>();
 	private final HashMap<String, StopLocation> sharedStops = new HashMap<String, StopLocation>();
 	
+	
 	/**
 	 * A mapping of stop key to route key. Look in sharedStops for the StopLocation
 	 */
 	private final HashSet<String> favoriteStops = new HashSet<String>();
 
 	private final TransitSystem transitSystem;
+
+
+	private StopLocation[] allStops;
 	
 	private static final int MAX_ROUTES = 50;
 	
@@ -293,11 +298,29 @@ public class RoutePool {
 		}
 	}
 	
-	public ArrayList<StopLocation> getClosestStops(double centerLatitude,
+	public List<StopLocation> getClosestStops(double centerLatitude,
 			double centerLongitude, int maxStops)
 	{
-		return helper.getClosestStops(centerLatitude, centerLongitude, transitSystem, sharedStops, maxStops);
-
+		if (allStops == null) {
+			loadAllStops();
+		}
+		
+		sortAllStops(centerLatitude, centerLongitude);
+		ArrayList<StopLocation> ret = new ArrayList<StopLocation>(maxStops);
+		for (int i = 0; i < maxStops; i++) {
+			ret.add(allStops[i]);
+		}
+		return ret;
 	}
 
+	private void sortAllStops(double centerLatitude, double centerLongitude) {
+		Smoothsort.sort(allStops, 0, allStops.length - 1, new LocationComparator(centerLatitude, centerLongitude));
+		//Collections.sort(allStops, new LocationComparator(centerLatitude, centerLongitude));
+	}
+
+	protected void loadAllStops() {
+		HashMap<String, StopLocation> ret = new HashMap<String, StopLocation>();
+		helper.getStops(null, transitSystem, ret);
+		allStops = new ArrayList<StopLocation>(ret.values()).toArray(new StopLocation[0]);
+ 	}
 }

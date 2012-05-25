@@ -301,7 +301,7 @@ public final class Locations
 		}
 		else if (selectedBusPredictions == Main.BUS_PREDICTIONS_ALL)
 		{
-			ArrayList<StopLocation> stops = routeMapping.getClosestStops(centerLatitude, centerLongitude, maxLocations);
+			List<StopLocation> stops = routeMapping.getClosestStops(centerLatitude, centerLongitude, maxLocations);
 			for (StopLocation stop : stops)
 			{
 				if (!(stop instanceof SubwayStopLocation))
@@ -450,5 +450,9 @@ public final class Locations
 		}
 		
 		return null;
+	}
+
+	public RoutePool getRoutePool() {
+		return routeMapping;
 	}
 }
