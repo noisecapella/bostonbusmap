@@ -56,4 +56,6 @@ Are any enabled (like GPS) in your system settings?</string>
     <string name="updateContinuouslyInterval">UpdateContinuouslyInterval</string>
     <string name="thereAreNoAlerts">There are currently no alerts</string>
     <string name="thereAreCurrentlyNoPredictions">There are currently no predictions for this stop</string>
+    <string name="chooseMode">Choose Mode</string>
+    <string name="modeOption">Mode Option</string>
 </resources>
