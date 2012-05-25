@@ -1,10 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
       package="com.schneeloch.latransit"
-      android:versionName="4.07.3" android:versionCode="102" android:installLocation="auto">
-	<application android:label="@string/app_name" android:icon="@drawable/appicon" 
+      android:installLocation="auto" android:versionCode="102" android:versionName="4.07.3">
+	<!-- <supports-screens></supports-screens>-->
+	<uses-permission android:name="android.permission.INTERNET"></uses-permission>
 
-	android:theme="@style/android:Theme.NoTitleBar"
+	<uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"></uses-permission>
+	<uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"></uses-permission>
+	<instrumentation android:name="android.test.InstrumentationTestRunner" android:targetPackage="boston.Bus.Map"></instrumentation>
+    <uses-sdk android:minSdkVersion="3" android:targetSdkVersion="4"></uses-sdk>
+   	<application android:label="@string/app_name" android:icon="@drawable/appicon" 
+
+	android:theme="@style/Theme.NoBackground"
 	>
 		<activity android:label="@string/app_name" android:name="boston.Bus.Map.main.Main" android:launchMode="singleTop">
 			<intent-filter>
@@ -21,10 +28,8 @@
 		</activity>
 		<activity android:name="boston.Bus.Map.main.MoreInfo" ></activity>
 		<activity android:name="boston.Bus.Map.main.AlertInfo" ></activity>
-		<activity android:name="boston.Bus.Map.main.ReportProblem" ></activity>
 		<activity android:name="boston.Bus.Map.main.Preferences" android:label="@string/app_name">
 		</activity> 
-		<activity android:name="boston.Bus.Map.main.Instructions" android:theme="@android:style/Theme.Dialog"></activity>
 		<uses-library android:name="com.google.android.maps"></uses-library>
 		<meta-data android:name="android.app.default_searchable"
                android:value="boston.Bus.Map.main.SearchResults" />
@@ -33,12 +38,4 @@
 	<provider android:name="boston.Bus.Map.provider.TransitContentProvider" android:authorities="com.bostonbusmap.latransitprovider"></provider>
 </application>
 
-	<!-- <supports-screens></supports-screens>-->
-	<uses-sdk android:minSdkVersion="3" ></uses-sdk>
-	<uses-sdk android:targetSdkVersion="4"></uses-sdk>
-	<uses-permission android:name="android.permission.INTERNET"></uses-permission>
-
-	<uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"></uses-permission>
-	<uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"></uses-permission>
-<instrumentation android:name="android.test.InstrumentationTestRunner" android:targetPackage="com.schneeloch.latransit"></instrumentation>
 </manifest>

@@ -6,7 +6,7 @@
   android:orientation="horizontal"
   >
   <TextView android:layout_width="fill_parent" android:layout_height="wrap_content" android:id="@+id/moreinfo_text"
-  android:layout_alignParentLeft="true"
+  
   android:bufferType="spannable"
   android:text=""
   ></TextView>

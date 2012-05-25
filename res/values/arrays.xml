@@ -1,15 +1,15 @@
 <resources>
-	<string-array name="numOverlaysKeys">
-		<item>Few</item>
-		<item>Some</item>
-		<item>Many</item>
-		<item>All</item>
+	<string-array name="updateContinuouslyKeys">
+		<item>Continuously (15 seconds)</item>
+		<item>Frequently (30 seconds)</item>
+		<item>Occasionally (60 seconds)</item>
+		<item>Never</item>
 	</string-array>
-	<integer-array name="numOverlaysValues">
-		<item>5</item>
+	<string-array name="updateContinuouslyValues">
 		<item>15</item>
 		<item>30</item>
-		<item>1000</item>
+		<item>60</item>
+		<item>0</item>
 
-	</integer-array>
+	</string-array>
 </resources>

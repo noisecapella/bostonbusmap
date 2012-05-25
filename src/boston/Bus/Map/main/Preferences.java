@@ -63,10 +63,6 @@ public class Preferences extends PreferenceActivity
 				*/
 				//TODO
 			}
-			else if ("instructions".equals(preferenceKey))
-			{
-				Main.displayInstructions(this);
-			}
 			else if ("clearHistory".equals(preferenceKey))
 			{
 				AlertDialog.Builder builder = new AlertDialog.Builder(this);
