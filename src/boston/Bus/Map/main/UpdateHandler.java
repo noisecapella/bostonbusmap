@@ -41,19 +41,13 @@ public class UpdateHandler extends Handler {
 	 */
 	private long lastUpdateTime;
 
-	/**
-	 * The minimum time in milliseconds between updates. The XML feed requires a minimum of 10 seconds,
-	 * I'm doing 13 just in case
-	 */
-	public final static int busLocationsFetchDelay = 13000;
-	
-	public final static int predictionsFetchDelay = 15000;
+	public final static int fetchDelay = 15000;
 	
 	private final int maxOverlays = 75;
 
 	private final int IMMEDIATE_REFRESH = 1;
 
-	private boolean updateConstantly;
+	private int updateConstantlyInterval;
 	private boolean hideHighlightCircle;
 	private boolean showUnpredictable;
 	private UpdateAsyncTask updateAsyncTask;
@@ -107,21 +101,26 @@ public class UpdateHandler extends Handler {
 			//remove duplicates
 			long currentTime = TransitSystem.currentTimeMillis();
 			
-			int fetchDelay = getCurrentFetchDelay();
+			int interval = getUpdateConstantlyInterval() * 1000;
 			
-			if (currentTime - lastUpdateTime > fetchDelay || msg.arg1 == IMMEDIATE_REFRESH)
+			if (currentTime - lastUpdateTime > interval)
 			{
 				//if not too soon, do the update
+				runUpdateTask(isFirstRefresh);
+				isFirstRefresh = false;
+			}
+			else if (currentTime - lastUpdateTime > fetchDelay && msg.arg1 == IMMEDIATE_REFRESH)
+			{
 				runUpdateTask(isFirstRefresh);
 				isFirstRefresh = false;
 			}
 
 			//make updateBuses execute every 10 seconds (or whatever fetchDelay is)
 			//to disable this, the user should go into the settings and uncheck 'Run in background'
-			if (msg.arg1 != IMMEDIATE_REFRESH)
+			if (msg.arg1 != IMMEDIATE_REFRESH && interval != 0)
 			{
 				removeMessages(MAJOR);
-				sendEmptyMessageDelayed(MAJOR, fetchDelay);
+				sendEmptyMessageDelayed(MAJOR, interval);
 			}
 
 
@@ -157,14 +156,6 @@ public class UpdateHandler extends Handler {
 			break;
 		}		
 	}
-
-
-
-	private int getCurrentFetchDelay() {
-		return busLocationsFetchDelay;
-	}
-
-
 
 	public void removeAllMessages() {
 		removeMessages(MAJOR);
@@ -220,13 +211,11 @@ public class UpdateHandler extends Handler {
 	public boolean instantRefresh() {
 		//removeAllMessages();
 		
-		int fetchDelay = getCurrentFetchDelay();
-		
-		if(getUpdateConstantly())
+		if(getUpdateConstantlyInterval() != Main.UPDATE_INTERVAL_NONE)
 		{
 			//if the runInBackground checkbox is clicked, start the handler updating
 			removeMessages(MAJOR);
-			sendEmptyMessageDelayed(MAJOR, (long)(fetchDelay * 1.5));
+			sendEmptyMessageDelayed(MAJOR, getUpdateConstantlyInterval() * 1000);
 		}
 		
 		if (TransitSystem.currentTimeMillis() - lastUpdateTime < fetchDelay)
@@ -240,13 +229,13 @@ public class UpdateHandler extends Handler {
 
 	}
 
-	public boolean getUpdateConstantly() {
-		return updateConstantly;
+	public int getUpdateConstantlyInterval() {
+		return updateConstantlyInterval;
 	}
 	
-	public void setUpdateConstantly(boolean b)
+	public void setUpdateConstantlyInterval(int updateConstantlyInterval)
 	{
-		updateConstantly = b;
+		this.updateConstantlyInterval = updateConstantlyInterval;
 	}
 	
 	public boolean getHideHighlightCircle()
@@ -330,7 +319,7 @@ public class UpdateHandler extends Handler {
 
 	public void resume() {
 		//removeAllMessages();
-		if(getUpdateConstantly())
+		if(getUpdateConstantlyInterval() != Main.UPDATE_INTERVAL_NONE)
 		{
 			//if the runInBackground checkbox is clicked, start the handler updating
 		    instantRefresh();

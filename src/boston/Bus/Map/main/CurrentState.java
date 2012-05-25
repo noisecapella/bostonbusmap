@@ -25,7 +25,7 @@ import com.google.android.maps.Projection;
 public class CurrentState {
 	private final long lastUpdateTime;
 	private final Locations busLocations;
-	private final boolean updateConstantly;
+	private final int updateConstantlyInterval;
 	private int selectedRouteIndex;
 	private int selectedBusPredictions;
 	private final BusOverlay busOverlay;
@@ -34,13 +34,13 @@ public class CurrentState {
 	private final UpdateAsyncTask majorHandler;
 	private final boolean locationEnabled;
 	
-	public CurrentState(Locations busLocations, long lastUpdateTime, boolean updateConstantly,
+	public CurrentState(Locations busLocations, long lastUpdateTime, int updateConstantlyInterval,
 			int selectedRouteIndex, int selectedBusPredictions, BusOverlay busOverlay, RouteOverlay routeOverlay,
 			UpdateAsyncTask majorHandler, boolean progressState, boolean locationEnabled) 
 	{
 		this.busLocations = busLocations;
 		this.lastUpdateTime = lastUpdateTime;
-		this.updateConstantly = updateConstantly;
+		this.updateConstantlyInterval = updateConstantlyInterval;
 		this.selectedRouteIndex = selectedRouteIndex;
 		this.selectedBusPredictions = selectedBusPredictions;
 		this.busOverlay = busOverlay;
@@ -69,8 +69,8 @@ public class CurrentState {
 		return progressState;
 	}
 	
-	public boolean getUpdateConstantly() {
-		return updateConstantly;
+	public int getUpdateConstantlyInterval() {
+		return updateConstantlyInterval;
 	}
 
 	public BusOverlay getBusOverlay() {

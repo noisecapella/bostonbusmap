@@ -1,6 +1,5 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
-<CheckBoxPreference android:key="@string/runInBackgroundCheckbox" android:title="@string/updateContinuously"></CheckBoxPreference>
-<CheckBoxPreference android:key="@string/showUnpredictableBusesCheckbox" android:title="@string/showUnpredictableBuses"></CheckBoxPreference>
+<ListPreference android:key="@string/updateContinuouslyInterval" android:title="@string/updateContinuously" android:entryValues="@array/updateContinuouslyValues" android:entries="@array/updateContinuouslyKeys"/><CheckBoxPreference android:key="@string/showUnpredictableBusesCheckbox" android:title="@string/showUnpredictableBuses"></CheckBoxPreference>
 <CheckBoxPreference android:key="@string/hideCircleCheckbox" android:title="@string/hideBlueCircle" android:summary="@string/hideBlueCircleSummary"/>
 
 <CheckBoxPreference android:title="@string/showRoutePath" android:key="@string/showRouteLineCheckbox" android:summary="@string/showRoutePathSummary"></CheckBoxPreference>
@@ -13,6 +12,7 @@ android:summary="Unchecking this may make things slow"
 <Preference android:summary="Clears recent search history for this app" android:title="Clear search history" android:key="clearHistory"></Preference>
 <!--<Preference android:summary="Shows basic usage instructions" android:title="Instructions" android:key="instructions" />-->
 <Preference android:title="About BostonBusMap" android:key="about"></Preference>
+
 
 
 
