@@ -456,12 +456,6 @@ public class Main extends MapActivity
         });*/
     }
 		
-	public static void displayInstructions(Context context)
-	{
-		Intent intent = new Intent(context, Instructions.class);
-		context.startActivity(intent);
-	}
-
 	private static String[] getRouteTitles(String[] dropdownRoutes,
 			HashMap<String, String> dropdownRouteKeysToTitles) {
     	String[] ret = new String[dropdownRoutes.length];
