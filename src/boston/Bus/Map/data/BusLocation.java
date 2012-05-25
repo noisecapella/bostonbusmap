@@ -6,11 +6,8 @@ import java.util.HashMap;
 import boston.Bus.Map.math.Geometry;
 import boston.Bus.Map.transit.TransitSystem;
 import boston.Bus.Map.ui.BusDrawable;
-import boston.Bus.Map.util.Constants;
 import android.content.Context;
 import android.graphics.drawable.Drawable;
-import android.text.Html.TagHandler;
-import android.widget.TextView;
 
 /**
  * This class stores information about the bus. This information is mostly taken

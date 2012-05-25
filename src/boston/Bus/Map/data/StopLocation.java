@@ -1,33 +1,14 @@
 package boston.Bus.Map.data;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.SortedSet;
-import java.util.TreeMap;
-import java.util.TreeSet;
-
-import boston.Bus.Map.database.DatabaseHelper;
 import boston.Bus.Map.math.Geometry;
-import boston.Bus.Map.transit.NextBusTransitSource;
-import boston.Bus.Map.transit.SubwayTransitSource;
 import boston.Bus.Map.transit.TransitSource;
 import boston.Bus.Map.transit.TransitSystem;
-import boston.Bus.Map.util.Box;
-import boston.Bus.Map.util.Constants;
-import boston.Bus.Map.util.RouteComparator;
-import boston.Bus.Map.util.StringUtil;
-
-import boston.Bus.Map.util.CanBeSerialized;
-
 import android.content.Context;
 import android.graphics.drawable.Drawable;
-import android.os.Parcel;
-import android.os.Parcelable;
-import android.widget.ArrayAdapter;
-import android.widget.TextView;
 
 public class StopLocation implements Location
 {

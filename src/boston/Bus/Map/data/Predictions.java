@@ -1,12 +1,9 @@
 package boston.Bus.Map.data;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.TreeSet;
-
-import boston.Bus.Map.util.StringUtil;
 
 import android.content.Context;
 

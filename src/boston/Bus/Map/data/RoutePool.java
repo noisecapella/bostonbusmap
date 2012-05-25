@@ -3,15 +3,9 @@ package boston.Bus.Map.data;
 import java.io.IOException;
 import java.util.AbstractCollection;
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.LinkedList;
-import java.util.List;
-import java.util.Queue;
-
 import android.util.Log;
 import boston.Bus.Map.R;
 import boston.Bus.Map.database.DatabaseHelper;

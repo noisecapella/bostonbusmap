@@ -6,7 +6,6 @@ import java.util.Date;
 import java.util.HashMap;
 
 import boston.Bus.Map.main.AlertInfo;
-import boston.Bus.Map.main.MoreInfo;
 import boston.Bus.Map.transit.TransitSystem;
 
 import android.content.Context;

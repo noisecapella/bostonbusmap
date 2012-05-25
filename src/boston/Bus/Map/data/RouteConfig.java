@@ -1,23 +1,11 @@
 package boston.Bus.Map.data;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.SortedMap;
-import java.util.TreeMap;
-
-import boston.Bus.Map.transit.TransitSystem;
 import boston.Bus.Map.transit.TransitSource;
 import boston.Bus.Map.util.Box;
-import boston.Bus.Map.util.CanBeSerialized;
-
-import android.graphics.Color;
-import android.graphics.drawable.Drawable;
-import android.os.Parcel;
-import android.os.Parcelable;
-import android.util.Log;
 
 public class RouteConfig
 {

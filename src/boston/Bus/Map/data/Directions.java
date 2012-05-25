@@ -3,7 +3,6 @@ package boston.Bus.Map.data;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import android.database.sqlite.SQLiteDatabase;
 import android.util.Log;
 import boston.Bus.Map.database.DatabaseHelper;
 
