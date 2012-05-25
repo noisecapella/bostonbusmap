@@ -16,5 +16,5 @@
   <TextView android:id="@android:id/empty"
   android:layout_width="fill_parent"
   android:layout_height="wrap_content"
-  android:text="There are currently no alerts"></TextView>
+  android:text="@string/thereAreNoAlerts"></TextView>
 </LinearLayout>

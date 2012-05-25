@@ -61,10 +61,6 @@ public class Preferences extends PreferenceActivity
 				Intent viewIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(TransitSystem.getWebSite()));
 				startActivity(viewIntent);
 			}
-			else if ("instructions".equals(preferenceKey))
-			{
-				Main.displayInstructions(this);
-			}
 			else if ("clearHistory".equals(preferenceKey))
 			{
 				AlertDialog.Builder builder = new AlertDialog.Builder(this);
