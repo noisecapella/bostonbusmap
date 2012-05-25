@@ -802,7 +802,7 @@ public class Main extends MapActivity
     	
     	boolean alwaysUpdateLocationValue = prefs.getBoolean(getString(R.string.alwaysShowLocationCheckbox), true);
     	
-    	String intervalString = new Integer(updateInterval).toString();
+    	String intervalString = Integer.valueOf(updateInterval).toString();
     	//since the default value for this flag is true, make sure we let the preferences know of this
     	prefs.edit().
     		putBoolean(getString(R.string.alwaysShowLocationCheckbox), alwaysUpdateLocationValue).
