@@ -13,6 +13,7 @@ import java.util.SortedSet;
 import java.util.TreeMap;
 
 import android.graphics.drawable.Drawable;
+import android.util.SparseArray;
 import boston.Bus.Map.data.Path;
 import boston.Bus.Map.data.Prediction;
 import boston.Bus.Map.data.RouteConfig;
@@ -29,7 +30,7 @@ public class Box {
 	private final byte[] single = new byte[1];
 
 	private final HashMap<String, Integer> sharedStringTable = new HashMap<String, Integer>();
-	private final HashMap<Integer, String> sharedStringTableReverse = new HashMap<Integer, String>();
+	private final SparseArray<String> sharedStringTableReverse = new SparseArray<String>();
 	
 	/**
 	 * The serialization version number

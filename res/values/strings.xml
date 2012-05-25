@@ -54,4 +54,5 @@ Are any enabled (like GPS) in your system settings?</string>
     <string name="stops_and_predictions_on_one_route">Stops and predictions on one route</string>
     <string name="favorite_stops">Favorite stops</string>
     <string name="updateContinuouslyInterval">UpdateContinuouslyInterval</string>
+    <string name="thereAreNoAlerts">There are currently no alerts</string>
 </resources>
