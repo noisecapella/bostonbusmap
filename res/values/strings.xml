@@ -23,7 +23,7 @@
 Are any enabled (like GPS) in your system settings?</string>
 <string name="locationUnavailable">Current location is unavailable</string>
 <string name="showRoutePath">Show route path?</string>
-<string name="updateContinuously">Update continuously</string>
+<string name="updateContinuously">Update frequency</string>
 <string name="showUnpredictableBuses">Show unpredictable buses?</string>
 <string name="hideBlueCircle">Hide blue circle?</string>
 <string name="hideBlueCircleSummary">This shows what buses are being viewed</string>
