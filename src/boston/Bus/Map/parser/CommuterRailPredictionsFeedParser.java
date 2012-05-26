@@ -30,6 +30,7 @@ import boston.Bus.Map.data.RouteConfig;
 import boston.Bus.Map.data.RoutePool;
 import boston.Bus.Map.data.StopLocation;
 import boston.Bus.Map.data.SubwayStopLocation;
+import boston.Bus.Map.data.TransitDrawables;
 import boston.Bus.Map.transit.CommuterRailTransitSource;
 import boston.Bus.Map.transit.SubwayTransitSource;
 import boston.Bus.Map.transit.TransitSystem;
@@ -39,8 +40,7 @@ public class CommuterRailPredictionsFeedParser
 {
 	private final RouteConfig routeConfig;
 	private final Directions directions;
-	private final Drawable rail;
-	private final Drawable railArrow;
+	private final TransitDrawables drawables;
 
 	private final SimpleDateFormat format;
 	private final HashMap<String, Integer> indexes = new HashMap<String, Integer>();
@@ -49,13 +49,12 @@ public class CommuterRailPredictionsFeedParser
 	private final ConcurrentHashMap<String, BusLocation> busMapping;
 	private final HashMap<String, String> routeKeysToTitles;
 
-	public CommuterRailPredictionsFeedParser(RouteConfig routeConfig, Directions directions, Drawable bus, Drawable railArrow, 
+	public CommuterRailPredictionsFeedParser(RouteConfig routeConfig, Directions directions, TransitDrawables drawables, 
 			ConcurrentHashMap<String, BusLocation> busMapping, HashMap<String, String> routeKeysToTitles)
 	{
 		this.routeConfig = routeConfig;
 		this.directions = directions;
-		this.rail = bus;
-		this.railArrow = railArrow;
+		this.drawables = drawables;
 		this.busMapping = busMapping;
 		this.routeKeysToTitles = routeKeysToTitles;
 
@@ -192,7 +191,7 @@ public class CommuterRailPredictionsFeedParser
 				{
 					//StopLocation nextStop = getNextStop(routeConfig, stopLocation, direction);
 
-					final int arrowTopDiff = rail.getIntrinsicHeight() / 5;
+					final int arrowTopDiff = drawables.getVehicle().getIntrinsicHeight() / 5;
 
 					//first, see if there's a subway car which pretty much matches an old BusLocation
 					BusLocation busLocation = null;
@@ -210,8 +209,8 @@ public class CommuterRailPredictionsFeedParser
 					}
 					
 					busLocation = new CommuterTrainLocation(lat, lon,
-							vehicleId, nowEpochTime, currentMillis, heading, true, direction, null, rail, 
-							railArrow, route, directions, routeTitle, true, arrowTopDiff);
+							vehicleId, nowEpochTime, currentMillis, heading, true, direction, null, drawables, 
+							route, directions, routeTitle, true, arrowTopDiff);
 					busMapping.put(vehicleId, busLocation);
 
 					toRemove.remove(vehicleId);

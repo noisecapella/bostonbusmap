@@ -42,30 +42,6 @@ public class RouteConfigFeedParser extends DefaultHandler
 	private final HashMap<String, RouteConfig> map = new HashMap<String, RouteConfig>();
 	private final Directions directions;
 	private final RouteConfig oldRouteConfig;
-	
-	public RouteConfigFeedParser(Drawable busStop, Drawable busStopUpdated, Directions directions,
-			RouteConfig oldRouteConfig, NextBusTransitSource transitSource)
-	{
-		this.busStop = busStop;
-		this.busStopUpdated = busStopUpdated;
-		this.directions = directions;
-		this.oldRouteConfig = oldRouteConfig;
-		
-		if (oldRouteConfig != null)
-		{
-			allStops.putAll(oldRouteConfig.getStopMapping());
-		}
-		this.transitSource = transitSource;
-	}
-
-	public void runParse(InputStream inputStream)  throws ParserConfigurationException, SAXException, IOException
-	{
-		android.util.Xml.parse(inputStream, Encoding.UTF_8, this);
-	}
-	
-	private final Drawable busStop;
-	private final Drawable busStopUpdated;
-	
 	private static final String routeKey = "route";
 	private static final String directionKey = "direction";
 	private static final String stopKey = "stop";
@@ -102,6 +78,25 @@ public class RouteConfigFeedParser extends DefaultHandler
 	
 	 
 	
+	public RouteConfigFeedParser(Directions directions,
+			RouteConfig oldRouteConfig, NextBusTransitSource transitSource)
+	{
+		this.directions = directions;
+		this.oldRouteConfig = oldRouteConfig;
+		
+		if (oldRouteConfig != null)
+		{
+			allStops.putAll(oldRouteConfig.getStopMapping());
+		}
+		this.transitSource = transitSource;
+	}
+
+	public void runParse(InputStream inputStream)  throws ParserConfigurationException, SAXException, IOException
+	{
+		android.util.Xml.parse(inputStream, Encoding.UTF_8, this);
+	}
+	
+	
 	@Override
 	public void startElement(String uri, String localName, String qName,
 			Attributes attributes) throws SAXException {
@@ -125,7 +120,7 @@ public class RouteConfigFeedParser extends DefaultHandler
 					StopLocation stopLocation = allStops.get(tag);
 					if (stopLocation == null)
 					{
-						stopLocation = new StopLocation(latitudeAsDegrees, longitudeAsDegrees, busStop, busStopUpdated, tag,
+						stopLocation = new StopLocation(latitudeAsDegrees, longitudeAsDegrees, transitSource.getDrawables(), tag,
 								title);
 						allStops.put(tag, stopLocation);
 					}

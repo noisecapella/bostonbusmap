@@ -25,6 +25,7 @@ import boston.Bus.Map.data.RouteConfig;
 import boston.Bus.Map.data.RoutePool;
 import boston.Bus.Map.data.StopLocation;
 import boston.Bus.Map.data.SubwayStopLocation;
+import boston.Bus.Map.data.TransitDrawables;
 import boston.Bus.Map.main.Main;
 import boston.Bus.Map.main.UpdateAsyncTask;
 import boston.Bus.Map.parser.BusPredictionsFeedParser;
@@ -56,21 +57,19 @@ public abstract class NextBusTransitSource implements TransitSource
 	private final String mbtaPredictionsDataUrl;
 	private final int initialRouteResource;
 
-	private final Drawable busStop;
-	private final Drawable busStopUpdated;
-	private final Drawable bus;
-	private final Drawable arrow;
+	private final TransitDrawables drawables;
+	private final String[] routes;
+	private ArrayList<String> tempRoutes;
+	private final HashMap<String, String> routeKeysToTitles = new HashMap<String, String>();
+
+	
 
 	public NextBusTransitSource(TransitSystem transitSystem, 
-			Drawable busStop, Drawable busStopUpdated, Drawable bus, Drawable arrow, String agency, int initialRouteResource)
+			TransitDrawables drawables, String agency, int initialRouteResource)
 	{
 		this.transitSystem = transitSystem;
+		this.drawables = drawables;
 		
-		this.busStop = busStop;
-		this.bus = bus;
-		this.busStopUpdated = busStopUpdated;
-		this.arrow = arrow;
-
 		mbtaLocationsDataUrlOneRoute = "http://" + prefix + ".nextbus.com/service/publicXMLFeed?command=vehicleLocations&a=" + agency + "&t=";
 		mbtaLocationsDataUrlAllRoutes = "http://" + prefix + ".nextbus.com/service/publicXMLFeed?command=vehicleLocations&a=" + agency + "&t=";
 		mbtaRouteConfigDataUrl = "http://" + prefix + ".nextbus.com/service/publicXMLFeed?command=routeConfig&a=" + agency + "&r=";
@@ -96,10 +95,6 @@ public abstract class NextBusTransitSource implements TransitSource
 
 	}
 
-	private final String[] routes;
-	private ArrayList<String> tempRoutes;
-	private final HashMap<String, String> routeKeysToTitles = new HashMap<String, String>();
-
 
 	@Override
 	public void populateStops(RoutePool routeMapping, String routeToUpdate,
@@ -113,7 +108,7 @@ public abstract class NextBusTransitSource implements TransitSource
 		downloadHelper.connect();
 		//just initialize the route and then end for this round
 
-		RouteConfigFeedParser parser = new RouteConfigFeedParser(busStop, busStopUpdated, directions, oldRouteConfig,
+		RouteConfigFeedParser parser = new RouteConfigFeedParser(directions, oldRouteConfig,
 				this);
 
 		parser.runParse(downloadHelper.getResponseData()); 
@@ -190,7 +185,7 @@ public abstract class NextBusTransitSource implements TransitSource
 
 			//lastUpdateTime = parser.getLastUpdateTime();
 
-			VehicleLocationsFeedParser parser = new VehicleLocationsFeedParser(bus, arrow, directions, routeKeysToTitles);
+			VehicleLocationsFeedParser parser = new VehicleLocationsFeedParser(drawables, directions, routeKeysToTitles);
 			parser.runParse(data);
 
 			//get the time that this information is valid until
@@ -325,7 +320,7 @@ public abstract class NextBusTransitSource implements TransitSource
 
 		GZIPInputStream stream = new GZIPInputStream(in); 
 
-		RouteConfigFeedParser parser = new RouteConfigFeedParser(busStop, busStopUpdated, directions, null, this);
+		RouteConfigFeedParser parser = new RouteConfigFeedParser(directions, null, this);
 
 		parser.runParse(stream);
 
@@ -355,20 +350,10 @@ public abstract class NextBusTransitSource implements TransitSource
 
 
 	@Override
-	public Drawable getBusStopDrawable() {
-		return busStop;
-	}
-
-	@Override
-	public Drawable getBusStopUpdatedDrawable() {
-		return busStopUpdated;
-	}
-
-	@Override
 	public StopLocation createStop(float lat, float lon, String stopTag,
 			String title, int platformOrder, String branch, String route, String dirTag)
 	{
-		StopLocation stop = new StopLocation(lat, lon, busStop, busStopUpdated, stopTag, title);
+		StopLocation stop = new StopLocation(lat, lon, drawables, stopTag, title);
 		stop.addRouteAndDirTag(route, dirTag);
 		return stop;
 	}
@@ -377,5 +362,10 @@ public abstract class NextBusTransitSource implements TransitSource
 	public String searchForRoute(String indexingQuery, String lowercaseQuery)
 	{
 		return SearchHelper.naiveSearch(indexingQuery, lowercaseQuery, routes, routeKeysToTitles);
+	}
+	
+	@Override
+	public TransitDrawables getDrawables() {
+		return drawables;
 	}
 }

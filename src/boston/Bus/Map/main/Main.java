@@ -37,6 +37,7 @@ import boston.Bus.Map.R;
 import boston.Bus.Map.data.Locations;
 import boston.Bus.Map.data.RouteConfig;
 import boston.Bus.Map.data.StopLocation;
+import boston.Bus.Map.data.TransitDrawables;
 import boston.Bus.Map.database.DatabaseHelper;
 import boston.Bus.Map.provider.TransitContentProvider;
 import boston.Bus.Map.transit.TransitSystem;
@@ -248,18 +249,23 @@ public class Main extends MapActivity
         
         Resources resources = getResources();
 
-        Drawable busPicture = resources.getDrawable(R.drawable.bus_statelist);
-        Drawable busStopUpdated = resources.getDrawable(R.drawable.busstop_statelist_updated);
-        Drawable arrow = resources.getDrawable(R.drawable.arrow);
-        Drawable tooltip = resources.getDrawable(R.drawable.tooltip);
-        Drawable rail = resources.getDrawable(R.drawable.rail_statelist);
-        Drawable railArrow = resources.getDrawable(R.drawable.rail_arrow);
+        // busPicture is used to initialize busOverlay, otherwise it would
+        // joint the rest of the drawables in the brackets 
+    	Drawable busPicture = resources.getDrawable(R.drawable.bus_statelist);
+        {
+        	Drawable busStopUpdated = resources.getDrawable(R.drawable.busstop_statelist_updated);
+        	Drawable arrow = resources.getDrawable(R.drawable.arrow);
+        	Drawable tooltip = resources.getDrawable(R.drawable.tooltip);
+        	Drawable rail = resources.getDrawable(R.drawable.rail_statelist);
         
-        Drawable busStop = resources.getDrawable(R.drawable.busstop_statelist);
+        	Drawable busStop = resources.getDrawable(R.drawable.busstop_statelist);
         
-        transitSystem = new TransitSystem();
-        transitSystem.setDefaultTransitSource(busStop, busStopUpdated, busPicture, arrow, rail, railArrow);
-        
+        	transitSystem = new TransitSystem();
+        	TransitDrawables busDrawables = new TransitDrawables(busStop, busStopUpdated, busPicture, arrow);
+        	TransitDrawables subwayDrawables = new TransitDrawables(busStop, busStopUpdated, rail, arrow);
+        	TransitDrawables commuterRailDrawables = new TransitDrawables(busStop, busStopUpdated, rail, arrow);
+        	transitSystem.setDefaultTransitSource(busDrawables, subwayDrawables, commuterRailDrawables);
+        }
         SpinnerAdapter modeSpinnerAdapter = makeModeSpinner(); 
 
         toggleButton.setOnItemSelectedListener(new OnItemSelectedListener() {
@@ -378,7 +384,7 @@ public class Main extends MapActivity
         	busLocations = new Locations(databaseHelper, transitSystem);
         }
 
-        handler = new UpdateHandler(progress, mapView, arrow, tooltip, busLocations, 
+        handler = new UpdateHandler(progress, mapView, busLocations, 
         		this, databaseHelper, busOverlay, routeOverlay, myLocationOverlay, majorHandler,
         		transitSystem, progressDialog);
         busOverlay.setUpdateable(handler);

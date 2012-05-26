@@ -17,6 +17,7 @@ import boston.Bus.Map.data.Locations;
 import boston.Bus.Map.data.RouteConfig;
 import boston.Bus.Map.data.RoutePool;
 import boston.Bus.Map.data.StopLocation;
+import boston.Bus.Map.data.TransitDrawables;
 import boston.Bus.Map.main.UpdateAsyncTask;
 
 public interface TransitSource {
@@ -40,10 +41,6 @@ public interface TransitSource {
 	public String[] getRoutes();
 	
 	public HashMap<String, String> getRouteKeysToTitles();
-
-	public Drawable getBusStopDrawable();
-	
-	public Drawable getBusStopUpdatedDrawable();
 	
 	/**
 	 * Create a StopLocation using the parameters
@@ -63,4 +60,6 @@ public interface TransitSource {
 			String stopTag, String dirTag);
 
 	String searchForRoute(String indexingQuery, String lowercaseQuery);
+
+	TransitDrawables getDrawables();
 }

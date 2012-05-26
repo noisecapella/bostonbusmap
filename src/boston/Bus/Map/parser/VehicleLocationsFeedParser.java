@@ -37,20 +37,19 @@ import boston.Bus.Map.data.BusLocation;
 import boston.Bus.Map.data.Directions;
 import boston.Bus.Map.data.RouteConfig;
 import boston.Bus.Map.data.RoutePool;
+import boston.Bus.Map.data.TransitDrawables;
 import boston.Bus.Map.transit.TransitSystem;
 
 public class VehicleLocationsFeedParser extends DefaultHandler
 {
-	private final Drawable bus;
-	private final Drawable arrow;
+	private final TransitDrawables drawables;
 	private final Directions directions;
 	private final HashMap<String, String> routeKeysToTitles;
 	
-	public VehicleLocationsFeedParser(Drawable bus, Drawable arrow,
+	public VehicleLocationsFeedParser(TransitDrawables drawables,
 			Directions directions, HashMap<String, String> routeKeysToTitles)
 	{
-		this.bus = bus;
-		this.arrow = arrow;
+		this.drawables = drawables;
 		this.directions = directions;
 		this.routeKeysToTitles = routeKeysToTitles;
 	}
@@ -102,10 +101,11 @@ public class VehicleLocationsFeedParser extends DefaultHandler
 			
 			String inferBusRoute = null;
 
+			final Drawable bus = drawables.getVehicle();
 			final int arrowTopDiff = bus.getIntrinsicHeight() / 5;
 			
 			BusLocation newBusLocation = new BusLocation(lat, lon, id, lastFeedUpdate, lastUpdateTime, 
-					heading, predictable, dirTag, inferBusRoute, bus, arrow, route, directions, routeKeysToTitles.get(route),
+					heading, predictable, dirTag, inferBusRoute, drawables, route, directions, routeKeysToTitles.get(route),
 					false, arrowTopDiff);
 
 			if (busMapping.containsKey(id))

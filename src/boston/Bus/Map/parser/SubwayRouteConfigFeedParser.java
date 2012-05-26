@@ -41,8 +41,6 @@ public class SubwayRouteConfigFeedParser
 	public static final String BlueWestToBowdoin = "BlueWB0";
 	public static final String OrangeNorthToOakGrove = "OrangeNB0";
 	public static final String OrangeSouthToForestHills = "OrangeSB0";
-	private final Drawable busStop;
-	private final Drawable busStopUpdated;
 	private final HashMap<String, RouteConfig> map = new HashMap<String, RouteConfig>();
 	
 	private final HashMap<String, Integer> indexes = new HashMap<String, Integer>();
@@ -50,11 +48,8 @@ public class SubwayRouteConfigFeedParser
 	
 	private final SubwayTransitSource transitSource;
 
-	public SubwayRouteConfigFeedParser(Drawable busStop, Drawable busStopUpdated,
-			Directions directions, RouteConfig oldRouteConfig,
+	public SubwayRouteConfigFeedParser(Directions directions, RouteConfig oldRouteConfig,
 			SubwayTransitSource transitSource) {
-		this.busStop = busStop;
-		this.busStopUpdated = busStopUpdated;
 		this.directions = directions;
 		this.transitSource = transitSource;
 	}
@@ -126,7 +121,7 @@ public class SubwayRouteConfigFeedParser
 			String branch = elements[indexes.get("Branch")];
 
 			StopLocation stopLocation = new SubwayStopLocation(latitudeAsDegrees, longitudeAsDegrees,
-					busStop, busStopUpdated, tag, title, platformOrder, branch);
+					transitSource.getDrawables(), tag, title, platformOrder, branch);
 
 			String dirTag = routeConfig.getRouteName() + elements[indexes.get("Direction")];
 			stopLocation.addRouteAndDirTag(routeConfig.getRouteName(), dirTag);

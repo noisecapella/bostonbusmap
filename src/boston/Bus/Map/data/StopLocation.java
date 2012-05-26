@@ -16,8 +16,7 @@ public class StopLocation implements Location
 	private final float longitude;
 	private final float latitudeAsDegrees;
 	private final float longitudeAsDegrees;
-	private final Drawable busStop;
-	private final Drawable busStopUpdated;
+	private final TransitDrawables drawables;
 	
 	private final String tag;
 	
@@ -36,14 +35,13 @@ public class StopLocation implements Location
 	private static final int LOCATIONTYPE = 3;
 	
 	public StopLocation(float latitudeAsDegrees, float longitudeAsDegrees,
-			Drawable busStop, Drawable busStopUpdated, String tag, String title)
+			TransitDrawables drawables, String tag, String title)
 	{
 		this.latitudeAsDegrees = latitudeAsDegrees;
 		this.longitudeAsDegrees = longitudeAsDegrees;
 		this.latitude = (float) (latitudeAsDegrees * Geometry.degreesToRadians);
 		this.longitude = (float) (longitudeAsDegrees * Geometry.degreesToRadians);
-		this.busStop = busStop;
-		this.busStopUpdated = busStopUpdated;
+		this.drawables = drawables;
 		this.tag = tag;
 		this.title = title;
 		this.dirTags = new HashMap<String, String>();
@@ -71,7 +69,7 @@ public class StopLocation implements Location
 	@Override
 	public Drawable getDrawable(Context context, boolean shadow,
 			boolean isSelected) {
-		return recentlyUpdated ? busStopUpdated : busStop;
+		return recentlyUpdated ? drawables.getStopUpdated() : drawables.getStop();
 	}
 
 	public void clearRecentlyUpdated()

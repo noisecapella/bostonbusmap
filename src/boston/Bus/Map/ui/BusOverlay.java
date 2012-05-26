@@ -253,10 +253,10 @@ public class BusOverlay extends BalloonItemizedOverlay<BusOverlayItem> {
 		for (int i = 0; i < overlaysSize; i++)
 		{
 			OverlayItem item = overlays.get(i);
-			Location busLocation = locations.get(i);
+			Location location = locations.get(i);
 
 			boolean isSelected = i == lastFocusedIndex;
-			Drawable drawable = busLocation.getDrawable(context, shadow, isSelected);
+			Drawable drawable = location.getDrawable(context, shadow, isSelected);
 			item.setMarker(drawable);
 
 			boundCenterBottom(drawable);

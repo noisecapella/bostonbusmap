@@ -25,6 +25,7 @@ import boston.Bus.Map.data.Locations;
 import boston.Bus.Map.data.RouteConfig;
 import boston.Bus.Map.data.RoutePool;
 import boston.Bus.Map.data.StopLocation;
+import boston.Bus.Map.data.TransitDrawables;
 import boston.Bus.Map.main.Main;
 import boston.Bus.Map.util.Constants;
 /**
@@ -81,17 +82,17 @@ public class TransitSystem {
 	 */
 	private TransitSource defaultTransitSource;
 	
-	public void setDefaultTransitSource(Drawable busStop, Drawable busStopUpdated, Drawable bus, Drawable arrow, Drawable rail, Drawable railArrow)
+	public void setDefaultTransitSource(TransitDrawables busDrawables, TransitDrawables subwayDrawables, TransitDrawables commuterRailDrawables)
 	{
 		if (defaultTransitSource == null)
 		{
-			defaultTransitSource = new BusTransitSource(this, busStop, busStopUpdated, bus, arrow, alertsMapping);
-			SubwayTransitSource subwayTransitSource = new SubwayTransitSource(busStop, busStopUpdated, rail, railArrow, alertsMapping);
+			defaultTransitSource = new BusTransitSource(this, busDrawables, alertsMapping);
+			SubwayTransitSource subwayTransitSource = new SubwayTransitSource(subwayDrawables, alertsMapping);
 			transitSourceMap.put(SubwayTransitSource.RedLine, subwayTransitSource);
 			transitSourceMap.put(SubwayTransitSource.OrangeLine, subwayTransitSource);
 			transitSourceMap.put(SubwayTransitSource.BlueLine, subwayTransitSource);
 			
-			CommuterRailTransitSource commuterRailTransitSource = new CommuterRailTransitSource(busStop, busStopUpdated, rail, railArrow, alertsMapping);
+			CommuterRailTransitSource commuterRailTransitSource = new CommuterRailTransitSource(commuterRailDrawables, alertsMapping);
 			for (String route : commuterRailTransitSource.getRoutes())
 			{
 				transitSourceMap.put(route, commuterRailTransitSource);

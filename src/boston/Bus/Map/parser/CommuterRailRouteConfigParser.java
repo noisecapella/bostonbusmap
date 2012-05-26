@@ -362,7 +362,7 @@ public class CommuterRailRouteConfigParser
 	
 	private final HashMap<String, Integer> indexes = new HashMap<String, Integer>();
 	
-	public CommuterRailRouteConfigParser(Drawable busStop, Directions directions, RouteConfig oldRouteConfig,
+	public CommuterRailRouteConfigParser(Directions directions, RouteConfig oldRouteConfig,
 			CommuterRailTransitSource source) 
 	{
 		this.directions = directions;
@@ -422,14 +422,10 @@ public class CommuterRailRouteConfigParser
 			short platformOrder = Short.parseShort(array[indexes.get("stop_sequence")]);
 			String branch = array[indexes.get("Branch")];
 			
-			Drawable busStop = source.getBusStopDrawable();
-			Drawable busStopUpdated = source.getBusStopUpdatedDrawable();
-			
-			
 			StopLocation stopLocation = route.getStop(stopTag);
 			if (stopLocation == null)
 			{
-				stopLocation = new CommuterRailStopLocation(lat, lon, busStop, busStopUpdated, stopTag, stopTitle, platformOrder, branch);
+				stopLocation = new CommuterRailStopLocation(lat, lon, source.getDrawables(), stopTag, stopTitle, platformOrder, branch);
 				route.addStop(stopTag, stopLocation);
 			}
 			
