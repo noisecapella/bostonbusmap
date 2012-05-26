@@ -25,7 +25,7 @@ import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashMap;
+
 import java.util.List;
 
 import javax.xml.parsers.FactoryConfigurationError;
@@ -35,6 +35,7 @@ import org.xml.sax.SAXException;
 
 import boston.Bus.Map.R;
 import boston.Bus.Map.data.Locations;
+import boston.Bus.Map.data.MyHashMap;
 import boston.Bus.Map.data.RouteConfig;
 import boston.Bus.Map.data.StopLocation;
 import boston.Bus.Map.data.TransitDrawables;
@@ -170,7 +171,7 @@ public class Main extends MapActivity
 	 * The list of routes that's selectable in the routes dropdown list
 	 */
 	private String[] dropdownRoutes;
-	private HashMap<String, String> dropdownRouteKeysToTitles;
+	private MyHashMap<String, String> dropdownRouteKeysToTitles;
 	private AlertDialog routeChooserDialog;
 
 	private ProgressBar progress;
@@ -463,7 +464,7 @@ public class Main extends MapActivity
     }
 		
 	private static String[] getRouteTitles(String[] dropdownRoutes,
-			HashMap<String, String> dropdownRouteKeysToTitles) {
+			MyHashMap<String, String> dropdownRouteKeysToTitles) {
     	String[] ret = new String[dropdownRoutes.length];
     	for (int i = 0; i < dropdownRoutes.length; i++)
     	{

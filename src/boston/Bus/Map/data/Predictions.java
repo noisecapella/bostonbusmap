@@ -2,7 +2,6 @@ package boston.Bus.Map.data;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.TreeSet;
 
 import android.content.Context;
@@ -35,7 +34,7 @@ public class Predictions
 	private static final Prediction[] nullPredictions = new Prediction[0];
 	
 	public synchronized void makeSnippetAndTitle(RouteConfig routeConfig,
-			HashMap<String, String> routeKeysToTitles, Context context, HashMap<String, String> dirTags, String title, String tag)
+			MyHashMap<String, String> routeKeysToTitles, Context context, MyHashMap<String, String> dirTags, String title, String tag)
 	{
 		ArrayList<String> routes = new ArrayList<String>();
 		routes.addAll(dirTags.keySet());
@@ -55,7 +54,7 @@ public class Predictions
 	}
 	
 	private static String makeSnippet(RouteConfig routeConfig, ArrayList<Prediction> predictions,
-			HashMap<String, String> routeKeysToTitles, Context context)
+			MyHashMap<String, String> routeKeysToTitles, Context context)
 	{
 		String ret = "";
 		
@@ -137,8 +136,8 @@ public class Predictions
 	
 
 	
-	public synchronized void addToSnippetAndTitle(RouteConfig routeConfig, StopLocation stopLocation, HashMap<String, String> routeKeysToTitles,
-			Context context, String title, HashMap<String, String> dirTags)
+	public synchronized void addToSnippetAndTitle(RouteConfig routeConfig, StopLocation stopLocation, MyHashMap<String, String> routeKeysToTitles,
+			Context context, String title, MyHashMap<String, String> dirTags)
 	{
 		if (sharedSnippetStops == null)
 		{

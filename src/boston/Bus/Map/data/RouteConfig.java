@@ -3,14 +3,14 @@ package boston.Bus.Map.data;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
+
 import boston.Bus.Map.transit.TransitSource;
 import boston.Bus.Map.util.Box;
 
 public class RouteConfig
 {
 
-	private final HashMap<String, StopLocation> stops;
+	private final MyHashMap<String, StopLocation> stops;
 	private Path[] paths;
 	private final String route;
 	private final String routeTitle;
@@ -39,7 +39,7 @@ public class RouteConfig
 		return stops.get(tag);
 	}
 
-	public HashMap<String, StopLocation> getStopMapping()
+	public MyHashMap<String, StopLocation> getStopMapping()
 	{
 		return stops;
 	}
@@ -77,7 +77,7 @@ public class RouteConfig
 			throws IOException {
 		this.route = route;
 		this.routeTitle = routeTitle;
-		stops = new HashMap<String, StopLocation>();
+		stops = new MyHashMap<String, StopLocation>();
 		
 		this.color = color;
 		this.oppositeColor = oppositeColor;

@@ -24,7 +24,7 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
+
 import java.util.HashSet;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
@@ -401,7 +401,7 @@ public final class Locations
 		return (long)lastUpdateTime;
 	}
 	
-	public HashMap<String, StopLocation> getAllStopsAtStop(String stopTag)
+	public MyHashMap<String, StopLocation> getAllStopsAtStop(String stopTag)
 	{
 		return routeMapping.getAllStopTagsAtLocation(stopTag);
 	}

@@ -11,7 +11,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.HashMap;
+
 import java.util.HashSet;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -26,6 +26,7 @@ import android.text.format.Time;
 import android.util.Log;
 import boston.Bus.Map.data.BusLocation;
 import boston.Bus.Map.data.Directions;
+import boston.Bus.Map.data.MyHashMap;
 import boston.Bus.Map.data.Prediction;
 import boston.Bus.Map.data.RouteConfig;
 import boston.Bus.Map.data.RoutePool;
@@ -45,7 +46,7 @@ public class SubwayPredictionsFeedParser
 	private final TransitDrawables drawables;
 	
 	private final ConcurrentHashMap<String, BusLocation> busMapping;
-	private final HashMap<String, String> routeKeysToTitles;
+	private final MyHashMap<String, String> routeKeysToTitles;
 	
 	private static final int ROUTE_INDEX = 0;
 	private static final int TRIP_ID_INDEX = 1;
@@ -57,7 +58,7 @@ public class SubwayPredictionsFeedParser
 	private static final int BRANCH_INDEX = 7;
 	
 	public SubwayPredictionsFeedParser(String route, RoutePool routePool, Directions directions, TransitDrawables drawables, 
-			ConcurrentHashMap<String, BusLocation> busMapping, HashMap<String, String> routeKeysToTitles)
+			ConcurrentHashMap<String, BusLocation> busMapping, MyHashMap<String, String> routeKeysToTitles)
 	{
 		this.currentRoute = route;
 		this.routePool = routePool;

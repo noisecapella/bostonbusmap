@@ -9,6 +9,7 @@ import java.util.HashMap;
 import java.util.concurrent.ConcurrentHashMap;
 
 import boston.Bus.Map.data.BusLocation;
+import boston.Bus.Map.data.MyHashMap;
 import boston.Bus.Map.parser.SubwayPredictionsFeedParser;
 
 import junit.framework.Assert;
@@ -22,7 +23,7 @@ public class TestDateFormat extends TestCase
 		
 		String time = "10/2/2010 12:49:29 PM";
 		
-		SubwayPredictionsFeedParser parser = new SubwayPredictionsFeedParser("Red", null, null, null, new ConcurrentHashMap<String, BusLocation>(), new HashMap<String, String>());
+		SubwayPredictionsFeedParser parser = new SubwayPredictionsFeedParser("Red", null, null, null, new ConcurrentHashMap<String, BusLocation>(), new MyHashMap<String, String>());
 		
 		Date date = parser.parseTime(time);
 		
@@ -37,7 +38,7 @@ public class TestDateFormat extends TestCase
 		
 		String time = "10/2/2010 12:49:29 AM";
 		
-		SubwayPredictionsFeedParser parser = new SubwayPredictionsFeedParser("Orange", null, null, null, new ConcurrentHashMap<String, BusLocation>(), new HashMap<String, String>());
+		SubwayPredictionsFeedParser parser = new SubwayPredictionsFeedParser("Orange", null, null, null, new ConcurrentHashMap<String, BusLocation>(), new MyHashMap<String, String>());
 		
 		Date date = parser.parseTime(time);
 		
@@ -50,7 +51,7 @@ public class TestDateFormat extends TestCase
 		
 		String time = "10/2/2010 1:49:29 PM";
 		
-		SubwayPredictionsFeedParser parser = new SubwayPredictionsFeedParser("Blue", null, null, null, new ConcurrentHashMap<String, BusLocation>(), new HashMap<String, String>());
+		SubwayPredictionsFeedParser parser = new SubwayPredictionsFeedParser("Blue", null, null, null, new ConcurrentHashMap<String, BusLocation>(), new MyHashMap<String, String>());
 		
 		Date date = parser.parseTime(time);
 		

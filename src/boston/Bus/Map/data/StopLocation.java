@@ -3,7 +3,7 @@ package boston.Bus.Map.data;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
+
 import boston.Bus.Map.math.Geometry;
 import boston.Bus.Map.transit.TransitSource;
 import boston.Bus.Map.transit.TransitSystem;
@@ -30,7 +30,7 @@ public class StopLocation implements Location
 	/**
 	 * A mapping of routes to dirTags
 	 */
-	private final HashMap<String, String> dirTags;
+	private final MyHashMap<String, String> dirTags;
 
 	private static final int LOCATIONTYPE = 3;
 	
@@ -44,7 +44,7 @@ public class StopLocation implements Location
 		this.drawables = drawables;
 		this.tag = tag;
 		this.title = title;
-		this.dirTags = new HashMap<String, String>();
+		this.dirTags = new MyHashMap<String, String>();
 	}
 
 	/**
@@ -108,7 +108,7 @@ public class StopLocation implements Location
 	}
 	
 	@Override
-	public void makeSnippetAndTitle(RouteConfig routeConfig, HashMap<String, String> routeKeysToTitles, Context context)
+	public void makeSnippetAndTitle(RouteConfig routeConfig, MyHashMap<String, String> routeKeysToTitles, Context context)
 	{
 		if (predictions == null)
 		{
@@ -119,7 +119,7 @@ public class StopLocation implements Location
 	}
 	
 	@Override
-	public void addToSnippetAndTitle(RouteConfig routeConfig, Location location, HashMap<String, String> routeKeysToTitles,
+	public void addToSnippetAndTitle(RouteConfig routeConfig, Location location, MyHashMap<String, String> routeKeysToTitles,
 			Context context)
 	{
 		if (predictions == null)

@@ -1,29 +1,21 @@
 package boston.Bus.Map.util;
 
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
-
 import com.google.android.maps.MapView;
 
-import android.app.AlertDialog;
-import android.app.AlertDialog.Builder;
-import android.app.Dialog;
-import android.content.Context;
-import android.content.DialogInterface;
 import android.util.Log;
 import android.widget.Toast;
+import boston.Bus.Map.data.MyHashMap;
 import boston.Bus.Map.data.StopLocation;
 import boston.Bus.Map.database.DatabaseHelper;
 import boston.Bus.Map.main.Main;
-import boston.Bus.Map.transit.NextBusTransitSource;
 import boston.Bus.Map.transit.TransitSystem;
 
 public class SearchHelper
 {
 	private final Main context;
 	private final String[] dropdownRoutes;
-	private final HashMap<String, String> dropdownRouteKeysToTitles;
+	private final MyHashMap<String, String> dropdownRouteKeysToTitles;
 	private final String query;
 	private String suggestionsQuery;
 	private final DatabaseHelper databaseHelper;
@@ -32,7 +24,7 @@ public class SearchHelper
 	private boolean queryContainsStop;
 	private final TransitSystem transitSystem;
 	
-	public SearchHelper(Main context, String[] dropdownRoutes, HashMap<String, String> dropdownRouteKeysToTitles,
+	public SearchHelper(Main context, String[] dropdownRoutes, MyHashMap<String, String> dropdownRouteKeysToTitles,
 			MapView mapView, String query, DatabaseHelper databaseHelper, TransitSystem transitSystem)
 	{
 		this.context = context;
@@ -225,7 +217,7 @@ public class SearchHelper
 	}
 
 	public static String naiveSearch(String indexingQuery, String lowercaseQuery, String[] routes,
-			HashMap<String, String> routeKeysToTitles)
+			MyHashMap<String, String> routeKeysToTitles)
 	{
 		int position = Arrays.asList(routes).indexOf(indexingQuery);
 

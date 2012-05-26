@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
 import java.util.TimeZone;
 import java.util.concurrent.ConcurrentHashMap;
@@ -22,6 +21,7 @@ import boston.Bus.Map.data.BusLocation;
 import boston.Bus.Map.data.Directions;
 import boston.Bus.Map.data.Location;
 import boston.Bus.Map.data.Locations;
+import boston.Bus.Map.data.MyHashMap;
 import boston.Bus.Map.data.RouteConfig;
 import boston.Bus.Map.data.RoutePool;
 import boston.Bus.Map.data.StopLocation;
@@ -74,7 +74,7 @@ public class TransitSystem {
 	
 
 	
-	private final HashMap<String, TransitSource> transitSourceMap = new HashMap<String, TransitSource>();
+	private final MyHashMap<String, TransitSource> transitSourceMap = new MyHashMap<String, TransitSource>();
 	private final ArrayList<TransitSource> transitSources = new ArrayList<TransitSource>();
 	
 	/**
@@ -147,18 +147,18 @@ public class TransitSystem {
 		}
 	}
 
-	public HashMap<String, String> getRouteKeysToTitles() {
+	public MyHashMap<String, String> getRouteKeysToTitles() {
 		if (transitSources.size() <= 1)
 		{
 			return defaultTransitSource.getRouteKeysToTitles();
 		}
 		else
 		{
-			HashMap<String, String> ret = new HashMap<String, String>();
+			MyHashMap<String, String> ret = new MyHashMap<String, String>();
 			
 			for (TransitSource source : transitSources)
 			{
-				HashMap<String, String> sourceRouteKeyMap = source.getRouteKeysToTitles();
+				MyHashMap<String, String> sourceRouteKeyMap = source.getRouteKeysToTitles();
 				if (sourceRouteKeyMap != null)
 				{
 					ret.putAll(sourceRouteKeyMap);

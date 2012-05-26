@@ -1,7 +1,7 @@
 package boston.Bus.Map.data;
 
 import java.util.ArrayList;
-import java.util.HashMap;
+
 
 import boston.Bus.Map.math.Geometry;
 import boston.Bus.Map.transit.TransitSystem;
@@ -197,7 +197,7 @@ public class BusLocation implements Location {
 
 	@Override
 	public void addToSnippetAndTitle(RouteConfig routeConfig,
-			Location location, HashMap<String, String> routeKeysToTitles, Context context) {
+			Location location, MyHashMap<String, String> routeKeysToTitles, Context context) {
 		BusLocation busLocation = (BusLocation) location;
 
 		snippet += "<br />" + busLocation.makeSnippet(routeConfig);
@@ -213,7 +213,7 @@ public class BusLocation implements Location {
 
 	@Override
 	public void makeSnippetAndTitle(RouteConfig routeConfig,
-			HashMap<String, String> routeKeysToTitles, Context context) {
+			MyHashMap<String, String> routeKeysToTitles, Context context) {
 		snippet = makeSnippet(routeConfig);
 		snippetTitle = makeTitle();
 		if (routeConfig.getRouteName().equals(routeName))

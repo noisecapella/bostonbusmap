@@ -3,36 +3,24 @@ package boston.Bus.Map.parser;
 
 import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.Reader;
-import java.text.DateFormat;
-import java.text.NumberFormat;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.HashMap;
+
 import java.util.HashSet;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import android.graphics.drawable.Drawable;
-import android.text.format.Time;
-import android.util.Log;
 import boston.Bus.Map.data.BusLocation;
 import boston.Bus.Map.data.CommuterRailPrediction;
 import boston.Bus.Map.data.CommuterTrainLocation;
 import boston.Bus.Map.data.Directions;
+import boston.Bus.Map.data.MyHashMap;
 import boston.Bus.Map.data.Prediction;
 import boston.Bus.Map.data.RouteConfig;
-import boston.Bus.Map.data.RoutePool;
 import boston.Bus.Map.data.StopLocation;
-import boston.Bus.Map.data.SubwayStopLocation;
 import boston.Bus.Map.data.TransitDrawables;
 import boston.Bus.Map.transit.CommuterRailTransitSource;
-import boston.Bus.Map.transit.SubwayTransitSource;
 import boston.Bus.Map.transit.TransitSystem;
 import boston.Bus.Map.util.LogUtil;
 
@@ -43,14 +31,14 @@ public class CommuterRailPredictionsFeedParser
 	private final TransitDrawables drawables;
 
 	private final SimpleDateFormat format;
-	private final HashMap<String, Integer> indexes = new HashMap<String, Integer>();
+	private final MyHashMap<String, Integer> indexes = new MyHashMap<String, Integer>();
 
 	
 	private final ConcurrentHashMap<String, BusLocation> busMapping;
-	private final HashMap<String, String> routeKeysToTitles;
+	private final MyHashMap<String, String> routeKeysToTitles;
 
 	public CommuterRailPredictionsFeedParser(RouteConfig routeConfig, Directions directions, TransitDrawables drawables, 
-			ConcurrentHashMap<String, BusLocation> busMapping, HashMap<String, String> routeKeysToTitles)
+			ConcurrentHashMap<String, BusLocation> busMapping, MyHashMap<String, String> routeKeysToTitles)
 	{
 		this.routeConfig = routeConfig;
 		this.directions = directions;

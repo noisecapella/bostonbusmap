@@ -4,9 +4,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
@@ -18,13 +15,12 @@ import org.xml.sax.SAXException;
 
 import android.content.Context;
 import android.graphics.Color;
-import android.graphics.drawable.Drawable;
-import android.util.Log;
 import boston.Bus.Map.data.AlertsMapping;
 import boston.Bus.Map.data.BusLocation;
 import boston.Bus.Map.data.Directions;
 import boston.Bus.Map.data.Location;
 import boston.Bus.Map.data.Locations;
+import boston.Bus.Map.data.MyHashMap;
 import boston.Bus.Map.data.RouteConfig;
 import boston.Bus.Map.data.RoutePool;
 import boston.Bus.Map.data.StopLocation;
@@ -33,11 +29,8 @@ import boston.Bus.Map.data.TransitDrawables;
 import boston.Bus.Map.main.Main;
 import boston.Bus.Map.main.UpdateAsyncTask;
 import boston.Bus.Map.parser.AlertParser;
-import boston.Bus.Map.parser.BusPredictionsFeedParser;
-import boston.Bus.Map.parser.RouteConfigFeedParser;
 import boston.Bus.Map.parser.SubwayPredictionsFeedParser;
 import boston.Bus.Map.parser.SubwayRouteConfigFeedParser;
-import boston.Bus.Map.parser.VehicleLocationsFeedParser;
 import boston.Bus.Map.ui.ProgressMessage;
 import boston.Bus.Map.util.DownloadHelper;
 import boston.Bus.Map.util.SearchHelper;
@@ -253,7 +246,7 @@ public class SubwayTransitSource implements TransitSource {
 	public static final String OrangeLine = "Orange";
 	public static final String BlueLine = "Blue";
 	private static final String[] subwayRoutes = new String[] {RedLine, OrangeLine, BlueLine};
-	private final HashMap<String, Integer> alertKeys;
+	private final MyHashMap<String, Integer> alertKeys;
 	
 	
 	public static final int RedColor = Color.RED;
@@ -261,7 +254,7 @@ public class SubwayTransitSource implements TransitSource {
 	public static final int BlueColor = Color.BLUE;
 	
 	private static final int[] subwayColors = new int[] {RedColor, OrangeColor, BlueColor};
-	private final HashMap<String, String> subwayRouteKeysToTitles = new HashMap<String, String>();
+	private final MyHashMap<String, String> subwayRouteKeysToTitles = new MyHashMap<String, String>();
 	
 	public static String[] getAllSubwayRoutes() {
 		return subwayRoutes;
@@ -307,7 +300,7 @@ public class SubwayTransitSource implements TransitSource {
 
 
 	@Override
-	public HashMap<String, String> getRouteKeysToTitles() {
+	public MyHashMap<String, String> getRouteKeysToTitles() {
 		return subwayRouteKeysToTitles;
 	}
 

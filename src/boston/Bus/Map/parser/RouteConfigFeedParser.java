@@ -3,7 +3,7 @@ package boston.Bus.Map.parser;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.HashMap;
+
 
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
@@ -21,6 +21,7 @@ import org.xml.sax.helpers.DefaultHandler;
 import skylight1.opengl.files.QuickParseUtil;
 
 import boston.Bus.Map.data.Directions;
+import boston.Bus.Map.data.MyHashMap;
 import boston.Bus.Map.data.Path;
 import boston.Bus.Map.data.RouteConfig;
 import boston.Bus.Map.data.RoutePool;
@@ -39,7 +40,7 @@ import android.util.Xml.Encoding;
 
 public class RouteConfigFeedParser extends DefaultHandler
 {
-	private final HashMap<String, RouteConfig> map = new HashMap<String, RouteConfig>();
+	private final MyHashMap<String, RouteConfig> map = new MyHashMap<String, RouteConfig>();
 	private final Directions directions;
 	private final RouteConfig oldRouteConfig;
 	private static final String routeKey = "route";
@@ -62,7 +63,7 @@ public class RouteConfigFeedParser extends DefaultHandler
 	private static final String oppositeColorKey = "oppositeColor";
 	
 	
-	private HashMap<String, StopLocation> allStops = new HashMap<String, StopLocation>();
+	private MyHashMap<String, StopLocation> allStops = new MyHashMap<String, StopLocation>();
 	
 	private boolean inRoute;
 	private boolean inDirection;
@@ -156,7 +157,7 @@ public class RouteConfigFeedParser extends DefaultHandler
 			int oppositeColor = parseColor(attributes.getValue(oppositeColorKey));
 			try
 			{
-				HashMap<String, String> routeKeysToTitles = transitSource.getRouteKeysToTitles();
+				MyHashMap<String, String> routeKeysToTitles = transitSource.getRouteKeysToTitles();
 				String currentRouteTitle = routeKeysToTitles.get(currentRoute);
 				currentRouteConfig = new RouteConfig(currentRoute, currentRouteTitle, color, oppositeColor, transitSource);
 				currentPaths = new ArrayList<Path>(1);
@@ -244,7 +245,7 @@ public class RouteConfigFeedParser extends DefaultHandler
 		
 	}
 	
-	public void fillMapping(HashMap<String, RouteConfig> stopMapping) {
+	public void fillMapping(MyHashMap<String, RouteConfig> stopMapping) {
 		for (String route : map.keySet())
 		{
 			stopMapping.put(route, map.get(route));

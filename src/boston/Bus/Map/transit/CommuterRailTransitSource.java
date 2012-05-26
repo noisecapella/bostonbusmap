@@ -7,7 +7,6 @@ import java.io.InputStreamReader;
 import java.io.StringReader;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
@@ -26,6 +25,7 @@ import boston.Bus.Map.data.CommuterRailStopLocation;
 import boston.Bus.Map.data.Directions;
 import boston.Bus.Map.data.Location;
 import boston.Bus.Map.data.Locations;
+import boston.Bus.Map.data.MyHashMap;
 import boston.Bus.Map.data.RouteConfig;
 import boston.Bus.Map.data.RoutePool;
 import boston.Bus.Map.data.StopLocation;
@@ -45,12 +45,12 @@ import boston.Bus.Map.util.SearchHelper;
 public class CommuterRailTransitSource implements TransitSource {
 	public static final String stopTagPrefix = "CRK-";
 	private final String[] routes;
-	private final HashMap<String, String> routeKeysToTitles = new HashMap<String, String>(12);
+	private final MyHashMap<String, String> routeKeysToTitles = new MyHashMap<String, String>(12);
 	private static final String predictionsUrlSuffix = ".csv";
 	public static final String routeTagPrefix = "CR-";
 	private static final String dataUrlPrefix = "http://developer.mbta.com/lib/RTCR/RailLine_";
 	
-	private final HashMap<String, String> routeKeysToAlertUrls = new HashMap<String, String>();
+	private final MyHashMap<String, String> routeKeysToAlertUrls = new MyHashMap<String, String>();
 	private final TransitDrawables drawables;
 	
 	public CommuterRailTransitSource(TransitDrawables drawables, AlertsMapping alertsMapping)
@@ -76,7 +76,7 @@ public class CommuterRailTransitSource implements TransitSource {
 		
 		
 		//map alert keys to numbers
-		HashMap<String, Integer> alertNumbers = alertsMapping.getAlertNumbers(routeNames, routeKeysToTitles);
+		MyHashMap<String, Integer> alertNumbers = alertsMapping.getAlertNumbers(routeNames, routeKeysToTitles);
 		
 		routes = new String[routeNames.length];
 		
@@ -343,7 +343,7 @@ public class CommuterRailTransitSource implements TransitSource {
 	}
 
 	@Override
-	public HashMap<String, String> getRouteKeysToTitles() {
+	public MyHashMap<String, String> getRouteKeysToTitles() {
 		return routeKeysToTitles;
 	}
 

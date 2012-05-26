@@ -16,6 +16,7 @@ import org.xml.sax.SAXException;
 import org.xml.sax.XMLReader;
 
 import boston.Bus.Map.data.Directions;
+import boston.Bus.Map.data.MyHashMap;
 import boston.Bus.Map.data.RoutePool;
 import boston.Bus.Map.data.TransitDrawables;
 import boston.Bus.Map.database.DatabaseHelper;
@@ -284,7 +285,7 @@ public class TestXmlParsing extends TestCase
 		InputStream stream = new ByteArrayInputStream(inputData.getBytes());
 		
 		Directions directions = null;
-		HashMap<String, String> routeKeysToTitles = new HashMap<String, String>();
+		MyHashMap<String, String> routeKeysToTitles = new MyHashMap<String, String>();
 		VehicleLocationsFeedParser parser = new VehicleLocationsFeedParser(getDrawables(), directions, routeKeysToTitles);
 		try {
 			parser.runParse(stream);
@@ -306,7 +307,7 @@ public class TestXmlParsing extends TestCase
 	{
 		InputStream stream = new ByteArrayInputStream(inputData.getBytes());
 		Directions directions = null;
-		HashMap<String, String> routeKeysToTitles = new HashMap<String, String>();
+		MyHashMap<String, String> routeKeysToTitles = new MyHashMap<String, String>();
 		VehicleLocationsFeedParser parser = new VehicleLocationsFeedParser(getDrawables(), directions, routeKeysToTitles);
 		try {
 			android.util.Xml.parse(stream, Encoding.UTF_8, parser);

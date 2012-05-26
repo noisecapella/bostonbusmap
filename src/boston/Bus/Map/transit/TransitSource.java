@@ -1,7 +1,6 @@
 package boston.Bus.Map.transit;
 
 import java.io.IOException;
-import java.util.HashMap;
 import java.util.concurrent.ConcurrentHashMap;
 
 import javax.xml.parsers.ParserConfigurationException;
@@ -10,10 +9,10 @@ import org.apache.http.client.ClientProtocolException;
 import org.xml.sax.SAXException;
 
 import android.content.Context;
-import android.graphics.drawable.Drawable;
 import boston.Bus.Map.data.BusLocation;
 import boston.Bus.Map.data.Directions;
 import boston.Bus.Map.data.Locations;
+import boston.Bus.Map.data.MyHashMap;
 import boston.Bus.Map.data.RouteConfig;
 import boston.Bus.Map.data.RoutePool;
 import boston.Bus.Map.data.StopLocation;
@@ -40,7 +39,7 @@ public interface TransitSource {
 	
 	public String[] getRoutes();
 	
-	public HashMap<String, String> getRouteKeysToTitles();
+	public MyHashMap<String, String> getRouteKeysToTitles();
 	
 	/**
 	 * Create a StopLocation using the parameters

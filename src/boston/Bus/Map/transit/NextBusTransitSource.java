@@ -3,8 +3,6 @@ package boston.Bus.Map.transit;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.zip.GZIPInputStream;
@@ -15,12 +13,11 @@ import org.apache.http.client.ClientProtocolException;
 import org.xml.sax.SAXException;
 
 import android.content.Context;
-import android.graphics.drawable.Drawable;
-import android.util.Log;
 import boston.Bus.Map.data.BusLocation;
 import boston.Bus.Map.data.Directions;
 import boston.Bus.Map.data.Location;
 import boston.Bus.Map.data.Locations;
+import boston.Bus.Map.data.MyHashMap;
 import boston.Bus.Map.data.RouteConfig;
 import boston.Bus.Map.data.RoutePool;
 import boston.Bus.Map.data.StopLocation;
@@ -60,7 +57,7 @@ public abstract class NextBusTransitSource implements TransitSource
 	private final TransitDrawables drawables;
 	private final String[] routes;
 	private ArrayList<String> tempRoutes;
-	private final HashMap<String, String> routeKeysToTitles = new HashMap<String, String>();
+	private final MyHashMap<String, String> routeKeysToTitles = new MyHashMap<String, String>();
 
 	
 
@@ -344,7 +341,7 @@ public abstract class NextBusTransitSource implements TransitSource
 
 
 	@Override
-	public HashMap<String, String> getRouteKeysToTitles() {
+	public MyHashMap<String, String> getRouteKeysToTitles() {
 		return routeKeysToTitles;
 	}
 
