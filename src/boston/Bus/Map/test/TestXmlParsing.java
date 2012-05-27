@@ -16,7 +16,9 @@ import org.xml.sax.SAXException;
 import org.xml.sax.XMLReader;
 
 import boston.Bus.Map.data.Directions;
+import boston.Bus.Map.data.MyHashMap;
 import boston.Bus.Map.data.RoutePool;
+import boston.Bus.Map.data.TransitDrawables;
 import boston.Bus.Map.database.DatabaseHelper;
 import boston.Bus.Map.parser.VehicleLocationsFeedParser;
 
@@ -281,11 +283,10 @@ public class TestXmlParsing extends TestCase
 	private void parseXmlRegular()
 	{
 		InputStream stream = new ByteArrayInputStream(inputData.getBytes());
-		Drawable bus = getDrawable();		
-		Drawable arrow = bus;
+		
 		Directions directions = null;
-		HashMap<String, String> routeKeysToTitles = new HashMap<String, String>();
-		VehicleLocationsFeedParser parser = new VehicleLocationsFeedParser(bus, arrow, directions, routeKeysToTitles);
+		MyHashMap<String, String> routeKeysToTitles = new MyHashMap<String, String>();
+		VehicleLocationsFeedParser parser = new VehicleLocationsFeedParser(getDrawables(), directions, routeKeysToTitles);
 		try {
 			parser.runParse(stream);
 		} catch (IOException e) {
@@ -305,11 +306,9 @@ public class TestXmlParsing extends TestCase
 	private void parseXmlWithUtil()
 	{
 		InputStream stream = new ByteArrayInputStream(inputData.getBytes());
-		Drawable bus = getDrawable();		
-		Drawable arrow = bus;
 		Directions directions = null;
-		HashMap<String, String> routeKeysToTitles = new HashMap<String, String>();
-		VehicleLocationsFeedParser parser = new VehicleLocationsFeedParser(bus, arrow, directions, routeKeysToTitles);
+		MyHashMap<String, String> routeKeysToTitles = new MyHashMap<String, String>();
+		VehicleLocationsFeedParser parser = new VehicleLocationsFeedParser(getDrawables(), directions, routeKeysToTitles);
 		try {
 			android.util.Xml.parse(stream, Encoding.UTF_8, parser);
 		} catch (IOException e) {
@@ -341,34 +340,33 @@ public class TestXmlParsing extends TestCase
 		}*/
 	}
 
-	private Drawable getDrawable() {
-		return new Drawable()
-		{
-
-			@Override
-			public void draw(Canvas canvas) {
-				// TODO Auto-generated method stub
-				
-			}
-
-			@Override
-			public void setAlpha(int alpha) {
-				// TODO Auto-generated method stub
-				
-			}
-
+	private TransitDrawables getDrawables() {
+		Drawable empty = new Drawable() {
+			
 			@Override
 			public void setColorFilter(ColorFilter cf) {
 				// TODO Auto-generated method stub
 				
 			}
-
+			
+			@Override
+			public void setAlpha(int alpha) {
+				// TODO Auto-generated method stub
+				
+			}
+			
 			@Override
 			public int getOpacity() {
 				// TODO Auto-generated method stub
 				return 0;
 			}
 			
+			@Override
+			public void draw(Canvas canvas) {
+				// TODO Auto-generated method stub
+				
+			}
 		};
+		return new TransitDrawables(empty, empty, empty, empty);
 	}
 }

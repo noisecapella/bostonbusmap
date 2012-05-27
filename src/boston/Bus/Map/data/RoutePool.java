@@ -3,15 +3,9 @@ package boston.Bus.Map.data;
 import java.io.IOException;
 import java.util.AbstractCollection;
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Queue;
 
+import java.util.HashSet;
+import java.util.LinkedList;
 import android.util.Log;
 import boston.Bus.Map.R;
 import boston.Bus.Map.database.DatabaseHelper;
@@ -24,8 +18,8 @@ public class RoutePool {
 	
 	
 	private final LinkedList<String> priorities = new LinkedList<String>();
-	private final HashMap<String, RouteConfig> pool = new HashMap<String, RouteConfig>();
-	private final HashMap<String, StopLocation> sharedStops = new HashMap<String, StopLocation>();
+	private final MyHashMap<String, RouteConfig> pool = new MyHashMap<String, RouteConfig>();
+	private final MyHashMap<String, StopLocation> sharedStops = new MyHashMap<String, StopLocation>();
 	
 	/**
 	 * A mapping of stop key to route key. Look in sharedStops for the StopLocation
@@ -58,7 +52,7 @@ public class RoutePool {
 	 */
 	public void fillInFavoritesRoutes()
 	{
-		HashMap<String, StopLocation> stops = getStops(favoriteStops);
+		MyHashMap<String, StopLocation> stops = getStops(favoriteStops);
 		if (stops == null)
 		{
 			return;
@@ -77,13 +71,13 @@ public class RoutePool {
 	}
 
 	
-	private HashMap<String, StopLocation> getStops(AbstractCollection<String> stopTags) {
+	private MyHashMap<String, StopLocation> getStops(AbstractCollection<String> stopTags) {
 		if (stopTags.size() == 0)
 		{
 			return null;
 		}
 		
-		HashMap<String, StopLocation> ret = new HashMap<String, StopLocation>();
+		MyHashMap<String, StopLocation> ret = new MyHashMap<String, StopLocation>();
 		ArrayList<String> stopTagsToRetrieve = new ArrayList<String>();
 		
 		for (String stopTag : stopTags)
@@ -191,7 +185,7 @@ public class RoutePool {
 		}
 	}
 
-	public void writeToDatabase(HashMap<String, RouteConfig> map, boolean wipe, UpdateAsyncTask task, boolean silent) throws IOException {
+	public void writeToDatabase(MyHashMap<String, RouteConfig> map, boolean wipe, UpdateAsyncTask task, boolean silent) throws IOException {
 		if (!silent)
 		{
 			task.publish(new ProgressMessage(ProgressMessage.PROGRESS_DIALOG_ON, "Saving to database", null));
@@ -270,9 +264,9 @@ public class RoutePool {
 		return isFavorite ? R.drawable.full_star : R.drawable.empty_star;
 	}
 
-	public HashMap<String, StopLocation> getAllStopTagsAtLocation(String stopTag) {
+	public MyHashMap<String, StopLocation> getAllStopTagsAtLocation(String stopTag) {
 		ArrayList<String> tags = helper.getAllStopTagsAtLocation(stopTag);
-		HashMap<String, StopLocation> outputMapping = new HashMap<String, StopLocation>();
+		MyHashMap<String, StopLocation> outputMapping = new MyHashMap<String, StopLocation>();
 		helper.getStops(tags, transitSystem, outputMapping);
 		
 		return outputMapping;

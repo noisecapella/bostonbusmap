@@ -1,16 +1,13 @@
 package boston.Bus.Map.data;
 
 import java.util.ArrayList;
-import java.util.HashMap;
+
 
 import boston.Bus.Map.math.Geometry;
 import boston.Bus.Map.transit.TransitSystem;
 import boston.Bus.Map.ui.BusDrawable;
-import boston.Bus.Map.util.Constants;
 import android.content.Context;
 import android.graphics.drawable.Drawable;
-import android.text.Html.TagHandler;
-import android.widget.TextView;
 
 /**
  * This class stores information about the bus. This information is mostly taken
@@ -86,8 +83,7 @@ public class BusLocation implements Location {
 
 	private final Directions directions;
 
-	private final Drawable bus;
-	private final Drawable arrow;
+	private final TransitDrawables drawables;
 	/**
 	 * Distance in pixels between top of bus image and where we want to draw the
 	 * arrow
@@ -106,7 +102,7 @@ public class BusLocation implements Location {
 
 	public BusLocation(float latitude, float longitude, String id,
 			long lastFeedUpdateInMillis, long lastUpdateInMillis, String heading, boolean predictable,
-			String dirTag, String inferBusRoute, Drawable bus, Drawable arrow,
+			String dirTag, String inferBusRoute, TransitDrawables drawables,
 			String routeName, Directions directions, String routeTitle,
 			boolean disappearAfterRefresh, int arrowTopDiff) {
 		this.latitude = (float) (latitude * Geometry.degreesToRadians);
@@ -120,8 +116,7 @@ public class BusLocation implements Location {
 		this.predictable = predictable;
 		this.dirTag = dirTag;
 		this.inferBusRoute = inferBusRoute;
-		this.bus = bus;
-		this.arrow = arrow;
+		this.drawables = drawables;
 		this.routeName = routeName;
 		this.directions = directions;
 		this.routeTitle = routeTitle;
@@ -202,7 +197,7 @@ public class BusLocation implements Location {
 
 	@Override
 	public void addToSnippetAndTitle(RouteConfig routeConfig,
-			Location location, HashMap<String, String> routeKeysToTitles, Context context) {
+			Location location, MyHashMap<String, String> routeKeysToTitles, Context context) {
 		BusLocation busLocation = (BusLocation) location;
 
 		snippet += "<br />" + busLocation.makeSnippet(routeConfig);
@@ -218,7 +213,7 @@ public class BusLocation implements Location {
 
 	@Override
 	public void makeSnippetAndTitle(RouteConfig routeConfig,
-			HashMap<String, String> routeKeysToTitles, Context context) {
+			MyHashMap<String, String> routeKeysToTitles, Context context) {
 		snippet = makeSnippet(routeConfig);
 		snippetTitle = makeTitle();
 		if (routeConfig.getRouteName().equals(routeName))
@@ -337,7 +332,7 @@ public class BusLocation implements Location {
 	
 	public Drawable getDrawable(Context context, boolean shadow,
 			boolean isSelected) {
-		Drawable drawable = bus;
+		Drawable drawable = drawables.getVehicle();
 		if (shadow == false && hasHeading()) {
 			// to make life easier we won't draw shadows except for the bus
 			// the tooltip has some weird error where the shadow draws a little
@@ -345,7 +340,7 @@ public class BusLocation implements Location {
 
 			// the constructor should ignore the arrow and tooltip if these
 			// arguments are null
-			drawable = new BusDrawable(bus, getHeading(), arrow, arrowTopDiff);
+			drawable = new BusDrawable(drawables.getVehicle(), getHeading(), drawables.getArrow(), arrowTopDiff);
 		}
 		return drawable;
 	}

@@ -25,6 +25,7 @@ import boston.Bus.Map.data.Alert;
 import boston.Bus.Map.data.BusLocation;
 import boston.Bus.Map.data.Location;
 import boston.Bus.Map.data.Locations;
+import boston.Bus.Map.data.MyHashMap;
 import boston.Bus.Map.data.Prediction;
 import boston.Bus.Map.data.StopLocation;
 import boston.Bus.Map.main.AlertInfo;
@@ -44,7 +45,7 @@ public class BusPopupView extends BalloonOverlayView<BusOverlayItem>
 	private TextView reportProblem;
 	private TextView alertsTextView;
 	private final Locations locations;
-	private final HashMap<String, String> routeKeysToTitles;
+	private final MyHashMap<String, String> routeKeysToTitles;
 	private Location location;
 	private final Spanned moreInfoText;
 	private final Spanned reportProblemText;
@@ -52,7 +53,7 @@ public class BusPopupView extends BalloonOverlayView<BusOverlayItem>
 	private ArrayList<Alert> alertsList;
 	
 	public BusPopupView(final Context context, int balloonBottomOffset, Locations locations,
-			HashMap<String, String> routeKeysToTitles, float density)
+			MyHashMap<String, String> routeKeysToTitles, float density)
 	{
 		super(context, balloonBottomOffset, density);
 		
@@ -227,7 +228,7 @@ public class BusPopupView extends BalloonOverlayView<BusOverlayItem>
 		{
 			StopLocation stopLocation = (StopLocation)location;
 			String stopTag = stopLocation.getStopTag();
-			HashMap<String, StopLocation> stopTags = locations.getAllStopsAtStop(stopTag);
+			MyHashMap<String, StopLocation> stopTags = locations.getAllStopsAtStop(stopTag);
 
 
 			if (selectedBusPredictions == Main.BUS_PREDICTIONS_ONE)

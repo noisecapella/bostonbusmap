@@ -7,7 +7,6 @@ import java.io.InputStreamReader;
 import java.io.StringReader;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
@@ -26,10 +25,12 @@ import boston.Bus.Map.data.CommuterRailStopLocation;
 import boston.Bus.Map.data.Directions;
 import boston.Bus.Map.data.Location;
 import boston.Bus.Map.data.Locations;
+import boston.Bus.Map.data.MyHashMap;
 import boston.Bus.Map.data.RouteConfig;
 import boston.Bus.Map.data.RoutePool;
 import boston.Bus.Map.data.StopLocation;
 import boston.Bus.Map.data.SubwayStopLocation;
+import boston.Bus.Map.data.TransitDrawables;
 import boston.Bus.Map.main.Main;
 import boston.Bus.Map.main.UpdateAsyncTask;
 import boston.Bus.Map.parser.AlertParser;
@@ -43,25 +44,18 @@ import boston.Bus.Map.util.SearchHelper;
 
 public class CommuterRailTransitSource implements TransitSource {
 	public static final String stopTagPrefix = "CRK-";
-	private final Drawable busStop;
-	private final Drawable busStopUpdated;
-	private final Drawable rail;
-	private final Drawable railArrow;
 	private final String[] routes;
-	private final HashMap<String, String> routeKeysToTitles = new HashMap<String, String>(12);
+	private final MyHashMap<String, String> routeKeysToTitles = new MyHashMap<String, String>(12);
 	private static final String predictionsUrlSuffix = ".csv";
 	public static final String routeTagPrefix = "CR-";
 	private static final String dataUrlPrefix = "http://developer.mbta.com/lib/RTCR/RailLine_";
 	
-	private final HashMap<String, String> routeKeysToAlertUrls = new HashMap<String, String>();
+	private final MyHashMap<String, String> routeKeysToAlertUrls = new MyHashMap<String, String>();
+	private final TransitDrawables drawables;
 	
-	
-	public CommuterRailTransitSource(Drawable busStop, Drawable busStopUpdated, Drawable rail, Drawable railArrow, AlertsMapping alertsMapping)
+	public CommuterRailTransitSource(TransitDrawables drawables, AlertsMapping alertsMapping)
 	{
-		this.busStop = busStop;
-		this.busStopUpdated = busStopUpdated;
-		this.rail = rail;
-		this.railArrow = railArrow;
+		this.drawables = drawables;
 		
 		String[] routeNames = new String[] {
 				"Greenbush",
@@ -82,7 +76,7 @@ public class CommuterRailTransitSource implements TransitSource {
 		
 		
 		//map alert keys to numbers
-		HashMap<String, Integer> alertNumbers = alertsMapping.getAlertNumbers(routeNames, routeKeysToTitles);
+		MyHashMap<String, Integer> alertNumbers = alertsMapping.getAlertNumbers(routeNames, routeKeysToTitles);
 		
 		routes = new String[routeNames.length];
 		
@@ -131,8 +125,7 @@ public class CommuterRailTransitSource implements TransitSource {
 		//downloadHelper.connect();
 		//just initialize the route and then end for this round
 		
-		CommuterRailRouteConfigParser parser = new CommuterRailRouteConfigParser(busStop,
-				directions, oldRouteConfig, this);
+		CommuterRailRouteConfigParser parser = new CommuterRailRouteConfigParser(directions, oldRouteConfig, this);
 
 		//parser.runParse(downloadHelper.getResponseData()); 
 		parser.runParse(new StringReader(CommuterRailRouteConfigParser.temporaryInputData));
@@ -200,7 +193,7 @@ public class CommuterRailTransitSource implements TransitSource {
 			String route = outputRoutes.get(i);
 			RouteConfig railRouteConfig = routePool.get(route);
 			CommuterRailPredictionsFeedParser parser = new CommuterRailPredictionsFeedParser(railRouteConfig, directions,
-					rail, railArrow, busMapping, routeKeysToTitles);
+					drawables, busMapping, routeKeysToTitles);
 
 			parser.runParse(data);
 			data.close();
@@ -335,7 +328,7 @@ public class CommuterRailTransitSource implements TransitSource {
 		//URL url = new URL(subwayUrl);
 		//InputStream in = Locations.downloadStream(url, task);
 		
-		CommuterRailRouteConfigParser subwayParser = new CommuterRailRouteConfigParser(busStop, directions, null, this);
+		CommuterRailRouteConfigParser subwayParser = new CommuterRailRouteConfigParser(directions, null, this);
 		
 		subwayParser.runParse(new StringReader(CommuterRailRouteConfigParser.temporaryInputData));
 		
@@ -350,26 +343,20 @@ public class CommuterRailTransitSource implements TransitSource {
 	}
 
 	@Override
-	public HashMap<String, String> getRouteKeysToTitles() {
+	public MyHashMap<String, String> getRouteKeysToTitles() {
 		return routeKeysToTitles;
 	}
 
 	@Override
-	public Drawable getBusStopDrawable() {
-		return busStop;
-	}
-
-	@Override
-	public Drawable getBusStopUpdatedDrawable()
-	{
-		return busStopUpdated;
+	public TransitDrawables getDrawables() {
+		return drawables;
 	}
 	
 	@Override
 	public StopLocation createStop(float lat, float lon, String stopTag,
 			String title, int platformOrder, String branch, String route,
 			String dirTag) {
-		SubwayStopLocation stopLocation = new CommuterRailStopLocation(lat, lon, busStop, busStopUpdated, stopTag, title,
+		SubwayStopLocation stopLocation = new CommuterRailStopLocation(lat, lon, drawables, stopTag, title,
 				platformOrder, branch);
 		stopLocation.addRouteAndDirTag(route, dirTag);
 		return stopLocation;

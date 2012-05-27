@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
 import java.util.TimeZone;
 import java.util.concurrent.ConcurrentHashMap;
@@ -22,9 +21,11 @@ import boston.Bus.Map.data.BusLocation;
 import boston.Bus.Map.data.Directions;
 import boston.Bus.Map.data.Location;
 import boston.Bus.Map.data.Locations;
+import boston.Bus.Map.data.MyHashMap;
 import boston.Bus.Map.data.RouteConfig;
 import boston.Bus.Map.data.RoutePool;
 import boston.Bus.Map.data.StopLocation;
+import boston.Bus.Map.data.TransitDrawables;
 import boston.Bus.Map.main.Main;
 import boston.Bus.Map.util.Constants;
 /**
@@ -73,7 +74,7 @@ public class TransitSystem {
 	
 
 	
-	private final HashMap<String, TransitSource> transitSourceMap = new HashMap<String, TransitSource>();
+	private final MyHashMap<String, TransitSource> transitSourceMap = new MyHashMap<String, TransitSource>();
 	private final ArrayList<TransitSource> transitSources = new ArrayList<TransitSource>();
 	
 	/**
@@ -81,17 +82,17 @@ public class TransitSystem {
 	 */
 	private TransitSource defaultTransitSource;
 	
-	public void setDefaultTransitSource(Drawable busStop, Drawable busStopUpdated, Drawable bus, Drawable arrow, Drawable rail, Drawable railArrow)
+	public void setDefaultTransitSource(TransitDrawables busDrawables, TransitDrawables subwayDrawables, TransitDrawables commuterRailDrawables)
 	{
 		if (defaultTransitSource == null)
 		{
-			defaultTransitSource = new BusTransitSource(this, busStop, busStopUpdated, bus, arrow, alertsMapping);
-			SubwayTransitSource subwayTransitSource = new SubwayTransitSource(busStop, busStopUpdated, rail, railArrow, alertsMapping);
+			defaultTransitSource = new BusTransitSource(this, busDrawables, alertsMapping);
+			SubwayTransitSource subwayTransitSource = new SubwayTransitSource(subwayDrawables, alertsMapping);
 			transitSourceMap.put(SubwayTransitSource.RedLine, subwayTransitSource);
 			transitSourceMap.put(SubwayTransitSource.OrangeLine, subwayTransitSource);
 			transitSourceMap.put(SubwayTransitSource.BlueLine, subwayTransitSource);
 			
-			CommuterRailTransitSource commuterRailTransitSource = new CommuterRailTransitSource(busStop, busStopUpdated, rail, railArrow, alertsMapping);
+			CommuterRailTransitSource commuterRailTransitSource = new CommuterRailTransitSource(commuterRailDrawables, alertsMapping);
 			for (String route : commuterRailTransitSource.getRoutes())
 			{
 				transitSourceMap.put(route, commuterRailTransitSource);
@@ -146,18 +147,18 @@ public class TransitSystem {
 		}
 	}
 
-	public HashMap<String, String> getRouteKeysToTitles() {
+	public MyHashMap<String, String> getRouteKeysToTitles() {
 		if (transitSources.size() <= 1)
 		{
 			return defaultTransitSource.getRouteKeysToTitles();
 		}
 		else
 		{
-			HashMap<String, String> ret = new HashMap<String, String>();
+			MyHashMap<String, String> ret = new MyHashMap<String, String>();
 			
 			for (TransitSource source : transitSources)
 			{
-				HashMap<String, String> sourceRouteKeyMap = source.getRouteKeysToTitles();
+				MyHashMap<String, String> sourceRouteKeyMap = source.getRouteKeysToTitles();
 				if (sourceRouteKeyMap != null)
 				{
 					ret.putAll(sourceRouteKeyMap);

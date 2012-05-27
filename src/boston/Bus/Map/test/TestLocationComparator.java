@@ -9,6 +9,7 @@ import android.graphics.drawable.Drawable;
 import boston.Bus.Map.data.Alert;
 import boston.Bus.Map.data.Location;
 import boston.Bus.Map.data.LocationComparator;
+import boston.Bus.Map.data.MyHashMap;
 import boston.Bus.Map.data.RouteConfig;
 import boston.Bus.Map.math.Geometry;
 import junit.framework.TestCase;
@@ -104,14 +105,14 @@ public class TestLocationComparator extends TestCase
 
 		@Override
 		public void makeSnippetAndTitle(RouteConfig selectedRoute,
-				HashMap<String, String> routeKeysToTitles, Context context) {
+				MyHashMap<String, String> routeKeysToTitles, Context context) {
 			// TODO Auto-generated method stub
 			
 		}
 
 		@Override
 		public void addToSnippetAndTitle(RouteConfig routeConfig,
-				Location location, HashMap<String, String> routeKeysToTitles,
+				Location location, MyHashMap<String, String> routeKeysToTitles,
 				Context context) {
 			// TODO Auto-generated method stub
 			

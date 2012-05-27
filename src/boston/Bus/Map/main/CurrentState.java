@@ -1,20 +1,12 @@
 package boston.Bus.Map.main;
 
-import java.util.HashMap;
-import java.util.List;
 
-import android.content.Context;
-import android.view.KeyEvent;
-import android.widget.TextView;
 import boston.Bus.Map.data.Locations;
+import boston.Bus.Map.data.MyHashMap;
 import boston.Bus.Map.ui.BusOverlay;
-import boston.Bus.Map.ui.LocationOverlay;
-
 import boston.Bus.Map.ui.RouteOverlay;
 
 import com.google.android.maps.MapView;
-import com.google.android.maps.MyLocationOverlay;
-import com.google.android.maps.Overlay;
 import com.google.android.maps.Projection;
 
 /**
@@ -83,7 +75,7 @@ public class CurrentState {
 	 * @param mapView
 	 * @return
 	 */
-	public BusOverlay cloneBusOverlay(Main context, MapView mapView, HashMap<String, String> routeKeysToTitles, float density)
+	public BusOverlay cloneBusOverlay(Main context, MapView mapView, MyHashMap<String, String> routeKeysToTitles, float density)
 	{
 		BusOverlay ret = new BusOverlay(busOverlay, context, mapView, routeKeysToTitles, density);
 		

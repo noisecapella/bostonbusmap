@@ -2,7 +2,7 @@ package boston.Bus.Map.data;
 
 import java.text.DateFormat;
 import java.util.Date;
-import java.util.HashMap;
+
 
 import android.content.Context;
 import android.os.Parcel;
@@ -86,7 +86,7 @@ lateness. Used at the trip’s origin.
 	}
 
 	@Override
-	public String makeSnippet(HashMap<String, String> routeKeysToTitles, Context context) {
+	public String makeSnippet(MyHashMap<String, String> routeKeysToTitles, Context context) {
 		String ret;
 		
 		int minutes = getMinutes();

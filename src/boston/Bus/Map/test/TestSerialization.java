@@ -7,6 +7,7 @@ import java.util.Iterator;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
+import boston.Bus.Map.data.MyHashMap;
 import boston.Bus.Map.data.Path;
 import boston.Bus.Map.data.Prediction;
 import boston.Bus.Map.data.RouteConfig;
@@ -141,10 +142,8 @@ public class TestSerialization extends TestCase {
 			outputBox.writeStringMap(mapping);
 			assertTrue(false);
 
-			HashMap<String, String> newMapping;
-
 			Box inputBox = new Box(outputBox.getBlob(), DatabaseHelper.CURRENT_DB_VERSION);
-			newMapping = inputBox.readStringMap();
+			MyHashMap<String, String> newMapping = inputBox.readStringMap();
 
 			assertEquals(newMapping.size(), mapping.size());
 

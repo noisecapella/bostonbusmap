@@ -3,28 +3,24 @@ package boston.Bus.Map.transit;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.util.Arrays;
-import java.util.HashMap;
-
 import org.apache.http.client.ClientProtocolException;
 import org.xml.sax.SAXException;
 
 import boston.Bus.Map.data.AlertsMapping;
+import boston.Bus.Map.data.MyHashMap;
 import boston.Bus.Map.data.RouteConfig;
+import boston.Bus.Map.data.TransitDrawables;
 import boston.Bus.Map.parser.AlertParser;
 import boston.Bus.Map.util.DownloadHelper;
-
-import android.graphics.drawable.Drawable;
 
 public class BusTransitSource extends NextBusTransitSource {
 
 	
-	private final HashMap<String, Integer> alertKeys;
+	private final MyHashMap<String, Integer> alertKeys;
 
-	public BusTransitSource(TransitSystem transitSystem, Drawable busStop, Drawable busStopUpdated, Drawable bus,
-			Drawable arrow, AlertsMapping alertsMapping)
+	public BusTransitSource(TransitSystem transitSystem, TransitDrawables drawables, AlertsMapping alertsMapping)
 	{
-		super(transitSystem, busStop, busStopUpdated, bus, arrow, "mbta", boston.Bus.Map.R.raw.routeconfig);
+		super(transitSystem, drawables, "mbta", boston.Bus.Map.R.raw.routeconfig);
 		
 		alertKeys = alertsMapping.getAlertNumbers(getRoutes(), getRouteKeysToTitles());
 	}

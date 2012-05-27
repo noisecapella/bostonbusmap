@@ -2,16 +2,8 @@ package boston.Bus.Map.data;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.TreeMap;
-
-import com.google.android.maps.Projection;
-
 import boston.Bus.Map.util.Box;
 import boston.Bus.Map.util.CanBeSerialized;
-
-import android.os.Parcel;
-import android.os.Parcelable;
 
 public class Path implements CanBeSerialized
 {

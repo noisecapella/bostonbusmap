@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.SortedSet;
 
 import boston.Bus.Map.R;
+import boston.Bus.Map.data.MyHashMap;
 import boston.Bus.Map.data.Prediction;
 import boston.Bus.Map.ui.TextViewBinder;
 import boston.Bus.Map.util.StringUtil;
@@ -48,7 +49,7 @@ public class MoreInfo extends ListActivity {
 	private TextView title1;
 	private TextView title2;
 	private Spinner routeSpinner;
-	private HashMap<String, String> routeKeysToTitles;
+	private MyHashMap<String, String> routeKeysToTitles;
 	
 	/**
 	 * If false, don't try accessing predictions or routeKeysToTitles because they may be being populated
@@ -77,7 +78,7 @@ public class MoreInfo extends ListActivity {
 		String[] titles = extras.getStringArray(routeTitlesKey);
 		boolean stopIsBeta = extras.getBoolean(stopIsBetaKey);
 		
-		routeKeysToTitles = new HashMap<String, String>();
+		routeKeysToTitles = new MyHashMap<String, String>();
 		for (int i = 0; i < keys.length; i++)
 		{
 			routeKeysToTitles.put(keys[i], titles[i]);

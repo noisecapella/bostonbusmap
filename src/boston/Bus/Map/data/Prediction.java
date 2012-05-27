@@ -1,31 +1,16 @@
 package boston.Bus.Map.data;
 
-import java.io.IOException;
-
 import java.text.DateFormat;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.TimeZone;
 
 import boston.Bus.Map.main.MoreInfo;
 import boston.Bus.Map.transit.TransitSystem;
-import boston.Bus.Map.util.Box;
-import boston.Bus.Map.util.CanBeSerialized;
 import android.content.Context;
-import android.graphics.Paint.Style;
-import android.graphics.Typeface;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.text.Html;
-import android.text.Spannable;
-import android.text.SpannableString;
-import android.text.SpannableStringBuilder;
 import android.text.Spanned;
-
-import android.text.style.ImageSpan;
-import android.text.style.StyleSpan;
-import android.text.style.TypefaceSpan;
 
 /**
  * A container of a prediction.
@@ -62,7 +47,7 @@ public class Prediction implements Comparable<Prediction>, Parcelable
 		this.lateness = lateness;
 	}
 
-	public String makeSnippet(HashMap<String, String> routeKeysToTitles, Context context) {
+	public String makeSnippet(MyHashMap<String, String> routeKeysToTitles, Context context) {
 		String ret;
 		
 		int minutes = getMinutes();
@@ -215,7 +200,7 @@ public class Prediction implements Comparable<Prediction>, Parcelable
 	 * @param routeKeysToTitles
 	 * @return
 	 */
-	public HashMap<String, Spanned> makeSnippetMap(HashMap<String, String> routeKeysToTitles, Context context) {
+	public HashMap<String, Spanned> makeSnippetMap(MyHashMap<String, String> routeKeysToTitles, Context context) {
 		HashMap<String, Spanned> map = new HashMap<String, Spanned>();
 		
 		String ret = makeSnippet(routeKeysToTitles, context);

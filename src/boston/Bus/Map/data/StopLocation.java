@@ -1,33 +1,14 @@
 package boston.Bus.Map.data;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
-import java.util.SortedSet;
-import java.util.TreeMap;
-import java.util.TreeSet;
 
-import boston.Bus.Map.database.DatabaseHelper;
 import boston.Bus.Map.math.Geometry;
-import boston.Bus.Map.transit.NextBusTransitSource;
-import boston.Bus.Map.transit.SubwayTransitSource;
 import boston.Bus.Map.transit.TransitSource;
 import boston.Bus.Map.transit.TransitSystem;
-import boston.Bus.Map.util.Box;
-import boston.Bus.Map.util.Constants;
-import boston.Bus.Map.util.RouteComparator;
-import boston.Bus.Map.util.StringUtil;
-
-import boston.Bus.Map.util.CanBeSerialized;
-
 import android.content.Context;
 import android.graphics.drawable.Drawable;
-import android.os.Parcel;
-import android.os.Parcelable;
-import android.widget.ArrayAdapter;
-import android.widget.TextView;
 
 public class StopLocation implements Location
 {
@@ -35,8 +16,7 @@ public class StopLocation implements Location
 	private final float longitude;
 	private final float latitudeAsDegrees;
 	private final float longitudeAsDegrees;
-	private final Drawable busStop;
-	private final Drawable busStopUpdated;
+	private final TransitDrawables drawables;
 	
 	private final String tag;
 	
@@ -50,22 +30,21 @@ public class StopLocation implements Location
 	/**
 	 * A mapping of routes to dirTags
 	 */
-	private final HashMap<String, String> dirTags;
+	private final MyHashMap<String, String> dirTags;
 
 	private static final int LOCATIONTYPE = 3;
 	
 	public StopLocation(float latitudeAsDegrees, float longitudeAsDegrees,
-			Drawable busStop, Drawable busStopUpdated, String tag, String title)
+			TransitDrawables drawables, String tag, String title)
 	{
 		this.latitudeAsDegrees = latitudeAsDegrees;
 		this.longitudeAsDegrees = longitudeAsDegrees;
 		this.latitude = (float) (latitudeAsDegrees * Geometry.degreesToRadians);
 		this.longitude = (float) (longitudeAsDegrees * Geometry.degreesToRadians);
-		this.busStop = busStop;
-		this.busStopUpdated = busStopUpdated;
+		this.drawables = drawables;
 		this.tag = tag;
 		this.title = title;
-		this.dirTags = new HashMap<String, String>();
+		this.dirTags = new MyHashMap<String, String>();
 	}
 
 	/**
@@ -90,7 +69,7 @@ public class StopLocation implements Location
 	@Override
 	public Drawable getDrawable(Context context, boolean shadow,
 			boolean isSelected) {
-		return recentlyUpdated ? busStopUpdated : busStop;
+		return recentlyUpdated ? drawables.getStopUpdated() : drawables.getStop();
 	}
 
 	public void clearRecentlyUpdated()
@@ -129,7 +108,7 @@ public class StopLocation implements Location
 	}
 	
 	@Override
-	public void makeSnippetAndTitle(RouteConfig routeConfig, HashMap<String, String> routeKeysToTitles, Context context)
+	public void makeSnippetAndTitle(RouteConfig routeConfig, MyHashMap<String, String> routeKeysToTitles, Context context)
 	{
 		if (predictions == null)
 		{
@@ -140,7 +119,7 @@ public class StopLocation implements Location
 	}
 	
 	@Override
-	public void addToSnippetAndTitle(RouteConfig routeConfig, Location location, HashMap<String, String> routeKeysToTitles,
+	public void addToSnippetAndTitle(RouteConfig routeConfig, Location location, MyHashMap<String, String> routeKeysToTitles,
 			Context context)
 	{
 		if (predictions == null)

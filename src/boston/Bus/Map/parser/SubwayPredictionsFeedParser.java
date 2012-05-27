@@ -11,7 +11,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.HashMap;
+
 import java.util.HashSet;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -26,12 +26,14 @@ import android.text.format.Time;
 import android.util.Log;
 import boston.Bus.Map.data.BusLocation;
 import boston.Bus.Map.data.Directions;
+import boston.Bus.Map.data.MyHashMap;
 import boston.Bus.Map.data.Prediction;
 import boston.Bus.Map.data.RouteConfig;
 import boston.Bus.Map.data.RoutePool;
 import boston.Bus.Map.data.StopLocation;
 import boston.Bus.Map.data.SubwayStopLocation;
 import boston.Bus.Map.data.SubwayTrainLocation;
+import boston.Bus.Map.data.TransitDrawables;
 import boston.Bus.Map.transit.SubwayTransitSource;
 import boston.Bus.Map.transit.TransitSystem;
 import boston.Bus.Map.util.LogUtil;
@@ -41,11 +43,10 @@ public class SubwayPredictionsFeedParser
 	private final String currentRoute;
 	private final RoutePool routePool;
 	private final Directions directions;
-	private final Drawable rail;
-	private final Drawable railArrow;
+	private final TransitDrawables drawables;
 	
 	private final ConcurrentHashMap<String, BusLocation> busMapping;
-	private final HashMap<String, String> routeKeysToTitles;
+	private final MyHashMap<String, String> routeKeysToTitles;
 	
 	private static final int ROUTE_INDEX = 0;
 	private static final int TRIP_ID_INDEX = 1;
@@ -56,14 +57,13 @@ public class SubwayPredictionsFeedParser
 	private static final int REVENUE_INDEX = 6;
 	private static final int BRANCH_INDEX = 7;
 	
-	public SubwayPredictionsFeedParser(String route, RoutePool routePool, Directions directions, Drawable bus, Drawable railArrow, 
-			ConcurrentHashMap<String, BusLocation> busMapping, HashMap<String, String> routeKeysToTitles)
+	public SubwayPredictionsFeedParser(String route, RoutePool routePool, Directions directions, TransitDrawables drawables, 
+			ConcurrentHashMap<String, BusLocation> busMapping, MyHashMap<String, String> routeKeysToTitles)
 	{
 		this.currentRoute = route;
 		this.routePool = routePool;
 		this.directions = directions;
-		this.rail = bus;
-		this.railArrow = railArrow;
+		this.drawables = drawables;
 		this.busMapping = busMapping;
 		this.routeKeysToTitles = routeKeysToTitles;
 		
@@ -181,7 +181,7 @@ public class SubwayPredictionsFeedParser
 				{
 					StopLocation nextStop = getNextStop(routeConfig, stopLocation, direction);
 
-					final int arrowTopDiff = rail.getIntrinsicHeight() / 5;
+					final int arrowTopDiff = drawables.getVehicle().getIntrinsicHeight() / 5;
 
 					//first, see if there's a subway car which pretty much matches an old BusLocation
 					BusLocation busLocation = null;
@@ -194,8 +194,7 @@ public class SubwayPredictionsFeedParser
 					}
 
 					busLocation = new SubwayTrainLocation(stopLocation.getLatitudeAsDegrees(), stopLocation.getLongitudeAsDegrees(),
-							tripId, lastFeedUpdateTime, currentMillis, null, true, direction, null, rail, 
-							railArrow, route, directions, routeTitle + " at " + stopLocation.getTitle(), true, arrowTopDiff);
+							tripId, lastFeedUpdateTime, currentMillis, null, true, direction, null, drawables, route, directions, routeTitle + " at " + stopLocation.getTitle(), true, arrowTopDiff);
 					busMapping.put(tripId, busLocation);
 
 					toRemove.remove(tripId);
