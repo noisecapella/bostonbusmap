@@ -11,7 +11,8 @@ import boston.Bus.Map.database.DatabaseHelper;
 
 class PrepopulatedData {
 
-    public static RouteConfig[] makeRoutes(TransitSource transitSource, TransitDrawables transitDrawables, DatabaseHelper databaseHelper) {
+    public static RouteConfig[] makeRoutes(TransitSource transitSource, TransitDrawables transitDrawables, Directions directions) {
+    
 """
 
 
