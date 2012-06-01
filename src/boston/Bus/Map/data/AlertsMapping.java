@@ -1,6 +1,6 @@
 package boston.Bus.Map.data;
 
-import java.util.HashMap;
+
 
 public class AlertsMapping {
 	private static final String alertsMappingData = "Fairmount,1\n"+
@@ -209,7 +209,7 @@ public class AlertsMapping {
 	"Red Line - Mattapan Line,233\n";
 	public static final String alertUrlPrefix = "http://talerts.com/rssfeed/alertsrss.aspx?";
 
-	private final HashMap<String, Integer> routeDescriptionToAlertKey = new HashMap<String, Integer>();
+	private final MyHashMap<String, Integer> routeDescriptionToAlertKey = new MyHashMap<String, Integer>();
 	
 	public AlertsMapping()
 	{
@@ -226,9 +226,9 @@ public class AlertsMapping {
 		}
 	}
 
-	public HashMap<String, Integer> getAlertNumbers(String[] routeNames, HashMap<String, String> routeKeysToTitles)
+	public MyHashMap<String, Integer> getAlertNumbers(String[] routeNames, MyHashMap<String, String> routeKeysToTitles)
 	{
-		HashMap<String, Integer> ret = new HashMap<String, Integer>();
+		MyHashMap<String, Integer> ret = new MyHashMap<String, Integer>();
 		
 		for (String routeName : routeNames)
 		{
@@ -276,8 +276,8 @@ public class AlertsMapping {
 		return ret;
 	}
 
-	private void addToList(String routeTitle, int alertIndex, HashMap<String, String> routeKeysToTitles,
-			HashMap<String, Integer> alertsMapping) {
+	private void addToList(String routeTitle, int alertIndex, MyHashMap<String, String> routeKeysToTitles,
+			MyHashMap<String, Integer> alertsMapping) {
 		for (String routeKey : routeKeysToTitles.values())
 		{
 			String potentialRouteTitle = routeKeysToTitles.get(routeKey);

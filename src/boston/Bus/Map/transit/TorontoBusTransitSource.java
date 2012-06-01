@@ -7,6 +7,7 @@ import org.apache.http.client.ClientProtocolException;
 import org.xml.sax.SAXException;
 
 import boston.Bus.Map.data.RouteConfig;
+import boston.Bus.Map.data.TransitDrawables;
 
 import com.schneeloch.torontotransit.R;
 
@@ -15,8 +16,8 @@ import android.graphics.drawable.Drawable;
 public class TorontoBusTransitSource extends NextBusTransitSource {
 
 	public TorontoBusTransitSource(TransitSystem transitSystem,
-			Drawable busStop, Drawable busStopUpdated, Drawable bus, Drawable arrow) {
-		super(transitSystem, busStop, busStopUpdated, bus, arrow, "ttc", R.raw.routeconfig);
+			TransitDrawables drawables) {
+		super(transitSystem, drawables, "ttc", R.raw.routeconfig);
 	}
 
 	@Override

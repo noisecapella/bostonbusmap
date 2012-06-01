@@ -6,18 +6,12 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.SortedSet;
-import java.util.TreeMap;
 
-import android.graphics.drawable.Drawable;
+import java.util.Map;
 import android.util.SparseArray;
+import boston.Bus.Map.data.MyHashMap;
 import boston.Bus.Map.data.Path;
-import boston.Bus.Map.data.Prediction;
 import boston.Bus.Map.data.RouteConfig;
-import boston.Bus.Map.data.StopLocation;
 
 public class Box {
 	private final DataInputStream inputStream;
@@ -29,7 +23,7 @@ public class Box {
 	
 	private final byte[] single = new byte[1];
 
-	private final HashMap<String, Integer> sharedStringTable = new HashMap<String, Integer>();
+	private final MyHashMap<String, Integer> sharedStringTable = new MyHashMap<String, Integer>();
 	private final SparseArray<String> sharedStringTableReverse = new SparseArray<String>();
 	
 	/**
@@ -347,19 +341,19 @@ public class Box {
 
 	}
 	
-	public HashMap<String, String> readStringMap() throws IOException
+	public MyHashMap<String, String> readStringMap() throws IOException
 	{
 		showProgress("readStringMap");
 		byte b = readByte();
 		if (b == IS_NULL)
 		{
 			//do nothing
-			return new HashMap<String, String>(0);
+			return new MyHashMap<String, String>(0);
 		}
 		else
 		{
 			int size = readInt();
-			HashMap<String, String> map = new HashMap<String, String>(size);
+			MyHashMap<String, String> map = new MyHashMap<String, String>(size);
 			for (int i = 0; i < size; i++)
 			{
 				String key = readString();
