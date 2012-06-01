@@ -10,7 +10,6 @@ import java.io.Reader;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.io.UnsupportedEncodingException;
-import java.util.HashMap;
 import java.util.concurrent.ConcurrentHashMap;
 
 import javax.xml.parsers.ParserConfigurationException;
@@ -35,22 +34,22 @@ import android.util.Xml;
 import android.util.Xml.Encoding;
 import boston.Bus.Map.data.BusLocation;
 import boston.Bus.Map.data.Directions;
+import boston.Bus.Map.data.MyHashMap;
 import boston.Bus.Map.data.RouteConfig;
 import boston.Bus.Map.data.RoutePool;
+import boston.Bus.Map.data.TransitDrawables;
 import boston.Bus.Map.transit.TransitSystem;
 
 public class VehicleLocationsFeedParser extends DefaultHandler
 {
-	private final Drawable bus;
-	private final Drawable arrow;
+	private final TransitDrawables drawables;
 	private final Directions directions;
-	private final HashMap<String, String> routeKeysToTitles;
+	private final MyHashMap<String, String> routeKeysToTitles;
 	
-	public VehicleLocationsFeedParser(Drawable bus, Drawable arrow,
-			Directions directions, HashMap<String, String> routeKeysToTitles)
+	public VehicleLocationsFeedParser(TransitDrawables drawables,
+			Directions directions, MyHashMap<String, String> routeKeysToTitles)
 	{
-		this.bus = bus;
-		this.arrow = arrow;
+		this.drawables = drawables;
 		this.directions = directions;
 		this.routeKeysToTitles = routeKeysToTitles;
 	}
@@ -63,8 +62,8 @@ public class VehicleLocationsFeedParser extends DefaultHandler
 	}
 
 	private long lastUpdateTime;
-	private final HashMap<String, BusLocation> busMapping = new HashMap<String, BusLocation>();
-	private final HashMap<String, Integer> tagCache = new HashMap<String, Integer>();
+	private final MyHashMap<String, BusLocation> busMapping = new MyHashMap<String, BusLocation>();
+	private final MyHashMap<String, Integer> tagCache = new MyHashMap<String, Integer>();
 	
 	
 	private static final String vehicleKey = "vehicle";
@@ -102,10 +101,11 @@ public class VehicleLocationsFeedParser extends DefaultHandler
 			
 			String inferBusRoute = null;
 
+			final Drawable bus = drawables.getVehicle();
 			final int arrowTopDiff = bus.getIntrinsicHeight() / 5;
 			
 			BusLocation newBusLocation = new BusLocation(lat, lon, id, lastFeedUpdate, lastUpdateTime, 
-					heading, predictable, dirTag, inferBusRoute, bus, arrow, route, directions, routeKeysToTitles.get(route),
+					heading, predictable, dirTag, inferBusRoute, drawables, route, directions, routeKeysToTitles.get(route),
 					false, arrowTopDiff);
 
 			if (busMapping.containsKey(id))
@@ -144,6 +144,6 @@ public class VehicleLocationsFeedParser extends DefaultHandler
 	}
 
 	public void fillMapping(ConcurrentHashMap<String, BusLocation> outputBusMapping) {
-		outputBusMapping.putAll(busMapping);
+		busMapping.putAllFrom(outputBusMapping);
 	}
 }

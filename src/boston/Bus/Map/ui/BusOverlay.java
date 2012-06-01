@@ -18,24 +18,18 @@
     */
 package boston.Bus.Map.ui;
 
-import java.security.acl.LastOwnerException;
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
 import java.util.List;
 
 
 import boston.Bus.Map.data.Alert;
-import boston.Bus.Map.data.BusLocation;
-import boston.Bus.Map.data.Directions;
 import boston.Bus.Map.data.Locations;
+import boston.Bus.Map.data.MyHashMap;
 import boston.Bus.Map.data.StopLocation;
 
 import boston.Bus.Map.data.Location;
-import boston.Bus.Map.database.DatabaseHelper;
-import boston.Bus.Map.math.Geometry;
-import boston.Bus.Map.util.Constants;
-
+import boston.Bus.Map.main.Main;
+import boston.Bus.Map.main.UpdateHandler;
 import com.google.android.maps.GeoPoint;
 import com.google.android.maps.ItemizedOverlay;
 import com.google.android.maps.MapView;
@@ -46,32 +40,14 @@ import com.readystatesoftware.mapviewballoons.BalloonOverlayView;
 import boston.Bus.Map.main.Main;
 import boston.Bus.Map.main.UpdateHandler;
 
-import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
-import android.graphics.ColorFilter;
 import android.graphics.Paint;
 import android.graphics.Point;
-import android.graphics.Rect;
-import android.graphics.RectF;
 import android.graphics.Paint.Style;
 import android.graphics.drawable.Drawable;
-import android.graphics.drawable.ShapeDrawable;
-import android.graphics.drawable.shapes.OvalShape;
-import android.graphics.drawable.shapes.Shape;
-import android.text.TextPaint;
-import android.text.method.HideReturnsTransformationMethod;
 import android.util.FloatMath;
-import android.util.Log;
-import android.view.KeyEvent;
-import android.view.LayoutInflater;
 import android.view.MotionEvent;
-import android.view.View;
-import android.view.ViewGroup;
-import android.view.ViewGroup.LayoutParams;
-import android.widget.LinearLayout;
-import android.widget.TextView;
-import android.widget.Toast;
 
 
 /**
@@ -93,7 +69,7 @@ public class BusOverlay extends BalloonItemizedOverlay<BusOverlayItem> {
 	private final Drawable busPicture;
 	private final Paint paint;
 	
-	private final HashMap<String, String> routeKeysToTitles;
+	private final MyHashMap<String, String> routeKeysToTitles;
 	private final float density;
 	
 	//these two are temporary variables stored here so we don't create a new Point every time we draw
@@ -102,7 +78,7 @@ public class BusOverlay extends BalloonItemizedOverlay<BusOverlayItem> {
 	
 	private Locations locationsObj;
 	
-	public BusOverlay(BusOverlay busOverlay, Main context, MapView mapView, HashMap<String, String> routeKeysToTitles, float density)
+	public BusOverlay(BusOverlay busOverlay, Main context, MapView mapView, MyHashMap<String, String> routeKeysToTitles, float density)
 	{
 		this(busOverlay.busPicture, context, mapView, routeKeysToTitles, density);
 		
@@ -126,7 +102,7 @@ public class BusOverlay extends BalloonItemizedOverlay<BusOverlayItem> {
 	}
 	
 	
-	public BusOverlay(Drawable busPicture, Main context, MapView mapView, HashMap<String, String> routeKeysToTitles, float density)
+	public BusOverlay(Drawable busPicture, Main context, MapView mapView, MyHashMap<String, String> routeKeysToTitles, float density)
 	{
 		super(boundCenterBottom(busPicture), mapView);
 
@@ -252,10 +228,10 @@ public class BusOverlay extends BalloonItemizedOverlay<BusOverlayItem> {
 		for (int i = 0; i < overlaysSize; i++)
 		{
 			OverlayItem item = overlays.get(i);
-			Location busLocation = locations.get(i);
+			Location location = locations.get(i);
 
 			boolean isSelected = i == lastFocusedIndex;
-			Drawable drawable = busLocation.getDrawable(context, shadow, isSelected);
+			Drawable drawable = location.getDrawable(context, shadow, isSelected);
 			item.setMarker(drawable);
 
 			boundCenterBottom(drawable);

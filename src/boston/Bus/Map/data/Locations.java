@@ -20,29 +20,17 @@ package boston.Bus.Map.data;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.TreeSet;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.zip.GZIPInputStream;
-import java.util.zip.InflaterInputStream;
 
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
+import java.util.HashSet;
+import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
 import javax.xml.parsers.FactoryConfigurationError;
 import javax.xml.parsers.ParserConfigurationException;
 
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 import boston.Bus.Map.main.Main;
@@ -50,17 +38,13 @@ import boston.Bus.Map.main.UpdateAsyncTask;
 
 
 import android.content.Context;
-import android.graphics.drawable.Drawable;
 import android.util.Log;
 import boston.Bus.Map.database.DatabaseHelper;
-import boston.Bus.Map.parser.BusPredictionsFeedParser;
-import boston.Bus.Map.parser.RouteConfigFeedParser;
-import boston.Bus.Map.parser.VehicleLocationsFeedParser;
-import boston.Bus.Map.transit.NextBusTransitSource;
+import boston.Bus.Map.main.Main;
+import boston.Bus.Map.main.UpdateAsyncTask;
 import boston.Bus.Map.transit.TransitSource;
 import boston.Bus.Map.transit.TransitSystem;
 import boston.Bus.Map.ui.ProgressMessage;
-import boston.Bus.Map.util.DownloadHelper;
 import boston.Bus.Map.util.FeedException;
 import boston.Bus.Map.util.LogUtil;
 import boston.Bus.Map.util.StreamCounter;
@@ -420,7 +404,7 @@ public final class Locations
 		return (long)lastUpdateTime;
 	}
 	
-	public HashMap<String, StopLocation> getAllStopsAtStop(String stopTag)
+	public MyHashMap<String, StopLocation> getAllStopsAtStop(String stopTag)
 	{
 		return routeMapping.getAllStopTagsAtLocation(stopTag);
 	}

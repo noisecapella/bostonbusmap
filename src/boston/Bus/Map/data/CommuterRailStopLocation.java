@@ -5,9 +5,9 @@ import android.graphics.drawable.Drawable;
 public class CommuterRailStopLocation extends SubwayStopLocation {
 
 	public CommuterRailStopLocation(float latitudeAsDegrees,
-			float longitudeAsDegrees, Drawable busStop, Drawable busStopUpdated, String tag,
+			float longitudeAsDegrees, TransitDrawables drawables, String tag,
 			String title, int platformOrder, String branch) {
-		super(latitudeAsDegrees, longitudeAsDegrees, busStop, busStopUpdated, tag, title,
+		super(latitudeAsDegrees, longitudeAsDegrees, drawables, tag, title,
 				platformOrder, branch);
 	}
 

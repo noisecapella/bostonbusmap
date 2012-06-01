@@ -6,13 +6,14 @@ import org.apache.http.client.ClientProtocolException;
 import org.xml.sax.SAXException;
 
 import boston.Bus.Map.data.RouteConfig;
+import boston.Bus.Map.data.TransitDrawables;
 import android.graphics.drawable.Drawable;
 
 public class LABusTransitSource extends NextBusTransitSource
 {
-	public LABusTransitSource(TransitSystem system, Drawable busStop, Drawable busStopUpdated, Drawable bus, Drawable arrow)
+	public LABusTransitSource(TransitSystem system, TransitDrawables drawables)
 	{
-		super(system, busStop, busStopUpdated, bus, arrow, "lametro", com.schneeloch.latransit.R.raw.routeconfig);
+		super(system, drawables, "lametro", com.schneeloch.latransit.R.raw.routeconfig);
 	}
 
 	@Override

@@ -14,6 +14,7 @@ import boston.Bus.Map.main.UpdateAsyncTask;
 
 import boston.Bus.Map.data.Path;
 
+import boston.Bus.Map.data.MyHashMap;
 import boston.Bus.Map.data.RouteConfig;
 import boston.Bus.Map.data.StopLocation;
 import boston.Bus.Map.data.SubwayStopLocation;
@@ -312,7 +313,7 @@ public class DatabaseHelper extends SQLiteOpenHelper
 		}
 	}
 	
-	public synchronized void saveMapping(HashMap<String, RouteConfig> mapping,
+	public synchronized void saveMapping(MyHashMap<String, RouteConfig> mapping,
 			boolean wipe, HashSet<String> sharedStops, UpdateAsyncTask task) throws IOException
 	{
 		SQLiteDatabase database = getWritableDatabase();
@@ -565,7 +566,7 @@ public class DatabaseHelper extends SQLiteOpenHelper
 		}
 	}
 
-	public synchronized RouteConfig getRoute(String routeToUpdate, HashMap<String, StopLocation> sharedStops,
+	public synchronized RouteConfig getRoute(String routeToUpdate, MyHashMap<String, StopLocation> sharedStops,
 			TransitSystem transitSystem) throws IOException {
 		SQLiteDatabase database = getReadableDatabase();
 		Cursor routeCursor = null;
@@ -727,7 +728,7 @@ public class DatabaseHelper extends SQLiteOpenHelper
 	 * @param names
 	 * @param titles
 	 */
-	public synchronized void refreshDirections(HashMap<String, Integer> indexes,
+	public synchronized void refreshDirections(MyHashMap<String, Integer> indexes,
 			ArrayList<String> names, ArrayList<String> titles, ArrayList<String> routes) {
 		SQLiteDatabase database = getReadableDatabase();
 		Cursor cursor = null;
@@ -761,7 +762,7 @@ public class DatabaseHelper extends SQLiteOpenHelper
 		}
 	}
 
-	public synchronized void writeDirections(boolean wipe, HashMap<String, Integer> indexes,
+	public synchronized void writeDirections(boolean wipe, MyHashMap<String, Integer> indexes,
 			ArrayList<String> names, ArrayList<String> titles, ArrayList<String> routes) {
 		SQLiteDatabase database = getWritableDatabase();
 		try
@@ -808,7 +809,7 @@ public class DatabaseHelper extends SQLiteOpenHelper
 		}
 	}
 
-	public synchronized void saveFavorites(HashSet<String> favoriteStops, HashMap<String, StopLocation> sharedStops) {
+	public synchronized void saveFavorites(HashSet<String> favoriteStops, MyHashMap<String, StopLocation> sharedStops) {
 		SQLiteDatabase database = getWritableDatabase();
 		try
 		{
@@ -995,7 +996,7 @@ public class DatabaseHelper extends SQLiteOpenHelper
 			}
 		}
 	}
-	public synchronized ArrayList<StopLocation> getClosestStops(double currentLat, double currentLon, TransitSystem transitSystem, HashMap<String, StopLocation> sharedStops, int limit)
+	public synchronized ArrayList<StopLocation> getClosestStops(double currentLat, double currentLon, TransitSystem transitSystem, MyHashMap<String, StopLocation> sharedStops, int limit)
 	{
 		SQLiteDatabase database = getReadableDatabase();
 		Cursor cursor = null;
@@ -1154,7 +1155,7 @@ public class DatabaseHelper extends SQLiteOpenHelper
 	 * @param transitSystem
 	 * @return
 	 */
-	public void getStops(List<String> stopTags, TransitSystem transitSystem, HashMap<String, StopLocation> outputMapping) {
+	public void getStops(List<String> stopTags, TransitSystem transitSystem, MyHashMap<String, StopLocation> outputMapping) {
 		if (stopTags == null || stopTags.size() == 0)
 		{
 			return;

@@ -71,7 +71,7 @@ public class UpdateHandler extends Handler {
 	private final TransitSystem transitSystem;
 	
 	public UpdateHandler(ProgressBar progress, MapView mapView,
-			Drawable arrow, Drawable tooltip, Locations busLocations, Context context, DatabaseHelper helper, BusOverlay busOverlay,
+			Locations busLocations, Context context, DatabaseHelper helper, BusOverlay busOverlay,
 			RouteOverlay routeOverlay,  LocationOverlay locationOverlay,
 			UpdateAsyncTask majorHandler, TransitSystem transitSystem, ProgressDialog progressDialog)
 	{

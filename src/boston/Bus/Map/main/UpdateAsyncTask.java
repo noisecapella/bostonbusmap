@@ -24,7 +24,7 @@ import java.io.StringWriter;
 import java.net.SocketException;
 import java.net.SocketTimeoutException;
 import java.util.ArrayList;
-import java.util.HashMap;
+
 import java.util.HashSet;
 import java.util.List;
 
@@ -39,6 +39,7 @@ import org.xml.sax.SAXException;
 import boston.Bus.Map.data.BusLocation;
 import boston.Bus.Map.data.Location;
 import boston.Bus.Map.data.Locations;
+import boston.Bus.Map.data.MyHashMap;
 import boston.Bus.Map.data.Path;
 import boston.Bus.Map.data.RouteConfig;
 import boston.Bus.Map.data.StopLocation;
@@ -510,10 +511,10 @@ public class UpdateAsyncTask extends AsyncTask<Object, Object, Locations>
 		busOverlay.doPopulate();
 		busOverlay.setLocations(busLocationsObject);
 		
-		HashMap<String, String> routeKeysToTitles = transitSystem.getRouteKeysToTitles();
+		MyHashMap<String, String> routeKeysToTitles = transitSystem.getRouteKeysToTitles();
 		
 		//point hash to index in busLocations
-		HashMap<Long, Integer> points = new HashMap<Long, Integer>();
+		MyHashMap<Long, Integer> points = new MyHashMap<Long, Integer>();
 		
 		ArrayList<GeoPoint> geoPointsToAdd = new ArrayList<GeoPoint>(busLocations.size());
 		//draw the buses on the map
