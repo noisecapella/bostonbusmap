@@ -13,7 +13,7 @@ echo "<?xml version=\"1.0\" encoding=\"utf-8\" ?> " >> routeconfig_full.xml
 echo "<body copyright=\"All data copyright $agency_title 2011.\">" >> routeconfig_full.xml
 
 #for each in `cat routes`; do cat routeConfig$each | awk '$0 ~ /<body/ { next } $0 ~ /body>/ { next } $0 ~ /<\?xml/ { next } { print }' >> routeconfig_full.xml; done
-for each in `cat routes`; do cat routeConfig$each | awk 'BEGIN { in_path = 0 } $0 ~ /<body/ { next } $0 ~ /body>/ { next } $0 ~ /<\?xml/ { next } $0 ~ /<path/ { in_path=1; next; } $0 ~ /path>/ { in_path=0; next; } { if (!in_path) { print } }' >> routeconfig_full.xml; done
+for each in `cat routes`; do cat routeConfig$each | awk 'BEGIN { in_path = 0 } $0 ~ /<body/ { next } $0 ~ /body>/ { next } $0 ~ /<\?xml/ { next } $0 ~ /<path/ { in_path=1; next; } $0 ~ /path>/ { in_path=0; next; } { if (!in_path || in_path) { print } }' >> routeconfig_full.xml; done
 
 echo "</body>" >> routeconfig_full.xml
 
