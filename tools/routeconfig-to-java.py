@@ -6,12 +6,18 @@ import xml.dom.minidom
 header = """package boston.Bus.Map.data;
 import java.util.ArrayList;
 import java.io.IOException;
-import boston.Bus.Map.data.TransitDrawables;
+
 import boston.Bus.Map.transit.TransitSource;
-import boston.Bus.Map.database.DatabaseHelper;
+import boston.Bus.Map.data.Directions;
 
 class PrepopulatedData {
+    private final TransitSource transitSource;
+    private final Directions directions;
 
+    public PrepopulatedData(TransitSource transitSource, Directions directions) {
+        this.transitSource = transitSource;
+        this.directions = directions;
+    }
 """
 
 footer = """}"""
@@ -183,16 +189,26 @@ def printMakeRoute(routes):
     print "    throw new RuntimeException(\"Route not found: \" + search);"
     print "    }"
 
+def printMakeAllRoutes(routes):
+    print "    public RouteConfig[] makeAllRoutes() throws IOException {"
+    print "        make new RouteConfig[] {"
+    for i in xrange(len(routes)):
+        print "            makeRoute{0}(),".format(i)
+    print "        };"
+    print "    }"
+                        
+
 def printEachMakeRoute(routes):
     for i in xrange(len(routes)):
         route = routes[i]
-        print "    public static RouteConfig makeRoute{0}(TransitSource transitSource, TransitDrawables transitDrawables, Directions directions) throws IOException {1}".format(i, "{")
+        print "    public RouteConfig makeRoute{0}() throws IOException {1}".format(i, "{")
+        print "        TransitDrawables drawables = transitSource.getDrawables();"
         print "        RouteConfig route = new RouteConfig(\"{0}\", \"{1}\", 0x{2}, 0x{3}, transitSource);".format(route.getAttribute("tag"), route.getAttribute("title"), route.getAttribute("color"), route.getAttribute("oppositeColor"))
 
         children = route.childNodes
         for child in children:
             if child.nodeName == "stop":
-                print "        route.addStop(\"{0}\", new StopLocation({1}f, {2}f, transitDrawables, \"{0}\", \"{3}\"));".format(child.getAttribute("tag"), child.getAttribute("lat"), child.getAttribute("lon"), child.getAttribute("title"))
+                print "        route.addStop(\"{0}\", new StopLocation({1}f, {2}f, drawables, \"{0}\", \"{3}\"));".format(child.getAttribute("tag"), child.getAttribute("lat"), child.getAttribute("lon"), child.getAttribute("title"))
             elif child.nodeName == "direction":
                 print "        directions.add(\"{0}\", \"{1}\", \"{2}\", \"{3}\");".format(child.getAttribute("tag"), child.getAttribute("name"), child.getAttribute("title"), route.getAttribute("tag"))
 
@@ -204,11 +220,11 @@ def run(dom):
     print header
 
     routes = dom.getElementsByTagName("route")
-    printMakeRoute(routes)
+    #printMakeRoute(routes)
 
     # a helper for search suggestions
-    printStopSuffixes(routes)
-
+    #printStopSuffixes(routes)
+    printMakeAllRoutes(routes)
     printEachMakeRoute(routes)
     
     print footer
