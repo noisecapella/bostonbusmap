@@ -1,7 +1,9 @@
 import sys
 import gzip
 import xml.dom.minidom
-
+import math
+from geopy import distance
+from geopy.point import Point
 
 header = """package boston.Bus.Map.data;
 import java.util.ArrayList;
@@ -196,8 +198,70 @@ def printMakeAllRoutes(routes):
         print "            makeRoute{0}(),".format(i)
     print "        };"
     print "    }"
-                        
 
+distanceMap = {}                        
+
+def distanceFunc(tup1, tup2):
+    # based on haversine formula for great circle distance
+    _, lat1, lon1 = tup1
+    _, lat2, lon2 = tup2
+
+    #return distance.distance(Point(lat1, lon1), Point(lat2, lon2)).miles
+    degreesToRadians = math.pi / 180.0
+
+    deltaLon = (lon2 - lon1)*degreesToRadians
+    deltaLat = (lat2 - lat1)*degreesToRadians
+
+    sinResult1 = math.sin(deltaLon/2)
+    sinResult2 = math.sin(deltaLat/2)
+    
+    
+
+    c = 2 * math.asin(math.sqrt(sinResult1*sinResult1 + math.cos(degreesToRadians*lon1)*math.cos(degreesToRadians*lon2)*sinResult2*sinResult2))
+    earthRadiusInKilo = 6371.2
+    kiloPerMile = 1.609344
+    dist = earthRadiusInKilo * c
+    ret = dist/kiloPerMile
+    return ret
+
+def printStopGraph(routes):
+    print "    public MyHashMap<String, String> getLocalStops() {"
+    print "        MyHashMap<String, ArrayList<String>> ret = new MyHashMap<String, ArrayList<String>>();"
+    locationMap = {}
+    stopMap = {}
+    for route in routes:
+        routeTag = route.getAttribute("tag")
+        for child in route.childNodes:
+            if child.nodeName == "stop":
+                stopTag = child.getAttribute("tag")
+                lat = float(child.getAttribute("lat"))
+                lon = float(child.getAttribute("lon"))
+
+                locKey = (lat, lon)
+                if not locKey in locationMap:
+                    locationMap[locKey] = {}
+                locationMap[locKey][stopTag] = True
+                stopMap[stopTag] = (stopTag, lat, lon)
+                
+    for locKey, stops in locationMap.iteritems():
+        if len(stops) == 0:
+            continue
+        lat, lon = locKey
+        print "        {"
+        print "            ArrayList<String> arr = new ArrayList<String>();"
+        for stopTag, _ in stops.iteritems():
+            print "            ret.put(\"{0}\", arr);".format(stopTag)
+        key = (stops.keys()[0], lat, lon)
+        byDistance = filter(lambda t: distanceFunc(t, key) < 1, stopMap.values())
+        for each in byDistance:
+            print "            arr.add(\"{0}\");".format(each[0])
+        print "        }"
+
+
+    print "        return ret;"
+    print "    }"
+
+    
 def printEachMakeRoute(routes):
     for i in xrange(len(routes)):
         route = routes[i]
@@ -224,10 +288,12 @@ def run(dom):
 
     # a helper for search suggestions
     #printStopSuffixes(routes)
-    printMakeAllRoutes(routes)
-    printEachMakeRoute(routes)
+    #printMakeAllRoutes(routes)
+    #printEachMakeRoute(routes)
     
     print footer
+
+    printStopGraph(routes)
 
 def main():
     if len(sys.argv) != 2:
