@@ -10,7 +10,7 @@ import java.io.IOException;
 import boston.Bus.Map.transit.TransitSource;
 import boston.Bus.Map.data.Directions;
 
-class PrepopulatedData {
+public class PrepopulatedData {
     private final TransitSource transitSource;
     private final Directions directions;
 
@@ -191,7 +191,7 @@ def printMakeRoute(routes):
 
 def printMakeAllRoutes(routes):
     print "    public RouteConfig[] makeAllRoutes() throws IOException {"
-    print "        make new RouteConfig[] {"
+    print "        return new RouteConfig[] {"
     for i in xrange(len(routes)):
         print "            makeRoute{0}(),".format(i)
     print "        };"
