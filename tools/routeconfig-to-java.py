@@ -53,31 +53,6 @@ def get_dom(filename):
         with open(filename, "rb") as f:
             return xml.dom.minidom.parse(f)
     
-nodeCount = 0
-class Node:
-    def __init__(self):
-        self.children = []
-        self.data = set()
-        self.value = ""
-        global nodeCount
-        self.id = nodeCount
-        nodeCount += 1
-
-def addToTrie(trie, routeName, data):
-    currentNode = trie
-
-    for c in routeName:
-        for child in currentNode.children:
-            if child.value == c:
-                currentNode = child
-                break
-        else:
-            newNode = Node()
-            newNode.value = c
-            currentNode.children.append(newNode)
-            currentNode = newNode
-    currentNode.data.add(data)
-
 def escapeSingleQuote(s):
     if s == "'" or s == "\\":
         return "\\" + s
@@ -88,136 +63,13 @@ def escapeDoubleQuote(s):
     #TODO: implement. I don't think any stop title has a quote in it, though
     return s
 
-def printTrie(node, javaVarName, javaVarNodeId, javaVarNodeLevel, dataIsCommand):
-    indent = "            "
-    
-    print indent + "case {0}: {1}".format(node.id, "{")
-
-    allChildrenOneChar = True
-    for child in node.children:
-        if len(child.value) > 1:
-            allChildrenOneChar = False
-            break
-
-    if len(node.children) == 1:
-        if allChildrenOneChar:
-            child = node.children[0]
-            print indent + "if ('{0}' == {1}.charAt({2})) {3}".format(escapeSingleQuote(child.value), javaVarName, javaVarNodeLevel, "{")
-            print indent + "    " + javaVarNodeId + " = {0};".format(child.id)
-            print indent + "    } else {"
-            print indent + "        break out;"
-            print indent + "    }"
-        else:
-            print indent + "if (\"{0}\".equals({1}.substring({2}))) {3}".format(escapeDoubleQuote(child.value), javaVarName, javaVarNodeLevel, "{")
-            print indent + "    " + javaVarNodeId + " = {0};".format(child.id)
-            print indent + "    } else {"
-            print indent + "        break out;"
-            print indent + "    }"
-    elif len(node.children) > 1:
-        if allChildrenOneChar:
-            print indent + "switch({0}.charAt({1})) {2}".format(javaVarName, javaVarNodeLevel, "{")
-            for child in node.children:
-                print indent + "    " + "case '{0}': {1}".format(escapeSingleQuote(child.value),     "{")
-                print indent + "    " + "    " + javaVarNodeId + " = {0};".format(child.id)
-                print indent + "    }"
-            print indent + "    " + "default:"
-            print indent + "    " + "    break out;"
-            print indent + "}"
-        else:
-            for childIndex in xrange(len(node.children)):
-                child = node.children[childIndex]
-                print indent + "    ",
-                if childIndex != 0:
-                    print "} else ",
-
-                print "if (\"{0}\".equals({1}.substring({2}))) {3}".format(escapeDoubleQuote(child.value), javaVarName, javaVarNodeLevel, "{")
-                print indent + "    " + javaVarNodeId + " = {0};".format(child.id)
-            print indent + "    } else {"
-            print indent + "        break;"
-            print indent + "    }"
-    else:
-        if dataIsCommand:
-            print indent + "return {0};".format(node.data.pop())
-        elif len(node.data) == 1:
-            print indent + "return new String[]{0}\"{1}\"{2};".format("{", node.data.pop(), "}")
-        else:
-            print indent + "return new String[] {0}".format("{")
-            for d in node.data:
-                print indent + "    " + "\"{0}\",".format(d)
-            print indent + "};"
-    
-    print indent + "}"
-
-    for child in node.children:
-        printTrie(child, javaVarName, javaVarNodeId, javaVarNodeLevel, dataIsCommand)
-
-
-def optimizeTrie(currentNode):
-    while len(currentNode.children) == 1 and len(currentNode.data) == 0:
-        childNode = currentNode.children[0]
-
-        currentNode.value = currentNode.value + childNode.value
-        currentNode.children = childNode.children
-        currentNode.data = childNode.data
-
-    for i in xrange(len(currentNode.children)):
-        currentNode.children[i] = optimizeTrie(currentNode.children[i])
-
-    return currentNode
-        
-        
-
-def printStopSuffixes(routes):
-    stopTrie = Node()
-    print """    public static String[] getMatchingStops(String search) {"""
-    print """        String lower = search.toLowerCase();"""
-    print """        int currentNodeId = {0};""".format(stopTrie.id)
-    print """        int i = 0;"""
-    print """    out:"""
-    print """        for (i = 0; i < search.length(); i++) {"""
-    print """            switch (currentNodeId) {"""
-    for route in routes:
-        for child in route.childNodes:
-            if child.nodeName == "stop":
-                stopTag = child.getAttribute("tag")
-                stopTitle = child.getAttribute("title").lower()
-                for i in xrange(len(stopTitle)):
-                    s = stopTitle[i:]
-                    addToTrie(stopTrie, s, stopTag)
-    
-    stopTrie = optimizeTrie(stopTrie)
-
-    printTrie(stopTrie, "lower", "currentNodeId", "i", False)
-    print """            }"""
-    print """        }"""
-    print "    throw new RuntimeException(\"Stop not found: \" + search);"
-    print """    }"""
-                
-def printMakeRoute(routes):
-    routeTrie = Node()
-    print """    public static RouteConfig makeRoute(String search, TransitSource transitSource, TransitDrawables transitDrawables, Directions directions) throws IOException {"""
-    print """        int currentNodeId = {0};""".format(routeTrie.id)
-    print """        int i = 0;"""
-    print """    out:"""
-    print """        for (i = 0; i < search.length(); i++) {"""
-    print """            switch (currentNodeId) {"""
-    
+def printMakeAllRoutes(routes, f):
+    f.write("    private RouteConfig[] makeAllRoutes() throws IOException {\n")
+    f.write("        return new RouteConfig[] {\n")
     for i in xrange(len(routes)):
-        route = routes[i]
-        addToTrie(routeTrie, route.getAttribute("tag"), "makeRoute{0}(transitSource, transitDrawables, directions)".format(i))
-    printTrie(routeTrie, "search", "currentNodeId", "i", True)
-    print "            }"
-    print "        }"
-    print "    throw new RuntimeException(\"Route not found: \" + search);"
-    print "    }"
-
-def printMakeAllRoutes(routes):
-    print "    private RouteConfig[] makeAllRoutes() throws IOException {"
-    print "        return new RouteConfig[] {"
-    for i in xrange(len(routes)):
-        print "            makeRoute{0}(),".format(i)
-    print "        };"
-    print "    }"
+        f.write("            makeRoute{0}(),".format(i) + "\n")
+    f.write("        };\n")
+    f.write("    }\n")
 
 distanceMap = {}                        
 
@@ -244,9 +96,9 @@ def distanceFunc(tup1, tup2):
     ret = dist/kiloPerMile
     return ret
 
-def printStopGraph(routes):
-    print "    public MyHashMap<String, String[]> getLocalStops() {"
-    print "        MyHashMap<String, String[]> ret = new MyHashMap<String, String[]>();"
+def printStopGraph(routes, f):
+    f.write("    public MyHashMap<String, String[]> getLocalStops() {\n")
+    f.write("        MyHashMap<String, String[]> ret = new MyHashMap<String, String[]>();\n")
     locationMap = {}
     stopMap = {}
     for route in routes:
@@ -268,25 +120,25 @@ def printStopGraph(routes):
             continue
         lat, lon = locKey
 
-        print "            makeClosest{0}(ret);".format(humanize(locKey))
+        f.write("            makeClosest{0}(ret);".format(humanize(locKey) + "\n"))
 
 
-    print "        return ret;"
-    print "    }"
+    f.write("        return ret;\n")
+    f.write("    }\n")
 
     for locKey, stops in locationMap.iteritems():
         if len(stops) == 0:
             continue
 
-        printEachMakeClosestStops(locKey, stops, stopMap)
+        printEachMakeClosestStops(locKey, stops, stopMap, f)
 
 def humanize(locKey):
     return str(locKey).replace("-", "_").replace(".", "_").replace(",", "_").replace(" ", "_").replace("(", "_").replace(")", "_")
 
-def printEachMakeClosestStops(locKey, stops, stopMap):
+def printEachMakeClosestStops(locKey, stops, stopMap, f):
         lat, lon = locKey
-        print "    public void makeClosest{0}(MyHashMap<String, String[]> map) {1}".format(humanize(locKey), "{")
-        print "        String[] arr = new String[] {"
+        f.write("    public void makeClosest{0}(MyHashMap<String, String[]> map) {1}".format(humanize(locKey), "{") + "\n")
+        f.write("        String[] arr = new String[] {\n")
         key = (stops.keys()[0], lat, lon)
         byDistance = filter(lambda t: distanceFunc(t, key) < 0.5, stopMap.values())
         byDistance = sorted(byDistance, key = lambda t: distanceFunc(t, key))
@@ -295,88 +147,75 @@ def printEachMakeClosestStops(locKey, stops, stopMap):
         for each in byDistance:
             newLatKey = (each[1], each[2])
             if newLatKey not in usedLatKeys:
-                print "                \"{0}\",".format(each[0])
+                f.write("                \"{0}\",".format(each[0]) + "\n")
                 usedLatKeys[newLatKey] = True
-                if len(usedLatKeys) == 5:
+                if len(usedLatKeys) == 10:
                     break
-        print "        };"
+        f.write("        };\n")
 
         for stop in stops.iteritems():
             stopTag, _ = stop
-            print "        map.put(\"s{0}\", arr);".format(stopTag)
-        print "    }"
+            f.write("        map.put(\"{0}\", arr);".format(stopTag) + "\n")
+        f.write("    }\n")
 
 
-def printConstants(routes):
-    routeStrings = {}
-    stopStrings = {}
-    for route in routes:
-        routeTag = route.getAttribute("tag")
-        if routeTag not in routeStrings:
-            print "    public static final String r{0} = \"{1}\";".format(routeTag, routeTag)
-            routeStrings[routeTag] = True
-        for child in route.childNodes:
-            if child.nodeName == "stop":
-                stopTag = child.getAttribute("tag")
-                if stopTag not in stopStrings:
-                    print "    public static final String s{0} = \"{1}\";".format(stopTag, stopTag)
-                    stopStrings[stopTag] = True
 
-def printEachMakeRoute(routes):
+def printEachMakeRoute(routes, f):
     for i in xrange(len(routes)):
         route = routes[i]
-        print "    public RouteConfig makeRoute{0}() throws IOException {1}".format(i, "{")
-        print "        TransitDrawables drawables = transitSource.getDrawables();"
-        print "        RouteConfig route = new RouteConfig(\"{0}\", \"{1}\", 0x{2}, 0x{3}, transitSource);".format(route.getAttribute("tag"), route.getAttribute("title"), route.getAttribute("color"), route.getAttribute("oppositeColor"))
+        f.write("    public RouteConfig makeRoute{0}() throws IOException {1}".format(i, "{") + "\n")
+        f.write("        TransitDrawables drawables = transitSource.getDrawables();\n")
+        f.write("        RouteConfig route = new RouteConfig(\"{0}\", \"{1}\", 0x{2}, 0x{3}, transitSource);".format(route.getAttribute("tag"), route.getAttribute("title"), route.getAttribute("color"), route.getAttribute("oppositeColor")) + "\n")
 
         children = route.childNodes
         for child in children:
             if child.nodeName == "stop":
                 stopTag = child.getAttribute("tag")
-                print "        StopLocation stop{0} = new StopLocation({1}f, {2}f, drawables, \"{0}\", \"{3}\");".format(stopTag, child.getAttribute("lat"), child.getAttribute("lon"), child.getAttribute("title"))
-                print "        allStops.put(\"{0}\", stop{1});".format(stopTag, stopTag)
-                print "        route.addStop(\"{0}\", stop{1});".format(stopTag, stopTag)
+                f.write("        StopLocation stop{0} = new StopLocation({1}f, {2}f, drawables, \"{0}\", \"{3}\");".format(stopTag, child.getAttribute("lat"), child.getAttribute("lon"), child.getAttribute("title")) + "\n")
+                f.write("        allStops.put(\"{0}\", stop{1});".format(stopTag, stopTag) + "\n")
+                f.write("        route.addStop(\"{0}\", stop{1});".format(stopTag, stopTag) + "\n")
             elif child.nodeName == "direction":
-                print "        directions.add(\"{0}\", \"{1}\", \"{2}\", \"{3}\");".format(child.getAttribute("tag"), child.getAttribute("name"), child.getAttribute("title"), route.getAttribute("tag"))
+                f.write("        directions.add(\"{0}\", \"{1}\", \"{2}\", \"{3}\");".format(child.getAttribute("tag"), child.getAttribute("name"), child.getAttribute("title"), route.getAttribute("tag")) + "\n")
 
-        print "        return route;"
-        print "    }"
+        f.write("        return route;\n")
+        f.write("    }\n")
 
 
-def runPrepopulated(dom):
-    print header
+def runPrepopulated(dom, f):
+    f.write(header + "\n")
 
     routes = dom.getElementsByTagName("route")
     #printMakeRoute(routes)
 
     # a helper for search suggestions
     #printStopSuffixes(routes)
-    printMakeAllRoutes(routes)
-    printEachMakeRoute(routes)
+    printMakeAllRoutes(routes, f)
+    printEachMakeRoute(routes, f)
     
-    print footer
+    f.write(footer + "\n")
     #printConstants(routes)
 
-def runDirections(dom):
-    print headerDirections
+def runDirections(dom, f):
+    f.write(headerDirections + "\n")
 
     routes = dom.getElementsByTagName("route")
 
-    printStopGraph(routes)
+    printStopGraph(routes, f)
 
-    print footerDirections
+    f.write(footerDirections + "\n")
 
 def main():
     if len(sys.argv) != 3:
-        print "Usage: python routeconfig-to-java.py routeconfig.xml directions"
+        sys.stderr.write("Usage: python routeconfig-to-java.py routeconfig.xml srcDirectory\n")
         exit(1)
 
     dom = get_dom(sys.argv[1])
+    f = open(sys.argv[2] + "/boston/Bus/Map/data/PrepopulatedData.java", "wb")
+    runPrepopulated(dom, f)
+    f = open(sys.argv[2] + "/boston/Bus/Map/data/PrepopulatedDirections.java", "wb")
+    runDirections(dom, f)
+
     
-    if sys.argv[2] == "prepopulated":
-        runPrepopulated(dom)
-    elif sys.argv[2] == "directions":
-        runDirections(dom)
 
 def test():
     x = """<route tag="1" title="1" color="330000" oppositeColor="ffffff" latMin="42.3297899" latMax="42.37513" lonMin="-71.11896" lonMax="-71.07354">
