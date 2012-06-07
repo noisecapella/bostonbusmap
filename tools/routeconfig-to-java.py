@@ -5,24 +5,44 @@ import math
 from geopy import distance
 from geopy.point import Point
 
+headerDirections = """package boston.Bus.Map.data;
+
+public class PrepopulatedDirections {
+"""
+
 header = """package boston.Bus.Map.data;
 import java.util.ArrayList;
 import java.io.IOException;
 
 import boston.Bus.Map.transit.TransitSource;
 import boston.Bus.Map.data.Directions;
+import boston.Bus.Map.data.MyHashMap;
 
 public class PrepopulatedData {
     private final TransitSource transitSource;
     private final Directions directions;
+    private final MyHashMap<String, StopLocation> allStops = new MyHashMap<String, StopLocation>();
+    private final RouteConfig[] allRoutes;
 
-    public PrepopulatedData(TransitSource transitSource, Directions directions) {
+
+    public PrepopulatedData(TransitSource transitSource, Directions directions) throws Exception {
         this.transitSource = transitSource;
         this.directions = directions;
+        allRoutes = makeAllRoutes();
+    }
+
+    public MyHashMap<String, StopLocation> getAllStops() {
+        return allStops;
+    }
+
+    public RouteConfig[] getAllRoutes() {
+        return allRoutes;
     }
 """
 
+footerDirections = "}"
 footer = """}"""
+
 
 def get_dom(filename):
     try:
@@ -192,7 +212,7 @@ def printMakeRoute(routes):
     print "    }"
 
 def printMakeAllRoutes(routes):
-    print "    public RouteConfig[] makeAllRoutes() throws IOException {"
+    print "    private RouteConfig[] makeAllRoutes() throws IOException {"
     print "        return new RouteConfig[] {"
     for i in xrange(len(routes)):
         print "            makeRoute{0}(),".format(i)
@@ -247,8 +267,26 @@ def printStopGraph(routes):
         if len(stops) == 0:
             continue
         lat, lon = locKey
-        print "        {"
-        print "            String[] arr = new String[] {"
+
+        print "            makeClosest{0}(ret);".format(humanize(locKey))
+
+
+    print "        return ret;"
+    print "    }"
+
+    for locKey, stops in locationMap.iteritems():
+        if len(stops) == 0:
+            continue
+
+        printEachMakeClosestStops(locKey, stops, stopMap)
+
+def humanize(locKey):
+    return str(locKey).replace("-", "_").replace(".", "_").replace(",", "_").replace(" ", "_").replace("(", "_").replace(")", "_")
+
+def printEachMakeClosestStops(locKey, stops, stopMap):
+        lat, lon = locKey
+        print "    public void makeClosest{0}(MyHashMap<String, String[]> map) {1}".format(humanize(locKey), "{")
+        print "        String[] arr = new String[] {"
         key = (stops.keys()[0], lat, lon)
         byDistance = filter(lambda t: distanceFunc(t, key) < 0.5, stopMap.values())
         byDistance = sorted(byDistance, key = lambda t: distanceFunc(t, key))
@@ -261,16 +299,29 @@ def printStopGraph(routes):
                 usedLatKeys[newLatKey] = True
                 if len(usedLatKeys) == 5:
                     break
-        print "            };"
-        for stopTag, _ in stops.iteritems():
-            print "            ret.put(\"{0}\", arr);".format(stopTag)
-        print "        }"
+        print "        };"
+
+        for stop in stops.iteritems():
+            stopTag, _ = stop
+            print "        map.put(\"s{0}\", arr);".format(stopTag)
+        print "    }"
 
 
-    print "        return ret;"
-    print "    }"
+def printConstants(routes):
+    routeStrings = {}
+    stopStrings = {}
+    for route in routes:
+        routeTag = route.getAttribute("tag")
+        if routeTag not in routeStrings:
+            print "    public static final String r{0} = \"{1}\";".format(routeTag, routeTag)
+            routeStrings[routeTag] = True
+        for child in route.childNodes:
+            if child.nodeName == "stop":
+                stopTag = child.getAttribute("tag")
+                if stopTag not in stopStrings:
+                    print "    public static final String s{0} = \"{1}\";".format(stopTag, stopTag)
+                    stopStrings[stopTag] = True
 
-    
 def printEachMakeRoute(routes):
     for i in xrange(len(routes)):
         route = routes[i]
@@ -281,7 +332,10 @@ def printEachMakeRoute(routes):
         children = route.childNodes
         for child in children:
             if child.nodeName == "stop":
-                print "        route.addStop(\"{0}\", new StopLocation({1}f, {2}f, drawables, \"{0}\", \"{3}\"));".format(child.getAttribute("tag"), child.getAttribute("lat"), child.getAttribute("lon"), child.getAttribute("title"))
+                stopTag = child.getAttribute("tag")
+                print "        StopLocation stop{0} = new StopLocation({1}f, {2}f, drawables, \"{0}\", \"{3}\");".format(stopTag, child.getAttribute("lat"), child.getAttribute("lon"), child.getAttribute("title"))
+                print "        allStops.put(\"{0}\", stop{1});".format(stopTag, stopTag)
+                print "        route.addStop(\"{0}\", stop{1});".format(stopTag, stopTag)
             elif child.nodeName == "direction":
                 print "        directions.add(\"{0}\", \"{1}\", \"{2}\", \"{3}\");".format(child.getAttribute("tag"), child.getAttribute("name"), child.getAttribute("title"), route.getAttribute("tag"))
 
@@ -289,7 +343,7 @@ def printEachMakeRoute(routes):
         print "    }"
 
 
-def run(dom):
+def runPrepopulated(dom):
     print header
 
     routes = dom.getElementsByTagName("route")
@@ -300,18 +354,29 @@ def run(dom):
     printMakeAllRoutes(routes)
     printEachMakeRoute(routes)
     
+    print footer
+    #printConstants(routes)
+
+def runDirections(dom):
+    print headerDirections
+
+    routes = dom.getElementsByTagName("route")
+
     printStopGraph(routes)
 
-    print footer
+    print footerDirections
 
 def main():
-    if len(sys.argv) != 2:
-        print "Usage: python routeconfig-to-java.py routeconfig.xml"
+    if len(sys.argv) != 3:
+        print "Usage: python routeconfig-to-java.py routeconfig.xml directions"
         exit(1)
 
     dom = get_dom(sys.argv[1])
     
-    run(dom)
+    if sys.argv[2] == "prepopulated":
+        runPrepopulated(dom)
+    elif sys.argv[2] == "directions":
+        runDirections(dom)
 
 def test():
     x = """<route tag="1" title="1" color="330000" oppositeColor="ffffff" latMin="42.3297899" latMax="42.37513" lonMin="-71.11896" lonMax="-71.07354">
