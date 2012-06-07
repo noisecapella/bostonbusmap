@@ -5,6 +5,8 @@ import math
 from geopy import distance
 from geopy.point import Point
 
+#note: pypy is significantly faster than python on this script
+
 headerDirections = """package boston.Bus.Map.data;
 
 public class PrepopulatedDirections {
@@ -158,14 +160,13 @@ def printEachMakeClosestStops(locKey, stops, stopMap, f):
             f.write("        map.put(\"{0}\", arr);".format(stopTag) + "\n")
         f.write("    }\n")
 
-
-
 def printEachMakeRoute(routes, f):
     for i in xrange(len(routes)):
         route = routes[i]
+        routeTag = route.getAttribute("tag")
         f.write("    public RouteConfig makeRoute{0}() throws IOException {1}".format(i, "{") + "\n")
         f.write("        TransitDrawables drawables = transitSource.getDrawables();\n")
-        f.write("        RouteConfig route = new RouteConfig(\"{0}\", \"{1}\", 0x{2}, 0x{3}, transitSource);".format(route.getAttribute("tag"), route.getAttribute("title"), route.getAttribute("color"), route.getAttribute("oppositeColor")) + "\n")
+        f.write("        RouteConfig route = new RouteConfig(\"{0}\", \"{1}\", 0x{2}, 0x{3}, transitSource);".format(routeTag, route.getAttribute("title"), route.getAttribute("color"), route.getAttribute("oppositeColor")) + "\n")
 
         children = route.childNodes
         for child in children:
@@ -175,7 +176,14 @@ def printEachMakeRoute(routes, f):
                 f.write("        allStops.put(\"{0}\", stop{1});".format(stopTag, stopTag) + "\n")
                 f.write("        route.addStop(\"{0}\", stop{1});".format(stopTag, stopTag) + "\n")
             elif child.nodeName == "direction":
-                f.write("        directions.add(\"{0}\", \"{1}\", \"{2}\", \"{3}\");".format(child.getAttribute("tag"), child.getAttribute("name"), child.getAttribute("title"), route.getAttribute("tag")) + "\n")
+                f.write("            directions.add(\"{0}\", new Direction(\"{1}\", \"{2}\", \"{3}\"));".format(child.getAttribute("tag"), child.getAttribute("name"), child.getAttribute("title"), routeTag) + "\n")
+                prevDirChild = None
+                for dirChild in child.childNodes:
+                    if dirChild.nodeName == "stop":
+                        if prevDirChild:
+                            f.write("            stop{0}.addNextStop(stop{1}, \"{2}\");".format(prevDirChild.getAttribute("tag"), dirChild.getAttribute("tag"), routeTag) + "\n")
+                        prevDirChild = dirChild
+                       
 
         f.write("        return route;\n")
         f.write("    }\n")
