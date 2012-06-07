@@ -225,8 +225,8 @@ def distanceFunc(tup1, tup2):
     return ret
 
 def printStopGraph(routes):
-    print "    public MyHashMap<String, String> getLocalStops() {"
-    print "        MyHashMap<String, ArrayList<String>> ret = new MyHashMap<String, ArrayList<String>>();"
+    print "    public MyHashMap<String, String[]> getLocalStops() {"
+    print "        MyHashMap<String, String[]> ret = new MyHashMap<String, String[]>();"
     locationMap = {}
     stopMap = {}
     for route in routes:
@@ -248,13 +248,22 @@ def printStopGraph(routes):
             continue
         lat, lon = locKey
         print "        {"
-        print "            ArrayList<String> arr = new ArrayList<String>();"
+        print "            String[] arr = new String[] {"
+        key = (stops.keys()[0], lat, lon)
+        byDistance = filter(lambda t: distanceFunc(t, key) < 0.5, stopMap.values())
+        byDistance = sorted(byDistance, key = lambda t: distanceFunc(t, key))
+
+        usedLatKeys = {(lat, lon):True}
+        for each in byDistance:
+            newLatKey = (each[1], each[2])
+            if newLatKey not in usedLatKeys:
+                print "                \"{0}\",".format(each[0])
+                usedLatKeys[newLatKey] = True
+                if len(usedLatKeys) == 5:
+                    break
+        print "            };"
         for stopTag, _ in stops.iteritems():
             print "            ret.put(\"{0}\", arr);".format(stopTag)
-        key = (stops.keys()[0], lat, lon)
-        byDistance = filter(lambda t: distanceFunc(t, key) < 1, stopMap.values())
-        for each in byDistance:
-            print "            arr.add(\"{0}\");".format(each[0])
         print "        }"
 
 
@@ -288,12 +297,12 @@ def run(dom):
 
     # a helper for search suggestions
     #printStopSuffixes(routes)
-    #printMakeAllRoutes(routes)
-    #printEachMakeRoute(routes)
+    printMakeAllRoutes(routes)
+    printEachMakeRoute(routes)
     
-    print footer
-
     printStopGraph(routes)
+
+    print footer
 
 def main():
     if len(sys.argv) != 2:
