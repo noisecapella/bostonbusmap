@@ -5,16 +5,16 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.TreeMap;
 
+import com.schneeloch.suffixarray.ObjectWithString;
+
 import boston.Bus.Map.math.Geometry;
 import boston.Bus.Map.transit.TransitSource;
 import boston.Bus.Map.transit.TransitSystem;
 import android.content.Context;
 import android.graphics.drawable.Drawable;
 
-public class StopLocation implements Location
+public class StopLocation implements Location, ObjectWithString
 {
-	private final float latitude;
-	private final float longitude;
 	private final float latitudeAsDegrees;
 	private final float longitudeAsDegrees;
 	private final TransitDrawables drawables;
@@ -31,7 +31,7 @@ public class StopLocation implements Location
 	/**
 	 * A mapping of routes to dirTags
 	 */
-	private final TreeMap<String, String> dirTags;
+	private final SmallMap<String, String> dirTags;
 
 	private static final int LOCATIONTYPE = 3;
 	
@@ -40,12 +40,10 @@ public class StopLocation implements Location
 	{
 		this.latitudeAsDegrees = latitudeAsDegrees;
 		this.longitudeAsDegrees = longitudeAsDegrees;
-		this.latitude = (float) (latitudeAsDegrees * Geometry.degreesToRadians);
-		this.longitude = (float) (longitudeAsDegrees * Geometry.degreesToRadians);
 		this.drawables = drawables;
 		this.tag = tag;
 		this.title = title;
-		this.dirTags = new TreeMap<String, String>();
+		this.dirTags = new SmallMap<String, String>();
 	}
 
 	/**
@@ -64,7 +62,8 @@ public class StopLocation implements Location
 	@Override
 	public float distanceFrom(double centerLatitude, double centerLongitude)
 	{
-		return Geometry.computeCompareDistance(latitude, longitude, centerLatitude, centerLongitude);
+		return Geometry.computeCompareDistance(latitudeAsDegrees * Geometry.degreesToRadians,
+				longitudeAsDegrees * Geometry.degreesToRadians, centerLatitude, centerLongitude);
 	}
 
 	@Override
@@ -425,5 +424,10 @@ public class StopLocation implements Location
 	public boolean isBeta()
 	{
 		return false;
+	}
+
+	@Override
+	public String getString() {
+		return title;
 	}
 }

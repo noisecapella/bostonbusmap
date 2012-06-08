@@ -35,7 +35,7 @@ public class Predictions
 	private static final Prediction[] nullPredictions = new Prediction[0];
 	
 	public synchronized void makeSnippetAndTitle(RouteConfig routeConfig,
-			MyHashMap<String, String> routeKeysToTitles, Context context, TreeMap<String, String> dirTags, String title, String tag)
+			MyHashMap<String, String> routeKeysToTitles, Context context, SmallMap<String, String> dirTags, String title, String tag)
 	{
 		ArrayList<String> routes = new ArrayList<String>();
 		routes.addAll(dirTags.keySet());
@@ -138,7 +138,7 @@ public class Predictions
 
 	
 	public synchronized void addToSnippetAndTitle(RouteConfig routeConfig, StopLocation stopLocation, MyHashMap<String, String> routeKeysToTitles,
-			Context context, String title, TreeMap<String, String> dirTags)
+			Context context, String title, SmallMap<String, String> dirTags)
 	{
 		if (sharedSnippetStops == null)
 		{
