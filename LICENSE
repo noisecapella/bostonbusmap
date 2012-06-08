@@ -1,6 +1,37 @@
 LICENSING EXCEPTION: The routeconfig.gz file contains data owned by
 the MBTA. This data is not covered by the GPL.
 
+There are a few colt classes used for efficient data structures:
+Packages cern.colt* , cern.jet*, cern.clhep
+
+Copyright (c) 1999 CERN - European Organization for Nuclear Research.
+Permission to use, copy, modify, distribute and sell this software and its
+documentation for any purpose is hereby granted without fee, provided that
+the above copyright notice appear in all copies and that both that copyright
+notice and this permission notice appear in supporting documentation. CERN 
+makes no representations about the suitability of this software for any
+purpose. It is provided "as is" without expressed or implied warranty.
+
+ags.utils.KdTree.java's license:
+Copyright 2009 Rednaxela
+ 
+ This software is provided 'as-is', without any express or implied
+ warranty. In no event will the authors be held liable for any damages
+ arising from the use of this software.
+ 
+ Permission is granted to anyone to use this software for any purpose,
+ including commercial applications, and to alter it and redistribute it
+ freely, subject to the following restrictions:
+ 
+    1. The origin of this software must not be misrepresented; you must not
+    claim that you wrote the original software. If you use this software
+    in a product, an acknowledgment in the product documentation would be
+    appreciated but is not required.
+
+    2. This notice may not be removed or altered from any source
+    distribution.
+
+The rest:
 For more copyright info, see http://www.terribleinformation.org/george/bostonbusmap
 All other included source files are at least GPLv3 compatible, or if written by me, GPLv3
 

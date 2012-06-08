@@ -3,6 +3,7 @@ package boston.Bus.Map.data;
 import java.io.IOException;
 import java.util.AbstractCollection;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -16,11 +17,10 @@ import boston.Bus.Map.ui.ProgressMessage;
 public class RoutePool {
 	private final DatabaseHelper helper;
 	
-	
 	private final LinkedList<String> priorities = new LinkedList<String>();
 	private final MyHashMap<String, RouteConfig> pool = new MyHashMap<String, RouteConfig>();
 	private final MyHashMap<String, StopLocation> sharedStops = new MyHashMap<String, StopLocation>();
-	
+
 	/**
 	 * A mapping of stop key to route key. Look in sharedStops for the StopLocation
 	 */

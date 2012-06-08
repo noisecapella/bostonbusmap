@@ -23,23 +23,47 @@ import boston.Bus.Map.data.MyHashMap;
 public class PrepopulatedData {
     private final TransitSource transitSource;
     private final Directions directions;
-    private final MyHashMap<String, StopLocation> allStops = new MyHashMap<String, StopLocation>();
     private final RouteConfig[] allRoutes;
+    private final MyHashMap<LocationGroup, LocationGroup> allStops;
 
 
     public PrepopulatedData(TransitSource transitSource, Directions directions) throws Exception {
         this.transitSource = transitSource;
         this.directions = directions;
         allRoutes = makeAllRoutes();
+        allStops = makeAllStops();
     }
 
-    public MyHashMap<String, StopLocation> getAllStops() {
-        return allStops;
+    private MyHashMap<LocationGroup, LocationGroup> makeAllStops() {
+        MyHashMap<LocationGroup, LocationGroup> ret = new MyHashMap<LocationGroup, LocationGroup>();
+        for (RouteConfig route : allRoutes) {
+            for (StopLocation stop : route.getStops()) {
+                LocationGroup locationGroup = ret.get(stop);
+                if (locationGroup != null) {
+                    if (locationGroup instanceof MultipleStopLocations) {
+                        ((MultipleStopLocations)locationGroup).addStop(stop);
+                    }
+                    else
+                    {
+                        MultipleStopLocations multipleStopLocations = new MultipleStopLocations();
+                        multipleStopLocations.addStop((StopLocation)locationGroup);
+                        multipleStopLocations.addStop(stop);
+                        ret.put(multipleStopLocations, multipleStopLocations);
+                    }
+                }
+                else
+                {
+                    ret.put(locationGroup, locationGroup);
+                }
+            }
+        }
+        return ret;
     }
 
     public RouteConfig[] getAllRoutes() {
         return allRoutes;
     }
+
 """
 
 footerDirections = "}"
@@ -173,15 +197,14 @@ def printEachMakeRoute(routes, f):
             if child.nodeName == "stop":
                 stopTag = child.getAttribute("tag")
                 f.write("        StopLocation stop{0} = new StopLocation({1}f, {2}f, drawables, \"{0}\", \"{3}\");".format(stopTag, child.getAttribute("lat"), child.getAttribute("lon"), child.getAttribute("title")) + "\n")
-                f.write("        allStops.put(\"{0}\", stop{1});".format(stopTag, stopTag) + "\n")
-                f.write("        route.addStop(\"{0}\", stop{1});".format(stopTag, stopTag) + "\n")
+                f.write("        allStops.put(stop{1}, stop{1});".format(stopTag, stopTag) + "\n")
+                #f.write("        route.addStop(\"{0}\", stop{1});".format(stopTag, stopTag) + "\n")
             elif child.nodeName == "direction":
                 f.write("            directions.add(\"{0}\", new Direction(\"{1}\", \"{2}\", \"{3}\"));".format(child.getAttribute("tag"), child.getAttribute("name"), child.getAttribute("title"), routeTag) + "\n")
-                prevDirChild = None
                 for dirChild in child.childNodes:
                     if dirChild.nodeName == "stop":
-                        if prevDirChild:
-                            f.write("            stop{0}.addNextStop(stop{1}, \"{2}\");".format(prevDirChild.getAttribute("tag"), dirChild.getAttribute("tag"), routeTag) + "\n")
+                        dirStopTag = dirChild.getAttribute("tag")
+                        f.write("            route.addStop(\"{0}\", stop{1});".format(dirStopTag, dirStopTag) + "\n")
                         prevDirChild = dirChild
                        
 

@@ -9,7 +9,7 @@ import boston.Bus.Map.util.Box;
 
 public class RouteConfig
 {
-
+	private final ArrayList<String> stopOrder;
 	private final MyHashMap<String, StopLocation> stops;
 	private Path[] paths;
 	private final String route;
@@ -32,6 +32,7 @@ public class RouteConfig
 	
 	public void addStop(String tag, StopLocation stopLocation) {
 		stops.put(tag, stopLocation);
+		stopOrder.add(tag);
 	}
 	
 	public StopLocation getStop(String tag)
@@ -91,6 +92,8 @@ public class RouteConfig
 		{
 			paths = nullPaths;
 		}
+		
+		stopOrder = new ArrayList<String>();
 	}
 
 

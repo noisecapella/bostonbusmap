@@ -3,6 +3,7 @@ package boston.Bus.Map.data;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.TreeMap;
 
 import com.schneeloch.suffixarray.ObjectWithString;
@@ -10,10 +11,11 @@ import com.schneeloch.suffixarray.ObjectWithString;
 import boston.Bus.Map.math.Geometry;
 import boston.Bus.Map.transit.TransitSource;
 import boston.Bus.Map.transit.TransitSystem;
+import boston.Bus.Map.util.Constants;
 import android.content.Context;
 import android.graphics.drawable.Drawable;
 
-public class StopLocation implements Location, ObjectWithString
+public class StopLocation implements Location, ObjectWithString, LocationGroup
 {
 	private final float latitudeAsDegrees;
 	private final float longitudeAsDegrees;
@@ -32,7 +34,7 @@ public class StopLocation implements Location, ObjectWithString
 	 * A mapping of routes to dirTags
 	 */
 	private final SmallMap<String, String> dirTags;
-
+	
 	private static final int LOCATIONTYPE = 3;
 	
 	public StopLocation(float latitudeAsDegrees, float longitudeAsDegrees,
@@ -429,5 +431,24 @@ public class StopLocation implements Location, ObjectWithString
 	@Override
 	public String getString() {
 		return title;
+	}
+
+	
+	// these two are used in LocationGroup, so they only compare by location
+	@Override
+	public int hashCode() {
+		return (int)(latitudeAsDegrees*Constants.E6) ^ (int)(longitudeAsDegrees * Constants.E6);
+	}
+	
+	@Override
+	public boolean equals(Object o) {
+		if (o instanceof StopLocation) {
+			return ((StopLocation) o).latitudeAsDegrees == latitudeAsDegrees &&
+					((StopLocation)o).longitudeAsDegrees == longitudeAsDegrees;
+		}
+		else
+		{
+			return false;
+		}
 	}
 }
