@@ -20,49 +20,49 @@ import boston.Bus.Map.transit.TransitSource;
 import boston.Bus.Map.data.Directions;
 import boston.Bus.Map.data.MyHashMap;
 
-public class NextbusPrepopulatedData {
+public class {0}PrepopulatedData {1}
     private final TransitSource transitSource;
     private final Directions directions;
     private final RouteConfig[] allRoutes;
     private final MyHashMap<LocationGroup, LocationGroup> allStops;
 
 
-    public NextbusPrepopulatedData(TransitSource transitSource, Directions directions) throws Exception {
+    public {0}PrepopulatedData(TransitSource transitSource, Directions directions) throws Exception {1}
         this.transitSource = transitSource;
         this.directions = directions;
         allRoutes = makeAllRoutes();
         allStops = makeAllStops();
-    }
+    {2}
 
-    private MyHashMap<LocationGroup, LocationGroup> makeAllStops() {
+    private MyHashMap<LocationGroup, LocationGroup> makeAllStops() {1}
         MyHashMap<LocationGroup, LocationGroup> ret = new MyHashMap<LocationGroup, LocationGroup>();
-        for (RouteConfig route : allRoutes) {
-            for (StopLocation stop : route.getStops()) {
+        for (RouteConfig route : allRoutes) {1}
+            for (StopLocation stop : route.getStops()) {1}
                 LocationGroup locationGroup = ret.get(stop);
-                if (locationGroup != null) {
-                    if (locationGroup instanceof MultipleStopLocations) {
+                if (locationGroup != null) {1}
+                    if (locationGroup instanceof MultipleStopLocations) {1}
                         ((MultipleStopLocations)locationGroup).addStop(stop);
-                    }
+                    {2}
                     else
-                    {
+                    {1}
                         MultipleStopLocations multipleStopLocations = new MultipleStopLocations();
                         multipleStopLocations.addStop((StopLocation)locationGroup);
                         multipleStopLocations.addStop(stop);
                         ret.put(multipleStopLocations, multipleStopLocations);
-                    }
-                }
+                    {2}
+                {2}
                 else
-                {
+                {1}
                     ret.put(locationGroup, locationGroup);
-                }
-            }
-        }
+                {2}
+            {2}
+        {2}
         return ret;
-    }
+    {2}
 
-    public RouteConfig[] getAllRoutes() {
+    public RouteConfig[] getAllRoutes() {1}
         return allRoutes;
-    }
+    {2}
 
 """
 
@@ -212,8 +212,8 @@ def printEachMakeRoute(routes, f):
         f.write("    }\n")
 
 
-def runPrepopulated(dom, f):
-    f.write(header + "\n")
+def runPrepopulated(dom, f, prefix):
+    f.write(header.format(prefix, "{", "}") + "\n")
 
     routes = dom.getElementsByTagName("route")
     #printMakeRoute(routes)
@@ -241,8 +241,9 @@ def main():
         exit(1)
 
     dom = get_dom(sys.argv[1])
-    f = open(sys.argv[2] + "/boston/Bus/Map/data/NextbusPrepopulatedData.java", "wb")
-    runPrepopulated(dom, f)
+    prefix = "Nextbus"
+    f = open(sys.argv[2] + "/boston/Bus/Map/data/{0}PrepopulatedData.java".format(prefix), "wb")
+    runPrepopulated(dom, f, prefix)
     #f = open(sys.argv[2] + "/boston/Bus/Map/data/NextbusPrepopulatedDirections.java", "wb")
     #runDirections(dom, f)
 
