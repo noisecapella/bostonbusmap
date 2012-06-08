@@ -122,118 +122,62 @@ def distanceFunc(tup1, tup2):
     ret = dist/kiloPerMile
     return ret
 
-def printStopGraph(routes, f):
-    f.write("    public MyHashMap<String, String[]> getLocalStops() {\n")
-    f.write("        MyHashMap<String, String[]> ret = new MyHashMap<String, String[]>();\n")
-    locationMap = {}
-    stopMap = {}
-    for route in routes:
-        routeTag = route.getAttribute("tag")
-        for child in route.childNodes:
-            if child.nodeName == "stop":
-                stopTag = child.getAttribute("tag")
-                lat = float(child.getAttribute("lat"))
-                lon = float(child.getAttribute("lon"))
-
-                locKey = (lat, lon)
-                if not locKey in locationMap:
-                    locationMap[locKey] = {}
-                locationMap[locKey][stopTag] = True
-                stopMap[stopTag] = (stopTag, lat, lon)
-                
-    for locKey, stops in locationMap.iteritems():
-        if len(stops) == 0:
-            continue
-        lat, lon = locKey
-
-        f.write("            makeClosest{0}(ret);".format(humanize(locKey) + "\n"))
-
-
-    f.write("        return ret;\n")
-    f.write("    }\n")
-
-    for locKey, stops in locationMap.iteritems():
-        if len(stops) == 0:
-            continue
-
-        printEachMakeClosestStops(locKey, stops, stopMap, f)
 
 def humanize(locKey):
     return str(locKey).replace("-", "_").replace(".", "_").replace(",", "_").replace(" ", "_").replace("(", "_").replace(")", "_")
 
-def printEachMakeClosestStops(locKey, stops, stopMap, f):
-        lat, lon = locKey
-        f.write("    public void makeClosest{0}(MyHashMap<String, String[]> map) {1}".format(humanize(locKey), "{") + "\n")
-        f.write("        String[] arr = new String[] {\n")
-        key = (stops.keys()[0], lat, lon)
-        byDistance = filter(lambda t: distanceFunc(t, key) < 0.5, stopMap.values())
-        byDistance = sorted(byDistance, key = lambda t: distanceFunc(t, key))
-
-        usedLatKeys = {(lat, lon):True}
-        for each in byDistance:
-            newLatKey = (each[1], each[2])
-            if newLatKey not in usedLatKeys:
-                f.write("                \"{0}\",".format(each[0]) + "\n")
-                usedLatKeys[newLatKey] = True
-                if len(usedLatKeys) == 10:
-                    break
-        f.write("        };\n")
-
-        for stop in stops.iteritems():
-            stopTag, _ = stop
-            f.write("        map.put(\"{0}\", arr);".format(stopTag) + "\n")
-        f.write("    }\n")
 
 def printEachMakeRoute(routes, f):
     for i in xrange(len(routes)):
         route = routes[i]
-        routeTag = route.getAttribute("tag")
+        routeTag = route["tag"]
         f.write("    public RouteConfig makeRoute{0}() throws IOException {1}".format(i, "{") + "\n")
         f.write("        TransitDrawables drawables = transitSource.getDrawables();\n")
-        f.write("        RouteConfig route = new RouteConfig(\"{0}\", \"{1}\", 0x{2}, 0x{3}, transitSource);".format(routeTag, route.getAttribute("title"), route.getAttribute("color"), route.getAttribute("oppositeColor")) + "\n")
+        f.write("        RouteConfig route = new RouteConfig(\"{0}\", \"{1}\", 0x{2}, 0x{3}, transitSource);".format(routeTag, route["title"], route["color"], route["oppositeColor"]) + "\n")
 
-        children = route.childNodes
-        for child in children:
-            if child.nodeName == "stop":
-                stopTag = child.getAttribute("tag")
-                f.write("        StopLocation stop{0} = new StopLocation({1}f, {2}f, drawables, \"{0}\", \"{3}\");".format(stopTag, child.getAttribute("lat"), child.getAttribute("lon"), child.getAttribute("title")) + "\n")
-                f.write("        allStops.put(stop{1}, stop{1});".format(stopTag, stopTag) + "\n")
-                #f.write("        route.addStop(\"{0}\", stop{1});".format(stopTag, stopTag) + "\n")
-            elif child.nodeName == "direction":
-                f.write("            directions.add(\"{0}\", new Direction(\"{1}\", \"{2}\", \"{3}\"));".format(child.getAttribute("tag"), child.getAttribute("name"), child.getAttribute("title"), routeTag) + "\n")
-                for dirChild in child.childNodes:
-                    if dirChild.nodeName == "stop":
-                        dirStopTag = dirChild.getAttribute("tag")
-                        f.write("            route.addStop(\"{0}\", stop{1});".format(dirStopTag, dirStopTag) + "\n")
-                        prevDirChild = dirChild
+        for stop in route["stops"]:
+            stopTag = stop["tag"]
+            f.write("        StopLocation stop{0} = new StopLocation({1}f, {2}f, drawables, \"{0}\", \"{3}\");".format(stopTag, stop["lat"], stop["lon"], stop["title"]) + "\n")
+            f.write("        allStops.put(stop{1}, stop{1});".format(stopTag, stopTag) + "\n")
+            f.write("        route.addStop(\"{0}\", stop{1});".format(stopTag, stopTag) + "\n")
+        for direction in route["directions"]:
+            f.write("            directions.add(\"{0}\", new Direction(\"{1}\", \"{2}\", \"{3}\"));".format(direction["tag"], direction["name"], direction["title"], routeTag) + "\n")
+            for dirChild in direction["stops"]:
+                dirStopTag = dirChild["tag"]
+                f.write("            route.addStop(\"{0}\", stop{1});".format(dirStopTag, dirStopTag) + "\n")
                        
 
         f.write("        return route;\n")
         f.write("    }\n")
 
 
-def runPrepopulated(dom, f, prefix):
+def nextbusToRoutes(routesXml):
+    routes = []
+    for routeXml in routesXml.getElementsByTagName("route"):
+        stops = []
+        directions = []
+        route = {"tag":routeXml.getAttribute("tag"), "title": routeXml.getAttribute("title"), "color": routeXml.getAttribute("color"), "oppositeColor": routeXml.getAttribute("oppositeColor"), "stops": stops, "directions": directions}
+        routes.append(route)
+        for routeChildXml in routeXml.childNodes:
+            if routeChildXml.nodeName == "stop":
+                stops.append({"tag": routeChildXml.getAttribute("tag"), "title": routeChildXml.getAttribute("title"), "lat": routeChildXml.getAttribute("lat"), "lon": routeChildXml.getAttribute("lon")})
+            elif routeChildXml.nodeName == "direction":
+                directionStops = []
+                direction = {"tag" : routeChildXml.getAttribute("tag"), "title": routeChildXml.getAttribute("title"), "name": routeChildXml.getAttribute("name"), "stops": directionStops}
+                directions.append(direction)
+                for directionChildXml in routeChildXml.childNodes:
+                    if directionChildXml.nodeName == "stop":
+                        directionStops.append({"tag": directionChildXml.getAttribute("tag")})
+    return routes
+
+def runPrepopulated(routes, f, prefix):
     f.write(header.format(prefix, "{", "}") + "\n")
 
-    routes = dom.getElementsByTagName("route")
-    #printMakeRoute(routes)
-
-    # a helper for search suggestions
-    #printStopSuffixes(routes)
     printMakeAllRoutes(routes, f)
     printEachMakeRoute(routes, f)
     
     f.write(footer + "\n")
-    #printConstants(routes)
 
-def runDirections(dom, f):
-    f.write(headerDirections + "\n")
-
-    routes = dom.getElementsByTagName("route")
-
-    printStopGraph(routes, f)
-
-    f.write(footerDirections + "\n")
 
 def main():
     if len(sys.argv) != 3:
@@ -241,9 +185,10 @@ def main():
         exit(1)
 
     dom = get_dom(sys.argv[1])
-    prefix = "Nextbus"
-    f = open(sys.argv[2] + "/boston/Bus/Map/data/{0}PrepopulatedData.java".format(prefix), "wb")
-    runPrepopulated(dom, f, prefix)
+    nextbusPrefix = "Nextbus"
+    f = open(sys.argv[2] + "/boston/Bus/Map/data/{0}PrepopulatedData.java".format(nextbusPrefix), "wb")
+    nextbusRoutes = nextbusToRoutes(dom)
+    runPrepopulated(nextbusRoutes, f, nextbusPrefix)
     #f = open(sys.argv[2] + "/boston/Bus/Map/data/NextbusPrepopulatedDirections.java", "wb")
     #runDirections(dom, f)
 
