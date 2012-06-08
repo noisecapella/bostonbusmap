@@ -20,7 +20,7 @@ public class RoutePool {
 	private final LinkedList<String> priorities = new LinkedList<String>();
 	private final MyHashMap<String, RouteConfig> pool = new MyHashMap<String, RouteConfig>();
 	private final MyHashMap<String, StopLocation> sharedStops = new MyHashMap<String, StopLocation>();
-
+	
 	/**
 	 * A mapping of stop key to route key. Look in sharedStops for the StopLocation
 	 */

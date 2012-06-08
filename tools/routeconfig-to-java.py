@@ -9,7 +9,7 @@ from geopy.point import Point
 
 headerDirections = """package boston.Bus.Map.data;
 
-public class PrepopulatedDirections {
+public class NextbusPrepopulatedDirections {
 """
 
 header = """package boston.Bus.Map.data;
@@ -20,14 +20,14 @@ import boston.Bus.Map.transit.TransitSource;
 import boston.Bus.Map.data.Directions;
 import boston.Bus.Map.data.MyHashMap;
 
-public class PrepopulatedData {
+public class NextbusPrepopulatedData {
     private final TransitSource transitSource;
     private final Directions directions;
     private final RouteConfig[] allRoutes;
     private final MyHashMap<LocationGroup, LocationGroup> allStops;
 
 
-    public PrepopulatedData(TransitSource transitSource, Directions directions) throws Exception {
+    public NextbusPrepopulatedData(TransitSource transitSource, Directions directions) throws Exception {
         this.transitSource = transitSource;
         this.directions = directions;
         allRoutes = makeAllRoutes();
@@ -241,10 +241,10 @@ def main():
         exit(1)
 
     dom = get_dom(sys.argv[1])
-    f = open(sys.argv[2] + "/boston/Bus/Map/data/PrepopulatedData.java", "wb")
+    f = open(sys.argv[2] + "/boston/Bus/Map/data/NextbusPrepopulatedData.java", "wb")
     runPrepopulated(dom, f)
-    f = open(sys.argv[2] + "/boston/Bus/Map/data/PrepopulatedDirections.java", "wb")
-    runDirections(dom, f)
+    #f = open(sys.argv[2] + "/boston/Bus/Map/data/NextbusPrepopulatedDirections.java", "wb")
+    #runDirections(dom, f)
 
     
 
