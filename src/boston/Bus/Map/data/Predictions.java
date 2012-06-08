@@ -2,6 +2,7 @@ package boston.Bus.Map.data;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.TreeMap;
 import java.util.TreeSet;
 
 import android.content.Context;
@@ -34,7 +35,7 @@ public class Predictions
 	private static final Prediction[] nullPredictions = new Prediction[0];
 	
 	public synchronized void makeSnippetAndTitle(RouteConfig routeConfig,
-			MyHashMap<String, String> routeKeysToTitles, Context context, MyHashMap<String, String> dirTags, String title, String tag)
+			MyHashMap<String, String> routeKeysToTitles, Context context, TreeMap<String, String> dirTags, String title, String tag)
 	{
 		ArrayList<String> routes = new ArrayList<String>();
 		routes.addAll(dirTags.keySet());
@@ -137,7 +138,7 @@ public class Predictions
 
 	
 	public synchronized void addToSnippetAndTitle(RouteConfig routeConfig, StopLocation stopLocation, MyHashMap<String, String> routeKeysToTitles,
-			Context context, String title, MyHashMap<String, String> dirTags)
+			Context context, String title, TreeMap<String, String> dirTags)
 	{
 		if (sharedSnippetStops == null)
 		{

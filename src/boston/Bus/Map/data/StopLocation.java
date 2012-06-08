@@ -3,6 +3,7 @@ package boston.Bus.Map.data;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.TreeMap;
 
 import boston.Bus.Map.math.Geometry;
 import boston.Bus.Map.transit.TransitSource;
@@ -30,7 +31,7 @@ public class StopLocation implements Location
 	/**
 	 * A mapping of routes to dirTags
 	 */
-	private final MyHashMap<String, String> dirTags;
+	private final TreeMap<String, String> dirTags;
 
 	private static final int LOCATIONTYPE = 3;
 	
@@ -44,7 +45,7 @@ public class StopLocation implements Location
 		this.drawables = drawables;
 		this.tag = tag;
 		this.title = title;
-		this.dirTags = new MyHashMap<String, String>();
+		this.dirTags = new TreeMap<String, String>();
 	}
 
 	/**

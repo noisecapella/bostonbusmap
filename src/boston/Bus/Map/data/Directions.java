@@ -7,10 +7,7 @@ import android.util.Log;
 import boston.Bus.Map.database.DatabaseHelper;
 
 public class Directions {
-	private final MyHashMap<String, Integer> indexes = new MyHashMap<String, Integer>();
-	private final ArrayList<String> names = new ArrayList<String>();
-	private final ArrayList<String> titles = new ArrayList<String>();
-	private final ArrayList<String> routes = new ArrayList<String>();
+	private final MyHashMap<String, Direction> directions = new MyHashMap<String, Direction>();
 	
 	private final DatabaseHelper helper;
 	
@@ -20,76 +17,52 @@ public class Directions {
 		this.helper = helper;
 	}
 
-	public void add(String dirTag, String name, String title, String route)
-	{
-		if (indexes.containsKey(dirTag) == false)
+	public void add(String dirTag, Direction direction) {
+		if (directions.containsKey(dirTag) == false)
 		{
-			synchronized(indexes)
+			synchronized(directions)
 			{
-				indexes.put(dirTag, names.size());
-				names.add(name);
-				titles.add(title);
-				routes.add(route);
+				directions.put(dirTag, direction);
 			}
 		}
+		
 	}
 	
-	private Integer getIndex(String dirTag)
+	public void add(String dirTag, String name, String title, String route)
+	{
+		add(dirTag, new Direction(name, title, route));
+	}
+	
+	private Direction getDirection(String dirTag)
 	{
 		if (dirTag == null)
 		{
 			return null;
 		}
-		Integer i = indexes.get(dirTag);
-		if (i == null)
+		Direction direction = directions.get(dirTag);
+		if (direction == null)
 		{
 			Log.i("BostonBusMap", "strange, dirTag + " + dirTag + " doesnt exist. If you see this many times, we're having trouble storing the data in the database. Too much DB activity causes objects to persist which causes a crash");
 			if (isRefreshed == false)
 			{
-				synchronized(indexes)
+				synchronized(directions)
 				{
-					helper.refreshDirections(indexes, names, titles, routes);
+					helper.refreshDirections(directions);
 				}
 				isRefreshed = true;
 			}
 
-			return indexes.get(dirTag);
+			return directions.get(dirTag);
 		}
 		else
 		{
-			return i;
+			return direction;
 		}
 	}
 	
-	public String getName(String dirTag)
-	{
-		Integer i = getIndex(dirTag);
-		if (i == null)
-		{
-			return null;
-		}
-		else
-		{
-			return names.get(i);
-		}
-	}
-	
-
-	public String getTitle(String dirTag)
-	{
-		Integer i = getIndex(dirTag);
-		if (i == null)
-		{
-			return null;
-		}
-		else
-		{
-			return titles.get(i);
-		}
-	}
 
 	public void writeToDatabase(boolean wipe) {
-		helper.writeDirections(wipe, indexes, names, titles, routes);
+		helper.writeDirections(wipe, directions);
 	}
 
 	/**
@@ -103,15 +76,15 @@ public class Directions {
 			return null;
 		}
 		
-		Integer i = getIndex(dirTag);
-		if (i == null)
+		Direction direction = getDirection(dirTag);
+		if (direction == null)
 		{
 			return null;
 		}
 		else
 		{
-			String title = titles.get(i);
-			String name = names.get(i);
+			String title = direction.getTitle();
+			String name = direction.getName();
 			boolean emptyTitle = title == null || title.length() == 0;
 			boolean emptyName = name == null || name.length() == 0;
 			
