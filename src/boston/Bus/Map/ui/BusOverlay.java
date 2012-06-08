@@ -371,7 +371,8 @@ public class BusOverlay extends BalloonItemizedOverlay<BusOverlayItem> {
 		
 		BusPopupView view = (BusPopupView)balloonView;
 		boolean isVisible = location instanceof StopLocation;
-		view.setState(location.isFavorite(), isVisible, isVisible, location);
+		boolean isFavorite = locationsObj.isFavorite(location);
+		view.setState(isFavorite, isVisible, isVisible, location);
 		
 		return ret;
 	}

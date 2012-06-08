@@ -27,7 +27,6 @@ public class StopLocation implements Location, ObjectWithString, LocationGroup
 	
 	private Predictions predictions;
 	
-	private boolean isFavorite;
 	private boolean recentlyUpdated;
 	
 	/**
@@ -255,15 +254,6 @@ public class StopLocation implements Location, ObjectWithString, LocationGroup
 		}
 	}
 
-	public void setFavorite(boolean b)
-	{
-		isFavorite = b;
-	}
-	
-	@Override
-	public boolean isFavorite() {
-		return isFavorite;
-	}
 	/**
 	 * The list of routes that owns the StopLocation. NOTE: this is not in any particular order
 	 * @return

@@ -430,4 +430,14 @@ public final class Locations
 		
 		return null;
 	}
+
+	public boolean isFavorite(Location location) {
+		if (location instanceof StopLocation) {
+			return routeMapping.isFavorite((StopLocation)location);
+		}
+		else
+		{
+			return false;
+		}
+	}
 }

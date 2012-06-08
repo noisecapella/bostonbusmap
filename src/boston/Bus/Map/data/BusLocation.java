@@ -357,10 +357,6 @@ public class BusLocation implements Location {
 		return longitudeAsDegrees;
 	}
 
-	@Override
-	public boolean isFavorite() {
-		return false;
-	}
 
 	/**
 	 * The route name

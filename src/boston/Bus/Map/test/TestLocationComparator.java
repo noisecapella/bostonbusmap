@@ -98,12 +98,6 @@ public class TestLocationComparator extends TestCase
 		}
 
 		@Override
-		public boolean isFavorite() {
-			// TODO Auto-generated method stub
-			return false;
-		}
-
-		@Override
 		public void makeSnippetAndTitle(RouteConfig selectedRoute,
 				MyHashMap<String, String> routeKeysToTitles, Context context) {
 			// TODO Auto-generated method stub

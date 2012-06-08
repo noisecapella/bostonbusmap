@@ -30,8 +30,6 @@ public interface Location {
 	 */
 	float distanceFrom(double centerLatitudeAsRadians, double centerLongitudeAsRadians);
 
-	boolean isFavorite();
-
 	/**
 	 * Prepare the textbox text and store it in the class
 	 * @param selectedRoute show only this route, if not null

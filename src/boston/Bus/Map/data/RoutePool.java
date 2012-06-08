@@ -64,7 +64,6 @@ public class RoutePool {
 			if (stopLocation != null)
 			{
 				Log.v("BostonBusMap", "setting favorite status to true for " + stop);
-				stopLocation.setFavorite(true);
 				sharedStops.put(stop, stopLocation);
 			}
 		}
@@ -247,19 +246,6 @@ public class RoutePool {
 		helper.saveFavorite(location.getStopTag(), stopTags, isFavorite);
 		favoriteStops.clear();
 		populateFavorites(false);
-		
-		if (isFavorite == false)
-		{
-			//make sure setFavorite(false) is called for each stop
-			for (String tag : stopTags)
-			{
-				StopLocation stop = sharedStops.get(tag);
-				if (stop != null)
-				{
-					stop.setFavorite(false);
-				}
-			}
-		}
 		
 		return isFavorite ? R.drawable.full_star : R.drawable.empty_star;
 	}
