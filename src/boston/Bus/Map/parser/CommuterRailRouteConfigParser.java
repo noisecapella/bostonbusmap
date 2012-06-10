@@ -431,7 +431,7 @@ public class CommuterRailRouteConfigParser
 				route.addStop(stopTag, stopLocation);
 			}
 			
-			stopLocation.addRouteAndDirTag(routeKey, direction);
+			stopLocation.addRoute(routeKey);
 			
 			route.addStop(stopTag, stopLocation);
 			

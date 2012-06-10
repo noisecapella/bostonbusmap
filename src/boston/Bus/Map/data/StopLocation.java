@@ -32,7 +32,7 @@ public class StopLocation implements Location, ObjectWithString, LocationGroup
 	/**
 	 * A mapping of routes to dirTags
 	 */
-	private final SmallMap<String, String> dirTags;
+	private final ArrayList<String> routes;
 	
 	private static final int LOCATIONTYPE = 3;
 	
@@ -44,7 +44,7 @@ public class StopLocation implements Location, ObjectWithString, LocationGroup
 		this.drawables = drawables;
 		this.tag = tag;
 		this.title = title;
-		this.dirTags = new SmallMap<String, String>();
+		this.routes = new ArrayList<String>(1);
 	}
 
 	/**
@@ -52,11 +52,14 @@ public class StopLocation implements Location, ObjectWithString, LocationGroup
 	 * @param route
 	 * @param dirTag
 	 */
-	public void addRouteAndDirTag(String route, String dirTag)
+	public void addRoute(String route)
 	{
-		synchronized (dirTags)
+		synchronized (routes)
 		{
-			dirTags.put(route, dirTag);
+			routes.add(route);
+			if (routes.size() > 1) {
+				Collections.sort(routes);
+			}
 		}
 	}
 	
@@ -116,7 +119,7 @@ public class StopLocation implements Location, ObjectWithString, LocationGroup
 			predictions = new Predictions();
 		}
 		
-		predictions.makeSnippetAndTitle(routeConfig, routeKeysToTitles, context, dirTags, title, tag);
+		predictions.makeSnippetAndTitle(routeConfig, routeKeysToTitles, context, routes, title, tag);
 	}
 	
 	@Override
@@ -130,7 +133,7 @@ public class StopLocation implements Location, ObjectWithString, LocationGroup
 		
 		StopLocation stopLocation = (StopLocation)location;
 		
-		predictions.addToSnippetAndTitle(routeConfig, stopLocation, routeKeysToTitles, context, title, dirTags);
+		predictions.addToSnippetAndTitle(routeConfig, stopLocation, routeKeysToTitles, context, title, routes);
 	}
 	
 	@Override
@@ -227,27 +230,27 @@ public class StopLocation implements Location, ObjectWithString, LocationGroup
 	 * 
 	 * @param urlString
 	 */
-	public void createBusPredictionsUrl(TransitSystem system, StringBuilder urlString, String routeName) {
+	public void createBusPredictionsUrl(TransitSystem system, StringBuilder urlString, String routeName, Directions directions) {
 		if (routeName != null)
 		{
 			//only do it for the given route
 			TransitSource source = system.getTransitSource(routeName);
 			if (source != null)
 			{
-				source.bindPredictionElementsForUrl(urlString, routeName, tag, dirTags.get(routeName));
+				source.bindPredictionElementsForUrl(urlString, routeName, tag);
 			}
 		}
 		else
 		{
 			//do it for all routes we know about
-			synchronized (dirTags)
+			synchronized (routes)
 			{
-				for (String route : dirTags.keySet())
+				for (String route : routes)
 				{
 					TransitSource source = system.getTransitSource(route);
 					if (source != null)
 					{
-						source.bindPredictionElementsForUrl(urlString, route, tag, dirTags.get(route));
+						source.bindPredictionElementsForUrl(urlString, route, tag);
 					}
 				}
 			}
@@ -259,27 +262,17 @@ public class StopLocation implements Location, ObjectWithString, LocationGroup
 	 * @return
 	 */
 	public Collection<String> getRoutes() {
-		return dirTags.keySet();
+		return routes;
 	}
 
 	public String getFirstRoute() {
-		String ret = null;
-		for (String route : dirTags.keySet())
-		{
-			if (ret == null)
-			{
-				ret = route;
-			}
-			else
-			{
-				int c = ret.compareTo(route);
-				if (c > 0)
-				{
-					ret = route;
-				}
-			}
+		if (routes.size() > 0) {
+			return routes.get(0);
 		}
-		return ret;
+		else
+		{
+			return null;
+		}
 	}
 
 	public Prediction[] getCombinedPredictions()
@@ -318,10 +311,6 @@ public class StopLocation implements Location, ObjectWithString, LocationGroup
 		}
 		
 		return new String[]{title};
-	}
-
-	public String getDirTagForRoute(String route) {
-		return dirTags.get(route);
 	}
 
 	public String getCombinedStops() {

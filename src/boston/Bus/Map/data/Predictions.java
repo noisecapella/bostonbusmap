@@ -35,10 +35,8 @@ public class Predictions
 	private static final Prediction[] nullPredictions = new Prediction[0];
 	
 	public synchronized void makeSnippetAndTitle(RouteConfig routeConfig,
-			MyHashMap<String, String> routeKeysToTitles, Context context, SmallMap<String, String> dirTags, String title, String tag)
+			MyHashMap<String, String> routeKeysToTitles, Context context, ArrayList<String> routes, String title, String tag)
 	{
-		ArrayList<String> routes = new ArrayList<String>();
-		routes.addAll(dirTags.keySet());
 		Collections.sort(routes);
 		
 		snippetRoutes = routes.toArray(new String[0]);
@@ -138,7 +136,7 @@ public class Predictions
 
 	
 	public synchronized void addToSnippetAndTitle(RouteConfig routeConfig, StopLocation stopLocation, MyHashMap<String, String> routeKeysToTitles,
-			Context context, String title, SmallMap<String, String> dirTags)
+			Context context, String title, ArrayList<String> routes)
 	{
 		if (sharedSnippetStops == null)
 		{
@@ -174,7 +172,7 @@ public class Predictions
 		snippetStop += ", " + stopLocation.getStopTag();
 		
 		combinedRoutes = new TreeSet<String>();
-		combinedRoutes.addAll(dirTags.keySet());
+		combinedRoutes.addAll(routes);
 		for (StopLocation s : sharedSnippetStops)
 		{
 			combinedRoutes.addAll(s.getRoutes());

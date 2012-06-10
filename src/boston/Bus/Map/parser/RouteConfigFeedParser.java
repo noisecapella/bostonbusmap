@@ -127,7 +127,7 @@ public class RouteConfigFeedParser extends DefaultHandler
 					}
 
 					currentRouteConfig.addStop(tag, stopLocation);
-					stopLocation.addRouteAndDirTag(currentRouteConfig.getRouteName(), attributes.getValue(dirTagKey));
+					stopLocation.addRoute(currentRouteConfig.getRouteName());
 				}
 				else
 				{

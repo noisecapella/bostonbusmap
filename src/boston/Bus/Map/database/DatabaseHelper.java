@@ -431,7 +431,6 @@ public class DatabaseHelper extends SQLiteOpenHelper
 				ContentValues values = new ContentValues();
 				values.put(routeKey, route);
 				values.put(stopTagKey, stopTag);
-				values.put(dirTagKey, stop.getDirTagForRoute(route));
 				database.replace(stopsRoutesMap, null, values);
 			}
 		}
@@ -628,7 +627,6 @@ public class DatabaseHelper extends SQLiteOpenHelper
 			while (stopCursor.isAfterLast() == false)
 			{
 				String stopTag = stopCursor.getString(0);
-				String dirTag = stopCursor.getString(6);
 				String route = stopCursor.getString(7);
 
 				//we need to ensure this stop is in the sharedstops and the route
@@ -641,7 +639,7 @@ public class DatabaseHelper extends SQLiteOpenHelper
 					{
 						routeConfig.addStop(stopTag, stop);
 					}
-					stop.addRouteAndDirTag(route, dirTag);
+					stop.addRoute(route);
 				}
 				else
 				{
@@ -656,8 +654,8 @@ public class DatabaseHelper extends SQLiteOpenHelper
 
 						int platformOrder = stopCursor.getInt(4);
 
-						stop = transitSystem.createStop(latitude, longitude, stopTag, stopTitle, platformOrder, branch, route, dirTag);
 						
+						stop = transitSystem.createStop(latitude, longitude, stopTag, stopTitle, platformOrder, branch, route);
 						routeConfig.addStop(stopTag, stop);
 					}
 					
@@ -1106,7 +1104,6 @@ public class DatabaseHelper extends SQLiteOpenHelper
 				String stopTag = stopCursor.getString(0);
 				
 				String route = stopCursor.getString(6);
-				String dirTag = stopCursor.getString(7);
 
 				float lat = stopCursor.getFloat(1);
 				float lon = stopCursor.getFloat(2);
@@ -1120,7 +1117,7 @@ public class DatabaseHelper extends SQLiteOpenHelper
 					branch = stopCursor.getString(5);
 				}
 
-				StopLocation stop = transitSystem.createStop(lat, lon, stopTag, title, platformOrder, branch, route, dirTag);
+				StopLocation stop = transitSystem.createStop(lat, lon, stopTag, title, platformOrder, branch, route);
 				return stop;
 			}
 			else
@@ -1216,7 +1213,6 @@ public class DatabaseHelper extends SQLiteOpenHelper
 				String stopTag = stopCursor.getString(0);
 				
 				String route = stopCursor.getString(6);
-				String dirTag = stopCursor.getString(7);
 
 				StopLocation stop = outputMapping.get(stopTag);
 				if (stop == null)
@@ -1233,12 +1229,12 @@ public class DatabaseHelper extends SQLiteOpenHelper
 						branch = stopCursor.getString(5);
 					}
 
-					stop = transitSystem.createStop(lat, lon, stopTag, title, platformOrder, branch, route, dirTag);
+					stop = transitSystem.createStop(lat, lon, stopTag, title, platformOrder, branch, route);
 					outputMapping.put(stopTag, stop);
 				}
 				else
 				{
-					stop.addRouteAndDirTag(route, dirTag);
+					stop.addRoute(route);
 				}
 				
 				stopCursor.moveToNext();

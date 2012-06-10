@@ -135,7 +135,7 @@ public abstract class NextBusTransitSource implements TransitSource
 
 			//ok, do predictions now
 			String routeName = selectedBusPredictions == Main.BUS_PREDICTIONS_ONE ? routeConfig.getRouteName() : null;
-			String url = getPredictionsUrl(locations, maxStops, routeName);
+			String url = getPredictionsUrl(locations, maxStops, routeName, locationsObj.getDirections());
 
 			if (url == null)
 			{
@@ -232,7 +232,7 @@ public abstract class NextBusTransitSource implements TransitSource
 
 	protected abstract void parseAlert(RouteConfig routeConfig) throws ClientProtocolException, IOException, SAXException;
 
-	protected String getPredictionsUrl(List<Location> locations, int maxStops, String route)
+	protected String getPredictionsUrl(List<Location> locations, int maxStops, String route, Directions directions)
 	{
 		//TODO: technically we should be checking that it is a bus route, not that it's not a subway route
 		//but this is probably more efficient
@@ -250,7 +250,7 @@ public abstract class NextBusTransitSource implements TransitSource
 			if ((location instanceof StopLocation) && !(location instanceof SubwayStopLocation))
 			{
 				StopLocation stopLocation = (StopLocation)location;
-				stopLocation.createBusPredictionsUrl(transitSystem, urlString, route);
+				stopLocation.createBusPredictionsUrl(transitSystem, urlString, route, directions);
 			}
 		}
 
@@ -262,17 +262,21 @@ public abstract class NextBusTransitSource implements TransitSource
 
 	@Override
 	public void bindPredictionElementsForUrl(StringBuilder urlString,
-			String routeName, String stopId, String direction) {
+			String routeName, String stopId) {
 		urlString.append("&stops=").append(routeName).append("%7C");
-		if (direction != null)
-		{
-			urlString.append(direction);
-		}
 
 		urlString.append("%7C").append(stopId);
 
 	}
 
+	@Override
+	public StopLocation createStop(float lat, float lon, String stopTag,
+			String title, int platformOrder, String branch, String route) {
+
+		StopLocation stop = new StopLocation(lat, lon, drawables, stopTag, title);
+		stop.addRoute(route);
+		return stop;
+	}
 	protected String getVehicleLocationsUrl(long time, String route)
 	{
 		if (route != null)
@@ -343,16 +347,6 @@ public abstract class NextBusTransitSource implements TransitSource
 	@Override
 	public MyHashMap<String, String> getRouteKeysToTitles() {
 		return routeKeysToTitles;
-	}
-
-
-	@Override
-	public StopLocation createStop(float lat, float lon, String stopTag,
-			String title, int platformOrder, String branch, String route, String dirTag)
-	{
-		StopLocation stop = new StopLocation(lat, lon, drawables, stopTag, title);
-		stop.addRouteAndDirTag(route, dirTag);
-		return stop;
 	}
 
 	@Override

@@ -440,4 +440,8 @@ public final class Locations
 			return false;
 		}
 	}
+
+	public Directions getDirections() {
+		return directions;
+	}
 }

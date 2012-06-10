@@ -8,7 +8,6 @@ import boston.Bus.Map.database.DatabaseHelper;
 
 public class Directions {
 	private final MyHashMap<String, Direction> directions = new MyHashMap<String, Direction>();
-	
 	private final DatabaseHelper helper;
 	
 	private boolean isRefreshed = false;
@@ -106,6 +105,11 @@ public class Directions {
 			}
 				
 		}
+	}
+
+	public String getDirTag(String routeName, String tag) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 	
 	

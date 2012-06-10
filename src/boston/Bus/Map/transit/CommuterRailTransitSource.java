@@ -354,17 +354,16 @@ public class CommuterRailTransitSource implements TransitSource {
 	
 	@Override
 	public StopLocation createStop(float lat, float lon, String stopTag,
-			String title, int platformOrder, String branch, String route,
-			String dirTag) {
+			String title, int platformOrder, String branch, String route) {
 		SubwayStopLocation stopLocation = new CommuterRailStopLocation(lat, lon, drawables, stopTag, title,
 				platformOrder, branch);
-		stopLocation.addRouteAndDirTag(route, dirTag);
+		stopLocation.addRoute(route);
 		return stopLocation;
 	}
 
 	@Override
 	public void bindPredictionElementsForUrl(StringBuilder urlString,
-			String route, String stopTag, String dirTag) {
+			String route, String stopTag) {
 		//do nothing
 	}
 

@@ -124,8 +124,7 @@ public class SubwayRouteConfigFeedParser
 			StopLocation stopLocation = new SubwayStopLocation(latitudeAsDegrees, longitudeAsDegrees,
 					transitSource.getDrawables(), tag, title, platformOrder, branch);
 
-			String dirTag = routeConfig.getRouteName() + elements[indexes.get("Direction")];
-			stopLocation.addRouteAndDirTag(routeConfig.getRouteName(), dirTag);
+			stopLocation.addRoute(routeConfig.getRouteName());
 			routeConfig.addStop(tag, stopLocation);
 			
 			

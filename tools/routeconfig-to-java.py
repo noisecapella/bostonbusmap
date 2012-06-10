@@ -4,13 +4,9 @@ import xml.dom.minidom
 import math
 from geopy import distance
 from geopy.point import Point
+import urllib
 
 #note: pypy is significantly faster than python on this script
-
-headerDirections = """package boston.Bus.Map.data;
-
-public class NextbusPrepopulatedDirections {
-"""
 
 header = """package boston.Bus.Map.data;
 import java.util.ArrayList;
@@ -66,7 +62,6 @@ public class {0}PrepopulatedData {1}
 
 """
 
-footerDirections = "}"
 footer = """}"""
 
 
@@ -128,23 +123,25 @@ def humanize(locKey):
 
 
 def printEachMakeRoute(routes, f):
-    for i in xrange(len(routes)):
-        route = routes[i]
+    for i in xrange(len(routes.values())):
+        route = routes.values()[i]
         routeTag = route["tag"]
         f.write("    public RouteConfig makeRoute{0}() throws IOException {1}".format(i, "{") + "\n")
         f.write("        TransitDrawables drawables = transitSource.getDrawables();\n")
         f.write("        RouteConfig route = new RouteConfig(\"{0}\", \"{1}\", 0x{2}, 0x{3}, transitSource);".format(routeTag, route["title"], route["color"], route["oppositeColor"]) + "\n")
 
-        for stop in route["stops"]:
+        for stop in route["stops"].values():
             stopTag = stop["tag"]
             f.write("        StopLocation stop{0} = new StopLocation({1}f, {2}f, drawables, \"{0}\", \"{3}\");".format(stopTag, stop["lat"], stop["lon"], stop["title"]) + "\n")
             f.write("        allStops.put(stop{1}, stop{1});".format(stopTag, stopTag) + "\n")
             f.write("        route.addStop(\"{0}\", stop{1});".format(stopTag, stopTag) + "\n")
-        for direction in route["directions"]:
+
+        for direction in route["directions"].values():
             f.write("            directions.add(\"{0}\", new Direction(\"{1}\", \"{2}\", \"{3}\"));".format(direction["tag"], direction["name"], direction["title"], routeTag) + "\n")
             for dirChild in direction["stops"]:
                 dirStopTag = dirChild["tag"]
                 f.write("            route.addStop(\"{0}\", stop{1});".format(dirStopTag, dirStopTag) + "\n")
+                f.write("            stop{0}.addRoute(\"{1}\");\n".format(dirStopTag, routeTag))
                        
 
         f.write("        return route;\n")
@@ -152,19 +149,22 @@ def printEachMakeRoute(routes, f):
 
 
 def nextbusToRoutes(routesXml):
-    routes = []
+    routes = {}
     for routeXml in routesXml.getElementsByTagName("route"):
-        stops = []
-        directions = []
-        route = {"tag":routeXml.getAttribute("tag"), "title": routeXml.getAttribute("title"), "color": routeXml.getAttribute("color"), "oppositeColor": routeXml.getAttribute("oppositeColor"), "stops": stops, "directions": directions}
-        routes.append(route)
+        stops = {}
+        directions = {}
+        routeTag = routeXml.getAttribute("tag")
+        route = {"tag":routeTag, "title": routeXml.getAttribute("title"), "color": routeXml.getAttribute("color"), "oppositeColor": routeXml.getAttribute("oppositeColor"), "stops": stops, "directions": directions}
+        routes[routeTag] = route
         for routeChildXml in routeXml.childNodes:
             if routeChildXml.nodeName == "stop":
-                stops.append({"tag": routeChildXml.getAttribute("tag"), "title": routeChildXml.getAttribute("title"), "lat": routeChildXml.getAttribute("lat"), "lon": routeChildXml.getAttribute("lon")})
+                stopTag = routeChildXml.getAttribute("tag")
+                stops[stopTag] = {"tag": stopTag, "title": routeChildXml.getAttribute("title"), "lat": routeChildXml.getAttribute("lat"), "lon": routeChildXml.getAttribute("lon")}
             elif routeChildXml.nodeName == "direction":
+                dirTag = routeChildXml.getAttribute("tag")
                 directionStops = []
-                direction = {"tag" : routeChildXml.getAttribute("tag"), "title": routeChildXml.getAttribute("title"), "name": routeChildXml.getAttribute("name"), "stops": directionStops}
-                directions.append(direction)
+                direction = {"tag" : dirTag, "title": routeChildXml.getAttribute("title"), "name": routeChildXml.getAttribute("name"), "stops": directionStops}
+                directions[dirTag] = direction
                 for directionChildXml in routeChildXml.childNodes:
                     if directionChildXml.nodeName == "stop":
                         directionStops.append({"tag": directionChildXml.getAttribute("tag")})
@@ -179,6 +179,52 @@ def runPrepopulated(routes, f, prefix):
     f.write(footer + "\n")
 
 
+def csvToMap(header, line):
+    ret = {}
+    for i in xrange(len(header)):
+        h = header[i]
+        item = line[i]
+        ret[h] = item
+
+    return ret
+
+def getColor(routeTag):
+    m = {"Red" : "ff0000", "Orange" : "f88017", "Blue": "0000ff"}
+    return m[routeTag]
+
+def subwayRoute(routes, routeCsv):
+    routeTag = routeCsv["Line"]
+    if routeTag not in routes:
+        stops = {}
+        directions = {}
+        routes[routeTag] = {"tag" : routeTag, "title" : routeTag, "color" : getColor(routeTag), "oppositeColor" : getColor("Blue"), "stops" : stops, "directions" : directions}
+    
+    route = routes[routeTag]
+    stopTag = routeCsv["PlatformKey"]
+    stop = {"tag": stopTag, "lat" : routeCsv["stop_lat"], "lon" : routeCsv["stop_lon"], "platformOrder" : routeCsv["PlatformOrder"], "title" : routeCsv["stop_name"], "branch" : routeCsv["Branch"]}
+    route["stops"][stopTag] = stop
+    
+    dirName = routeCsv["Direction"]
+
+    dirTag = routeTag + dirName
+    #routes["directions"][
+    raise "TODO"
+
+def subwayRoutes():
+    url = "http://developer.mbta.com/RT_Archive/RealTimeHeavyRailKeys.csv"
+    localFile, _ = urllib.urlretrieve(url)
+    f = open(localFile)
+    x = [each.strip() for each in f.readlines()]
+    csv = [each.split(",") for each in x]
+    header = csv[0]
+    csv = [csvToMap(line) for line in csv[1:]]
+    
+    routes = {}
+    for mapping in csv:
+        subwayRoute(routes, mapping)
+    
+    return x
+
 def main():
     if len(sys.argv) != 3:
         sys.stderr.write("Usage: python routeconfig-to-java.py routeconfig.xml srcDirectory\n")
@@ -189,6 +235,17 @@ def main():
     f = open(sys.argv[2] + "/boston/Bus/Map/data/{0}PrepopulatedData.java".format(nextbusPrefix), "wb")
     nextbusRoutes = nextbusToRoutes(dom)
     runPrepopulated(nextbusRoutes, f, nextbusPrefix)
+
+    return
+    subwayPrefix = "Subway"
+    f = open(sys.argv[2] + "/boston/Bus/Map/data/{0}PrepopulatedData.java".format(subwayPrefix), "wb")
+    routes = subwayRoutes()
+    runPrepopulated(routes, f, subwayPrefix)
+
+    commuterRailPrefix = "CommuterRail"
+    f = open(sys.argv[2] + "/boston/Bus/Map/data/{0}PrepopulatedData.java".format(commuterRailPrefix), "wb")
+    commuterRailRoutes = commuterRailRoutes()
+    runPrepopulated(commuterRailRoutes, f, commuterRailPrefix)
     #f = open(sys.argv[2] + "/boston/Bus/Map/data/NextbusPrepopulatedDirections.java", "wb")
     #runDirections(dom, f)
 

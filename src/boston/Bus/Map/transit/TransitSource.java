@@ -40,25 +40,14 @@ public interface TransitSource {
 	public String[] getRoutes();
 	
 	public MyHashMap<String, String> getRouteKeysToTitles();
-	
-	/**
-	 * Create a StopLocation using the parameters
-	 * @param lat
-	 * @param lon
-	 * @param stopTag
-	 * @param title
-	 * @param platformOrder
-	 * @param branch
-	 * @param route
-	 * @param dirTag
-	 */
-	StopLocation createStop(float lat, float lon, String stopTag, String title,
-			int platformOrder, String branch, String route, String dirTag);
 
 	void bindPredictionElementsForUrl(StringBuilder urlString, String route,
-			String stopTag, String dirTag);
+			String stopTag);
 
 	String searchForRoute(String indexingQuery, String lowercaseQuery);
 
 	TransitDrawables getDrawables();
+
+	StopLocation createStop(float lat, float lon, String stopTag, String title,
+			int platformOrder, String branch, String route);
 }

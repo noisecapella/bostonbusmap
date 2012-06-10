@@ -196,11 +196,11 @@ public class TransitSystem {
 	 * @return
 	 */
 	public StopLocation createStop(float lat, float lon, String stopTag, String title, int platformOrder, 
-			String branch, String route, String dirTag)
+			String branch, String route)
 	{
 		TransitSource source = getTransitSource(route);
 		
-		return source.createStop(lat, lon, stopTag, title, platformOrder, branch, route, dirTag);
+		return source.createStop(lat, lon, stopTag, title, platformOrder, branch, route);
 	}
 
 	private static final TimeZone bostonTimeZone = TimeZone.getTimeZone("America/New_York");

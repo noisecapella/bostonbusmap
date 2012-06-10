@@ -310,16 +310,16 @@ public class SubwayTransitSource implements TransitSource {
 	}
 	@Override
 	public StopLocation createStop(float lat, float lon, String stopTag, String title,
-			int platformOrder, String branch, String route, String dirTag) {
+			int platformOrder, String branch, String route) {
 		SubwayStopLocation stop = new SubwayStopLocation(lat, lon, drawables, stopTag, title, platformOrder, branch);
-		stop.addRouteAndDirTag(route, dirTag);
+		stop.addRoute(route);
 		return stop;
 	}
 
 
 	@Override
 	public void bindPredictionElementsForUrl(StringBuilder urlString,
-			String route, String stopTag, String dirTag)
+			String route, String stopTag)
 	{
 		//do nothing
 		
