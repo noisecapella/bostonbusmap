@@ -8,23 +8,25 @@ import urllib
 
 #note: pypy is significantly faster than python on this script
 
-individualHeader = """package boston.Bus.Map.data.prepopulated;
+commonHeader = """package boston.Bus.Map.data.prepopulated;
 import java.util.ArrayList;
 import java.io.IOException;
 
 import boston.Bus.Map.transit.TransitSource;
 import boston.Bus.Map.data.Directions;
 import boston.Bus.Map.data.MyHashMap;
+import boston.Bus.Map.data.RouteConfig;
+import boston.Bus.Map.data.LocationGroup;
+import boston.Bus.Map.data.MultipleStopLocations;
+import boston.Bus.Map.data.StopLocation;
+import boston.Bus.Map.data.TransitDrawables;
+import boston.Bus.Map.data.Direction;
+import boston.Bus.Map.data.Path;
 """
 
-header = """package boston.Bus.Map.data;
-import java.util.ArrayList;
-import java.io.IOException;
+individualHeader = commonHeader
 
-import boston.Bus.Map.transit.TransitSource;
-import boston.Bus.Map.data.Directions;
-import boston.Bus.Map.data.MyHashMap;
-
+header = commonHeader + """
 public class {0}PrepopulatedData {1}
     private final TransitSource transitSource;
     private final Directions directions;
@@ -284,7 +286,23 @@ def subwayRoutes():
     routes["Orange"]["directions"][OrangeNorthToOakGrove] = {"tag": OrangeNorthToOakGrove, "name": "North toward Oak Grove", "route": "Orange"}
     routes["Orange"]["directions"][OrangeSouthToForestHills] = {"tag": OrangeSouthToForestHills, "name": "South toward Forest Hills", "route": "Orange"}
 
-    #TODO: path
+    for routeTag in ("Red", "Orange", "Blue"):
+        routes[routeTag]["path"] = []
+
+    for routeTag, innerMapping in specialDirMapping.iteritems():
+        for directionHash, innerInnerMapping in innerMapping.iteritems():
+            for platformOrder, stop in innerInnerMapping.iteritems():
+                lat = stop["lat"]
+                lon = stop["lon"]
+                path.append((lat, lon))
+
+            #this is kind of a hack. We need to connect the southern branches of the red line to JFK manually
+            if directionHash == "NBAshmont" or directionHash == "NBBraintree":
+                jfkNorthBoundOrder = 5
+                jfkStation = innerMapping["NBTrunk"][jfkNorthBoundOrder]
+                if jfkStation:
+                    routes[routeTag]["path"].append((jfkStation["lat"], jfkStation["lon"]))
+
 
     return routes
 
@@ -297,7 +315,7 @@ def main():
     nextbusPrefix = "Nextbus"
     nextbusRoutes = nextbusToRoutes(dom)
     runPrepopulated(nextbusRoutes, nextbusPrefix)
-    return
+
     subwayPrefix = "Subway"
     f = open(sys.argv[2] + "/boston/Bus/Map/data/{0}PrepopulatedData.java".format(subwayPrefix), "wb")
     routes = subwayRoutes()
