@@ -8,7 +8,7 @@ import urllib
 
 #note: pypy is significantly faster than python on this script
 
-individualHeader = """package boston.Bus.Map.data;
+individualHeader = """package boston.Bus.Map.data.prepopulated;
 import java.util.ArrayList;
 import java.io.IOException;
 
@@ -95,7 +95,7 @@ def escapeDoubleQuote(s):
     return s
 
 def printMakeAllRoutes(routes, prefix):
-    f = open(sys.argv[2] + "/boston/Bus/Map/data/{0}PrepopulatedData.java".format(prefix), "wb")
+    f = open(sys.argv[2] + "/boston/Bus/Map/data/prepopulated/{0}PrepopulatedData.java".format(prefix), "wb")
     f.write(header.format(prefix, "{", "}") + "\n")
 
     f.write("    private RouteConfig[] makeAllRoutes() throws IOException {\n")
@@ -143,7 +143,7 @@ def printEachMakeRoute(routes, prefix):
     for i in xrange(len(routes.values())):
         route = routes.values()[i]
         routeTag = route["tag"]
-        f = open(sys.argv[2] + "/boston/Bus/Map/data/{0}PrepopulatedDataRoute{1}.java".format(prefix, routeTag), "wb")
+        f = open(sys.argv[2] + "/boston/Bus/Map/data/prepopulated/{0}PrepopulatedDataRoute{1}.java".format(prefix, routeTag), "wb")
         f.write(individualHeader)
         f.write("public class {0}PrepopulatedDataRoute{1} {2}\n".format(prefix, routeTag, "{"))
         f.write("    public static RouteConfig makeRoute(TransitSource transitSource, Directions directions) throws IOException {1}".format(i, "{") + "\n")
@@ -163,14 +163,21 @@ def printEachMakeRoute(routes, prefix):
                 #f.write("            route.addStop(\"{0}\", stop{1});".format(dirStopTag, dirStopTag) + "\n")
                 #f.write("            stop{0}.addRoute(\"{1}\");\n".format(dirStopTag, routeTag))
             
-        f.write("            Path path = new Path(new float[] {\n")
-        for point in route["path"]:
-            lat, lon = point
-            f.write("            {0}f, {1}f,\n".format(lat, lon))
-        f.write("            });\n")
-        f.write("            route.setPaths(new Path[] {path});\n")
+        f.write("            ArrayList<Path> paths = new ArrayList<Path>();\n")
+        for pointCount in xrange((len(route["path"]) / 500) + 1):
+            f.write("            paths.add(makePath{0}());\n".format(pointCount))
+        f.write("            route.setPaths(paths.toArray(new Path[0]));\n")
         f.write("        return route;\n")
         f.write("    }\n")
+
+        for pointCount in xrange((len(route["path"]) / 500) + 1):
+            f.write("    private static Path makePath{0}() {1}\n".format(pointCount, "{"))
+            f.write("        return new Path(new float[] {\n")
+            for point in route["path"][500*pointCount:500*(pointCount+1)]:
+                f.write("            {0}f, {1}f,\n".format(point[0], point[1]))
+            f.write("        });\n")
+            f.write("    }\n")
+
         f.write("}\n")
         f.close()
 
