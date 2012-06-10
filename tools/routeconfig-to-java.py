@@ -8,6 +8,15 @@ import urllib
 
 #note: pypy is significantly faster than python on this script
 
+individualHeader = """package boston.Bus.Map.data;
+import java.util.ArrayList;
+import java.io.IOException;
+
+import boston.Bus.Map.transit.TransitSource;
+import boston.Bus.Map.data.Directions;
+import boston.Bus.Map.data.MyHashMap;
+"""
+
 header = """package boston.Bus.Map.data;
 import java.util.ArrayList;
 import java.io.IOException;
@@ -62,7 +71,8 @@ public class {0}PrepopulatedData {1}
 
 """
 
-footer = """}"""
+footer = """}
+"""
 
 
 def get_dom(filename):
@@ -84,13 +94,20 @@ def escapeDoubleQuote(s):
     #TODO: implement. I don't think any stop title has a quote in it, though
     return s
 
-def printMakeAllRoutes(routes, f):
+def printMakeAllRoutes(routes, prefix):
+    f = open(sys.argv[2] + "/boston/Bus/Map/data/{0}PrepopulatedData.java".format(prefix), "wb")
+    f.write(header.format(prefix, "{", "}") + "\n")
+
     f.write("    private RouteConfig[] makeAllRoutes() throws IOException {\n")
     f.write("        return new RouteConfig[] {\n")
     for i in xrange(len(routes)):
-        f.write("            makeRoute{0}(),".format(i) + "\n")
+        route = routes.values()[i]
+        routeTag = route["tag"]
+        f.write("            {0}PrepopulatedDataRoute{1}.makeRoute(transitSource, directions),".format(prefix, routeTag) + "\n")
     f.write("        };\n")
     f.write("    }\n")
+    f.write(footer)
+    f.close()
 
 distanceMap = {}                        
 
@@ -122,35 +139,40 @@ def humanize(locKey):
     return str(locKey).replace("-", "_").replace(".", "_").replace(",", "_").replace(" ", "_").replace("(", "_").replace(")", "_")
 
 
-def printEachMakeRoute(routes, f):
+def printEachMakeRoute(routes, prefix):
     for i in xrange(len(routes.values())):
         route = routes.values()[i]
         routeTag = route["tag"]
-        f.write("    public RouteConfig makeRoute{0}() throws IOException {1}".format(i, "{") + "\n")
+        f = open(sys.argv[2] + "/boston/Bus/Map/data/{0}PrepopulatedDataRoute{1}.java".format(prefix, routeTag), "wb")
+        f.write(individualHeader)
+        f.write("public class {0}PrepopulatedDataRoute{1} {2}\n".format(prefix, routeTag, "{"))
+        f.write("    public static RouteConfig makeRoute(TransitSource transitSource, Directions directions) throws IOException {1}".format(i, "{") + "\n")
         f.write("        TransitDrawables drawables = transitSource.getDrawables();\n")
         f.write("        RouteConfig route = new RouteConfig(\"{0}\", \"{1}\", 0x{2}, 0x{3}, transitSource);".format(routeTag, route["title"], route["color"], route["oppositeColor"]) + "\n")
 
         for stop in route["stops"].values():
             stopTag = stop["tag"]
             f.write("        StopLocation stop{0} = new StopLocation({1}f, {2}f, drawables, \"{0}\", \"{3}\");".format(stopTag, stop["lat"], stop["lon"], stop["title"]) + "\n")
-            f.write("        allStops.put(stop{1}, stop{1});".format(stopTag, stopTag) + "\n")
             f.write("        route.addStop(\"{0}\", stop{1});".format(stopTag, stopTag) + "\n")
 
         for direction in route["directions"].values():
             f.write("            directions.add(\"{0}\", new Direction(\"{1}\", \"{2}\", \"{3}\"));".format(direction["tag"], direction["name"], direction["title"], routeTag) + "\n")
             for dirChild in direction["stops"]:
                 dirStopTag = dirChild["tag"]
-                f.write("            route.addStop(\"{0}\", stop{1});".format(dirStopTag, dirStopTag) + "\n")
-                f.write("            stop{0}.addRoute(\"{1}\");\n".format(dirStopTag, routeTag))
+                #TODO: in order for direction
+                #f.write("            route.addStop(\"{0}\", stop{1});".format(dirStopTag, dirStopTag) + "\n")
+                #f.write("            stop{0}.addRoute(\"{1}\");\n".format(dirStopTag, routeTag))
             
         f.write("            Path path = new Path(new float[] {\n")
         for point in route["path"]:
             lat, lon = point
             f.write("            {0}f, {1}f,\n".format(lat, lon))
-        f.write("            };\n")
+        f.write("            });\n")
         f.write("            route.setPaths(new Path[] {path});\n")
         f.write("        return route;\n")
         f.write("    }\n")
+        f.write("}\n")
+        f.close()
 
 
 def nextbusToRoutes(routesXml):
@@ -180,13 +202,9 @@ def nextbusToRoutes(routesXml):
 
     return routes
 
-def runPrepopulated(routes, f, prefix):
-    f.write(header.format(prefix, "{", "}") + "\n")
-
-    printMakeAllRoutes(routes, f)
-    printEachMakeRoute(routes, f)
-    
-    f.write(footer + "\n")
+def runPrepopulated(routes, prefix):
+    printMakeAllRoutes(routes, prefix)
+    printEachMakeRoute(routes, prefix)
 
 
 def csvToMap(header, line):
@@ -270,9 +288,8 @@ def main():
 
     dom = get_dom(sys.argv[1])
     nextbusPrefix = "Nextbus"
-    f = open(sys.argv[2] + "/boston/Bus/Map/data/{0}PrepopulatedData.java".format(nextbusPrefix), "wb")
     nextbusRoutes = nextbusToRoutes(dom)
-    runPrepopulated(nextbusRoutes, f, nextbusPrefix)
+    runPrepopulated(nextbusRoutes, nextbusPrefix)
     return
     subwayPrefix = "Subway"
     f = open(sys.argv[2] + "/boston/Bus/Map/data/{0}PrepopulatedData.java".format(subwayPrefix), "wb")
