@@ -142,8 +142,13 @@ def printEachMakeRoute(routes, f):
                 dirStopTag = dirChild["tag"]
                 f.write("            route.addStop(\"{0}\", stop{1});".format(dirStopTag, dirStopTag) + "\n")
                 f.write("            stop{0}.addRoute(\"{1}\");\n".format(dirStopTag, routeTag))
-                       
-
+            
+        f.write("            Path path = new Path(new float[] {\n")
+        for point in route["path"]:
+            lat, lon = point
+            f.write("            {0}f, {1}f,\n".format(lat, lon))
+        f.write("            };\n")
+        f.write("            route.setPaths(new Path[] {path});\n")
         f.write("        return route;\n")
         f.write("    }\n")
 
@@ -153,8 +158,9 @@ def nextbusToRoutes(routesXml):
     for routeXml in routesXml.getElementsByTagName("route"):
         stops = {}
         directions = {}
+        path = []
         routeTag = routeXml.getAttribute("tag")
-        route = {"tag":routeTag, "title": routeXml.getAttribute("title"), "color": routeXml.getAttribute("color"), "oppositeColor": routeXml.getAttribute("oppositeColor"), "stops": stops, "directions": directions}
+        route = {"tag":routeTag, "title": routeXml.getAttribute("title"), "color": routeXml.getAttribute("color"), "oppositeColor": routeXml.getAttribute("oppositeColor"), "stops": stops, "directions": directions, "path" : path}
         routes[routeTag] = route
         for routeChildXml in routeXml.childNodes:
             if routeChildXml.nodeName == "stop":
@@ -168,6 +174,10 @@ def nextbusToRoutes(routesXml):
                 for directionChildXml in routeChildXml.childNodes:
                     if directionChildXml.nodeName == "stop":
                         directionStops.append({"tag": directionChildXml.getAttribute("tag")})
+            elif routeChildXml.nodeName == "point":
+                point = (routeChildXml.getAttribute("lat"), routeChildXml.getAttribute("lon"))
+                path.append(point)
+
     return routes
 
 def runPrepopulated(routes, f, prefix):
@@ -192,7 +202,7 @@ def getColor(routeTag):
     m = {"Red" : "ff0000", "Orange" : "f88017", "Blue": "0000ff"}
     return m[routeTag]
 
-def subwayRoute(routes, routeCsv):
+def subwayRoute(routes, routeCsv, specialDirMapping):
     routeTag = routeCsv["Line"]
     if routeTag not in routes:
         stops = {}
@@ -204,11 +214,17 @@ def subwayRoute(routes, routeCsv):
     stop = {"tag": stopTag, "lat" : routeCsv["stop_lat"], "lon" : routeCsv["stop_lon"], "platformOrder" : routeCsv["PlatformOrder"], "title" : routeCsv["stop_name"], "branch" : routeCsv["Branch"]}
     route["stops"][stopTag] = stop
     
-    dirName = routeCsv["Direction"]
+    if routeTag not in specialDirMapping:
+        specialDirMapping[routeTag] = {}
 
-    dirTag = routeTag + dirName
-    #routes["directions"][
-    raise "TODO"
+    innerMapping = specialDirMapping[routeTag]
+    
+    combinedDirectionBranch = routeCsv["Direction"] + routeCsv["Branch"]
+    if combinedDirectionBranch not in innerMapping:
+        innerMapping[combinedDirectionBranch] = {}
+    innerInnerMapping = innerMapping[combinedDirectionBranch]
+    
+    innerInnerMapping[stop["platformOrder"]] = stop
 
 def subwayRoutes():
     url = "http://developer.mbta.com/RT_Archive/RealTimeHeavyRailKeys.csv"
@@ -217,13 +233,35 @@ def subwayRoutes():
     x = [each.strip() for each in f.readlines()]
     csv = [each.split(",") for each in x]
     header = csv[0]
-    csv = [csvToMap(line) for line in csv[1:]]
+    csv = [csvToMap(header, line) for line in csv[1:]]
     
     routes = {}
+    specialDirMapping = {}
     for mapping in csv:
-        subwayRoute(routes, mapping)
+        subwayRoute(routes, mapping, specialDirMapping)
+
+    RedNorthToAlewife = "RedNB0"
+    RedNorthToAlewife2 = "RedNB1"
+    RedSouthToBraintree = "RedSB0"
+    RedSouthToAshmont = "RedSB1"
+    BlueEastToWonderland = "BlueEB0"
+    BlueWestToBowdoin = "BlueWB0"
+    OrangeNorthToOakGrove = "OrangeNB0"
+    OrangeSouthToForestHills = "OrangeSB0"
     
-    return x
+    #workarounds:
+    routes["Red"]["directions"][RedNorthToAlewife] = {"tag": RedNorthToAlewife, "name": "North toward Alewife", "route": "Red"}
+    routes["Red"]["directions"][RedNorthToAlewife2] = {"tag": RedNorthToAlewife2, "name": "North toward Alewife", "route": "Red"}
+    routes["Red"]["directions"][RedSouthToBraintree] = {"tag": RedSouthToBraintree, "name": "South toward Braintree", "route": "Red"}
+    routes["Red"]["directions"][RedSouthToAshmont] = {"tag": RedSouthToAshmont, "name": "South toward Ashmont", "route": "Red"}
+    routes["Blue"]["directions"][BlueEastToWonderland] = {"tag": BlueEastToWonderland, "name": "East toward Wonderland", "route": "Blue"}
+    routes["Blue"]["directions"][BlueWestToBowdoin] = {"tag": BlueWestToBowdoin, "name": "West toward Bowdoin", "route": "Blue"}
+    routes["Orange"]["directions"][OrangeNorthToOakGrove] = {"tag": OrangeNorthToOakGrove, "name": "North toward Oak Grove", "route": "Orange"}
+    routes["Orange"]["directions"][OrangeSouthToForestHills] = {"tag": OrangeSouthToForestHills, "name": "South toward Forest Hills", "route": "Orange"}
+
+    #TODO: path
+
+    return routes
 
 def main():
     if len(sys.argv) != 3:
@@ -235,7 +273,6 @@ def main():
     f = open(sys.argv[2] + "/boston/Bus/Map/data/{0}PrepopulatedData.java".format(nextbusPrefix), "wb")
     nextbusRoutes = nextbusToRoutes(dom)
     runPrepopulated(nextbusRoutes, f, nextbusPrefix)
-
     return
     subwayPrefix = "Subway"
     f = open(sys.argv[2] + "/boston/Bus/Map/data/{0}PrepopulatedData.java".format(subwayPrefix), "wb")
