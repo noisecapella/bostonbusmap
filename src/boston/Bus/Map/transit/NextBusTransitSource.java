@@ -52,7 +52,6 @@ public abstract class NextBusTransitSource implements TransitSource
 	private final String mbtaRouteConfigDataUrl;
 	private final String mbtaRouteConfigDataUrlAllRoutes;
 	private final String mbtaPredictionsDataUrl;
-	private final int initialRouteResource;
 
 	private final TransitDrawables drawables;
 	private final String[] routes;
@@ -62,7 +61,7 @@ public abstract class NextBusTransitSource implements TransitSource
 	
 
 	public NextBusTransitSource(TransitSystem transitSystem, 
-			TransitDrawables drawables, String agency, int initialRouteResource)
+			TransitDrawables drawables, String agency)
 	{
 		this.transitSystem = transitSystem;
 		this.drawables = drawables;
@@ -72,7 +71,6 @@ public abstract class NextBusTransitSource implements TransitSource
 		mbtaRouteConfigDataUrl = "http://" + prefix + ".nextbus.com/service/publicXMLFeed?command=routeConfig&a=" + agency + "&r=";
 		mbtaRouteConfigDataUrlAllRoutes = "http://" + prefix + ".nextbus.com/service/publicXMLFeed?command=routeConfig&a=" + agency;
 		mbtaPredictionsDataUrl = "http://" + prefix + ".nextbus.com/service/publicXMLFeed?command=predictionsForMultiStops&a=" + agency;
-		this.initialRouteResource = initialRouteResource;
 		
 		tempRoutes = new ArrayList<String>();
 
