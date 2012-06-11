@@ -19,6 +19,7 @@ import boston.Bus.Map.data.RouteConfig;
 import boston.Bus.Map.data.LocationGroup;
 import boston.Bus.Map.data.MultipleStopLocations;
 import boston.Bus.Map.data.StopLocation;
+import boston.Bus.Map.data.SubwayStopLocation;
 import boston.Bus.Map.data.TransitDrawables;
 import boston.Bus.Map.data.Direction;
 import boston.Bus.Map.data.Path;
@@ -31,41 +32,14 @@ public class {0}PrepopulatedData {1}
     private final TransitSource transitSource;
     private final Directions directions;
     private final RouteConfig[] allRoutes;
-    private final MyHashMap<LocationGroup, LocationGroup> allStops;
 
 
-    public {0}PrepopulatedData(TransitSource transitSource, Directions directions) throws Exception {1}
+    public {0}PrepopulatedData(TransitSource transitSource, Directions directions) throws IOException {1}
         this.transitSource = transitSource;
         this.directions = directions;
         allRoutes = makeAllRoutes();
-        allStops = makeAllStops();
     {2}
 
-    private MyHashMap<LocationGroup, LocationGroup> makeAllStops() {1}
-        MyHashMap<LocationGroup, LocationGroup> ret = new MyHashMap<LocationGroup, LocationGroup>();
-        for (RouteConfig route : allRoutes) {1}
-            for (StopLocation stop : route.getStops()) {1}
-                LocationGroup locationGroup = ret.get(stop);
-                if (locationGroup != null) {1}
-                    if (locationGroup instanceof MultipleStopLocations) {1}
-                        ((MultipleStopLocations)locationGroup).addStop(stop);
-                    {2}
-                    else
-                    {1}
-                        MultipleStopLocations multipleStopLocations = new MultipleStopLocations();
-                        multipleStopLocations.addStop((StopLocation)locationGroup);
-                        multipleStopLocations.addStop(stop);
-                        ret.put(multipleStopLocations, multipleStopLocations);
-                    {2}
-                {2}
-                else
-                {1}
-                    ret.put(locationGroup, locationGroup);
-                {2}
-            {2}
-        {2}
-        return ret;
-    {2}
 
     public RouteConfig[] getAllRoutes() {1}
         return allRoutes;
@@ -156,7 +130,10 @@ def printEachMakeRoute(routes, prefix):
 
         for stop in route["stops"].values():
             stopTag = stop["tag"]
-            f.write("        StopLocation stop{0} = new StopLocation({1}f, {2}f, drawables, \"{4}\", \"{3}\");".format(makeValid(stopTag), stop["lat"], stop["lon"], stop["title"], stopTag) + "\n")
+            if "platformOrder" in stop:
+                f.write("        SubwayStopLocation stop{0} = new SubwayStopLocation({1}f, {2}f, drawables, \"{4}\", \"{3}\", {5}, \"{6}\");\n".format(makeValid(stopTag), stop["lat"], stop["lon"], stop["title"], stopTag, stop["platformOrder"], stop["branch"]))
+            else:
+                f.write("        StopLocation stop{0} = new StopLocation({1}f, {2}f, drawables, \"{4}\", \"{3}\");".format(makeValid(stopTag), stop["lat"], stop["lon"], stop["title"], stopTag) + "\n")
             f.write("        route.addStop(\"{0}\", stop{1});".format(stopTag, makeValid(stopTag)) + "\n")
 
         for direction in route["directions"].values():
