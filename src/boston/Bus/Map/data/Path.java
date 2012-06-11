@@ -18,6 +18,10 @@ public class Path implements CanBeSerialized
 		}
 	}
 
+	public Path(float[] points) {
+		this.points = points;
+	}
+	
 	@Override
 	public void serialize(Box dest) throws IOException {
 		dest.writeInt(points.length);
