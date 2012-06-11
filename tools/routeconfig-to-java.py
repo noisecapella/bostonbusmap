@@ -30,18 +30,18 @@ individualHeader = commonHeader
 header = commonHeader + """
 public class {0}PrepopulatedData {1}
     private final TransitSource transitSource;
-    private final Directions directions;
-    private final RouteConfig[] allRoutes;
+    private RouteConfig[] allRoutes;
 
 
-    public {0}PrepopulatedData(TransitSource transitSource, Directions directions) throws IOException {1}
+    public {0}PrepopulatedData(TransitSource transitSource) {1}
         this.transitSource = transitSource;
-        this.directions = directions;
-        allRoutes = makeAllRoutes();
     {2}
 
 
-    public RouteConfig[] getAllRoutes() {1}
+    public RouteConfig[] getAllRoutes(Directions directions) throws IOException {1}
+        if (allRoutes == null) {1}
+            allRoutes = makeAllRoutes(directions);
+        {2}
         return allRoutes;
     {2}
 
@@ -74,13 +74,17 @@ def printMakeAllRoutes(routes, prefix):
     f = open(sys.argv[2] + "/boston/Bus/Map/data/prepopulated/{0}PrepopulatedData.java".format(prefix), "wb")
     f.write(header.format(prefix, "{", "}") + "\n")
 
-    f.write("    private RouteConfig[] makeAllRoutes() throws IOException {\n")
+    f.write("    private RouteConfig[] makeAllRoutes(Directions directions) throws IOException {\n")
     f.write("        return new RouteConfig[] {\n")
     for i in xrange(len(routes)):
         route = routes.values()[i]
         routeTag = route["tag"]
         f.write("            {0}PrepopulatedDataRoute{1}.makeRoute(transitSource, directions),".format(prefix, makeValid(routeTag)) + "\n")
     f.write("        };\n")
+    f.write("    }\n")
+
+    f.write("    public StopLocationBaggage makeStopLocationBaggage(String stopTag) {\n")
+
     f.write("    }\n")
     f.write(footer)
     f.close()

@@ -285,6 +285,6 @@ public class SubwayTransitSource implements TransitSource {
 	
 	@Override
 	public RouteConfig[] makeRoutes(Directions directions) throws IOException {
-		return new SubwayPrepopulatedData(this, directions).getAllRoutes();
+		return new SubwayPrepopulatedData(this).getAllRoutes(directions);
 	}
 }

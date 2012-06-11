@@ -108,7 +108,6 @@ public class CommuterRailTransitSource implements TransitSource {
 		return null;
 	}
 
-
 	@Override
 	public void refreshData(RouteConfig routeConfig,
 			int selectedBusPredictions, int maxStops, double centerLatitude,
@@ -343,6 +342,6 @@ public class CommuterRailTransitSource implements TransitSource {
 	
 	@Override
 	public RouteConfig[] makeRoutes(Directions directions) throws IOException {
-		return new CommuterRailPrepopulatedData(this, directions).getAllRoutes();
+		return new CommuterRailPrepopulatedData(this).getAllRoutes(directions);
 	}
 }

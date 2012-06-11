@@ -306,6 +306,6 @@ public abstract class NextBusTransitSource implements TransitSource
 	
 	@Override
 	public RouteConfig[] makeRoutes(Directions directions) throws IOException {
-		return new NextbusPrepopulatedData(this, directions).getAllRoutes();
+		return new NextbusPrepopulatedData(this).getAllRoutes(directions);
 	}
 }

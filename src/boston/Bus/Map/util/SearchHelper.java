@@ -212,17 +212,17 @@ public class SearchHelper
 		SuffixArray stopSuffixArray = new SuffixArray(true);
 		FakeTransitSource fake = new FakeTransitSource();
 		Directions directions = new Directions();
-		for (RouteConfig route : new NextbusPrepopulatedData(fake, directions).getAllRoutes()) {
+		for (RouteConfig route : new NextbusPrepopulatedData(fake).getAllRoutes(directions)) {
 			for (StopLocation stop : route.getStops()) {
 				stopSuffixArray.add(stop);
 			}
 		}
-		for (RouteConfig route : new SubwayPrepopulatedData(fake, directions).getAllRoutes()) {
+		for (RouteConfig route : new SubwayPrepopulatedData(fake).getAllRoutes(directions)) {
 			for (StopLocation stop : route.getStops()) {
 				stopSuffixArray.add(stop);
 			}
 		}
-		for (RouteConfig route : new CommuterRailPrepopulatedData(fake, directions).getAllRoutes()) {
+		for (RouteConfig route : new CommuterRailPrepopulatedData(fake).getAllRoutes(directions)) {
 			for (StopLocation stop : route.getStops()) {
 				stopSuffixArray.add(stop);
 			}

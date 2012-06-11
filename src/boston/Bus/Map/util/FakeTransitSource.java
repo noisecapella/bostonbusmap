@@ -71,5 +71,4 @@ public class FakeTransitSource implements TransitSource {
 		// TODO Auto-generated method stub
 		return null;
 	}
-
 }

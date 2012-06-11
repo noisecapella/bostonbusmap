@@ -98,13 +98,13 @@ public class TransitContentProvider extends SearchRecentSuggestionsProvider {
 			routeSuffixArray = new SuffixArray(true);
 			FakeTransitSource fake = new FakeTransitSource();
 			Directions directions = new Directions();
-			for (RouteConfig route : new NextbusPrepopulatedData(fake, directions).getAllRoutes()) {
+			for (RouteConfig route : new NextbusPrepopulatedData(fake).getAllRoutes(directions)) {
 				routeSuffixArray.add(route);
 			}
-			for (RouteConfig route : new SubwayPrepopulatedData(fake, directions).getAllRoutes()) {
+			for (RouteConfig route : new SubwayPrepopulatedData(fake).getAllRoutes(directions)) {
 				routeSuffixArray.add(route);
 			}
-			for (RouteConfig route : new CommuterRailPrepopulatedData(fake, directions).getAllRoutes()) {
+			for (RouteConfig route : new CommuterRailPrepopulatedData(fake).getAllRoutes(directions)) {
 				routeSuffixArray.add(route);
 			}
 		}
@@ -122,17 +122,17 @@ public class TransitContentProvider extends SearchRecentSuggestionsProvider {
 			stopSuffixArray = new SuffixArray(true);
 			FakeTransitSource fake = new FakeTransitSource();
 			Directions directions = new Directions();
-			for (RouteConfig route : new NextbusPrepopulatedData(fake, directions).getAllRoutes()) {
+			for (RouteConfig route : new NextbusPrepopulatedData(fake).getAllRoutes(directions)) {
 				for (StopLocation stop : route.getStops()) {
 					stopSuffixArray.add(stop);
 				}
 			}
-			for (RouteConfig route : new SubwayPrepopulatedData(fake, directions).getAllRoutes()) {
+			for (RouteConfig route : new SubwayPrepopulatedData(fake).getAllRoutes(directions)) {
 				for (StopLocation stop : route.getStops()) {
 					stopSuffixArray.add(stop);
 				}
 			}
-			for (RouteConfig route : new CommuterRailPrepopulatedData(fake, directions).getAllRoutes()) {
+			for (RouteConfig route : new CommuterRailPrepopulatedData(fake).getAllRoutes(directions)) {
 				for (StopLocation stop : route.getStops()) {
 					stopSuffixArray.add(stop);
 				}
