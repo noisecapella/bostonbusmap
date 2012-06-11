@@ -1005,15 +1005,24 @@ def main():
     nextbusRoutes = nextbusToRoutes(dom)
     runPrepopulated(nextbusRoutes, nextbusPrefix)
     #print nextbusRoutes.keys()
-    runAlerts(nextbusRoutes)
 
     subwayPrefix = "Subway"
-    routes = subwayRoutes()
-    runPrepopulated(routes, subwayPrefix)
+    mySubwayRoutes = subwayRoutes()
+    runPrepopulated(mySubwayRoutes, subwayPrefix)
 
     commuterRailPrefix = "CommuterRail"
-    routes = commuterRailRoutes()
-    runPrepopulated(routes, commuterRailPrefix)
+    myCommuterRailRoutes = commuterRailRoutes()
+    runPrepopulated(myCommuterRailRoutes, commuterRailPrefix)
+
+    combinedRoutes = {}
+    for routeTag, route in nextbusRoutes.iteritems():
+        combinedRoutes[routeTag] = route
+    for routeTag, route in subwayRoutes.iteritems():
+        combinedRoutes[routeTag] = route
+    for routeTag, route in commuterRailRoutes.iteritems():
+        combinedRoutes[routeTag] = route
+        
+    runAlerts(combinedRoutes)
 
     #f = open(sys.argv[2] + "/boston/Bus/Map/data/NextbusPrepopulatedDirections.java", "wb")
     #runDirections(dom, f)
