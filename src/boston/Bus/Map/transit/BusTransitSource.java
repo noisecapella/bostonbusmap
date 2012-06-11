@@ -22,7 +22,7 @@ public class BusTransitSource extends NextBusTransitSource {
 	{
 		super(transitSystem, drawables, "mbta", boston.Bus.Map.R.raw.routeconfig);
 		
-		alertKeys = alertsMapping.getAlertNumbers(getRoutes(), getRouteKeysToTitles());
+		alertKeys = alertsMapping.getAlertNumbers();
 	}
 	
 	@Override

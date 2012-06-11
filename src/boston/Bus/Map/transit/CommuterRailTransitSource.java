@@ -75,7 +75,7 @@ public class CommuterRailTransitSource implements TransitSource {
 		
 		
 		//map alert keys to numbers
-		MyHashMap<String, Integer> alertNumbers = alertsMapping.getAlertNumbers(routeNames, routeKeysToTitles);
+		MyHashMap<String, Integer> alertNumbers = alertsMapping.getAlertNumbers();
 		
 		routes = new String[routeNames.length];
 		
@@ -87,8 +87,8 @@ public class CommuterRailTransitSource implements TransitSource {
 		
 		for (int i = 0; i < routeNames.length; i++)
 		{
-			String routeTitle = routeNames[i];
-			int alertKey = alertNumbers.get(routeTitle);
+			String routeTag = routeTagPrefix + (i+1);
+			int alertKey = alertNumbers.get(routeTag);
 			addAlert(routeTagPrefix + (i+1), alertKey);
 		}
 	}

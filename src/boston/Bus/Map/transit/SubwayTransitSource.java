@@ -43,7 +43,7 @@ public class SubwayTransitSource implements TransitSource {
 	{
 		this.drawables = drawables;
 		
-		alertKeys = alertsMapping.getAlertNumbers(subwayRoutes, subwayRouteKeysToTitles);
+		alertKeys = alertsMapping.getAlertNumbers();
 		for (String route : subwayRoutes)
 		{
 			subwayRouteKeysToTitles.put(route, route);
