@@ -39,7 +39,7 @@ public class RoutePool {
 
 	private final WeightedSqrEuclid<LocationGroup> kdtree;
 	
-	private static final int MAX_ROUTES = 50;
+	private static final int MAX_STOPS = 500;
 	
 	
 	public RoutePool(DatabaseHelper helper, TransitSystem transitSystem) throws IOException {
