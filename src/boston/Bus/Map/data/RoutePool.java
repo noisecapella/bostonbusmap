@@ -4,22 +4,25 @@ import java.io.IOException;
 import java.util.AbstractCollection;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 import java.util.HashSet;
 import java.util.LinkedList;
+
+import com.schneeloch.suffixarray.SuffixArray;
+
+import ags.utils.KdTree.Entry;
+import ags.utils.KdTree.WeightedSqrEuclid;
 import android.util.Log;
 import boston.Bus.Map.R;
 import boston.Bus.Map.database.DatabaseHelper;
 import boston.Bus.Map.main.UpdateAsyncTask;
+import boston.Bus.Map.transit.TransitSource;
 import boston.Bus.Map.transit.TransitSystem;
 import boston.Bus.Map.ui.ProgressMessage;
 
 public class RoutePool {
 	private final DatabaseHelper helper;
-	
-	private final LinkedList<String> priorities = new LinkedList<String>();
-	private final MyHashMap<String, RouteConfig> pool = new MyHashMap<String, RouteConfig>();
-	private final MyHashMap<String, StopLocation> sharedStops = new MyHashMap<String, StopLocation>();
 	
 	/**
 	 * A mapping of stop key to route key. Look in sharedStops for the StopLocation
@@ -27,196 +30,74 @@ public class RoutePool {
 	private final HashSet<String> favoriteStops = new HashSet<String>();
 
 	private final TransitSystem transitSystem;
+
+	private final MyHashMap<LocationGroup, LocationGroup> stopsByLocation;
+	private final MyHashMap<String, StopLocation> stopsByTag;
+	private final MyHashMap<String, RouteConfig> routesByTag;
+
+	private final Directions directions;
+
+	private final WeightedSqrEuclid<LocationGroup> kdtree;
 	
 	private static final int MAX_ROUTES = 50;
 	
 	
-	public RoutePool(DatabaseHelper helper, TransitSystem transitSystem) {
+	public RoutePool(DatabaseHelper helper, TransitSystem transitSystem) throws IOException {
 		this.helper = helper;
 		this.transitSystem = transitSystem;
+		this.directions = new Directions();
+
+		stopsByLocation = new MyHashMap<LocationGroup, LocationGroup>();
+		stopsByTag = new MyHashMap<String, StopLocation>();
+		routesByTag = new MyHashMap<String, RouteConfig>();
 		
-		helper.upgradeIfNecessary();
-		populateFavorites(false);
+        for (TransitSource transitSource : transitSystem.getTransitSources()) {
+        	for (RouteConfig route : transitSource.makeRoutes(directions)) {
+        		routesByTag.put(route.getRouteName(), route);
+        		for (StopLocation stop : route.getStops()) {
+        			stopsByTag.put(stop.getStopTag(), stop);
+        			LocationGroup locationGroup = stopsByLocation.get(stop);
+        			if (locationGroup != null) {
+        				if (locationGroup instanceof MultipleStopLocations) {
+        					((MultipleStopLocations)locationGroup).addStop(stop);
+        				}
+        				else
+        				{
+        					MultipleStopLocations multipleStopLocations = new MultipleStopLocations((StopLocation)locationGroup, stop);
+        					stopsByLocation.put(multipleStopLocations, multipleStopLocations);
+        				}
+        			}
+        			else
+        			{
+        				stopsByLocation.put(stop, stop);
+        			}
+        		}
+        	}
+        }
+		
+        kdtree = new WeightedSqrEuclid<LocationGroup>(2, stopsByLocation.size());
+        for (LocationGroup group : stopsByLocation.values()) {
+        	kdtree.addPoint(new double[]{group.getLatitudeAsDegrees(), group.getLongitudeAsDegrees()},
+        			group);
+        }
+        
+		populateFavorites();
 	}
 	
 	public void saveFavoritesToDatabase()
 	{
-		helper.saveFavorites(favoriteStops, sharedStops);
+		helper.saveFavorites(favoriteStops);
 	}
 	
-	/**
-	 * If you upgraded, favoritesStops.values() only has nulls. Use the information from the database to figure out
-	 * what routes each stop is in.
-	 * 
-	 * Set the favorite status for all StopLocation favorites, and make sure they persist in the route pool.
-	 */
-	public void fillInFavoritesRoutes()
-	{
-		MyHashMap<String, StopLocation> stops = getStops(favoriteStops);
-		if (stops == null)
-		{
-			return;
-		}
-		
-		for (String stop : stops.keySet())
-		{
-			StopLocation stopLocation = stops.get(stop);
-			if (stopLocation != null)
-			{
-				Log.v("BostonBusMap", "setting favorite status to true for " + stop);
-				sharedStops.put(stop, stopLocation);
-			}
-		}
-	}
-
 	
-	private MyHashMap<String, StopLocation> getStops(AbstractCollection<String> stopTags) {
-		if (stopTags.size() == 0)
-		{
-			return null;
-		}
-		
-		MyHashMap<String, StopLocation> ret = new MyHashMap<String, StopLocation>();
-		ArrayList<String> stopTagsToRetrieve = new ArrayList<String>();
-		
-		for (String stopTag : stopTags)
-		{
-			StopLocation stop = sharedStops.get(stopTag);
-			if (stop == null)
-			{
-				stopTagsToRetrieve.add(stopTag);
-			}
-			else
-			{
-				ret.put(stopTag, stop);
-			}
-		}
-		
-		helper.getStops(stopTagsToRetrieve, transitSystem, ret);
-		
-		if (ret != null)
-		{
-			sharedStops.putAll(ret);
-		}
-
-		return ret;
-	}
-
-	/**
-	 * In the future, this may be necessary to implement. Currently all route data is shipped with the app
-	 * 
-	 * @param route
-	 * @return
-	 */
-	public boolean isMissingRouteInfo(String route) {
-		return false;
-	}
-
 	public RouteConfig get(String routeToUpdate) throws IOException {
-		RouteConfig routeConfig = pool.get(routeToUpdate);
-		if (routeConfig != null)
-		{
-			return routeConfig;
-		}
-		else
-		{
-			synchronized (helper)
-			{
-				routeConfig = helper.getRoute(routeToUpdate, sharedStops, transitSystem);
-				if (routeConfig == null)
-				{
-					return null;
-				}
-				else
-				{
-					if (priorities.size() >= MAX_ROUTES)
-					{
-						removeARoute(priorities.get(0));
-					}
-
-					addARoute(routeToUpdate, routeConfig);
-
-					return routeConfig;
-				}
-			}
-		}
-	}
-
-	private void addARoute(String routeToUpdate, RouteConfig routeConfig) {
-		priorities.add(routeToUpdate);
-		pool.put(routeToUpdate, routeConfig);
-	}
-
-	private void removeARoute(String routeToRemove) {
-		RouteConfig routeConfig = pool.get(routeToRemove);
-		priorities.remove(routeToRemove);
-		pool.remove(routeToRemove);
-		
-		//TODO: can this be done faster?
-		if (routeConfig == null)
-		{
-			return;
-		}
-		//remove all stops from sharedStops,
-		//unless that stop is owned by another route also which is currently in the pool, or it's a favorite
-		for (StopLocation stopLocation : routeConfig.getStops())
-		{
-			boolean keepStop = false;
-			for (String route : stopLocation.getRoutes())
-			{
-				if (pool.containsKey(route))
-				{
-					//keep this stop
-					keepStop = true;
-					break;
-				}
-			}
-			
-			if (keepStop == false && favoriteStops.contains(stopLocation.getStopTag()))
-			{
-				keepStop = true;
-			}
-			
-			if (keepStop == false)
-			{
-				sharedStops.remove(stopLocation.getStopTag());
-			}
-		}
-	}
-
-	public void writeToDatabase(MyHashMap<String, RouteConfig> map, boolean wipe, UpdateAsyncTask task, boolean silent) throws IOException {
-		if (!silent)
-		{
-			task.publish(new ProgressMessage(ProgressMessage.PROGRESS_DIALOG_ON, "Saving to database", null));
-		}
-		
-		HashSet<String> stopTags = new HashSet<String>();
-		helper.saveMapping(map, wipe, stopTags, task);
-		
-		clearAll();
-		populateFavorites(true);
-		//saveFavoritesToDatabase();
+		return routesByTag.get(routeToUpdate);
 	}
 
 	
-	
-	private void populateFavorites(boolean lookForOtherStopsAtSameLocation) {
-		helper.populateFavorites(favoriteStops, lookForOtherStopsAtSameLocation);
-		fillInFavoritesRoutes();
+	private void populateFavorites() {
+		helper.populateFavorites(favoriteStops);
 
-	}
-
-	private void clearAll() {
-		priorities.clear();
-		pool.clear();
-		favoriteStops.clear();
-		sharedStops.clear();
-	}
-
-
-	public ArrayList<String> routeInfoNeedsUpdating(String[] supportedRoutes) {
-		//TODO: what if another route gets added later, and we want to download it from the server and add it?
-		return helper.routeInfoNeedsUpdating(supportedRoutes);
 	}
 
 	public StopLocation[] getFavoriteStops() {
@@ -224,12 +105,9 @@ public class RoutePool {
 		
 		for (String stopTag : favoriteStops)
 		{
-			StopLocation stopLocation = sharedStops.get(stopTag);
+			StopLocation stopLocation = stopsByTag.get(stopTag);
 			
-			if (stopLocation != null)
-			{
-				ret.add(stopLocation);
-			}
+			ret.add(stopLocation);
 		}
 		
 		return ret.toArray(new StopLocation[0]);
@@ -241,43 +119,43 @@ public class RoutePool {
 	}
 	
 	public int setFavorite(StopLocation location, boolean isFavorite) {
-		ArrayList<String> stopTags = helper.getAllStopTagsAtLocation(location.getStopTag());
+		LocationGroup group = stopsByLocation.get(location);
 
-		helper.saveFavorite(location.getStopTag(), stopTags, isFavorite);
+		helper.saveFavorite(group, isFavorite);
 		favoriteStops.clear();
-		populateFavorites(false);
+		populateFavorites();
 		
 		return isFavorite ? R.drawable.full_star : R.drawable.empty_star;
 	}
 
-	public MyHashMap<String, StopLocation> getAllStopTagsAtLocation(String stopTag) {
-		ArrayList<String> tags = helper.getAllStopTagsAtLocation(stopTag);
-		MyHashMap<String, StopLocation> outputMapping = new MyHashMap<String, StopLocation>();
-		helper.getStops(tags, transitSystem, outputMapping);
-		
-		return outputMapping;
+	public LocationGroup getAllStopTagsAtLocation(String stopTag) {
+		MyHashMap<String, StopLocation> ret = new MyHashMap<String, StopLocation>();
+		StopLocation stop = stopsByTag.get(stopTag);
+		LocationGroup group = stopsByLocation.get(stop);
+		return group;
 	}
 
 	public void clearRecentlyUpdated() {
-		for (StopLocation stop : sharedStops.values())
-		{
+		for (StopLocation stop : stopsByTag.values()) {
 			stop.clearRecentlyUpdated();
-		}
-		
-		for (RouteConfig route : pool.values())
-		{
-			for (StopLocation stop : route.getStopMapping().values())
-			{
-				stop.clearRecentlyUpdated();
-			}
 		}
 	}
 	
-	public ArrayList<StopLocation> getClosestStops(double centerLatitude,
+	public ArrayList<LocationGroup> getClosestStops(double centerLatitude,
 			double centerLongitude, int maxStops)
 	{
-		return helper.getClosestStops(centerLatitude, centerLongitude, transitSystem, sharedStops, maxStops);
+		ArrayList<LocationGroup> ret = new ArrayList<LocationGroup>();
+		List<Entry<LocationGroup>> list = kdtree.nearestNeighbor(new double[]{centerLatitude, centerLongitude},
+				maxStops, false);
+		for (Entry<LocationGroup> entry : list) {
+			ret.add(entry.value);
+		}
+		return ret;
 
+	}
+
+	public Directions getDirections() {
+		return directions;
 	}
 
 }

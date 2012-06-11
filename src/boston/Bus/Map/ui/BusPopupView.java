@@ -24,7 +24,9 @@ import boston.Bus.Map.R;
 import boston.Bus.Map.data.Alert;
 import boston.Bus.Map.data.BusLocation;
 import boston.Bus.Map.data.Location;
+import boston.Bus.Map.data.LocationGroup;
 import boston.Bus.Map.data.Locations;
+import boston.Bus.Map.data.MultipleStopLocations;
 import boston.Bus.Map.data.MyHashMap;
 import boston.Bus.Map.data.Prediction;
 import boston.Bus.Map.data.StopLocation;
@@ -228,8 +230,18 @@ public class BusPopupView extends BalloonOverlayView<BusOverlayItem>
 		{
 			StopLocation stopLocation = (StopLocation)location;
 			String stopTag = stopLocation.getStopTag();
-			MyHashMap<String, StopLocation> stopTags = locations.getAllStopsAtStop(stopTag);
+			LocationGroup group = locations.getAllStopsAtStop(stopTag);
 
+			ArrayList<StopLocation> stopTags = new ArrayList<StopLocation>();
+			if (group instanceof MultipleStopLocations) {
+				MultipleStopLocations multipleStopLocations = (MultipleStopLocations)group;
+				stopTags.addAll(multipleStopLocations.getStops());
+			}
+			else
+			{
+				StopLocation stop = (StopLocation)group;
+				stopTags.add(stop);
+			}
 
 			if (selectedBusPredictions == Main.BUS_PREDICTIONS_ONE)
 			{
@@ -241,7 +253,7 @@ public class BusPopupView extends BalloonOverlayView<BusOverlayItem>
 				else
 				{
 					ArrayList<String> stopTagStrings = new ArrayList<String>();
-					for (StopLocation stop : stopTags.values())
+					for (StopLocation stop : stopTags)
 					{
 						String text = stop.getStopTag() + " (" + stop.getTitle() + ")";
 						stopTagStrings.add(text);
@@ -254,7 +266,7 @@ public class BusPopupView extends BalloonOverlayView<BusOverlayItem>
 			else
 			{
 				ArrayList<String> pairs = new ArrayList<String>();
-				for (StopLocation stop : stopTags.values())
+				for (StopLocation stop : stopTags)
 				{
 					String routesJoin = StringUtil.join(stop.getRoutes(), ", ");
 					pairs.add(stop.getStopTag() + "(" + stop.getTitle() + ") on routes " + routesJoin);

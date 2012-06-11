@@ -58,8 +58,6 @@ public final class Locations
 	 */
 	private final RoutePool routeMapping;
 	
-	private final Directions directions;
-	
 	private double lastUpdateTime = 0;
 	
 
@@ -68,48 +66,15 @@ public final class Locations
 	private final TransitSystem transitSystem;
 	
 	public Locations(DatabaseHelper helper, 
-			TransitSystem transitSystem)
+			TransitSystem transitSystem) throws IOException
 	{
 		this.transitSystem = transitSystem;
 		routeMapping = new RoutePool(helper, transitSystem);
-		directions = new Directions(helper);
 	}
 	
 	public String getRouteName(String key)
 	{
 		return transitSystem.getTransitSource(key).getRouteKeysToTitles().get(key);
-	}
-	
-	/**
-	 * Download all stop locations
-	 * 
-	 * @throws ParserConfigurationException
-	 * @throws FactoryConfigurationError
-	 * @throws SAXException
-	 * @throws IOException
-	 */
-	public void initializeAllRoutes(UpdateAsyncTask task, Context context, String[] routesToCheck)
-		throws ParserConfigurationException, FactoryConfigurationError, SAXException, IOException
-	{
-		ArrayList<String> routesThatNeedUpdating = routeInfoNeedsUpdating(routesToCheck); 
-		boolean hasNoMissingData = routesThatNeedUpdating == null || routesThatNeedUpdating.size() == 0;
-		
-		if (hasNoMissingData == false)
-		{
-			HashSet<TransitSource> systems = new HashSet<TransitSource>();
-			for (String route : routesThatNeedUpdating)
-			{
-				systems.add(transitSystem.getTransitSource(route));
-			}
-			
-			for (TransitSource system : systems)
-			{
-				system.initializeAllRoutes(task, context, directions, routeMapping);
-			}
-			routeMapping.fillInFavoritesRoutes();
-			//TODO: fill routeMapping somehow
-			
-		}
 	}
 	
 	public static InputStream downloadStream(URL url, UpdateAsyncTask task) throws IOException {
@@ -140,29 +105,6 @@ public final class Locations
 
 		//see if route overlays need to be downloaded
 		RouteConfig routeConfig = routeMapping.get(routeToUpdate);
-		if (routeConfig != null)
-		{
-			if (routeConfig.getStops().size() != 0 && (showRoute == false || routeConfig.getPaths().length != 0 || 
-					routeConfig.hasPaths() == false))
-			{
-				//everything's ok
-			}
-			else
-			{
-				//populate route overlay (just in case we didn't already)
-				//updateAsyncTask.publish(new ProgressMessage(ProgressMessage.PROGRESS_DIALOG_ON, "Downloading data for route " + routeToUpdate, null));
-				populateStops(routeToUpdate, routeConfig, updateAsyncTask, true);
-				
-				return;
-			}
-		}
-		else
-		{
-			//populate route overlay (just in case we didn't already)
-			updateAsyncTask.publish(new ProgressMessage(ProgressMessage.PROGRESS_DIALOG_ON, "Downloading data for route " + routeToUpdate, null));
-			populateStops(routeToUpdate, routeConfig, updateAsyncTask, false);
-			return;
-		}
 		
 		switch (selectedBusPredictions)
 		{
@@ -170,14 +112,14 @@ public final class Locations
 		case Main.VEHICLE_LOCATIONS_ALL:
 			//get data from many transit sources
 			transitSystem.refreshData(routeConfig, selectedBusPredictions, maxStops, centerLatitude,
-					centerLongitude, busMapping, selectedRoute, routeMapping, directions, this);
+					centerLongitude, busMapping, selectedRoute, routeMapping, this);
 			break;
 		case Main.BUS_PREDICTIONS_ALL:
 		{
 			TransitSource transitSource = transitSystem.getTransitSource(null);
 			transitSource.refreshData(routeConfig, selectedBusPredictions, maxStops,
 					centerLatitude, centerLongitude, busMapping,
-					selectedRoute, routeMapping, directions, this);
+					selectedRoute, routeMapping, this);
 		}
 			break;
 		default:
@@ -185,27 +127,10 @@ public final class Locations
 			TransitSource transitSource = routeConfig.getTransitSource();
 			transitSource.refreshData(routeConfig, selectedBusPredictions, maxStops,
 					centerLatitude, centerLongitude, busMapping,
-					selectedRoute, routeMapping, directions, this);
+					selectedRoute, routeMapping, this);
 		}
 			break;
 		}
-	}
-
-	private void populateStops(String routeToUpdate, RouteConfig oldRouteConfig, UpdateAsyncTask task, boolean silent) 
-		throws IOException, ParserConfigurationException, SAXException
-	{
-		
-		TransitSource transitSource;
-		if (oldRouteConfig != null)
-		{
-			transitSource = oldRouteConfig.getTransitSource();
-		}
-		else
-		{
-			transitSource = transitSystem.getTransitSource(routeToUpdate);
-		}
-		
-		transitSource.populateStops(routeMapping, routeToUpdate, oldRouteConfig, directions, task, silent);
 	}
 
 	public int getSelectedBusPredictions()
@@ -280,13 +205,26 @@ public final class Locations
 		}
 		else if (selectedBusPredictions == Main.BUS_PREDICTIONS_ALL)
 		{
-			ArrayList<StopLocation> stops = routeMapping.getClosestStops(centerLatitude, centerLongitude, maxLocations);
-			for (StopLocation stop : stops)
+			ArrayList<LocationGroup> groups = routeMapping.getClosestStops(centerLatitude, centerLongitude, maxLocations);
+			for (LocationGroup group : groups)
 			{
-				if (!(stop instanceof SubwayStopLocation))
+				if (group instanceof MultipleStopLocations) {
+					MultipleStopLocations multipleStopLocations = (MultipleStopLocations)group;
+					for (StopLocation stop : multipleStopLocations.getStops()) {
+						if (!(stop instanceof SubwayStopLocation)) {
+							newLocations.add(stop);
+							locationKeys.add(stop.getId());
+						}
+					}
+				}
+				else
 				{
-					newLocations.add(stop);
-					locationKeys.add(stop.getId());
+					StopLocation stop = (StopLocation)group;
+					if (!(stop instanceof SubwayStopLocation))
+					{
+						newLocations.add(stop);
+						locationKeys.add(stop.getId());
+					}
 				}
 			}
 		}
@@ -353,30 +291,6 @@ public final class Locations
 		}
 	}
 
-	
-	private ArrayList<String> routeInfoNeedsUpdating(String[] routesToCheck) throws IOException
-	{
-		return routeMapping.routeInfoNeedsUpdating(routesToCheck);
-	}
-
-	/**
-	 * Is there enough space available, if we need any?
-	 * @return
-	 * @throws IOException 
-	 */
-	public boolean checkFreeSpace(DatabaseHelper helper, String[] routesToCheck) throws IOException {
-		ArrayList<String> routesThatNeedUpdating = routeInfoNeedsUpdating(routesToCheck);
-		if (routesThatNeedUpdating == null || routesThatNeedUpdating.size() == 0)
-		{
-			//everything is already in the database
-			return true;
-		}
-		else
-		{
-			return helper.checkFreeSpace();
-		}
-	}
-
 	public RouteConfig getSelectedRoute() throws IOException {
 		return routeMapping.get(selectedRoute);
 	}
@@ -401,7 +315,7 @@ public final class Locations
 		return (long)lastUpdateTime;
 	}
 	
-	public MyHashMap<String, StopLocation> getAllStopsAtStop(String stopTag)
+	public LocationGroup getAllStopsAtStop(String stopTag)
 	{
 		return routeMapping.getAllStopTagsAtLocation(stopTag);
 	}
@@ -439,9 +353,5 @@ public final class Locations
 		{
 			return false;
 		}
-	}
-
-	public Directions getDirections() {
-		return directions;
 	}
 }

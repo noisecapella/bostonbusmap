@@ -31,13 +31,12 @@ import boston.Bus.Map.data.RoutePool;
 import boston.Bus.Map.data.StopLocation;
 import boston.Bus.Map.data.SubwayStopLocation;
 import boston.Bus.Map.data.TransitDrawables;
+import boston.Bus.Map.data.prepopulated.CommuterRailPrepopulatedData;
 import boston.Bus.Map.main.Main;
 import boston.Bus.Map.main.UpdateAsyncTask;
 import boston.Bus.Map.parser.AlertParser;
 import boston.Bus.Map.parser.CommuterRailPredictionsFeedParser;
-import boston.Bus.Map.parser.CommuterRailRouteConfigParser;
 import boston.Bus.Map.parser.SubwayPredictionsFeedParser;
-import boston.Bus.Map.parser.SubwayRouteConfigFeedParser;
 import boston.Bus.Map.ui.ProgressMessage;
 import boston.Bus.Map.util.DownloadHelper;
 import boston.Bus.Map.util.SearchHelper;
@@ -111,34 +110,11 @@ public class CommuterRailTransitSource implements TransitSource {
 
 
 	@Override
-	public void populateStops(RoutePool routeMapping, String routeToUpdate,
-			RouteConfig oldRouteConfig, Directions directions,
-			UpdateAsyncTask task, boolean silent) throws ClientProtocolException, IOException,
-			ParserConfigurationException, SAXException
-	{
-		
-		//this will probably never be executed
-		//final String urlString = getRouteConfigUrl();
-
-		//DownloadHelper downloadHelper = new DownloadHelper(urlString);
-		
-		//downloadHelper.connect();
-		//just initialize the route and then end for this round
-		
-		CommuterRailRouteConfigParser parser = new CommuterRailRouteConfigParser(directions, oldRouteConfig, this);
-
-		//parser.runParse(downloadHelper.getResponseData()); 
-		parser.runParse(new StringReader(CommuterRailRouteConfigParser.temporaryInputData));
-
-		parser.writeToDatabase(routeMapping, false, task, silent);
-	}
-
-	@Override
 	public void refreshData(RouteConfig routeConfig,
 			int selectedBusPredictions, int maxStops, double centerLatitude,
 			double centerLongitude,
 			ConcurrentHashMap<String, BusLocation> busMapping,
-			String selectedRoute, RoutePool routePool, Directions directions,
+			String selectedRoute, RoutePool routePool,
 			Locations locationsObj) throws IOException,
 			ParserConfigurationException, SAXException
 	{
@@ -192,6 +168,7 @@ public class CommuterRailTransitSource implements TransitSource {
 
 			String route = outputRoutes.get(i);
 			RouteConfig railRouteConfig = routePool.get(route);
+			Directions directions = routePool.getDirections();
 			CommuterRailPredictionsFeedParser parser = new CommuterRailPredictionsFeedParser(railRouteConfig, directions,
 					drawables, busMapping, routeKeysToTitles);
 
@@ -320,24 +297,6 @@ public class CommuterRailTransitSource implements TransitSource {
 	}
 
 	@Override
-	public void initializeAllRoutes(UpdateAsyncTask task, Context context,
-			Directions directions, RoutePool routeMapping) throws IOException,
-			ParserConfigurationException, SAXException {
-		task.publish(new ProgressMessage(ProgressMessage.PROGRESS_DIALOG_ON, "Downloading commuter info", null));
-		//final String subwayUrl = getRouteConfigUrl();
-		//URL url = new URL(subwayUrl);
-		//InputStream in = Locations.downloadStream(url, task);
-		
-		CommuterRailRouteConfigParser subwayParser = new CommuterRailRouteConfigParser(directions, null, this);
-		
-		subwayParser.runParse(new StringReader(CommuterRailRouteConfigParser.temporaryInputData));
-		
-		subwayParser.writeToDatabase(routeMapping, false, task, false);
-		
-		
-	}
-
-	@Override
 	public String[] getRoutes() {
 		return routes;
 	}
@@ -352,15 +311,6 @@ public class CommuterRailTransitSource implements TransitSource {
 		return drawables;
 	}
 	
-	@Override
-	public StopLocation createStop(float lat, float lon, String stopTag,
-			String title, int platformOrder, String branch, String route) {
-		SubwayStopLocation stopLocation = new CommuterRailStopLocation(lat, lon, drawables, stopTag, title,
-				platformOrder, branch);
-		stopLocation.addRoute(route);
-		return stopLocation;
-	}
-
 	@Override
 	public void bindPredictionElementsForUrl(StringBuilder urlString,
 			String route, String stopTag) {
@@ -389,5 +339,10 @@ public class CommuterRailTransitSource implements TransitSource {
 		
 		return SearchHelper.naiveSearch(indexingQuery, lowercaseQuery, routes, routeKeysToTitles);
 		
+	}
+	
+	@Override
+	public RouteConfig[] makeRoutes(Directions directions) throws IOException {
+		return new CommuterRailPrepopulatedData(this, directions).getAllRoutes();
 	}
 }

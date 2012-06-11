@@ -26,11 +26,11 @@ import boston.Bus.Map.data.RoutePool;
 import boston.Bus.Map.data.StopLocation;
 import boston.Bus.Map.data.SubwayStopLocation;
 import boston.Bus.Map.data.TransitDrawables;
+import boston.Bus.Map.data.prepopulated.SubwayPrepopulatedData;
 import boston.Bus.Map.main.Main;
 import boston.Bus.Map.main.UpdateAsyncTask;
 import boston.Bus.Map.parser.AlertParser;
 import boston.Bus.Map.parser.SubwayPredictionsFeedParser;
-import boston.Bus.Map.parser.SubwayRouteConfigFeedParser;
 import boston.Bus.Map.ui.ProgressMessage;
 import boston.Bus.Map.util.DownloadHelper;
 import boston.Bus.Map.util.SearchHelper;
@@ -53,34 +53,13 @@ public class SubwayTransitSource implements TransitSource {
 	
 	
 	@Override
-	public void populateStops(RoutePool routeMapping, String routeToUpdate,
-			RouteConfig oldRouteConfig, Directions directions, UpdateAsyncTask task, boolean silent)
-			throws ClientProtocolException, IOException,
-			ParserConfigurationException, SAXException {
-		
-		//this will probably never be executed
-		final String urlString = getRouteConfigUrl();
-
-		DownloadHelper downloadHelper = new DownloadHelper(urlString);
-		
-		downloadHelper.connect();
-		//just initialize the route and then end for this round
-		
-		SubwayRouteConfigFeedParser parser = new SubwayRouteConfigFeedParser(directions, oldRouteConfig, this);
-
-		parser.runParse(downloadHelper.getResponseData()); 
-
-		parser.writeToDatabase(routeMapping, false, task, silent);
-
-	}
-
-	@Override
 	public void refreshData(RouteConfig routeConfig,
 			int selectedBusPredictions, int maxStops, double centerLatitude,
 			double centerLongitude, ConcurrentHashMap<String, BusLocation> busMapping,
-			String selectedRoute, RoutePool routePool, Directions directions,
+			String selectedRoute, RoutePool routePool,
 			Locations locationsObj)
 			throws IOException, ParserConfigurationException, SAXException {
+		Directions directions = routePool.getDirections();
 		//read data from the URL
 		if (selectedBusPredictions == Main.VEHICLE_LOCATIONS_ALL)
 		{
@@ -272,26 +251,6 @@ public class SubwayTransitSource implements TransitSource {
 		return BlueColor;
 	}
 
-	@Override
-	public void initializeAllRoutes(UpdateAsyncTask task, Context context,
-			Directions directions,
-			RoutePool routeMapping) throws IOException,
-			ParserConfigurationException, SAXException {
-		//download subway data
-		
-		task.publish(new ProgressMessage(ProgressMessage.PROGRESS_DIALOG_ON, "Downloading subway info", null));
-		final String subwayUrl = getRouteConfigUrl();
-		URL url = new URL(subwayUrl);
-		InputStream in = Locations.downloadStream(url, task);
-		
-		SubwayRouteConfigFeedParser subwayParser = new SubwayRouteConfigFeedParser(directions, null, this);
-		
-		subwayParser.runParse(in);
-		
-		subwayParser.writeToDatabase(routeMapping, false, task, false);
-		
-	}
-
 
 	@Override
 	public String[] getRoutes() {
@@ -308,14 +267,6 @@ public class SubwayTransitSource implements TransitSource {
 	public TransitDrawables getDrawables() {
 		return drawables;
 	}
-	@Override
-	public StopLocation createStop(float lat, float lon, String stopTag, String title,
-			int platformOrder, String branch, String route) {
-		SubwayStopLocation stop = new SubwayStopLocation(lat, lon, drawables, stopTag, title, platformOrder, branch);
-		stop.addRoute(route);
-		return stop;
-	}
-
 
 	@Override
 	public void bindPredictionElementsForUrl(StringBuilder urlString,
@@ -330,5 +281,10 @@ public class SubwayTransitSource implements TransitSource {
 	public String searchForRoute(String indexingQuery, String lowercaseQuery)
 	{
 		return SearchHelper.naiveSearch(indexingQuery, lowercaseQuery, subwayRoutes, subwayRouteKeysToTitles);
+	}
+	
+	@Override
+	public RouteConfig[] makeRoutes(Directions directions) throws IOException {
+		return new SubwayPrepopulatedData(this, directions).getAllRoutes();
 	}
 }

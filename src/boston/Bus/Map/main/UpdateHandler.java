@@ -65,7 +65,6 @@ public class UpdateHandler extends Handler {
 	private final RouteOverlay routeOverlay;
 	private final LocationOverlay locationOverlay;
 	
-	private boolean isFirstRefresh;
 	private boolean showRouteLine;
 	
 	private final TransitSystem transitSystem;
@@ -106,13 +105,11 @@ public class UpdateHandler extends Handler {
 			if (currentTime - lastUpdateTime > interval)
 			{
 				//if not too soon, do the update
-				runUpdateTask(isFirstRefresh);
-				isFirstRefresh = false;
+				runUpdateTask();
 			}
 			else if (currentTime - lastUpdateTime > fetchDelay && msg.arg1 == IMMEDIATE_REFRESH)
 			{
-				runUpdateTask(isFirstRefresh);
-				isFirstRefresh = false;
+				runUpdateTask();
 			}
 
 			//make updateBuses execute every 10 seconds (or whatever fetchDelay is)
@@ -147,7 +144,7 @@ public class UpdateHandler extends Handler {
 			int idToSelect = msg.arg1;
 			minorUpdate = new UpdateAsyncTask(progress, mapView, locationOverlay, getShowUnpredictable(), false, maxOverlays,
 					getHideHighlightCircle() == false, getInferBusRoutes(), busOverlay, routeOverlay, helper,
-					routeToUpdate, selectedBusPredictions, false, getShowRouteLine(), 
+					routeToUpdate, selectedBusPredictions, getShowRouteLine(), 
 					transitSystem, progressDialog, idToSelect);
 			
 
@@ -181,7 +178,7 @@ public class UpdateHandler extends Handler {
 	/**
 	 * executes the update
 	 */
-	private void runUpdateTask(boolean isFirstTime) {
+	private void runUpdateTask() {
 		//make sure we don't update too often
 		lastUpdateTime = TransitSystem.currentTimeMillis();
 
@@ -203,7 +200,7 @@ public class UpdateHandler extends Handler {
 		
 		updateAsyncTask = new UpdateAsyncTask(progress, mapView, locationOverlay, getShowUnpredictable(), true, maxOverlays,
 				getHideHighlightCircle() == false, getInferBusRoutes(), busOverlay, routeOverlay, helper,
-				routeToUpdate, selectedBusPredictions, isFirstTime, showRouteLine,
+				routeToUpdate, selectedBusPredictions, showRouteLine,
 				transitSystem, progressDialog, 0);
 		updateAsyncTask.runUpdate(busLocations, centerLatitude, centerLongitude, context);
 	}
@@ -223,8 +220,7 @@ public class UpdateHandler extends Handler {
 			return false;
 		}
 
-		runUpdateTask(isFirstRefresh);
-		isFirstRefresh = false;
+		runUpdateTask();
 		return true;
 
 	}
@@ -276,16 +272,6 @@ public class UpdateHandler extends Handler {
 	public boolean getInferBusRoutes()
 	{
 		return inferBusRoutes;
-	}
-	
-	public void setInitAllRouteInfo(boolean b)
-	{
-		isFirstRefresh = b;
-	}
-	
-	public boolean getInitAllRouteInfo()
-	{
-		return isFirstRefresh;
 	}
 	
 

@@ -85,10 +85,7 @@ public class UpdateAsyncTask extends AsyncTask<Object, Object, Locations>
 	private final MapView mapView;
 	private final boolean doShowUnpredictable;
 	private final boolean doRefresh;
-	/**
-	 * For now this is always false. I need to figure out how to download a 1 megabyte file gracefully
-	 */
-	private final boolean doInit;
+
 	private final int maxOverlays;
 	private final boolean drawCircle;
 	private final DatabaseHelper helper;
@@ -122,7 +119,7 @@ public class UpdateAsyncTask extends AsyncTask<Object, Object, Locations>
 			boolean doShowUnpredictable, boolean doRefresh, int maxOverlays,
 			boolean drawCircle, boolean inferBusRoutes, BusOverlay busOverlay, RouteOverlay routeOverlay, 
 			DatabaseHelper helper, String routeToUpdate,
-			int selectedBusPredictions, boolean doInit, boolean showRouteLine,
+			int selectedBusPredictions, boolean showRouteLine,
 		TransitSystem transitSystem, ProgressDialog progressDialog, int idToSelect)
 	{
 		super();
@@ -142,7 +139,6 @@ public class UpdateAsyncTask extends AsyncTask<Object, Object, Locations>
 		this.progress = progress;
 		this.routeToUpdate = routeToUpdate;
 		this.selectedBusPredictions = selectedBusPredictions;
-		this.doInit = doInit;
 		this.showRouteLine = showRouteLine;
 		//this.uiHandler = new Handler();
 		this.transitSystem = transitSystem;
@@ -252,24 +248,6 @@ public class UpdateAsyncTask extends AsyncTask<Object, Object, Locations>
 			try
 			{
 				publish(new ProgressMessage(ProgressMessage.PROGRESS_SPINNER_ON, null, null));
-				
-				String[] allRoutes = transitSystem.getRoutes();
-				if (doInit)
-				{
-					//publishProgress("Did not find route info in database, checking if there's free space to download it...");
-				}
-				if (busLocations.checkFreeSpace(helper, allRoutes) == false)
-				{
-					publish(new ProgressMessage(ProgressMessage.TOAST, null, 
-							"There is not enough free space to download the route info. About 2MB free is required"));
-					return null;
-				}
-				
-				if (doInit)
-				{
-					//publishProgress("Did not find route info in database, downloading it now...");
-				}
-				busLocations.initializeAllRoutes(this, context, allRoutes);
 				
 				busLocations.refresh(inferBusRoutes, routeToUpdate, selectedBusPredictions,
 						centerLatitude, centerLongitude, this, showRouteLine);

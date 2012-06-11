@@ -21,22 +21,16 @@ import boston.Bus.Map.main.UpdateAsyncTask;
 
 public interface TransitSource {
 
-	void populateStops(RoutePool routeMapping, String routeToUpdate,
-			RouteConfig oldRouteConfig, Directions directions, UpdateAsyncTask task, boolean silent)
-		throws ClientProtocolException, IOException, ParserConfigurationException, SAXException ;
-
+	public RouteConfig[] makeRoutes(Directions directions) throws IOException;
+	
 	void refreshData(RouteConfig routeConfig, int selectedBusPredictions,
 			int maxStops, double centerLatitude, double centerLongitude,
 			ConcurrentHashMap<String, BusLocation> busMapping, String selectedRoute,
-			RoutePool routePool, Directions directions, Locations locationsObj)
+			RoutePool routePool, Locations locationsObj)
 	throws IOException, ParserConfigurationException, SAXException;
 
 	boolean hasPaths();
 
-	public void initializeAllRoutes(UpdateAsyncTask task, Context context,
-			Directions directions, RoutePool routeMapping) throws IOException,
-			ParserConfigurationException, SAXException;
-	
 	public String[] getRoutes();
 	
 	public MyHashMap<String, String> getRouteKeysToTitles();
@@ -47,7 +41,4 @@ public interface TransitSource {
 	String searchForRoute(String indexingQuery, String lowercaseQuery);
 
 	TransitDrawables getDrawables();
-
-	StopLocation createStop(float lat, float lon, String stopTag, String title,
-			int platformOrder, String branch, String route);
 }

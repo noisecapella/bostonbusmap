@@ -1,12 +1,20 @@
 package boston.Bus.Map.util;
 
+import java.io.IOException;
 import java.util.Arrays;
 import com.google.android.maps.MapView;
+import com.schneeloch.suffixarray.ObjectWithString;
+import com.schneeloch.suffixarray.SuffixArray;
 
 import android.util.Log;
 import android.widget.Toast;
+import boston.Bus.Map.data.Directions;
 import boston.Bus.Map.data.MyHashMap;
+import boston.Bus.Map.data.RouteConfig;
 import boston.Bus.Map.data.StopLocation;
+import boston.Bus.Map.data.prepopulated.CommuterRailPrepopulatedData;
+import boston.Bus.Map.data.prepopulated.NextbusPrepopulatedData;
+import boston.Bus.Map.data.prepopulated.SubwayPrepopulatedData;
 import boston.Bus.Map.database.DatabaseHelper;
 import boston.Bus.Map.main.Main;
 import boston.Bus.Map.transit.TransitSystem;
@@ -18,20 +26,19 @@ public class SearchHelper
 	private final MyHashMap<String, String> dropdownRouteKeysToTitles;
 	private final String query;
 	private String suggestionsQuery;
-	private final DatabaseHelper databaseHelper;
 	
 	private boolean queryContainsRoute;
 	private boolean queryContainsStop;
 	private final TransitSystem transitSystem;
 	
+	
 	public SearchHelper(Main context, String[] dropdownRoutes, MyHashMap<String, String> dropdownRouteKeysToTitles,
-			MapView mapView, String query, DatabaseHelper databaseHelper, TransitSystem transitSystem)
+			MapView mapView, String query, TransitSystem transitSystem)
 	{
 		this.context = context;
 		this.dropdownRoutes = dropdownRoutes;
 		this.dropdownRouteKeysToTitles = dropdownRouteKeysToTitles;
 		this.query = query;
-		this.databaseHelper = databaseHelper;
 		this.transitSystem = transitSystem;
 	}
 	
@@ -47,7 +54,13 @@ public class SearchHelper
 			return;
 		}
 
-		searchRoutes(onFinish);
+		try
+		{
+			searchRoutes(onFinish);
+		}
+		catch (IOException e) {
+			LogUtil.e(e);
+		}
 	}
 
 	/**
@@ -55,7 +68,7 @@ public class SearchHelper
 	 * 
 	 * @return if >= 0, it's an index to 
 	 */
-	private void searchRoutes(final Runnable onFinish) {
+	private void searchRoutes(final Runnable onFinish) throws IOException {
 		String lowercaseQuery = query.toLowerCase();
 		String printableQuery = query;
 		
@@ -141,7 +154,7 @@ public class SearchHelper
 		returnResults(onFinish, finalIndexingQuery, finalLowercaseQuery, finalPrintableQuery);
 	}
 
-	private void returnResults(Runnable onFinish, String indexingQuery, String lowercaseQuery, String printableQuery) {
+	private void returnResults(Runnable onFinish, String indexingQuery, String lowercaseQuery, String printableQuery) throws IOException {
 		if (queryContainsRoute)
 		{
 			int position = getAsRoute(indexingQuery, lowercaseQuery);
@@ -173,7 +186,7 @@ public class SearchHelper
 				exactQuery = printableQuery;
 			}
 			
-			StopLocation stop = databaseHelper.getStopByTagOrTitle(indexingQuery, exactQuery, transitSystem);
+			StopLocation stop = getStopByTagOrTitle(indexingQuery, exactQuery);
 			if (stop != null)
 			{	
 				context.setNewStop(stop.getFirstRoute(), stop.getStopTag());
@@ -192,6 +205,36 @@ public class SearchHelper
 		}
 		
 		onFinish.run();
+	}
+
+	private StopLocation getStopByTagOrTitle(String indexingQuery,
+			String exactQuery) throws IOException {
+		SuffixArray stopSuffixArray = new SuffixArray(true);
+		FakeTransitSource fake = new FakeTransitSource();
+		Directions directions = new Directions();
+		for (RouteConfig route : new NextbusPrepopulatedData(fake, directions).getAllRoutes()) {
+			for (StopLocation stop : route.getStops()) {
+				stopSuffixArray.add(stop);
+			}
+		}
+		for (RouteConfig route : new SubwayPrepopulatedData(fake, directions).getAllRoutes()) {
+			for (StopLocation stop : route.getStops()) {
+				stopSuffixArray.add(stop);
+			}
+		}
+		for (RouteConfig route : new CommuterRailPrepopulatedData(fake, directions).getAllRoutes()) {
+			for (StopLocation stop : route.getStops()) {
+				stopSuffixArray.add(stop);
+			}
+		}
+		
+		for (ObjectWithString objectWithString : stopSuffixArray.search(indexingQuery)) {
+			StopLocation stop = (StopLocation)objectWithString;
+			if (stop.getTitle().equalsIgnoreCase(indexingQuery)) {
+				return stop;
+			}
+		}
+		return null;
 	}
 
 	private int getAsRoute(String indexingQuery, String lowercaseQuery)

@@ -49,6 +49,7 @@ import boston.Bus.Map.ui.ModeAdapter;
 import boston.Bus.Map.ui.RouteOverlay;
 import boston.Bus.Map.ui.ViewingMode;
 import boston.Bus.Map.util.Constants;
+import boston.Bus.Map.util.LogUtil;
 import boston.Bus.Map.util.SearchHelper;
 import boston.Bus.Map.util.StringUtil;
 
@@ -382,7 +383,13 @@ public class Main extends MapActivity
 
         if (busLocations == null)
         {
-        	busLocations = new Locations(databaseHelper, transitSystem);
+        	try {
+				busLocations = new Locations(databaseHelper, transitSystem);
+			} catch (IOException e) {
+				LogUtil.e(e);
+				// this is bad...
+				throw new RuntimeException(e);
+			}
         }
 
         handler = new UpdateHandler(progress, mapView, busLocations, 
@@ -805,7 +812,6 @@ public class Main extends MapActivity
     	handler.setShowRouteLine(prefs.getBoolean(getString(R.string.showRouteLineCheckbox), false));
     	boolean showCoarseRouteLineCheckboxValue = prefs.getBoolean(getString(R.string.showCoarseRouteLineCheckbox), true); 
     	//handler.setInitAllRouteInfo(prefs.getBoolean(getString(R.string.initAllRouteInfoCheckbox2), true));
-    	handler.setInitAllRouteInfo(true);
     	
     	boolean alwaysUpdateLocationValue = prefs.getBoolean(getString(R.string.alwaysShowLocationCheckbox), true);
     	
@@ -911,7 +917,7 @@ public class Main extends MapActivity
 
 			
 			final SearchHelper helper = new SearchHelper(this, dropdownRoutes, dropdownRouteKeysToTitles, mapView, query, 
-				databaseHelper, transitSystem);
+				transitSystem);
 			helper.runSearch(new Runnable()
 			{
 				@Override

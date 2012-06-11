@@ -23,10 +23,10 @@ import boston.Bus.Map.data.RoutePool;
 import boston.Bus.Map.data.StopLocation;
 import boston.Bus.Map.data.SubwayStopLocation;
 import boston.Bus.Map.data.TransitDrawables;
+import boston.Bus.Map.data.prepopulated.NextbusPrepopulatedData;
 import boston.Bus.Map.main.Main;
 import boston.Bus.Map.main.UpdateAsyncTask;
 import boston.Bus.Map.parser.BusPredictionsFeedParser;
-import boston.Bus.Map.parser.RouteConfigFeedParser;
 import boston.Bus.Map.parser.VehicleLocationsFeedParser;
 import boston.Bus.Map.ui.ProgressMessage;
 import boston.Bus.Map.util.DownloadHelper;
@@ -94,32 +94,11 @@ public abstract class NextBusTransitSource implements TransitSource
 
 
 	@Override
-	public void populateStops(RoutePool routeMapping, String routeToUpdate,
-			RouteConfig oldRouteConfig, Directions directions, UpdateAsyncTask task, boolean silent) 
-	throws ClientProtocolException, IOException, ParserConfigurationException, SAXException 
-	{
-		final String urlString = getRouteConfigUrl(routeToUpdate);
-
-		DownloadHelper downloadHelper = new DownloadHelper(urlString);
-
-		downloadHelper.connect();
-		//just initialize the route and then end for this round
-
-		RouteConfigFeedParser parser = new RouteConfigFeedParser(directions, oldRouteConfig,
-				this);
-
-		parser.runParse(downloadHelper.getResponseData()); 
-
-		parser.writeToDatabase(routeMapping, false, task, silent);
-
-	}
-
-
-	@Override
 	public void refreshData(RouteConfig routeConfig, int selectedBusPredictions, int maxStops,
 			double centerLatitude, double centerLongitude, ConcurrentHashMap<String, BusLocation> busMapping, 
-			String selectedRoute, RoutePool routePool, Directions directions, Locations locationsObj)
+			String selectedRoute, RoutePool routePool, Locations locationsObj)
 	throws IOException, ParserConfigurationException, SAXException {
+		Directions directions = routePool.getDirections();
 		//read data from the URL
 		DownloadHelper downloadHelper;
 		switch (selectedBusPredictions)
@@ -135,7 +114,7 @@ public abstract class NextBusTransitSource implements TransitSource
 
 			//ok, do predictions now
 			String routeName = selectedBusPredictions == Main.BUS_PREDICTIONS_ONE ? routeConfig.getRouteName() : null;
-			String url = getPredictionsUrl(locations, maxStops, routeName, locationsObj.getDirections());
+			String url = getPredictionsUrl(locations, maxStops, routeName, directions);
 
 			if (url == null)
 			{
@@ -269,14 +248,6 @@ public abstract class NextBusTransitSource implements TransitSource
 
 	}
 
-	@Override
-	public StopLocation createStop(float lat, float lon, String stopTag,
-			String title, int platformOrder, String branch, String route) {
-
-		StopLocation stop = new StopLocation(lat, lon, drawables, stopTag, title);
-		stop.addRoute(route);
-		return stop;
-	}
 	protected String getVehicleLocationsUrl(long time, String route)
 	{
 		if (route != null)
@@ -307,31 +278,6 @@ public abstract class NextBusTransitSource implements TransitSource
 		return true;
 	}
 
-
-	@Override
-	public void initializeAllRoutes(UpdateAsyncTask task, Context context, Directions directions,
-			RoutePool routeMapping)
-	throws IOException, ParserConfigurationException, SAXException {
-		task.publish(new ProgressMessage(ProgressMessage.PROGRESS_DIALOG_ON, "Decompressing route data", null));
-
-		final int contentLength = getInitialContentLength();
-
-		InputStream in = new StreamCounter(context.getResources().openRawResource(initialRouteResource),
-				task, contentLength); 
-
-		GZIPInputStream stream = new GZIPInputStream(in); 
-
-		RouteConfigFeedParser parser = new RouteConfigFeedParser(directions, null, this);
-
-		parser.runParse(stream);
-
-
-
-		parser.writeToDatabase(routeMapping, true, task, false);
-
-
-	}
-
 	/**
 	 * This is the size of the file at R.res.raw.routeconfig
 	 * @return
@@ -358,5 +304,10 @@ public abstract class NextBusTransitSource implements TransitSource
 	@Override
 	public TransitDrawables getDrawables() {
 		return drawables;
+	}
+	
+	@Override
+	public RouteConfig[] makeRoutes(Directions directions) throws IOException {
+		return new NextbusPrepopulatedData(this, directions).getAllRoutes();
 	}
 }

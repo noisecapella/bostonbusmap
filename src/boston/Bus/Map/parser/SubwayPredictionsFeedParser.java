@@ -40,6 +40,14 @@ import boston.Bus.Map.util.LogUtil;
 
 public class SubwayPredictionsFeedParser 
 {
+	public static final String RedNorthToAlewife = "RedNB0";
+	public static final String RedNorthToAlewife2 = "RedNB1";
+	public static final String RedSouthToBraintree = "RedSB0";
+	public static final String RedSouthToAshmont = "RedSB1";
+	public static final String BlueEastToWonderland = "BlueEB0";
+	public static final String BlueWestToBowdoin = "BlueWB0";
+	public static final String OrangeNorthToOakGrove = "OrangeNB0";
+	public static final String OrangeSouthToForestHills = "OrangeSB0";
 	private final String currentRoute;
 	private final RoutePool routePool;
 	private final Directions directions;
@@ -258,7 +266,7 @@ public class SubwayPredictionsFeedParser
 		}
 		else if (stoptag.equals("RJFKS"))
 		{
-			if (dirTag.equals(SubwayRouteConfigFeedParser.RedSouthToAshmont))
+			if (dirTag.equals(RedSouthToAshmont))
 			{
 				return routeConfig.getStopMapping().get("RSAVS");
 			}

@@ -8,14 +8,9 @@ import boston.Bus.Map.database.DatabaseHelper;
 
 public class Directions {
 	private final MyHashMap<String, Direction> directions = new MyHashMap<String, Direction>();
-	private final DatabaseHelper helper;
 	
 	private boolean isRefreshed = false;
 	
-	public Directions(DatabaseHelper helper) {
-		this.helper = helper;
-	}
-
 	public void add(String dirTag, Direction direction) {
 		if (directions.containsKey(dirTag) == false)
 		{
@@ -34,35 +29,9 @@ public class Directions {
 	
 	private Direction getDirection(String dirTag)
 	{
-		if (dirTag == null)
-		{
-			return null;
-		}
-		Direction direction = directions.get(dirTag);
-		if (direction == null)
-		{
-			Log.i("BostonBusMap", "strange, dirTag + " + dirTag + " doesnt exist. If you see this many times, we're having trouble storing the data in the database. Too much DB activity causes objects to persist which causes a crash");
-			if (isRefreshed == false)
-			{
-				synchronized(directions)
-				{
-					helper.refreshDirections(directions);
-				}
-				isRefreshed = true;
-			}
-
-			return directions.get(dirTag);
-		}
-		else
-		{
-			return direction;
-		}
+		return directions.get(dirTag);
 	}
 	
-
-	public void writeToDatabase(boolean wipe) {
-		helper.writeDirections(wipe, directions);
-	}
 
 	/**
 	 * Returns a displayable HTML string of the direction's title and name

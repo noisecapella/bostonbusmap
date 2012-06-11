@@ -4,10 +4,12 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 
+import com.schneeloch.suffixarray.ObjectWithString;
+
 import boston.Bus.Map.transit.TransitSource;
 import boston.Bus.Map.util.Box;
 
-public class RouteConfig
+public class RouteConfig implements ObjectWithString
 {
 	private final ArrayList<String> stopOrder;
 	private final MyHashMap<String, StopLocation> stops;
@@ -144,5 +146,10 @@ public class RouteConfig
 
 	public boolean obtainedAlerts() {
 		return obtainedAlerts;
+	}
+
+	@Override
+	public String getString() {
+		return routeTitle;
 	}
 }
