@@ -200,7 +200,10 @@ def runAlerts(routes):
     f.write("public class PrepopulatedAlerts {\n")
     f.write("    public MyHashMap<String, Integer> getAlertNumbers() {\n")
     f.write("        MyHashMap<String, Integer> ret = new MyHashMap<String, Integer>();\n")
-    for routeTag, alertKey in routeToAlertKey.iteritems():
+    tags = [key for key in routeToAlertKey.keys()]
+    tags.sort()
+    for routeTag in tags:
+        alertKey = routeToAlertKey[routeTag]
         f.write("        ret.put(\"{0}\", {1});\n".format(routeTag, alertKey))
     f.write("        return ret;\n")
     f.write("    }\n")
@@ -424,17 +427,28 @@ Red Line - Mattapan Line,233"""
 
     routeToAlertKey = {}
     for routeName, route in routes.iteritems():
+        routeTitle = route["title"]
         for routeDescription, alertKey in routeDescriptionToAlertKey.iteritems():
-            if routeDescription == routeName:
+            if routeDescription == routeTitle:
                 routeToAlertKey[routeName] = alertKey
                 break
         else:
-            # not in routeDescriptionToAlertKey
             for routeDescription, alertKey in routeDescriptionToAlertKey.iteritems():
-                if routeDescription.startswith(routeName + " ") or routeDescription.startswith(routeName + "/"):
+                if routeDescription.startswith(routeTitle + " ") or routeDescription.startswith(routeTitle + "/"):
                     routeToAlertKey[routeName] = alertKey
                     break
+            else:
+                if "/" in routeTitle:
+                    routeTitle = routeTitle.split("/")[0]
+                for routeDescription, alertKey in routeDescriptionToAlertKey.iteritems():
+                    if routeDescription == routeTitle or routeDescription.startswith(routeTitle + " ") or routeDescription.startswith(routeTitle + "/"):
+                        routeToAlertKey[routeName] = alertKey
+                        break
+                else:
+                    print "missed:",routeTitle
     #special cases
+    addToAlertList("57A", 104, routes, routeToAlertKey)
+                    
     addToAlertList("CT1", 50, routes, routeToAlertKey)
     addToAlertList("CT2", 51, routes, routeToAlertKey)
     addToAlertList("CT3", 52, routes, routeToAlertKey)
@@ -883,7 +897,7 @@ def commuterRailRoute(routes, routeCsv, specialDirMapping, routeTitlesToKeys):
     if routeTitle.endswith(" Line"):
         routeTitle = routeTitle[:-5]
     routeTag = routeTitlesToKeys[routeTitle]
-        
+
     if routeTag not in routes:
         stops = {}
         directions = {}
@@ -1017,9 +1031,9 @@ def main():
     combinedRoutes = {}
     for routeTag, route in nextbusRoutes.iteritems():
         combinedRoutes[routeTag] = route
-    for routeTag, route in subwayRoutes.iteritems():
+    for routeTag, route in mySubwayRoutes.iteritems():
         combinedRoutes[routeTag] = route
-    for routeTag, route in commuterRailRoutes.iteritems():
+    for routeTag, route in myCommuterRailRoutes.iteritems():
         combinedRoutes[routeTag] = route
         
     runAlerts(combinedRoutes)
