@@ -101,7 +101,7 @@ public final class Locations
 			UpdateAsyncTask updateAsyncTask, boolean showRoute) throws SAXException, IOException,
 			ParserConfigurationException, FactoryConfigurationError 
 	{
-		final int maxStops = 15;
+		final int maxStops = 35;
 
 		//see if route overlays need to be downloaded
 		RouteConfig routeConfig = routeMapping.get(routeToUpdate);

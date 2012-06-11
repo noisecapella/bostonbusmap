@@ -135,6 +135,7 @@ def printEachMakeRoute(routes, prefix):
             else:
                 f.write("        StopLocation stop{0} = new StopLocation({1}f, {2}f, drawables, \"{4}\", \"{3}\");".format(makeValid(stopTag), stop["lat"], stop["lon"], stop["title"], stopTag) + "\n")
             f.write("        route.addStop(\"{0}\", stop{1});".format(stopTag, makeValid(stopTag)) + "\n")
+            f.write("        stop{0}.addRoute(\"{1}\");\n".format(makeValid(stopTag), makeValid(routeTag)))
 
         for direction in route["directions"].values():
             f.write("            directions.add(\"{0}\", new Direction(\"{1}\", \"{2}\", \"{3}\"));".format(direction["tag"], direction["name"], direction["title"], routeTag) + "\n")
