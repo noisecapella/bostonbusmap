@@ -130,8 +130,10 @@ def printEachMakeRoute(routes, prefix):
 
         for stop in route["stops"].values():
             stopTag = stop["tag"]
-            if "platformOrder" in stop:
+            if stop["source"] == "subway":
                 f.write("        SubwayStopLocation stop{0} = new SubwayStopLocation({1}f, {2}f, drawables, \"{4}\", \"{3}\", {5}, \"{6}\");\n".format(makeValid(stopTag), stop["lat"], stop["lon"], stop["title"], stopTag, stop["platformOrder"], stop["branch"]))
+            elif stop["source"] == "commuterRail":
+                f.write("        CommuterRailStopLocation stop{0} = new CommuterRailStopLocation({1}f, {2}f, drawables, \"{4}\", \"{3}\", {5}, \"{6}\");\n".format(makeValid(stopTag), stop["lat"], stop["lon"], stop["title"], stopTag, stop["platformOrder"], stop["branch"]))
             else:
                 f.write("        StopLocation stop{0} = new StopLocation({1}f, {2}f, drawables, \"{4}\", \"{3}\");".format(makeValid(stopTag), stop["lat"], stop["lon"], stop["title"], stopTag) + "\n")
             f.write("        route.addStop(\"{0}\", stop{1});".format(stopTag, makeValid(stopTag)) + "\n")
@@ -176,7 +178,7 @@ def nextbusToRoutes(routesXml):
         for routeChildXml in routeXml.childNodes:
             if routeChildXml.nodeName == "stop":
                 stopTag = routeChildXml.getAttribute("tag")
-                stops[stopTag] = {"tag": stopTag, "title": routeChildXml.getAttribute("title"), "lat": routeChildXml.getAttribute("lat"), "lon": routeChildXml.getAttribute("lon")}
+                stops[stopTag] = {"tag": stopTag, "title": routeChildXml.getAttribute("title"), "lat": routeChildXml.getAttribute("lat"), "lon": routeChildXml.getAttribute("lon"), "source" : "bus"}
             elif routeChildXml.nodeName == "direction":
                 dirTag = routeChildXml.getAttribute("tag")
                 directionStops = []
@@ -909,7 +911,7 @@ def commuterRailRoute(routes, routeCsv, specialDirMapping, routeTitlesToKeys):
     #create stop
     stopTitle = routeCsv["stop_id"]
     stopTag = stopTagPrefix + stopTitle
-    stop = {"tag" : stopTag, "title" : stopTitle, "lat" : routeCsv["stop_lat"], "lon" : routeCsv["stop_lon"], "platformOrder" : routeCsv["stop_sequence"], "branch" : routeCsv["Branch"]}
+    stop = {"tag" : stopTag, "title" : stopTitle, "lat" : routeCsv["stop_lat"], "lon" : routeCsv["stop_lon"], "platformOrder" : routeCsv["stop_sequence"], "branch" : routeCsv["Branch"], "source" : "commuterRail"}
         
     route["stops"][stopTag] = stop
 
@@ -939,7 +941,7 @@ def subwayRoute(routes, routeCsv, specialDirMapping):
     
     route = routes[routeTag]
     stopTag = routeCsv["PlatformKey"]
-    stop = {"tag": stopTag, "lat" : routeCsv["stop_lat"], "lon" : routeCsv["stop_lon"], "platformOrder" : routeCsv["PlatformOrder"], "title" : routeCsv["stop_name"], "branch" : routeCsv["Branch"]}
+    stop = {"tag": stopTag, "lat" : routeCsv["stop_lat"], "lon" : routeCsv["stop_lon"], "platformOrder" : routeCsv["PlatformOrder"], "title" : routeCsv["stop_name"], "branch" : routeCsv["Branch"], "source": "subway"}
     route["stops"][stopTag] = stop
     
     if routeTag not in specialDirMapping:
