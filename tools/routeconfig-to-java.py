@@ -20,7 +20,7 @@ import boston.Bus.Map.data.LocationGroup;
 import boston.Bus.Map.data.MultipleStopLocations;
 import boston.Bus.Map.data.StopLocation;
 import boston.Bus.Map.data.SubwayStopLocation;
-import boston.Bus.Map.data.TransitDrawables;
+import boston.Bus.Map.data.CommuterRailStopLocation;
 import boston.Bus.Map.data.Direction;
 import boston.Bus.Map.data.Path;
 """
@@ -125,17 +125,16 @@ def printEachMakeRoute(routes, prefix):
         f.write(individualHeader)
         f.write("public class {0}PrepopulatedDataRoute{1} {2}\n".format(prefix, makeValid(routeTag), "{"))
         f.write("    public static RouteConfig makeRoute(TransitSource transitSource, Directions directions) throws IOException {1}".format(i, "{") + "\n")
-        f.write("        TransitDrawables drawables = transitSource.getDrawables();\n")
         f.write("        RouteConfig route = new RouteConfig(\"{0}\", \"{1}\", 0x{2}, 0x{3}, transitSource);".format(routeTag, route["title"], route["color"], route["oppositeColor"]) + "\n")
 
         for stop in route["stops"].values():
             stopTag = stop["tag"]
             if stop["source"] == "subway":
-                f.write("        SubwayStopLocation stop{0} = new SubwayStopLocation({1}f, {2}f, drawables, \"{4}\", \"{3}\", {5}, \"{6}\");\n".format(makeValid(stopTag), stop["lat"], stop["lon"], stop["title"], stopTag, stop["platformOrder"], stop["branch"]))
+                f.write("        SubwayStopLocation stop{0} = new SubwayStopLocation({1}f, {2}f, transitSource, \"{4}\", \"{3}\", {5}, \"{6}\");\n".format(makeValid(stopTag), stop["lat"], stop["lon"], stop["title"], stopTag, stop["platformOrder"], stop["branch"]))
             elif stop["source"] == "commuterRail":
-                f.write("        CommuterRailStopLocation stop{0} = new CommuterRailStopLocation({1}f, {2}f, drawables, \"{4}\", \"{3}\", {5}, \"{6}\");\n".format(makeValid(stopTag), stop["lat"], stop["lon"], stop["title"], stopTag, stop["platformOrder"], stop["branch"]))
+                f.write("        CommuterRailStopLocation stop{0} = new CommuterRailStopLocation({1}f, {2}f, transitSource, \"{4}\", \"{3}\", {5}, \"{6}\");\n".format(makeValid(stopTag), stop["lat"], stop["lon"], stop["title"], stopTag, stop["platformOrder"], stop["branch"]))
             else:
-                f.write("        StopLocation stop{0} = new StopLocation({1}f, {2}f, drawables, \"{4}\", \"{3}\");".format(makeValid(stopTag), stop["lat"], stop["lon"], stop["title"], stopTag) + "\n")
+                f.write("        StopLocation stop{0} = new StopLocation({1}f, {2}f, transitSource, \"{4}\", \"{3}\");".format(makeValid(stopTag), stop["lat"], stop["lon"], stop["title"], stopTag) + "\n")
             f.write("        route.addStop(\"{0}\", stop{1});".format(stopTag, makeValid(stopTag)) + "\n")
             f.write("        stop{0}.addRoute(\"{1}\");\n".format(makeValid(stopTag), routeTag))
 

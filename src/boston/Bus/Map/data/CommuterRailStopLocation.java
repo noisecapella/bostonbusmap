@@ -1,13 +1,14 @@
 package boston.Bus.Map.data;
 
+import boston.Bus.Map.transit.TransitSource;
 import android.graphics.drawable.Drawable;
 
 public class CommuterRailStopLocation extends SubwayStopLocation {
 
 	public CommuterRailStopLocation(float latitudeAsDegrees,
-			float longitudeAsDegrees, TransitDrawables drawables, String tag,
+			float longitudeAsDegrees, TransitSource transitSource, String tag,
 			String title, int platformOrder, String branch) {
-		super(latitudeAsDegrees, longitudeAsDegrees, drawables, tag, title,
+		super(latitudeAsDegrees, longitudeAsDegrees, transitSource, tag, title,
 				platformOrder, branch);
 	}
 

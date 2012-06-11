@@ -1,5 +1,6 @@
 package boston.Bus.Map.data;
 
+import boston.Bus.Map.transit.TransitSource;
 import android.graphics.drawable.Drawable;
 
 public class SubwayStopLocation extends StopLocation {
@@ -16,10 +17,10 @@ public class SubwayStopLocation extends StopLocation {
 	private String branch;
 	
 	public SubwayStopLocation(float latitudeAsDegrees,
-			float longitudeAsDegrees, TransitDrawables drawables, String tag,
+			float longitudeAsDegrees, TransitSource transitSource, String tag,
 			String title, int platformOrder, String branch)
 	{
-		super(latitudeAsDegrees, longitudeAsDegrees, drawables, tag, title);
+		super(latitudeAsDegrees, longitudeAsDegrees, transitSource, tag, title);
 		
 		this.platformOrder = platformOrder;
 		this.branch = branch;

@@ -19,7 +19,7 @@ public class StopLocation implements Location, ObjectWithString, LocationGroup
 {
 	private final float latitudeAsDegrees;
 	private final float longitudeAsDegrees;
-	private final TransitDrawables drawables;
+	private final TransitSource transitSource;
 	
 	private final String tag;
 	
@@ -37,11 +37,11 @@ public class StopLocation implements Location, ObjectWithString, LocationGroup
 	private static final int LOCATIONTYPE = 3;
 	
 	public StopLocation(float latitudeAsDegrees, float longitudeAsDegrees,
-			TransitDrawables drawables, String tag, String title)
+			TransitSource transitSource, String tag, String title)
 	{
 		this.latitudeAsDegrees = latitudeAsDegrees;
 		this.longitudeAsDegrees = longitudeAsDegrees;
-		this.drawables = drawables;
+		this.transitSource = transitSource;
 		this.tag = tag;
 		this.title = title;
 		this.routes = new ArrayList<String>(1);
@@ -73,6 +73,7 @@ public class StopLocation implements Location, ObjectWithString, LocationGroup
 	@Override
 	public Drawable getDrawable(Context context, boolean shadow,
 			boolean isSelected) {
+		TransitDrawables drawables = transitSource.getDrawables();
 		return recentlyUpdated ? drawables.getStopUpdated() : drawables.getStop();
 	}
 
