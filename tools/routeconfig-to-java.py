@@ -105,7 +105,7 @@ def printMakeAllRoutes(routes, prefix):
     for i in xrange(len(routes)):
         route = routes.values()[i]
         routeTag = route["tag"]
-        f.write("            {0}PrepopulatedDataRoute{1}.makeRoute(transitSource, directions),".format(prefix, routeTag) + "\n")
+        f.write("            {0}PrepopulatedDataRoute{1}.makeRoute(transitSource, directions),".format(prefix, makeValid(routeTag)) + "\n")
     f.write("        };\n")
     f.write("    }\n")
     f.write(footer)
@@ -140,22 +140,24 @@ def distanceFunc(tup1, tup2):
 def humanize(locKey):
     return str(locKey).replace("-", "_").replace(".", "_").replace(",", "_").replace(" ", "_").replace("(", "_").replace(")", "_")
 
+def makeValid(s):
+    return s.replace("-", "_").replace("/", "_").replace(" ", "_")
 
 def printEachMakeRoute(routes, prefix):
     for i in xrange(len(routes.values())):
         route = routes.values()[i]
         routeTag = route["tag"]
-        f = open(sys.argv[2] + "/boston/Bus/Map/data/prepopulated/{0}PrepopulatedDataRoute{1}.java".format(prefix, routeTag), "wb")
+        f = open(sys.argv[2] + "/boston/Bus/Map/data/prepopulated/{0}PrepopulatedDataRoute{1}.java".format(prefix, makeValid(routeTag)), "wb")
         f.write(individualHeader)
-        f.write("public class {0}PrepopulatedDataRoute{1} {2}\n".format(prefix, routeTag, "{"))
+        f.write("public class {0}PrepopulatedDataRoute{1} {2}\n".format(prefix, makeValid(routeTag), "{"))
         f.write("    public static RouteConfig makeRoute(TransitSource transitSource, Directions directions) throws IOException {1}".format(i, "{") + "\n")
         f.write("        TransitDrawables drawables = transitSource.getDrawables();\n")
         f.write("        RouteConfig route = new RouteConfig(\"{0}\", \"{1}\", 0x{2}, 0x{3}, transitSource);".format(routeTag, route["title"], route["color"], route["oppositeColor"]) + "\n")
 
         for stop in route["stops"].values():
             stopTag = stop["tag"]
-            f.write("        StopLocation stop{0} = new StopLocation({1}f, {2}f, drawables, \"{0}\", \"{3}\");".format(stopTag, stop["lat"], stop["lon"], stop["title"]) + "\n")
-            f.write("        route.addStop(\"{0}\", stop{1});".format(stopTag, stopTag) + "\n")
+            f.write("        StopLocation stop{0} = new StopLocation({1}f, {2}f, drawables, \"{4}\", \"{3}\");".format(makeValid(stopTag), stop["lat"], stop["lon"], stop["title"], stopTag) + "\n")
+            f.write("        route.addStop(\"{0}\", stop{1});".format(stopTag, makeValid(stopTag)) + "\n")
 
         for direction in route["directions"].values():
             f.write("            directions.add(\"{0}\", new Direction(\"{1}\", \"{2}\", \"{3}\"));".format(direction["tag"], direction["name"], direction["title"], routeTag) + "\n")
