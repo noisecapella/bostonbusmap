@@ -36,7 +36,7 @@ import org.xml.sax.SAXException;
 
 
 
-import boston.Bus.Map.data.BusLocation;
+import boston.Bus.Map.data.VehicleLocation;
 import boston.Bus.Map.data.Location;
 import boston.Bus.Map.data.LocationGroup;
 import boston.Bus.Map.data.Locations;

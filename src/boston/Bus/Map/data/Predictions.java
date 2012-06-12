@@ -1,7 +1,9 @@
 package boston.Bus.Map.data;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.List;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
@@ -239,28 +241,28 @@ public class Predictions
 		}
 	}
 
-	public synchronized Prediction[] getCombinedPredictions()
+	public synchronized List<Prediction> getCombinedPredictions()
 	{
 		if (combinedPredictions == null)
 		{
-			return predictions.toArray(nullPredictions);
+			return Arrays.asList(predictions.toArray(nullPredictions));
 		}
 		else
 		{
-			return combinedPredictions.toArray(nullPredictions);
+			return Arrays.asList(combinedPredictions.toArray(nullPredictions));
 		}
 	}
 
-	public String[] getSnippetRoutes()
+	public List<String> getSnippetRoutes()
 	{
-		return snippetRoutes;
+		return Arrays.asList(snippetRoutes);
 	}
 
-	public synchronized String[] getCombinedTitles()
+	public synchronized List<String> getCombinedTitles()
 	{
 		if (combinedTitles != null)
 		{
-			return combinedTitles.toArray(nullStrings);
+			return Arrays.asList(combinedTitles.toArray(nullStrings));
 		}
 		else
 		{

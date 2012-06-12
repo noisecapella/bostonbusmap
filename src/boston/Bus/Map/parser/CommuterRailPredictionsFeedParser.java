@@ -11,7 +11,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import boston.Bus.Map.data.BusLocation;
+import boston.Bus.Map.data.VehicleLocation;
 import boston.Bus.Map.data.CommuterRailPrediction;
 import boston.Bus.Map.data.CommuterTrainLocation;
 import boston.Bus.Map.data.Directions;
@@ -34,11 +34,11 @@ public class CommuterRailPredictionsFeedParser
 	private final MyHashMap<String, Integer> indexes = new MyHashMap<String, Integer>();
 
 	
-	private final ConcurrentHashMap<String, BusLocation> busMapping;
+	private final ConcurrentHashMap<String, VehicleLocation> busMapping;
 	private final MyHashMap<String, String> routeKeysToTitles;
 
 	public CommuterRailPredictionsFeedParser(RouteConfig routeConfig, Directions directions, TransitDrawables drawables, 
-			ConcurrentHashMap<String, BusLocation> busMapping, MyHashMap<String, String> routeKeysToTitles)
+			ConcurrentHashMap<String, VehicleLocation> busMapping, MyHashMap<String, String> routeKeysToTitles)
 	{
 		this.routeConfig = routeConfig;
 		this.directions = directions;
@@ -87,7 +87,7 @@ public class CommuterRailPredictionsFeedParser
 		HashSet<String> toRemove = new HashSet<String>();
 		for (String id : busMapping.keySet())
 		{
-			BusLocation busLocation = busMapping.get(id);
+			VehicleLocation busLocation = busMapping.get(id);
 			if (busLocation.isDisappearAfterRefresh())
 			{
 				toRemove.add(id);
@@ -105,7 +105,7 @@ public class CommuterRailPredictionsFeedParser
 
 				String stopKey = getItem("Stop", array);
 
-				StopLocation stopLocation = (StopLocation)routeConfig.getStop(CommuterRailTransitSource.stopTagPrefix + stopKey);
+				StopLocation stopLocation = routeConfig.getStop(CommuterRailTransitSource.stopTagPrefix + stopKey);
 
 				if (stopLocation == null)
 				{
@@ -182,7 +182,7 @@ public class CommuterRailPredictionsFeedParser
 					final int arrowTopDiff = drawables.getVehicle().getIntrinsicHeight() / 5;
 
 					//first, see if there's a subway car which pretty much matches an old BusLocation
-					BusLocation busLocation = null;
+					VehicleLocation busLocation = null;
 
 					String heading = getItem("Heading", array);
 					if (heading != null && heading.length() == 0)
@@ -254,7 +254,7 @@ public class CommuterRailPredictionsFeedParser
 		return "";
 	}
 
-	public Map<? extends String, ? extends BusLocation> getBusMapping() {
+	public Map<? extends String, ? extends VehicleLocation> getBusMapping() {
 		return busMapping;
 	}
 }

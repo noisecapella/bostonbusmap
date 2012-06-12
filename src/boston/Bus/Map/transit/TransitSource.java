@@ -9,7 +9,7 @@ import org.apache.http.client.ClientProtocolException;
 import org.xml.sax.SAXException;
 
 import android.content.Context;
-import boston.Bus.Map.data.BusLocation;
+import boston.Bus.Map.data.VehicleLocation;
 import boston.Bus.Map.data.Directions;
 import boston.Bus.Map.data.Locations;
 import boston.Bus.Map.data.MyHashMap;
@@ -25,7 +25,7 @@ public interface TransitSource {
 	
 	void refreshData(RouteConfig routeConfig, int selectedBusPredictions,
 			int maxStops, double centerLatitude, double centerLongitude,
-			ConcurrentHashMap<String, BusLocation> busMapping, String selectedRoute,
+			ConcurrentHashMap<String, VehicleLocation> busMapping, String selectedRoute,
 			RoutePool routePool, Locations locationsObj)
 	throws IOException, ParserConfigurationException, SAXException;
 

@@ -3,6 +3,7 @@ package boston.Bus.Map.ui;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 import android.content.Context;
 import android.content.Intent;
@@ -22,7 +23,7 @@ import android.widget.TextView;
 import android.widget.FrameLayout.LayoutParams;
 import boston.Bus.Map.R;
 import boston.Bus.Map.data.Alert;
-import boston.Bus.Map.data.BusLocation;
+import boston.Bus.Map.data.VehicleLocation;
 import boston.Bus.Map.data.Location;
 import boston.Bus.Map.data.LocationGroup;
 import boston.Bus.Map.data.Locations;
@@ -30,6 +31,8 @@ import boston.Bus.Map.data.MultipleStopLocations;
 import boston.Bus.Map.data.MyHashMap;
 import boston.Bus.Map.data.Prediction;
 import boston.Bus.Map.data.StopLocation;
+import boston.Bus.Map.data.StopLocationGroup;
+import boston.Bus.Map.data.VehicleLocationGroup;
 import boston.Bus.Map.main.AlertInfo;
 import boston.Bus.Map.main.Main;
 import boston.Bus.Map.main.MoreInfo;
@@ -48,7 +51,7 @@ public class BusPopupView extends BalloonOverlayView<BusOverlayItem>
 	private TextView alertsTextView;
 	private final Locations locations;
 	private final MyHashMap<String, String> routeKeysToTitles;
-	private Location location;
+	private LocationGroup locationGroup;
 	private final Spanned moreInfoText;
 	private final Spanned reportProblemText;
 	private final Spanned noAlertsText;
@@ -78,11 +81,11 @@ public class BusPopupView extends BalloonOverlayView<BusOverlayItem>
 			
 			@Override
 			public void onClick(View v) {
-				if (location instanceof StopLocation)
+				if (locationGroup instanceof StopLocationGroup)
 				{
-					StopLocation stopLocation = (StopLocation)location;
+					StopLocationGroup stopLocationGroup = (StopLocationGroup)locationGroup;
 
-					int result = BusPopupView.this.locations.toggleFavorite(stopLocation);
+					int result = BusPopupView.this.locations.toggleFavorite(stopLocationGroup);
 					favorite.setBackgroundResource(result);
 				}
 			}
@@ -97,15 +100,15 @@ public class BusPopupView extends BalloonOverlayView<BusOverlayItem>
 					//ignore for now, we can't print route information without it
 				}
 				//user shouldn't be able to click this if this is a BusLocation, but just in case...
-				if (location instanceof StopLocation)
+				if (locationGroup instanceof StopLocationGroup)
 				{
-					StopLocation stopLocation = (StopLocation)location;
+					StopLocationGroup stopLocationGroup = (StopLocationGroup)locationGroup;
 					Intent intent = new Intent(context, MoreInfo.class);
 
-					Prediction[] predictionArray = stopLocation.getCombinedPredictions();
+					List<Prediction> predictionArray = stopLocationGroup.getCombinedPredictions();
 					if (predictionArray != null)
 					{
-						intent.putExtra(MoreInfo.predictionsKey, predictionArray);
+						intent.putExtra(MoreInfo.predictionsKey, predictionArray.toArray(new Prediction[0]));
 					}
 					
 					String[] keys = BusPopupView.this.routeKeysToTitles.keySet().toArray(new String[0]);
@@ -118,16 +121,16 @@ public class BusPopupView extends BalloonOverlayView<BusOverlayItem>
 					intent.putExtra(MoreInfo.routeKeysKey, keys);
 					intent.putExtra(MoreInfo.routeTitlesKey, values);
 
-					String[] combinedTitles = stopLocation.getCombinedTitles();
-					intent.putExtra(MoreInfo.titleKey, combinedTitles);
+					List<String> combinedTitles = stopLocationGroup.getCombinedTitles();
+					intent.putExtra(MoreInfo.titleKey, combinedTitles.toArray(new String[0]));
 
-					String[] combinedRoutes = stopLocation.getCombinedRoutes();
-					intent.putExtra(MoreInfo.routeKey, combinedRoutes);
+					List<String> combinedRoutes = stopLocationGroup.getCombinedTitles();
+					intent.putExtra(MoreInfo.routeKey, combinedRoutes.toArray(new String[0]));
 
-					String combinedStops = stopLocation.getCombinedStops();
+					String combinedStops = stopLocationGroup.getCombinedStops();
 					intent.putExtra(MoreInfo.stopsKey, combinedStops);
 
-					intent.putExtra(MoreInfo.stopIsBetaKey, stopLocation.isBeta());
+					intent.putExtra(MoreInfo.stopIsBetaKey, stopLocationGroup.isBeta());
 					
 					context.startActivity(intent);
 				}
@@ -226,11 +229,9 @@ public class BusPopupView extends BalloonOverlayView<BusOverlayItem>
 	
 	protected void createInfoForAgency(Context context, StringBuilder ret, int selectedBusPredictions, String selectedRoute)
 	{
-		if (location instanceof StopLocation)
+		if (locationGroup instanceof StopLocationGroup)
 		{
-			StopLocation stopLocation = (StopLocation)location;
-			String stopTag = stopLocation.getStopTag();
-			LocationGroup group = locations.getAllStopsAtStop(stopTag);
+			StopLocationGroup group = (StopLocationGroup)locationGroup;
 
 			ArrayList<StopLocation> stopTags = new ArrayList<StopLocation>();
 			if (group instanceof MultipleStopLocations) {
@@ -242,15 +243,12 @@ public class BusPopupView extends BalloonOverlayView<BusOverlayItem>
 				StopLocation stop = (StopLocation)group;
 				stopTags.add(stop);
 			}
-			else {
-				throw new RuntimeException("BusLocation appeared in place of StopLocation");
-			}
 
 			if (selectedBusPredictions == Main.BUS_PREDICTIONS_ONE)
 			{
 				if (stopTags.size() <= 1)
 				{
-					ret.append("The stop id is ").append(stopTag).append(" (").append(stopLocation.getTitle()).append(")");
+					ret.append("The stop id is ").append(stopTags.get(0)).append(" (").append(group.getFirstTitle()).append(")");
 					ret.append(" on route ").append(selectedRoute).append(". ");
 				}
 				else
@@ -280,11 +278,12 @@ public class BusPopupView extends BalloonOverlayView<BusOverlayItem>
 				ret.append(". ");
 			}
 		}
-		else if (location instanceof BusLocation)
+		else if (locationGroup instanceof VehicleLocationGroup)
 		{
-			BusLocation busLocation = (BusLocation)location;
-			String busRouteId = busLocation.getRouteId();
-			ret.append("The bus number is ").append(busLocation.getBusNumber());
+			VehicleLocationGroup group = (VehicleLocationGroup)locationGroup;
+			String busRouteId = group.getFirstRoute();
+			
+			ret.append("The bus number is ").append(group.getFirstVehicleNumber());
 			ret.append(" on route ").append(locations.getRouteName(busRouteId)).append(". ");
 		}
 
@@ -378,7 +377,7 @@ public class BusPopupView extends BalloonOverlayView<BusOverlayItem>
 			moreInfo.setText("");
 		}
 		
-		this.location = location;
+		this.locationGroup = locationGroup;
 	}
 
 }

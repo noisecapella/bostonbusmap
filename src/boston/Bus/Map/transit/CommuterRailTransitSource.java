@@ -20,7 +20,7 @@ import android.content.Context;
 import android.graphics.drawable.Drawable;
 import android.util.Log;
 import boston.Bus.Map.data.AlertsMapping;
-import boston.Bus.Map.data.BusLocation;
+import boston.Bus.Map.data.VehicleLocation;
 import boston.Bus.Map.data.CommuterRailStopLocation;
 import boston.Bus.Map.data.Directions;
 import boston.Bus.Map.data.Location;
@@ -115,7 +115,7 @@ public class CommuterRailTransitSource implements TransitSource {
 	public void refreshData(RouteConfig routeConfig,
 			int selectedBusPredictions, int maxStops, double centerLatitude,
 			double centerLongitude,
-			ConcurrentHashMap<String, BusLocation> busMapping,
+			ConcurrentHashMap<String, VehicleLocation> busMapping,
 			String selectedRoute, RoutePool routePool,
 			Locations locationsObj) throws IOException,
 			ParserConfigurationException, SAXException

@@ -1,6 +1,7 @@
 package boston.Bus.Map.data;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import android.content.Context;
@@ -163,7 +164,60 @@ public class MultipleStopLocations implements StopLocationGroup {
 
 	@Override
 	public String getFirstTitle() {
-		// TODO Auto-generated method stub
-		return null;
+		return stops.get(0).getFirstTitle();
 	}
+
+	@Override
+	public List<Prediction> getCombinedPredictions()
+	{
+		if (predictions != null)
+		{
+			return predictions.getCombinedPredictions();
+		}
+		else
+		{
+			return null;
+		}
+	}
+	
+	@Override
+	public List<String> getCombinedRoutes()
+	{
+		if (predictions != null)
+		{
+			return predictions.getSnippetRoutes();
+		}
+		else
+		{
+			return null;
+		}
+	}
+	
+	@Override
+	public List<String> getCombinedTitles()
+	{
+		if (predictions != null)
+		{
+			List<String> combinedTitles = predictions.getCombinedTitles();
+			if (combinedTitles != null)
+			{
+				return combinedTitles;
+			}
+		}
+		
+		return Collections.singletonList(getFirstTitle());
+	}
+
+	@Override
+	public String getCombinedStops() {
+		if (predictions != null)
+		{
+			return predictions.getCombinedStops();
+		}
+		else
+		{
+			return "";
+		}
+	}
+	
 }

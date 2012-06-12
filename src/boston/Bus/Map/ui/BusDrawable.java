@@ -6,7 +6,7 @@ import java.util.ArrayList;
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
 
-import boston.Bus.Map.data.BusLocation;
+import boston.Bus.Map.data.VehicleLocation;
 
 import android.content.Context;
 import android.content.res.Resources;
@@ -63,7 +63,7 @@ public class BusDrawable extends Drawable {
 		vehicle.draw(canvas);
 		
 		//then draw arrow
-		if (arrow != null && heading != BusLocation.NO_HEADING)
+		if (arrow != null && heading != VehicleLocation.NO_HEADING)
 		{
 			//put the arrow in the bus window
 			

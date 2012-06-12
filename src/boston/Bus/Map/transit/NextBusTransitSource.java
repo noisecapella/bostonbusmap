@@ -13,7 +13,7 @@ import org.apache.http.client.ClientProtocolException;
 import org.xml.sax.SAXException;
 
 import android.content.Context;
-import boston.Bus.Map.data.BusLocation;
+import boston.Bus.Map.data.VehicleLocation;
 import boston.Bus.Map.data.Directions;
 import boston.Bus.Map.data.Location;
 import boston.Bus.Map.data.LocationGroup;
@@ -95,7 +95,7 @@ public abstract class NextBusTransitSource implements TransitSource
 
 	@Override
 	public void refreshData(RouteConfig routeConfig, int selectedBusPredictions, int maxStops,
-			double centerLatitude, double centerLongitude, ConcurrentHashMap<String, BusLocation> busMapping, 
+			double centerLatitude, double centerLongitude, ConcurrentHashMap<String, VehicleLocation> busMapping, 
 			String selectedRoute, RoutePool routePool, Locations locationsObj)
 	throws IOException, ParserConfigurationException, SAXException {
 		Directions directions = routePool.getDirections();
@@ -175,7 +175,7 @@ public abstract class NextBusTransitSource implements TransitSource
 				List<String> busesToBeDeleted = new ArrayList<String>();
 				for (String id : busMapping.keySet())
 				{
-					BusLocation busLocation = busMapping.get(id);
+					VehicleLocation busLocation = busMapping.get(id);
 					if (busLocation.getLastUpdateInMillis() + 180000 < TransitSystem.currentTimeMillis())
 					{
 						//put this old dog to sleep

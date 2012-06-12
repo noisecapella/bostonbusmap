@@ -216,7 +216,8 @@ public class StopLocation implements Location, ObjectWithString, StopLocationGro
 		return route;
 	}
 
-	public Prediction[] getCombinedPredictions()
+	@Override
+	public List<Prediction> getCombinedPredictions()
 	{
 		if (predictions != null)
 		{
@@ -228,7 +229,8 @@ public class StopLocation implements Location, ObjectWithString, StopLocationGro
 		}
 	}
 	
-	public String[] getCombinedRoutes()
+	@Override
+	public List<String> getCombinedRoutes()
 	{
 		if (predictions != null)
 		{
@@ -240,20 +242,22 @@ public class StopLocation implements Location, ObjectWithString, StopLocationGro
 		}
 	}
 	
-	public String[] getCombinedTitles()
+	@Override
+	public List<String> getCombinedTitles()
 	{
 		if (predictions != null)
 		{
-			String[] combinedTitles = predictions.getCombinedTitles();
+			List<String> combinedTitles = predictions.getCombinedTitles();
 			if (combinedTitles != null)
 			{
 				return combinedTitles;
 			}
 		}
 		
-		return new String[]{title};
+		return Collections.singletonList(title);
 	}
 
+	@Override
 	public String getCombinedStops() {
 		if (predictions != null)
 		{

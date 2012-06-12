@@ -16,7 +16,7 @@ import android.graphics.drawable.Drawable;
  * This class stores information about the bus. This information is mostly taken
  * from the feed
  */
-public class BusLocation implements Location, LocationGroup {
+public class VehicleLocation implements Location, VehicleLocationGroup {
 	/**
 	 * Current latitude of bus, in radians
 	 */
@@ -103,7 +103,7 @@ public class BusLocation implements Location, LocationGroup {
 	private static final int LOCATIONTYPE = 1;
 	public static final int NO_HEADING = -1;
 
-	public BusLocation(float latitude, float longitude, String id,
+	public VehicleLocation(float latitude, float longitude, String id,
 			long lastFeedUpdateInMillis, long lastUpdateInMillis, String heading, boolean predictable,
 			String dirTag, String inferBusRoute, TransitDrawables drawables,
 			String routeName, Directions directions, String routeTitle,
@@ -198,7 +198,7 @@ public class BusLocation implements Location, LocationGroup {
 	 * 
 	 * @param oldBusLocation
 	 */
-	public void movedFrom(BusLocation oldBusLocation) {
+	public void movedFrom(VehicleLocation oldBusLocation) {
 		movedFrom(oldBusLocation.latitude, oldBusLocation.longitude);
 	}
 
@@ -311,9 +311,15 @@ public class BusLocation implements Location, LocationGroup {
 		return directions[index];
 	}
 
-	public String getBusNumber()
+	@Override
+	public String getFirstVehicleNumber()
 	{
 		return busId;
+	}
+	
+	@Override
+	public List<String> getAllVehicleNumbers() {
+		return Collections.singletonList(busId);
 	}
 	
 	public Drawable getDrawable(Context context, boolean shadow,

@@ -51,7 +51,7 @@ public final class Locations
 	/**
 	 * A mapping of the bus number to bus location
 	 */
-	private ConcurrentHashMap<String, BusLocation> busMapping = new ConcurrentHashMap<String, BusLocation>();
+	private ConcurrentHashMap<String, VehicleLocation> busMapping = new ConcurrentHashMap<String, VehicleLocation>();
 	
 	/**
 	 * A mapping of a route id to a RouteConfig object.
@@ -157,7 +157,7 @@ public final class Locations
 		{
 			if (doShowUnpredictable == false)
 			{
-				for (BusLocation busLocation : busMapping.values())
+				for (VehicleLocation busLocation : busMapping.values())
 				{
 					if (busLocation.predictable == true)
 					{
@@ -183,7 +183,7 @@ public final class Locations
 				}
 				else
 				{
-					for (BusLocation location : busMapping.values())
+					for (VehicleLocation location : busMapping.values())
 					{
 						if (selectedRoute != null && selectedRoute.equals(location.getRouteId()))
 						{
@@ -254,10 +254,10 @@ public final class Locations
 		return routeMapping.get(selectedRoute);
 	}
 	
-	public int toggleFavorite(StopLocation location)
+	public int toggleFavorite(StopLocationGroup locationGroup)
 	{
-		boolean isFavorite = routeMapping.isFavorite(location);
-		return routeMapping.setFavorite(location, !isFavorite);
+		boolean isFavorite = routeMapping.isFavorite(locationGroup);
+		return routeMapping.setFavorite(locationGroup, !isFavorite);
 	}
 
 	public List<LocationGroup> getCurrentFavorites()

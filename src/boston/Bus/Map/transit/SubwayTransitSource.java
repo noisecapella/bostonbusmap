@@ -16,7 +16,7 @@ import org.xml.sax.SAXException;
 import android.content.Context;
 import android.graphics.Color;
 import boston.Bus.Map.data.AlertsMapping;
-import boston.Bus.Map.data.BusLocation;
+import boston.Bus.Map.data.VehicleLocation;
 import boston.Bus.Map.data.Directions;
 import boston.Bus.Map.data.Location;
 import boston.Bus.Map.data.LocationGroup;
@@ -56,7 +56,7 @@ public class SubwayTransitSource implements TransitSource {
 	@Override
 	public void refreshData(RouteConfig routeConfig,
 			int selectedBusPredictions, int maxStops, double centerLatitude,
-			double centerLongitude, ConcurrentHashMap<String, BusLocation> busMapping,
+			double centerLongitude, ConcurrentHashMap<String, VehicleLocation> busMapping,
 			String selectedRoute, RoutePool routePool,
 			Locations locationsObj)
 			throws IOException, ParserConfigurationException, SAXException {

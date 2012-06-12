@@ -129,8 +129,8 @@ public class RoutePool {
 		return false;
 	}
 	
-	public int setFavorite(StopLocation location, boolean isFavorite) {
-		LocationGroup group = stopsByLocation.get(location);
+	public int setFavorite(StopLocationGroup locationGroup, boolean isFavorite) {
+		LocationGroup group = stopsByLocation.get(locationGroup);
 
 		helper.saveFavorite(group, isFavorite);
 		favoriteStops.clear();

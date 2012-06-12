@@ -11,4 +11,9 @@ public interface StopLocationGroup extends LocationGroup
 	 * Use when performance doesn't matter
 	 */
 	List<StopLocation> getStops();
+	List<Prediction> getCombinedPredictions();
+	List<String> getCombinedTitles();
+	String getCombinedStops();
+	List<String> getCombinedRoutes();
+	
 }

@@ -2,7 +2,7 @@ package boston.Bus.Map.data;
 
 import android.graphics.drawable.Drawable;
 
-public class SubwayTrainLocation extends BusLocation {
+public class SubwayTrainLocation extends VehicleLocation {
 
 	public SubwayTrainLocation(float latitude, float longitude, String id,
 			long lastFeedUpdateInMillis, long lastUpdateInMillis,

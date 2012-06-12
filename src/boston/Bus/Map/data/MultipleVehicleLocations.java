@@ -9,15 +9,15 @@ import boston.Bus.Map.util.Constants;
 import android.content.Context;
 import android.graphics.drawable.Drawable;
 
-public class MultipleVehicleLocations implements LocationGroup {
+public class MultipleVehicleLocations implements VehicleLocationGroup {
 	private String snippet;
 	private String snippetTitle;
 	private ArrayList<Alert> snippetAlerts;
 	private final Directions directions;
 
-	private ArrayList<BusLocation> locations = new ArrayList<BusLocation>(2);
+	private ArrayList<VehicleLocation> locations = new ArrayList<VehicleLocation>(2);
 	
-	public MultipleVehicleLocations(BusLocation vehicle1, BusLocation vehicle2) {
+	public MultipleVehicleLocations(VehicleLocation vehicle1, VehicleLocation vehicle2) {
 		locations.add(vehicle1);
 		locations.add(vehicle2);
 		directions = vehicle1.getDirections();
@@ -77,7 +77,7 @@ public class MultipleVehicleLocations implements LocationGroup {
 			MyHashMap<String, String> routeKeysToTitles, Context context) {
 		boolean first = true;
 		
-		for (BusLocation location : locations) {
+		for (VehicleLocation location : locations) {
 			if (first) {
 				snippet = location.makeSnippet(selectedRoute);
 				snippetTitle = location.makeTitle();
@@ -91,7 +91,7 @@ public class MultipleVehicleLocations implements LocationGroup {
 				snippet += "<br />" + location.makeSnippet(selectedRoute);
 
 				if (location.predictable) {
-					snippetTitle += BusLocation.makeDirection(location.getDirTag(), directions);
+					snippetTitle += VehicleLocation.makeDirection(location.getDirTag(), directions);
 				}
 			}
 			first = false;
@@ -121,7 +121,7 @@ public class MultipleVehicleLocations implements LocationGroup {
 
 	@Override
 	public boolean isBeta() {
-		for (BusLocation location : locations) {
+		for (VehicleLocation location : locations) {
 			if (location.isBeta()) {
 				return true;
 			}
@@ -129,14 +129,14 @@ public class MultipleVehicleLocations implements LocationGroup {
 		return false;
 	}
 
-	public ArrayList<BusLocation> getVehicles() {
+	public ArrayList<VehicleLocation> getVehicles() {
 		return locations;
 	}
 
 	@Override
 	public List<String> getAllRoutes() {
 		ArrayList<String> routes = new ArrayList<String>(locations.size());
-		for (BusLocation location : locations) {
+		for (VehicleLocation location : locations) {
 			String route = location.getFirstRoute();
 			if (routes.contains(route) == false) {
 				routes.add(route);
@@ -150,4 +150,17 @@ public class MultipleVehicleLocations implements LocationGroup {
 		return locations.get(0).getFirstRoute();
 	}
 
+	@Override
+	public String getFirstVehicleNumber() {
+		return locations.get(0).getFirstVehicleNumber();
+	}
+
+	@Override
+	public List<String> getAllVehicleNumbers() {
+		List<String> ret = new ArrayList<String>();
+		for (VehicleLocation vehicle : locations) {
+			ret.add(vehicle.getFirstVehicleNumber());
+		}
+		return ret;
+	}
 }

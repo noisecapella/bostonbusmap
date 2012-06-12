@@ -24,7 +24,7 @@ import javax.xml.parsers.SAXParserFactory;
 import android.graphics.drawable.Drawable;
 import android.text.format.Time;
 import android.util.Log;
-import boston.Bus.Map.data.BusLocation;
+import boston.Bus.Map.data.VehicleLocation;
 import boston.Bus.Map.data.Directions;
 import boston.Bus.Map.data.MyHashMap;
 import boston.Bus.Map.data.Prediction;
@@ -53,7 +53,7 @@ public class SubwayPredictionsFeedParser
 	private final Directions directions;
 	private final TransitDrawables drawables;
 	
-	private final ConcurrentHashMap<String, BusLocation> busMapping;
+	private final ConcurrentHashMap<String, VehicleLocation> busMapping;
 	private final MyHashMap<String, String> routeKeysToTitles;
 	
 	private static final int ROUTE_INDEX = 0;
@@ -66,7 +66,7 @@ public class SubwayPredictionsFeedParser
 	private static final int BRANCH_INDEX = 7;
 	
 	public SubwayPredictionsFeedParser(String route, RoutePool routePool, Directions directions, TransitDrawables drawables, 
-			ConcurrentHashMap<String, BusLocation> busMapping, MyHashMap<String, String> routeKeysToTitles)
+			ConcurrentHashMap<String, VehicleLocation> busMapping, MyHashMap<String, String> routeKeysToTitles)
 	{
 		this.currentRoute = route;
 		this.routePool = routePool;
@@ -121,7 +121,7 @@ public class SubwayPredictionsFeedParser
 		HashSet<String> toRemove = new HashSet<String>();
 		for (String id : busMapping.keySet())
 		{
-			BusLocation busLocation = busMapping.get(id);
+			VehicleLocation busLocation = busMapping.get(id);
 			if (busLocation.isDisappearAfterRefresh() && currentRoute.equals(busLocation.getRouteId()))
 			{
 				toRemove.add(id);
@@ -192,7 +192,7 @@ public class SubwayPredictionsFeedParser
 					final int arrowTopDiff = drawables.getVehicle().getIntrinsicHeight() / 5;
 
 					//first, see if there's a subway car which pretty much matches an old BusLocation
-					BusLocation busLocation = null;
+					VehicleLocation busLocation = null;
 					String tripId = lineArray[TRIP_ID_INDEX].trim();
 
 					String routeTitle = routeKeysToTitles.get(route);
@@ -340,7 +340,7 @@ public class SubwayPredictionsFeedParser
 		return date;
 	}
 
-	public Map<? extends String, ? extends BusLocation> getBusMapping() {
+	public Map<? extends String, ? extends VehicleLocation> getBusMapping() {
 		return busMapping;
 	}
 }

@@ -32,7 +32,7 @@ import android.graphics.drawable.Drawable;
 import android.util.Log;
 import android.util.Xml;
 import android.util.Xml.Encoding;
-import boston.Bus.Map.data.BusLocation;
+import boston.Bus.Map.data.VehicleLocation;
 import boston.Bus.Map.data.Directions;
 import boston.Bus.Map.data.MyHashMap;
 import boston.Bus.Map.data.RouteConfig;
@@ -62,7 +62,7 @@ public class VehicleLocationsFeedParser extends DefaultHandler
 	}
 
 	private long lastUpdateTime;
-	private final MyHashMap<String, BusLocation> busMapping = new MyHashMap<String, BusLocation>();
+	private final MyHashMap<String, VehicleLocation> busMapping = new MyHashMap<String, VehicleLocation>();
 	private final MyHashMap<String, Integer> tagCache = new MyHashMap<String, Integer>();
 	
 	
@@ -104,7 +104,7 @@ public class VehicleLocationsFeedParser extends DefaultHandler
 			final Drawable bus = drawables.getVehicle();
 			final int arrowTopDiff = bus.getIntrinsicHeight() / 5;
 			
-			BusLocation newBusLocation = new BusLocation(lat, lon, id, lastFeedUpdate, lastUpdateTime, 
+			VehicleLocation newBusLocation = new VehicleLocation(lat, lon, id, lastFeedUpdate, lastUpdateTime, 
 					heading, predictable, dirTag, inferBusRoute, drawables, route, directions, routeKeysToTitles.get(route),
 					false, arrowTopDiff);
 
@@ -143,7 +143,7 @@ public class VehicleLocationsFeedParser extends DefaultHandler
 		return lastUpdateTime;
 	}
 
-	public void fillMapping(ConcurrentHashMap<String, BusLocation> outputBusMapping) {
+	public void fillMapping(ConcurrentHashMap<String, VehicleLocation> outputBusMapping) {
 		busMapping.putAllFrom(outputBusMapping);
 	}
 }

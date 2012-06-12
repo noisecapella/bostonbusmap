@@ -7,7 +7,7 @@ import javax.xml.parsers.ParserConfigurationException;
 
 import org.xml.sax.SAXException;
 
-import boston.Bus.Map.data.BusLocation;
+import boston.Bus.Map.data.VehicleLocation;
 import boston.Bus.Map.data.Directions;
 import boston.Bus.Map.data.Locations;
 import boston.Bus.Map.data.MyHashMap;
@@ -28,7 +28,7 @@ public class FakeTransitSource implements TransitSource {
 	public void refreshData(RouteConfig routeConfig,
 			int selectedBusPredictions, int maxStops, double centerLatitude,
 			double centerLongitude,
-			ConcurrentHashMap<String, BusLocation> busMapping,
+			ConcurrentHashMap<String, VehicleLocation> busMapping,
 			String selectedRoute, RoutePool routePool, Locations locationsObj)
 			throws IOException, ParserConfigurationException, SAXException {
 		// TODO Auto-generated method stub
