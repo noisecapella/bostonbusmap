@@ -101,26 +101,63 @@ public class MultipleStopLocations implements StopLocationGroup {
 	}
 
 	@Override
-	public String getSnippetTitle() {
-		// TODO Auto-generated method stub
-		return null;
+	public String getSnippetTitle()
+	{
+		if (predictions != null)
+		{
+			return predictions.getSnippetTitle();
+		}
+		else
+		{
+			return null;
+		}
 	}
 
 	@Override
-	public String getSnippet() {
-		// TODO Auto-generated method stub
-		return null;
+	public String getSnippet()
+	{
+		if (isBeta() == false)
+		{
+			if (predictions != null)
+			{
+				return predictions.getSnippetPredictions();
+			}
+			else
+			{
+				return null;
+			}
+		}
+		else
+		{
+			StringBuilder ret = new StringBuilder();
+			ret.append("<font color='red' size='1'>Commuter rail predictions are experimental</font>");
+			if (predictions != null)
+			{
+				 String predictionsString = predictions.getSnippetPredictions();
+				 if (predictionsString != null)
+				 {
+					 ret.append("<br />").append(predictionsString);
+				 }
+			}
+			return ret.toString();
+
+		}
 	}
 
 	@Override
 	public ArrayList<Alert> getSnippetAlerts() {
-		// TODO Auto-generated method stub
-		return null;
+		if (predictions != null)
+		{
+			return predictions.getSnippetAlerts();
+		}
+		else
+		{
+			return null;
+		}
 	}
 
 	@Override
 	public boolean isVehicle() {
-		// TODO Auto-generated method stub
 		return false;
 	}
 	
