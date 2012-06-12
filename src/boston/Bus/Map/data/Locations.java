@@ -147,14 +147,12 @@ public final class Locations
 	 * @return
 	 * @throws IOException 
 	 */
-	public List<Location> getLocations(int maxLocations, double centerLatitude, double centerLongitude, 
+	public List<LocationGroup> getLocations(int maxLocations, double centerLatitude, double centerLongitude, 
 			boolean doShowUnpredictable) throws IOException {
 
-		ArrayList<Location> newLocations = new ArrayList<Location>(maxLocations);
+		ArrayList<LocationGroup> newLocations = new ArrayList<LocationGroup>(maxLocations);
 		
 		
-		HashSet<Integer> locationKeys = new HashSet<Integer>();
-
 		if (selectedBusPredictions == Main.VEHICLE_LOCATIONS_ALL || selectedBusPredictions == Main.VEHICLE_LOCATIONS_ONE)
 		{
 			if (doShowUnpredictable == false)
@@ -194,6 +192,12 @@ public final class Locations
 					}
 				}
 			}
+			if (maxLocations > newLocations.size()) {
+				maxLocations = newLocations.size();
+			}
+			
+			Collections.sort(newLocations, new LocationComparator(centerLatitude, centerLongitude));
+
 		}
 		else if (selectedBusPredictions == Main.BUS_PREDICTIONS_ONE)
 		{
@@ -202,75 +206,30 @@ public final class Locations
 			{
 				newLocations.addAll(routeConfig.getStops());
 			}
+			if (maxLocations > newLocations.size()) {
+				maxLocations = newLocations.size();
+			}
+			
+			Collections.sort(newLocations, new LocationComparator(centerLatitude, centerLongitude));
 		}
 		else if (selectedBusPredictions == Main.BUS_PREDICTIONS_ALL)
 		{
 			ArrayList<LocationGroup> groups = routeMapping.getClosestStops(centerLatitude, centerLongitude, maxLocations);
-			for (LocationGroup group : groups)
-			{
-				if (group instanceof MultipleStopLocations) {
-					MultipleStopLocations multipleStopLocations = (MultipleStopLocations)group;
-					for (StopLocation stop : multipleStopLocations.getStops()) {
-						if (!(stop instanceof SubwayStopLocation)) {
-							newLocations.add(stop);
-							locationKeys.add(stop.getId());
-						}
-					}
-				}
-				else
-				{
-					StopLocation stop = (StopLocation)group;
-					if (!(stop instanceof SubwayStopLocation))
-					{
-						newLocations.add(stop);
-						locationKeys.add(stop.getId());
-					}
-				}
-			}
+			newLocations.addAll(groups);
 		}
 		else if (selectedBusPredictions == Main.BUS_PREDICTIONS_STAR)
 		{
-			for (StopLocation stopLocation : routeMapping.getFavoriteStops())
-			{
-				newLocations.add(stopLocation);
-				locationKeys.add(stopLocation.getId());
-			}
-		}
-		
-		if (maxLocations > newLocations.size())
-		{
-			maxLocations = newLocations.size();
-		}
-		
+			newLocations.addAll(routeMapping.getFavoriteStops());
 
-		Collections.sort(newLocations, new LocationComparator(centerLatitude, centerLongitude));
-		
-		ArrayList<Location> ret = new ArrayList<Location>(maxLocations);
-		//add the first n-th locations, where n is the maximum number of icons we can display on screen without slowing things down
-		//however, we shouldn't cut two locations off where they would get combined into one icon anyway
-		int count = 0;
-		Location lastLocation = null;
-		for (Location location : newLocations)
-		{
-			if (count >= maxLocations)
-			{
-				if (lastLocation != null && 
-					lastLocation.getLatitudeAsDegrees() == location.getLatitudeAsDegrees() && 
-					lastLocation.getLongitudeAsDegrees() == location.getLongitudeAsDegrees())
-				{
-					//ok, let's add one more since it won't affect the framerate at all (and because things would get weird without it)
-				}
-				else
-				{
-					break;
-				}
+			if (maxLocations > newLocations.size()) {
+				maxLocations = newLocations.size();
 			}
-			ret.add(location);
-			count++;
-			lastLocation = location;
+			
+			Collections.sort(newLocations, new LocationComparator(centerLatitude, centerLongitude));
+
 		}
-		
-		return ret;
+
+		return newLocations;
 	}
 
 	public void select(String newRoute, int busPredictions) {
@@ -301,7 +260,7 @@ public final class Locations
 		return routeMapping.setFavorite(location, !isFavorite);
 	}
 
-	public StopLocation[] getCurrentFavorites()
+	public List<LocationGroup> getCurrentFavorites()
 	{
 		return routeMapping.getFavoriteStops();
 	}
@@ -320,38 +279,7 @@ public final class Locations
 		return routeMapping.getAllStopTagsAtLocation(stopTag);
 	}
 
-	public StopLocation setSelectedStop(String route, String stopTag)
-	{
-		try
-		{
-			RouteConfig routeConfig = routeMapping.get(route);
-			if (routeConfig != null)
-			{
-				StopLocation stopLocation = routeConfig.getStop(stopTag);
-				select(route, Main.BUS_PREDICTIONS_ONE);
-			
-				return stopLocation;
-			}
-			else
-			{
-				Log.e("BostonBusMap", "bizarre... route doesn't exist: " + (route != null ? route : ""));
-			}
-		}
-		catch (IOException e)
-		{
-			LogUtil.e(e);
-		}
-		
-		return null;
-	}
-
-	public boolean isFavorite(Location location) {
-		if (location instanceof StopLocation) {
-			return routeMapping.isFavorite((StopLocation)location);
-		}
-		else
-		{
-			return false;
-		}
+	public boolean isFavorite(LocationGroup locationGroup) {
+		return routeMapping.isFavorite(locationGroup);
 	}
 }

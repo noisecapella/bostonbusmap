@@ -18,9 +18,9 @@ public class SubwayStopLocation extends StopLocation {
 	
 	public SubwayStopLocation(float latitudeAsDegrees,
 			float longitudeAsDegrees, TransitSource transitSource, String tag,
-			String title, int platformOrder, String branch)
+			String title, int platformOrder, String branch, String route)
 	{
-		super(latitudeAsDegrees, longitudeAsDegrees, transitSource, tag, title);
+		super(latitudeAsDegrees, longitudeAsDegrees, transitSource, tag, title, route);
 		
 		this.platformOrder = platformOrder;
 		this.branch = branch;

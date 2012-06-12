@@ -16,11 +16,13 @@ import android.content.Context;
 import boston.Bus.Map.data.BusLocation;
 import boston.Bus.Map.data.Directions;
 import boston.Bus.Map.data.Location;
+import boston.Bus.Map.data.LocationGroup;
 import boston.Bus.Map.data.Locations;
 import boston.Bus.Map.data.MyHashMap;
 import boston.Bus.Map.data.RouteConfig;
 import boston.Bus.Map.data.RoutePool;
 import boston.Bus.Map.data.StopLocation;
+import boston.Bus.Map.data.StopLocationGroup;
 import boston.Bus.Map.data.SubwayStopLocation;
 import boston.Bus.Map.data.TransitDrawables;
 import boston.Bus.Map.data.prepopulated.NextbusPrepopulatedData;
@@ -108,7 +110,7 @@ public abstract class NextBusTransitSource implements TransitSource
 
 			routePool.clearRecentlyUpdated();
 
-			List<Location> locations = locationsObj.getLocations(maxStops, centerLatitude, centerLongitude, false);
+			List<LocationGroup> locations = locationsObj.getLocations(maxStops, centerLatitude, centerLongitude, false);
 
 			//ok, do predictions now
 			String routeName = selectedBusPredictions == Main.BUS_PREDICTIONS_ONE ? routeConfig.getRouteName() : null;
@@ -209,25 +211,20 @@ public abstract class NextBusTransitSource implements TransitSource
 
 	protected abstract void parseAlert(RouteConfig routeConfig) throws ClientProtocolException, IOException, SAXException;
 
-	protected String getPredictionsUrl(List<Location> locations, int maxStops, String route, Directions directions)
+	protected String getPredictionsUrl(List<LocationGroup> locationGroups, int maxStops, String route, Directions directions)
 	{
-		//TODO: technically we should be checking that it is a bus route, not that it's not a subway route
-		//but this is probably more efficient
-		TransitSource transitSource = transitSystem.getTransitSource(route);
-		if (!(transitSource instanceof NextBusTransitSource))
-		{
-			//there should only be one instance of a source in memory at a time, but just in case...
-			return null;
-		}
-		
 		StringBuilder urlString = new StringBuilder(mbtaPredictionsDataUrl);
 
-		for (Location location : locations)
+		for (LocationGroup locationGroup : locationGroups)
 		{
-			if ((location instanceof StopLocation) && !(location instanceof SubwayStopLocation))
+			if (locationGroup instanceof StopLocationGroup)
 			{
-				StopLocation stopLocation = (StopLocation)location;
-				stopLocation.createBusPredictionsUrl(transitSystem, urlString, route, directions);
+				StopLocationGroup stopLocationGroup = (StopLocationGroup)locationGroup;
+				for (StopLocation stop : stopLocationGroup.getStops()) {
+					if (stop.getTransitSource() == this) {
+						stop.createBusPredictionsUrl(transitSystem, urlString, route, directions);
+					}
+				}
 			}
 		}
 

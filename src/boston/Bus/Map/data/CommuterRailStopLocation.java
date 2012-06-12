@@ -7,9 +7,9 @@ public class CommuterRailStopLocation extends SubwayStopLocation {
 
 	public CommuterRailStopLocation(float latitudeAsDegrees,
 			float longitudeAsDegrees, TransitSource transitSource, String tag,
-			String title, int platformOrder, String branch) {
+			String title, int platformOrder, String branch, String route) {
 		super(latitudeAsDegrees, longitudeAsDegrees, transitSource, tag, title,
-				platformOrder, branch);
+				platformOrder, branch, route);
 	}
 
 	@Override

@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
+import java.util.List;
 import java.util.TreeMap;
 
 import com.schneeloch.suffixarray.ObjectWithString;
@@ -15,7 +16,7 @@ import boston.Bus.Map.util.Constants;
 import android.content.Context;
 import android.graphics.drawable.Drawable;
 
-public class StopLocation implements Location, ObjectWithString, LocationGroup
+public class StopLocation implements Location, ObjectWithString, StopLocationGroup
 {
 	private final float latitudeAsDegrees;
 	private final float longitudeAsDegrees;
@@ -29,40 +30,21 @@ public class StopLocation implements Location, ObjectWithString, LocationGroup
 	
 	private boolean recentlyUpdated;
 	
-	/**
-	 * A mapping of routes to dirTags
-	 */
-	private final ArrayList<String> routes;
+	private final String route;
 	
 	private static final int LOCATIONTYPE = 3;
 	
 	public StopLocation(float latitudeAsDegrees, float longitudeAsDegrees,
-			TransitSource transitSource, String tag, String title)
+			TransitSource transitSource, String tag, String title, String route)
 	{
 		this.latitudeAsDegrees = latitudeAsDegrees;
 		this.longitudeAsDegrees = longitudeAsDegrees;
 		this.transitSource = transitSource;
 		this.tag = tag;
 		this.title = title;
-		this.routes = new ArrayList<String>(1);
+		this.route = route;
 	}
 
-	/**
-	 * Add a route and the dirTag for that stop which is mentioned in the routeConfig xml
-	 * @param route
-	 * @param dirTag
-	 */
-	public void addRoute(String route)
-	{
-		synchronized (routes)
-		{
-			routes.add(route);
-			if (routes.size() > 1) {
-				Collections.sort(routes);
-			}
-		}
-	}
-	
 	@Override
 	public float distanceFrom(double centerLatitude, double centerLongitude)
 	{
@@ -85,11 +67,6 @@ public class StopLocation implements Location, ObjectWithString, LocationGroup
 	@Override
 	public int getHeading() {
 		return 0;
-	}
-
-	@Override
-	public int getId() {
-		return (tag.hashCode() & 0xffffff) | LOCATIONTYPE << 24;
 	}
 
 	@Override
@@ -120,22 +97,9 @@ public class StopLocation implements Location, ObjectWithString, LocationGroup
 			predictions = new Predictions();
 		}
 		
-		predictions.makeSnippetAndTitle(routeConfig, routeKeysToTitles, context, routes, title, tag);
+		predictions.makeSnippetAndTitle(routeConfig, routeKeysToTitles, context, route, title, tag);
 	}
 	
-	@Override
-	public void addToSnippetAndTitle(RouteConfig routeConfig, Location location, MyHashMap<String, String> routeKeysToTitles,
-			Context context)
-	{
-		if (predictions == null)
-		{
-			predictions = new Predictions();
-		}
-		
-		StopLocation stopLocation = (StopLocation)location;
-		
-		predictions.addToSnippetAndTitle(routeConfig, stopLocation, routeKeysToTitles, context, title, routes);
-	}
 	
 	@Override
 	public String getSnippet()
@@ -244,36 +208,12 @@ public class StopLocation implements Location, ObjectWithString, LocationGroup
 		else
 		{
 			//do it for all routes we know about
-			synchronized (routes)
-			{
-				for (String route : routes)
-				{
-					TransitSource source = system.getTransitSource(route);
-					if (source != null)
-					{
-						source.bindPredictionElementsForUrl(urlString, route, tag);
-					}
-				}
-			}
+			transitSource.bindPredictionElementsForUrl(urlString, routeName, tag);
 		}
-	}
-
-	/**
-	 * The list of routes that owns the StopLocation. NOTE: this is not in any particular order
-	 * @return
-	 */
-	public Collection<String> getRoutes() {
-		return routes;
 	}
 
 	public String getFirstRoute() {
-		if (routes.size() > 0) {
-			return routes.get(0);
-		}
-		else
-		{
-			return null;
-		}
+		return route;
 	}
 
 	public Prediction[] getCombinedPredictions()
@@ -326,63 +266,6 @@ public class StopLocation implements Location, ObjectWithString, LocationGroup
 	}
 	
 	@Override
-	public boolean containsId(int selectedBusId) {
-		if (getId() == selectedBusId)
-		{
-			return true;
-		}
-		else if (predictions != null)
-		{
-			return predictions.containsId(selectedBusId);
-		}
-		else
-		{
-			return false;
-		}
-	}
-
-	/**
-	 * Only list stops once if they share the same location
-	 * @param stops
-	 * @return
-	 */
-	public static StopLocation[] consolidateStops(StopLocation[] stops) {
-		if (stops.length < 2)
-		{
-			return stops;
-		}
-		
-		ArrayList<StopLocation> ret = new ArrayList<StopLocation>();
-		for (int i = 0; i < stops.length; i++)
-		{
-			ret.add(stops[i]);
-		}
-		
-		//make sure stops sharing a location are touching each other
-		final StopLocation firstStop = stops[0];
-		Collections.sort(ret, new LocationComparator(firstStop.getLatitudeAsDegrees(), firstStop.getLongitudeAsDegrees()));
-		
-		ArrayList<StopLocation> ret2 = new ArrayList<StopLocation>(stops.length);
-		StopLocation prev = null;
-		for (StopLocation stop : ret)
-		{
-			if (prev != null && prev.getLatitudeAsDegrees() == stop.getLatitudeAsDegrees() &&
-					prev.getLongitudeAsDegrees() == stop.getLongitudeAsDegrees())
-			{
-				//skip
-			}
-			else
-			{
-				ret2.add(stop);
-			}
-			
-			prev = stop;
-		}
-		
-		return ret2.toArray(new StopLocation[0]);
-	}
-	
-	@Override
 	public String toString() {
 		return "Stop@" + getStopTag();
 	}
@@ -417,18 +300,56 @@ public class StopLocation implements Location, ObjectWithString, LocationGroup
 	// these two are used in LocationGroup, so they only compare by location
 	@Override
 	public int hashCode() {
-		return (int)(latitudeAsDegrees*Constants.E6) ^ (int)(longitudeAsDegrees * Constants.E6);
+		return getLatAsInt() ^ getLonAsInt();
+	}
+	
+	public int getLatAsInt() {
+		return (int)(latitudeAsDegrees * Constants.E6);
+	}
+	
+	@Override
+	public int getLonAsInt() {
+		return (int)(longitudeAsDegrees * Constants.E6);
 	}
 	
 	@Override
 	public boolean equals(Object o) {
-		if (o instanceof StopLocation) {
-			return ((StopLocation) o).latitudeAsDegrees == latitudeAsDegrees &&
-					((StopLocation)o).longitudeAsDegrees == longitudeAsDegrees;
+		if (o instanceof LocationGroup) {
+			return ((LocationGroup) o).getLatitudeAsDegrees() == latitudeAsDegrees &&
+					((LocationGroup)o).getLongitudeAsDegrees() == longitudeAsDegrees;
 		}
 		else
 		{
 			return false;
 		}
+	}
+
+	@Override
+	public boolean isVehicle() {
+		return false;
+	}
+
+	public TransitSource getTransitSource() {
+		return transitSource;
+	}
+
+	@Override
+	public List<String> getAllRoutes() {
+		return Collections.singletonList(route);
+	}
+
+	@Override
+	public List<String> getAllTitles() {
+		return Collections.singletonList(title);
+	}
+
+	@Override
+	public String getFirstTitle() {
+		return title;
+	}
+	
+	@Override
+	public List<StopLocation> getStops() {
+		return Collections.singletonList(this);
 	}
 }

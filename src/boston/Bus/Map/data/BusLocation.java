@@ -1,11 +1,14 @@
 package boston.Bus.Map.data;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 
 import boston.Bus.Map.math.Geometry;
 import boston.Bus.Map.transit.TransitSystem;
 import boston.Bus.Map.ui.BusDrawable;
+import boston.Bus.Map.util.Constants;
 import android.content.Context;
 import android.graphics.drawable.Drawable;
 
@@ -13,7 +16,7 @@ import android.graphics.drawable.Drawable;
  * This class stores information about the bus. This information is mostly taken
  * from the feed
  */
-public class BusLocation implements Location {
+public class BusLocation implements Location, LocationGroup {
 	/**
 	 * Current latitude of bus, in radians
 	 */
@@ -148,6 +151,10 @@ public class BusLocation implements Location {
 		}
 	}
 
+	public String getDirTag() {
+		return dirTag;
+	}
+	
 	/**
 	 * 
 	 * @return a String describing the direction of the bus, or "" if it can't
@@ -196,22 +203,6 @@ public class BusLocation implements Location {
 	}
 
 	@Override
-	public void addToSnippetAndTitle(RouteConfig routeConfig,
-			Location location, MyHashMap<String, String> routeKeysToTitles, Context context) {
-		BusLocation busLocation = (BusLocation) location;
-
-		snippet += "<br />" + busLocation.makeSnippet(routeConfig);
-
-		if (busLocation.predictable) {
-			snippetTitle += makeDirection(busLocation.dirTag);
-		}
-
-		// multiple headings, don't show anything to avoid confusion
-		distanceFromLastX = 0;
-		distanceFromLastY = 0;
-	}
-
-	@Override
 	public void makeSnippetAndTitle(RouteConfig routeConfig,
 			MyHashMap<String, String> routeKeysToTitles, Context context) {
 		snippet = makeSnippet(routeConfig);
@@ -237,7 +228,7 @@ public class BusLocation implements Location {
 		return "";
 	}
 	
-	private String makeSnippet(RouteConfig routeConfig) {
+	public String makeSnippet(RouteConfig routeConfig) {
 		String snippet = getBetaWarning();
 		snippet += getBusNumberMessage();
 
@@ -268,7 +259,7 @@ public class BusLocation implements Location {
 		return "Bus number: " + busId + "<br />";
 	}
 
-	private String makeTitle() {
+	public String makeTitle() {
 		String title = "";
 		title += "Route ";
 		if (routeTitle == null) {
@@ -278,13 +269,13 @@ public class BusLocation implements Location {
 		}
 
 		if (predictable) {
-			title += makeDirection(dirTag);
+			title += makeDirection(dirTag, directions);
 		}
 
 		return title;
 	}
 
-	private String makeDirection(String dirTag) {
+	public static String makeDirection(String dirTag, Directions directions) {
 		String ret = "";
 
 		String directionName = directions.getTitleAndName(dirTag);
@@ -318,11 +309,6 @@ public class BusLocation implements Location {
 		String[] directions = new String[] { "N", "NE", "E", "SE", "S", "SW",
 				"W", "NW" };
 		return directions[index];
-	}
-
-	@Override
-	public int getId() {
-		return (busId.hashCode() & 0xffffff) | LOCATIONTYPE << 24;
 	}
 
 	public String getBusNumber()
@@ -379,11 +365,6 @@ public class BusLocation implements Location {
 		distanceFromLastY *= -1;
 	}
 
-	@Override
-	public boolean containsId(int selectedBusId) {
-		return selectedBusId == getId();
-	}
-
 	public long getLastUpdateInMillis() {
 		return lastUpdateInMillis;
 	}
@@ -395,5 +376,56 @@ public class BusLocation implements Location {
 	@Override
 	public ArrayList<Alert> getSnippetAlerts() {
 		return snippetAlerts;
+	}
+	
+	//these two methods need to be defined this way to work with LocationGroup
+	@Override
+	public int hashCode() {
+		return getLatAsInt() ^ getLonAsInt();
+	}
+	
+	public int getLatAsInt() {
+		return (int)(latitudeAsDegrees * Constants.E6);
+	}
+	
+	@Override
+	public int getLonAsInt() {
+		return (int)(longitudeAsDegrees * Constants.E6);
+	}
+	
+	@Override
+	public boolean equals(Object o) {
+		if (o instanceof LocationGroup) {
+			return ((LocationGroup) o).getLatitudeAsDegrees() == latitudeAsDegrees &&
+					((LocationGroup)o).getLongitudeAsDegrees() == longitudeAsDegrees;
+		}
+		else
+		{
+			return false;
+		}
+	}
+
+	@Override
+	public boolean isVehicle() {
+		return true;
+	}
+
+	@Override
+	public boolean isBeta() {
+		return false;
+	}
+
+	public Directions getDirections() {
+		return directions;
+	}
+
+	@Override
+	public List<String> getAllRoutes() {
+		return Collections.singletonList(routeName);
+	}
+
+	@Override
+	public String getFirstRoute() {
+		return routeName;
 	}
 }

@@ -35,11 +35,9 @@ public class Predictions
 	private static final Prediction[] nullPredictions = new Prediction[0];
 	
 	public synchronized void makeSnippetAndTitle(RouteConfig routeConfig,
-			MyHashMap<String, String> routeKeysToTitles, Context context, ArrayList<String> routes, String title, String tag)
+			MyHashMap<String, String> routeKeysToTitles, Context context, String stopRoute, String title, String tag)
 	{
-		Collections.sort(routes);
-		
-		snippetRoutes = routes.toArray(new String[0]);
+		snippetRoutes = new String[]{stopRoute};
 		snippetTitle = title;
 		snippetStop = tag;
 		if (routeConfig != null)
@@ -136,7 +134,7 @@ public class Predictions
 
 	
 	public synchronized void addToSnippetAndTitle(RouteConfig routeConfig, StopLocation stopLocation, MyHashMap<String, String> routeKeysToTitles,
-			Context context, String title, ArrayList<String> routes)
+			Context context, String title, String stopRoute)
 	{
 		if (sharedSnippetStops == null)
 		{
@@ -172,10 +170,10 @@ public class Predictions
 		snippetStop += ", " + stopLocation.getStopTag();
 		
 		combinedRoutes = new TreeSet<String>();
-		combinedRoutes.addAll(routes);
+		combinedRoutes.add(stopRoute);
 		for (StopLocation s : sharedSnippetStops)
 		{
-			combinedRoutes.addAll(s.getRoutes());
+			combinedRoutes.add(s.getFirstRoute());
 		}
 		snippetRoutes = combinedRoutes.toArray(new String[0]);
 		
@@ -280,21 +278,6 @@ public class Predictions
 		{
 			return "";
 		}
-	}
-
-	public boolean containsId(int selectedBusId)
-	{
-		if (sharedSnippetStops != null)
-		{
-			for (StopLocation stop : sharedSnippetStops)
-			{
-				if (stop.getId() == selectedBusId)
-				{
-					return true;
-				}
-			}
-		}
-		return false;
 	}
 
 	public ArrayList<Alert> getSnippetAlerts() {

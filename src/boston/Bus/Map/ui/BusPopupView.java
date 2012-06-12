@@ -237,10 +237,13 @@ public class BusPopupView extends BalloonOverlayView<BusOverlayItem>
 				MultipleStopLocations multipleStopLocations = (MultipleStopLocations)group;
 				stopTags.addAll(multipleStopLocations.getStops());
 			}
-			else
+			else if (group instanceof StopLocation)
 			{
 				StopLocation stop = (StopLocation)group;
 				stopTags.add(stop);
+			}
+			else {
+				throw new RuntimeException("BusLocation appeared in place of StopLocation");
 			}
 
 			if (selectedBusPredictions == Main.BUS_PREDICTIONS_ONE)
@@ -268,8 +271,7 @@ public class BusPopupView extends BalloonOverlayView<BusOverlayItem>
 				ArrayList<String> pairs = new ArrayList<String>();
 				for (StopLocation stop : stopTags)
 				{
-					String routesJoin = StringUtil.join(stop.getRoutes(), ", ");
-					pairs.add(stop.getStopTag() + "(" + stop.getTitle() + ") on routes " + routesJoin);
+					pairs.add(stop.getStopTag() + "(" + stop.getTitle() + ") on route " + stop.getFirstRoute());
 				}
 				
 				String list = StringUtil.join(pairs, ",\n");
@@ -355,7 +357,7 @@ public class BusPopupView extends BalloonOverlayView<BusOverlayItem>
 	}
 	
 	public void setState(boolean isFavorite, boolean favoriteVisible, boolean moreInfoVisible,
-			Location location)
+			LocationGroup locationGroup)
 	{
 		//TODO: figure out a more elegant way to make the layout use these items even if they're invisible
 		if (favoriteVisible)

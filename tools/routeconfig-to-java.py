@@ -83,9 +83,6 @@ def printMakeAllRoutes(routes, prefix):
     f.write("        };\n")
     f.write("    }\n")
 
-    f.write("    public StopLocationBaggage makeStopLocationBaggage(String stopTag) {\n")
-
-    f.write("    }\n")
     f.write(footer)
     f.close()
 
@@ -134,13 +131,12 @@ def printEachMakeRoute(routes, prefix):
         for stop in route["stops"].values():
             stopTag = stop["tag"]
             if stop["source"] == "subway":
-                f.write("        SubwayStopLocation stop{0} = new SubwayStopLocation({1}f, {2}f, transitSource, \"{4}\", \"{3}\", {5}, \"{6}\");\n".format(makeValid(stopTag), stop["lat"], stop["lon"], stop["title"], stopTag, stop["platformOrder"], stop["branch"]))
+                f.write("        SubwayStopLocation stop{0} = new SubwayStopLocation({1}f, {2}f, transitSource, \"{4}\", \"{3}\", {5}, \"{6}\", \"{7}\");\n".format(makeValid(stopTag), stop["lat"], stop["lon"], stop["title"], stopTag, stop["platformOrder"], stop["branch"], routeTag))
             elif stop["source"] == "commuterRail":
-                f.write("        CommuterRailStopLocation stop{0} = new CommuterRailStopLocation({1}f, {2}f, transitSource, \"{4}\", \"{3}\", {5}, \"{6}\");\n".format(makeValid(stopTag), stop["lat"], stop["lon"], stop["title"], stopTag, stop["platformOrder"], stop["branch"]))
+                f.write("        CommuterRailStopLocation stop{0} = new CommuterRailStopLocation({1}f, {2}f, transitSource, \"{4}\", \"{3}\", {5}, \"{6}\", \"{7}\");\n".format(makeValid(stopTag), stop["lat"], stop["lon"], stop["title"], stopTag, stop["platformOrder"], stop["branch"], routeTag))
             else:
-                f.write("        StopLocation stop{0} = new StopLocation({1}f, {2}f, transitSource, \"{4}\", \"{3}\");".format(makeValid(stopTag), stop["lat"], stop["lon"], stop["title"], stopTag) + "\n")
+                f.write("        StopLocation stop{0} = new StopLocation({1}f, {2}f, transitSource, \"{4}\", \"{3}\", \"{5}\");".format(makeValid(stopTag), stop["lat"], stop["lon"], stop["title"], stopTag, routeTag) + "\n")
             f.write("        route.addStop(\"{0}\", stop{1});".format(stopTag, makeValid(stopTag)) + "\n")
-            f.write("        stop{0}.addRoute(\"{1}\");\n".format(makeValid(stopTag), routeTag))
 
         for direction in route["directions"].values():
             f.write("            directions.add(\"{0}\", new Direction(\"{1}\", \"{2}\", \"{3}\"));".format(direction["tag"], direction["name"], direction["title"], routeTag) + "\n")

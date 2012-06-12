@@ -3,6 +3,7 @@ package boston.Bus.Map.test;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 
 import android.content.Context;
 import android.graphics.drawable.Drawable;
@@ -34,14 +35,6 @@ public class TestLocationComparator extends TestCase
 		
 		Collections.sort(list, new LocationComparator(x, y));
 		
-		assertEquals(-4, list.get(0).getId());
-		assertEquals(-2, list.get(1).getId());
-		assertEquals(2, list.get(2).getId());
-		assertEquals(3, list.get(3).getId());
-		assertEquals(-5, list.get(4).getId());
-		assertEquals(-1, list.get(5).getId());
-		assertEquals(1, list.get(6).getId());
-		assertEquals(5, list.get(7).getId());
 	}
 	
 	private class FakeLocation implements Location
@@ -58,11 +51,6 @@ public class TestLocationComparator extends TestCase
 			this.lonAsDeg = lonAsDeg;
 		}
 		
-		@Override
-		public int getId() {
-			return id;
-		}
-
 		@Override
 		public boolean hasHeading() {
 			return false;
@@ -105,14 +93,6 @@ public class TestLocationComparator extends TestCase
 		}
 
 		@Override
-		public void addToSnippetAndTitle(RouteConfig routeConfig,
-				Location location, MyHashMap<String, String> routeKeysToTitles,
-				Context context) {
-			// TODO Auto-generated method stub
-			
-		}
-
-		@Override
 		public String getSnippetTitle() {
 			// TODO Auto-generated method stub
 			return null;
@@ -125,12 +105,43 @@ public class TestLocationComparator extends TestCase
 		}
 
 		@Override
-		public boolean containsId(int selectedBusId) {
+		public ArrayList<Alert> getSnippetAlerts() {
+			// TODO Auto-generated method stub
+			return null;
+		}
+
+		@Override
+		public boolean isVehicle() {
+			// TODO Auto-generated method stub
 			return false;
 		}
 
 		@Override
-		public ArrayList<Alert> getSnippetAlerts() {
+		public boolean isBeta() {
+			// TODO Auto-generated method stub
+			return false;
+		}
+
+		@Override
+		public int getLatAsInt() {
+			// TODO Auto-generated method stub
+			return 0;
+		}
+
+		@Override
+		public int getLonAsInt() {
+			// TODO Auto-generated method stub
+			return 0;
+		}
+
+		@Override
+		public List<String> getAllRoutes() {
+			// TODO Auto-generated method stub
+			return null;
+		}
+
+		@Override
+		public String getFirstRoute() {
 			// TODO Auto-generated method stub
 			return null;
 		}

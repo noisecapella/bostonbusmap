@@ -38,7 +38,9 @@ import org.xml.sax.SAXException;
 
 import boston.Bus.Map.data.BusLocation;
 import boston.Bus.Map.data.Location;
+import boston.Bus.Map.data.LocationGroup;
 import boston.Bus.Map.data.Locations;
+import boston.Bus.Map.data.MultipleStopLocations;
 import boston.Bus.Map.data.MyHashMap;
 import boston.Bus.Map.data.Path;
 import boston.Bus.Map.data.RouteConfig;
@@ -113,14 +115,15 @@ public class UpdateAsyncTask extends AsyncTask<Object, Object, Locations>
 
 	private final TransitSystem transitSystem;
 	private Context context;
-	private final int idToSelect;
+	private final int latAsInt;
+	private final int lonAsInt;
 	
 	public UpdateAsyncTask(ProgressBar progress, MapView mapView, LocationOverlay locationOverlay,
 			boolean doShowUnpredictable, boolean doRefresh, int maxOverlays,
 			boolean drawCircle, boolean inferBusRoutes, BusOverlay busOverlay, RouteOverlay routeOverlay, 
 			DatabaseHelper helper, String routeToUpdate,
 			int selectedBusPredictions, boolean showRouteLine,
-		TransitSystem transitSystem, ProgressDialog progressDialog, int idToSelect)
+		TransitSystem transitSystem, ProgressDialog progressDialog, int latAsInt, int lonAsInt)
 	{
 		super();
 		
@@ -143,7 +146,8 @@ public class UpdateAsyncTask extends AsyncTask<Object, Object, Locations>
 		//this.uiHandler = new Handler();
 		this.transitSystem = transitSystem;
 		this.progressDialog = progressDialog;
-		this.idToSelect = idToSelect;
+		this.latAsInt = latAsInt;
+		this.lonAsInt = lonAsInt;
 	}
 	
 	/**
@@ -395,12 +399,12 @@ public class UpdateAsyncTask extends AsyncTask<Object, Object, Locations>
 		final double longitude = center.getLongitudeE6() * inve6;
 		
 		
-		final ArrayList<Location> busLocations = new ArrayList<Location>();
+		final ArrayList<LocationGroup> locations = new ArrayList<LocationGroup>();
 		
 		try
 		{
 			//get bus locations sorted by closest to lat + lon
-			busLocations.addAll(busLocationsObject.getLocations(maxOverlays, latitude, longitude, doShowUnpredictable));
+			locations.addAll(busLocationsObject.getLocations(maxOverlays, latitude, longitude, doShowUnpredictable));
 		}
 		catch (IOException e)
 		{
@@ -409,7 +413,7 @@ public class UpdateAsyncTask extends AsyncTask<Object, Object, Locations>
 		}
 
 		//if doRefresh is false, we should skip this, it prevents the icons from updating locations
-		if (busLocations.size() == 0 && doRefresh)
+		if (locations.size() == 0 && doRefresh)
 		{
 			//no data? oh well
 			//sometimes the feed provides an empty XML message; completely valid but without any vehicle elements
@@ -420,18 +424,18 @@ public class UpdateAsyncTask extends AsyncTask<Object, Object, Locations>
 		}
 		
 		//get currently selected location id, or -1 if nothing is selected
-		final int selectedBusId;
-		if (idToSelect != 0)
+		final LocationGroup selectedLocationGroup;
+		if (latAsInt != 0 && lonAsInt != 0)
 		{
-			selectedBusId = idToSelect;
+			selectedLocationGroup = busOverlay.getItemWithLatLon(latAsInt, lonAsInt);
 		}
 		else if (busOverlay != null)
 		{
-			selectedBusId = busOverlay.getSelectedBusId();
+			selectedLocationGroup = busOverlay.getSelectedBus();
 		}
 		else
 		{
-			selectedBusId = BusOverlay.NOT_SELECTED;
+			selectedLocationGroup = null;
 		}
 		
 		busOverlay.setDrawHighlightCircle(drawCircle);
@@ -491,53 +495,25 @@ public class UpdateAsyncTask extends AsyncTask<Object, Object, Locations>
 		
 		MyHashMap<String, String> routeKeysToTitles = transitSystem.getRouteKeysToTitles();
 		
-		//point hash to index in busLocations
-		MyHashMap<Long, Integer> points = new MyHashMap<Long, Integer>();
-		
-		ArrayList<GeoPoint> geoPointsToAdd = new ArrayList<GeoPoint>(busLocations.size());
+		ArrayList<GeoPoint> geoPointsToAdd = new ArrayList<GeoPoint>(locations.size());
 		//draw the buses on the map
-		int newSelectedBusId = selectedBusId;
-		for (int i = 0; i < busLocations.size(); i++)
+		LocationGroup newSelectedLocationGroup = selectedLocationGroup;
+		for (int i = 0; i < locations.size(); i++)
 		{
-			Location busLocation = busLocations.get(i);
-			
-			final int latInt = (int)(busLocation.getLatitudeAsDegrees() * e6);
-			final int lonInt = (int)(busLocation.getLongitudeAsDegrees() * e6);
-					
-			//make a hash to easily compare this location's position against others
-			//get around sign extension issues by making them all positive numbers
-			final int latIntHash = (latInt < 0 ? -latInt : latInt);
-			final int lonIntHash = (lonInt < 0 ? -lonInt : lonInt);
-			long hash = (long)((long)latIntHash << 32) | (long)lonIntHash;
-			Integer index = points.get(hash);
-			if (null != index)
-			{
-				//two stops in one space. Just use the one overlay, and combine textboxes in an elegant manner
-				Location parent = busLocations.get(index);
-				parent.addToSnippetAndTitle(selectedRouteConfig, busLocation, routeKeysToTitles, context);
-				
-				if (busLocation.getId() == selectedBusId)
-				{
-					//the thing we want to select isn't available anymore, choose the other icon
-					newSelectedBusId = parent.getId();
-				}
-			}
-			else
-			{
-				busLocation.makeSnippetAndTitle(selectedRouteConfig, routeKeysToTitles, context);
-			
-			
-				points.put(hash, i);
-		
-				//the title is displayed when someone taps on the icon
-				busOverlay.addLocation(busLocation);
-				GeoPoint point = new GeoPoint(latInt, lonInt);
-				geoPointsToAdd.add(point);
-			}
+			LocationGroup locationGroup = locations.get(i);
+
+			locationGroup.makeSnippetAndTitle(selectedRouteConfig, routeKeysToTitles, context);
+
+			//the title is displayed when someone taps on the icon
+			busOverlay.addLocation(locationGroup);
+			int latInt = (int) (locationGroup.getLatitudeAsDegrees() * Constants.E6);
+			int lonInt = (int) (locationGroup.getLongitudeAsDegrees() * Constants.E6);
+			GeoPoint point = new GeoPoint(latInt, lonInt);
+			geoPointsToAdd.add(point);
 		}
 		busOverlay.addOverlaysFromLocations(geoPointsToAdd);
 		
-		busOverlay.setSelectedBusId(newSelectedBusId);
+		busOverlay.setSelectedBus(newSelectedLocationGroup);
 		busOverlay.refreshBalloons();
 		
 		mapView.getOverlays().clear();

@@ -19,6 +19,7 @@ import boston.Bus.Map.data.AlertsMapping;
 import boston.Bus.Map.data.BusLocation;
 import boston.Bus.Map.data.Directions;
 import boston.Bus.Map.data.Location;
+import boston.Bus.Map.data.LocationGroup;
 import boston.Bus.Map.data.Locations;
 import boston.Bus.Map.data.MyHashMap;
 import boston.Bus.Map.data.RouteConfig;
@@ -75,7 +76,7 @@ public class SubwayTransitSource implements TransitSource {
 		case Main.VEHICLE_LOCATIONS_ONE:
 		{
 
-			List<Location> locations = locationsObj.getLocations(maxStops, centerLatitude, centerLongitude, false);
+			List<LocationGroup> locations = locationsObj.getLocations(maxStops, centerLatitude, centerLongitude, false);
 
 			//ok, do predictions now
 			getPredictionsRoutes(locations, maxStops, routeConfig.getRouteName(), outputRoutes, selectedBusPredictions);
@@ -85,7 +86,7 @@ public class SubwayTransitSource implements TransitSource {
 		case Main.VEHICLE_LOCATIONS_ALL:
 		case Main.BUS_PREDICTIONS_STAR:
 		{
-			List<Location> locations = locationsObj.getLocations(maxStops, centerLatitude, centerLongitude, false);
+			List<LocationGroup> locations = locationsObj.getLocations(maxStops, centerLatitude, centerLongitude, false);
 			
 			getPredictionsRoutes(locations, maxStops, null, outputRoutes, selectedBusPredictions);
 
@@ -141,7 +142,7 @@ public class SubwayTransitSource implements TransitSource {
 		return dataUrlPrefix + route + predictionsUrlSuffix ;
 	}
 	
-	private static void getPredictionsRoutes(List<Location> locations, int maxStops,
+	private static void getPredictionsRoutes(List<LocationGroup> locationGroups, int maxStops,
 			String routeName, HashSet<String> outputRoutes, int mode) {
 		
 		//BUS_PREDICTIONS_ONE or VEHICLE_LOCATIONS_ONE
@@ -159,29 +160,11 @@ public class SubwayTransitSource implements TransitSource {
 			if (mode == Main.BUS_PREDICTIONS_STAR)
 			{
 				//ok, let's look at the locations and see what we can get
-				for (Location location : locations)
+				for (LocationGroup locationGroup : locationGroups)
 				{
-					if (location instanceof StopLocation)
-					{
-						StopLocation stopLocation = (StopLocation)location;
-
-
-						for (String route : stopLocation.getRoutes())
-						{
-							if (isSubway(route))
-							{
-								outputRoutes.add(route);
-							}
-						}
-					}
-					else
-					{
-						//bus location
-						BusLocation busLocation = (BusLocation)location;
-						String route = busLocation.getRouteId();
-
-						if (isSubway(route))
-						{
+					List<String> routes = locationGroup.getAllRoutes();
+					for (String route : routes) {
+						if (isSubway(route)) {
 							outputRoutes.add(route);
 						}
 					}

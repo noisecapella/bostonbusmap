@@ -5,6 +5,7 @@ import java.util.HashMap;
 
 import boston.Bus.Map.data.Alert;
 import boston.Bus.Map.data.Location;
+import boston.Bus.Map.data.LocationGroup;
 import boston.Bus.Map.data.Locations;
 
 import com.google.android.maps.GeoPoint;
@@ -12,7 +13,7 @@ import com.google.android.maps.OverlayItem;
 
 public class BusOverlayItem extends OverlayItem
 {
-	private Location location;
+	private LocationGroup locationGroup;
 	private final ArrayList<Alert> alerts;
 		
 	public BusOverlayItem(GeoPoint point, String title, String snippet, ArrayList<Alert> alerts)
@@ -21,14 +22,14 @@ public class BusOverlayItem extends OverlayItem
 		this.alerts = alerts;
 	}
 
-	public void setCurrentLocation(Location location)
+	public void setCurrentLocation(LocationGroup locationGroup)
 	{
-		this.location = location;
+		this.locationGroup = locationGroup;
 	}
 
-	public Location getCurrentLocation()
+	public LocationGroup getCurrentLocation()
 	{
-		return location;
+		return locationGroup;
 	}
 
 	public ArrayList<Alert> getAlerts()

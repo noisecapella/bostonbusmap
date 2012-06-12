@@ -34,10 +34,12 @@ import javax.xml.parsers.ParserConfigurationException;
 import org.xml.sax.SAXException;
 
 import boston.Bus.Map.R;
+import boston.Bus.Map.data.LocationGroup;
 import boston.Bus.Map.data.Locations;
 import boston.Bus.Map.data.MyHashMap;
 import boston.Bus.Map.data.RouteConfig;
 import boston.Bus.Map.data.StopLocation;
+import boston.Bus.Map.data.StopLocationGroup;
 import boston.Bus.Map.data.TransitDrawables;
 import boston.Bus.Map.database.DatabaseHelper;
 import boston.Bus.Map.provider.TransitContentProvider;
@@ -682,26 +684,20 @@ public class Main extends MapActivity
     	case R.id.chooseStop:
     		if (busLocations != null)
     		{
-    			StopLocation[] favoriteStops = busLocations.getCurrentFavorites();
-    			
-    			final StopLocation[] stops = StopLocation.consolidateStops(favoriteStops);
+    			final List<LocationGroup> favoriteStops = busLocations.getCurrentFavorites();
 
-    			String[] titles = new String[stops.length];
-    			for (int i = 0; i < stops.length; i++)
+    			String[] titles = new String[favoriteStops.size()];
+    			for (int i = 0; i < favoriteStops.size(); i++)
     			{
-    				StopLocation stop = stops[i];
-    				String routes;
-    				if (stop.getCombinedRoutes() != null)
+    				LocationGroup locationGroup = favoriteStops.get(i);
+    				if (locationGroup instanceof StopLocationGroup)
     				{
-    					String[] array = stop.getCombinedRoutes();
-    					routes = StringUtil.join(array, ", ");
+    					StopLocationGroup stopLocationGroup = (StopLocationGroup)locationGroup;
+    					List<String> array = locationGroup.getAllRoutes();
+    					String routes = StringUtil.join(array, ", ");
+    					String title = stopLocationGroup.getFirstTitle() + " (route " + routes + ")";
+    					titles[i] = title;
     				}
-    				else
-    				{
-    					routes = stop.getFirstRoute();
-    				}
-    				String title = stop.getTitle() + " (route " + routes + ")";
-    				titles[i] = title;
     			}
     			
     			AlertDialog.Builder builder = new AlertDialog.Builder(this);
@@ -710,12 +706,11 @@ public class Main extends MapActivity
 
     				@Override
     				public void onClick(DialogInterface dialog, int which) {
-    					if (which >= 0 && which < stops.length)
+    					if (which >= 0 && which < favoriteStops.size())
     					{
-    						StopLocation stop = stops[which];
-    						
-    						String route = stop.getFirstRoute();
-    						setNewStop(route, stop.getStopTag());
+    						LocationGroup stop = favoriteStops.get(which);
+
+    						setNewStop(stop);
     						setMode(BUS_PREDICTIONS_STAR, true);
     					}
     				}
@@ -972,37 +967,20 @@ public class Main extends MapActivity
 	 * @param route
 	 * @param stopTag
 	 */
-	public void setNewStop(String route, String stopTag)
+	public void setNewStop(LocationGroup locationGroup)
 	{
-		StopLocation stopLocation = busLocations.setSelectedStop(route, stopTag);
-
-		if (stopLocation == null)
-		{
-			Log.e("BostonBusMap", "Error: stopLocation was null");
-			return;
-		}
+		String route = locationGroup.getFirstRoute();
+		busLocations.select(route, Main.BUS_PREDICTIONS_ONE);
 		
-		int routePosition = -1;
-		for (int position = 0; position < dropdownRoutes.length; position++)
-		{
-			if (route.equals(dropdownRoutes[position]))
-			{
-				routePosition = position;
-				break;
-			}
-		}
+		int routePosition = Arrays.asList(dropdownRoutes).indexOf(route);
 		
-		
-		final int id = stopLocation.getId();
-		handler.triggerUpdateThenSelect(id);
-
-		
+		handler.triggerUpdateThenSelect(locationGroup);
 		
 		if (routePosition != -1)
 		{
 			//should always happen, but we just ignore this if something went wrong
 			String currentRoute = getRoute();
-			if (stopLocation.getRoutes().contains(currentRoute) == false)
+			if (locationGroup.getFirstRoute().equals(currentRoute) == false)
 			{
 				//only set it if some route which contains this stop isn't already set
 				setNewRoute(routePosition, false);
@@ -1013,8 +991,8 @@ public class Main extends MapActivity
 		
 		MapController controller = mapView.getController();
 		
-		int latE6 = (int)(stopLocation.getLatitudeAsDegrees() * Constants.E6);
-		int lonE6 = (int)(stopLocation.getLongitudeAsDegrees() * Constants.E6);
+		int latE6 = locationGroup.getLatAsInt();
+		int lonE6 = locationGroup.getLonAsInt();
 		
 		GeoPoint geoPoint = new GeoPoint(latE6, lonE6);
 		controller.setCenter(geoPoint);

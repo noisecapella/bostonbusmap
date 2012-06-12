@@ -23,6 +23,7 @@ import java.util.List;
 
 
 import boston.Bus.Map.data.Alert;
+import boston.Bus.Map.data.LocationGroup;
 import boston.Bus.Map.data.Locations;
 import boston.Bus.Map.data.MyHashMap;
 import boston.Bus.Map.data.StopLocation;
@@ -56,10 +57,10 @@ import android.view.MotionEvent;
  */
 public class BusOverlay extends BalloonItemizedOverlay<BusOverlayItem> {
 
-	public static final int NOT_SELECTED = -1;
+	public static final int NOT_SELECTED_INDEX = -1;
 	private final ArrayList<BusOverlayItem> overlays = new ArrayList<BusOverlayItem>();
 	private Main context;
-	private final List<Location> locations = new ArrayList<Location>();
+	private final List<LocationGroup> locationGroups = new ArrayList<LocationGroup>();
 	private int selectedBusIndex;
 	private UpdateHandler updateable;
 	private boolean drawHighlightCircle;
@@ -82,7 +83,7 @@ public class BusOverlay extends BalloonItemizedOverlay<BusOverlayItem> {
 		
 		this.drawHighlightCircle = busOverlay.drawHighlightCircle;
 		
-		this.locations.addAll(busOverlay.locations);
+		this.locationGroups.addAll(busOverlay.locationGroups);
 		
 		overlays.addAll(busOverlay.overlays);
 		
@@ -91,7 +92,7 @@ public class BusOverlay extends BalloonItemizedOverlay<BusOverlayItem> {
 		this.selectedBusIndex = busOverlay.getLastFocusedIndex();
 		
 		
-		if (selectedBusIndex != NOT_SELECTED)
+		if (selectedBusIndex != NOT_SELECTED_INDEX)
 		{
 			onTap(selectedBusIndex);
 		}
@@ -105,7 +106,7 @@ public class BusOverlay extends BalloonItemizedOverlay<BusOverlayItem> {
 		super(boundCenterBottom(busPicture), mapView);
 
 		this.context = context;
-		this.selectedBusIndex = NOT_SELECTED;
+		this.selectedBusIndex = NOT_SELECTED_INDEX;
 		this.busPicture = busPicture;
 		this.busHeight = busPicture.getIntrinsicHeight();
 		this.routeKeysToTitles = routeKeysToTitles;
@@ -127,7 +128,7 @@ public class BusOverlay extends BalloonItemizedOverlay<BusOverlayItem> {
 				//if you click on a bus, it would normally draw the selected bus without this code
 				//but in certain cases (you click away from any bus, then click on the bus again) it got confused and didn't draw
 				//things right. This corrects that (hopefully)
-				setLastFocusedIndex(NOT_SELECTED);
+				setLastFocusedIndex(NOT_SELECTED_INDEX);
 				setFocus((BusOverlayItem)newFocus);
 				if (newFocus == null)
 				{
@@ -159,9 +160,9 @@ public class BusOverlay extends BalloonItemizedOverlay<BusOverlayItem> {
 		drawHighlightCircle = b;
 	}
 	
-	public void addLocation(Location location)
+	public void addLocation(LocationGroup locationGroup)
 	{
-		locations.add(location);
+		locationGroups.add(locationGroup);
 	}
 	
 	public void setLocations(Locations locations)
@@ -211,10 +212,10 @@ public class BusOverlay extends BalloonItemizedOverlay<BusOverlayItem> {
 	public void clear() {
 		overlays.clear();
 		
-		locations.clear();
+		locationGroups.clear();
 		
 		setFocus(null);
-		setLastFocusedIndex(NOT_SELECTED);
+		setLastFocusedIndex(NOT_SELECTED_INDEX);
 		locationsObj = null;
 	}
 
@@ -222,24 +223,24 @@ public class BusOverlay extends BalloonItemizedOverlay<BusOverlayItem> {
 	public void draw(Canvas canvas, MapView mapView, boolean shadow)
 	{
 		int lastFocusedIndex = getLastFocusedIndex();
-		final int overlaysSize = Math.min(overlays.size(), locations.size());
+		final int overlaysSize = Math.min(overlays.size(), locationGroups.size());
 		for (int i = 0; i < overlaysSize; i++)
 		{
 			OverlayItem item = overlays.get(i);
-			Location location = locations.get(i);
+			LocationGroup locationGroup = locationGroups.get(i);
 
 			boolean isSelected = i == lastFocusedIndex;
-			Drawable drawable = location.getDrawable(context, shadow, isSelected);
+			Drawable drawable = locationGroup.getDrawable(context, shadow, isSelected);
 			item.setMarker(drawable);
 
 			boundCenterBottom(drawable);
 		}
 		
-		if (selectedBusIndex != NOT_SELECTED)
+		if (selectedBusIndex != NOT_SELECTED_INDEX)
 		{
 			//make sure that selected buses are preserved during refreshes
 			setFocus(overlays.get(selectedBusIndex));
-			selectedBusIndex = NOT_SELECTED;
+			selectedBusIndex = NOT_SELECTED_INDEX;
 		}
 			
 		if (drawHighlightCircle && overlays.size() > 0)
@@ -285,22 +286,22 @@ public class BusOverlay extends BalloonItemizedOverlay<BusOverlayItem> {
 
 	
 	
-	public int getSelectedBusId() {
+	public LocationGroup getSelectedBus() {
 		int selectedBusIndex = getLastFocusedIndex();
-		if (selectedBusIndex == NOT_SELECTED)
+		if (selectedBusIndex == NOT_SELECTED_INDEX)
 		{
-			return NOT_SELECTED;
+			return null;
 		}
 		else
 		{
-			if (selectedBusIndex >= locations.size())
+			if (selectedBusIndex >= locationGroups.size())
 			{
-				this.selectedBusIndex = NOT_SELECTED;
-				return NOT_SELECTED;
+				this.selectedBusIndex = NOT_SELECTED_INDEX;
+				return null;
 			}
 			else
 			{
-				return locations.get(selectedBusIndex).getId();
+				return locationGroups.get(selectedBusIndex);
 			}
 		}
 		
@@ -313,7 +314,7 @@ public class BusOverlay extends BalloonItemizedOverlay<BusOverlayItem> {
 	public void refreshBalloons() {
 		
 		//Log.i("REFRESHBALLOONS", selectedBusIndex + " ");
-		if (selectedBusIndex == NOT_SELECTED)
+		if (selectedBusIndex == NOT_SELECTED_INDEX)
 		{
 			hideBalloon();
 		}
@@ -323,16 +324,16 @@ public class BusOverlay extends BalloonItemizedOverlay<BusOverlayItem> {
 		}
 	}
 	
-	public void setSelectedBusId(int selectedBusId)
+	public void setSelectedBus(LocationGroup newLocationGroup)
 	{
-		selectedBusIndex = NOT_SELECTED;
-		if (selectedBusId != NOT_SELECTED)
+		selectedBusIndex = NOT_SELECTED_INDEX;
+		if (newLocationGroup != null)
 		{
-			for (int i = 0; i < locations.size(); i++)
+			for (int i = 0; i < locationGroups.size(); i++)
 			{
-				Location busLocation = locations.get(i);
+				LocationGroup group = locationGroups.get(i);
 
-				if (busLocation.containsId(selectedBusId))
+				if (group == newLocationGroup)
 				{
 					selectedBusIndex = i;
 					break;
@@ -347,14 +348,14 @@ public class BusOverlay extends BalloonItemizedOverlay<BusOverlayItem> {
 
 	public void addOverlaysFromLocations(ArrayList<GeoPoint> points)
 	{
-		overlays.ensureCapacity(overlays.size() + locations.size());
+		overlays.ensureCapacity(overlays.size() + locationGroups.size());
 		
-		for (int i = 0; i < locations.size(); i++)
+		for (int i = 0; i < locationGroups.size(); i++)
 		{
-			Location location = locations.get(i);
-			String titleText = location.getSnippetTitle();
-			String snippetText = location.getSnippet();
-			ArrayList<Alert> alerts = location.getSnippetAlerts();
+			LocationGroup locationGroup = locationGroups.get(i);
+			String titleText = locationGroup.getSnippetTitle();
+			String snippetText = locationGroup.getSnippet();
+			ArrayList<Alert> alerts = locationGroup.getSnippetAlerts();
 			BusOverlayItem overlayItem = new BusOverlayItem(points.get(i),titleText, snippetText, alerts);
 			overlays.add(overlayItem);
 		}
@@ -365,14 +366,14 @@ public class BusOverlay extends BalloonItemizedOverlay<BusOverlayItem> {
 	protected boolean onTap(int index) {
 		boolean ret = super.onTap(index);
 		
-		Location location = locations.get(index);
+		LocationGroup locationGroup = locationGroups.get(index);
 		BusOverlayItem item = currentFocussedItem;
-		item.setCurrentLocation(location);
+		item.setCurrentLocation(locationGroup);
 		
 		BusPopupView view = (BusPopupView)balloonView;
-		boolean isVisible = location instanceof StopLocation;
-		boolean isFavorite = locationsObj.isFavorite(location);
-		view.setState(isFavorite, isVisible, isVisible, location);
+		boolean isStarVisible = !locationGroup.isVehicle();
+		boolean isFavorite = locationsObj.isFavorite(locationGroup);
+		view.setState(isFavorite, isStarVisible, isStarVisible, locationGroup);
 		
 		return ret;
 	}
@@ -381,5 +382,15 @@ public class BusOverlay extends BalloonItemizedOverlay<BusOverlayItem> {
 		BusPopupView view = new BusPopupView(getMapView().getContext(), getBalloonBottomOffset(), locationsObj, routeKeysToTitles,
 				density);
 		return view;
+	}
+
+
+	public LocationGroup getItemWithLatLon(int latAsInt, int lonAsInt) {
+		for (LocationGroup locationGroup : locationGroups) {
+			if (locationGroup.getLatAsInt() == latAsInt && locationGroup.getLonAsInt() == lonAsInt) {
+				return locationGroup;
+			}
+		}
+		return null;
 	}
 }

@@ -2,6 +2,7 @@ package boston.Bus.Map.main;
 
 import org.apache.http.impl.conn.tsccm.RouteSpecificPool;
 
+import boston.Bus.Map.data.LocationGroup;
 import boston.Bus.Map.data.Locations;
 import boston.Bus.Map.database.DatabaseHelper;
 import boston.Bus.Map.transit.TransitSystem;
@@ -141,11 +142,10 @@ public class UpdateHandler extends Handler {
 			//remove duplicate messages
 			removeMessages(MINOR);
 			
-			int idToSelect = msg.arg1;
 			minorUpdate = new UpdateAsyncTask(progress, mapView, locationOverlay, getShowUnpredictable(), false, maxOverlays,
 					getHideHighlightCircle() == false, getInferBusRoutes(), busOverlay, routeOverlay, helper,
 					routeToUpdate, selectedBusPredictions, getShowRouteLine(), 
-					transitSystem, progressDialog, idToSelect);
+					transitSystem, progressDialog, msg.arg1, msg.arg2);
 			
 
 			minorUpdate.runUpdate(busLocations, centerLatitude, centerLongitude, context);
@@ -201,7 +201,7 @@ public class UpdateHandler extends Handler {
 		updateAsyncTask = new UpdateAsyncTask(progress, mapView, locationOverlay, getShowUnpredictable(), true, maxOverlays,
 				getHideHighlightCircle() == false, getInferBusRoutes(), busOverlay, routeOverlay, helper,
 				routeToUpdate, selectedBusPredictions, showRouteLine,
-				transitSystem, progressDialog, 0);
+				transitSystem, progressDialog, 0, 0);
 		updateAsyncTask.runUpdate(busLocations, centerLatitude, centerLongitude, context);
 	}
 
@@ -295,10 +295,11 @@ public class UpdateHandler extends Handler {
 		
 	}
 
-	public void triggerUpdateThenSelect(int id)
+	public void triggerUpdateThenSelect(LocationGroup locationGroup)
 	{
 		Message msg = new Message();
-		msg.arg1 = id;
+		msg.arg1 = locationGroup.getLatAsInt();
+		msg.arg2 = locationGroup.getLonAsInt();
 		msg.what = MINOR;
 		sendMessage(msg);
 	}

@@ -61,7 +61,7 @@ public class RoutePool {
         				if (locationGroup instanceof MultipleStopLocations) {
         					((MultipleStopLocations)locationGroup).addStop(stop);
         				}
-        				else
+        				else //must be StopLocation
         				{
         					MultipleStopLocations multipleStopLocations = new MultipleStopLocations((StopLocation)locationGroup, stop);
         					stopsByLocation.put(multipleStopLocations, multipleStopLocations);
@@ -100,22 +100,33 @@ public class RoutePool {
 
 	}
 
-	public StopLocation[] getFavoriteStops() {
-		ArrayList<StopLocation> ret = new ArrayList<StopLocation>(favoriteStops.size());
+	public ArrayList<LocationGroup> getFavoriteStops() {
+		ArrayList<LocationGroup> ret = new ArrayList<LocationGroup>(favoriteStops.size());
 		
 		for (String stopTag : favoriteStops)
 		{
-			StopLocation stopLocation = stopsByTag.get(stopTag);
-			
-			ret.add(stopLocation);
+			ret.add(getAllStopTagsAtLocation(stopTag));
 		}
 		
-		return ret.toArray(new StopLocation[0]);
+		return ret;
 	}
 
-	public boolean isFavorite(StopLocation location)
+	public boolean isFavorite(LocationGroup locationGroup)
 	{
-		return favoriteStops.contains(location.getStopTag());
+		if (locationGroup instanceof StopLocation) {
+			StopLocation stopLocation = (StopLocation)locationGroup;
+			return favoriteStops.contains(stopLocation.getStopTag());
+		}
+		else if (locationGroup instanceof MultipleStopLocations) {
+			MultipleStopLocations multipleStopLocations = (MultipleStopLocations)locationGroup;
+			for (StopLocation stop : multipleStopLocations.getStops()) {
+				if (favoriteStops.contains(stop.getStopTag())) {
+					return true;
+				}
+			}
+		}
+		
+		return false;
 	}
 	
 	public int setFavorite(StopLocation location, boolean isFavorite) {
@@ -129,7 +140,6 @@ public class RoutePool {
 	}
 
 	public LocationGroup getAllStopTagsAtLocation(String stopTag) {
-		MyHashMap<String, StopLocation> ret = new MyHashMap<String, StopLocation>();
 		StopLocation stop = stopsByTag.get(stopTag);
 		LocationGroup group = stopsByLocation.get(stop);
 		return group;

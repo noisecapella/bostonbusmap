@@ -189,7 +189,7 @@ public class SearchHelper
 			StopLocation stop = getStopByTagOrTitle(indexingQuery, exactQuery);
 			if (stop != null)
 			{	
-				context.setNewStop(stop.getFirstRoute(), stop.getStopTag());
+				context.setNewStop(stop);
 				suggestionsQuery = "stop " + stop.getTitle();
 			}
 			else

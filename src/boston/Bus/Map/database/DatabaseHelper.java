@@ -270,7 +270,7 @@ public class DatabaseHelper extends SQLiteOpenHelper
 				}
 				
 			}
-			else
+			else if (group instanceof StopLocation)
 			{
 				StopLocation stop = (StopLocation)group;
 				ContentValues values = new ContentValues();
@@ -278,7 +278,10 @@ public class DatabaseHelper extends SQLiteOpenHelper
 				
 				database.replace(verboseFavorites, null, values);
 			}
-			
+			else
+			{
+				throw new RuntimeException("BusLocation appeared in storeFavorite");
+			}
 			database.setTransactionSuccessful();
 			database.endTransaction();
 		}
@@ -319,12 +322,17 @@ public class DatabaseHelper extends SQLiteOpenHelper
 						database.delete(verboseFavorites, whereClause, new String[]{stopTag});
 					}
 				}
-				else
+				else if (group instanceof StopLocation)
 				{
 					StopLocation stop = (StopLocation)group;
 					String stopTag = stop.getStopTag();
 					database.delete(verboseFavorites, whereClause, new String[]{stopTag});
 				}
+				else
+				{
+					throw new RuntimeException("BusLocation appeared in DatabaseHelper.saveFavorite");
+				}
+				
 				database.setTransactionSuccessful();
 				database.endTransaction();
 			}

@@ -28,4 +28,8 @@ public class CommuterTrainLocation extends BusLocation {
 	protected String getBusNumberMessage() {
 		return "Train number: " + busId + "<br />\n";
 	}
+	@Override
+	public boolean isBeta() {
+		return true;
+	}
 }

@@ -24,7 +24,10 @@ import boston.Bus.Map.data.BusLocation;
 import boston.Bus.Map.data.CommuterRailStopLocation;
 import boston.Bus.Map.data.Directions;
 import boston.Bus.Map.data.Location;
+import boston.Bus.Map.data.LocationGroup;
 import boston.Bus.Map.data.Locations;
+import boston.Bus.Map.data.MultipleStopLocations;
+import boston.Bus.Map.data.MultipleVehicleLocations;
 import boston.Bus.Map.data.MyHashMap;
 import boston.Bus.Map.data.RouteConfig;
 import boston.Bus.Map.data.RoutePool;
@@ -132,7 +135,7 @@ public class CommuterRailTransitSource implements TransitSource {
 		case Main.VEHICLE_LOCATIONS_ONE:
 		{
 
-			List<Location> locations = locationsObj.getLocations(maxStops, centerLatitude, centerLongitude, false);
+			List<LocationGroup> locations = locationsObj.getLocations(maxStops, centerLatitude, centerLongitude, false);
 
 			//ok, do predictions now
 			getPredictionsUrl(locations, maxStops, routeConfig.getRouteName(), outputUrls, outputAlertUrls, outputRoutes, selectedBusPredictions);
@@ -142,7 +145,7 @@ public class CommuterRailTransitSource implements TransitSource {
 		case Main.VEHICLE_LOCATIONS_ALL:
 		case Main.BUS_PREDICTIONS_STAR:
 		{
-			List<Location> locations = locationsObj.getLocations(maxStops, centerLatitude, centerLongitude, false);
+			List<LocationGroup> locations = locationsObj.getLocations(maxStops, centerLatitude, centerLongitude, false);
 			
 			getPredictionsUrl(locations, maxStops, null, outputUrls, outputAlertUrls, outputRoutes, selectedBusPredictions);
 
@@ -200,7 +203,7 @@ public class CommuterRailTransitSource implements TransitSource {
 		
 	}
 
-	private void getPredictionsUrl(List<Location> locations, int maxStops,
+	private void getPredictionsUrl(List<LocationGroup> locationGroups, int maxStops,
 			String routeName, ArrayList<String> outputUrls, ArrayList<String> outputAlertUrls,
 			ArrayList<String> outputRoutes, int mode)
 	{
@@ -225,34 +228,12 @@ public class CommuterRailTransitSource implements TransitSource {
 			if (mode == Main.BUS_PREDICTIONS_STAR)
 			{
 				//ok, let's look at the locations and see what we can get
-				for (Location location : locations)
+				for (LocationGroup locationGroup : locationGroups)
 				{
-					if (location instanceof StopLocation)
-					{
-						StopLocation stopLocation = (StopLocation)location;
-
-
-						for (String route : stopLocation.getRoutes())
-						{
-							if (isCommuterRail(route) && outputRoutes.contains(route) == false)
-							{
-								String index = route.substring(routeTagPrefix.length());
-								outputUrls.add(dataUrlPrefix + index + predictionsUrlSuffix);
-								String alertUrl = routeKeysToAlertUrls.get(route);
-								outputAlertUrls.add(alertUrl);
-								outputRoutes.add(route);
-							}
-						}
-					}
-					else
-					{
-						//bus location
-						BusLocation busLocation = (BusLocation)location;
-						String route = busLocation.getRouteId();
-
-						if (isCommuterRail(route) && outputRoutes.contains(route) == false)
-						{
-							String index = route.substring(3);
+					List<String> routes = locationGroup.getAllRoutes();
+					for (String route : routes) {
+						if (isCommuterRail(route) && outputRoutes.contains(route) == false) {
+							String index = route.substring(routeTagPrefix.length());
 							outputUrls.add(dataUrlPrefix + index + predictionsUrlSuffix);
 							String alertUrl = routeKeysToAlertUrls.get(route);
 							outputAlertUrls.add(alertUrl);
@@ -278,14 +259,19 @@ public class CommuterRailTransitSource implements TransitSource {
 		}
 	}
 
-	private boolean isCommuterRail(String routeName) {
-		for (String route : routes)
-		{
-			if (route.equals(routeName))
-			{
-				return true;
-			}
+	private void addToFavoritePredictionsUrl(String route, ArrayList<String> outputUrls, ArrayList<String> outputAlertUrls,
+			ArrayList<String> outputRoutes) {
+		if (isCommuterRail(route) && outputRoutes.contains(route) == false) {
+			String index = route.substring(routeTagPrefix.length());
+			outputUrls.add(dataUrlPrefix + index + predictionsUrlSuffix);
+			String alertUrl = routeKeysToAlertUrls.get(route);
+			outputAlertUrls.add(alertUrl);
+			outputRoutes.add(route);
 		}
+	}
+
+	private boolean isCommuterRail(String route) {
+		// TODO Auto-generated method stub
 		return false;
 	}
 
