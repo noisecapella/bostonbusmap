@@ -506,9 +506,7 @@ public class UpdateAsyncTask extends AsyncTask<Object, Object, Locations>
 
 			//the title is displayed when someone taps on the icon
 			busOverlay.addLocation(locationGroup);
-			int latInt = (int) (locationGroup.getLatitudeAsDegrees() * Constants.E6);
-			int lonInt = (int) (locationGroup.getLongitudeAsDegrees() * Constants.E6);
-			GeoPoint point = new GeoPoint(latInt, lonInt);
+			GeoPoint point = new GeoPoint(locationGroup.getLatAsInt(), locationGroup.getLonAsInt());
 			geoPointsToAdd.add(point);
 		}
 		busOverlay.addOverlaysFromLocations(geoPointsToAdd);

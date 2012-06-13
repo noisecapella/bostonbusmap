@@ -222,7 +222,7 @@ public abstract class NextBusTransitSource implements TransitSource
 				StopLocationGroup stopLocationGroup = (StopLocationGroup)locationGroup;
 				for (StopLocation stop : stopLocationGroup.getStops()) {
 					if (stop.getTransitSource() == this) {
-						stop.createBusPredictionsUrl(transitSystem, urlString, route, directions);
+						stop.createBusPredictionsUrl(transitSystem, urlString, stop.getFirstRoute(), directions);
 					}
 				}
 			}

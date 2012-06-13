@@ -105,7 +105,10 @@ public class RoutePool {
 		
 		for (String stopTag : favoriteStops)
 		{
-			ret.add(getAllStopTagsAtLocation(stopTag));
+			LocationGroup allStopsAtLocation = getAllStopTagsAtLocation(stopTag);
+			if (ret.contains(allStopsAtLocation) == false) { 
+				ret.add(allStopsAtLocation);
+			}
 		}
 		
 		return ret;
