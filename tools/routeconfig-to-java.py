@@ -131,11 +131,11 @@ def printEachMakeRoute(routes, prefix):
         for stop in route["stops"].values():
             stopTag = stop["tag"]
             if stop["source"] == "subway":
-                f.write("        SubwayStopLocation stop{0} = new SubwayStopLocation({1}f, {2}f, transitSource, \"{4}\", \"{3}\", {5}, \"{6}\", \"{7}\");\n".format(makeValid(stopTag), stop["lat"], stop["lon"], stop["title"], stopTag, stop["platformOrder"], stop["branch"], routeTag))
+                f.write("        SubwayStopLocation stop{0} = new SubwayStopLocation({1}f, {2}f, transitSource, \"{4}\", \"{3}\", {5}, \"{6}\", \"{7}\", {8});\n".format(makeValid(stopTag), stop["lat"], stop["lon"], stop["title"], stopTag, stop["platformOrder"], stop["branch"], routeTag, stop["id"]))
             elif stop["source"] == "commuterRail":
-                f.write("        CommuterRailStopLocation stop{0} = new CommuterRailStopLocation({1}f, {2}f, transitSource, \"{4}\", \"{3}\", {5}, \"{6}\", \"{7}\");\n".format(makeValid(stopTag), stop["lat"], stop["lon"], stop["title"], stopTag, stop["platformOrder"], stop["branch"], routeTag))
+                f.write("        CommuterRailStopLocation stop{0} = new CommuterRailStopLocation({1}f, {2}f, transitSource, \"{4}\", \"{3}\", {5}, \"{6}\", \"{7}\", {8});\n".format(makeValid(stopTag), stop["lat"], stop["lon"], stop["title"], stopTag, stop["platformOrder"], stop["branch"], routeTag, stop["id"]))
             else:
-                f.write("        StopLocation stop{0} = new StopLocation({1}f, {2}f, transitSource, \"{4}\", \"{3}\", \"{5}\");".format(makeValid(stopTag), stop["lat"], stop["lon"], stop["title"], stopTag, routeTag) + "\n")
+                f.write("        StopLocation stop{0} = new StopLocation({1}f, {2}f, transitSource, \"{4}\", \"{3}\", \"{5}\", {6});".format(makeValid(stopTag), stop["lat"], stop["lon"], stop["title"], stopTag, routeTag, stop["id"]) + "\n")
             f.write("        route.addStop(\"{0}\", stop{1});".format(stopTag, makeValid(stopTag)) + "\n")
 
         for direction in route["directions"].values():
@@ -196,6 +196,55 @@ def nextbusToRoutes(routesXml):
 
     return routes
 
+
+def runSuffixArray(routes):
+    runSuffixArrayRoutes(routes)
+    runSuffixArrayStops(routes)
+
+def makeSuffixArray(data):
+    indexes = []
+    
+    for tup in data:
+        title, id = tup
+        for i in xrange(len(title)):
+            indexes.append((title[i:], len(indexes), id))
+    return sorted(indexes, key = lambda x: x[0].lower)
+    
+
+def runSuffixArrayRoutes(routes):
+    f = open(sys.argv[2] + "/boston/Bus/Map/data/prepopulated/PrepopulatedSuffixArrayRoutes.java", "wb")
+
+    f.write(commonHeader)
+
+    f.write("public class PrepopulatedSuffixArrayRoutes {\n")
+    f.write("    public int[] getIndexes() {\n")
+    
+    suffixArray = makeSuffixArray([(route["title"], route["id"]) for route in routes.values()])
+    for title, index, id in suffixArray:
+        f.write("        {0},\n".format(id))
+
+    f.write("    }\n")
+    f.write("}\n")
+
+def getAllStops(routes):
+    for route in routes.values():
+        for stop in route["stops"].values():
+            yield stop
+def runSuffixArrayStops(routes):
+    f = open(sys.argv[2] + "/boston/Bus/Map/data/prepopulated/PrepopulatedSuffixArrayStops.java", "wb")
+
+    f.write(commonHeader)
+
+    f.write("public class PrepopulatedSuffixArrayStops {\n")
+    f.write("    public int[] getIndexes() {\n")
+    
+    stops = getAllStops(routes)
+    suffixArray = makeSuffixArray([(stop["title"], stop["id"]) for stop in stops])
+    for title, index, id in suffixArray:
+        f.write("        {0},\n".format(id))
+
+    f.write("    }\n")
+    f.write("}\n")
 
 def runAlerts(routes):
     routeToAlertKey = alerts(routes)
@@ -1025,6 +1074,19 @@ def subwayRoutes():
 
     return routes
 
+def markAllStops(routes):
+    count = 0
+    for route in routes.values():
+        for stop in route["stops"].values():
+            stop["id"] = count
+            count += 1
+
+def markAllRoutes(routes):
+    count = 0
+    for route in routes.values():
+        route["id"] = count
+        count += 1
+
 def main():
     if len(sys.argv) != 3:
         sys.stderr.write("Usage: python routeconfig-to-java.py routeconfig.xml srcDirectory\n")
@@ -1033,16 +1095,13 @@ def main():
     dom = get_dom(sys.argv[1])
     nextbusPrefix = "Nextbus"
     nextbusRoutes = nextbusToRoutes(dom)
-    runPrepopulated(nextbusRoutes, nextbusPrefix)
     #print nextbusRoutes.keys()
 
     subwayPrefix = "Subway"
     mySubwayRoutes = subwayRoutes()
-    runPrepopulated(mySubwayRoutes, subwayPrefix)
 
     commuterRailPrefix = "CommuterRail"
     myCommuterRailRoutes = commuterRailRoutes()
-    runPrepopulated(myCommuterRailRoutes, commuterRailPrefix)
 
     combinedRoutes = {}
     for routeTag, route in nextbusRoutes.iteritems():
@@ -1051,8 +1110,17 @@ def main():
         combinedRoutes[routeTag] = route
     for routeTag, route in myCommuterRailRoutes.iteritems():
         combinedRoutes[routeTag] = route
+
+    markAllRoutes(combinedRoutes)
+    markAllStops(combinedRoutes)
         
+    runPrepopulated(nextbusRoutes, nextbusPrefix)
+    runPrepopulated(mySubwayRoutes, subwayPrefix)
+    runPrepopulated(myCommuterRailRoutes, commuterRailPrefix)
+
+
     runAlerts(combinedRoutes)
+    runSuffixArray(combinedRoutes)
 
     #f = open(sys.argv[2] + "/boston/Bus/Map/data/NextbusPrepopulatedDirections.java", "wb")
     #runDirections(dom, f)
