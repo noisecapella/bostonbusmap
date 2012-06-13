@@ -7,6 +7,7 @@ import java.util.List;
 import android.content.Context;
 import android.graphics.drawable.Drawable;
 import boston.Bus.Map.math.Geometry;
+import boston.Bus.Map.transit.TransitSource;
 import boston.Bus.Map.util.Constants;
 
 public class MultipleStopLocations implements StopLocationGroup {
@@ -255,6 +256,26 @@ public class MultipleStopLocations implements StopLocationGroup {
 		{
 			return "";
 		}
+	}
+
+	@Override
+	public TransitSource getTransitSource() {
+		TransitSource ret = null;
+		boolean first = true;
+		for (StopLocation stop : stops) {
+			if (first) {
+				ret = stop.getTransitSource();
+			}
+			else
+			{
+				if (ret != stop.getTransitSource()) {
+					//confused; return null
+					return null;
+				}
+			}
+			first = false;
+		}
+		return ret;
 	}
 	
 }

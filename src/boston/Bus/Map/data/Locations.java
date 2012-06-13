@@ -39,6 +39,7 @@ import android.util.Log;
 import boston.Bus.Map.database.DatabaseHelper;
 import boston.Bus.Map.main.Main;
 import boston.Bus.Map.main.UpdateAsyncTask;
+import boston.Bus.Map.transit.NextBusTransitSource;
 import boston.Bus.Map.transit.TransitSource;
 import boston.Bus.Map.transit.TransitSystem;
 import boston.Bus.Map.ui.ProgressMessage;
@@ -215,6 +216,15 @@ public final class Locations
 		else if (selectedBusPredictions == Main.BUS_PREDICTIONS_ALL)
 		{
 			ArrayList<LocationGroup> groups = routeMapping.getClosestStops(centerLatitude, centerLongitude, maxLocations);
+			for (LocationGroup group : groups) {
+				if (group instanceof StopLocationGroup) {
+					StopLocationGroup stopLocationGroup = (StopLocationGroup)group;
+					TransitSource source = stopLocationGroup.getTransitSource();
+					if (source instanceof NextBusTransitSource) {
+						newLocations.add(group);
+					}
+				}
+			}
 			newLocations.addAll(groups);
 		}
 		else if (selectedBusPredictions == Main.BUS_PREDICTIONS_STAR)

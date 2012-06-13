@@ -333,6 +333,7 @@ public class StopLocation implements Location, ObjectWithString, StopLocationGro
 		return false;
 	}
 
+	@Override
 	public TransitSource getTransitSource() {
 		return transitSource;
 	}
