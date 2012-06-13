@@ -912,7 +912,7 @@ def commuterRailRoute(routes, routeCsv, specialDirMapping, routeTitlesToKeys):
     if routeTag not in routes:
         stops = {}
         directions = {}
-        path = [[]]
+        path = []
         routes[routeTag] = {"tag" : routeTag, "title": routeTitle, "color": "000000", "oppositeColor": "000000", "stops": stops, "directions": directions, "path" : path}
             
     route = routes[routeTag]
@@ -945,7 +945,7 @@ def subwayRoute(routes, routeCsv, specialDirMapping):
     if routeTag not in routes:
         stops = {}
         directions = {}
-        path = [[]]
+        path = []
         routes[routeTag] = {"tag" : routeTag, "title" : routeTag, "color" : getColor(routeTag), "oppositeColor" : getColor("Blue"), "stops" : stops, "directions" : directions, "path" : path}
     
     route = routes[routeTag]
