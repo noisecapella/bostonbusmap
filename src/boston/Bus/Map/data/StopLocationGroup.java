@@ -10,7 +10,7 @@ public interface StopLocationGroup extends LocationGroup
 	String getFirstTitle();
 
 	/**
-	 * Use when performance doesn't matter
+	 * Use only when performance doesn't matter
 	 */
 	List<StopLocation> getStops();
 	List<Prediction> getCombinedPredictions();
@@ -22,5 +22,7 @@ public interface StopLocationGroup extends LocationGroup
 	 * @return
 	 */
 	TransitSource getTransitSource();
+	void clearRecentlyUpdated();
+	String getFirstStopTag();
 	
 }

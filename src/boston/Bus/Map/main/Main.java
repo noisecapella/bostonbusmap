@@ -25,6 +25,7 @@ import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashSet;
 
 import java.util.List;
 
@@ -40,6 +41,7 @@ import boston.Bus.Map.data.MyHashMap;
 import boston.Bus.Map.data.RouteConfig;
 import boston.Bus.Map.data.StopLocation;
 import boston.Bus.Map.data.StopLocationGroup;
+import boston.Bus.Map.data.TitleAnd;
 import boston.Bus.Map.data.TransitDrawables;
 import boston.Bus.Map.database.DatabaseHelper;
 import boston.Bus.Map.provider.TransitContentProvider;
@@ -684,20 +686,23 @@ public class Main extends MapActivity
     	case R.id.chooseStop:
     		if (busLocations != null)
     		{
-    			final List<LocationGroup> favoriteStops = busLocations.getCurrentFavorites();
+    			HashSet<StopLocationGroup> favoriteStops = busLocations.getCurrentFavorites();
 
-    			String[] titles = new String[favoriteStops.size()];
-    			for (int i = 0; i < favoriteStops.size(); i++)
+    			final ArrayList<TitleAnd<StopLocationGroup>> pairs =
+    					new ArrayList<TitleAnd<StopLocationGroup>>();
+    			for (StopLocationGroup group : favoriteStops) {
+    				pairs.add(new TitleAnd<StopLocationGroup>(group.getFirstTitle(), group));
+    			}
+    			Collections.sort(pairs);
+    			
+    			String[] titles = new String[pairs.size()];
+    			for (int i = 0; i < pairs.size(); i++)
     			{
-    				LocationGroup locationGroup = favoriteStops.get(i);
-    				if (locationGroup instanceof StopLocationGroup)
-    				{
-    					StopLocationGroup stopLocationGroup = (StopLocationGroup)locationGroup;
-    					List<String> array = locationGroup.getAllRoutes();
-    					String routes = StringUtil.join(array, ", ");
-    					String title = stopLocationGroup.getFirstTitle() + " (route " + routes + ")";
-    					titles[i] = title;
-    				}
+    				TitleAnd<StopLocationGroup> pair = pairs.get(i);
+    				List<String> array = pair.getOther().getAllRoutes();
+    				String routes = StringUtil.join(array, ", ");
+    				String title = pair.getOther().getFirstTitle() + " (route " + routes + ")";
+    				titles[i] = title;
     			}
     			
     			AlertDialog.Builder builder = new AlertDialog.Builder(this);
@@ -706,11 +711,11 @@ public class Main extends MapActivity
 
     				@Override
     				public void onClick(DialogInterface dialog, int which) {
-    					if (which >= 0 && which < favoriteStops.size())
+    					if (which >= 0 && which < pairs.size())
     					{
-    						LocationGroup stop = favoriteStops.get(which);
+    						TitleAnd<StopLocationGroup> pair = pairs.get(which);
 
-    						setNewStop(stop);
+    						setNewStop(pair.getOther());
     						setMode(BUS_PREDICTIONS_STAR, true);
     					}
     				}

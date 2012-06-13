@@ -233,28 +233,19 @@ public class BusPopupView extends BalloonOverlayView<BusOverlayItem>
 		{
 			StopLocationGroup group = (StopLocationGroup)locationGroup;
 
-			ArrayList<StopLocation> stopTags = new ArrayList<StopLocation>();
-			if (group instanceof MultipleStopLocations) {
-				MultipleStopLocations multipleStopLocations = (MultipleStopLocations)group;
-				stopTags.addAll(multipleStopLocations.getStops());
-			}
-			else if (group instanceof StopLocation)
-			{
-				StopLocation stop = (StopLocation)group;
-				stopTags.add(stop);
-			}
+			List<StopLocation> stops = group.getStops();
 
 			if (selectedBusPredictions == Main.BUS_PREDICTIONS_ONE)
 			{
-				if (stopTags.size() <= 1)
+				if (stops.size() <= 1)
 				{
-					ret.append("The stop id is ").append(stopTags.get(0)).append(" (").append(group.getFirstTitle()).append(")");
+					ret.append("The stop id is ").append(group.getFirstStopTag()).append(" (").append(group.getFirstTitle()).append(")");
 					ret.append(" on route ").append(selectedRoute).append(". ");
 				}
 				else
 				{
 					ArrayList<String> stopTagStrings = new ArrayList<String>();
-					for (StopLocation stop : stopTags)
+					for (StopLocation stop : stops)
 					{
 						String text = stop.getStopTag() + " (" + stop.getTitle() + ")";
 						stopTagStrings.add(text);
@@ -267,7 +258,7 @@ public class BusPopupView extends BalloonOverlayView<BusOverlayItem>
 			else
 			{
 				ArrayList<String> pairs = new ArrayList<String>();
-				for (StopLocation stop : stopTags)
+				for (StopLocation stop : stops)
 				{
 					pairs.add(stop.getStopTag() + "(" + stop.getTitle() + ") on route " + stop.getFirstRoute());
 				}

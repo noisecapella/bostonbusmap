@@ -28,6 +28,11 @@ public class MultipleStopLocations implements StopLocationGroup {
 	}
 
 	@Override
+	public String getFirstStopTag() {
+		return stops.get(0).getStopTag();
+	}
+	
+	@Override
 	public float getLatitudeAsDegrees() {
 		return stops.get(0).getLatitudeAsDegrees();
 	}
@@ -276,6 +281,13 @@ public class MultipleStopLocations implements StopLocationGroup {
 			first = false;
 		}
 		return ret;
+	}
+
+	@Override
+	public void clearRecentlyUpdated() {
+		for (StopLocation stop : stops) {
+			stop.clearRecentlyUpdated();
+		}
 	}
 	
 }

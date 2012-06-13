@@ -27,12 +27,11 @@ public class RoutePool {
 	/**
 	 * A mapping of stop key to route key. Look in sharedStops for the StopLocation
 	 */
-	private final HashSet<String> favoriteStops = new HashSet<String>();
+	private final HashSet<StopLocationGroup> favoriteStops = new HashSet<StopLocationGroup>();
 
 	private final TransitSystem transitSystem;
 
-	private final MyHashMap<LocationGroup, LocationGroup> stopsByLocation;
-	private final MyHashMap<String, StopLocation> stopsByTag;
+	private final MyHashMap<StopLocationGroup, StopLocationGroup> stopsByLocation;
 	private final MyHashMap<String, RouteConfig> routesByTag;
 
 	private final Directions directions;
@@ -47,16 +46,14 @@ public class RoutePool {
 		this.transitSystem = transitSystem;
 		this.directions = new Directions();
 
-		stopsByLocation = new MyHashMap<LocationGroup, LocationGroup>();
-		stopsByTag = new MyHashMap<String, StopLocation>();
+		stopsByLocation = new MyHashMap<StopLocationGroup, StopLocationGroup>();
 		routesByTag = new MyHashMap<String, RouteConfig>();
 		
         for (TransitSource transitSource : transitSystem.getTransitSources()) {
         	for (RouteConfig route : transitSource.makeRoutes(directions)) {
         		routesByTag.put(route.getRouteName(), route);
         		for (StopLocation stop : route.getStops()) {
-        			stopsByTag.put(stop.getStopTag(), stop);
-        			LocationGroup locationGroup = stopsByLocation.get(stop);
+        			StopLocationGroup locationGroup = stopsByLocation.get(stop);
         			if (locationGroup != null) {
         				if (locationGroup instanceof MultipleStopLocations) {
         					((MultipleStopLocations)locationGroup).addStop(stop);
@@ -96,22 +93,31 @@ public class RoutePool {
 
 	
 	private void populateFavorites() {
-		helper.populateFavorites(favoriteStops);
-
-	}
-
-	public ArrayList<LocationGroup> getFavoriteStops() {
-		ArrayList<LocationGroup> ret = new ArrayList<LocationGroup>(favoriteStops.size());
+		HashSet<String> stopTags = new HashSet<String>();
+		helper.populateFavorites(stopTags);
 		
-		for (String stopTag : favoriteStops)
-		{
-			LocationGroup allStopsAtLocation = getAllStopTagsAtLocation(stopTag);
-			if (ret.contains(allStopsAtLocation) == false) { 
-				ret.add(allStopsAtLocation);
+		for (StopLocationGroup locationGroup : stopsByLocation.values()) {
+			if (locationGroup instanceof MultipleStopLocations) {
+				MultipleStopLocations multipleStopLocations = (MultipleStopLocations)locationGroup;
+				for (StopLocation stop : multipleStopLocations.getStops()) {
+					if (stopTags.contains(stop.getStopTag())) {
+						favoriteStops.add(locationGroup);
+						break;
+					}
+				}
+			}
+			else
+			{
+				StopLocation stopLocation = (StopLocation)locationGroup;
+				if (stopTags.contains(stopLocation.getStopTag())) {
+					favoriteStops.add(locationGroup);
+				}
 			}
 		}
-		
-		return ret;
+	}
+
+	public HashSet<StopLocationGroup> getFavoriteStops() {
+		return favoriteStops;
 	}
 
 	public boolean isFavorite(LocationGroup locationGroup)
@@ -142,15 +148,11 @@ public class RoutePool {
 		return isFavorite ? R.drawable.full_star : R.drawable.empty_star;
 	}
 
-	public LocationGroup getAllStopTagsAtLocation(String stopTag) {
-		StopLocation stop = stopsByTag.get(stopTag);
-		LocationGroup group = stopsByLocation.get(stop);
-		return group;
-	}
-
 	public void clearRecentlyUpdated() {
-		for (StopLocation stop : stopsByTag.values()) {
-			stop.clearRecentlyUpdated();
+		for (LocationGroup stop : stopsByLocation.values()) {
+			if (stop instanceof StopLocationGroup) {
+				((StopLocationGroup)stop).clearRecentlyUpdated();
+			}
 		}
 	}
 	

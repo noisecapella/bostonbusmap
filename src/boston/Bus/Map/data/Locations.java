@@ -270,7 +270,7 @@ public final class Locations
 		return routeMapping.setFavorite(locationGroup, !isFavorite);
 	}
 
-	public List<LocationGroup> getCurrentFavorites()
+	public HashSet<StopLocationGroup> getCurrentFavorites()
 	{
 		return routeMapping.getFavoriteStops();
 	}
@@ -284,11 +284,6 @@ public final class Locations
 		return (long)lastUpdateTime;
 	}
 	
-	public LocationGroup getAllStopsAtStop(String stopTag)
-	{
-		return routeMapping.getAllStopTagsAtLocation(stopTag);
-	}
-
 	public boolean isFavorite(LocationGroup locationGroup) {
 		return routeMapping.isFavorite(locationGroup);
 	}

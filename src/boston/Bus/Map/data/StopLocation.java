@@ -59,6 +59,7 @@ public class StopLocation implements Location, ObjectWithString, StopLocationGro
 		return recentlyUpdated ? drawables.getStopUpdated() : drawables.getStop();
 	}
 
+	@Override
 	public void clearRecentlyUpdated()
 	{
 		recentlyUpdated = false;
@@ -356,5 +357,10 @@ public class StopLocation implements Location, ObjectWithString, StopLocationGro
 	@Override
 	public List<StopLocation> getStops() {
 		return Collections.singletonList(this);
+	}
+
+	@Override
+	public String getFirstStopTag() {
+		return tag;
 	}
 }
