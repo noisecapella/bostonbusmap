@@ -856,7 +856,10 @@ Providence/Stoughton Line,1,13,South Station,42.352614,-71.055364,Trunk"""
 
     for routeTag, innerMapping in specialDirMapping.iteritems():
         for directionHash, innerInnerMapping in innerMapping.iteritems():
-            for platformOrder, stop in innerInnerMapping.iteritems():
+            sortedList = [platformOrder for platformOrder in innerInnerMapping.keys()]
+            sortedList.sort()
+            for platformOrder in sortedList:
+                stop = innerInnerMapping[platformOrder]
                 routes[routeTag]["path"].append((stop["lat"], stop["lon"]))
                 
         alreadyHandledDirections = {}
@@ -910,7 +913,7 @@ def commuterRailRoute(routes, routeCsv, specialDirMapping, routeTitlesToKeys):
     #create stop
     stopTitle = routeCsv["stop_id"]
     stopTag = stopTagPrefix + stopTitle
-    stop = {"tag" : stopTag, "title" : stopTitle, "lat" : routeCsv["stop_lat"], "lon" : routeCsv["stop_lon"], "platformOrder" : routeCsv["stop_sequence"], "branch" : routeCsv["Branch"], "source" : "commuterRail"}
+    stop = {"tag" : stopTag, "title" : stopTitle, "lat" : routeCsv["stop_lat"], "lon" : routeCsv["stop_lon"], "platformOrder" : int(routeCsv["stop_sequence"]), "branch" : routeCsv["Branch"], "source" : "commuterRail"}
         
     route["stops"][stopTag] = stop
 
@@ -940,7 +943,7 @@ def subwayRoute(routes, routeCsv, specialDirMapping):
     
     route = routes[routeTag]
     stopTag = routeCsv["PlatformKey"]
-    stop = {"tag": stopTag, "lat" : routeCsv["stop_lat"], "lon" : routeCsv["stop_lon"], "platformOrder" : routeCsv["PlatformOrder"], "title" : routeCsv["stop_name"], "branch" : routeCsv["Branch"], "source": "subway"}
+    stop = {"tag": stopTag, "lat" : routeCsv["stop_lat"], "lon" : routeCsv["stop_lon"], "platformOrder" : int(routeCsv["PlatformOrder"]), "title" : routeCsv["stop_name"], "branch" : routeCsv["Branch"], "source": "subway"}
     route["stops"][stopTag] = stop
     
     if routeTag not in specialDirMapping:
@@ -995,14 +998,17 @@ def subwayRoutes():
 
     for routeTag, innerMapping in specialDirMapping.iteritems():
         for directionHash, innerInnerMapping in innerMapping.iteritems():
-            for platformOrder, stop in innerInnerMapping.iteritems():
+            sortedList = [platformOrder for platformOrder in innerInnerMapping.keys()]
+            sortedList.sort()
+            for platformOrder in sortedList:
+                stop = innerInnerMapping[platformOrder]
                 lat = stop["lat"]
                 lon = stop["lon"]
                 routes[routeTag]["path"].append((lat, lon))
 
             #this is kind of a hack. We need to connect the southern branches of the red line to JFK manually
             if directionHash == "NBAshmont" or directionHash == "NBBraintree":
-                jfkNorthBoundOrder = "5"
+                jfkNorthBoundOrder = 5
                 jfkStation = innerMapping["NBTrunk"][jfkNorthBoundOrder]
                 if jfkStation:
                     routes[routeTag]["path"].append((jfkStation["lat"], jfkStation["lon"]))
