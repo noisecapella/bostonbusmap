@@ -147,16 +147,17 @@ def printEachMakeRoute(routes, prefix):
                 #f.write("            stop{0}.addRoute(\"{1}\");\n".format(dirStopTag, routeTag))
             
         f.write("            ArrayList<Path> paths = new ArrayList<Path>();\n")
-        for pointCount in xrange((len(route["path"]) / 500) + 1):
+        for pointCount in xrange(len(route["path"])):
             f.write("            paths.add(makePath{0}());\n".format(pointCount))
         f.write("            route.setPaths(paths.toArray(new Path[0]));\n")
         f.write("        return route;\n")
         f.write("    }\n")
 
-        for pointCount in xrange((len(route["path"]) / 500) + 1):
+        for pointCount in xrange(len(route["path"])):
+            path = route["path"][pointCount]
             f.write("    private static Path makePath{0}() {1}\n".format(pointCount, "{"))
             f.write("        return new Path(new float[] {\n")
-            for point in route["path"][500*pointCount:500*(pointCount+1)]:
+            for point in path:
                 f.write("            {0}f, {1}f,\n".format(point[0], point[1]))
             f.write("        });\n")
             f.write("    }\n")
@@ -186,9 +187,12 @@ def nextbusToRoutes(routesXml):
                 for directionChildXml in routeChildXml.childNodes:
                     if directionChildXml.nodeName == "stop":
                         directionStops.append({"tag": directionChildXml.getAttribute("tag")})
-            elif routeChildXml.nodeName == "point":
-                point = (routeChildXml.getAttribute("lat"), routeChildXml.getAttribute("lon"))
-                path.append(point)
+            elif routeChildXml.nodeName == "path":
+                path.append([])
+                for pathChildXml in routeChildXml.childNodes:
+                    if pathChildXml.nodeName == "point":
+                        point = (pathChildXml.getAttribute("lat"), pathChildXml.getAttribute("lon"))
+                        path[-1].append(point)
 
     return routes
 
@@ -860,7 +864,8 @@ Providence/Stoughton Line,1,13,South Station,42.352614,-71.055364,Trunk"""
             sortedList.sort()
             for platformOrder in sortedList:
                 stop = innerInnerMapping[platformOrder]
-                routes[routeTag]["path"].append((stop["lat"], stop["lon"]))
+                point = (stop["lat"], stop["lon"])
+                routes[routeTag]["path"][0].append(point)
                 
         alreadyHandledDirections = {}
         trunkBranch = "Trunk"
@@ -890,7 +895,7 @@ Providence/Stoughton Line,1,13,South Station,42.352614,-71.055364,Trunk"""
             if minBranchOrder in branchInnerMapping and maxTrunkOrder in trunkInnerMapping:
                 branchStop = branchInnerMapping[minBranchOrder]
                 trunkStop = trunkInnerMapping[maxTrunkOrder]
-                path = routes[routeTag]["path"]
+                path = routes[routeTag]["path"][0]
                 path.append((branchStop["lat"], branchStop["lon"]))
                 path.append((trunkStop["lat"], trunkStop["lon"]))
     return routes
@@ -905,7 +910,7 @@ def commuterRailRoute(routes, routeCsv, specialDirMapping, routeTitlesToKeys):
     if routeTag not in routes:
         stops = {}
         directions = {}
-        path = []
+        path = [[]]
         routes[routeTag] = {"tag" : routeTag, "title": routeTitle, "color": "000000", "oppositeColor": "000000", "stops": stops, "directions": directions, "path" : path}
             
     route = routes[routeTag]
@@ -938,7 +943,7 @@ def subwayRoute(routes, routeCsv, specialDirMapping):
     if routeTag not in routes:
         stops = {}
         directions = {}
-        path = []
+        path = [[]]
         routes[routeTag] = {"tag" : routeTag, "title" : routeTag, "color" : getColor(routeTag), "oppositeColor" : getColor("Blue"), "stops" : stops, "directions" : directions, "path" : path}
     
     route = routes[routeTag]
@@ -1004,14 +1009,14 @@ def subwayRoutes():
                 stop = innerInnerMapping[platformOrder]
                 lat = stop["lat"]
                 lon = stop["lon"]
-                routes[routeTag]["path"].append((lat, lon))
+                routes[routeTag]["path"][0].append((lat, lon))
 
             #this is kind of a hack. We need to connect the southern branches of the red line to JFK manually
             if directionHash == "NBAshmont" or directionHash == "NBBraintree":
                 jfkNorthBoundOrder = 5
                 jfkStation = innerMapping["NBTrunk"][jfkNorthBoundOrder]
                 if jfkStation:
-                    routes[routeTag]["path"].append((jfkStation["lat"], jfkStation["lon"]))
+                    routes[routeTag]["path"][0].append((jfkStation["lat"], jfkStation["lon"]))
 
 
     return routes
