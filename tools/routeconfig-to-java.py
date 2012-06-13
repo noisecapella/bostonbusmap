@@ -860,13 +860,14 @@ Providence/Stoughton Line,1,13,South Station,42.352614,-71.055364,Trunk"""
 
     for routeTag, innerMapping in specialDirMapping.iteritems():
         for directionHash, innerInnerMapping in innerMapping.iteritems():
+            path = []
             sortedList = [platformOrder for platformOrder in innerInnerMapping.keys()]
             sortedList.sort()
             for platformOrder in sortedList:
                 stop = innerInnerMapping[platformOrder]
                 point = (stop["lat"], stop["lon"])
-                routes[routeTag]["path"][0].append(point)
-                
+                path.append(point)
+            routes[routeTag]["path"].append(path)
         alreadyHandledDirections = {}
         trunkBranch = "Trunk"
         for directionHash in innerMapping.keys():
@@ -892,12 +893,13 @@ Providence/Stoughton Line,1,13,South Station,42.352614,-71.055364,Trunk"""
                     maxTrunkOrder = max(order, maxTrunkOrder)
             
             
+            path = []
             if minBranchOrder in branchInnerMapping and maxTrunkOrder in trunkInnerMapping:
                 branchStop = branchInnerMapping[minBranchOrder]
                 trunkStop = trunkInnerMapping[maxTrunkOrder]
-                path = routes[routeTag]["path"][0]
                 path.append((branchStop["lat"], branchStop["lon"]))
                 path.append((trunkStop["lat"], trunkStop["lon"]))
+                routes[routeTag]["path"].append(path)
     return routes
     
 def commuterRailRoute(routes, routeCsv, specialDirMapping, routeTitlesToKeys):
@@ -1005,18 +1007,20 @@ def subwayRoutes():
         for directionHash, innerInnerMapping in innerMapping.iteritems():
             sortedList = [platformOrder for platformOrder in innerInnerMapping.keys()]
             sortedList.sort()
+            path = []
             for platformOrder in sortedList:
                 stop = innerInnerMapping[platformOrder]
                 lat = stop["lat"]
                 lon = stop["lon"]
-                routes[routeTag]["path"][0].append((lat, lon))
-
+                path.append((lat, lon))
+            
             #this is kind of a hack. We need to connect the southern branches of the red line to JFK manually
             if directionHash == "NBAshmont" or directionHash == "NBBraintree":
                 jfkNorthBoundOrder = 5
                 jfkStation = innerMapping["NBTrunk"][jfkNorthBoundOrder]
                 if jfkStation:
-                    routes[routeTag]["path"][0].append((jfkStation["lat"], jfkStation["lon"]))
+                    path.append((jfkStation["lat"], jfkStation["lon"]))
+            routes[routeTag]["path"].append(path)
 
 
     return routes
