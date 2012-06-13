@@ -40,9 +40,6 @@ public class TransitContentProvider extends SearchRecentSuggestionsProvider {
 	
 	public static final Uri CONTENT_URI = Uri.parse("content://" + AUTHORITY);
 	
-	private SuffixArray routeSuffixArray;
-	private SuffixArray stopSuffixArray;
-	
 	public TransitContentProvider()
 	{
 		matcher = new UriMatcher(UriMatcher.NO_MATCH);
@@ -94,56 +91,29 @@ public class TransitContentProvider extends SearchRecentSuggestionsProvider {
 	}
 
 	private void addSearchRoutes(String search, MatrixCursor ret) throws IOException {
-		if (routeSuffixArray == null) {
-			routeSuffixArray = new SuffixArray(true);
-			FakeTransitSource fake = new FakeTransitSource();
-			Directions directions = new Directions();
-			for (RouteConfig route : new NextbusPrepopulatedData(fake).getAllRoutes(directions)) {
-				routeSuffixArray.add(route);
-			}
-			for (RouteConfig route : new SubwayPrepopulatedData(fake).getAllRoutes(directions)) {
-				routeSuffixArray.add(route);
-			}
-			for (RouteConfig route : new CommuterRailPrepopulatedData(fake).getAllRoutes(directions)) {
-				routeSuffixArray.add(route);
-			}
-		}
-
 		int count = 0;
-		for (ObjectWithString objectWithString : routeSuffixArray.search(search)) {
-			RouteConfig route = (RouteConfig)objectWithString;
-			ret.addRow(new Object[] {count, route.getRouteTitle(), "route " + route.getRouteName(), "Route"});
-			count++;
+		SuffixArray routeSuffixArray = RoutePool.getRouteSuffixArray();
+		if (routeSuffixArray != null) {
+			for (ObjectWithString objectWithString : routeSuffixArray.search(search)) {
+				RouteConfig route = (RouteConfig)objectWithString;
+				ret.addRow(new Object[] {count, route.getRouteTitle(), "route " + route.getRouteName(), "Route"});
+				count++;
+			}
 		}
 	}
 
 	private void addSearchStops(String search, MatrixCursor ret) throws IOException {
-		if (stopSuffixArray == null) {
-			stopSuffixArray = new SuffixArray(true);
-			FakeTransitSource fake = new FakeTransitSource();
-			Directions directions = new Directions();
-			for (RouteConfig route : new NextbusPrepopulatedData(fake).getAllRoutes(directions)) {
-				for (StopLocation stop : route.getStops()) {
-					stopSuffixArray.add(stop);
-				}
-			}
-			for (RouteConfig route : new SubwayPrepopulatedData(fake).getAllRoutes(directions)) {
-				for (StopLocation stop : route.getStops()) {
-					stopSuffixArray.add(stop);
-				}
-			}
-			for (RouteConfig route : new CommuterRailPrepopulatedData(fake).getAllRoutes(directions)) {
-				for (StopLocation stop : route.getStops()) {
-					stopSuffixArray.add(stop);
-				}
-			}
-		}
-		
 		int count = 0;
-		for (ObjectWithString objectWithString : stopSuffixArray.search(search)) {
-			StopLocation stop = (StopLocation)objectWithString;
-			ret.addRow(new Object[]{count, stop.getTitle(), "stop " + stop.getStopTag(), "Stop on route " + stop.getFirstRoute()});
-			count++;
+		SuffixArray stopSuffixArray = RoutePool.getStopSuffixArray();
+		if (stopSuffixArray != null) {
+			for (ObjectWithString objectWithString : stopSuffixArray.search(search)) {
+				if (count > 30) {
+					break;
+				}
+				StopLocation stop = (StopLocation)objectWithString;
+				ret.addRow(new Object[]{count, stop.getTitle(), "stop " + stop.getStopTag(), "Stop on route " + stop.getFirstRoute()});
+				count++;
+			}
 		}
 	}
 }

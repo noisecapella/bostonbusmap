@@ -2,9 +2,11 @@ package boston.Bus.Map.data;
 
 import java.util.List;
 
+import com.schneeloch.suffixarray.ObjectWithString;
+
 import boston.Bus.Map.transit.TransitSource;
 
-public interface StopLocationGroup extends LocationGroup
+public interface StopLocationGroup extends LocationGroup, ObjectWithString
 {
 	List<String> getAllTitles();
 	String getFirstTitle();

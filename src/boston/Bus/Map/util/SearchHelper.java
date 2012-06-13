@@ -11,6 +11,7 @@ import android.widget.Toast;
 import boston.Bus.Map.data.Directions;
 import boston.Bus.Map.data.MyHashMap;
 import boston.Bus.Map.data.RouteConfig;
+import boston.Bus.Map.data.RoutePool;
 import boston.Bus.Map.data.StopLocation;
 import boston.Bus.Map.data.prepopulated.CommuterRailPrepopulatedData;
 import boston.Bus.Map.data.prepopulated.NextbusPrepopulatedData;
@@ -209,29 +210,14 @@ public class SearchHelper
 
 	private StopLocation getStopByTagOrTitle(String indexingQuery,
 			String exactQuery) throws IOException {
-		SuffixArray stopSuffixArray = new SuffixArray(true);
-		FakeTransitSource fake = new FakeTransitSource();
-		Directions directions = new Directions();
-		for (RouteConfig route : new NextbusPrepopulatedData(fake).getAllRoutes(directions)) {
-			for (StopLocation stop : route.getStops()) {
-				stopSuffixArray.add(stop);
-			}
-		}
-		for (RouteConfig route : new SubwayPrepopulatedData(fake).getAllRoutes(directions)) {
-			for (StopLocation stop : route.getStops()) {
-				stopSuffixArray.add(stop);
-			}
-		}
-		for (RouteConfig route : new CommuterRailPrepopulatedData(fake).getAllRoutes(directions)) {
-			for (StopLocation stop : route.getStops()) {
-				stopSuffixArray.add(stop);
-			}
-		}
-		
-		for (ObjectWithString objectWithString : stopSuffixArray.search(indexingQuery)) {
-			StopLocation stop = (StopLocation)objectWithString;
-			if (stop.getTitle().equalsIgnoreCase(indexingQuery)) {
-				return stop;
+
+		SuffixArray stopSuffixArray = RoutePool.getStopSuffixArray();
+		if (stopSuffixArray != null) {
+			for (ObjectWithString objectWithString : stopSuffixArray.search(indexingQuery)) {
+				StopLocation stop = (StopLocation)objectWithString;
+				if (stop.getTitle().equalsIgnoreCase(indexingQuery)) {
+					return stop;
+				}
 			}
 		}
 		return null;

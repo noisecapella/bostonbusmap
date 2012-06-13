@@ -16,7 +16,7 @@ import boston.Bus.Map.util.Constants;
 import android.content.Context;
 import android.graphics.drawable.Drawable;
 
-public class StopLocation implements Location, ObjectWithString, StopLocationGroup
+public class StopLocation implements Location, StopLocationGroup
 {
 	private final float latitudeAsDegrees;
 	private final float longitudeAsDegrees;

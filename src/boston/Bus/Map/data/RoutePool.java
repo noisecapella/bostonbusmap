@@ -38,6 +38,9 @@ public class RoutePool {
 
 	private final WeightedSqrEuclid<LocationGroup> kdtree;
 	
+	private static SuffixArray stopSuffixArray;
+	private static SuffixArray routeSuffixArray;
+	
 	private static final int MAX_STOPS = 500;
 	
 	
@@ -79,6 +82,23 @@ public class RoutePool {
         }
         
 		populateFavorites();
+		
+		// there could be a conflict if the search happens while this is being created
+		// but it's not high priority
+		if (stopSuffixArray == null) {
+			stopSuffixArray = new SuffixArray(true);
+			for (StopLocationGroup locationGroup : stopsByLocation.values()) {
+				stopSuffixArray.add(locationGroup);
+			}
+		}
+		
+		if (routeSuffixArray == null) {
+			routeSuffixArray = new SuffixArray(true);
+			for (RouteConfig routeConfig : routesByTag.values()) {
+				routeSuffixArray.add(routeConfig);
+			}
+		}
+			
 	}
 	
 	public void saveFavoritesToDatabase()
@@ -171,6 +191,14 @@ public class RoutePool {
 
 	public Directions getDirections() {
 		return directions;
+	}
+
+	public static SuffixArray getStopSuffixArray() {
+		return stopSuffixArray;
+	}
+
+	public static SuffixArray getRouteSuffixArray() {
+		return routeSuffixArray;
 	}
 
 }

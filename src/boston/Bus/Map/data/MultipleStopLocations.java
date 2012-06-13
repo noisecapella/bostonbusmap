@@ -289,5 +289,10 @@ public class MultipleStopLocations implements StopLocationGroup {
 			stop.clearRecentlyUpdated();
 		}
 	}
+
+	@Override
+	public String getString() {
+		return stops.get(0).getString();
+	}
 	
 }
