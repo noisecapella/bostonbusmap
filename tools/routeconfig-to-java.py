@@ -81,7 +81,7 @@ def printMakeAllRoutes(routes, prefix):
     for i in xrange(len(routes)):
         route = routes[i]
         routeTag = route["tag"]
-        f.write("            {0}PrepopulatedDataRoute{1}.makeRoute(transitSource, directions),".format(prefix, makeValid(routeTag)) + "\n")
+        f.write("            {0}PrepopulatedDataRoute{1}.makeRoute(transitSource, directions), // {2}".format(prefix, makeValid(routeTag), route["id"]) + "\n")
     f.write("        };\n")
     f.write("    }\n")
 
@@ -133,11 +133,11 @@ def printEachMakeRoute(routes, prefix):
         for stop in route["stops"]:
             stopTag = stop["tag"]
             if stop["source"] == "subway":
-                f.write("        SubwayStopLocation stop{0} = new SubwayStopLocation({1}f, {2}f, transitSource, \"{4}\", \"{3}\", {5}, \"{6}\", \"{7}\");\n".format(makeValid(stopTag), stop["lat"], stop["lon"], stop["title"], stopTag, stop["platformOrder"], stop["branch"], routeTag))
+                f.write("        SubwayStopLocation stop{0} = new SubwayStopLocation({1}f, {2}f, transitSource, \"{4}\", \"{3}\", {5}, \"{6}\", \"{7}\"); // {8}\n".format(makeValid(stopTag), stop["lat"], stop["lon"], stop["title"], stopTag, stop["platformOrder"], stop["branch"], routeTag, stop["id"]))
             elif stop["source"] == "commuterRail":
-                f.write("        CommuterRailStopLocation stop{0} = new CommuterRailStopLocation({1}f, {2}f, transitSource, \"{4}\", \"{3}\", {5}, \"{6}\", \"{7}\");\n".format(makeValid(stopTag), stop["lat"], stop["lon"], stop["title"], stopTag, stop["platformOrder"], stop["branch"], routeTag))
+                f.write("        CommuterRailStopLocation stop{0} = new CommuterRailStopLocation({1}f, {2}f, transitSource, \"{4}\", \"{3}\", {5}, \"{6}\", \"{7}\"); // {8}\n".format(makeValid(stopTag), stop["lat"], stop["lon"], stop["title"], stopTag, stop["platformOrder"], stop["branch"], routeTag, stop["id"]))
             else:
-                f.write("        StopLocation stop{0} = new StopLocation({1}f, {2}f, transitSource, \"{4}\", \"{3}\", \"{5}\");".format(makeValid(stopTag), stop["lat"], stop["lon"], stop["title"], stopTag, routeTag) + "\n")
+                f.write("        StopLocation stop{0} = new StopLocation({1}f, {2}f, transitSource, \"{4}\", \"{3}\", \"{5}\"); // {6}".format(makeValid(stopTag), stop["lat"], stop["lon"], stop["title"], stopTag, routeTag, stop["id"]) + "\n")
             f.write("        route.addStop(\"{0}\", stop{1});".format(stopTag, makeValid(stopTag)) + "\n")
 
         for direction in route["directions"].values():
@@ -200,8 +200,11 @@ def nextbusToRoutes(routesXml):
 
 
 def runSuffixArray(routes):
-    runSuffixArrayRoutes(routes)
-    runSuffixArrayStops(routes)
+    allStops = [stop for stop in iterateStops(routes)]
+    suffixArray = makeSuffixArray([(stop["title"], stop["id"]) for stop in allStops])
+
+    runSuffixArrayRoutes(routes, suffixArray, allStops)
+    runSuffixArrayStops(routes, suffixArray, allStops)
 
 def makeSuffixArray(data):
     indexes = []
@@ -213,7 +216,7 @@ def makeSuffixArray(data):
     return sorted(indexes, key = lambda x: x[0].lower())
     
 
-def runSuffixArrayRoutes(routes):
+def runSuffixArrayRoutes(routes, stopSuffixArray, allStops):
     f = open(sys.argv[2] + "/boston/Bus/Map/data/prepopulated/PrepopulatedSuffixArrayRoutes.java", "wb")
 
     f.write(commonHeader)
@@ -223,7 +226,7 @@ def runSuffixArrayRoutes(routes):
     f.write("        return new int[] {\n")
     suffixArray = makeSuffixArray([(route["title"], route["id"]) for route in routes])
     for title, index, id in suffixArray:
-        f.write("        {0}, //{1}\n".format(id, title))
+        f.write("        {0}, //{1}\n".format(index, title))
     f.write("        };\n")
     f.write("    }\n")
 
@@ -234,7 +237,7 @@ def runSuffixArrayRoutes(routes):
     f.write("    public static int[] getStopIndexes() {\n")
     f.write("        IntArrayList ret = new IntArrayList({0});\n".format(stopCount))
     allStops = [stop for stop in iterateStops(routes)]
-    for i in xrange((len(allStops) / 5000) + 1):
+    for i in xrange((len(stopSuffixArray) / 5000) + 1):
         f.write("        ret.addAllOf(new IntArrayList(PrepopulatedSuffixArrayStops{0}.getIndexes()));\n".format(i))
     f.write("        return ret.elements();\n")
     f.write("    }\n")
@@ -246,11 +249,8 @@ def iterateStops(routes):
         for stop in route["stops"]:
             yield stop
 
-def runSuffixArrayStops(routes):
-    allStops = [stop for stop in iterateStops(routes)]
-    
-    suffixArray = makeSuffixArray([(stop["title"], stop["id"]) for stop in allStops])
-    for i in xrange((len(allStops) / 5000) + 1):
+def runSuffixArrayStops(routes, stopSuffixArray, allStops):
+    for i in xrange((len(stopSuffixArray) / 5000) + 1):
         f = open(sys.argv[2] + "/boston/Bus/Map/data/prepopulated/PrepopulatedSuffixArrayStops{0}.java".format(i), "wb")
 
         f.write(commonHeader)
@@ -258,8 +258,8 @@ def runSuffixArrayStops(routes):
         f.write("    public static int[] getIndexes() {\n")
         f.write("        return new int[] {\n")
         
-        for title, index, id in suffixArray[i*5000:(i+1)*5000]:
-            f.write("        {0},\n".format(id, title))
+        for title, index, id in stopSuffixArray[i*5000:(i+1)*5000]:
+            f.write("        {0}, // {1}\n".format(index, title))
         f.write("        };\n")
         f.write("    }\n")
         f.write("}\n")

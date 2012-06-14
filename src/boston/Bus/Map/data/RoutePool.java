@@ -93,7 +93,7 @@ public class RoutePool {
 		// but it's not high priority
 		if (routeSuffixArray == null) {
 			routeSuffixArray = new SuffixArray(true);
-			for (RouteConfig routeConfig : routesByTag.values()) {
+			for (RouteConfig routeConfig : routes) {
 				routeSuffixArray.add(routeConfig);
 			}
 			routeSuffixArray.setIndexes(PrepopulatedSuffixArrayRoutes.getRouteIndexes());
