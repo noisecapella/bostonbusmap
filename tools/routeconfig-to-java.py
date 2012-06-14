@@ -992,8 +992,15 @@ def commuterRailRoute(routes, routeCsv, specialDirMapping, routeTitlesToKeys):
     combinedDirectionHash = createCommuterRailDirectionHash(routeCsv["direction_id"], routeCsv["Branch"])
     stopTag = stopTagPrefix + stopTitle
     stop = {"tag" : stopTag, "title" : stopTitle, "lat" : routeCsv["stop_lat"], "lon" : routeCsv["stop_lon"], "platformOrder" : int(routeCsv["stop_sequence"]), "branch" : routeCsv["Branch"], "source" : "commuterRail"}
-        
-    route["stops"].append(stop)
+
+    for existingStop in route["stops"]:
+        if existingStop["tag"] == stopTag:
+            # technically we should handle stops with different directions, 
+            # but the commuter rail code is already pretty messy when it comes to directions
+            # it handles all that stuff while processing predictions
+            break
+    else:
+        route["stops"].append(stop)
 
     if routeTag not in specialDirMapping:
         specialDirMapping[routeTag] = {}
