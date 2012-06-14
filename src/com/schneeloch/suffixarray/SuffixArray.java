@@ -19,8 +19,8 @@ import cern.colt.function.IntComparator;
  * - indexes is populated, one index for each suffix, when sort() is called
  * 
  */
-public class SuffixArray implements IntComparator {
-	private final CompressedList<ObjectWithString> compressedList = new CompressedList<ObjectWithString>();
+public class SuffixArray<T extends ObjectWithString> implements IntComparator {
+	private final CompressedList<T> compressedList = new CompressedList<T>();
     private int[] indexes;
 
     public final boolean ignoreCase;
@@ -29,7 +29,7 @@ public class SuffixArray implements IntComparator {
     	this.ignoreCase = ignoreCase;
     }
     
-    public void add(ObjectWithString objectWithString) {
+    public void add(T objectWithString) {
     	int len = objectWithString.getString().length();
     	compressedList.add(objectWithString, len);
     	
@@ -61,7 +61,7 @@ public class SuffixArray implements IntComparator {
     	Sorting.mergeSort(indexes, 0, indexes.length - 1, this);
     }
     
-    private ObjectWithString getObjectWithString(int i) {
+    private T getObjectWithString(int i) {
     	if (indexes == null) {
     		sort();
     	}
@@ -118,7 +118,7 @@ public class SuffixArray implements IntComparator {
 		return compressedList.size();
 	}
 
-    public Iterable<ObjectWithString> search(String search) {
+    public Iterable<T> search(String search) {
     	int start = 0;
     	int end = size() - 1;
     	
@@ -154,8 +154,8 @@ public class SuffixArray implements IntComparator {
      * @param search
      * @return
      */
-	private Iterable<ObjectWithString> getResults(int mid, String search) {
-		ArrayList<ObjectWithString> ret = new ArrayList<ObjectWithString>();
+	private Iterable<T> getResults(int mid, String search) {
+		ArrayList<T> ret = new ArrayList<T>();
 
 		ret.add(getObjectWithString(mid));
 		int strLen = search.length();

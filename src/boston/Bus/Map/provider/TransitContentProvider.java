@@ -92,10 +92,9 @@ public class TransitContentProvider extends SearchRecentSuggestionsProvider {
 
 	private void addSearchRoutes(String search, MatrixCursor ret) throws IOException {
 		int count = 0;
-		SuffixArray routeSuffixArray = RoutePool.getRouteSuffixArray();
+		SuffixArray<RouteConfig> routeSuffixArray = RoutePool.getRouteSuffixArray();
 		if (routeSuffixArray != null) {
-			for (ObjectWithString objectWithString : routeSuffixArray.search(search)) {
-				RouteConfig route = (RouteConfig)objectWithString;
+			for (RouteConfig route : routeSuffixArray.search(search)) {
 				ret.addRow(new Object[] {count, route.getRouteTitle(), "route " + route.getRouteName(), "Route"});
 				count++;
 			}
@@ -104,13 +103,12 @@ public class TransitContentProvider extends SearchRecentSuggestionsProvider {
 
 	private void addSearchStops(String search, MatrixCursor ret) throws IOException {
 		int count = 0;
-		SuffixArray stopSuffixArray = RoutePool.getStopSuffixArray();
+		SuffixArray<StopLocation> stopSuffixArray = RoutePool.getStopSuffixArray();
 		if (stopSuffixArray != null) {
-			for (ObjectWithString objectWithString : stopSuffixArray.search(search)) {
+			for (StopLocation stop : stopSuffixArray.search(search)) {
 				if (count > 30) {
 					break;
 				}
-				StopLocation stop = (StopLocation)objectWithString;
 				ret.addRow(new Object[]{count, stop.getTitle(), "stop " + stop.getStopTag(), "Stop on route " + stop.getFirstRoute()});
 				count++;
 			}

@@ -42,10 +42,10 @@ public class RoutePool {
 
 	private final WeightedSqrEuclid<LocationGroup> kdtree;
 	
-	private static SuffixArray stopSuffixArray;
-	private static SuffixArray routeSuffixArray;
+	private static SuffixArray<StopLocation> stopSuffixArray;
+	private static SuffixArray<RouteConfig> routeSuffixArray;
 	
-	private static final int MAX_STOPS = 500;
+	private static MyHashMap<String, StopLocationGroup> stopsByTag;
 	
 	
 	public RoutePool(DatabaseHelper helper, TransitSystem transitSystem) throws IOException {
@@ -81,6 +81,21 @@ public class RoutePool {
         	}
         }
 		
+        if (stopsByTag == null) {
+        	stopsByTag = new MyHashMap<String, StopLocationGroup>();
+        	for (StopLocationGroup stopLocationGroup : stopsByLocation.values()) {
+        		if (stopLocationGroup instanceof StopLocation) {
+        			stopsByTag.put(stopLocationGroup.getFirstStopTag(), stopLocationGroup);
+        		}
+        		else
+        		{
+        			for (StopLocation stop : stopLocationGroup.getStops()) {
+        				stopsByTag.put(stop.getStopTag(), stopLocationGroup);
+        			}
+        		}
+        	}
+        }
+        
         kdtree = new WeightedSqrEuclid<LocationGroup>(2, stopsByLocation.size());
         for (LocationGroup group : stopsByLocation.values()) {
         	kdtree.addPoint(new double[]{group.getLatitudeAsDegrees(), group.getLongitudeAsDegrees()},
@@ -92,14 +107,14 @@ public class RoutePool {
 		// there could be a conflict if the search happens while this is being created
 		// but it's not high priority
 		if (routeSuffixArray == null) {
-			routeSuffixArray = new SuffixArray(true);
+			routeSuffixArray = new SuffixArray<RouteConfig>(true);
 			for (RouteConfig routeConfig : routes) {
 				routeSuffixArray.add(routeConfig);
 			}
 			routeSuffixArray.setIndexes(PrepopulatedSuffixArrayRoutes.getRouteIndexes());
 		}
 		if (stopSuffixArray == null) {
-			stopSuffixArray = new SuffixArray(true);
+			stopSuffixArray = new SuffixArray<StopLocation>(true);
 			for (RouteConfig route : routes) {
 				for (StopLocation stop : route.getStops()) {
 					stopSuffixArray.add(stop);
@@ -202,12 +217,16 @@ public class RoutePool {
 		return directions;
 	}
 
-	public static SuffixArray getStopSuffixArray() {
+	public static SuffixArray<StopLocation> getStopSuffixArray() {
 		return stopSuffixArray;
 	}
 
-	public static SuffixArray getRouteSuffixArray() {
+	public static SuffixArray<RouteConfig> getRouteSuffixArray() {
 		return routeSuffixArray;
+	}
+
+	public static StopLocationGroup getStop(String indexingQuery) {
+		return stopsByTag.get(indexingQuery);
 	}
 
 }

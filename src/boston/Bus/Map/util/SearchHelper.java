@@ -13,6 +13,7 @@ import boston.Bus.Map.data.MyHashMap;
 import boston.Bus.Map.data.RouteConfig;
 import boston.Bus.Map.data.RoutePool;
 import boston.Bus.Map.data.StopLocation;
+import boston.Bus.Map.data.StopLocationGroup;
 import boston.Bus.Map.data.prepopulated.CommuterRailPrepopulatedData;
 import boston.Bus.Map.data.prepopulated.NextbusPrepopulatedData;
 import boston.Bus.Map.data.prepopulated.SubwayPrepopulatedData;
@@ -187,11 +188,11 @@ public class SearchHelper
 				exactQuery = printableQuery;
 			}
 			
-			StopLocation stop = getStopByTagOrTitle(indexingQuery, exactQuery);
+			StopLocationGroup stop = getStopByTagOrTitle(indexingQuery, exactQuery);
 			if (stop != null)
 			{	
 				context.setNewStop(stop);
-				suggestionsQuery = "stop " + stop.getTitle();
+				suggestionsQuery = "stop " + stop.getFirstTitle();
 			}
 			else
 			{
@@ -208,10 +209,27 @@ public class SearchHelper
 		onFinish.run();
 	}
 
+	/**
+	 * Note that this returns the StopLocation, not the StopLocationGroup, so be careful about using this
+	 * @param indexingQuery
+	 * @param exactQuery
+	 * @return
+	 * @throws IOException
+	 */
 	private StopLocation getStopByTagOrTitle(String indexingQuery,
 			String exactQuery) throws IOException {
 
-		SuffixArray stopSuffixArray = RoutePool.getStopSuffixArray();
+		StopLocationGroup ret = RoutePool.getStop(indexingQuery);
+		if (ret != null) {
+			for (StopLocation stop : ret.getStops()) {
+				if (stop.getStopTag().equals(indexingQuery)) {
+					return stop;
+				}
+			}
+		}
+		
+		// else, look for a matching title
+		SuffixArray<StopLocation> stopSuffixArray = RoutePool.getStopSuffixArray();
 		if (stopSuffixArray != null) {
 			for (ObjectWithString objectWithString : stopSuffixArray.search(indexingQuery)) {
 				StopLocation stop = (StopLocation)objectWithString;
