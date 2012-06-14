@@ -56,6 +56,7 @@ public class RoutePool {
 			stopsByLocation = new MyHashMap<StopLocationGroup, StopLocationGroup>();
 			routesByTag = new MyHashMap<String, Collection<StopLocationGroup>>();
 			routes = new MyHashMap<String, RouteConfig>();
+        	stopsByTag = new MyHashMap<String, StopLocationGroup>();
 			ArrayList<RouteConfig> routeList = new ArrayList<RouteConfig>();
 
 			for (TransitSource transitSource : transitSystem.getTransitSources()) {
@@ -83,7 +84,13 @@ public class RoutePool {
 					}
 				}
 			}
-        	stopsByTag = new MyHashMap<String, StopLocationGroup>();
+			for (RouteConfig route : routes.values()) {
+				Collection<StopLocationGroup> collection = routesByTag.get(route.getRouteName());
+				for (StopLocation stop : route.getStops()) {
+					collection.add(stopsByLocation.get(stop));
+				}
+			}
+			
         	for (StopLocationGroup stopLocationGroup : stopsByLocation.values()) {
         		if (stopLocationGroup instanceof StopLocation) {
         			stopsByTag.put(stopLocationGroup.getFirstStopTag(), stopLocationGroup);
