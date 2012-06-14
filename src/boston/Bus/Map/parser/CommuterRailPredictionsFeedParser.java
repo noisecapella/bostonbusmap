@@ -12,6 +12,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+import boston.Bus.Map.data.MyHashSet;
 import boston.Bus.Map.data.RoutePool;
 import boston.Bus.Map.data.StopLocationGroup;
 import boston.Bus.Map.data.VehicleLocation;
@@ -78,7 +79,7 @@ public class CommuterRailPredictionsFeedParser
 		ArrayList<StopLocationGroup> stopLocations = new ArrayList<StopLocationGroup>(); 
 
 		//start off with all the buses to be removed, and if they're still around remove them from toRemove
-		HashSet<String> toRemove = new HashSet<String>();
+		MyHashSet<String> toRemove = new MyHashSet<String>();
 		for (String id : busMapping.keySet())
 		{
 			VehicleLocation busLocation = busMapping.get(id);

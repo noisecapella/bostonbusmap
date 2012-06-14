@@ -38,6 +38,7 @@ import boston.Bus.Map.R;
 import boston.Bus.Map.data.LocationGroup;
 import boston.Bus.Map.data.Locations;
 import boston.Bus.Map.data.MyHashMap;
+import boston.Bus.Map.data.MyHashSet;
 import boston.Bus.Map.data.RouteConfig;
 import boston.Bus.Map.data.StopLocation;
 import boston.Bus.Map.data.StopLocationGroup;
@@ -686,7 +687,7 @@ public class Main extends MapActivity
     	case R.id.chooseStop:
     		if (busLocations != null)
     		{
-    			HashSet<StopLocationGroup> favoriteStops = busLocations.getCurrentFavorites();
+    			MyHashSet<StopLocationGroup> favoriteStops = busLocations.getCurrentFavorites();
 
     			final ArrayList<TitleAnd<StopLocationGroup>> pairs =
     					new ArrayList<TitleAnd<StopLocationGroup>>();

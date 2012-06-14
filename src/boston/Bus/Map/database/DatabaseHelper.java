@@ -17,6 +17,7 @@ import boston.Bus.Map.data.Direction;
 import boston.Bus.Map.data.LocationGroup;
 import boston.Bus.Map.data.MultipleStopLocations;
 import boston.Bus.Map.data.MyHashMap;
+import boston.Bus.Map.data.MyHashSet;
 import boston.Bus.Map.data.RouteConfig;
 import boston.Bus.Map.data.StopLocation;
 import boston.Bus.Map.data.StopLocationGroup;
@@ -346,7 +347,7 @@ public class DatabaseHelper extends SQLiteOpenHelper
 
 
 
-	public synchronized void saveFavorites(HashSet<StopLocationGroup> favoriteStops) {
+	public synchronized void saveFavorites(MyHashSet<StopLocationGroup> favoriteStops) {
 		SQLiteDatabase database = getWritableDatabase();
 		try
 		{
@@ -354,7 +355,7 @@ public class DatabaseHelper extends SQLiteOpenHelper
 
 			database.delete(verboseFavorites, null, null);
 
-			HashSet<String> stopTags = new HashSet<String>();
+			MyHashSet<String> stopTags = new MyHashSet<String>();
 			for (StopLocationGroup locationGroup : favoriteStops)
 			{
 				StopLocationGroup stopLocationGroup = (StopLocationGroup)locationGroup;

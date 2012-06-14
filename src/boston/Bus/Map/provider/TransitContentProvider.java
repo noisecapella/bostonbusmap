@@ -9,6 +9,7 @@ import com.schneeloch.suffixarray.ObjectWithString;
 import com.schneeloch.suffixarray.SuffixArray;
 
 import boston.Bus.Map.data.Directions;
+import boston.Bus.Map.data.MyHashSet;
 import boston.Bus.Map.data.RouteConfig;
 import boston.Bus.Map.data.RoutePool;
 import boston.Bus.Map.data.StopLocation;
@@ -107,7 +108,7 @@ public class TransitContentProvider extends SearchRecentSuggestionsProvider {
 
 	private void addSearchStops(String search, MatrixCursor ret) throws IOException {
 		SuffixArray<StopLocation> stopSuffixArray = RoutePool.getStopSuffixArray();
-		HashSet<StopLocationGroup> set = new HashSet<StopLocationGroup>();
+		MyHashSet<StopLocationGroup> set = new MyHashSet<StopLocationGroup>();
 		ArrayList<StopLocationGroup> ordered = new ArrayList<StopLocationGroup>();
 
 		if (stopSuffixArray != null) {

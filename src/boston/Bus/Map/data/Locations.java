@@ -223,7 +223,9 @@ public final class Locations
 		}
 		else if (selectedBusPredictions == Main.BUS_PREDICTIONS_STAR)
 		{
-			newLocations.addAll(routeMapping.getFavoriteStops());
+			for (StopLocationGroup stopLocationGroup : routeMapping.getFavoriteStops()) {
+				newLocations.add(stopLocationGroup);
+			}
 
 			if (maxLocations > newLocations.size()) {
 				maxLocations = newLocations.size();
@@ -271,7 +273,7 @@ public final class Locations
 		return routeMapping.setFavorite(locationGroup, !isFavorite);
 	}
 
-	public HashSet<StopLocationGroup> getCurrentFavorites()
+	public MyHashSet<StopLocationGroup> getCurrentFavorites()
 	{
 		return routeMapping.getFavoriteStops();
 	}
@@ -286,6 +288,13 @@ public final class Locations
 	}
 	
 	public boolean isFavorite(LocationGroup locationGroup) {
-		return routeMapping.isFavorite(locationGroup);
+		if (locationGroup instanceof StopLocationGroup) {
+			StopLocationGroup stopLocationGroup = (StopLocationGroup)locationGroup;
+			return routeMapping.isFavorite(stopLocationGroup);
+		}
+		else
+		{
+			return false;
+		}
 	}
 }

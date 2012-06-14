@@ -31,7 +31,7 @@ public class RoutePool {
 	/**
 	 * A mapping of stop key to route key. Look in sharedStops for the StopLocation
 	 */
-	private final HashSet<StopLocationGroup> favoriteStops = new HashSet<StopLocationGroup>();
+	private final MyHashSet<StopLocationGroup> favoriteStops = new MyHashSet<StopLocationGroup>();
 
 	private static MyHashMap<StopLocationGroup, StopLocationGroup> stopsByLocation;
 	private static MyHashMap<String, Collection<StopLocationGroup>> routesByTag;
@@ -172,26 +172,13 @@ public class RoutePool {
 		}
 	}
 
-	public HashSet<StopLocationGroup> getFavoriteStops() {
+	public MyHashSet<StopLocationGroup> getFavoriteStops() {
 		return favoriteStops;
 	}
 
-	public boolean isFavorite(LocationGroup locationGroup)
+	public boolean isFavorite(StopLocationGroup locationGroup)
 	{
-		if (locationGroup instanceof StopLocation) {
-			StopLocation stopLocation = (StopLocation)locationGroup;
-			return favoriteStops.contains(stopLocation.getStopTag());
-		}
-		else if (locationGroup instanceof MultipleStopLocations) {
-			MultipleStopLocations multipleStopLocations = (MultipleStopLocations)locationGroup;
-			for (StopLocation stop : multipleStopLocations.getStops()) {
-				if (favoriteStops.contains(stop.getStopTag())) {
-					return true;
-				}
-			}
-		}
-		
-		return false;
+		return favoriteStops.contains(locationGroup);
 	}
 	
 	public int setFavorite(StopLocationGroup locationGroup, boolean isFavorite) {

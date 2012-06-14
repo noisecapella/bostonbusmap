@@ -26,6 +26,7 @@ import android.graphics.drawable.Drawable;
 import android.text.format.Time;
 import android.util.Log;
 import boston.Bus.Map.data.CommuterRailStopLocation;
+import boston.Bus.Map.data.MyHashSet;
 import boston.Bus.Map.data.StopLocationGroup;
 import boston.Bus.Map.data.VehicleLocation;
 import boston.Bus.Map.data.Directions;
@@ -118,7 +119,7 @@ public class SubwayPredictionsFeedParser
 		ArrayList<StopLocationGroup> stopLocationGroups = new ArrayList<StopLocationGroup>(); 
 		
 		//start off with all the buses to be removed, and if they're still around remove them from toRemove
-		HashSet<String> toRemove = new HashSet<String>();
+		MyHashSet<String> toRemove = new MyHashSet<String>();
 		for (String id : busMapping.keySet())
 		{
 			VehicleLocation busLocation = busMapping.get(id);

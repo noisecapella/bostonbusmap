@@ -16,6 +16,7 @@ import org.xml.sax.SAXException;
 import android.content.Context;
 import android.graphics.Color;
 import boston.Bus.Map.data.AlertsMapping;
+import boston.Bus.Map.data.MyHashSet;
 import boston.Bus.Map.data.VehicleLocation;
 import boston.Bus.Map.data.Directions;
 import boston.Bus.Map.data.Location;
@@ -68,7 +69,7 @@ public class SubwayTransitSource implements TransitSource {
 		}
 		
 		
-		HashSet<String> outputRoutes = new HashSet<String>();
+		MyHashSet<String> outputRoutes = new MyHashSet<String>();
 		switch (selectedBusPredictions)
 		{
 		case  Main.BUS_PREDICTIONS_ONE:
@@ -142,7 +143,7 @@ public class SubwayTransitSource implements TransitSource {
 	}
 	
 	private static void getPredictionsRoutes(List<LocationGroup> locationGroups, int maxStops,
-			String routeName, HashSet<String> outputRoutes, int mode) {
+			String routeName, MyHashSet<String> outputRoutes, int mode) {
 		
 		//BUS_PREDICTIONS_ONE or VEHICLE_LOCATIONS_ONE
 		if (routeName != null)
