@@ -85,10 +85,13 @@ public class RoutePool {
 				}
 			}
 			for (RouteConfig route : routes.values()) {
-				Collection<StopLocationGroup> collection = routesByTag.get(route.getRouteName());
+				HashSet<StopLocationGroup> alreadyAdded = new HashSet<StopLocationGroup>();
 				for (StopLocation stop : route.getStops()) {
-					collection.add(stopsByLocation.get(stop));
+					StopLocationGroup group = stopsByLocation.get(stop);
+					alreadyAdded.add(group);
 				}
+				Collection<StopLocationGroup> collection = routesByTag.get(route.getRouteName());
+				collection.addAll(alreadyAdded);
 			}
 			
         	for (StopLocationGroup stopLocationGroup : stopsByLocation.values()) {
@@ -115,6 +118,12 @@ public class RoutePool {
 				}
 			}
 			stopSuffixArray.setIndexes(PrepopulatedSuffixArrayRoutes.getStopIndexes());
+		}
+		else
+		{
+			for (StopLocationGroup stopLocationGroup : stopsByLocation.values()) {
+				stopLocationGroup.clearPredictions(null);
+			}
 		}
         
         kdtree = new WeightedSqrEuclid<LocationGroup>(2, stopsByLocation.size());

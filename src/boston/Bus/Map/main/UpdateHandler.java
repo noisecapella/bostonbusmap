@@ -103,13 +103,9 @@ public class UpdateHandler extends Handler {
 			
 			int interval = getUpdateConstantlyInterval() * 1000;
 			
-			if (currentTime - lastUpdateTime > interval)
+			if (currentTime - lastUpdateTime > fetchDelay)
 			{
 				//if not too soon, do the update
-				runUpdateTask();
-			}
-			else if (currentTime - lastUpdateTime > fetchDelay && msg.arg1 == IMMEDIATE_REFRESH)
-			{
 				runUpdateTask();
 			}
 
