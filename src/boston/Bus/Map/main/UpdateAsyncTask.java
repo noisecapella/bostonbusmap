@@ -423,21 +423,6 @@ public class UpdateAsyncTask extends AsyncTask<Object, Object, Locations>
 			return;
 		}
 		
-		//get currently selected location id, or -1 if nothing is selected
-		final LocationGroup selectedLocationGroup;
-		if (latAsInt != 0 && lonAsInt != 0)
-		{
-			selectedLocationGroup = busOverlay.getItemWithLatLon(latAsInt, lonAsInt);
-		}
-		else if (busOverlay != null)
-		{
-			selectedLocationGroup = busOverlay.getSelectedBus();
-		}
-		else
-		{
-			selectedLocationGroup = null;
-		}
-		
 		busOverlay.setDrawHighlightCircle(drawCircle);
 		
 		routeOverlay.setDrawLine(showRouteLine);
@@ -497,7 +482,7 @@ public class UpdateAsyncTask extends AsyncTask<Object, Object, Locations>
 		
 		ArrayList<GeoPoint> geoPointsToAdd = new ArrayList<GeoPoint>(locations.size());
 		//draw the buses on the map
-		LocationGroup newSelectedLocationGroup = selectedLocationGroup;
+		
 		for (int i = 0; i < locations.size(); i++)
 		{
 			LocationGroup locationGroup = locations.get(i);
@@ -511,7 +496,23 @@ public class UpdateAsyncTask extends AsyncTask<Object, Object, Locations>
 		}
 		busOverlay.addOverlaysFromLocations(geoPointsToAdd);
 		
-		busOverlay.setSelectedBus(newSelectedLocationGroup);
+		final LocationGroup selectedLocationGroup;
+		if (busOverlay != null) {
+			if (latAsInt != 0 && lonAsInt != 0)
+			{
+				selectedLocationGroup = busOverlay.getItemWithLatLon(latAsInt, lonAsInt);
+			}
+			else
+			{
+				selectedLocationGroup = busOverlay.getSelectedBus();
+			}
+		}
+		else
+		{
+			selectedLocationGroup = null;
+		}
+		
+		busOverlay.setSelectedBus(selectedLocationGroup);
 		busOverlay.refreshBalloons();
 		
 		mapView.getOverlays().clear();
