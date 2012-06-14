@@ -34,11 +34,11 @@ public class RoutePool {
 
 	private final TransitSystem transitSystem;
 
-	private final MyHashMap<StopLocationGroup, StopLocationGroup> stopsByLocation;
-	private final MyHashMap<String, RouteConfig> routesByTag;
-	private final ArrayList<RouteConfig> routes;
+	private static MyHashMap<StopLocationGroup, StopLocationGroup> stopsByLocation;
+	private static MyHashMap<String, RouteConfig> routesByTag;
+	private static ArrayList<RouteConfig> routes;
 
-	private final Directions directions;
+	private static Directions directions;
 
 	private final WeightedSqrEuclid<LocationGroup> kdtree;
 	
@@ -51,34 +51,38 @@ public class RoutePool {
 	public RoutePool(DatabaseHelper helper, TransitSystem transitSystem) throws IOException {
 		this.helper = helper;
 		this.transitSystem = transitSystem;
-		this.directions = new Directions();
 
-		stopsByLocation = new MyHashMap<StopLocationGroup, StopLocationGroup>();
-		routesByTag = new MyHashMap<String, RouteConfig>();
-		routes = new ArrayList<RouteConfig>();
-		
-        for (TransitSource transitSource : transitSystem.getTransitSources()) {
-        	for (RouteConfig route : transitSource.makeRoutes(directions)) {
-        		routesByTag.put(route.getRouteName(), route);
-        		routes.add(route);
-        		for (StopLocation stop : route.getStops()) {
-        			StopLocationGroup locationGroup = stopsByLocation.get(stop);
-        			if (locationGroup != null) {
-        				if (locationGroup instanceof MultipleStopLocations) {
-        					((MultipleStopLocations)locationGroup).addStop(stop);
-        				}
-        				else //must be StopLocation
-        				{
-        					MultipleStopLocations multipleStopLocations = new MultipleStopLocations((StopLocation)locationGroup, stop);
-        					stopsByLocation.put(multipleStopLocations, multipleStopLocations);
-        				}
-        			}
-        			else
-        			{
-        				stopsByLocation.put(stop, stop);
-        			}
-        		}
-        	}
+		if (stopsByLocation == null)
+		{
+			directions = new Directions();
+
+			stopsByLocation = new MyHashMap<StopLocationGroup, StopLocationGroup>();
+			routesByTag = new MyHashMap<String, RouteConfig>();
+			routes = new ArrayList<RouteConfig>();
+
+			for (TransitSource transitSource : transitSystem.getTransitSources()) {
+				for (RouteConfig route : transitSource.makeRoutes(directions)) {
+					routesByTag.put(route.getRouteName(), route);
+					routes.add(route);
+					for (StopLocation stop : route.getStops()) {
+						StopLocationGroup locationGroup = stopsByLocation.get(stop);
+						if (locationGroup != null) {
+							if (locationGroup instanceof MultipleStopLocations) {
+								((MultipleStopLocations)locationGroup).addStop(stop);
+							}
+							else //must be StopLocation
+							{
+								MultipleStopLocations multipleStopLocations = new MultipleStopLocations((StopLocation)locationGroup, stop);
+								stopsByLocation.put(multipleStopLocations, multipleStopLocations);
+							}
+						}
+						else
+						{
+							stopsByLocation.put(stop, stop);
+						}
+					}
+				}
+			}
         }
 		
         if (stopsByTag == null) {

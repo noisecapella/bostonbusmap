@@ -209,23 +209,12 @@ public class SearchHelper
 		onFinish.run();
 	}
 
-	/**
-	 * Note that this returns the StopLocation, not the StopLocationGroup, so be careful about using this
-	 * @param indexingQuery
-	 * @param exactQuery
-	 * @return
-	 * @throws IOException
-	 */
-	private StopLocation getStopByTagOrTitle(String indexingQuery,
+	private StopLocationGroup getStopByTagOrTitle(String indexingQuery,
 			String exactQuery) throws IOException {
 
 		StopLocationGroup ret = RoutePool.getStop(indexingQuery);
 		if (ret != null) {
-			for (StopLocation stop : ret.getStops()) {
-				if (stop.getStopTag().equals(indexingQuery)) {
-					return stop;
-				}
-			}
+			return ret;
 		}
 		
 		// else, look for a matching title
@@ -234,7 +223,8 @@ public class SearchHelper
 			for (ObjectWithString objectWithString : stopSuffixArray.search(indexingQuery)) {
 				StopLocation stop = (StopLocation)objectWithString;
 				if (stop.getTitle().equalsIgnoreCase(indexingQuery)) {
-					return stop;
+					ret = RoutePool.getStop(stop.getStopTag());
+					return ret;
 				}
 			}
 		}

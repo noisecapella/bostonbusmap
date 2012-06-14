@@ -2,6 +2,8 @@ package com.schneeloch.suffixarray;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Iterator;
+import java.util.NoSuchElementException;
 
 import cern.colt.Sorting;
 import cern.colt.function.IntComparator;
@@ -154,49 +156,105 @@ public class SuffixArray<T extends ObjectWithString> implements IntComparator {
      * @param search
      * @return
      */
-	private Iterable<T> getResults(int mid, String search) {
-		ArrayList<T> ret = new ArrayList<T>();
+	private Iterable<T> getResults(final int mid, final String search) {
+		return new Iterable<T>() {
 
-		ret.add(getObjectWithString(mid));
-		int strLen = search.length();
-		String s = getSuffix(mid, strLen);
-		for (int i = mid - 1; i >= 0; i--) {
-			String other = getSuffix(i, strLen);
-			boolean equality;
-			if (ignoreCase) {
-				equality = other.equalsIgnoreCase(s);
+			@Override
+			public Iterator<T> iterator() {
+				return new Iterator<T>() {
+					private final static int MID = 1;
+					private final static int BACKWARD = 2;
+					private final static int FORWARD = 3;
+					private final static int DONE = 4;
+					
+					private int mode = MID;
+					private int i = -1;
+					private final int strLen = search.length();
+					private final String s = getSuffix(mid, strLen);
+					private T current = yield();
+
+					@Override
+					public boolean hasNext() {
+						return mode != 4 && current != null;
+					}
+
+					@Override
+					public T next() {
+						if (current == null) {
+							throw new NoSuchElementException();
+						}
+						else
+						{
+							T ret = current;
+							current = yield();
+							return ret;
+						}
+					}
+					private T yield() {
+						while (mode != DONE) {
+							final int oldI = i;
+							switch (mode) {
+							case MID:
+								mode++;
+								i = mid - 1;
+								return getObjectWithString(mid);
+							case BACKWARD:
+							{
+								String other = getSuffix(oldI, strLen);
+								i--;
+								boolean equality;
+								if (ignoreCase) {
+									equality = other.equalsIgnoreCase(s);
+								}
+								else
+								{
+									equality = other.equals(s);
+								}
+								if (!equality) {
+									i = mid + 1;
+									mode++;
+								}
+								else
+								{
+									return getObjectWithString(oldI);
+								}
+							}
+								break;
+							case FORWARD:
+							{
+								i++;
+								String other = getSuffix(oldI, strLen);
+								boolean equality;
+								if (ignoreCase) {
+									equality = other.equalsIgnoreCase(s);
+								}
+								else
+								{
+									equality = other.equals(s);
+								}
+								if (!equality) {
+									mode++;
+									return null;
+								}
+								else
+								{
+									return getObjectWithString(oldI);
+								}
+							}
+							default:
+								return null;
+							}
+						}
+						return null;
+					}
+
+					@Override
+					public void remove() {
+						throw new UnsupportedOperationException();
+					}
+				};
 			}
-			else
-			{
-				equality = other.equals(s);
-			}
-			if (!equality) {
-				break;
-			}
-			else
-			{
-				ret.add(getObjectWithString(i));
-			}
-		}
-		
-		for (int i = mid + 1; i < size(); i++) {
-			String other = getSuffix(i, strLen);
-			boolean equality;
-			if (ignoreCase) {
-				equality = other.equalsIgnoreCase(s);
-			}
-			else
-			{
-				equality = other.equals(s);
-			}
-			if (!equality) {
-				break;
-			}
-			else
-			{
-				ret.add(getObjectWithString(i));
-			}
-		}
-		return ret;
+			
+		};
 	}
 }
