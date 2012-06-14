@@ -3,6 +3,7 @@ package boston.Bus.Map.transit;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.zip.GZIPInputStream;
@@ -94,10 +95,9 @@ public abstract class NextBusTransitSource implements TransitSource
 
 
 	@Override
-	public void refreshData(RouteConfig routeConfig, int selectedBusPredictions, int maxStops,
+	public void refreshData(int selectedBusPredictions, int maxStops,
 			double centerLatitude, double centerLongitude, ConcurrentHashMap<String, VehicleLocation> busMapping, 
-			String selectedRoute, RoutePool routePool, Locations locationsObj)
-	throws IOException, ParserConfigurationException, SAXException {
+			String routeToUpdate, RoutePool routePool, Locations locationsObj) throws IOException, ParserConfigurationException, SAXException {
 		Directions directions = routePool.getDirections();
 		//read data from the URL
 		DownloadHelper downloadHelper;
@@ -113,7 +113,7 @@ public abstract class NextBusTransitSource implements TransitSource
 			List<LocationGroup> locations = locationsObj.getLocations(maxStops, centerLatitude, centerLongitude, false);
 
 			//ok, do predictions now
-			String routeName = selectedBusPredictions == Main.BUS_PREDICTIONS_ONE ? routeConfig.getRouteName() : null;
+			String routeName = selectedBusPredictions == Main.BUS_PREDICTIONS_ONE ? routeToUpdate : null;
 			String url = getPredictionsUrl(locations, maxStops, routeName, directions);
 
 			if (url == null)
@@ -127,7 +127,7 @@ public abstract class NextBusTransitSource implements TransitSource
 
 		case Main.VEHICLE_LOCATIONS_ONE:
 		{
-			final String urlString = getVehicleLocationsUrl(locationsObj.getLastUpdateTime(), routeConfig.getRouteName());
+			final String urlString = getVehicleLocationsUrl(locationsObj.getLastUpdateTime(), routeToUpdate);
 			downloadHelper = new DownloadHelper(urlString);
 		}
 		break;
@@ -191,9 +191,10 @@ public abstract class NextBusTransitSource implements TransitSource
 		}
 		
 		//alerts
-		TransitSource transitSource = transitSystem.getTransitSource(routeConfig.getRouteName());
+		TransitSource transitSource = transitSystem.getTransitSource(routeToUpdate);
 		if (transitSource instanceof NextBusTransitSource)
 		{
+			RouteConfig routeConfig = routePool.getRoute(routeToUpdate);
 			if (routeConfig.obtainedAlerts() == false)
 			{
 				try

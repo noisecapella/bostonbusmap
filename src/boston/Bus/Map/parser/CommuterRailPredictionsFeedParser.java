@@ -7,10 +7,13 @@ import java.io.Reader;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+import boston.Bus.Map.data.RoutePool;
+import boston.Bus.Map.data.StopLocationGroup;
 import boston.Bus.Map.data.VehicleLocation;
 import boston.Bus.Map.data.CommuterRailPrediction;
 import boston.Bus.Map.data.CommuterTrainLocation;
@@ -26,7 +29,8 @@ import boston.Bus.Map.util.LogUtil;
 
 public class CommuterRailPredictionsFeedParser
 {
-	private final RouteConfig routeConfig;
+	private final String route;
+	private final Collection<StopLocationGroup> stopsForRoute;
 	private final Directions directions;
 	private final TransitDrawables drawables;
 
@@ -37,10 +41,11 @@ public class CommuterRailPredictionsFeedParser
 	private final ConcurrentHashMap<String, VehicleLocation> busMapping;
 	private final MyHashMap<String, String> routeKeysToTitles;
 
-	public CommuterRailPredictionsFeedParser(RouteConfig routeConfig, Directions directions, TransitDrawables drawables, 
+	public CommuterRailPredictionsFeedParser(String route, Collection<StopLocationGroup> stopsForRoute, Directions directions, TransitDrawables drawables, 
 			ConcurrentHashMap<String, VehicleLocation> busMapping, MyHashMap<String, String> routeKeysToTitles)
 	{
-		this.routeConfig = routeConfig;
+		this.route = route;
+		this.stopsForRoute = stopsForRoute;
 		this.directions = directions;
 		this.drawables = drawables;
 		this.busMapping = busMapping;
@@ -48,17 +53,6 @@ public class CommuterRailPredictionsFeedParser
 
 		format = new SimpleDateFormat("M/d/y K:m:s");
 		format.setTimeZone(TransitSystem.getTimeZone());
-	}
-
-	private void clearPredictions(String route) throws IOException
-	{
-		if (routeConfig != null)
-		{
-			for (StopLocation stopLocation : routeConfig.getStops())
-			{
-				stopLocation.clearPredictions(routeConfig);
-			}
-		}
 	}
 
 	public void runParse(Reader data) throws IOException
@@ -81,7 +75,7 @@ public class CommuterRailPredictionsFeedParser
 		
 		//store everything here, then write out all out at once
 		ArrayList<Prediction> predictions = new ArrayList<Prediction>(); 
-		ArrayList<StopLocation> stopLocations = new ArrayList<StopLocation>(); 
+		ArrayList<StopLocationGroup> stopLocations = new ArrayList<StopLocationGroup>(); 
 
 		//start off with all the buses to be removed, and if they're still around remove them from toRemove
 		HashSet<String> toRemove = new HashSet<String>();
@@ -94,7 +88,6 @@ public class CommuterRailPredictionsFeedParser
 			}
 		}
 
-		String route = routeConfig.getRouteName();
 		try
 		{
 			String line;
@@ -103,11 +96,11 @@ public class CommuterRailPredictionsFeedParser
 				String[] array = line.split(",");
 			
 
-				String stopKey = getItem("Stop", array);
+				String stopKey = CommuterRailTransitSource.stopTagPrefix + getItem("Stop", array);
 
-				StopLocation stopLocation = routeConfig.getStop(CommuterRailTransitSource.stopTagPrefix + stopKey);
+				StopLocationGroup stopLocationGroup = RoutePool.getStop(stopKey);
 
-				if (stopLocation == null)
+				if (stopLocationGroup == null)
 				{
 					continue;
 				}
@@ -133,7 +126,7 @@ public class CommuterRailPredictionsFeedParser
 				}
 
 				String direction = getItem("Destination", array);
-				directions.add(direction, direction, "", routeConfig.getRouteName());
+				directions.add(direction, direction, "", route);
 
 				String informationType = getItem("Flag", array);
 
@@ -157,8 +150,8 @@ public class CommuterRailPredictionsFeedParser
 				String vehicleId = getItem("Trip", array);
 				
 				predictions.add(new CommuterRailPrediction(minutes, vehicleId, directions.getTitleAndName(direction),
-						routeConfig.getRouteName(), false, false, lateness, flagEnum));
-				stopLocations.add(stopLocation);
+						route, false, false, lateness, flagEnum));
+				stopLocations.add(stopLocationGroup);
 
 				float lat = 0;
 				float lon = 0;
@@ -225,11 +218,13 @@ public class CommuterRailPredictionsFeedParser
 			LogUtil.e(e);
 		}
 
-		clearPredictions(route);
-
+		for (StopLocationGroup group : stopsForRoute) {
+			group.clearPredictions(route);
+		}
+		
 		for (int i = 0; i < stopLocations.size(); i++)
 		{
-			StopLocation stopLocation = stopLocations.get(i);
+			StopLocationGroup stopLocation = stopLocations.get(i);
 			stopLocation.addPrediction(predictions.get(i));
 		}
 

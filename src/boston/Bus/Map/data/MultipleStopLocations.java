@@ -294,5 +294,34 @@ public class MultipleStopLocations implements StopLocationGroup {
 	public String getString() {
 		return stops.get(0).getString();
 	}
+
+	@Override
+	public void clearPredictions(String route) {
+		for (StopLocation stop : stops) {
+			stop.clearPredictions(route);
+		}
+	}
+
+	@Override
+	public void addPrediction(Prediction prediction) {
+		if (predictions == null) {
+			predictions = new Predictions();
+		}
+		
+		predictions.addPredictionIfNotExists(prediction);
+	}
 	
+	@Override
+	public void addPrediction(int minutes, long epochTime, String vehicleId,
+			String direction, RouteConfig route, Directions directions, boolean affectedByLayover, boolean isDelayed, int lateness)
+	{
+		if (predictions == null)
+		{
+			predictions = new Predictions();
+		}
+		
+		Prediction prediction = new Prediction(minutes, vehicleId, 
+				directions.getTitleAndName(direction), route.getRouteName(), affectedByLayover, isDelayed, lateness);
+		predictions.addPredictionIfNotExists(prediction);
+	}
 }

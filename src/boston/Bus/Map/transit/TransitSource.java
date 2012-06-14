@@ -1,6 +1,7 @@
 package boston.Bus.Map.transit;
 
 import java.io.IOException;
+import java.util.Collection;
 import java.util.concurrent.ConcurrentHashMap;
 
 import javax.xml.parsers.ParserConfigurationException;
@@ -9,6 +10,7 @@ import org.apache.http.client.ClientProtocolException;
 import org.xml.sax.SAXException;
 
 import android.content.Context;
+import boston.Bus.Map.data.StopLocationGroup;
 import boston.Bus.Map.data.VehicleLocation;
 import boston.Bus.Map.data.Directions;
 import boston.Bus.Map.data.Locations;
@@ -23,7 +25,7 @@ public interface TransitSource {
 
 	public RouteConfig[] makeRoutes(Directions directions) throws IOException;
 	
-	void refreshData(RouteConfig routeConfig, int selectedBusPredictions,
+	void refreshData(int selectedBusPredictions,
 			int maxStops, double centerLatitude, double centerLongitude,
 			ConcurrentHashMap<String, VehicleLocation> busMapping, String selectedRoute,
 			RoutePool routePool, Locations locationsObj)

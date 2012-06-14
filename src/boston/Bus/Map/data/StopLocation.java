@@ -151,16 +151,18 @@ public class StopLocation implements Location, StopLocationGroup
 		return tag;
 	}
 
-	public void clearPredictions(RouteConfig routeConfig)
+	@Override
+	public void clearPredictions(String routeTag)
 	{
 		if (predictions != null)
 		{
-			predictions.clearPredictions(routeConfig.getRouteName());
+			predictions.clearPredictions(routeTag);
 		}
 		
 		recentlyUpdated = true;
 	}
 	
+	@Override
 	public void addPrediction(Prediction prediction)
 	{
 		if (predictions == null)
@@ -171,6 +173,7 @@ public class StopLocation implements Location, StopLocationGroup
 		predictions.addPredictionIfNotExists(prediction);
 	}
 	
+	@Override
 	public void addPrediction(int minutes, long epochTime, String vehicleId,
 			String direction, RouteConfig route, Directions directions, boolean affectedByLayover, boolean isDelayed, int lateness)
 	{

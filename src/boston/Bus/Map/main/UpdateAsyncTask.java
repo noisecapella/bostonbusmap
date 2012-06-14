@@ -36,6 +36,7 @@ import org.xml.sax.SAXException;
 
 
 
+import boston.Bus.Map.data.RoutePool;
 import boston.Bus.Map.data.VehicleLocation;
 import boston.Bus.Map.data.Location;
 import boston.Bus.Map.data.LocationGroup;
@@ -384,9 +385,9 @@ public class UpdateAsyncTask extends AsyncTask<Object, Object, Locations>
 		}
 	}
 	
-	private void postExecute(final Locations busLocationsObject)
+	private void postExecute(final Locations locationsObj)
 	{
-		if (busLocationsObject == null)
+		if (locationsObj == null)
 		{
 			//we probably posted an error message already; just return
 			return;
@@ -404,7 +405,7 @@ public class UpdateAsyncTask extends AsyncTask<Object, Object, Locations>
 		try
 		{
 			//get bus locations sorted by closest to lat + lon
-			locations.addAll(busLocationsObject.getLocations(maxOverlays, latitude, longitude, doShowUnpredictable));
+			locations.addAll(locationsObj.getLocations(maxOverlays, latitude, longitude, doShowUnpredictable));
 		}
 		catch (IOException e)
 		{
@@ -431,7 +432,7 @@ public class UpdateAsyncTask extends AsyncTask<Object, Object, Locations>
 		//get a list of lat/lon pairs which describe the route
         Path[] paths;
 		try {
-			paths = busLocationsObject.getSelectedPaths();
+			paths = locationsObj.getSelectedPaths();
 		} catch (IOException e) {
 			LogUtil.e(e);
 			paths = RouteConfig.nullPaths;
@@ -444,8 +445,8 @@ public class UpdateAsyncTask extends AsyncTask<Object, Object, Locations>
 			//we want this to be null. Else, the snippet drawing code would only show data for a particular route
 			try {
 				//get the currently drawn route's color
-				RouteConfig route = busLocationsObject.getSelectedRoute();
-				String routeName = route != null ? route.getRouteName() : "";
+				String routeName = locationsObj.getSelectedRouteName();
+
 				routeOverlay.setPathsAndColor(paths, Color.BLUE, routeName);
 
 			} catch (IOException e) {
@@ -457,16 +458,22 @@ public class UpdateAsyncTask extends AsyncTask<Object, Object, Locations>
 		else
 		{
 			try {
-				selectedRouteConfig = busLocationsObject.getSelectedRoute();
+				String selectedRoute = locationsObj.getSelectedRouteName();
+				selectedRouteConfig = selectedRoute != null ? RoutePool.getRoute(selectedRoute) : null; 
 			} catch (IOException e) {
 				LogUtil.e(e);
 				selectedRouteConfig = null;
 			}
 			
-			if (selectedRouteConfig != null)
-			{
-				routeOverlay.setPathsAndColor(paths, selectedRouteConfig.getColor(), selectedRouteConfig.getRouteName());
+			int color;
+			if (selectedRouteConfig != null) {
+				color = selectedRouteConfig.getColor();
 			}
+			else
+			{
+				color = Color.BLUE;
+			}
+			routeOverlay.setPathsAndColor(paths, color, selectedRouteConfig.getRouteName());
 		}
 		
 
@@ -476,7 +483,7 @@ public class UpdateAsyncTask extends AsyncTask<Object, Object, Locations>
 		busOverlay.clear();
 		
 		busOverlay.doPopulate();
-		busOverlay.setLocations(busLocationsObject);
+		busOverlay.setLocations(locationsObj);
 		
 		MyHashMap<String, String> routeKeysToTitles = transitSystem.getRouteKeysToTitles();
 		

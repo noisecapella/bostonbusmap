@@ -23,6 +23,7 @@ import java.io.InputStream;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 
 import java.util.HashSet;
@@ -104,31 +105,28 @@ public final class Locations
 	{
 		final int maxStops = 35;
 
-		//see if route overlays need to be downloaded
-		RouteConfig routeConfig = routeMapping.get(routeToUpdate);
-		
 		switch (selectedBusPredictions)
 		{
 		case Main.BUS_PREDICTIONS_STAR:
 		case Main.VEHICLE_LOCATIONS_ALL:
 			//get data from many transit sources
-			transitSystem.refreshData(routeConfig, selectedBusPredictions, maxStops, centerLatitude,
-					centerLongitude, busMapping, selectedRoute, routeMapping, this);
+			transitSystem.refreshData(selectedBusPredictions, maxStops, centerLatitude,
+					centerLongitude, busMapping, routeToUpdate, routeMapping, this);
 			break;
 		case Main.BUS_PREDICTIONS_ALL:
 		{
 			TransitSource transitSource = transitSystem.getTransitSource(null);
-			transitSource.refreshData(routeConfig, selectedBusPredictions, maxStops,
+			transitSource.refreshData(selectedBusPredictions, maxStops,
 					centerLatitude, centerLongitude, busMapping,
-					selectedRoute, routeMapping, this);
+					routeToUpdate, routeMapping, this);
 		}
 			break;
 		default:
 		{
-			TransitSource transitSource = routeConfig.getTransitSource();
-			transitSource.refreshData(routeConfig, selectedBusPredictions, maxStops,
+			TransitSource transitSource = transitSystem.getTransitSource(routeToUpdate);
+			transitSource.refreshData(selectedBusPredictions, maxStops,
 					centerLatitude, centerLongitude, busMapping,
-					selectedRoute, routeMapping, this);
+					routeToUpdate, routeMapping, this);
 		}
 			break;
 		}
@@ -202,11 +200,7 @@ public final class Locations
 		}
 		else if (selectedBusPredictions == Main.BUS_PREDICTIONS_ONE)
 		{
-			RouteConfig routeConfig = routeMapping.get(selectedRoute);
-			if (routeConfig != null)
-			{
-				newLocations.addAll(routeConfig.getStops());
-			}
+			newLocations.addAll(routeMapping.getStopsForRoute(selectedRoute));
 			if (maxLocations > newLocations.size()) {
 				maxLocations = newLocations.size();
 			}
@@ -249,7 +243,7 @@ public final class Locations
 	}
 
 	public Path[] getSelectedPaths() throws IOException {
-		RouteConfig routeConfig = routeMapping.get(selectedRoute);
+		RouteConfig routeConfig = routeMapping.getRoute(selectedRoute);
 		if (routeConfig != null)
 		{
 			return routeConfig.getPaths();
@@ -260,8 +254,15 @@ public final class Locations
 		}
 	}
 
-	public RouteConfig getSelectedRoute() throws IOException {
-		return routeMapping.get(selectedRoute);
+	public String getSelectedRouteName() throws IOException {
+		RouteConfig route = routeMapping.getRoute(selectedRoute);
+		if (route != null) {
+			return route.getRouteName();
+		}
+		else
+		{
+			return null;
+		}
 	}
 	
 	public int toggleFavorite(StopLocationGroup locationGroup)

@@ -7,6 +7,7 @@ import java.io.InputStreamReader;
 import java.io.StringReader;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
@@ -20,6 +21,7 @@ import android.content.Context;
 import android.graphics.drawable.Drawable;
 import android.util.Log;
 import boston.Bus.Map.data.AlertsMapping;
+import boston.Bus.Map.data.StopLocationGroup;
 import boston.Bus.Map.data.VehicleLocation;
 import boston.Bus.Map.data.CommuterRailStopLocation;
 import boston.Bus.Map.data.Directions;
@@ -106,11 +108,10 @@ public class CommuterRailTransitSource implements TransitSource {
 	}
 
 	@Override
-	public void refreshData(RouteConfig routeConfig,
-			int selectedBusPredictions, int maxStops, double centerLatitude,
+	public void refreshData(int selectedBusPredictions, int maxStops, double centerLatitude,
 			double centerLongitude,
 			ConcurrentHashMap<String, VehicleLocation> busMapping,
-			String selectedRoute, RoutePool routePool,
+			String routeToUpdate, RoutePool routePool,
 			Locations locationsObj) throws IOException,
 			ParserConfigurationException, SAXException
 	{
@@ -132,7 +133,7 @@ public class CommuterRailTransitSource implements TransitSource {
 			List<LocationGroup> locations = locationsObj.getLocations(maxStops, centerLatitude, centerLongitude, false);
 
 			//ok, do predictions now
-			getPredictionsUrl(locations, maxStops, routeConfig.getRouteName(), outputUrls, outputAlertUrls, outputRoutes, selectedBusPredictions);
+			getPredictionsUrl(locations, maxStops, routeToUpdate, outputUrls, outputAlertUrls, outputRoutes, selectedBusPredictions);
 			break;
 		}
 		case Main.BUS_PREDICTIONS_ALL:
@@ -163,9 +164,9 @@ public class CommuterRailTransitSource implements TransitSource {
 			//bus prediction
 
 			String route = outputRoutes.get(i);
-			RouteConfig railRouteConfig = routePool.get(route);
+			Collection<StopLocationGroup> stopsForRoute = routePool.getStopsForRoute(route);
 			Directions directions = routePool.getDirections();
-			CommuterRailPredictionsFeedParser parser = new CommuterRailPredictionsFeedParser(railRouteConfig, directions,
+			CommuterRailPredictionsFeedParser parser = new CommuterRailPredictionsFeedParser(route, stopsForRoute, directions,
 					drawables, busMapping, routeKeysToTitles);
 
 			parser.runParse(data);
@@ -175,7 +176,7 @@ public class CommuterRailTransitSource implements TransitSource {
 		for (int i = 0; i < outputAlertUrls.size(); i++)
 		{
 			String route = outputRoutes.get(i);
-			RouteConfig railRouteConfig = routePool.get(route);
+			RouteConfig railRouteConfig = routePool.getRoute(route);
 
 			if (railRouteConfig.obtainedAlerts() == false)
 			{

@@ -1,6 +1,9 @@
 package boston.Bus.Map.provider;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
 
 import com.schneeloch.suffixarray.ObjectWithString;
 import com.schneeloch.suffixarray.SuffixArray;
@@ -9,14 +12,15 @@ import boston.Bus.Map.data.Directions;
 import boston.Bus.Map.data.RouteConfig;
 import boston.Bus.Map.data.RoutePool;
 import boston.Bus.Map.data.StopLocation;
+import boston.Bus.Map.data.StopLocationGroup;
 import boston.Bus.Map.data.prepopulated.CommuterRailPrepopulatedData;
 import boston.Bus.Map.data.prepopulated.NextbusPrepopulatedData;
 import boston.Bus.Map.data.prepopulated.SubwayPrepopulatedData;
 import boston.Bus.Map.database.DatabaseHelper;
 import boston.Bus.Map.parser.SubwayPredictionsFeedParser;
 import boston.Bus.Map.transit.TransitSystem;
-import boston.Bus.Map.util.FakeTransitSource;
 import boston.Bus.Map.util.LogUtil;
+import boston.Bus.Map.util.StringUtil;
 import android.app.SearchManager;
 import android.content.ContentProvider;
 import android.content.ContentValues;
@@ -102,14 +106,34 @@ public class TransitContentProvider extends SearchRecentSuggestionsProvider {
 	}
 
 	private void addSearchStops(String search, MatrixCursor ret) throws IOException {
-		int count = 0;
 		SuffixArray<StopLocation> stopSuffixArray = RoutePool.getStopSuffixArray();
+		HashSet<StopLocationGroup> set = new HashSet<StopLocationGroup>();
+		ArrayList<StopLocationGroup> ordered = new ArrayList<StopLocationGroup>();
+
 		if (stopSuffixArray != null) {
 			for (StopLocation stop : stopSuffixArray.search(search)) {
-				if (count > 30) {
+				if (set.contains(stop) == false) { 
+					set.add(stop);
+					ordered.add(stop);
+				}
+				if (set.size() >= 30) {
 					break;
 				}
-				ret.addRow(new Object[]{count, stop.getTitle(), "stop " + stop.getStopTag(), "Stop on route " + stop.getFirstRoute()});
+			}
+			
+			int count = 0;
+			for (StopLocationGroup group : ordered) {
+				List<String> routes = group.getAllRoutes();
+				String allRoutes;
+				if (routes.size() == 1) {
+					allRoutes = "Stop on route " + routes.get(0);
+				}
+				else
+				{
+					allRoutes = "Stop on routes " + StringUtil.join(routes, ", ");
+				}
+				
+				ret.addRow(new Object[]{count, group.getFirstTitle(), "stop " + group.getFirstStopTag(), allRoutes});
 				count++;
 			}
 		}

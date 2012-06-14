@@ -3,6 +3,7 @@ package boston.Bus.Map.data;
 import java.io.IOException;
 import java.util.AbstractCollection;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 
@@ -32,11 +33,8 @@ public class RoutePool {
 	 */
 	private final HashSet<StopLocationGroup> favoriteStops = new HashSet<StopLocationGroup>();
 
-	private final TransitSystem transitSystem;
-
 	private static MyHashMap<StopLocationGroup, StopLocationGroup> stopsByLocation;
-	private static MyHashMap<String, RouteConfig> routesByTag;
-	private static ArrayList<RouteConfig> routes;
+	private static MyHashMap<String, Collection<StopLocationGroup>> routesByTag;
 
 	private static Directions directions;
 
@@ -46,24 +44,26 @@ public class RoutePool {
 	private static SuffixArray<RouteConfig> routeSuffixArray;
 	
 	private static MyHashMap<String, StopLocationGroup> stopsByTag;
-	
+	private static MyHashMap<String, RouteConfig> routes;
 	
 	public RoutePool(DatabaseHelper helper, TransitSystem transitSystem) throws IOException {
 		this.helper = helper;
-		this.transitSystem = transitSystem;
 
 		if (stopsByLocation == null)
 		{
 			directions = new Directions();
 
 			stopsByLocation = new MyHashMap<StopLocationGroup, StopLocationGroup>();
-			routesByTag = new MyHashMap<String, RouteConfig>();
-			routes = new ArrayList<RouteConfig>();
+			routesByTag = new MyHashMap<String, Collection<StopLocationGroup>>();
+			routes = new MyHashMap<String, RouteConfig>();
+			ArrayList<RouteConfig> routeList = new ArrayList<RouteConfig>();
 
 			for (TransitSource transitSource : transitSystem.getTransitSources()) {
 				for (RouteConfig route : transitSource.makeRoutes(directions)) {
-					routesByTag.put(route.getRouteName(), route);
-					routes.add(route);
+					ArrayList<StopLocationGroup> collection = new ArrayList<StopLocationGroup>();
+					routesByTag.put(route.getRouteName(), collection);
+					routes.put(route.getRouteName(), route);
+					routeList.add(route);
 					for (StopLocation stop : route.getStops()) {
 						StopLocationGroup locationGroup = stopsByLocation.get(stop);
 						if (locationGroup != null) {
@@ -83,9 +83,6 @@ public class RoutePool {
 					}
 				}
 			}
-        }
-		
-        if (stopsByTag == null) {
         	stopsByTag = new MyHashMap<String, StopLocationGroup>();
         	for (StopLocationGroup stopLocationGroup : stopsByLocation.values()) {
         		if (stopLocationGroup instanceof StopLocation) {
@@ -98,7 +95,20 @@ public class RoutePool {
         			}
         		}
         	}
-        }
+			routeSuffixArray = new SuffixArray<RouteConfig>(true);
+			for (RouteConfig routeConfig : routeList) {
+				routeSuffixArray.add(routeConfig);
+			}
+			routeSuffixArray.setIndexes(PrepopulatedSuffixArrayRoutes.getRouteIndexes());
+
+			stopSuffixArray = new SuffixArray<StopLocation>(true);
+			for (RouteConfig route : routeList) {
+				for (StopLocation stop : route.getStops()) {
+					stopSuffixArray.add(stop);
+				}
+			}
+			stopSuffixArray.setIndexes(PrepopulatedSuffixArrayRoutes.getStopIndexes());
+		}
         
         kdtree = new WeightedSqrEuclid<LocationGroup>(2, stopsByLocation.size());
         for (LocationGroup group : stopsByLocation.values()) {
@@ -108,24 +118,6 @@ public class RoutePool {
         
 		populateFavorites();
 		
-		// there could be a conflict if the search happens while this is being created
-		// but it's not high priority
-		if (routeSuffixArray == null) {
-			routeSuffixArray = new SuffixArray<RouteConfig>(true);
-			for (RouteConfig routeConfig : routes) {
-				routeSuffixArray.add(routeConfig);
-			}
-			routeSuffixArray.setIndexes(PrepopulatedSuffixArrayRoutes.getRouteIndexes());
-		}
-		if (stopSuffixArray == null) {
-			stopSuffixArray = new SuffixArray<StopLocation>(true);
-			for (RouteConfig route : routes) {
-				for (StopLocation stop : route.getStops()) {
-					stopSuffixArray.add(stop);
-				}
-			}
-			stopSuffixArray.setIndexes(PrepopulatedSuffixArrayRoutes.getStopIndexes());
-		}
 			
 	}
 	
@@ -135,7 +127,7 @@ public class RoutePool {
 	}
 	
 	
-	public RouteConfig get(String routeToUpdate) throws IOException {
+	public static Collection<StopLocationGroup> getStopsForRoute(String routeToUpdate) {
 		return routesByTag.get(routeToUpdate);
 	}
 
@@ -217,7 +209,7 @@ public class RoutePool {
 
 	}
 
-	public Directions getDirections() {
+	public static Directions getDirections() {
 		return directions;
 	}
 
@@ -229,8 +221,12 @@ public class RoutePool {
 		return routeSuffixArray;
 	}
 
-	public static StopLocationGroup getStop(String indexingQuery) {
-		return stopsByTag.get(indexingQuery);
+	public static StopLocationGroup getStop(String stopTag) {
+		return stopsByTag.get(stopTag);
+	}
+
+	public static RouteConfig getRoute(String selectedRoute) {
+		return routes.get(selectedRoute);
 	}
 
 }

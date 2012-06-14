@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 import java.util.TimeZone;
 import java.util.concurrent.ConcurrentHashMap;
@@ -17,6 +18,7 @@ import android.content.Context;
 import android.graphics.drawable.Drawable;
 import android.util.Log;
 import boston.Bus.Map.data.AlertsMapping;
+import boston.Bus.Map.data.StopLocationGroup;
 import boston.Bus.Map.data.VehicleLocation;
 import boston.Bus.Map.data.Directions;
 import boston.Bus.Map.data.Location;
@@ -169,15 +171,14 @@ public class TransitSystem {
 		}
 	}
 
-	public void refreshData(RouteConfig routeConfig,
-			int selectedBusPredictions, int maxStops, double centerLatitude,
+	public void refreshData(int selectedBusPredictions, int maxStops, double centerLatitude,
 			double centerLongitude, ConcurrentHashMap<String, VehicleLocation> busMapping,
-			String selectedRoute, RoutePool routePool,
+			String routeToUpdate, RoutePool routePool,
 			Locations locations) throws IOException, ParserConfigurationException, SAXException {
 		for (TransitSource source : transitSources)
 		{
-			source.refreshData(routeConfig, selectedBusPredictions, maxStops, centerLatitude,
-					centerLongitude, busMapping, selectedRoute, routePool, locations);
+			source.refreshData(selectedBusPredictions, maxStops, centerLatitude,
+					centerLongitude, busMapping, routeToUpdate, routePool, locations);
 		}
 	}
 

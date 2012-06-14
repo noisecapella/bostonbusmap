@@ -54,10 +54,9 @@ public class SubwayTransitSource implements TransitSource {
 	
 	
 	@Override
-	public void refreshData(RouteConfig routeConfig,
-			int selectedBusPredictions, int maxStops, double centerLatitude,
+	public void refreshData(int selectedBusPredictions, int maxStops, double centerLatitude,
 			double centerLongitude, ConcurrentHashMap<String, VehicleLocation> busMapping,
-			String selectedRoute, RoutePool routePool,
+			String routeToUpdate, RoutePool routePool,
 			Locations locationsObj)
 			throws IOException, ParserConfigurationException, SAXException {
 		Directions directions = routePool.getDirections();
@@ -79,7 +78,7 @@ public class SubwayTransitSource implements TransitSource {
 			List<LocationGroup> locations = locationsObj.getLocations(maxStops, centerLatitude, centerLongitude, false);
 
 			//ok, do predictions now
-			getPredictionsRoutes(locations, maxStops, routeConfig.getRouteName(), outputRoutes, selectedBusPredictions);
+			getPredictionsRoutes(locations, maxStops, routeToUpdate, outputRoutes, selectedBusPredictions);
 			break;
 		}
 		case Main.BUS_PREDICTIONS_ALL:
@@ -115,7 +114,7 @@ public class SubwayTransitSource implements TransitSource {
 			//get alerts if necessary
 			int alertKey = alertKeys.get(route);
 			
-			RouteConfig railRouteConfig = routePool.get(route);
+			RouteConfig railRouteConfig = routePool.getRoute(route);
 			if (railRouteConfig.obtainedAlerts() == false)
 			{
 				String url = AlertsMapping.alertUrlPrefix + alertKey;

@@ -17,6 +17,7 @@ import boston.Bus.Map.data.Prediction;
 import boston.Bus.Map.data.RouteConfig;
 import boston.Bus.Map.data.RoutePool;
 import boston.Bus.Map.data.StopLocation;
+import boston.Bus.Map.data.StopLocationGroup;
 import boston.Bus.Map.util.LogUtil;
 
 public class BusPredictionsFeedParser extends DefaultHandler
@@ -33,7 +34,7 @@ public class BusPredictionsFeedParser extends DefaultHandler
 	private static final String delayedKey = "delayed";
 	
 	private final RoutePool stopMapping;
-	private StopLocation currentLocation;
+	private StopLocationGroup currentLocation;
 	private RouteConfig currentRoute;
 	private final Directions directions;
 	
@@ -56,25 +57,17 @@ public class BusPredictionsFeedParser extends DefaultHandler
 		if (localName.equals(predictionsKey))
 		{
 			String currentRouteTag = attributes.getValue(routeTagKey);
-			try
-			{
-				currentRoute = stopMapping.get(currentRouteTag);
-			}
-			catch (IOException e)
-			{
-				LogUtil.e(e);
-				currentRoute = null;
-			}
+			currentRoute = stopMapping.getRoute(currentRouteTag);
 			
 			currentLocation = null;
 			if (currentRoute != null)
 			{
 				String stopTag = attributes.getValue(stopTagKey);
-				currentLocation = currentRoute.getStop(stopTag);
+				currentLocation = RoutePool.getStop(stopTag);
 				
 				if (currentLocation != null)
 				{
-					currentLocation.clearPredictions(currentRoute);
+					currentLocation.clearPredictions(currentRoute.getRouteName());
 				}
 			}
 		}

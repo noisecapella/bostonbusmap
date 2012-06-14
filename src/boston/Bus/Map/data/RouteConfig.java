@@ -12,7 +12,7 @@ import boston.Bus.Map.util.Box;
 public class RouteConfig implements ObjectWithString
 {
 	private final ArrayList<StopLocation> stopOrder;
-	private final MyHashMap<String, StopLocation> stops;
+
 	private Path[] paths;
 	private final String route;
 	private final String routeTitle;
@@ -33,18 +33,7 @@ public class RouteConfig implements ObjectWithString
 	}
 	
 	public void addStop(String tag, StopLocation stopLocation) {
-		stops.put(tag, stopLocation);
 		stopOrder.add(stopLocation);
-	}
-	
-	public StopLocation getStop(String tag)
-	{
-		return stops.get(tag);
-	}
-
-	public MyHashMap<String, StopLocation> getStopMapping()
-	{
-		return stops;
 	}
 	
 	public Collection<StopLocation> getStops() {
@@ -80,7 +69,6 @@ public class RouteConfig implements ObjectWithString
 			throws IOException {
 		this.route = route;
 		this.routeTitle = routeTitle;
-		stops = new MyHashMap<String, StopLocation>();
 		
 		this.color = color;
 		this.oppositeColor = oppositeColor;

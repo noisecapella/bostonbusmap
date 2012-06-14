@@ -10,6 +10,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collection;
 import java.util.Date;
 
 import java.util.HashSet;
@@ -24,6 +25,8 @@ import javax.xml.parsers.SAXParserFactory;
 import android.graphics.drawable.Drawable;
 import android.text.format.Time;
 import android.util.Log;
+import boston.Bus.Map.data.CommuterRailStopLocation;
+import boston.Bus.Map.data.StopLocationGroup;
 import boston.Bus.Map.data.VehicleLocation;
 import boston.Bus.Map.data.Directions;
 import boston.Bus.Map.data.MyHashMap;
@@ -83,12 +86,12 @@ public class SubwayPredictionsFeedParser
 	{
 		if (route != null)
 		{
-			RouteConfig routeConfig = routePool.get(route);
-			if (routeConfig != null)
+			Collection<StopLocationGroup> stopsForRoute = routePool.getStopsForRoute(route);
+			if (stopsForRoute != null)
 			{
-				for (StopLocation stopLocation : routeConfig.getStops())
+				for (StopLocationGroup stopLocationGroup : stopsForRoute)
 				{
-					stopLocation.clearPredictions(routeConfig);
+					stopLocationGroup.clearPredictions(route);
 				}
 			}
 		}
@@ -96,13 +99,10 @@ public class SubwayPredictionsFeedParser
 		{
 			for (String subwayRoute : SubwayTransitSource.getAllSubwayRoutes())
 			{
-				RouteConfig routeConfig = routePool.get(subwayRoute);
-				if (routeConfig != null)
+				Collection<StopLocationGroup> stopsForRoute = routePool.getStopsForRoute(subwayRoute);
+				for (StopLocationGroup stopLocationGroup : stopsForRoute)
 				{
-					for (StopLocation stopLocation : routeConfig.getStops())
-					{
-						stopLocation.clearPredictions(routeConfig);
-					}
+					stopLocationGroup.clearPredictions(subwayRoute);
 				}
 			}
 		}
@@ -115,7 +115,7 @@ public class SubwayPredictionsFeedParser
 		
 		//store everything here, then write out all out at once
 		ArrayList<Prediction> predictions = new ArrayList<Prediction>(); 
-		ArrayList<StopLocation> stopLocations = new ArrayList<StopLocation>(); 
+		ArrayList<StopLocationGroup> stopLocationGroups = new ArrayList<StopLocationGroup>(); 
 		
 		//start off with all the buses to be removed, and if they're still around remove them from toRemove
 		HashSet<String> toRemove = new HashSet<String>();
@@ -141,9 +141,9 @@ public class SubwayPredictionsFeedParser
 				
 				
 				route = lineArray[ROUTE_INDEX].trim();
-				RouteConfig routeConfig = routePool.get(route);
+				Collection<StopLocationGroup> stopsForRoute = routePool.getStopsForRoute(route);
 
-				if (routeConfig == null)
+				if (stopsForRoute == null)
 				{
 					//bogus JSON maybe?
 					continue;
@@ -151,10 +151,9 @@ public class SubwayPredictionsFeedParser
 				
 				String stopKey = lineArray[STOP_TAG_INDEX].trim();
 				
-				//this is a subway route so all StopLocations should be SubwayStopLocations 
-				SubwayStopLocation stopLocation = (SubwayStopLocation)routeConfig.getStop(stopKey);
+				StopLocationGroup stopLocationGroup = RoutePool.getStop(stopKey);
 
-				if (stopLocation == null)
+				if (stopLocationGroup == null)
 				{
 					continue;
 				}
@@ -181,13 +180,13 @@ public class SubwayPredictionsFeedParser
 				String vehicleId = null;
 
 				predictions.add(new Prediction(minutes, vehicleId, directions.getTitleAndName(direction),
-						routeConfig.getRouteName(), false, false, Prediction.NULL_LATENESS));
-				stopLocations.add(stopLocation);
+						route, false, false, Prediction.NULL_LATENESS));
+				stopLocationGroups.add(stopLocationGroup);
 
 				String informationType = lineArray[ARRIVAL_STATUS_INDEX].trim();
 				if ("Arrived".equals(informationType))
 				{
-					StopLocation nextStop = getNextStop(routeConfig, stopLocation, direction);
+					StopLocationGroup nextStop = getNextStop(route, stopLocationGroup, direction);
 
 					final int arrowTopDiff = drawables.getVehicle().getIntrinsicHeight() / 5;
 
@@ -201,8 +200,8 @@ public class SubwayPredictionsFeedParser
 						routeTitle = route;
 					}
 
-					busLocation = new SubwayTrainLocation(stopLocation.getLatitudeAsDegrees(), stopLocation.getLongitudeAsDegrees(),
-							tripId, lastFeedUpdateTime, currentMillis, null, true, direction, null, drawables, route, directions, routeTitle + " at " + stopLocation.getTitle(), true, arrowTopDiff);
+					busLocation = new SubwayTrainLocation(stopLocationGroup.getLatitudeAsDegrees(), stopLocationGroup.getLongitudeAsDegrees(),
+							tripId, lastFeedUpdateTime, currentMillis, null, true, direction, null, drawables, route, directions, routeTitle + " at " + stopLocationGroup.getFirstTitle(), true, arrowTopDiff);
 					busMapping.put(tripId, busLocation);
 
 					toRemove.remove(tripId);
@@ -235,10 +234,10 @@ public class SubwayPredictionsFeedParser
 		
 		clearPredictions(route);
 
-		for (int i = 0; i < stopLocations.size(); i++)
+		for (int i = 0; i < stopLocationGroups.size(); i++)
 		{
-			StopLocation stopLocation = stopLocations.get(i);
-			stopLocation.addPrediction(predictions.get(i));
+			StopLocationGroup stopLocationGroup = stopLocationGroups.get(i);
+			stopLocationGroup.addPrediction(predictions.get(i));
 		}
 		
 		for (String id : toRemove)
@@ -253,7 +252,17 @@ public class SubwayPredictionsFeedParser
 	 * @param stopLocation
 	 * @return
 	 */
-	private StopLocation getNextStop(RouteConfig routeConfig, SubwayStopLocation stopLocation, String dirTag) {
+	private StopLocationGroup getNextStop(String route, StopLocationGroup stopLocationGroup, String dirTag) {
+		SubwayStopLocation stopLocation = null;
+		for (StopLocation stop : stopLocationGroup.getStops()) {
+			if (stop instanceof SubwayStopLocation && !(stop instanceof CommuterRailStopLocation)) {
+				stopLocation = (SubwayStopLocation)stop;
+			}
+		}
+		if (stopLocation == null) {
+			return null;
+		}
+		
 		String stoptag = stopLocation.getStopTag();
 		String dirSuffix = stoptag.substring(stoptag.length() - 1);
 		String fromBranch = stopLocation.getBranch();
@@ -262,17 +271,17 @@ public class SubwayPredictionsFeedParser
 		//JFK is on Trunk, as well as anything north of it
 		if (stoptag.equals("RSAVN") || stoptag.equals("RNQUN"))
 		{
-			return routeConfig.getStopMapping().get("RJFKN");
+			return RoutePool.getStop("RJFKN");
 		}
 		else if (stoptag.equals("RJFKS"))
 		{
 			if (dirTag.equals(RedSouthToAshmont))
 			{
-				return routeConfig.getStopMapping().get("RSAVS");
+				return RoutePool.getStop("RSAVS");
 			}
 			else
 			{
-				return routeConfig.getStopMapping().get("RNQUS");
+				return RoutePool.getStop("RNQUS");
 			}
 		}
 		else
@@ -280,18 +289,21 @@ public class SubwayPredictionsFeedParser
 
 			int stopLocationPlatformOrder = stopLocation.getPlatformOrder();
 
-			for (StopLocation stop : routeConfig.getStops())
+			for (StopLocationGroup stopGroup : RoutePool.getStopsForRoute(route))
 			{
-				//this is a subway route so we can cast all stops on it
-				SubwayStopLocation subwayStop = (SubwayStopLocation)stop;
-				
-				String toBranch = subwayStop.getBranch();
+				for (StopLocation stop : stopGroup.getStops()) {
+					if (stop instanceof SubwayStopLocation) {
+						SubwayStopLocation subwayStop = (SubwayStopLocation)stop;
 
-				//Log.v("BostonBusMap", "from " + fromBranch + " to " + toBranch);
-				if (subwayStop.getPlatformOrder() == stopLocationPlatformOrder + 1 && fromBranch.equals(toBranch) &&
-						subwayStop.getStopTag().endsWith(dirSuffix))
-				{
-					return subwayStop;
+						String toBranch = subwayStop.getBranch();
+
+						//Log.v("BostonBusMap", "from " + fromBranch + " to " + toBranch);
+						if (subwayStop.getPlatformOrder() == stopLocationPlatformOrder + 1 && fromBranch.equals(toBranch) &&
+								subwayStop.getStopTag().endsWith(dirSuffix))
+						{
+							return stopGroup;
+						}
+					}
 				}
 			}
 

@@ -26,5 +26,10 @@ public interface StopLocationGroup extends LocationGroup, ObjectWithString
 	TransitSource getTransitSource();
 	void clearRecentlyUpdated();
 	String getFirstStopTag();
+	void clearPredictions(String route);
+	void addPrediction(Prediction prediction);
+	void addPrediction(int minutes, long epochTime, String vehicleId,
+			String dirTag, RouteConfig currentRoute, Directions directions,
+			boolean affectedByLayover, boolean isDelayed, int nullLateness);
 	
 }

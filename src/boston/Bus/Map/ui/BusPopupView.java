@@ -287,9 +287,9 @@ public class BusPopupView extends BalloonOverlayView<BusOverlayItem>
 		String route = "";
 		try
 		{
-			if (locations != null && locations.getSelectedRoute() != null && locations.getSelectedRoute().getRouteName() != null)
+			if (locations != null && locations.getSelectedRouteName() != null)
 			{
-				String routeKey = locations.getSelectedRoute().getRouteName();
+				String routeKey = locations.getSelectedRouteName();
 				route = locations.getRouteName(routeKey);
 			}
 		}
