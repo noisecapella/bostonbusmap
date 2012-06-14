@@ -990,7 +990,7 @@ def commuterRailRoute(routes, routeCsv, specialDirMapping, routeTitlesToKeys):
     #create stop
     stopTitle = routeCsv["stop_id"]
     combinedDirectionHash = createCommuterRailDirectionHash(routeCsv["direction_id"], routeCsv["Branch"])
-    stopTag = stopTagPrefix + stopTitle + makeValid(combinedDirectionHash)
+    stopTag = stopTagPrefix + stopTitle
     stop = {"tag" : stopTag, "title" : stopTitle, "lat" : routeCsv["stop_lat"], "lon" : routeCsv["stop_lon"], "platformOrder" : int(routeCsv["stop_sequence"]), "branch" : routeCsv["Branch"], "source" : "commuterRail"}
         
     route["stops"].append(stop)
