@@ -36,12 +36,6 @@ public class FakeTransitSource implements TransitSource {
 	}
 
 	@Override
-	public boolean hasPaths() {
-		// TODO Auto-generated method stub
-		return false;
-	}
-
-	@Override
 	public String[] getRoutes() {
 		// TODO Auto-generated method stub
 		return null;

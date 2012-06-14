@@ -181,18 +181,6 @@ public class SubwayTransitSource implements TransitSource {
 		}
 	}
 
-
-	@Override
-	public boolean hasPaths() {
-		return false;
-	}
-
-	
-
-	public static String getRouteConfigUrl() {
-		return "http://developer.mbta.com/RT_Archive/RealTimeHeavyRailKeys.csv";
-	}
-
 	private static boolean isSubway(String route) {
 		for (String subwayRoute : subwayRoutes)
 		{

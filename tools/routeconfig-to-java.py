@@ -23,6 +23,8 @@ import boston.Bus.Map.data.SubwayStopLocation;
 import boston.Bus.Map.data.CommuterRailStopLocation;
 import boston.Bus.Map.data.Direction;
 import boston.Bus.Map.data.Path;
+
+import cern.colt.list.IntArrayList;
 """
 
 individualHeader = commonHeader
@@ -77,7 +79,7 @@ def printMakeAllRoutes(routes, prefix):
     f.write("    private RouteConfig[] makeAllRoutes(Directions directions) throws IOException {\n")
     f.write("        return new RouteConfig[] {\n")
     for i in xrange(len(routes)):
-        route = routes.values()[i]
+        route = routes[i]
         routeTag = route["tag"]
         f.write("            {0}PrepopulatedDataRoute{1}.makeRoute(transitSource, directions),".format(prefix, makeValid(routeTag)) + "\n")
     f.write("        };\n")
@@ -116,11 +118,11 @@ def humanize(locKey):
     return str(locKey).replace("-", "_").replace(".", "_").replace(",", "_").replace(" ", "_").replace("(", "_").replace(")", "_")
 
 def makeValid(s):
-    return s.replace("-", "_").replace("/", "_").replace(" ", "_")
+    return s.replace("-", "_").replace("/", "_").replace(" ", "_").replace("|", "_")
 
 def printEachMakeRoute(routes, prefix):
-    for i in xrange(len(routes.values())):
-        route = routes.values()[i]
+    for i in xrange(len(routes)):
+        route = routes[i]
         routeTag = route["tag"]
         f = open(sys.argv[2] + "/boston/Bus/Map/data/prepopulated/{0}PrepopulatedDataRoute{1}.java".format(prefix, makeValid(routeTag)), "wb")
         f.write(individualHeader)
@@ -128,14 +130,14 @@ def printEachMakeRoute(routes, prefix):
         f.write("    public static RouteConfig makeRoute(TransitSource transitSource, Directions directions) throws IOException {1}".format(i, "{") + "\n")
         f.write("        RouteConfig route = new RouteConfig(\"{0}\", \"{1}\", 0x{2}, 0x{3}, transitSource);".format(routeTag, route["title"], route["color"], route["oppositeColor"]) + "\n")
 
-        for stop in route["stops"].values():
+        for stop in route["stops"]:
             stopTag = stop["tag"]
             if stop["source"] == "subway":
-                f.write("        SubwayStopLocation stop{0} = new SubwayStopLocation({1}f, {2}f, transitSource, \"{4}\", \"{3}\", {5}, \"{6}\", \"{7}\", {8});\n".format(makeValid(stopTag), stop["lat"], stop["lon"], stop["title"], stopTag, stop["platformOrder"], stop["branch"], routeTag, stop["id"]))
+                f.write("        SubwayStopLocation stop{0} = new SubwayStopLocation({1}f, {2}f, transitSource, \"{4}\", \"{3}\", {5}, \"{6}\", \"{7}\");\n".format(makeValid(stopTag), stop["lat"], stop["lon"], stop["title"], stopTag, stop["platformOrder"], stop["branch"], routeTag))
             elif stop["source"] == "commuterRail":
-                f.write("        CommuterRailStopLocation stop{0} = new CommuterRailStopLocation({1}f, {2}f, transitSource, \"{4}\", \"{3}\", {5}, \"{6}\", \"{7}\", {8});\n".format(makeValid(stopTag), stop["lat"], stop["lon"], stop["title"], stopTag, stop["platformOrder"], stop["branch"], routeTag, stop["id"]))
+                f.write("        CommuterRailStopLocation stop{0} = new CommuterRailStopLocation({1}f, {2}f, transitSource, \"{4}\", \"{3}\", {5}, \"{6}\", \"{7}\");\n".format(makeValid(stopTag), stop["lat"], stop["lon"], stop["title"], stopTag, stop["platformOrder"], stop["branch"], routeTag))
             else:
-                f.write("        StopLocation stop{0} = new StopLocation({1}f, {2}f, transitSource, \"{4}\", \"{3}\", \"{5}\", {6});".format(makeValid(stopTag), stop["lat"], stop["lon"], stop["title"], stopTag, routeTag, stop["id"]) + "\n")
+                f.write("        StopLocation stop{0} = new StopLocation({1}f, {2}f, transitSource, \"{4}\", \"{3}\", \"{5}\");".format(makeValid(stopTag), stop["lat"], stop["lon"], stop["title"], stopTag, routeTag) + "\n")
             f.write("        route.addStop(\"{0}\", stop{1});".format(stopTag, makeValid(stopTag)) + "\n")
 
         for direction in route["directions"].values():
@@ -167,18 +169,18 @@ def printEachMakeRoute(routes, prefix):
 
 
 def nextbusToRoutes(routesXml):
-    routes = {}
+    routes = []
     for routeXml in routesXml.getElementsByTagName("route"):
-        stops = {}
+        stops = []
         directions = {}
         path = []
         routeTag = routeXml.getAttribute("tag")
         route = {"tag":routeTag, "title": routeXml.getAttribute("title"), "color": routeXml.getAttribute("color"), "oppositeColor": routeXml.getAttribute("oppositeColor"), "stops": stops, "directions": directions, "path" : path}
-        routes[routeTag] = route
+        routes.append(route)
         for routeChildXml in routeXml.childNodes:
             if routeChildXml.nodeName == "stop":
                 stopTag = routeChildXml.getAttribute("tag")
-                stops[stopTag] = {"tag": stopTag, "title": routeChildXml.getAttribute("title"), "lat": routeChildXml.getAttribute("lat"), "lon": routeChildXml.getAttribute("lon"), "source" : "bus"}
+                stops.append({"tag": stopTag, "title": routeChildXml.getAttribute("title"), "lat": routeChildXml.getAttribute("lat"), "lon": routeChildXml.getAttribute("lon"), "source" : "bus"})
             elif routeChildXml.nodeName == "direction":
                 dirTag = routeChildXml.getAttribute("tag")
                 directionStops = []
@@ -208,7 +210,7 @@ def makeSuffixArray(data):
         title, id = tup
         for i in xrange(len(title)):
             indexes.append((title[i:], len(indexes), id))
-    return sorted(indexes, key = lambda x: x[0].lower)
+    return sorted(indexes, key = lambda x: x[0].lower())
     
 
 def runSuffixArrayRoutes(routes):
@@ -217,34 +219,51 @@ def runSuffixArrayRoutes(routes):
     f.write(commonHeader)
 
     f.write("public class PrepopulatedSuffixArrayRoutes {\n")
-    f.write("    public int[] getIndexes() {\n")
-    
-    suffixArray = makeSuffixArray([(route["title"], route["id"]) for route in routes.values()])
+    f.write("    public static int[] getRouteIndexes() {\n")
+    f.write("        return new int[] {\n")
+    suffixArray = makeSuffixArray([(route["title"], route["id"]) for route in routes])
     for title, index, id in suffixArray:
-        f.write("        {0},\n".format(id))
+        f.write("        {0}, //{1}\n".format(id, title))
+    f.write("        };\n")
+    f.write("    }\n")
 
+    stopCount = 0
+    for route in routes:
+        stopCount += len(route["stops"])
+
+    f.write("    public static int[] getStopIndexes() {\n")
+    f.write("        IntArrayList ret = new IntArrayList({0});\n".format(stopCount))
+    allStops = [stop for stop in iterateStops(routes)]
+    for i in xrange((len(allStops) / 5000) + 1):
+        f.write("        ret.addAllOf(new IntArrayList(PrepopulatedSuffixArrayStops{0}.getIndexes()));\n".format(i))
+    f.write("        return ret.elements();\n")
     f.write("    }\n")
     f.write("}\n")
+    f.close()
 
-def getAllStops(routes):
-    for route in routes.values():
-        for stop in route["stops"].values():
+def iterateStops(routes):
+    for route in routes:
+        for stop in route["stops"]:
             yield stop
+
 def runSuffixArrayStops(routes):
-    f = open(sys.argv[2] + "/boston/Bus/Map/data/prepopulated/PrepopulatedSuffixArrayStops.java", "wb")
-
-    f.write(commonHeader)
-
-    f.write("public class PrepopulatedSuffixArrayStops {\n")
-    f.write("    public int[] getIndexes() {\n")
+    allStops = [stop for stop in iterateStops(routes)]
     
-    stops = getAllStops(routes)
-    suffixArray = makeSuffixArray([(stop["title"], stop["id"]) for stop in stops])
-    for title, index, id in suffixArray:
-        f.write("        {0},\n".format(id))
+    suffixArray = makeSuffixArray([(stop["title"], stop["id"]) for stop in allStops])
+    for i in xrange((len(allStops) / 5000) + 1):
+        f = open(sys.argv[2] + "/boston/Bus/Map/data/prepopulated/PrepopulatedSuffixArrayStops{0}.java".format(i), "wb")
 
-    f.write("    }\n")
-    f.write("}\n")
+        f.write(commonHeader)
+        f.write("public class PrepopulatedSuffixArrayStops{0} {1}\n".format(i, "{"))
+        f.write("    public static int[] getIndexes() {\n")
+        f.write("        return new int[] {\n")
+        
+        for title, index, id in suffixArray[i*5000:(i+1)*5000]:
+            f.write("        {0},\n".format(id, title))
+        f.write("        };\n")
+        f.write("    }\n")
+        f.write("}\n")
+        f.close()         
 
 def runAlerts(routes):
     routeToAlertKey = alerts(routes)
@@ -480,8 +499,9 @@ Red Line - Mattapan Line,233"""
         routeDescriptionToAlertKey[routeDescription] = alertKey
 
     routeToAlertKey = {}
-    for routeName, route in routes.iteritems():
+    for route in routes:
         routeTitle = route["title"]
+        routeName = route["tag"]
         for routeDescription, alertKey in routeDescriptionToAlertKey.iteritems():
             if routeDescription == routeTitle:
                 routeToAlertKey[routeName] = alertKey
@@ -521,7 +541,7 @@ Red Line - Mattapan Line,233"""
     
 
 def addToAlertList(routeTitle, alertIndex, routes, routeToAlertKey):
-    for routeTag, route in routes.iteritems():
+    for route in routes:
         if route["title"] == routeTitle:
             routeToAlertKey[route["tag"]] = alertIndex
             return
@@ -871,7 +891,7 @@ Providence/Stoughton Line,1,10,Hyde Park,42.255121,-71.125022,Trunk
 Providence/Stoughton Line,1,11,Ruggles,42.335545,-71.090524,Trunk
 Providence/Stoughton Line,1,12,Back Bay,42.347158,-71.075769,Trunk
 Providence/Stoughton Line,1,13,South Station,42.352614,-71.055364,Trunk"""
-    routeNames = ["Greenbush",
+    routeTitles = ["Greenbush",
                   "Kingston/Plymouth",
                   "Middleborough/Lakeville",
                   "Fairmount",
@@ -886,23 +906,24 @@ Providence/Stoughton Line,1,13,South Station,42.352614,-71.055364,Trunk"""
     
     routeTagPrefix = "CR-"
 
-    routes = [(routeTagPrefix + str(i)) for i in xrange(1,13)]
+    routeNames = [(routeTagPrefix + str(i)) for i in xrange(1,13)]
     routeTitlesToKeys = {}
-    for i in xrange(len(routes)):
-        routeTitlesToKeys[routeNames[i]] = routes[i]
+    for i in xrange(len(routeNames)):
+        routeTitlesToKeys[routeTitles[i]] = routeNames[i]
 
 
     x = dataFromMBTA.split("\n")
     csv = [each.split(",") for each in x]
     header = csv[0]
     csv = [csvToMap(header, line) for line in csv[1:]]
-    routes = {}
+    routes = []
     specialDirMapping = {}
     for mapping in csv:
         commuterRailRoute(routes, mapping, specialDirMapping, routeTitlesToKeys)
+    routes = sorted(routes, key=lambda x: x["tag"])
 
     #TODO: workarounds
-    for route in routes.values():
+    for route in routes:
         #TODO: put actual stops here
         for direction in route["directions"].values():
             direction["stops"] = []
@@ -916,7 +937,7 @@ Providence/Stoughton Line,1,13,South Station,42.352614,-71.055364,Trunk"""
                 stop = innerInnerMapping[platformOrder]
                 point = (stop["lat"], stop["lon"])
                 path.append(point)
-            routes[routeTag]["path"].append(path)
+            find_route(routes, routeTag)["path"].append(path)
         alreadyHandledDirections = {}
         trunkBranch = "Trunk"
         for directionHash in innerMapping.keys():
@@ -948,7 +969,7 @@ Providence/Stoughton Line,1,13,South Station,42.352614,-71.055364,Trunk"""
                 trunkStop = trunkInnerMapping[maxTrunkOrder]
                 path.append((branchStop["lat"], branchStop["lon"]))
                 path.append((trunkStop["lat"], trunkStop["lon"]))
-                routes[routeTag]["path"].append(path)
+                find_route(routes, routeTag)["path"].append(path)
     return routes
     
 def commuterRailRoute(routes, routeCsv, specialDirMapping, routeTitlesToKeys):
@@ -958,27 +979,27 @@ def commuterRailRoute(routes, routeCsv, specialDirMapping, routeTitlesToKeys):
         routeTitle = routeTitle[:-5]
     routeTag = routeTitlesToKeys[routeTitle]
 
-    if routeTag not in routes:
-        stops = {}
+    route = find_route(routes, routeTag)
+    if not route:
+        stops = []
         directions = {}
         path = []
-        routes[routeTag] = {"tag" : routeTag, "title": routeTitle, "color": "000000", "oppositeColor": "000000", "stops": stops, "directions": directions, "path" : path}
-            
-    route = routes[routeTag]
+        route = {"tag" : routeTag, "title": routeTitle, "color": "000000", "oppositeColor": "000000", "stops": stops, "directions": directions, "path" : path}
+        routes.append(route)
 
     #create stop
     stopTitle = routeCsv["stop_id"]
-    stopTag = stopTagPrefix + stopTitle
+    combinedDirectionHash = createCommuterRailDirectionHash(routeCsv["direction_id"], routeCsv["Branch"])
+    stopTag = stopTagPrefix + stopTitle + makeValid(combinedDirectionHash)
     stop = {"tag" : stopTag, "title" : stopTitle, "lat" : routeCsv["stop_lat"], "lon" : routeCsv["stop_lon"], "platformOrder" : int(routeCsv["stop_sequence"]), "branch" : routeCsv["Branch"], "source" : "commuterRail"}
         
-    route["stops"][stopTag] = stop
+    route["stops"].append(stop)
 
     if routeTag not in specialDirMapping:
         specialDirMapping[routeTag] = {}
 
     innerMapping = specialDirMapping[routeTag]
 
-    combinedDirectionHash = createCommuterRailDirectionHash(routeCsv["direction_id"], routeCsv["Branch"])
     if combinedDirectionHash not in innerMapping:
         innerMapping[combinedDirectionHash] = {}
     innerInnerMapping = innerMapping[combinedDirectionHash]
@@ -989,18 +1010,25 @@ def commuterRailRoute(routes, routeCsv, specialDirMapping, routeTitlesToKeys):
 def createCommuterRailDirectionHash(direction, branch):
     return direction + "|" + branch
 
+def find_route(routes, routeTag):
+    for route in routes:
+        if route["tag"] == routeTag:
+            return route
+
 def subwayRoute(routes, routeCsv, specialDirMapping):
     routeTag = routeCsv["Line"]
-    if routeTag not in routes:
-        stops = {}
+
+    route = find_route(routes, routeTag)
+    if not route:
+        stops = []
         directions = {}
         path = []
-        routes[routeTag] = {"tag" : routeTag, "title" : routeTag, "color" : getColor(routeTag), "oppositeColor" : getColor("Blue"), "stops" : stops, "directions" : directions, "path" : path}
+        route = {"tag" : routeTag, "title" : routeTag, "color" : getColor(routeTag), "oppositeColor" : getColor("Blue"), "stops" : stops, "directions" : directions, "path" : path}
+        routes.append(route)
     
-    route = routes[routeTag]
     stopTag = routeCsv["PlatformKey"]
     stop = {"tag": stopTag, "lat" : routeCsv["stop_lat"], "lon" : routeCsv["stop_lon"], "platformOrder" : int(routeCsv["PlatformOrder"]), "title" : routeCsv["stop_name"], "branch" : routeCsv["Branch"], "source": "subway"}
-    route["stops"][stopTag] = stop
+    route["stops"].append(stop)
     
     if routeTag not in specialDirMapping:
         specialDirMapping[routeTag] = {}
@@ -1023,7 +1051,7 @@ def subwayRoutes():
     header = csv[0]
     csv = [csvToMap(header, line) for line in csv[1:]]
     
-    routes = {}
+    routes = []
     specialDirMapping = {}
     for mapping in csv:
         subwayRoute(routes, mapping, specialDirMapping)
@@ -1038,17 +1066,17 @@ def subwayRoutes():
     OrangeSouthToForestHills = "OrangeSB0"
     
     #workarounds:
-    routes["Red"]["directions"][RedNorthToAlewife] = {"tag": RedNorthToAlewife, "name": "North toward Alewife", "title": "", "route": "Red"}
-    routes["Red"]["directions"][RedNorthToAlewife2] = {"tag": RedNorthToAlewife2, "name": "North toward Alewife", "title": "", "route": "Red"}
-    routes["Red"]["directions"][RedSouthToBraintree] = {"tag": RedSouthToBraintree, "name": "South toward Braintree", "title": "", "route": "Red"}
-    routes["Red"]["directions"][RedSouthToAshmont] = {"tag": RedSouthToAshmont, "name": "South toward Ashmont", "title": "", "route": "Red"}
-    routes["Blue"]["directions"][BlueEastToWonderland] = {"tag": BlueEastToWonderland, "name": "East toward Wonderland", "title": "", "route": "Blue"}
-    routes["Blue"]["directions"][BlueWestToBowdoin] = {"tag": BlueWestToBowdoin, "name": "West toward Bowdoin", "title": "", "route": "Blue"}
-    routes["Orange"]["directions"][OrangeNorthToOakGrove] = {"tag": OrangeNorthToOakGrove, "name": "North toward Oak Grove", "title": "", "route": "Orange"}
-    routes["Orange"]["directions"][OrangeSouthToForestHills] = {"tag": OrangeSouthToForestHills, "name": "South toward Forest Hills", "title": "", "route": "Orange"}
+    find_route(routes, "Red")["directions"][RedNorthToAlewife] = {"tag": RedNorthToAlewife, "name": "North toward Alewife", "title": "", "route": "Red"}
+    find_route(routes, "Red")["directions"][RedNorthToAlewife2] = {"tag": RedNorthToAlewife2, "name": "North toward Alewife", "title": "", "route": "Red"}
+    find_route(routes, "Red")["directions"][RedSouthToBraintree] = {"tag": RedSouthToBraintree, "name": "South toward Braintree", "title": "", "route": "Red"}
+    find_route(routes, "Red")["directions"][RedSouthToAshmont] = {"tag": RedSouthToAshmont, "name": "South toward Ashmont", "title": "", "route": "Red"}
+    find_route(routes, "Blue")["directions"][BlueEastToWonderland] = {"tag": BlueEastToWonderland, "name": "East toward Wonderland", "title": "", "route": "Blue"}
+    find_route(routes, "Blue")["directions"][BlueWestToBowdoin] = {"tag": BlueWestToBowdoin, "name": "West toward Bowdoin", "title": "", "route": "Blue"}
+    find_route(routes, "Orange")["directions"][OrangeNorthToOakGrove] = {"tag": OrangeNorthToOakGrove, "name": "North toward Oak Grove", "title": "", "route": "Orange"}
+    find_route(routes, "Orange")["directions"][OrangeSouthToForestHills] = {"tag": OrangeSouthToForestHills, "name": "South toward Forest Hills", "title": "", "route": "Orange"}
 
     # TODO: put actual stop sequences here
-    for route in routes.values():
+    for route in routes:
         for direction in route["directions"].values():
             direction["stops"] = []
 
@@ -1069,23 +1097,24 @@ def subwayRoutes():
                 jfkStation = innerMapping["NBTrunk"][jfkNorthBoundOrder]
                 if jfkStation:
                     path.append((jfkStation["lat"], jfkStation["lon"]))
-            routes[routeTag]["path"].append(path)
+            route = find_route(routes, routeTag)
+            route["path"].append(path)
 
 
     return routes
 
-def markAllStops(routes):
-    count = 0
-    for route in routes.values():
-        for stop in route["stops"].values():
-            stop["id"] = count
-            count += 1
-
 def markAllRoutes(routes):
     count = 0
-    for route in routes.values():
+    for route in routes:
         route["id"] = count
         count += 1
+
+def markAllStops(routes):
+    for route in routes:
+        count = 0
+        for stop in route["stops"]:
+            stop["id"] = count
+            count += 1
 
 def main():
     if len(sys.argv) != 3:
@@ -1103,13 +1132,13 @@ def main():
     commuterRailPrefix = "CommuterRail"
     myCommuterRailRoutes = commuterRailRoutes()
 
-    combinedRoutes = {}
-    for routeTag, route in nextbusRoutes.iteritems():
-        combinedRoutes[routeTag] = route
-    for routeTag, route in mySubwayRoutes.iteritems():
-        combinedRoutes[routeTag] = route
-    for routeTag, route in myCommuterRailRoutes.iteritems():
-        combinedRoutes[routeTag] = route
+    combinedRoutes = []
+    for route in myCommuterRailRoutes:
+        combinedRoutes.append(route)
+    for route in mySubwayRoutes:
+        combinedRoutes.append(route)
+    for route in nextbusRoutes:
+        combinedRoutes.append(route)
 
     markAllRoutes(combinedRoutes)
     markAllStops(combinedRoutes)

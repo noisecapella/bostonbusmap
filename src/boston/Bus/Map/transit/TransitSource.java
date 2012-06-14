@@ -29,8 +29,6 @@ public interface TransitSource {
 			RoutePool routePool, Locations locationsObj)
 	throws IOException, ParserConfigurationException, SAXException;
 
-	boolean hasPaths();
-
 	public String[] getRoutes();
 	
 	public MyHashMap<String, String> getRouteKeysToTitles();

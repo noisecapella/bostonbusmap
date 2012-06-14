@@ -105,12 +105,6 @@ public class CommuterRailTransitSource implements TransitSource {
 		routes[index] = key;
 	}
 
-	public static String getRouteConfigUrl()
-	{
-
-		return null;
-	}
-
 	@Override
 	public void refreshData(RouteConfig routeConfig,
 			int selectedBusPredictions, int maxStops, double centerLatitude,
@@ -259,25 +253,12 @@ public class CommuterRailTransitSource implements TransitSource {
 		}
 	}
 
-	private void addToFavoritePredictionsUrl(String route, ArrayList<String> outputUrls, ArrayList<String> outputAlertUrls,
-			ArrayList<String> outputRoutes) {
-		if (isCommuterRail(route) && outputRoutes.contains(route) == false) {
-			String index = route.substring(routeTagPrefix.length());
-			outputUrls.add(dataUrlPrefix + index + predictionsUrlSuffix);
-			String alertUrl = routeKeysToAlertUrls.get(route);
-			outputAlertUrls.add(alertUrl);
-			outputRoutes.add(route);
-		}
-	}
-
 	private boolean isCommuterRail(String route) {
-		// TODO Auto-generated method stub
-		return false;
-	}
-
-	@Override
-	public boolean hasPaths() {
-		// TODO Auto-generated method stub
+		for (String thisRoute : routes) {
+			if (thisRoute.equals(route)) {
+				return true;
+			}
+		}
 		return false;
 	}
 

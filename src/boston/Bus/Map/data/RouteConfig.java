@@ -11,7 +11,7 @@ import boston.Bus.Map.util.Box;
 
 public class RouteConfig implements ObjectWithString
 {
-	private final ArrayList<String> stopOrder;
+	private final ArrayList<StopLocation> stopOrder;
 	private final MyHashMap<String, StopLocation> stops;
 	private Path[] paths;
 	private final String route;
@@ -34,7 +34,7 @@ public class RouteConfig implements ObjectWithString
 	
 	public void addStop(String tag, StopLocation stopLocation) {
 		stops.put(tag, stopLocation);
-		stopOrder.add(tag);
+		stopOrder.add(stopLocation);
 	}
 	
 	public StopLocation getStop(String tag)
@@ -48,7 +48,7 @@ public class RouteConfig implements ObjectWithString
 	}
 	
 	public Collection<StopLocation> getStops() {
-		return stops.values();
+		return stopOrder;
 	}
 
 	
@@ -95,7 +95,7 @@ public class RouteConfig implements ObjectWithString
 			paths = nullPaths;
 		}
 		
-		stopOrder = new ArrayList<String>();
+		stopOrder = new ArrayList<StopLocation>();
 	}
 
 
@@ -104,11 +104,6 @@ public class RouteConfig implements ObjectWithString
 		return transitSource;
 	}
 	
-	public boolean hasPaths()
-	{
-		return transitSource.hasPaths();
-	}
-
 	public int getOppositeColor() {
 		return oppositeColor;
 	}

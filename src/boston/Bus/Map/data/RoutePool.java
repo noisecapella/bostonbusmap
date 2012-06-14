@@ -9,12 +9,15 @@ import java.util.List;
 import java.util.HashSet;
 import java.util.LinkedList;
 
+import cern.colt.list.IntArrayList;
+
 import com.schneeloch.suffixarray.SuffixArray;
 
 import ags.utils.KdTree.Entry;
 import ags.utils.KdTree.WeightedSqrEuclid;
 import android.util.Log;
 import boston.Bus.Map.R;
+import boston.Bus.Map.data.prepopulated.PrepopulatedSuffixArrayRoutes;
 import boston.Bus.Map.database.DatabaseHelper;
 import boston.Bus.Map.main.UpdateAsyncTask;
 import boston.Bus.Map.transit.TransitSource;
@@ -33,6 +36,7 @@ public class RoutePool {
 
 	private final MyHashMap<StopLocationGroup, StopLocationGroup> stopsByLocation;
 	private final MyHashMap<String, RouteConfig> routesByTag;
+	private final ArrayList<RouteConfig> routes;
 
 	private final Directions directions;
 
@@ -51,10 +55,12 @@ public class RoutePool {
 
 		stopsByLocation = new MyHashMap<StopLocationGroup, StopLocationGroup>();
 		routesByTag = new MyHashMap<String, RouteConfig>();
+		routes = new ArrayList<RouteConfig>();
 		
         for (TransitSource transitSource : transitSystem.getTransitSources()) {
         	for (RouteConfig route : transitSource.makeRoutes(directions)) {
         		routesByTag.put(route.getRouteName(), route);
+        		routes.add(route);
         		for (StopLocation stop : route.getStops()) {
         			StopLocationGroup locationGroup = stopsByLocation.get(stop);
         			if (locationGroup != null) {
@@ -85,18 +91,21 @@ public class RoutePool {
 		
 		// there could be a conflict if the search happens while this is being created
 		// but it's not high priority
-		if (stopSuffixArray == null) {
-			stopSuffixArray = new SuffixArray(true);
-			for (StopLocationGroup locationGroup : stopsByLocation.values()) {
-				stopSuffixArray.add(locationGroup);
-			}
-		}
-		
 		if (routeSuffixArray == null) {
 			routeSuffixArray = new SuffixArray(true);
 			for (RouteConfig routeConfig : routesByTag.values()) {
 				routeSuffixArray.add(routeConfig);
 			}
+			routeSuffixArray.setIndexes(PrepopulatedSuffixArrayRoutes.getRouteIndexes());
+		}
+		if (stopSuffixArray == null) {
+			stopSuffixArray = new SuffixArray(true);
+			for (RouteConfig route : routes) {
+				for (StopLocation stop : route.getStops()) {
+					stopSuffixArray.add(stop);
+				}
+			}
+			stopSuffixArray.setIndexes(PrepopulatedSuffixArrayRoutes.getStopIndexes());
 		}
 			
 	}

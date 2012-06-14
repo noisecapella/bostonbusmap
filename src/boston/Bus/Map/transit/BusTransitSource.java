@@ -233,11 +233,6 @@ public class BusTransitSource extends NextBusTransitSource {
 	}
 
 	@Override
-	protected int getInitialContentLength() {
-		return 335928;
-	}
-
-	@Override
 	public String searchForRoute(String indexingQuery, String lowercaseQuery) {
 		//TODO: don't hard code this
 		if ("sl1".equals(lowercaseQuery) || 

@@ -268,16 +268,6 @@ public abstract class NextBusTransitSource implements TransitSource
 	}
 
 
-	@Override
-	public boolean hasPaths() {
-		return true;
-	}
-
-	/**
-	 * This is the size of the file at R.res.raw.routeconfig
-	 * @return
-	 */
-	protected abstract int getInitialContentLength();
 
 	@Override
 	public String[] getRoutes() {
