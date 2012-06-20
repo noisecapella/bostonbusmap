@@ -1,7 +1,6 @@
 *.apk
 bin/*
 gen/*
-*.properties
 tools/route*
-
+build.properties
 *~
