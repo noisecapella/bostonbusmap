@@ -2,6 +2,7 @@ import sys
 import gzip
 import xml.dom.minidom
 import math
+import os
 from geopy import distance
 from geopy.point import Point
 import urllib
@@ -72,8 +73,8 @@ def escapeDoubleQuote(s):
     #TODO: implement. I don't think any stop title has a quote in it, though
     return s
 
-def printMakeAllRoutes(routes, prefix):
-    f = open(sys.argv[2] + "/boston/Bus/Map/data/prepopulated/{0}PrepopulatedData.java".format(prefix), "wb")
+def printMakeAllRoutes(routes, prefix, path):
+    f = open(os.path.join(path, "{0}PrepopulatedData.java".format(prefix)), "wb")
     f.write(header.format(prefix, "{", "}") + "\n")
 
     f.write("    private RouteConfig[] makeAllRoutes(Directions directions) throws IOException {\n")
@@ -120,11 +121,11 @@ def humanize(locKey):
 def makeValid(s):
     return s.replace("-", "_").replace("/", "_").replace(" ", "_").replace("|", "_")
 
-def printEachMakeRoute(routes, prefix):
+def printEachMakeRoute(routes, prefix, dirPath):
     for i in xrange(len(routes)):
         route = routes[i]
         routeTag = route["tag"]
-        f = open(sys.argv[2] + "/boston/Bus/Map/data/prepopulated/{0}PrepopulatedDataRoute{1}.java".format(prefix, makeValid(routeTag)), "wb")
+        f = open(os.path.join(dirPath, "{0}PrepopulatedDataRoute{1}.java".format(prefix, makeValid(routeTag))), "wb")
         f.write(individualHeader)
         f.write("public class {0}PrepopulatedDataRoute{1} {2}\n".format(prefix, makeValid(routeTag), "{"))
         f.write("    public static RouteConfig makeRoute(TransitSource transitSource, Directions directions) throws IOException {1}".format(i, "{") + "\n")
@@ -199,12 +200,12 @@ def nextbusToRoutes(routesXml):
     return routes
 
 
-def runSuffixArray(routes):
+def runSuffixArray(routes, path):
     allStops = [stop for stop in iterateStops(routes)]
     suffixArray = makeSuffixArray([(stop["title"], stop["id"]) for stop in allStops])
 
-    runSuffixArrayRoutes(routes, suffixArray, allStops)
-    runSuffixArrayStops(routes, suffixArray, allStops)
+    runSuffixArrayRoutes(routes, suffixArray, allStops, path)
+    runSuffixArrayStops(routes, suffixArray, allStops, path)
 
 def makeSuffixArray(data):
     indexes = []
@@ -216,8 +217,8 @@ def makeSuffixArray(data):
     return sorted(indexes, key = lambda x: x[0].lower())
     
 
-def runSuffixArrayRoutes(routes, stopSuffixArray, allStops):
-    f = open(sys.argv[2] + "/boston/Bus/Map/data/prepopulated/PrepopulatedSuffixArrayRoutes.java", "wb")
+def runSuffixArrayRoutes(routes, stopSuffixArray, allStops, path):
+    f = open(os.path.join(path, "PrepopulatedSuffixArrayRoutes.java"), "wb")
 
     f.write(commonHeader)
 
@@ -249,9 +250,9 @@ def iterateStops(routes):
         for stop in route["stops"]:
             yield stop
 
-def runSuffixArrayStops(routes, stopSuffixArray, allStops):
+def runSuffixArrayStops(routes, stopSuffixArray, allStops, path):
     for i in xrange((len(stopSuffixArray) / 5000) + 1):
-        f = open(sys.argv[2] + "/boston/Bus/Map/data/prepopulated/PrepopulatedSuffixArrayStops{0}.java".format(i), "wb")
+        f = open(os.path.join(path, "PrepopulatedSuffixArrayStops{0}.java".format(i)), "wb")
 
         f.write(commonHeader)
         f.write("public class PrepopulatedSuffixArrayStops{0} {1}\n".format(i, "{"))
@@ -265,9 +266,9 @@ def runSuffixArrayStops(routes, stopSuffixArray, allStops):
         f.write("}\n")
         f.close()         
 
-def runAlerts(routes):
+def runAlerts(routes, path):
     routeToAlertKey = alerts(routes)
-    f = open(sys.argv[2] + "/boston/Bus/Map/data/prepopulated/PrepopulatedAlerts.java", "wb")
+    f = open(os.path.join(path, "PrepopulatedAlerts.java"), "wb")
 
     f.write(commonHeader)
     f.write("public class PrepopulatedAlerts {\n")
@@ -548,9 +549,9 @@ def addToAlertList(routeTitle, alertIndex, routes, routeToAlertKey):
 
             
 
-def runPrepopulated(routes, prefix):
-    printMakeAllRoutes(routes, prefix)
-    printEachMakeRoute(routes, prefix)
+def runPrepopulated(routes, prefix, path):
+    printMakeAllRoutes(routes, prefix, path)
+    printEachMakeRoute(routes, prefix, path)
 
 
 def csvToMap(header, line):
@@ -1123,10 +1124,24 @@ def markAllStops(routes):
             stop["id"] = count
             count += 1
 
+def prepareDirectory(dir):
+    if not os.path.isdir(dir):
+        os.mkdir(dir)
+
+    for f in os.listdir(dir):
+        if not f.startswith("."):
+            path = os.path.join(dir, f)
+            if os.path.isfile(path):
+                os.unlink(path)
+    
+
 def main():
     if len(sys.argv) != 3:
         sys.stderr.write("Usage: python routeconfig-to-java.py routeconfig.xml srcDirectory\n")
         exit(1)
+
+    path = os.path.join(sys.argv[2], "boston/Bus/Map/data/prepopulated")
+    prepareDirectory(path)
 
     dom = get_dom(sys.argv[1])
     nextbusPrefix = "Nextbus"
@@ -1150,13 +1165,13 @@ def main():
     markAllRoutes(combinedRoutes)
     markAllStops(combinedRoutes)
         
-    runPrepopulated(nextbusRoutes, nextbusPrefix)
-    runPrepopulated(mySubwayRoutes, subwayPrefix)
-    runPrepopulated(myCommuterRailRoutes, commuterRailPrefix)
+    runPrepopulated(nextbusRoutes, nextbusPrefix, path)
+    runPrepopulated(mySubwayRoutes, subwayPrefix, path)
+    runPrepopulated(myCommuterRailRoutes, commuterRailPrefix, path)
 
 
-    runAlerts(combinedRoutes)
-    runSuffixArray(combinedRoutes)
+    runAlerts(combinedRoutes, path)
+    #runSuffixArray(combinedRoutes, path)
 
     #f = open(sys.argv[2] + "/boston/Bus/Map/data/NextbusPrepopulatedDirections.java", "wb")
     #runDirections(dom, f)
