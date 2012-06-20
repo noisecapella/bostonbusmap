@@ -218,17 +218,8 @@ public class SearchHelper
 		}
 		
 		// else, look for a matching title
-		SuffixArray<StopLocation> stopSuffixArray = RoutePool.getStopSuffixArray();
-		if (stopSuffixArray != null) {
-			for (ObjectWithString objectWithString : stopSuffixArray.search(indexingQuery)) {
-				StopLocation stop = (StopLocation)objectWithString;
-				if (stop.getTitle().equalsIgnoreCase(indexingQuery)) {
-					ret = RoutePool.getStop(stop.getStopTag());
-					return ret;
-				}
-			}
-		}
-		return null;
+		ret = RoutePool.getStopByTitleIgnoreCase(indexingQuery);
+		return ret;
 	}
 
 	private int getAsRoute(String indexingQuery, String lowercaseQuery)

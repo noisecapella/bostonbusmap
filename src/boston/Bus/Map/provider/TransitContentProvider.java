@@ -97,46 +97,29 @@ public class TransitContentProvider extends SearchRecentSuggestionsProvider {
 
 	private void addSearchRoutes(String search, MatrixCursor ret) throws IOException {
 		int count = 0;
-		SuffixArray<RouteConfig> routeSuffixArray = RoutePool.getRouteSuffixArray();
-		if (routeSuffixArray != null) {
-			for (RouteConfig route : routeSuffixArray.search(search)) {
-				ret.addRow(new Object[] {count, route.getRouteTitle(), "route " + route.getRouteName(), "Route"});
-				count++;
-			}
+		
+		for (RouteConfig route : RoutePool.findRoutes(search)) {
+			ret.addRow(new Object[] {count, route.getRouteTitle(), "route " + route.getRouteName(), "Route"});
+			count++;
 		}
 	}
 
 	private void addSearchStops(String search, MatrixCursor ret) throws IOException {
-		SuffixArray<StopLocation> stopSuffixArray = RoutePool.getStopSuffixArray();
-		MyHashSet<StopLocationGroup> set = new MyHashSet<StopLocationGroup>();
-		ArrayList<StopLocationGroup> ordered = new ArrayList<StopLocationGroup>();
-
-		if (stopSuffixArray != null) {
-			for (StopLocation stop : stopSuffixArray.search(search)) {
-				if (set.contains(stop) == false) { 
-					set.add(stop);
-					ordered.add(stop);
-				}
-				if (set.size() >= 30) {
-					break;
-				}
+		int count = 0;
+		
+		for (StopLocationGroup group : RoutePool.findStops(search)) {
+			List<String> routes = group.getAllRoutes();
+			String allRoutes;
+			if (routes.size() == 1) {
+				allRoutes = "Stop on route " + routes.get(0);
+			}
+			else
+			{
+				allRoutes = "Stop on routes " + StringUtil.join(routes, ", ");
 			}
 			
-			int count = 0;
-			for (StopLocationGroup group : ordered) {
-				List<String> routes = group.getAllRoutes();
-				String allRoutes;
-				if (routes.size() == 1) {
-					allRoutes = "Stop on route " + routes.get(0);
-				}
-				else
-				{
-					allRoutes = "Stop on routes " + StringUtil.join(routes, ", ");
-				}
-				
-				ret.addRow(new Object[]{count, group.getFirstTitle(), "stop " + group.getFirstStopTag(), allRoutes});
-				count++;
-			}
+			ret.addRow(new Object[]{count, group.getFirstTitle(), "stop " + group.getFirstStopTag(), allRoutes});
+			count++;
 		}
 	}
 }

@@ -120,27 +120,7 @@ public class SuffixArray<T extends ObjectWithString> implements IntComparator {
 		return compressedList.size();
 	}
 
-	public Iterable<T> search(String search) {
-		ArrayList<T> ret = null;
-		String searchLower = search.toLowerCase();
-		for (T item : compressedList.getCompressedIterable()) {
-			if (item.getString().toLowerCase().contains(searchLower)) {
-				if (ret == null) {
-					ret = new ArrayList<T>();
-				}
-				ret.add(item);
-			}
-		}
-		if (ret != null) {
-			return ret;
-		}
-		else
-		{
-			return Collections.emptyList();
-		}
-	}
-	
-    public Iterable<T> searchSpecial(String search) {
+    public Iterable<T> search(String search) {
     	int start = 0;
     	int end = size() - 1;
     	

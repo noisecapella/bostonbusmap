@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.AbstractCollection;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 
@@ -12,6 +13,7 @@ import java.util.LinkedList;
 
 import cern.colt.list.IntArrayList;
 
+import com.schneeloch.suffixarray.ObjectWithString;
 import com.schneeloch.suffixarray.SuffixArray;
 
 import ags.utils.KdTree.Entry;
@@ -38,9 +40,6 @@ public class RoutePool {
 	private static Directions directions;
 
 	private final WeightedSqrEuclid<LocationGroup> kdtree;
-	
-	private static SuffixArray<StopLocation> stopSuffixArray;
-	private static SuffixArray<RouteConfig> routeSuffixArray;
 	
 	private static MyHashMap<String, StopLocationGroup> stopsByTag;
 	private static MyHashMap<String, RouteConfig> routes;
@@ -104,19 +103,6 @@ public class RoutePool {
         			}
         		}
         	}
-			routeSuffixArray = new SuffixArray<RouteConfig>(true);
-			for (RouteConfig routeConfig : routeList) {
-				routeSuffixArray.add(routeConfig);
-			}
-			//routeSuffixArray.setIndexes(PrepopulatedSuffixArrayRoutes.getRouteIndexes());
-
-			stopSuffixArray = new SuffixArray<StopLocation>(true);
-			for (RouteConfig route : routeList) {
-				for (StopLocation stop : route.getStops()) {
-					stopSuffixArray.add(stop);
-				}
-			}
-			//stopSuffixArray.setIndexes(PrepopulatedSuffixArrayRoutes.getStopIndexes());
 		}
 		else
 		{
@@ -215,14 +201,6 @@ public class RoutePool {
 		return directions;
 	}
 
-	public static SuffixArray<StopLocation> getStopSuffixArray() {
-		return stopSuffixArray;
-	}
-
-	public static SuffixArray<RouteConfig> getRouteSuffixArray() {
-		return routeSuffixArray;
-	}
-
 	public static StopLocationGroup getStop(String stopTag) {
 		return stopsByTag.get(stopTag);
 	}
@@ -231,4 +209,42 @@ public class RoutePool {
 		return routes.get(selectedRoute);
 	}
 
+	public static <T extends ObjectWithString> Collection<T> findStuff(String search, Collection<T> list) {
+		ArrayList<T> ret = null;
+		String searchLower = search.toLowerCase();
+		for (T item : list) {
+			if (item.getString().toLowerCase().contains(searchLower)) {
+				if (ret == null) {
+					ret = new ArrayList<T>();
+				}
+				ret.add(item);
+			}
+		}
+		if (ret != null) {
+			return ret;
+		}
+		else
+		{
+			return Collections.emptyList();
+		}
+	}
+	
+	public static Collection<RouteConfig> findRoutes(String search) {
+		return findStuff(search, routes.values());
+	}
+	
+	public static Collection<StopLocationGroup> findStops(String search) {
+		return findStuff(search, stopsByTag.values());
+	}
+
+	public static StopLocationGroup getStopByTitleIgnoreCase(
+			String search) {
+		String searchLower = search.toLowerCase();
+		for (StopLocationGroup group : stopsByLocation.values()) {
+			if (group.getFirstTitle().toLowerCase().equals(searchLower)) {
+				return group;
+			}
+		}
+		return null;
+	}
 }
