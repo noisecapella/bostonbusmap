@@ -94,4 +94,8 @@ public class CompressedList<T> {
 		int compressedIndex = getCompressedIndex(i);
 		return indexes.get(compressedIndex);
 	}
+
+	public Iterable<T> getCompressedIterable() {
+		return items;
+	}
 }

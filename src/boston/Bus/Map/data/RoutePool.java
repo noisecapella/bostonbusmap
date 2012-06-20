@@ -18,7 +18,6 @@ import ags.utils.KdTree.Entry;
 import ags.utils.KdTree.WeightedSqrEuclid;
 import android.util.Log;
 import boston.Bus.Map.R;
-import boston.Bus.Map.data.prepopulated.PrepopulatedSuffixArrayRoutes;
 import boston.Bus.Map.database.DatabaseHelper;
 import boston.Bus.Map.main.UpdateAsyncTask;
 import boston.Bus.Map.transit.TransitSource;
@@ -109,7 +108,7 @@ public class RoutePool {
 			for (RouteConfig routeConfig : routeList) {
 				routeSuffixArray.add(routeConfig);
 			}
-			routeSuffixArray.setIndexes(PrepopulatedSuffixArrayRoutes.getRouteIndexes());
+			//routeSuffixArray.setIndexes(PrepopulatedSuffixArrayRoutes.getRouteIndexes());
 
 			stopSuffixArray = new SuffixArray<StopLocation>(true);
 			for (RouteConfig route : routeList) {
@@ -117,7 +116,7 @@ public class RoutePool {
 					stopSuffixArray.add(stop);
 				}
 			}
-			stopSuffixArray.setIndexes(PrepopulatedSuffixArrayRoutes.getStopIndexes());
+			//stopSuffixArray.setIndexes(PrepopulatedSuffixArrayRoutes.getStopIndexes());
 		}
 		else
 		{
