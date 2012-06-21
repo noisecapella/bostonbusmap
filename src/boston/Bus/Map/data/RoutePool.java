@@ -6,13 +6,17 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
+import java.util.NoSuchElementException;
 
 import java.util.HashSet;
 import java.util.LinkedList;
 
 import cern.colt.list.IntArrayList;
 
+import com.google.common.base.Predicate;
+import com.google.common.collect.Iterables;
 import com.schneeloch.suffixarray.ObjectWithString;
 import com.schneeloch.suffixarray.SuffixArray;
 
@@ -209,31 +213,22 @@ public class RoutePool {
 		return routes.get(selectedRoute);
 	}
 
-	public static <T extends ObjectWithString> Collection<T> findStuff(String search, Collection<T> list) {
-		ArrayList<T> ret = null;
-		String searchLower = search.toLowerCase();
-		for (T item : list) {
-			if (item.getString().toLowerCase().contains(searchLower)) {
-				if (ret == null) {
-					ret = new ArrayList<T>();
-				}
-				ret.add(item);
+	public static <T extends ObjectWithString> Iterable<T> findStuff(String search, final Collection<T> list) {
+		final String searchLower = search.toLowerCase();
+		Predicate<T> filter = new Predicate<T>() {
+			@Override
+			public boolean apply(T arg0) {
+				return arg0.getString().toLowerCase().contains(searchLower);
 			}
-		}
-		if (ret != null) {
-			return ret;
-		}
-		else
-		{
-			return Collections.emptyList();
-		}
+		};
+		return Iterables.filter(list, filter);
 	}
 	
-	public static Collection<RouteConfig> findRoutes(String search) {
+	public static Iterable<RouteConfig> findRoutes(String search) {
 		return findStuff(search, routes.values());
 	}
 	
-	public static Collection<StopLocationGroup> findStops(String search) {
+	public static Iterable<StopLocationGroup> findStops(String search) {
 		return findStuff(search, stopsByTag.values());
 	}
 

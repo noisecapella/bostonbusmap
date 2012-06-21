@@ -218,7 +218,7 @@ public class SearchHelper
 		}
 		
 		// else, look for a matching title
-		ret = RoutePool.getStopByTitleIgnoreCase(indexingQuery);
+		ret = RoutePool.getStopByTitleIgnoreCase(exactQuery);
 		return ret;
 	}
 
