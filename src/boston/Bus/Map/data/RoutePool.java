@@ -229,7 +229,7 @@ public class RoutePool {
 	}
 	
 	public static Iterable<StopLocationGroup> findStops(String search) {
-		return findStuff(search, stopsByTag.values());
+		return findStuff(search, stopsByLocation.values());
 	}
 
 	public static StopLocationGroup getStopByTitleIgnoreCase(
