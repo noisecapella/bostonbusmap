@@ -37,6 +37,7 @@ import org.xml.sax.SAXException;
 
 
 import boston.Bus.Map.data.RoutePool;
+import boston.Bus.Map.data.StopLocationGroup;
 import boston.Bus.Map.data.VehicleLocation;
 import boston.Bus.Map.data.Location;
 import boston.Bus.Map.data.LocationGroup;
@@ -480,6 +481,7 @@ public class UpdateAsyncTask extends AsyncTask<Object, Object, Locations>
 		
 		//we need to run populate even if there are 0 busLocations. See this link:
 		//http://groups.google.com/group/android-beginners/browse_thread/thread/6d75c084681f943e?pli=1
+		final LocationGroup oldSelected = busOverlay.getSelectedBus();
 		busOverlay.clear();
 		
 		busOverlay.doPopulate();
@@ -503,23 +505,13 @@ public class UpdateAsyncTask extends AsyncTask<Object, Object, Locations>
 		}
 		busOverlay.addOverlaysFromLocations(geoPointsToAdd);
 		
-		final LocationGroup selectedLocationGroup;
-		if (busOverlay != null) {
-			if (latAsInt != 0 && lonAsInt != 0)
-			{
-				selectedLocationGroup = busOverlay.getItemWithLatLon(latAsInt, lonAsInt);
-			}
-			else
-			{
-				selectedLocationGroup = busOverlay.getSelectedBus();
-			}
+		if (latAsInt != 0 && lonAsInt != 0) {
+			busOverlay.setSelectedBus(busOverlay.getItemWithLatLon(latAsInt, lonAsInt));
 		}
 		else
 		{
-			selectedLocationGroup = null;
+			busOverlay.setSelectedBus(oldSelected);
 		}
-		
-		busOverlay.setSelectedBus(selectedLocationGroup);
 		busOverlay.refreshBalloons();
 		
 		mapView.getOverlays().clear();
