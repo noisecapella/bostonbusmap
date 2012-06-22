@@ -32,9 +32,9 @@ public class MyTreeMap<K, V> {
 	}
 
 	public void putAll(MyHashMap<K, V> ret) {
-		for (K k : map.keySet()) {
-			V v = map.get(k);
-			ret.put(k, v);
+		for (K k : ret.keySet()) {
+			V v = ret.get(k);
+			map.put(k, v);
 		}
 	}
 
