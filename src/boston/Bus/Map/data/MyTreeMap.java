@@ -31,13 +31,6 @@ public class MyTreeMap<K, V> {
 		return map.values();
 	}
 
-	public void putAll(MyHashMap<K, V> ret) {
-		for (K k : ret.keySet()) {
-			V v = ret.get(k);
-			map.put(k, v);
-		}
-	}
-
 	public V remove(K k) {
 		return map.remove(k);
 	}
