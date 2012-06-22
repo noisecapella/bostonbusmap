@@ -43,9 +43,9 @@ public class MyHashMap<K, V> {
 	}
 
 	public void putAll(MyHashMap<K, V> ret) {
-		for (K k : map.keySet()) {
-			V v = map.get(k);
-			ret.put(k, v);
+		for (K k : ret.keySet()) {
+			V v = ret.get(k);
+			map.put(k, v);
 		}
 	}
 
@@ -64,9 +64,9 @@ public class MyHashMap<K, V> {
 
 	public void putAllFrom(
 			ConcurrentHashMap<K, V> from) {
-		for (K k : from.keySet()) {
-			V v = from.get(k);
-			map.put(k, v);
+		for (K k : map.keySet()) {
+			V v = map.get(k);
+			from.put(k, v);
 		}
 	}
 }
