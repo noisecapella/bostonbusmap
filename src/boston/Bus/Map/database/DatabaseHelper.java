@@ -13,6 +13,7 @@ import com.google.android.maps.Projection;
 
 import boston.Bus.Map.data.Path;
 
+import boston.Bus.Map.data.Direction;
 import boston.Bus.Map.data.MyHashMap;
 import boston.Bus.Map.data.RouteConfig;
 import boston.Bus.Map.data.StopLocation;
@@ -727,8 +728,7 @@ public class DatabaseHelper extends SQLiteOpenHelper
 	 * @param names
 	 * @param titles
 	 */
-	public synchronized void refreshDirections(MyHashMap<String, Integer> indexes,
-			ArrayList<String> names, ArrayList<String> titles, ArrayList<String> routes) {
+	public synchronized void refreshDirections(MyHashMap<String, Direction> directions) {
 		SQLiteDatabase database = getReadableDatabase();
 		Cursor cursor = null;
 		try
@@ -743,10 +743,8 @@ public class DatabaseHelper extends SQLiteOpenHelper
 				String dirTitle = cursor.getString(2);
 				String dirRoute = cursor.getString(3);
 				
-				indexes.put(dirTag, names.size());
-				names.add(dirName);
-				titles.add(dirTitle);
-				routes.add(dirRoute);
+				Direction direction = new Direction(dirName, dirTitle, dirRoute);
+				directions.put(dirTag, direction);
 				
 				cursor.moveToNext();
 			}
@@ -761,8 +759,7 @@ public class DatabaseHelper extends SQLiteOpenHelper
 		}
 	}
 
-	public synchronized void writeDirections(boolean wipe, MyHashMap<String, Integer> indexes,
-			ArrayList<String> names, ArrayList<String> titles, ArrayList<String> routes) {
+	public synchronized void writeDirections(boolean wipe, MyHashMap<String, Direction> directions) {
 		SQLiteDatabase database = getWritableDatabase();
 		try
 		{
@@ -772,17 +769,12 @@ public class DatabaseHelper extends SQLiteOpenHelper
 				database.delete(directionsTable, null, null);
 			}
 
-			for (String dirTag : indexes.keySet())
+			for (String dirTag : directions.keySet())
 			{
-				Integer i = indexes.get(dirTag);
-				if (i >= names.size() || i >= titles.size() || i >= routes.size())
-				{
-					//should be a rare case hopefully
-					continue;
-				}
-				String name = names.get(i);
-				String title = titles.get(i);
-				String route = routes.get(i);
+				Direction direction = directions.get(dirTag);
+				String name = direction.getName();
+				String title = direction.getTitle();
+				String route = direction.getRoute();
 
 				ContentValues values = new ContentValues();
 				values.put(dirNameKey, name);

@@ -4,3 +4,4 @@ gen/*
 *.properties
 tools/route*
 
+*~
