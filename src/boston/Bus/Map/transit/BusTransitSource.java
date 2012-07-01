@@ -28,14 +28,14 @@ public class BusTransitSource extends NextBusTransitSource {
 	@Override
 	protected void addRoutes()
 	{
-		addRoute("701", "CT1");
-		addRoute("747", "CT2");
-		addRoute("708", "CT3");
+		addRoute("701", "Ct1");
+		addRoute("747", "Ct2");
+		addRoute("708", "Ct3");
+		addRoute("746", "Silver Line");
 		addRoute("741", "Silver Line SL1");
 		addRoute("742", "Silver Line SL2");
 		addRoute("751", "Silver Line SL4");
 		addRoute("749", "Silver Line SL5");
-		addRoute("746", "Silver Line SL");
 		addRoute("1", "1");
 		addRoute("4", "4");
 		addRoute("5", "5");
@@ -80,7 +80,6 @@ public class BusTransitSource extends NextBusTransitSource {
 		addRoute("44", "44");
 		addRoute("45", "45");
 		addRoute("47", "47");
-		addRoute("48", "48");
 		addRoute("50", "50");
 		addRoute("51", "51");
 		addRoute("52", "52");
@@ -183,12 +182,10 @@ public class BusTransitSource extends NextBusTransitSource {
 		addRoute("351", "351");
 		addRoute("352", "352");
 		addRoute("354", "354");
-		addRoute("355", "355");
 		addRoute("411", "411");
 		addRoute("424", "424");
 		addRoute("426", "426");
 		addRoute("426439", "426/439");
-		addRoute("426455", "426/455");
 		addRoute("428", "428");
 		addRoute("429", "429");
 		addRoute("430", "430");
@@ -208,8 +205,6 @@ public class BusTransitSource extends NextBusTransitSource {
 		addRoute("456", "456");
 		addRoute("459", "459");
 		addRoute("465", "465");
-		addRoute("468", "468");
-		addRoute("500", "500");
 		addRoute("501", "501");
 		addRoute("502", "502");
 		addRoute("503", "503");
@@ -217,23 +212,13 @@ public class BusTransitSource extends NextBusTransitSource {
 		addRoute("505", "505");
 		addRoute("553", "553");
 		addRoute("554", "554");
-		addRoute("555", "555");
 		addRoute("556", "556");
 		addRoute("558", "558");
-		addRoute("9109", "9109");
-		addRoute("9111", "9111");
-		addRoute("9501", "9501");
-		addRoute("9507", "9507");
-		addRoute("9701", "9701");
-		addRoute("9702", "9702");
-		addRoute("9703", "9703");
-		
-
 	}
 
 	@Override
 	protected int getInitialContentLength() {
-		return 335928;
+		return 300019;
 	}
 
 	@Override
