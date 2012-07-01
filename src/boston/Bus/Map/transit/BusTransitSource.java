@@ -28,14 +28,14 @@ public class BusTransitSource extends NextBusTransitSource {
 	@Override
 	protected void addRoutes()
 	{
-		addRoute("701", "Ct1");
-		addRoute("747", "Ct2");
-		addRoute("708", "Ct3");
-		addRoute("746", "Silver Line");
+		addRoute("701", "CT1");
+		addRoute("747", "CT2");
+		addRoute("708", "CT3");
 		addRoute("741", "Silver Line SL1");
 		addRoute("742", "Silver Line SL2");
 		addRoute("751", "Silver Line SL4");
 		addRoute("749", "Silver Line SL5");
+		addRoute("746", "Silver Line SL");
 		addRoute("1", "1");
 		addRoute("4", "4");
 		addRoute("5", "5");
