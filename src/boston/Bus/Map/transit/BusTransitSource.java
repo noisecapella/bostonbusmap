@@ -214,6 +214,11 @@ public class BusTransitSource extends NextBusTransitSource {
 		addRoute("554", "554");
 		addRoute("556", "556");
 		addRoute("558", "558");
+		addRoute("9109", "9109");
+		addRoute("9111", "9111");
+		addRoute("9701", "9701");
+		addRoute("9702", "9702");
+		addRoute("9703", "9703");
 	}
 
 	@Override
