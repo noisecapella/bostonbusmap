@@ -65,6 +65,7 @@ public class DatabaseHelper extends SQLiteOpenHelper
 	
 	
 	private final static String directionsTable = "directions";
+	private final static String directionsStopsTable = "directionsStops";
 	private final static String stopsTable = "stops";
 	private final static String routesTable = "routes";
 	private final static String pathsTable = "paths";
@@ -93,6 +94,7 @@ public class DatabaseHelper extends SQLiteOpenHelper
 	private static final String dirNameKey = "dirNameKey";
 	private static final String dirTitleKey = "dirTitleKey";
 	private static final String dirRouteKey = "dirRouteKey";
+	private static final String dirUseAsUIKey = "useAsUI";
 	
 	/**
 	 * The first version where we serialize as bytes, not necessarily the first db version
@@ -121,11 +123,17 @@ public class DatabaseHelper extends SQLiteOpenHelper
 	public final static int VERBOSE_DBV2_1 = 24;
 	public final static int VERBOSE_DBV2_2 = 26;
 	
-	public final static int CURRENT_DB_VERSION = VERBOSE_DBV2_2;
+	public final static int WITH_STOPS_FOR_DIR = 35;
+	
+	public final static int CURRENT_DB_VERSION = WITH_STOPS_FOR_DIR;
 	
 	public static final int ALWAYS_POPULATE = 3;
 	public static final int POPULATE_IF_UPGRADE = 2;
 	public static final int MAYBE = 1;
+	
+	public static final int INT_TRUE = 1;
+	public static final int INT_FALSE = 0;
+	
 
 	
 	public DatabaseHelper(Context context) {
@@ -141,7 +149,8 @@ public class DatabaseHelper extends SQLiteOpenHelper
 		db.execSQL("CREATE TABLE IF NOT EXISTS " + verboseFavorites + " (" + stopTagKey + " STRING PRIMARY KEY)");
 						
 		db.execSQL("CREATE TABLE IF NOT EXISTS " + directionsTable + " (" + dirTagKey + " STRING PRIMARY KEY, " + 
-				dirNameKey + " STRING, " + dirTitleKey + " STRING, " + dirRouteKey + " STRING)");
+				dirNameKey + " STRING, " + dirTitleKey + " STRING, " + dirRouteKey + " STRING, " + 
+				dirUseAsUIKey + " INTEGER)");
 		
 		db.execSQL("CREATE TABLE IF NOT EXISTS " + verboseRoutes + " (" + routeKey + " STRING PRIMARY KEY, " + colorKey + 
 				" INTEGER, " + oppositeColorKey + " INTEGER, " + pathsBlobKey + " BLOB, " + routeTitleKey + " STRING)");
@@ -155,6 +164,10 @@ public class DatabaseHelper extends SQLiteOpenHelper
 		db.execSQL("CREATE TABLE IF NOT EXISTS " + subwaySpecificTable + " (" + stopTagKey + " STRING PRIMARY KEY, " +
 				platformOrderKey + " INTEGER, " + 
 				branchKey + " STRING)");
+		
+		db.execSQL("CREATE TABLE IF NOT EXISTS " + directionsStopsTable +
+				"(" + dirTagKey + " STRING, " + stopTagKey + " STRING)");
+		
 		db.execSQL("CREATE INDEX IF NOT EXISTS " + stopsRoutesMapIndexRoute + " ON " + stopsRoutesMap + " (" + routeKey + ")");
 		db.execSQL("CREATE INDEX IF NOT EXISTS " + stopsRoutesMapIndexTag + " ON " + stopsRoutesMap + " (" + stopTagKey + ")");
 	}
@@ -741,9 +754,24 @@ public class DatabaseHelper extends SQLiteOpenHelper
 				String dirName = cursor.getString(1);
 				String dirTitle = cursor.getString(2);
 				String dirRoute = cursor.getString(3);
+				boolean dirUseAsUI = cursor.getInt(4) == INT_TRUE;
 				
-				Direction direction = new Direction(dirName, dirTitle, dirRoute);
+				Direction direction = new Direction(dirName, dirTitle, dirRoute, dirUseAsUI);
 				directions.put(dirTag, direction);
+				
+				cursor.moveToNext();
+			}
+			
+			cursor.close();
+			cursor = database.query(directionsStopsTable, new String[]{dirTagKey, stopTagKey},
+					null, null, null, null, null);
+			cursor.moveToFirst();
+			while (cursor.isAfterLast() == false) {
+				String dirTag = cursor.getString(0);
+				String stopTag = cursor.getString(1);
+				Direction direction = directions.get(dirTag);
+				
+				direction.addStopTag(stopTag);
 				
 				cursor.moveToNext();
 			}
@@ -766,6 +794,7 @@ public class DatabaseHelper extends SQLiteOpenHelper
 			if (wipe)
 			{
 				database.delete(directionsTable, null, null);
+				database.delete(directionsStopsTable, null, null);
 			}
 
 			for (String dirTag : directions.keySet())
@@ -774,12 +803,14 @@ public class DatabaseHelper extends SQLiteOpenHelper
 				String name = direction.getName();
 				String title = direction.getTitle();
 				String route = direction.getRoute();
+				boolean useAsUI = direction.isUseForUI();
 
 				ContentValues values = new ContentValues();
 				values.put(dirNameKey, name);
 				values.put(dirRouteKey, route);
 				values.put(dirTagKey, dirTag);
 				values.put(dirTitleKey, title);
+				values.put(dirUseAsUIKey, useAsUI);
 
 				if (wipe)
 				{
@@ -788,6 +819,19 @@ public class DatabaseHelper extends SQLiteOpenHelper
 				else
 				{
 					database.replace(directionsTable, null, values);
+				}
+				
+				for (String stopTag : direction.getStopTags()) {
+					ContentValues stopValues = new ContentValues();
+					stopValues.put(stopTagKey, stopTag);
+					stopValues.put(dirTagKey, dirTag);
+					if (wipe) {
+						database.insert(directionsStopsTable, null, stopValues);
+					}
+					else
+					{
+						database.replace(directionsStopsTable, null, stopValues);
+					}
 				}
 			}
 			database.setTransactionSuccessful();
@@ -1252,5 +1296,65 @@ public class DatabaseHelper extends SQLiteOpenHelper
 			}
 			database.close();
 		}
+	}
+
+	public ArrayList<StopLocation> getStopsByDirtag(String dirTag, TransitSystem transitSystem) {
+		SQLiteDatabase database = getReadableDatabase();
+		Cursor stopCursor = null;
+		ArrayList<StopLocation> ret = new ArrayList<StopLocation>();
+		try
+		{
+			SQLiteQueryBuilder builder = new SQLiteQueryBuilder();
+			String tables = verboseStops + " JOIN " + stopsRoutesMap + " ON (" + verboseStops + "." + stopTagKey + " = " +
+					stopsRoutesMap + "." + stopTagKey + ") LEFT OUTER JOIN " +
+					subwaySpecificTable + " ON (" + verboseStops + "." + stopTagKey + " = " + 
+					subwaySpecificTable + "." + stopTagKey + ")";	
+			
+			builder.setTables(tables);
+			
+			String[] projectionIn = new String[] {verboseStops + "." + stopTagKey, latitudeKey, longitudeKey, 
+					stopTitleKey, platformOrderKey, branchKey, stopsRoutesMap + "." + routeKey, stopsRoutesMap + "." + dirTagKey};
+
+			//if size == 1, where clause is tag = ?. if size > 1, where clause is "IN (tag1, tag2, tag3...)"
+			StringBuilder select;
+			String[] selectArray;
+				
+			select = new StringBuilder(verboseStops + "." + dirTagKey + "=?");
+			selectArray = new String[]{dirTag};
+
+			stopCursor = builder.query(database, projectionIn, select.toString(), selectArray, null, null, null);
+
+			stopCursor.moveToFirst();
+			while (stopCursor.isAfterLast() == false)
+			{
+				String stopTag = stopCursor.getString(0);
+				
+				String route = stopCursor.getString(6);
+
+				float lat = stopCursor.getFloat(1);
+				float lon = stopCursor.getFloat(2);
+				String title = stopCursor.getString(3);
+
+				int platformOrder = 0;
+				String branch = null;
+				if (stopCursor.isNull(4) == false)
+				{
+					platformOrder = stopCursor.getInt(4);
+					branch = stopCursor.getString(5);
+				}
+
+				StopLocation stop = transitSystem.createStop(lat, lon, stopTag, title, platformOrder, branch, route, dirTag);
+				ret.add(stop);
+				stopCursor.moveToNext();
+			}
+		}
+		finally
+		{
+			if (stopCursor != null) {
+				stopCursor.close();
+			}
+			database.close();
+		}
+		return ret;
 	}
 }

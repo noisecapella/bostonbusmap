@@ -230,7 +230,9 @@ public final class Locations
 		
 		HashSet<Integer> locationKeys = new HashSet<Integer>();
 
-		if (selectedBusPredictions == Main.VEHICLE_LOCATIONS_ALL || selectedBusPredictions == Main.VEHICLE_LOCATIONS_ONE)
+		if (selectedBusPredictions == Main.VEHICLE_LOCATIONS_ALL ||
+				selectedBusPredictions == Main.VEHICLE_LOCATIONS_ONE ||
+				selectedBusPredictions == Main.VEHICLE_LOCATIONS_BY_DIRECTION)
 		{
 			if (doShowUnpredictable == false)
 			{
@@ -298,6 +300,14 @@ public final class Locations
 				locationKeys.add(stopLocation.getId());
 			}
 		}
+/*		else if (selectedBusPredictions == Main.BUS_PREDICTIONS_BY_DIRECTION) {
+			String dirTag = TODO;
+			ArrayList<StopLocation> stops = routeMapping.getStopsByDirtag(dirTag);
+			for (StopLocation stop : stops) {
+				newLocations.add(stop);
+				locationKeys.add(stop.getId());
+			}
+		}*/
 		
 		if (maxLocations > newLocations.size())
 		{
