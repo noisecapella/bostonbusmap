@@ -891,6 +891,7 @@ public class DatabaseHelper extends SQLiteOpenHelper
 		{
 			addSearchRoutes(database, search, ret);
 			addSearchStops(database, search, ret);
+			addSearchDirections(database, search, ret);
 		}
 		finally
 		{
@@ -901,6 +902,38 @@ public class DatabaseHelper extends SQLiteOpenHelper
 		return ret;
 	}
 
+	private void addSearchDirections(SQLiteDatabase database, String search, MatrixCursor ret)
+	{
+		if (search == null) {
+			return;
+		}
+		
+		Cursor cursor = null;
+		try
+		{
+			cursor = database.query(directionsTable, new String[]{dirTitleKey, dirTagKey}, dirTitleKey + " LIKE ?",
+					new String[]{"%" + search + "%"}, null, null, dirTitleKey);
+			if (cursor.moveToFirst() == false) {
+				return;
+			}
+			
+			while (!cursor.isAfterLast()) {
+				String dirTitle = cursor.getString(0);
+				String dirTag = cursor.getString(1);
+				
+				ret.addRow(new Object[] {ret.getCount(), dirTitle, "direction " + dirTag, "Direction"});
+				
+				cursor.moveToNext();
+			}
+		}
+		finally
+		{
+			if (cursor != null) {
+				cursor.close();
+			}
+		}
+	}
+	
 	private void addSearchRoutes(SQLiteDatabase database, String search, MatrixCursor ret)
 	{
 		if (search == null)
@@ -918,16 +951,14 @@ public class DatabaseHelper extends SQLiteOpenHelper
 				return;
 			}
 
-			int count = 0;
 			while (!cursor.isAfterLast())
 			{
 				String routeTitle = cursor.getString(0);
 				String routeKey = cursor.getString(1);
 
-				ret.addRow(new Object[]{count, routeTitle, "route " + routeKey, "Route"});
+				ret.addRow(new Object[]{ret.getCount(), routeTitle, "route " + routeKey, "Route"});
 
 				cursor.moveToNext();
-				count++;
 			}
 		}
 		finally
@@ -1115,6 +1146,65 @@ public class DatabaseHelper extends SQLiteOpenHelper
 		
 	}
 
+	
+	public MyHashMap<String, Direction> getDirectionsByTitle(String titleQuery, TransitSystem transitSystem) {
+		SQLiteDatabase database = getReadableDatabase();
+		Cursor dirCursor = null;
+		MyHashMap<String, Direction> ret = new MyHashMap<String, Direction>();
+		try
+		{
+			SQLiteQueryBuilder builder = new SQLiteQueryBuilder();
+			
+			String tables = directionsTable + " JOIN " + directionsStopsTable +
+					" ON (" + directionsTable + "." + dirTagKey + " = " +
+			directionsStopsTable + "." + dirTagKey + ")";
+
+
+			builder.setTables(tables);
+
+			String[] projectionIn = new String[] {directionsTable + "." + dirTagKey, 
+					directionsTable + "." + dirTitleKey, directionsTable + "." + dirNameKey,
+					directionsTable + "." + dirUseAsUIKey, directionsStopsTable + "." + stopTagKey,
+					directionsTable + "." + dirRouteKey
+					};
+
+			StringBuilder select;
+			String[] selectArray;
+				
+			select = new StringBuilder(directionsTable + "." + dirTitleKey + "=?");
+			selectArray = new String[]{titleQuery};
+
+			dirCursor = builder.query(database, projectionIn, select.toString(), selectArray, null, null, null);
+
+			dirCursor.moveToFirst();
+			
+			while (dirCursor.isAfterLast() == false)
+			{
+				String dirTag = dirCursor.getString(0);
+				String stopTag = dirCursor.getString(4);
+				if (ret.containsKey(dirTag) == false) {
+					String dirTitle = dirCursor.getString(1);
+					String dirName = dirCursor.getString(2);
+					boolean useForUI = dirCursor.getInt(3) == INT_TRUE;
+					String route = dirCursor.getString(5);
+					
+					Direction direction = new Direction(dirName, dirTitle, route, useForUI);
+					ret.put(dirTag, direction);
+				}
+				ret.get(dirTag).addStopTag(stopTag);
+				
+				dirCursor.moveToNext();
+			}
+			return ret;
+		}
+		finally
+		{
+			if (dirCursor != null) {
+				dirCursor.close();
+			}
+			database.close();
+		}
+	}
 
 	public StopLocation getStopByTagOrTitle(String tagQuery, String titleQuery, TransitSystem transitSystem)
 	{

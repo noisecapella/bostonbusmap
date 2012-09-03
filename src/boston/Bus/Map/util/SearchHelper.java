@@ -1,10 +1,12 @@
 package boston.Bus.Map.util;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import com.google.android.maps.MapView;
 
 import android.util.Log;
 import android.widget.Toast;
+import boston.Bus.Map.data.Direction;
 import boston.Bus.Map.data.MyHashMap;
 import boston.Bus.Map.data.StopLocation;
 import boston.Bus.Map.database.DatabaseHelper;
@@ -20,8 +22,13 @@ public class SearchHelper
 	private String suggestionsQuery;
 	private final DatabaseHelper databaseHelper;
 	
-	private boolean queryContainsRoute;
-	private boolean queryContainsStop;
+	private static final int QUERY_NONE = 0;
+	private static final int QUERY_ROUTE = 1;
+	private static final int QUERY_STOP = 2;
+	private static final int QUERY_DIRECTION = 3;
+	
+	private int queryType = QUERY_NONE;
+	
 	private final TransitSystem transitSystem;
 	
 	public SearchHelper(Main context, String[] dropdownRoutes, MyHashMap<String, String> dropdownRouteKeysToTitles,
@@ -60,10 +67,9 @@ public class SearchHelper
 		String printableQuery = query;
 		
 		//remove these words from the search
-		String[] wordsToRemove = new String[] {"route", "subway", "bus", "line", "stop"};
+		String[] wordsToRemove = new String[] {"route", "subway", "bus", "line", "stop", "direction"};
 
-		queryContainsRoute = false;
-		queryContainsStop = false;
+		queryType = QUERY_NONE;
 		String censoredQuery = query;
 		for (String wordToRemove : wordsToRemove)
 		{
@@ -95,11 +101,15 @@ public class SearchHelper
 				
 				if (wordToRemove.equals("route"))
 				{
-					queryContainsRoute = true;
+					queryType = QUERY_ROUTE;
 				}
 				else if (wordToRemove.equals("stop"))
 				{
-					queryContainsStop = true;
+					queryType = QUERY_STOP;
+				}
+				else if (wordToRemove.equals("direction"))
+				{
+					queryType = QUERY_DIRECTION;
 				}
 			}
 		}
@@ -119,20 +129,6 @@ public class SearchHelper
 			indexingQuery = indexingQuery.substring(0, 1).toUpperCase() + queryWithoutSpaces.substring(1);
 		}
 		
-		if (queryContainsRoute && queryContainsStop)
-		{
-			//contains both stop and route keyword... nonsensical
-			queryContainsRoute = false;
-			queryContainsStop = false;
-		}
-
-		//NOTE: this hardwires the default to be queryContainsRoute, bypassing the popup menu
-		//it seems like a good idea for now so people aren't confused
-		if (queryContainsStop == false)
-		{
-			queryContainsRoute = true;
-		}
-		
 		//NOTE: the next section is currently never run since we set queryContainsStop to true if queryContainsRoute was false
 		final String finalLowercaseQuery = lowercaseQuery;
 		final String finalIndexingQuery = indexingQuery;
@@ -142,7 +138,7 @@ public class SearchHelper
 	}
 
 	private void returnResults(Runnable onFinish, String indexingQuery, String lowercaseQuery, String printableQuery) {
-		if (queryContainsRoute)
+		if (queryType == QUERY_NONE || queryType == QUERY_ROUTE)
 		{
 			int position = getAsRoute(indexingQuery, lowercaseQuery);
 
@@ -159,7 +155,7 @@ public class SearchHelper
 				Toast.makeText(context, "Route '" + printableQuery + "' doesn't exist. Did you mistype it?", Toast.LENGTH_LONG).show();
 			}
 		}
-		else if (queryContainsStop)
+		else if (queryType == QUERY_STOP)
 		{
 			// ideally we'd use RoutePool instead of DatabaseHelper, since RoutePool will
 			// reuse existing stops if they match. But stop is temporary so it doesn't really matter
@@ -181,14 +177,40 @@ public class SearchHelper
 			}
 			else
 			{
-				//invalid stop id
+				//invalid stop id, or we just didn't parse it correctly
 				Toast.makeText(context, "Stop '" + printableQuery + "' doesn't exist. Did you mistype it?", Toast.LENGTH_LONG).show();
+			}
+		}
+		else if (queryType == QUERY_DIRECTION) {
+			// ideally we'd use RoutePool instead of DatabaseHelper, since RoutePool will
+			// reuse existing stops if they match. But stop is temporary so it doesn't really matter
+			String exactQuery;
+			if (printableQuery.startsWith("direction "))
+			{
+				exactQuery = printableQuery.substring(10);
+			}
+			else
+			{
+				exactQuery = printableQuery;
+			}
+			
+			MyHashMap<String, Direction> directions = databaseHelper.getDirectionsByTitle(exactQuery, transitSystem);
+			if (directions.size() > 0)
+			{
+				//context.setNewStop(stop.getFirstRoute(), stop.getStopTag());
+				context.setDirection(directions);
+				suggestionsQuery = "direction " + exactQuery;
+			}
+			else
+			{
+				//invalid stop id, or we just didn't parse it correctly
+				Toast.makeText(context, "Direction '" + printableQuery + "' doesn't exist. Did you mistype it?", Toast.LENGTH_LONG).show();
 			}
 		}
 		else
 		{
 			//shouldn't happen
-			Log.e("BostonBusMap", "Error: query is neither about stops nor routes");
+			Log.e("BostonBusMap", "Error: query is neither about stops, routes, or directions");
 		}
 		
 		onFinish.run();
