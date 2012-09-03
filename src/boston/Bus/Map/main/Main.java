@@ -31,6 +31,7 @@ import java.util.List;
 import javax.xml.parsers.FactoryConfigurationError;
 import javax.xml.parsers.ParserConfigurationException;
 
+import org.apache.http.impl.conn.tsccm.RouteSpecificPool;
 import org.xml.sax.SAXException;
 
 import boston.Bus.Map.R;
@@ -201,11 +202,12 @@ public class Main extends MapActivity
 	
 	public static final int[] modeIconsSupported = new int[]{
 		R.drawable.bus_all, R.drawable.bus_one, R.drawable.busstop_all, R.drawable.busstop_one, R.drawable.busstop_star,
-		R.drawable.bus_all, R.drawable.busstop_all
+		R.drawable.bus_directions, R.drawable.busstop_directions
 	};
 	
 	public static final int[] modeTextSupported = new int[]{
-		R.string.all_buses, R.string.vehicles_on_one_route, R.string.stops_and_predictions_on_all_routes, R.string.stops_and_predictions_on_one_route, R.string.favorite_stops
+		R.string.all_buses, R.string.vehicles_on_one_route, R.string.stops_and_predictions_on_all_routes, R.string.stops_and_predictions_on_one_route, R.string.favorite_stops,
+		R.string.bus_directions, R.string.busstop_directions
 	};
 	
 	
@@ -366,7 +368,7 @@ public class Main extends MapActivity
         	lastUpdateTime = currentState.getLastUpdateTime();
         	previousUpdateConstantlyInterval = currentState.getUpdateConstantlyInterval();
         	selectedRouteIndex = currentState.getSelectedRouteIndex();
-        	setSelectedBusPredictions(currentState.getSelectedBusPredictions());
+        	setMode(currentState.getSelectedBusPredictions());
         	progress.setVisibility(currentState.getProgressState() ? View.VISIBLE : View.INVISIBLE);
         	
         	
@@ -407,10 +409,10 @@ public class Main extends MapActivity
         
         if (lastNonConfigurationInstance != null)
         {
-        	String route = dropdownRoutes[selectedRouteIndex];
-        	String routeTitle = dropdownRouteKeysToTitles.get(route);
-        	searchView.setText("Route " + routeTitle);
-        	handler.setSelectedBusPredictions(getSelectedBusPredictions());
+			String route = dropdownRoutes[selectedRouteIndex];
+			String routeTitle = dropdownRouteKeysToTitles.get(route);
+        	updateSearchText();
+        	handler.setSelectedBusPredictions(getMode());
         	handler.setRouteToUpdate(route);
         }
         else
@@ -419,7 +421,7 @@ public class Main extends MapActivity
             int centerLon = prefs.getInt(centerLonKey, Integer.MAX_VALUE);
             int zoomLevel = prefs.getInt(zoomLevelKey, Integer.MAX_VALUE);
             selectedRouteIndex = prefs.getInt(selectedRouteIndexKey, 0);
-            setSelectedBusPredictions(prefs.getInt(selectedBusPredictionsKey, VEHICLE_LOCATIONS_ONE));
+            setMode(prefs.getInt(selectedBusPredictionsKey, VEHICLE_LOCATIONS_ONE));
             
             if (selectedRouteIndex < 0 || selectedRouteIndex >= dropdownRoutes.length)
             {
@@ -427,8 +429,8 @@ public class Main extends MapActivity
             }
         	String route = dropdownRoutes[selectedRouteIndex];
         	String routeTitle = dropdownRouteKeysToTitles.get(route);
-        	searchView.setText("Route " + routeTitle);
-            handler.setSelectedBusPredictions(getSelectedBusPredictions());
+        	updateSearchText();
+            handler.setSelectedBusPredictions(getMode());
             handler.setRouteToUpdate(route);
 
             if (centerLat != Integer.MAX_VALUE && centerLon != Integer.MAX_VALUE && zoomLevel != Integer.MAX_VALUE)
@@ -508,10 +510,7 @@ public class Main extends MapActivity
 
 			String dirTitle = directionsToSet.getTitle();
 
-			if (searchView != null)
-			{
-				searchView.setText("Direction " + dirTitle);
-			}
+			updateSearchText();
 
 			if (saveNewQuery)
 			{
@@ -522,6 +521,35 @@ public class Main extends MapActivity
 		}
 	}
 
+	/**
+	 * Updates search text depending on current mode
+	 */
+	private void updateSearchText() {
+		if (searchView != null)
+		{
+			int mode = getMode();
+			if (mode == VEHICLE_LOCATIONS_BY_DIRECTION || mode == BUS_PREDICTIONS_BY_DIRECTION) {
+				if (selectedDirections != null) {
+					searchView.setText(selectedDirections.getTitle());
+				}
+				else
+				{
+					searchView.setText("Search directions");
+				}
+			}
+			else
+			{
+				String route = dropdownRoutes[selectedRouteIndex];
+				String routeTitle = dropdownRouteKeysToTitles.get(route);
+				searchView.setText("Route " + routeTitle);
+			}
+		}
+		else
+		{
+			Log.i("BostonBusMap", "Warning: search view is null");
+		}
+	}
+	
 	/**
 	 * This should be called only by SearchHelper 
 	 * 
@@ -545,10 +573,7 @@ public class Main extends MapActivity
 				routeTitle = route;
 			}
 
-			if (searchView != null)
-			{
-				searchView.setText("Route " + routeTitle);
-			}
+			updateSearchText();
 
 			if (saveNewQuery)
 			{
@@ -575,7 +600,7 @@ public class Main extends MapActivity
 	}
 
 
-	private int getSelectedBusPredictions()
+	private int getMode()
     {
     	int pos = toggleButton.getSelectedItemPosition();
     	if (pos < 0 || pos >= modesSupported.length)
@@ -589,7 +614,7 @@ public class Main extends MapActivity
     	
     }
 
-    private void setSelectedBusPredictions(int selection)
+    private void setMode(int selection)
     {
     	for (int i = 0; i < modesSupported.length; i++)
     	{
@@ -610,7 +635,7 @@ public class Main extends MapActivity
     		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
     		SharedPreferences.Editor editor = prefs.edit();
 
-    		editor.putInt(selectedBusPredictionsKey, getSelectedBusPredictions());
+    		editor.putInt(selectedBusPredictionsKey, getMode());
     		editor.putInt(selectedRouteIndexKey, selectedRouteIndex);
     		editor.putInt(centerLatKey, point.getLatitudeE6());
     		editor.putInt(centerLonKey, point.getLongitudeE6());
@@ -627,7 +652,9 @@ public class Main extends MapActivity
 		
 		if (arguments != null) {
 			arguments.getMyLocationOverlay().disableMyLocation();
-			arguments.getProgressDialog().dismiss();
+			if (arguments.getProgressDialog() != null) {
+				arguments.getProgressDialog().dismiss();
+			}
 		}
 		
 		super.onPause();
@@ -863,7 +890,7 @@ public class Main extends MapActivity
 			progressVisibility = arguments.getProgress().getVisibility() == View.VISIBLE;
 		}
 		return new CurrentState(arguments, handler.getLastUpdateTime(), updateConstantlyInterval,
-				selectedRouteIndex, getSelectedBusPredictions(),
+				selectedRouteIndex, getMode(),
 				progressVisibility, locationEnabled);
 	}
 
@@ -990,7 +1017,7 @@ public class Main extends MapActivity
 		
 		if (updateIcon)
 		{
-			setSelectedBusPredictions(mode);
+			setMode(mode);
 		}
 		
 		
@@ -998,6 +1025,8 @@ public class Main extends MapActivity
 
 		handler.triggerUpdate();
 		handler.immediateRefresh();
+		
+		updateSearchText();
 	}
 	
 	/**
