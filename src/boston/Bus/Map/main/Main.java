@@ -194,11 +194,14 @@ public class Main extends MapActivity
 	public static final int UPDATE_INTERVAL_NONE = 0;
 	
 	public static final int[] modesSupported = new int[]{
-		VEHICLE_LOCATIONS_ALL, VEHICLE_LOCATIONS_ONE, BUS_PREDICTIONS_ALL, BUS_PREDICTIONS_ONE, BUS_PREDICTIONS_STAR
+		VEHICLE_LOCATIONS_ALL, VEHICLE_LOCATIONS_ONE, BUS_PREDICTIONS_ALL, 
+		BUS_PREDICTIONS_ONE, BUS_PREDICTIONS_STAR, VEHICLE_LOCATIONS_BY_DIRECTION,
+		BUS_PREDICTIONS_BY_DIRECTION
 	};
 	
 	public static final int[] modeIconsSupported = new int[]{
-		R.drawable.bus_all, R.drawable.bus_one, R.drawable.busstop_all, R.drawable.busstop_one, R.drawable.busstop_star
+		R.drawable.bus_all, R.drawable.bus_one, R.drawable.busstop_all, R.drawable.busstop_one, R.drawable.busstop_star,
+		R.drawable.bus_all, R.drawable.busstop_all
 	};
 	
 	public static final int[] modeTextSupported = new int[]{

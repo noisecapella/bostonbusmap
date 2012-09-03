@@ -259,6 +259,10 @@ public final class Locations
 								newLocations.add(busLocation);
 							}
 						}
+						else
+						{
+							throw new RuntimeException("selectedBusPredictions is invalid");
+						}
 					}
 				}
 			}
