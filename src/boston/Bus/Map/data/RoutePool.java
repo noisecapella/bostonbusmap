@@ -294,4 +294,8 @@ public class RoutePool {
 
 	}
 
+	public ArrayList<StopLocation> getStopsByDirtag(String dirTag) {
+		return helper.getStopsByDirtag(dirTag, transitSystem);
+	}
+
 }

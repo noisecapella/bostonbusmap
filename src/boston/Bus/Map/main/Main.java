@@ -186,6 +186,8 @@ public class Main extends MapActivity
 	public static final int VEHICLE_LOCATIONS_ONE = 3;
 	public static final int BUS_PREDICTIONS_ALL = 4;
 	public static final int BUS_PREDICTIONS_STAR = 5;
+	public static final int VEHICLE_LOCATIONS_BY_DIRECTION = 6;
+	public static final int BUS_PREDICTIONS_BY_DIRECTION = 7;
 	
 	public static final int UPDATE_INTERVAL_INVALID = 9999;
 	public static final int UPDATE_INTERVAL_SHORT = 15;

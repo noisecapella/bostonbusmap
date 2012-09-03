@@ -18,6 +18,7 @@ import org.xml.sax.SAXException;
 import org.xml.sax.XMLReader;
 import org.xml.sax.helpers.DefaultHandler;
 
+import boston.Bus.Map.data.Direction;
 import boston.Bus.Map.data.Directions;
 import boston.Bus.Map.data.MyHashMap;
 import boston.Bus.Map.data.MyTreeMap;
@@ -151,14 +152,14 @@ public class SubwayRouteConfigFeedParser
 		}
 		
 		//workaround
-		directions.add(RedNorthToAlewife, "North toward Alewife", null, SubwayTransitSource.RedLine);
-		directions.add(RedNorthToAlewife2, "North toward Alewife", null, SubwayTransitSource.RedLine);
-		directions.add(RedSouthToBraintree, "South toward Braintree", null, SubwayTransitSource.RedLine);
-		directions.add(RedSouthToAshmont, "South toward Ashmont", null, SubwayTransitSource.RedLine);
-		directions.add(BlueEastToWonderland, "East toward Wonderland", null, SubwayTransitSource.BlueLine);
-		directions.add(BlueWestToBowdoin, "West toward Bowdoin", null, SubwayTransitSource.BlueLine);
-		directions.add(OrangeNorthToOakGrove, "North toward Oak Grove", null, SubwayTransitSource.OrangeLine);
-		directions.add(OrangeSouthToForestHills, "South toward Forest Hills", null, SubwayTransitSource.OrangeLine);
+		directions.add(RedNorthToAlewife, new Direction("North toward Alewife", null, SubwayTransitSource.RedLine, true));
+		directions.add(RedNorthToAlewife2, new Direction("North toward Alewife", null, SubwayTransitSource.RedLine, true));
+		directions.add(RedSouthToBraintree, new Direction("South toward Braintree", null, SubwayTransitSource.RedLine, true));
+		directions.add(RedSouthToAshmont, new Direction("South toward Ashmont", null, SubwayTransitSource.RedLine, true));
+		directions.add(BlueEastToWonderland, new Direction("East toward Wonderland", null, SubwayTransitSource.BlueLine, true));
+		directions.add(BlueWestToBowdoin, new Direction("West toward Bowdoin", null, SubwayTransitSource.BlueLine, true));
+		directions.add(OrangeNorthToOakGrove, new Direction("North toward Oak Grove", null, SubwayTransitSource.OrangeLine, true));
+		directions.add(OrangeSouthToForestHills, new Direction("South toward Forest Hills", null, SubwayTransitSource.OrangeLine, true));
 		
 		//path
 		for (String route : orderedStations.keySet())

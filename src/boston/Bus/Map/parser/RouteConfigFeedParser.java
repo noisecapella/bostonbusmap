@@ -20,6 +20,7 @@ import org.xml.sax.helpers.DefaultHandler;
 
 import skylight1.opengl.files.QuickParseUtil;
 
+import boston.Bus.Map.data.Direction;
 import boston.Bus.Map.data.Directions;
 import boston.Bus.Map.data.MyHashMap;
 import boston.Bus.Map.data.Path;
@@ -58,6 +59,7 @@ public class RouteConfigFeedParser extends DefaultHandler
 	private static final String pointKey = "point";
 	private static final String latKey = "lat";
 	private static final String lonKey = "lon";
+	private static final String useForUIKey = "useForUI";
 	
 	private static final String colorKey = "color";
 	private static final String oppositeColorKey = "oppositeColor";
@@ -76,6 +78,7 @@ public class RouteConfigFeedParser extends DefaultHandler
 	
 	private ArrayList<Float> currentPathPoints;
 	private final TransitSource transitSource;
+	private Direction currentDirection;
 	
 	 
 	
@@ -108,11 +111,10 @@ public class RouteConfigFeedParser extends DefaultHandler
 			
 			if (inRoute)
 			{
+				String tag = attributes.getValue(tagKey);
 
 				if (inDirection == false)
 				{
-					String tag = attributes.getValue(tagKey);
-
 					float latitudeAsDegrees = QuickParseUtil.parseFloat(attributes.getValue(latitudeKey));
 					float longitudeAsDegrees = QuickParseUtil.parseFloat(attributes.getValue(longitudeKey));
 
@@ -131,7 +133,7 @@ public class RouteConfigFeedParser extends DefaultHandler
 				}
 				else
 				{
-					//ignore for now
+					currentDirection.addStopTag(tag);
 				}
 			}
 		}
@@ -144,8 +146,10 @@ public class RouteConfigFeedParser extends DefaultHandler
 				String tag = attributes.getValue(tagKey);
 				String title = attributes.getValue(titleKey);
 				String name = attributes.getValue(nameKey);
+				boolean useForUI = Boolean.getBoolean(attributes.getValue(useForUIKey));
 				
-				directions.add(tag, name, title, currentRoute);
+				currentDirection = new Direction(name, title, currentRoute, useForUI);
+				directions.add(tag, currentDirection);
 			}
 		}
 		else if (routeKey.equals(localName))

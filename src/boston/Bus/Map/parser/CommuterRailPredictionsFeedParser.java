@@ -14,6 +14,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import boston.Bus.Map.data.BusLocation;
 import boston.Bus.Map.data.CommuterRailPrediction;
 import boston.Bus.Map.data.CommuterTrainLocation;
+import boston.Bus.Map.data.Direction;
 import boston.Bus.Map.data.Directions;
 import boston.Bus.Map.data.MyHashMap;
 import boston.Bus.Map.data.Prediction;
@@ -133,7 +134,7 @@ public class CommuterRailPredictionsFeedParser
 				}
 
 				String direction = getItem("Destination", array);
-				directions.add(direction, direction, "", routeConfig.getRouteName());
+				directions.add(direction, new Direction(direction, "", routeConfig.getRouteName(), true));
 
 				String informationType = getItem("Flag", array);
 

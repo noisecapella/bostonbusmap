@@ -28,11 +28,6 @@ public class Directions {
 		
 	}
 	
-	public void add(String dirTag, String name, String title, String route)
-	{
-		add(dirTag, new Direction(name, title, route));
-	}
-	
 	private Direction getDirection(String dirTag)
 	{
 		if (dirTag == null)
