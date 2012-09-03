@@ -7,6 +7,7 @@ import com.google.android.maps.MapView;
 import android.util.Log;
 import android.widget.Toast;
 import boston.Bus.Map.data.Direction;
+import boston.Bus.Map.data.DirectionByTitle;
 import boston.Bus.Map.data.MyHashMap;
 import boston.Bus.Map.data.StopLocation;
 import boston.Bus.Map.data.UpdateArguments;
@@ -195,8 +196,8 @@ public class SearchHelper
 				exactQuery = printableQuery;
 			}
 			
-			MyHashMap<String, Direction> directions = databaseHelper.getDirectionsByTitle(exactQuery, transitSystem);
-			if (directions.size() > 0)
+			DirectionByTitle directions = databaseHelper.getDirectionsByTitle(exactQuery, transitSystem);
+			if (directions.isEmpty() == false)
 			{
 				context.setDirection(directions, false);
 				suggestionsQuery = "direction " + exactQuery;

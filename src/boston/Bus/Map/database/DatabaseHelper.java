@@ -3,6 +3,7 @@ package boston.Bus.Map.database;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -14,6 +15,7 @@ import com.google.android.maps.Projection;
 import boston.Bus.Map.data.Path;
 
 import boston.Bus.Map.data.Direction;
+import boston.Bus.Map.data.DirectionByTitle;
 import boston.Bus.Map.data.MyHashMap;
 import boston.Bus.Map.data.RouteConfig;
 import boston.Bus.Map.data.StopLocation;
@@ -1125,6 +1127,80 @@ public class DatabaseHelper extends SQLiteOpenHelper
 		}
 	}
 	
+/*	public synchronized List<StopLocation> getClosestStopsWithDirTag(double currentLat, double currentLon, 
+			TransitSystem transitSystem, MyHashMap<String, StopLocation> sharedStops,
+			int limit, MyHashMap<String, Direction> directionsToUpdate)
+	{
+		if (directionsToUpdate.size() == 0) {
+			return Collections.emptyList();
+		}
+		
+		SQLiteDatabase database = getReadableDatabase();
+		Cursor cursor = null;
+		try
+		{
+			// what we should scale longitude by for 1 unit longitude to roughly equal 1 unit latitude
+			double lonFactor = Math.cos(currentLat * Geometry.degreesToRadians);
+			
+			
+			SQLiteQueryBuilder builder = new SQLiteQueryBuilder();
+			
+			String tables = verboseStops;
+
+			builder.setTables(tables);
+			
+			String select;
+			String[] selectArray;
+			if (directionsToUpdate.keySet().size() == 1) {
+				select = stop + " LIKE ?";
+				selectArray = new String[]{"%" + search + "%"};
+			}
+
+			final String distanceKey = "distance";
+			String[] projectionIn = new String[] {stopTagKey, distanceKey};
+			HashMap<String, String> projectionMap = new HashMap<String, String>();
+			projectionMap.put(stopTagKey, stopTagKey);
+
+			String latDiff = "(" + latitudeKey + " - " + currentLat + ")";
+			String lonDiff = "((" + longitudeKey + " - " + currentLon + ")*" + lonFactor + ")";
+			projectionMap.put("distance", latDiff + "*" + latDiff + " + " + lonDiff + "*" + lonDiff + " AS " + distanceKey);
+			builder.setProjectionMap(projectionMap);
+			cursor = builder.query(database, projectionIn, select, selectArray, null, null, distanceKey, Integer.valueOf(limit).toString());
+			
+			if (cursor.moveToFirst() == false)
+			{
+				return new ArrayList<StopLocation>();
+			}
+			
+			ArrayList<String> stopTags = new ArrayList<String>();
+			while (!cursor.isAfterLast())
+			{
+				String id = cursor.getString(0);
+				stopTags.add(id);
+				
+				cursor.moveToNext();
+			}
+			
+			getStops(stopTags, transitSystem, sharedStops);
+			
+			ArrayList<StopLocation> ret = new ArrayList<StopLocation>();
+			for (String stopTag : stopTags)
+			{
+				ret.add(sharedStops.get(stopTag));
+			}
+			
+			return ret;
+		}
+		finally
+		{
+			if (cursor != null)
+			{
+				cursor.close();
+			}
+			database.close();
+		}
+	}*/
+	
 	public synchronized Cursor getCursorForDirection(String dirTag) {
 		SQLiteDatabase database = getReadableDatabase();
 		
@@ -1147,7 +1223,7 @@ public class DatabaseHelper extends SQLiteOpenHelper
 	}
 
 	
-	public MyHashMap<String, Direction> getDirectionsByTitle(String titleQuery, TransitSystem transitSystem) {
+	public DirectionByTitle getDirectionsByTitle(String titleQuery, TransitSystem transitSystem) {
 		SQLiteDatabase database = getReadableDatabase();
 		Cursor dirCursor = null;
 		MyHashMap<String, Direction> ret = new MyHashMap<String, Direction>();
@@ -1195,7 +1271,9 @@ public class DatabaseHelper extends SQLiteOpenHelper
 				
 				dirCursor.moveToNext();
 			}
-			return ret;
+			
+			DirectionByTitle directionByTitle = new DirectionByTitle(ret);
+			return directionByTitle;
 		}
 		finally
 		{

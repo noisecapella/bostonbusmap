@@ -148,6 +148,10 @@ public class BusLocation implements Location {
 		}
 	}
 
+	public String getDirTag() {
+		return dirTag;
+	}
+	
 	/**
 	 * 
 	 * @return a String describing the direction of the bus, or "" if it can't

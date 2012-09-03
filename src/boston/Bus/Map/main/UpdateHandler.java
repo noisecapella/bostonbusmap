@@ -3,6 +3,7 @@ package boston.Bus.Map.main;
 import org.apache.http.impl.conn.tsccm.RouteSpecificPool;
 
 import boston.Bus.Map.data.Direction;
+import boston.Bus.Map.data.DirectionByTitle;
 import boston.Bus.Map.data.Locations;
 import boston.Bus.Map.data.MyHashMap;
 import boston.Bus.Map.data.UpdateArguments;
@@ -63,7 +64,7 @@ public class UpdateHandler extends Handler {
 	private final UpdateArguments guiArguments;
 	
 	private String routeToUpdate;
-	private MyHashMap<String, Direction> directionsToUpdate;
+	private DirectionByTitle directionsToUpdate;
 	private int selectedBusPredictions;
 
 	public UpdateHandler(UpdateArguments guiArguments)
@@ -129,7 +130,7 @@ public class UpdateHandler extends Handler {
 					false, maxOverlays,
 					getHideHighlightCircle() == false, getInferBusRoutes(),
 					routeToUpdate, selectedBusPredictions, false, getShowRouteLine(), 
-					idToSelect);
+					idToSelect, directionsToUpdate);
 			
 
 			minorUpdate.runUpdate(guiArguments.getBusLocations(), 
@@ -186,7 +187,7 @@ public class UpdateHandler extends Handler {
 		final UpdateAsyncTask updateAsyncTask = new UpdateAsyncTask(guiArguments, getShowUnpredictable(), true, maxOverlays,
 				getHideHighlightCircle() == false, getInferBusRoutes(),
 				routeToUpdate, selectedBusPredictions, isFirstTime, showRouteLine,
-				0);
+				0, directionsToUpdate);
 		guiArguments.setMajorHandler(updateAsyncTask);
 		updateAsyncTask.runUpdate(guiArguments.getBusLocations(), centerLatitude, centerLongitude, guiArguments.getContext());
 		
@@ -344,7 +345,7 @@ public class UpdateHandler extends Handler {
 	}
 
 	public void setDirectionsToUpdate(
-			MyHashMap<String, Direction> selectedDirections) {
+			DirectionByTitle selectedDirections) {
 		this.directionsToUpdate = selectedDirections;
 	}
 

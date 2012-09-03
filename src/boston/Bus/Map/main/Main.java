@@ -35,6 +35,7 @@ import org.xml.sax.SAXException;
 
 import boston.Bus.Map.R;
 import boston.Bus.Map.data.Direction;
+import boston.Bus.Map.data.DirectionByTitle;
 import boston.Bus.Map.data.Locations;
 import boston.Bus.Map.data.MyHashMap;
 import boston.Bus.Map.data.RouteConfig;
@@ -154,7 +155,7 @@ public class Main extends MapActivity
 	 * A small subset of available directions, where the key is dirTag. Should all have
 	 * the same title. For performance reasons we don't just use the title here
 	 */
-	private MyHashMap<String, Direction> selectedDirections;
+	private DirectionByTitle selectedDirections;
 	
 	/**
 	 * This is used to indicate to the mode spinner to ignore the first time we set it, so we don't update every time the screen changes
@@ -490,8 +491,8 @@ public class Main extends MapActivity
 	}
 
 
-	public void setDirection(MyHashMap<String, Direction> directionsToSet, boolean saveNewQuery) {
-		if (directionsToSet.size() == 0) {
+	public void setDirection(DirectionByTitle directionsToSet, boolean saveNewQuery) {
+		if (directionsToSet.isEmpty()) {
 			return;
 		}
 		if (arguments != null && handler != null)
@@ -502,9 +503,7 @@ public class Main extends MapActivity
 			handler.immediateRefresh();
 			handler.triggerUpdate();
 
-			String dirTag = directionsToSet.keySet().toArray(new String[0])[0];
-			Direction direction = directionsToSet.get(dirTag);
-			String dirTitle = direction.getTitle();
+			String dirTitle = directionsToSet.getTitle();
 
 			if (searchView != null)
 			{
