@@ -125,7 +125,7 @@ public class DatabaseHelper extends SQLiteOpenHelper
 	public final static int VERBOSE_DBV2_3 = 27;
 	public final static int VERBOSE_DBV2_4 = 28;
 	
-	public final static int WITH_STOPS_FOR_DIR = 35;
+	public final static int WITH_STOPS_FOR_DIR = 36;
 	
 	public final static int CURRENT_DB_VERSION = WITH_STOPS_FOR_DIR;
 	
@@ -190,9 +190,10 @@ public class DatabaseHelper extends SQLiteOpenHelper
 			populateFavorites(favorites, false, db);
 		}*/
 		
-		if (oldVersion < VERBOSE_DBV2_4)
+		if (oldVersion < CURRENT_DB_VERSION)
 		{
 			db.execSQL("DROP TABLE IF EXISTS " + directionsTable);
+			db.execSQL("DROP TABLE IF EXISTS " + directionsStopsTable);
 			db.execSQL("DROP TABLE IF EXISTS " + stopsTable);
 			db.execSQL("DROP TABLE IF EXISTS " + routesTable);
 			db.execSQL("DROP TABLE IF EXISTS " + pathsTable);
@@ -747,7 +748,7 @@ public class DatabaseHelper extends SQLiteOpenHelper
 		Cursor cursor = null;
 		try
 		{
-			cursor = database.query(directionsTable, new String[]{dirTagKey, dirNameKey, dirTitleKey, dirRouteKey},
+			cursor = database.query(directionsTable, new String[]{dirTagKey, dirNameKey, dirTitleKey, dirRouteKey, dirUseAsUIKey},
 					null, null, null, null, null);
 			cursor.moveToFirst();
 			while (cursor.isAfterLast() == false)
@@ -812,7 +813,7 @@ public class DatabaseHelper extends SQLiteOpenHelper
 				values.put(dirRouteKey, route);
 				values.put(dirTagKey, dirTag);
 				values.put(dirTitleKey, title);
-				values.put(dirUseAsUIKey, useAsUI);
+				values.put(dirUseAsUIKey, useAsUI ? INT_TRUE : INT_FALSE);
 
 				if (wipe)
 				{
