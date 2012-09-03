@@ -34,11 +34,13 @@ import javax.xml.parsers.ParserConfigurationException;
 import org.xml.sax.SAXException;
 
 import boston.Bus.Map.R;
+import boston.Bus.Map.data.Direction;
 import boston.Bus.Map.data.Locations;
 import boston.Bus.Map.data.MyHashMap;
 import boston.Bus.Map.data.RouteConfig;
 import boston.Bus.Map.data.StopLocation;
 import boston.Bus.Map.data.TransitDrawables;
+import boston.Bus.Map.data.UpdateArguments;
 import boston.Bus.Map.database.DatabaseHelper;
 import boston.Bus.Map.provider.TransitContentProvider;
 import boston.Bus.Map.transit.TransitSystem;
@@ -138,7 +140,6 @@ public class Main extends MapActivity
 	private static final String markUpdatedStops = "markUpdatedStops";
 	
 	private static final String introScreenKey = "introScreen";
-	private MapView mapView;
 	private EditText searchView;
 	
 	
@@ -147,19 +148,18 @@ public class Main extends MapActivity
 	 */
 	private UpdateHandler handler;
 	
-	private Locations busLocations;
-
-
 	private int selectedRouteIndex;
+	
+	/**
+	 * A small subset of available directions, where the key is dirTag. Should all have
+	 * the same title. For performance reasons we don't just use the title here
+	 */
+	private MyHashMap<String, Direction> selectedDirections;
 	
 	/**
 	 * This is used to indicate to the mode spinner to ignore the first time we set it, so we don't update every time the screen changes
 	 */
 	private boolean firstRunMode;
-	
-	private BusOverlay busOverlay;
-	private RouteOverlay routeOverlay;
-	private LocationOverlay myLocationOverlay;
 	
 	/**
 	 * Is location overlay supposed to be enabled? Used mostly for onResume()
@@ -174,12 +174,9 @@ public class Main extends MapActivity
 	private MyHashMap<String, String> dropdownRouteKeysToTitles;
 	private AlertDialog routeChooserDialog;
 
-	private ProgressBar progress;
 	private ImageButton searchButton;
-	
-	private ProgressDialog progressDialog;
-	private DatabaseHelper databaseHelper;
-	private TransitSystem transitSystem;
+
+	private UpdateArguments arguments;
 	
 	public static final int VEHICLE_LOCATIONS_ALL = 1;
 	public static final int BUS_PREDICTIONS_ONE = 2;
@@ -219,15 +216,15 @@ public class Main extends MapActivity
         TransitSystem.setDefaultTimeFormat(this);
         
         //get widgets
-        mapView = (MapView)findViewById(R.id.mapview);
+        final MapView mapView = (MapView)findViewById(R.id.mapview);
         toggleButton = (Spinner)findViewById(R.id.predictionsOrLocations);
         searchView = (EditText)findViewById(R.id.searchTextView);
-        progress = (ProgressBar)findViewById(R.id.progress);
+        final ProgressBar progress = (ProgressBar)findViewById(R.id.progress);
         searchButton = (ImageButton)findViewById(R.id.searchButton);
         
     	SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
 
-    	progressDialog = new ProgressDialog(this);
+    	final ProgressDialog progressDialog = new ProgressDialog(this);
 		progressDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
 		progressDialog.setCancelable(true);
 
@@ -255,6 +252,7 @@ public class Main extends MapActivity
         // busPicture is used to initialize busOverlay, otherwise it would
         // joint the rest of the drawables in the brackets 
     	Drawable busPicture = resources.getDrawable(R.drawable.bus_statelist);
+    	final TransitSystem transitSystem = new TransitSystem();
         {
         	Drawable busStopUpdated = resources.getDrawable(R.drawable.busstop_statelist_updated);
         	Drawable arrow = resources.getDrawable(R.drawable.arrow);
@@ -263,7 +261,6 @@ public class Main extends MapActivity
         
         	Drawable busStop = resources.getDrawable(R.drawable.busstop_statelist);
         
-        	transitSystem = new TransitSystem();
         	TransitDrawables busDrawables = new TransitDrawables(busStop, busStopUpdated, busPicture, arrow);
         	TransitDrawables subwayDrawables = new TransitDrawables(busStop, busStopUpdated, rail, arrow);
         	TransitDrawables commuterRailDrawables = new TransitDrawables(busStop, busStopUpdated, rail, arrow);
@@ -280,7 +277,7 @@ public class Main extends MapActivity
 				{
 					firstRunMode = false;
 				}
-				else if (busLocations != null && handler != null)
+				else if (arguments != null && handler != null)
 				{
 					if (position >= 0 && position < modesSupported.length)
 					{
@@ -300,7 +297,7 @@ public class Main extends MapActivity
         toggleButton.setAdapter(modeSpinnerAdapter);
 
         
-        databaseHelper = new DatabaseHelper(this);
+        final DatabaseHelper databaseHelper = new DatabaseHelper(this);
         
         
         dropdownRoutes = transitSystem.getRoutes();
@@ -330,6 +327,10 @@ public class Main extends MapActivity
         UpdateAsyncTask majorHandler = null;
         
         Object lastNonConfigurationInstance = getLastNonConfigurationInstance();
+        final BusOverlay busOverlay;
+        final RouteOverlay routeOverlay;
+        final LocationOverlay myLocationOverlay;
+        Locations busLocations = null;
         if (lastNonConfigurationInstance != null)
         {
         	CurrentState currentState = (CurrentState)lastNonConfigurationInstance;
@@ -352,7 +353,11 @@ public class Main extends MapActivity
         	
         	busOverlay.refreshBalloons();
         	
-        	busLocations = currentState.getBusLocations();
+        	final UpdateArguments otherArguments = currentState.getUpdateArguments();
+        	
+        	if (otherArguments != null) {
+        		busLocations = otherArguments.getBusLocations();
+        	}
 
         	lastUpdateTime = currentState.getLastUpdateTime();
         	previousUpdateConstantlyInterval = currentState.getUpdateConstantlyInterval();
@@ -361,8 +366,9 @@ public class Main extends MapActivity
         	progress.setVisibility(currentState.getProgressState() ? View.VISIBLE : View.INVISIBLE);
         	
         	
-        	
-        	majorHandler = currentState.getMajorHandler();
+        	if (otherArguments != null) {
+            	majorHandler = otherArguments.getMajorHandler();
+        	}
         	//continue posting status updates on new textView
         	if (majorHandler != null)
         	{
@@ -387,9 +393,10 @@ public class Main extends MapActivity
         	busLocations = new Locations(databaseHelper, transitSystem);
         }
 
-        handler = new UpdateHandler(progress, mapView, busLocations, 
-        		this, databaseHelper, busOverlay, routeOverlay, myLocationOverlay, majorHandler,
-        		transitSystem, progressDialog);
+        arguments = new UpdateArguments(progress, progressDialog,
+        		mapView, this, busOverlay, routeOverlay, myLocationOverlay,
+        		majorHandler, busLocations, databaseHelper, transitSystem);
+        handler = new UpdateHandler(arguments);
         busOverlay.setUpdateable(handler);
         
         populateHandlerSettings();
@@ -482,6 +489,37 @@ public class Main extends MapActivity
     	return ret;
 	}
 
+
+	public void setDirection(MyHashMap<String, Direction> directionsToSet, boolean saveNewQuery) {
+		if (directionsToSet.size() == 0) {
+			return;
+		}
+		if (arguments != null && handler != null)
+		{
+			selectedDirections = directionsToSet;
+			handler.setDirectionsToUpdate(selectedDirections);
+
+			handler.immediateRefresh();
+			handler.triggerUpdate();
+
+			String dirTag = directionsToSet.keySet().toArray(new String[0])[0];
+			Direction direction = directionsToSet.get(dirTag);
+			String dirTitle = direction.getTitle();
+
+			if (searchView != null)
+			{
+				searchView.setText("Direction " + dirTitle);
+			}
+
+			if (saveNewQuery)
+			{
+				final SearchRecentSuggestions suggestions = new SearchRecentSuggestions(Main.this, TransitContentProvider.AUTHORITY,
+						TransitContentProvider.MODE);
+				suggestions.saveRecentQuery("direction " + dirTitle, null);
+			}
+		}
+	}
+
 	/**
 	 * This should be called only by SearchHelper 
 	 * 
@@ -490,7 +528,7 @@ public class Main extends MapActivity
 	 */
 	public void setNewRoute(int position, boolean saveNewQuery)
     {
-		if (busLocations != null && handler != null)
+		if (arguments != null && handler != null)
 		{
 			selectedRouteIndex = position;
 			String route = dropdownRoutes[position];
@@ -563,9 +601,9 @@ public class Main extends MapActivity
 
 	@Override
     protected void onPause() {
-    	if (mapView != null)
+    	if (arguments != null)
     	{
-
+    		final MapView mapView = arguments.getMapView();
     		GeoPoint point = mapView.getMapCenter();
     		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
     		SharedPreferences.Editor editor = prefs.edit();
@@ -585,14 +623,9 @@ public class Main extends MapActivity
 			handler.nullifyProgress();
 		}
 		
-		if (myLocationOverlay != null)
-		{
-			myLocationOverlay.disableMyLocation();
-		}
-		
-		if (progressDialog != null)
-		{
-			progressDialog.dismiss();
+		if (arguments != null) {
+			arguments.getMyLocationOverlay().disableMyLocation();
+			arguments.getProgressDialog().dismiss();
 		}
 		
 		super.onPause();
@@ -602,20 +635,15 @@ public class Main extends MapActivity
 	@Override
 	protected void onDestroy() {
 		handler = null;
-		busLocations = null;
-		if (busOverlay != null)
-		{
-			busOverlay.setUpdateable(null);
-			busOverlay.clear();
-			busOverlay = null;
+		if (arguments != null) {
+			arguments.getBusOverlay().setUpdateable(null);
+			arguments.getBusOverlay().clear();
+			arguments.getMapView().getOverlays().clear();
+			
+			arguments.nullify();
 		}
+		arguments = null;
 		
-		routeOverlay = null;
-		if (mapView != null)
-		{
-			mapView.getOverlays().clear();
-			mapView = null;
-		}
 		
 		searchView = null;
 		
@@ -643,17 +671,19 @@ public class Main extends MapActivity
     		break;
     	case R.id.centerOnBostonMenuItem:
     	
-    		if (mapView != null)
+    		if (arguments != null)
     		{
     			GeoPoint point = new GeoPoint(TransitSystem.getCenterLatAsInt(), TransitSystem.getCenterLonAsInt());
-    			mapView.getController().animateTo(point);
+    			arguments.getMapView().getController().animateTo(point);
     			handler.triggerUpdate(1500);
     		}
     		break;
     	
     	case R.id.centerOnLocationMenuItem:
-    		if (myLocationOverlay != null)
+    		
+    		if (arguments != null)
     		{
+    			final LocationOverlay myLocationOverlay = arguments.getMyLocationOverlay();
     			if (myLocationOverlay.isMyLocationEnabled() == false)
     			{
     				myLocationOverlay.enableMyLocation();
@@ -675,9 +705,9 @@ public class Main extends MapActivity
     		break;
     		
     	case R.id.chooseStop:
-    		if (busLocations != null)
+    		if (arguments != null)
     		{
-    			StopLocation[] favoriteStops = busLocations.getCurrentFavorites();
+    			StopLocation[] favoriteStops = arguments.getBusLocations().getCurrentFavorites();
     			
     			final StopLocation[] stops = StopLocation.consolidateStops(favoriteStops);
 
@@ -736,7 +766,7 @@ public class Main extends MapActivity
 	@Override
 	protected boolean isRouteDisplayed() {
 		//TODO: what exactly should we return here? 
-		if (mapView != null && mapView.getOverlays().size() != 0)
+		if (arguments != null && arguments.getMapView().getOverlays().size() != 0)
 		{
 			return true;
 		}
@@ -750,9 +780,9 @@ public class Main extends MapActivity
 	protected void onResume() {
 		super.onResume();
 
-		if (locationEnabled && myLocationOverlay != null)
+		if (locationEnabled && arguments != null)
 		{
-			myLocationOverlay.enableMyLocation();
+			arguments.getMyLocationOverlay().enableMyLocation();
 		}
 		
 		//check the result
@@ -767,8 +797,9 @@ public class Main extends MapActivity
 		{
 			return super.onKeyDown(keyCode, event);
 		}
-		else if (mapView != null)
+		else if (arguments != null)
 		{
+			final MapView mapView = arguments.getMapView();
 			if (keyCode == KeyEvent.KEYCODE_DPAD_CENTER)
 			{
 				float centerX = mapView.getWidth() / 2;
@@ -825,9 +856,13 @@ public class Main extends MapActivity
 		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
 		int updateConstantlyInterval = getUpdateInterval(prefs);
 		
-		return new CurrentState(busLocations, handler.getLastUpdateTime(), updateConstantlyInterval,
-				selectedRouteIndex, getSelectedBusPredictions(), busOverlay, routeOverlay,
-				handler.getMajorHandler(), progress.getVisibility() == View.VISIBLE, locationEnabled);
+		boolean progressVisibility = false;
+		if (arguments != null) {
+			progressVisibility = arguments.getProgress().getVisibility() == View.VISIBLE;
+		}
+		return new CurrentState(arguments, handler.getLastUpdateTime(), updateConstantlyInterval,
+				selectedRouteIndex, getSelectedBusPredictions(),
+				progressVisibility, locationEnabled);
 	}
 
 	
@@ -850,8 +885,9 @@ public class Main extends MapActivity
 		{
 			return super.onKeyUp(keyCode, event);
 		}
-		else if (mapView != null)
+		else if (arguments != null)
 		{
+			final MapView mapView = arguments.getMapView();
 			if (keyCode == KeyEvent.KEYCODE_MENU)
 			{
 				return super.onKeyUp(keyCode, event);
@@ -888,10 +924,10 @@ public class Main extends MapActivity
 	@Override
 	public boolean onTrackballEvent(MotionEvent event) {
 		// TODO Auto-generated method stub
-		if (mapView != null)
+		if (arguments != null)
 		{
 			handler.triggerUpdate(250);
-			return mapView.onTrackballEvent(event);
+			return arguments.getMapView().onTrackballEvent(event);
 		}
 		else
 		{
@@ -912,8 +948,7 @@ public class Main extends MapActivity
 			}
 
 			
-			final SearchHelper helper = new SearchHelper(this, dropdownRoutes, dropdownRouteKeysToTitles, mapView, query, 
-				databaseHelper, transitSystem);
+			final SearchHelper helper = new SearchHelper(this, dropdownRoutes, dropdownRouteKeysToTitles, arguments, query);
 			helper.runSearch(new Runnable()
 			{
 				@Override
@@ -970,7 +1005,7 @@ public class Main extends MapActivity
 	 */
 	public void setNewStop(String route, String stopTag)
 	{
-		StopLocation stopLocation = busLocations.setSelectedStop(route, stopTag);
+		StopLocation stopLocation = arguments.getBusLocations().setSelectedStop(route, stopTag);
 
 		if (stopLocation == null)
 		{
@@ -1007,7 +1042,7 @@ public class Main extends MapActivity
 		
 		setMode(BUS_PREDICTIONS_ONE, true);
 		
-		MapController controller = mapView.getController();
+		MapController controller = arguments.getMapView().getController();
 		
 		int latE6 = (int)(stopLocation.getLatitudeAsDegrees() * Constants.E6);
 		int lonE6 = (int)(stopLocation.getLongitudeAsDegrees() * Constants.E6);

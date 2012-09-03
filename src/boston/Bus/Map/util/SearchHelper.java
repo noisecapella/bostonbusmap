@@ -9,6 +9,7 @@ import android.widget.Toast;
 import boston.Bus.Map.data.Direction;
 import boston.Bus.Map.data.MyHashMap;
 import boston.Bus.Map.data.StopLocation;
+import boston.Bus.Map.data.UpdateArguments;
 import boston.Bus.Map.database.DatabaseHelper;
 import boston.Bus.Map.main.Main;
 import boston.Bus.Map.transit.TransitSystem;
@@ -20,7 +21,6 @@ public class SearchHelper
 	private final MyHashMap<String, String> dropdownRouteKeysToTitles;
 	private final String query;
 	private String suggestionsQuery;
-	private final DatabaseHelper databaseHelper;
 	
 	private static final int QUERY_NONE = 0;
 	private static final int QUERY_ROUTE = 1;
@@ -29,17 +29,16 @@ public class SearchHelper
 	
 	private int queryType = QUERY_NONE;
 	
-	private final TransitSystem transitSystem;
+	private final UpdateArguments arguments;
 	
 	public SearchHelper(Main context, String[] dropdownRoutes, MyHashMap<String, String> dropdownRouteKeysToTitles,
-			MapView mapView, String query, DatabaseHelper databaseHelper, TransitSystem transitSystem)
+			UpdateArguments arguments, String query)
 	{
 		this.context = context;
 		this.dropdownRoutes = dropdownRoutes;
 		this.dropdownRouteKeysToTitles = dropdownRouteKeysToTitles;
 		this.query = query;
-		this.databaseHelper = databaseHelper;
-		this.transitSystem = transitSystem;
+		this.arguments = arguments;
 	}
 	
 	/**
@@ -138,6 +137,8 @@ public class SearchHelper
 	}
 
 	private void returnResults(Runnable onFinish, String indexingQuery, String lowercaseQuery, String printableQuery) {
+		final DatabaseHelper databaseHelper = arguments.getDatabaseHelper();
+		final TransitSystem transitSystem = arguments.getTransitSystem();
 		if (queryType == QUERY_NONE || queryType == QUERY_ROUTE)
 		{
 			int position = getAsRoute(indexingQuery, lowercaseQuery);
@@ -168,7 +169,7 @@ public class SearchHelper
 			{
 				exactQuery = printableQuery;
 			}
-			
+
 			StopLocation stop = databaseHelper.getStopByTagOrTitle(indexingQuery, exactQuery, transitSystem);
 			if (stop != null)
 			{	
@@ -197,8 +198,7 @@ public class SearchHelper
 			MyHashMap<String, Direction> directions = databaseHelper.getDirectionsByTitle(exactQuery, transitSystem);
 			if (directions.size() > 0)
 			{
-				//context.setNewStop(stop.getFirstRoute(), stop.getStopTag());
-				context.setDirection(directions);
+				context.setDirection(directions, false);
 				suggestionsQuery = "direction " + exactQuery;
 			}
 			else
@@ -218,7 +218,7 @@ public class SearchHelper
 
 	private int getAsRoute(String indexingQuery, String lowercaseQuery)
 	{
-		String route = transitSystem.searchForRoute(indexingQuery, lowercaseQuery);
+		String route = arguments.getTransitSystem().searchForRoute(indexingQuery, lowercaseQuery);
 		if (route != null)
 		{
 			for (int i = 0; i < dropdownRoutes.length; i++)

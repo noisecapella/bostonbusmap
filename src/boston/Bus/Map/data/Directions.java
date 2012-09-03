@@ -28,7 +28,7 @@ public class Directions {
 		
 	}
 	
-	private Direction getDirection(String dirTag)
+	public Direction getDirection(String dirTag)
 	{
 		if (dirTag == null)
 		{

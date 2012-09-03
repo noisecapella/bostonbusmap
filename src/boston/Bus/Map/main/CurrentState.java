@@ -3,6 +3,7 @@ package boston.Bus.Map.main;
 
 import boston.Bus.Map.data.Locations;
 import boston.Bus.Map.data.MyHashMap;
+import boston.Bus.Map.data.UpdateArguments;
 import boston.Bus.Map.ui.BusOverlay;
 import boston.Bus.Map.ui.RouteOverlay;
 
@@ -16,40 +17,31 @@ import com.google.android.maps.Projection;
  */
 public class CurrentState {
 	private final long lastUpdateTime;
-	private final Locations busLocations;
 	private final int updateConstantlyInterval;
 	private int selectedRouteIndex;
 	private int selectedBusPredictions;
-	private final BusOverlay busOverlay;
-	private final RouteOverlay routeOverlay;
 	private final boolean progressState;
-	private final UpdateAsyncTask majorHandler;
 	private final boolean locationEnabled;
 	
-	public CurrentState(Locations busLocations, long lastUpdateTime, int updateConstantlyInterval,
-			int selectedRouteIndex, int selectedBusPredictions, BusOverlay busOverlay, RouteOverlay routeOverlay,
-			UpdateAsyncTask majorHandler, boolean progressState, boolean locationEnabled) 
+	private final UpdateArguments updateArguments;
+	
+	public CurrentState(UpdateArguments updateArguments, long lastUpdateTime, int updateConstantlyInterval,
+			int selectedRouteIndex, int selectedBusPredictions,
+			boolean progressState, boolean locationEnabled) 
 	{
-		this.busLocations = busLocations;
+		this.updateArguments = updateArguments;
+		
 		this.lastUpdateTime = lastUpdateTime;
 		this.updateConstantlyInterval = updateConstantlyInterval;
 		this.selectedRouteIndex = selectedRouteIndex;
 		this.selectedBusPredictions = selectedBusPredictions;
-		this.busOverlay = busOverlay;
-		this.routeOverlay = routeOverlay;
 		this.progressState = progressState;
-		this.majorHandler = majorHandler;
 		this.locationEnabled = locationEnabled;
 	}
 
 	public long getLastUpdateTime()
 	{
 		return lastUpdateTime;
-	}
-	
-	public Locations getBusLocations()
-	{
-		return busLocations;
 	}
 	
 	public void restoreWidgets()
@@ -65,10 +57,6 @@ public class CurrentState {
 		return updateConstantlyInterval;
 	}
 
-	public BusOverlay getBusOverlay() {
-		return busOverlay;
-	}
-
 	/**
 	 * It's probably unnecessary to clone a new object for this
 	 * @param context
@@ -77,7 +65,7 @@ public class CurrentState {
 	 */
 	public BusOverlay cloneBusOverlay(Main context, MapView mapView, MyHashMap<String, String> routeKeysToTitles, float density)
 	{
-		BusOverlay ret = new BusOverlay(busOverlay, context, mapView, routeKeysToTitles, density);
+		BusOverlay ret = new BusOverlay(updateArguments.getBusOverlay(), context, mapView, routeKeysToTitles, density);
 		
 		return ret;
 	}
@@ -91,8 +79,8 @@ public class CurrentState {
 		return selectedBusPredictions;
 	}
 
-	public UpdateAsyncTask getMajorHandler() {
-		return majorHandler;
+	public UpdateArguments getUpdateArguments() {
+		return updateArguments;
 	}
 
 	/**
@@ -101,7 +89,7 @@ public class CurrentState {
 	 * @return
 	 */
 	public RouteOverlay cloneRouteOverlay(Projection projection) {
-		RouteOverlay ret = new RouteOverlay(routeOverlay, projection);
+		RouteOverlay ret = new RouteOverlay(updateArguments.getRouteOverlay(), projection);
 		
 		return ret;
 	}

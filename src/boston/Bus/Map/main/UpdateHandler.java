@@ -2,7 +2,10 @@ package boston.Bus.Map.main;
 
 import org.apache.http.impl.conn.tsccm.RouteSpecificPool;
 
+import boston.Bus.Map.data.Direction;
 import boston.Bus.Map.data.Locations;
+import boston.Bus.Map.data.MyHashMap;
+import boston.Bus.Map.data.UpdateArguments;
 import boston.Bus.Map.database.DatabaseHelper;
 import boston.Bus.Map.transit.TransitSystem;
 import boston.Bus.Map.ui.BusOverlay;
@@ -50,48 +53,25 @@ public class UpdateHandler extends Handler {
 	private int updateConstantlyInterval;
 	private boolean hideHighlightCircle;
 	private boolean showUnpredictable;
-	private UpdateAsyncTask updateAsyncTask;
 	private UpdateAsyncTask minorUpdate;
 	
-	private final ProgressBar progress;
-	private final ProgressDialog progressDialog;
-	private final MapView mapView;
 	private boolean inferBusRoutes;
-	private final Locations busLocations;
-	private final DatabaseHelper helper;
-	private final Context context;
-	
-	private final BusOverlay busOverlay; 
-	private final RouteOverlay routeOverlay;
-	private final LocationOverlay locationOverlay;
 	
 	private boolean isFirstRefresh;
 	private boolean showRouteLine;
 	
-	private final TransitSystem transitSystem;
-	
-	public UpdateHandler(ProgressBar progress, MapView mapView,
-			Locations busLocations, Context context, DatabaseHelper helper, BusOverlay busOverlay,
-			RouteOverlay routeOverlay,  LocationOverlay locationOverlay,
-			UpdateAsyncTask majorHandler, TransitSystem transitSystem, ProgressDialog progressDialog)
-	{
-		this.progress = progress;
-		this.mapView = mapView;
-		this.busLocations = busLocations;
-		this.helper = helper;
-		this.busOverlay = busOverlay;
-		this.routeOverlay = routeOverlay;
-		this.locationOverlay = locationOverlay;
-		lastUpdateTime = TransitSystem.currentTimeMillis();
-		
-		this.context = context;
-		this.updateAsyncTask = majorHandler;
-		this.transitSystem = transitSystem;
-		this.progressDialog = progressDialog;
-	}
+	private final UpdateArguments guiArguments;
 	
 	private String routeToUpdate;
+	private MyHashMap<String, Direction> directionsToUpdate;
 	private int selectedBusPredictions;
+
+	public UpdateHandler(UpdateArguments guiArguments)
+	{
+		this.guiArguments = guiArguments;
+		lastUpdateTime = TransitSystem.currentTimeMillis();
+	}
+	
 	
 	@Override
 	public void handleMessage(Message msg) {
@@ -137,7 +117,7 @@ public class UpdateHandler extends Handler {
 				
 			}
 
-			GeoPoint geoPoint = mapView.getMapCenter();
+			GeoPoint geoPoint = guiArguments.getMapView().getMapCenter();
 			double centerLatitude = geoPoint.getLatitudeE6() * Constants.InvE6;
 			double centerLongitude = geoPoint.getLongitudeE6() * Constants.InvE6;
 			
@@ -145,13 +125,15 @@ public class UpdateHandler extends Handler {
 			removeMessages(MINOR);
 			
 			int idToSelect = msg.arg1;
-			minorUpdate = new UpdateAsyncTask(progress, mapView, locationOverlay, getShowUnpredictable(), false, maxOverlays,
-					getHideHighlightCircle() == false, getInferBusRoutes(), busOverlay, routeOverlay, helper,
+			minorUpdate = new UpdateAsyncTask(guiArguments, getShowUnpredictable(),
+					false, maxOverlays,
+					getHideHighlightCircle() == false, getInferBusRoutes(),
 					routeToUpdate, selectedBusPredictions, false, getShowRouteLine(), 
-					transitSystem, progressDialog, idToSelect);
+					idToSelect);
 			
 
-			minorUpdate.runUpdate(busLocations, centerLatitude, centerLongitude, context);
+			minorUpdate.runUpdate(guiArguments.getBusLocations(), 
+					centerLatitude, centerLongitude, guiArguments.getContext());
 			
 			break;
 		}		
@@ -167,9 +149,9 @@ public class UpdateHandler extends Handler {
 	
 	public void kill()
 	{
-		if (updateAsyncTask != null)
+		if (guiArguments.getMajorHandler() != null)
 		{
-			updateAsyncTask.cancel(true);
+			guiArguments.getMajorHandler().cancel(true);
 		}
 
 		if (minorUpdate != null)
@@ -186,9 +168,9 @@ public class UpdateHandler extends Handler {
 		lastUpdateTime = TransitSystem.currentTimeMillis();
 
 		//don't do two updates at once
-		if (updateAsyncTask != null)
+		if (guiArguments.getMajorHandler() != null)
 		{
-			if (updateAsyncTask.getStatus().equals(UpdateAsyncTask.Status.FINISHED) == false)
+			if (guiArguments.getMajorHandler().getStatus().equals(UpdateAsyncTask.Status.FINISHED) == false)
 			{
 				//task is not finished yet
 				return;
@@ -196,16 +178,18 @@ public class UpdateHandler extends Handler {
 			
 		}
 		
-		GeoPoint geoPoint = mapView.getMapCenter();
+		GeoPoint geoPoint = guiArguments.getMapView().getMapCenter();
 		double centerLatitude = geoPoint.getLatitudeE6() * Constants.InvE6;
 		double centerLongitude = geoPoint.getLongitudeE6() * Constants.InvE6;
 
 		
-		updateAsyncTask = new UpdateAsyncTask(progress, mapView, locationOverlay, getShowUnpredictable(), true, maxOverlays,
-				getHideHighlightCircle() == false, getInferBusRoutes(), busOverlay, routeOverlay, helper,
+		final UpdateAsyncTask updateAsyncTask = new UpdateAsyncTask(guiArguments, getShowUnpredictable(), true, maxOverlays,
+				getHideHighlightCircle() == false, getInferBusRoutes(),
 				routeToUpdate, selectedBusPredictions, isFirstTime, showRouteLine,
-				transitSystem, progressDialog, 0);
-		updateAsyncTask.runUpdate(busLocations, centerLatitude, centerLongitude, context);
+				0);
+		guiArguments.setMajorHandler(updateAsyncTask);
+		updateAsyncTask.runUpdate(guiArguments.getBusLocations(), centerLatitude, centerLongitude, guiArguments.getContext());
+		
 	}
 
 	public boolean instantRefresh() {
@@ -346,18 +330,10 @@ public class UpdateHandler extends Handler {
 		selectedBusPredictions = b; 
 	}
 
-
-
-	public UpdateAsyncTask getMajorHandler() {
-		return updateAsyncTask;
-	}
-
-
-
 	public void nullifyProgress() {
-		if (updateAsyncTask != null)
+		if (guiArguments.getMajorHandler() != null)
 		{
-			updateAsyncTask.nullifyProgress();
+			guiArguments.getMajorHandler().nullifyProgress();
 		}
 		
 		if (minorUpdate != null)
@@ -365,6 +341,11 @@ public class UpdateHandler extends Handler {
 			//probably not in the middle of something but just in case
 			minorUpdate.nullifyProgress();
 		}
+	}
+
+	public void setDirectionsToUpdate(
+			MyHashMap<String, Direction> selectedDirections) {
+		this.directionsToUpdate = selectedDirections;
 	}
 
 

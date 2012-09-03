@@ -43,6 +43,7 @@ import boston.Bus.Map.data.MyHashMap;
 import boston.Bus.Map.data.Path;
 import boston.Bus.Map.data.RouteConfig;
 import boston.Bus.Map.data.StopLocation;
+import boston.Bus.Map.data.UpdateArguments;
 import boston.Bus.Map.database.DatabaseHelper;
 import boston.Bus.Map.transit.TransitSystem;
 import boston.Bus.Map.ui.BusOverlay;
@@ -82,7 +83,6 @@ import android.widget.Toast;
  */
 public class UpdateAsyncTask extends AsyncTask<Object, Object, Locations>
 {
-	private final MapView mapView;
 	private final boolean doShowUnpredictable;
 	private final boolean doRefresh;
 	/**
@@ -91,10 +91,7 @@ public class UpdateAsyncTask extends AsyncTask<Object, Object, Locations>
 	private final boolean doInit;
 	private final int maxOverlays;
 	private final boolean drawCircle;
-	private final DatabaseHelper helper;
 	
-	private ProgressBar progress;
-	private ProgressDialog progressDialog;
 	private String progressDialogTitle;
 	private String progressDialogMessage;
 	private int progressDialogMax;
@@ -106,47 +103,39 @@ public class UpdateAsyncTask extends AsyncTask<Object, Object, Locations>
 	
 	private final boolean inferBusRoutes;
 	
-	private BusOverlay busOverlay;
-	private RouteOverlay routeOverlay;
-	private LocationOverlay locationOverlay;
-	
 	private final String routeToUpdate;
 	private final int selectedBusPredictions;
 	private final boolean showRouteLine;
 
-	private final TransitSystem transitSystem;
 	private Context context;
 	private final int idToSelect;
+	private final UpdateArguments arguments;
 	
-	public UpdateAsyncTask(ProgressBar progress, MapView mapView, LocationOverlay locationOverlay,
+	/*public UpdateAsyncTask(ProgressBar progress, MapView mapView, LocationOverlay locationOverlay,
 			boolean doShowUnpredictable, boolean doRefresh, int maxOverlays,
 			boolean drawCircle, boolean inferBusRoutes, BusOverlay busOverlay, RouteOverlay routeOverlay, 
 			DatabaseHelper helper, String routeToUpdate,
 			int selectedBusPredictions, boolean doInit, boolean showRouteLine,
-		TransitSystem transitSystem, ProgressDialog progressDialog, int idToSelect)
+		TransitSystem transitSystem, ProgressDialog progressDialog, int idToSelect)*/
+	public UpdateAsyncTask(UpdateArguments arguments, boolean doShowUnpredictable,
+			boolean doRefresh, int maxOverlays, boolean drawCircle, boolean inferBusRoutes,
+			String routeToUpdate, int selectedBusPredictions, boolean doInit,
+			boolean showRouteLine, int idToSelect)
 	{
 		super();
 		
+		this.arguments = arguments;
 		//NOTE: these should only be used in one of the UI threads
-		this.mapView = mapView;
-		this.context = mapView.getContext();
 		this.doShowUnpredictable = doShowUnpredictable;
 		this.doRefresh = doRefresh;
 		this.maxOverlays = maxOverlays;
 		this.drawCircle = drawCircle;
 		this.inferBusRoutes = inferBusRoutes;
-		this.busOverlay = busOverlay;
-		this.routeOverlay = routeOverlay;
-		this.locationOverlay = locationOverlay;
-		this.helper = helper;
-		this.progress = progress;
 		this.routeToUpdate = routeToUpdate;
 		this.selectedBusPredictions = selectedBusPredictions;
 		this.doInit = doInit;
 		this.showRouteLine = showRouteLine;
 		//this.uiHandler = new Handler();
-		this.transitSystem = transitSystem;
-		this.progressDialog = progressDialog;
 		this.idToSelect = idToSelect;
 	}
 	
@@ -170,6 +159,8 @@ public class UpdateAsyncTask extends AsyncTask<Object, Object, Locations>
 	{
 		if (silenceUpdates == false)
 		{
+			final ProgressDialog progressDialog = arguments.getProgressDialog();
+			final ProgressBar progress = arguments.getProgress();
 			if (progressDialog == null || progress == null)
 			{
 				return;
@@ -253,12 +244,12 @@ public class UpdateAsyncTask extends AsyncTask<Object, Object, Locations>
 			{
 				publish(new ProgressMessage(ProgressMessage.PROGRESS_SPINNER_ON, null, null));
 				
-				String[] allRoutes = transitSystem.getRoutes();
+				String[] allRoutes = arguments.getTransitSystem().getRoutes();
 				if (doInit)
 				{
 					//publishProgress("Did not find route info in database, checking if there's free space to download it...");
 				}
-				if (busLocations.checkFreeSpace(helper, allRoutes) == false)
+				if (busLocations.checkFreeSpace(arguments.getDatabaseHelper(), allRoutes) == false)
 				{
 					publish(new ProgressMessage(ProgressMessage.TOAST, null, 
 							"There is not enough free space to download the route info. About 2MB free is required"));
@@ -410,7 +401,7 @@ public class UpdateAsyncTask extends AsyncTask<Object, Object, Locations>
 			return;
 		}
 		
-		GeoPoint center = mapView.getMapCenter();
+		GeoPoint center = arguments.getMapView().getMapCenter();
 		final double inve6 = Constants.InvE6;
 		final double e6 = Constants.E6;
 		final double latitude = center.getLatitudeE6() * inve6;
@@ -441,6 +432,7 @@ public class UpdateAsyncTask extends AsyncTask<Object, Object, Locations>
 			return;
 		}
 		
+		final BusOverlay busOverlay = arguments.getBusOverlay();
 		//get currently selected location id, or -1 if nothing is selected
 		final int selectedBusId;
 		if (idToSelect != 0)
@@ -458,6 +450,7 @@ public class UpdateAsyncTask extends AsyncTask<Object, Object, Locations>
 		
 		busOverlay.setDrawHighlightCircle(drawCircle);
 		
+		final RouteOverlay routeOverlay = arguments.getRouteOverlay();
 		routeOverlay.setDrawLine(showRouteLine);
 		//routeOverlay.setDrawCoarseLine(showCoarseRouteLine);
 		
@@ -511,7 +504,7 @@ public class UpdateAsyncTask extends AsyncTask<Object, Object, Locations>
 		busOverlay.doPopulate();
 		busOverlay.setLocations(busLocationsObject);
 		
-		MyHashMap<String, String> routeKeysToTitles = transitSystem.getRouteKeysToTitles();
+		MyHashMap<String, String> routeKeysToTitles = arguments.getTransitSystem().getRouteKeysToTitles();
 		
 		//point hash to index in busLocations
 		MyHashMap<Long, Integer> points = new MyHashMap<Long, Integer>();
@@ -562,9 +555,10 @@ public class UpdateAsyncTask extends AsyncTask<Object, Object, Locations>
 		busOverlay.setSelectedBusId(newSelectedBusId);
 		busOverlay.refreshBalloons();
 		
+		final MapView mapView = arguments.getMapView();
 		mapView.getOverlays().clear();
 		mapView.getOverlays().add(routeOverlay);
-		mapView.getOverlays().add(locationOverlay);
+		mapView.getOverlays().add(arguments.getMyLocationOverlay());
 		mapView.getOverlays().add(busOverlay);
 		
 		
@@ -590,8 +584,8 @@ public class UpdateAsyncTask extends AsyncTask<Object, Object, Locations>
 	
 	public void nullifyProgress()
 	{
-		progress = null;
-		progressDialog = null;
+		arguments.setProgress(null);
+		arguments.setProgressDialog(null);
 	}
 	
 	/**
@@ -601,8 +595,8 @@ public class UpdateAsyncTask extends AsyncTask<Object, Object, Locations>
 	 * @param progressDialog
 	 */
 	public void setProgress(ProgressBar progress, ProgressDialog progressDialog) {
-		this.progress = progress;
-		this.progressDialog = progressDialog;
+		arguments.setProgress(progress);
+		arguments.setProgressDialog(progressDialog);
 		
 		progress.setVisibility(progressIsShowing ? View.VISIBLE : View.INVISIBLE);
 		progressDialog.setTitle(progressDialogTitle);
