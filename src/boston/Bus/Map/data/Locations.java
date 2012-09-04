@@ -255,7 +255,7 @@ public final class Locations
 						else if (selectedBusPredictions == Main.VEHICLE_LOCATIONS_BY_DIRECTION)
 						{
 							String dirTag = busLocation.getDirTag();
-							if (directionsToUpdate.containsDirTag(dirTag)) {
+							if (directionsToUpdate != null && directionsToUpdate.containsDirTag(dirTag)) {
 								newLocations.add(busLocation);
 							}
 						}
@@ -315,7 +315,8 @@ public final class Locations
 		else if (selectedBusPredictions == Main.BUS_PREDICTIONS_BY_DIRECTION) {
 			ArrayList<StopLocation> stops = routeMapping.getClosestStops(centerLatitude, centerLongitude, maxLocations);
 			for (StopLocation stop : stops) {
-				if (directionsToUpdate.containsStopTag(stop.getStopTag())) {
+				if (directionsToUpdate != null && 
+						directionsToUpdate.containsStopTag(stop.getStopTag())) {
 					newLocations.add(stop);
 					locationKeys.add(stop.getId());
 				}

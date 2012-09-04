@@ -21,7 +21,13 @@ public class DirectionByTitle {
 			}
 		}
 		
-		title = directionsToUpdate.values().toArray(new Direction[0])[0].getTitle();
+		if (directionsToUpdate.size() > 0) {
+			title = directionsToUpdate.values().toArray(new Direction[0])[0].getTitle();
+		}
+		else
+		{
+			title = null;
+		}
 	}
 
 	public boolean containsDirTag(String dirTag) {

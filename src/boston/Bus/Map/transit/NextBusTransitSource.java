@@ -127,6 +127,7 @@ public abstract class NextBusTransitSource implements TransitSource
 		case  Main.BUS_PREDICTIONS_ONE:
 		case  Main.BUS_PREDICTIONS_STAR:
 		case  Main.BUS_PREDICTIONS_ALL:
+		case Main.BUS_PREDICTIONS_BY_DIRECTION:
 		{
 
 			routePool.clearRecentlyUpdated();
@@ -153,6 +154,7 @@ public abstract class NextBusTransitSource implements TransitSource
 		}
 		break;
 		case Main.VEHICLE_LOCATIONS_ALL:
+		case Main.VEHICLE_LOCATIONS_BY_DIRECTION:
 		default:
 		{
 			final String urlString = getVehicleLocationsUrl(locationsObj.getLastUpdateTime(), null);
@@ -167,7 +169,8 @@ public abstract class NextBusTransitSource implements TransitSource
 
 		if (selectedBusPredictions == Main.BUS_PREDICTIONS_ONE || 
 				selectedBusPredictions == Main.BUS_PREDICTIONS_ALL ||
-				selectedBusPredictions == Main.BUS_PREDICTIONS_STAR)
+				selectedBusPredictions == Main.BUS_PREDICTIONS_STAR ||
+				selectedBusPredictions == Main.BUS_PREDICTIONS_BY_DIRECTION)
 		{
 			//bus prediction
 

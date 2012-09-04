@@ -529,7 +529,7 @@ public class Main extends MapActivity
 		{
 			int mode = getMode();
 			if (mode == VEHICLE_LOCATIONS_BY_DIRECTION || mode == BUS_PREDICTIONS_BY_DIRECTION) {
-				if (selectedDirections != null) {
+				if (selectedDirections != null && selectedDirections.isEmpty() == false) {
 					searchView.setText(selectedDirections.getTitle());
 				}
 				else

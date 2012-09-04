@@ -913,17 +913,16 @@ public class DatabaseHelper extends SQLiteOpenHelper
 		Cursor cursor = null;
 		try
 		{
-			cursor = database.query(directionsTable, new String[]{dirTitleKey, dirTagKey}, dirTitleKey + " LIKE ?",
-					new String[]{"%" + search + "%"}, null, null, dirTitleKey);
+			cursor = database.query(true, directionsTable, new String[]{dirTitleKey}, dirTitleKey + " LIKE ?",
+					new String[]{"%" + search + "%"}, null, null, dirTitleKey, null);
 			if (cursor.moveToFirst() == false) {
 				return;
 			}
 			
 			while (!cursor.isAfterLast()) {
 				String dirTitle = cursor.getString(0);
-				String dirTag = cursor.getString(1);
 				
-				ret.addRow(new Object[] {ret.getCount(), dirTitle, "direction " + dirTag, "Direction"});
+				ret.addRow(new Object[] {ret.getCount(), dirTitle, "direction " + dirTitle, "Direction"});
 				
 				cursor.moveToNext();
 			}

@@ -109,7 +109,6 @@ public class UpdateAsyncTask extends AsyncTask<Object, Object, Locations>
 	private final int selectedBusPredictions;
 	private final boolean showRouteLine;
 
-	private Context context;
 	private final int idToSelect;
 	private final UpdateArguments arguments;
 	private final DirectionByTitle directionsToUpdate;
@@ -224,7 +223,7 @@ public class UpdateAsyncTask extends AsyncTask<Object, Object, Locations>
 					break;
 				case ProgressMessage.TOAST:
 					Log.v("BostonBusMap", "Toast made: " + string);
-					Toast.makeText(context, message.message, Toast.LENGTH_LONG).show();
+					Toast.makeText(arguments.getContext(), message.message, Toast.LENGTH_LONG).show();
 					break;
 				}
 			}
@@ -529,6 +528,7 @@ public class UpdateAsyncTask extends AsyncTask<Object, Object, Locations>
 			final int lonIntHash = (lonInt < 0 ? -lonInt : lonInt);
 			long hash = (long)((long)latIntHash << 32) | (long)lonIntHash;
 			Integer index = points.get(hash);
+			final Context context = arguments.getContext();
 			if (null != index)
 			{
 				//two stops in one space. Just use the one overlay, and combine textboxes in an elegant manner
