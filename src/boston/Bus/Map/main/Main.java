@@ -37,7 +37,6 @@ import org.xml.sax.SAXException;
 import boston.Bus.Map.R;
 import boston.Bus.Map.algorithms.GetDirections;
 import boston.Bus.Map.data.Direction;
-import boston.Bus.Map.data.DirectionByTitle;
 import boston.Bus.Map.data.Locations;
 import boston.Bus.Map.data.MyHashMap;
 import boston.Bus.Map.data.RouteConfig;
@@ -158,12 +157,6 @@ public class Main extends MapActivity
 	private int selectedRouteIndex;
 	
 	/**
-	 * A small subset of available directions, where the key is dirTag. Should all have
-	 * the same title. For performance reasons we don't just use the title here
-	 */
-	private DirectionByTitle selectedDirections;
-	
-	/**
 	 * This is used to indicate to the mode spinner to ignore the first time we set it, so we don't update every time the screen changes
 	 */
 	private boolean firstRunMode;
@@ -190,8 +183,6 @@ public class Main extends MapActivity
 	public static final int VEHICLE_LOCATIONS_ONE = 3;
 	public static final int BUS_PREDICTIONS_ALL = 4;
 	public static final int BUS_PREDICTIONS_STAR = 5;
-	public static final int VEHICLE_LOCATIONS_BY_DIRECTION = 6;
-	public static final int BUS_PREDICTIONS_BY_DIRECTION = 7;
 	
 	public static final int UPDATE_INTERVAL_INVALID = 9999;
 	public static final int UPDATE_INTERVAL_SHORT = 15;
@@ -499,54 +490,15 @@ public class Main extends MapActivity
     	return ret;
 	}
 
-
-	public void setDirection(DirectionByTitle directionsToSet, boolean saveNewQuery) {
-		if (directionsToSet.isEmpty()) {
-			return;
-		}
-		if (arguments != null && handler != null)
-		{
-			selectedDirections = directionsToSet;
-			handler.setDirectionsToUpdate(selectedDirections);
-
-			handler.immediateRefresh();
-			handler.triggerUpdate();
-
-			String dirTitle = directionsToSet.getTitle();
-
-			updateSearchText();
-
-			if (saveNewQuery)
-			{
-				final SearchRecentSuggestions suggestions = new SearchRecentSuggestions(Main.this, TransitContentProvider.AUTHORITY,
-						TransitContentProvider.MODE);
-				suggestions.saveRecentQuery("direction " + dirTitle, null);
-			}
-		}
-	}
-
 	/**
 	 * Updates search text depending on current mode
 	 */
 	private void updateSearchText() {
 		if (searchView != null)
 		{
-			int mode = getMode();
-			if (mode == VEHICLE_LOCATIONS_BY_DIRECTION || mode == BUS_PREDICTIONS_BY_DIRECTION) {
-				if (selectedDirections != null && selectedDirections.isEmpty() == false) {
-					searchView.setText(selectedDirections.getTitle());
-				}
-				else
-				{
-					searchView.setText("Search directions");
-				}
-			}
-			else
-			{
-				String route = dropdownRoutes[selectedRouteIndex];
-				String routeTitle = dropdownRouteKeysToTitles.get(route);
-				searchView.setText("Route " + routeTitle);
-			}
+			String route = dropdownRoutes[selectedRouteIndex];
+			String routeTitle = dropdownRouteKeysToTitles.get(route);
+			searchView.setText("Route " + routeTitle);
 		}
 		else
 		{

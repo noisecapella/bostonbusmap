@@ -7,7 +7,6 @@ import com.google.android.maps.MapView;
 import android.util.Log;
 import android.widget.Toast;
 import boston.Bus.Map.data.Direction;
-import boston.Bus.Map.data.DirectionByTitle;
 import boston.Bus.Map.data.MyHashMap;
 import boston.Bus.Map.data.StopLocation;
 import boston.Bus.Map.data.UpdateArguments;
@@ -26,7 +25,6 @@ public class SearchHelper
 	private static final int QUERY_NONE = 0;
 	private static final int QUERY_ROUTE = 1;
 	private static final int QUERY_STOP = 2;
-	private static final int QUERY_DIRECTION = 3;
 	
 	private int queryType = QUERY_NONE;
 	
@@ -107,10 +105,6 @@ public class SearchHelper
 				{
 					queryType = QUERY_STOP;
 				}
-				else if (wordToRemove.equals("direction"))
-				{
-					queryType = QUERY_DIRECTION;
-				}
 			}
 		}
 		
@@ -181,31 +175,6 @@ public class SearchHelper
 			{
 				//invalid stop id, or we just didn't parse it correctly
 				Toast.makeText(context, "Stop '" + printableQuery + "' doesn't exist. Did you mistype it?", Toast.LENGTH_LONG).show();
-			}
-		}
-		else if (queryType == QUERY_DIRECTION) {
-			// ideally we'd use RoutePool instead of DatabaseHelper, since RoutePool will
-			// reuse existing stops if they match. But stop is temporary so it doesn't really matter
-			String exactQuery;
-			if (printableQuery.startsWith("direction "))
-			{
-				exactQuery = printableQuery.substring(10);
-			}
-			else
-			{
-				exactQuery = printableQuery;
-			}
-			
-			DirectionByTitle directions = databaseHelper.getDirectionsByTitle(exactQuery, transitSystem);
-			if (directions.isEmpty() == false)
-			{
-				context.setDirection(directions, false);
-				suggestionsQuery = "direction " + exactQuery;
-			}
-			else
-			{
-				//invalid stop id, or we just didn't parse it correctly
-				Toast.makeText(context, "Direction '" + printableQuery + "' doesn't exist. Did you mistype it?", Toast.LENGTH_LONG).show();
 			}
 		}
 		else

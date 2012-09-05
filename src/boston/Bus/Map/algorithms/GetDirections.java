@@ -30,6 +30,12 @@ public class GetDirections  {
 	private final Directions directions;
 	private final RoutePool routePool;
 	
+	private final MyHashMap<String, MyHashMap<String, Direction>> stopsToDirections = 
+			new MyHashMap<String, MyHashMap<String,Direction>>();
+	
+	private final MyHashMap<String, HashSet<String>> dirTagsToStopTags = 
+			new MyHashMap<String, HashSet<String>>();
+	
 	public GetDirections(Directions directions, RoutePool routePool) {
 		this.directions = directions;
 		this.routePool = routePool;
@@ -50,7 +56,8 @@ public class GetDirections  {
 		DirectionPath current = null;
 		while (openSet.size() != 0) {
 			current = getNodeWithLowestFScore();
-			if (current.containsStop(goal)) {
+			HashSet<String> stopsForDirTag = getStopsForDirTag(current.getDirTag());
+			if (stopsForDirTag.contains(goal.getStopTag())) {
 				return doReconstructPath(new DirectionPath(goal, null, null));
 			}
 			
@@ -78,6 +85,26 @@ public class GetDirections  {
 		throw new RuntimeException("No path found from " + start.getStopTag() + " to " + goal.getStopTag());
 	}
 
+	private HashSet<String> getStopsForDirTag(String dirTag) {
+		HashSet<String> ret = dirTagsToStopTags.get(dirTag);
+		if (ret == null) {
+			ret = directions.getStopTagsForDirTag(dirTag);
+			dirTagsToStopTags.put(dirTag, ret);
+		}
+		return ret;
+	}
+
+
+	private MyHashMap<String, Direction> getDirectionsForStop(String stopTag) {
+		MyHashMap<String, Direction> ret = stopsToDirections.get(stopTag);
+		if (ret == null)
+		{
+			ret = directions.getDirectionsForStop(stopTag);
+			stopsToDirections.put(stopTag, ret);
+		}
+		return ret;
+	}
+
 	private void publishProgress(String string) {
 		// TODO Auto-generated method stub
 		//System.out.println(string);
@@ -86,10 +113,11 @@ public class GetDirections  {
 	private Collection<DirectionPath> getNeighborNodes(DirectionPath current) throws IOException {
 		ArrayList<DirectionPath> ret = new ArrayList<DirectionPath>();
 		HashSet<String> directionsAdded = new HashSet<String>();
-		for (String stopTag : current.getDirection().getStopTags()) {
+		HashSet<String> stopsForDirTag = getStopsForDirTag(current.getDirTag());
+		for (String stopTag : stopsForDirTag) {
 			RouteConfig route = routePool.get(current.getDirection().getRoute());
 			StopLocation stop = route.getStop(stopTag);
-			MyHashMap<String, Direction> directionsForStop = directions.getDirectionsForStop(stopTag);
+			MyHashMap<String, Direction> directionsForStop = getDirectionsForStop(stopTag);
 			for (String dirTag : directionsForStop.keySet()) {
 				if (directionsAdded.contains(dirTag) == false) {
 					Direction direction = directionsForStop.get(dirTag);
@@ -100,7 +128,6 @@ public class GetDirections  {
 		}
 		return ret;
 	}
-
 
 	private float getGScore(DirectionPath neighbor) {
 		Float f = gScore.get(neighbor);
@@ -178,10 +205,6 @@ public class GetDirections  {
 			this.direction = direction;
 		}
 		
-		public boolean containsStop(StopLocation goal) {
-			return direction.containsStop(goal.getStopTag());
-		}
-
 		public StopLocation getStop() {
 			return stop;
 		}
@@ -192,6 +215,22 @@ public class GetDirections  {
 		
 		public Direction getDirection() {
 			return direction;
+		}
+		
+		@Override
+		public int hashCode() {
+			return dirTag.hashCode();
+		}
+		
+		@Override
+		public boolean equals(Object o) {
+			if (o instanceof DirectionPath) {
+				return ((DirectionPath)o).dirTag.equals(dirTag);
+			}
+			else
+			{
+				return false;
+			}
 		}
 	}
 }

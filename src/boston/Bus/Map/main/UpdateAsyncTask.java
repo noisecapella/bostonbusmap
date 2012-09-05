@@ -38,7 +38,6 @@ import org.xml.sax.SAXException;
 
 import boston.Bus.Map.data.BusLocation;
 import boston.Bus.Map.data.Direction;
-import boston.Bus.Map.data.DirectionByTitle;
 import boston.Bus.Map.data.Location;
 import boston.Bus.Map.data.Locations;
 import boston.Bus.Map.data.MyHashMap;
@@ -111,7 +110,6 @@ public class UpdateAsyncTask extends AsyncTask<Object, Object, Locations>
 
 	private final int idToSelect;
 	private final UpdateArguments arguments;
-	private final DirectionByTitle directionsToUpdate;
 	
 	/*public UpdateAsyncTask(ProgressBar progress, MapView mapView, LocationOverlay locationOverlay,
 			boolean doShowUnpredictable, boolean doRefresh, int maxOverlays,
@@ -122,7 +120,7 @@ public class UpdateAsyncTask extends AsyncTask<Object, Object, Locations>
 	public UpdateAsyncTask(UpdateArguments arguments, boolean doShowUnpredictable,
 			boolean doRefresh, int maxOverlays, boolean drawCircle, boolean inferBusRoutes,
 			String routeToUpdate, int selectedBusPredictions, boolean doInit,
-			boolean showRouteLine, int idToSelect, DirectionByTitle directionsToUpdate)
+			boolean showRouteLine, int idToSelect)
 	{
 		super();
 		
@@ -139,7 +137,6 @@ public class UpdateAsyncTask extends AsyncTask<Object, Object, Locations>
 		this.showRouteLine = showRouteLine;
 		//this.uiHandler = new Handler();
 		this.idToSelect = idToSelect;
-		this.directionsToUpdate = directionsToUpdate;
 	}
 	
 	/**
@@ -238,7 +235,7 @@ public class UpdateAsyncTask extends AsyncTask<Object, Object, Locations>
 			silenceUpdates = true;
 		}
 		
-		busLocations.select(routeToUpdate, selectedBusPredictions, directionsToUpdate);
+		busLocations.select(routeToUpdate, selectedBusPredictions);
 
 		
 		if (doRefresh)
@@ -266,7 +263,7 @@ public class UpdateAsyncTask extends AsyncTask<Object, Object, Locations>
 				busLocations.initializeAllRoutes(this, context, allRoutes);
 				
 				busLocations.refresh(inferBusRoutes, routeToUpdate, selectedBusPredictions,
-						centerLatitude, centerLongitude, this, showRouteLine, directionsToUpdate);
+						centerLatitude, centerLongitude, this, showRouteLine);
 			}
 			catch (IOException e)
 			{

@@ -68,8 +68,6 @@ public final class Locations
 	private int selectedBusPredictions;
 	private final TransitSystem transitSystem;
 
-	private DirectionByTitle directionsToUpdate;
-	
 	public Locations(DatabaseHelper helper, 
 			TransitSystem transitSystem)
 	{
@@ -136,7 +134,7 @@ public final class Locations
 	 */
 	public void refresh(boolean inferBusRoutes, String routeToUpdate,
 			int selectedBusPredictions, double centerLatitude, double centerLongitude,
-			UpdateAsyncTask updateAsyncTask, boolean showRoute, DirectionByTitle directionsToUpdate) throws SAXException, IOException,
+			UpdateAsyncTask updateAsyncTask, boolean showRoute) throws SAXException, IOException,
 			ParserConfigurationException, FactoryConfigurationError 
 	{
 		final int maxStops = 15;
@@ -234,8 +232,7 @@ public final class Locations
 		HashSet<Integer> locationKeys = new HashSet<Integer>();
 
 		if (selectedBusPredictions == Main.VEHICLE_LOCATIONS_ALL ||
-				selectedBusPredictions == Main.VEHICLE_LOCATIONS_ONE ||
-				selectedBusPredictions == Main.VEHICLE_LOCATIONS_BY_DIRECTION)
+				selectedBusPredictions == Main.VEHICLE_LOCATIONS_ONE)
 		{
 			if (doShowUnpredictable == false)
 			{
@@ -252,13 +249,6 @@ public final class Locations
 						}
 						else if (selectedBusPredictions == Main.VEHICLE_LOCATIONS_ALL) {
 							newLocations.add(busLocation);
-						}
-						else if (selectedBusPredictions == Main.VEHICLE_LOCATIONS_BY_DIRECTION)
-						{
-							String dirTag = busLocation.getDirTag();
-							if (directionsToUpdate != null && directionsToUpdate.containsDirTag(dirTag)) {
-								newLocations.add(busLocation);
-							}
 						}
 						else
 						{
@@ -313,16 +303,6 @@ public final class Locations
 				locationKeys.add(stopLocation.getId());
 			}
 		}
-		else if (selectedBusPredictions == Main.BUS_PREDICTIONS_BY_DIRECTION) {
-			ArrayList<StopLocation> stops = routeMapping.getClosestStops(centerLatitude, centerLongitude, maxLocations);
-			for (StopLocation stop : stops) {
-				if (directionsToUpdate != null && 
-						directionsToUpdate.containsStopTag(stop.getStopTag())) {
-					newLocations.add(stop);
-					locationKeys.add(stop.getId());
-				}
-			}
-		}
 		
 		if (maxLocations > newLocations.size())
 		{
@@ -360,12 +340,10 @@ public final class Locations
 		return ret;
 	}
 
-	public void select(String newRoute, int busPredictions, 
-			DirectionByTitle directionsToUpdate) {
+	public void select(String newRoute, int busPredictions) {
 		selectedRoute = newRoute;
 
 		selectedBusPredictions = busPredictions;
-		this.directionsToUpdate = directionsToUpdate;
 	}
 
 	public Path[] getSelectedPaths() throws IOException {
@@ -441,7 +419,7 @@ public final class Locations
 			if (routeConfig != null)
 			{
 				StopLocation stopLocation = routeConfig.getStop(stopTag);
-				select(route, Main.BUS_PREDICTIONS_ONE, this.directionsToUpdate);
+				select(route, Main.BUS_PREDICTIONS_ONE);
 			
 				return stopLocation;
 			}

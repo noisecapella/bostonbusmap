@@ -15,7 +15,6 @@ import com.google.android.maps.Projection;
 import boston.Bus.Map.data.Path;
 
 import boston.Bus.Map.data.Direction;
-import boston.Bus.Map.data.DirectionByTitle;
 import boston.Bus.Map.data.MyHashMap;
 import boston.Bus.Map.data.RouteConfig;
 import boston.Bus.Map.data.StopLocation;
@@ -64,6 +63,10 @@ public class DatabaseHelper extends SQLiteOpenHelper
 	private final static String stopsRoutesMap = "stopmapping";
 	private final static String stopsRoutesMapIndexTag = "IDX_stopmapping";
 	private final static String stopsRoutesMapIndexRoute = "IDX_routemapping";
+	private final static String directionsStopsMapIndexStop = "IDX_directionsstop_stop";
+	private final static String directionsStopsMapIndexDirTag = "IDX_directionsstop_dirtag";
+	
+	
 	private final static String subwaySpecificTable = "subway";
 	
 	
@@ -175,6 +178,8 @@ public class DatabaseHelper extends SQLiteOpenHelper
 		
 		db.execSQL("CREATE INDEX IF NOT EXISTS " + stopsRoutesMapIndexRoute + " ON " + stopsRoutesMap + " (" + routeKey + ")");
 		db.execSQL("CREATE INDEX IF NOT EXISTS " + stopsRoutesMapIndexTag + " ON " + stopsRoutesMap + " (" + stopTagKey + ")");
+		db.execSQL("CREATE INDEX IF NOT EXISTS " + directionsStopsMapIndexStop + " ON " + directionsStopsTable + " (" + stopTagKey + ")");
+		db.execSQL("CREATE INDEX IF NOT EXISTS " + directionsStopsMapIndexDirTag + " ON " + directionsStopsTable + " (" + dirTagKey + ")");
 	}
 
 	@Override
@@ -769,18 +774,6 @@ public class DatabaseHelper extends SQLiteOpenHelper
 			}
 			
 			cursor.close();
-			cursor = database.query(directionsStopsTable, new String[]{dirTagKey, stopTagKey},
-					null, null, null, null, null);
-			cursor.moveToFirst();
-			while (cursor.isAfterLast() == false) {
-				String dirTag = cursor.getString(0);
-				String stopTag = cursor.getString(1);
-				Direction direction = directions.get(dirTag);
-				
-				direction.addStopTag(stopTag);
-				
-				cursor.moveToNext();
-			}
 		}
 		finally
 		{
@@ -825,19 +818,6 @@ public class DatabaseHelper extends SQLiteOpenHelper
 				else
 				{
 					database.replace(directionsTable, null, values);
-				}
-				
-				for (String stopTag : direction.getStopTags()) {
-					ContentValues stopValues = new ContentValues();
-					stopValues.put(stopTagKey, stopTag);
-					stopValues.put(dirTagKey, dirTag);
-					if (wipe) {
-						database.insert(directionsStopsTable, null, stopValues);
-					}
-					else
-					{
-						database.replace(directionsStopsTable, null, stopValues);
-					}
 				}
 			}
 			database.setTransactionSuccessful();
@@ -892,16 +872,8 @@ public class DatabaseHelper extends SQLiteOpenHelper
 		SQLiteDatabase database = getReadableDatabase();
 		try
 		{
-			switch (mode) {
-			case Main.BUS_PREDICTIONS_BY_DIRECTION:
-			case Main.VEHICLE_LOCATIONS_BY_DIRECTION:
-				addSearchDirections(database, search, ret);
-				break;
-			default:
-				addSearchRoutes(database, search, ret);
-				addSearchStops(database, search, ret);
-				break;
-			}
+			addSearchRoutes(database, search, ret);
+			addSearchStops(database, search, ret);
 		}
 		finally
 		{
@@ -912,37 +884,6 @@ public class DatabaseHelper extends SQLiteOpenHelper
 		return ret;
 	}
 
-	private void addSearchDirections(SQLiteDatabase database, String search, MatrixCursor ret)
-	{
-		if (search == null) {
-			return;
-		}
-		
-		Cursor cursor = null;
-		try
-		{
-			cursor = database.query(true, directionsTable, new String[]{dirTitleKey}, dirTitleKey + " LIKE ?",
-					new String[]{"%" + search + "%"}, null, null, dirTitleKey, null);
-			if (cursor.moveToFirst() == false) {
-				return;
-			}
-			
-			while (!cursor.isAfterLast()) {
-				String dirTitle = cursor.getString(0);
-				
-				ret.addRow(new Object[] {ret.getCount(), dirTitle, "direction " + dirTitle, "Direction"});
-				
-				cursor.moveToNext();
-			}
-		}
-		finally
-		{
-			if (cursor != null) {
-				cursor.close();
-			}
-		}
-	}
-	
 	private void addSearchRoutes(SQLiteDatabase database, String search, MatrixCursor ret)
 	{
 		if (search == null)
@@ -1230,66 +1171,6 @@ public class DatabaseHelper extends SQLiteOpenHelper
 	}
 
 	
-	public DirectionByTitle getDirectionsByTitle(String titleQuery, TransitSystem transitSystem) {
-		SQLiteDatabase database = getReadableDatabase();
-		Cursor dirCursor = null;
-		MyHashMap<String, Direction> ret = new MyHashMap<String, Direction>();
-		try
-		{
-			SQLiteQueryBuilder builder = new SQLiteQueryBuilder();
-			
-			String tables = directionsTable + " JOIN " + directionsStopsTable +
-					" ON (" + directionsTable + "." + dirTagKey + " = " +
-			directionsStopsTable + "." + dirTagKey + ")";
-
-
-			builder.setTables(tables);
-
-			String[] projectionIn = new String[] {directionsTable + "." + dirTagKey, 
-					directionsTable + "." + dirTitleKey, directionsTable + "." + dirNameKey,
-					directionsTable + "." + dirUseAsUIKey, directionsStopsTable + "." + stopTagKey,
-					directionsTable + "." + dirRouteKey
-					};
-
-			StringBuilder select;
-			String[] selectArray;
-				
-			select = new StringBuilder(directionsTable + "." + dirTitleKey + "=?");
-			selectArray = new String[]{titleQuery};
-
-			dirCursor = builder.query(database, projectionIn, select.toString(), selectArray, null, null, null);
-
-			dirCursor.moveToFirst();
-			
-			while (dirCursor.isAfterLast() == false)
-			{
-				String dirTag = dirCursor.getString(0);
-				String stopTag = dirCursor.getString(4);
-				if (ret.containsKey(dirTag) == false) {
-					String dirTitle = dirCursor.getString(1);
-					String dirName = dirCursor.getString(2);
-					boolean useForUI = dirCursor.getInt(3) == INT_TRUE;
-					String route = dirCursor.getString(5);
-					
-					Direction direction = new Direction(dirName, dirTitle, route, useForUI);
-					ret.put(dirTag, direction);
-				}
-				ret.get(dirTag).addStopTag(stopTag);
-				
-				dirCursor.moveToNext();
-			}
-			
-			DirectionByTitle directionByTitle = new DirectionByTitle(ret);
-			return directionByTitle;
-		}
-		finally
-		{
-			if (dirCursor != null) {
-				dirCursor.close();
-			}
-			database.close();
-		}
-	}
 
 	public StopLocation getStopByTagOrTitle(String tagQuery, String titleQuery, TransitSystem transitSystem)
 	{
@@ -1530,6 +1411,62 @@ public class DatabaseHelper extends SQLiteOpenHelper
 		{
 			if (stopCursor != null) {
 				stopCursor.close();
+			}
+			database.close();
+		}
+		return ret;
+	}
+
+	public HashSet<String> getDirectionTagsForStop(String stopTag) {
+		SQLiteDatabase database = getReadableDatabase();
+		Cursor cursor = null;
+		HashSet<String> ret = new HashSet<String>();
+		try
+		{
+			SQLiteQueryBuilder builder = new SQLiteQueryBuilder();
+			builder.setTables(directionsStopsTable);
+			cursor = builder.query(database, new String[] {dirTagKey},
+					stopTagKey + " = ?", new String[] {stopTag}, null, null, null);
+			
+			cursor.moveToFirst();
+			while (cursor.isAfterLast() == false) {
+				String dirTag = cursor.getString(0);
+				ret.add(dirTag);
+				cursor.moveToNext();
+			}
+		}
+		finally
+		{
+			if (cursor != null) {
+				cursor.close();
+			}
+			database.close();
+		}
+		return ret;
+	}
+
+	public HashSet<String> getStopTagsForDirTag(String dirTag) {
+		SQLiteDatabase database = getReadableDatabase();
+		Cursor cursor = null;
+		HashSet<String> ret = new HashSet<String>();
+		try
+		{
+			SQLiteQueryBuilder builder = new SQLiteQueryBuilder();
+			builder.setTables(directionsStopsTable);
+			cursor = builder.query(database, new String[] {stopTagKey},
+					dirTagKey + " = ?", new String[] {dirTag}, null, null, null);
+			
+			cursor.moveToFirst();
+			while (cursor.isAfterLast() == false) {
+				String stopTag = cursor.getString(0);
+				ret.add(stopTag);
+				cursor.moveToNext();
+			}
+		}
+		finally
+		{
+			if (cursor != null) {
+				cursor.close();
 			}
 			database.close();
 		}

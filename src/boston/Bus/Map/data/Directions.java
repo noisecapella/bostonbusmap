@@ -1,6 +1,7 @@
 package boston.Bus.Map.data;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 
 
 import android.util.Log;
@@ -8,7 +9,6 @@ import boston.Bus.Map.database.DatabaseHelper;
 
 public class Directions {
 	private final MyHashMap<String, Direction> directions = new MyHashMap<String, Direction>();
-	private final MyHashMap<String, MyHashMap<String, Direction>> directionsForStops = new MyHashMap<String, MyHashMap<String,Direction>>();
 	
 	private final DatabaseHelper helper;
 	
@@ -24,12 +24,6 @@ public class Directions {
 			synchronized(directions)
 			{
 				directions.put(dirTag, direction);
-				for (String stopTag : direction.getStopTags()) {
-					if (directionsForStops.containsKey(stopTag) == false) {
-						directionsForStops.put(stopTag, new MyHashMap<String, Direction>());
-					}
-					directionsForStops.get(stopTag).put(dirTag, direction);
-				}
 			}
 		}
 		
@@ -62,15 +56,6 @@ public class Directions {
 			synchronized(directions)
 			{
 				helper.refreshDirections(directions);
-				for (String dirTag : directions.keySet()) {
-					Direction direction = directions.get(dirTag);
-					for (String stopTag : direction.getStopTags()) {
-						if (directionsForStops.containsKey(stopTag) == false) {
-							directionsForStops.put(stopTag, new MyHashMap<String, Direction>());
-						}
-						directionsForStops.get(stopTag).put(dirTag, direction);
-					}
-				}
 			}
 			isRefreshed = true;
 		}
@@ -125,9 +110,15 @@ public class Directions {
 	}
 
 	public MyHashMap<String, Direction> getDirectionsForStop(String stopTag) {
-		doRefresh();
-		return directionsForStops.get(stopTag);
+		HashSet<String> dirTags = helper.getDirectionTagsForStop(stopTag);
+		MyHashMap<String, Direction> ret = new MyHashMap<String, Direction>();
+		for (String dirTag : dirTags) {
+			ret.put(dirTag, getDirection(dirTag));
+		}
+		return ret;
 	}
-	
-	
+
+	public HashSet<String> getStopTagsForDirTag(String dirTag) {
+		return helper.getStopTagsForDirTag(dirTag);
+	}
 }

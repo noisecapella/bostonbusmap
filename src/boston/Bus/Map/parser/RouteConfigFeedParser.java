@@ -21,6 +21,7 @@ import org.xml.sax.helpers.DefaultHandler;
 import skylight1.opengl.files.QuickParseUtil;
 
 import boston.Bus.Map.data.Direction;
+import boston.Bus.Map.data.DirectionWithStopTags;
 import boston.Bus.Map.data.Directions;
 import boston.Bus.Map.data.MyHashMap;
 import boston.Bus.Map.data.Path;
@@ -78,7 +79,7 @@ public class RouteConfigFeedParser extends DefaultHandler
 	
 	private ArrayList<Float> currentPathPoints;
 	private final TransitSource transitSource;
-	private Direction currentDirection;
+	private DirectionWithStopTags currentDirection;
 	
 	 
 	
@@ -148,7 +149,7 @@ public class RouteConfigFeedParser extends DefaultHandler
 				String name = attributes.getValue(nameKey);
 				boolean useForUI = Boolean.getBoolean(attributes.getValue(useForUIKey));
 				
-				currentDirection = new Direction(name, title, currentRoute, useForUI);
+				currentDirection = new DirectionWithStopTags(name, title, currentRoute, useForUI);
 				directions.add(tag, currentDirection);
 			}
 		}
