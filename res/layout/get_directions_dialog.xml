@@ -8,15 +8,20 @@
         android:id="@+id/fromField"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:ems="10" >
-
-        <requestFocus />
+        android:ems="10" 
+        android:enabled="false">
     </EditText>
 
     <EditText
         android:id="@+id/toField"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:ems="10" />
+        android:ems="10"
+        android:enabled="false"
+         />
 
+    <Button android:id="@+id/getDirectionsButton"
+        android:text="@string/getDirections"         android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        />
 </LinearLayout>

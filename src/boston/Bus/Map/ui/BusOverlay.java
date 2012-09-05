@@ -46,6 +46,7 @@ import android.graphics.Paint.Style;
 import android.graphics.drawable.Drawable;
 import android.util.FloatMath;
 import android.view.MotionEvent;
+import android.view.View.OnClickListener;
 
 
 /**
@@ -153,6 +154,7 @@ public class BusOverlay extends BalloonItemizedOverlay<BusOverlayItem> {
 	 * Was there a drag between when the finger touched the touchscreen and when it released?
 	 */
 	private boolean mapMoved;
+	private boston.Bus.Map.ui.BusOverlay.OnClickListener nextTapListener;
 	
 	public void setDrawHighlightCircle(boolean b)
 	{
@@ -366,13 +368,19 @@ public class BusOverlay extends BalloonItemizedOverlay<BusOverlayItem> {
 		boolean ret = super.onTap(index);
 		
 		Location location = locations.get(index);
-		BusOverlayItem item = currentFocussedItem;
-		item.setCurrentLocation(location);
-		
-		BusPopupView view = (BusPopupView)balloonView;
-		boolean isVisible = location instanceof StopLocation;
-		view.setState(location.isFavorite(), isVisible, isVisible, location);
-		
+		if (nextTapListener != null) {
+			nextTapListener.onClick(location);
+			nextTapListener = null;
+		}
+		else
+		{
+			BusOverlayItem item = currentFocussedItem;
+			item.setCurrentLocation(location);
+
+			BusPopupView view = (BusPopupView)balloonView;
+			boolean isVisible = location instanceof StopLocation;
+			view.setState(location.isFavorite(), isVisible, isVisible, location);
+		}
 		return ret;
 	}
 	
@@ -380,5 +388,13 @@ public class BusOverlay extends BalloonItemizedOverlay<BusOverlayItem> {
 		BusPopupView view = new BusPopupView(getMapView().getContext(), getBalloonBottomOffset(), locationsObj, routeKeysToTitles,
 				density);
 		return view;
+	}
+
+	public interface OnClickListener {
+		void onClick(Location location);
+	}
+
+	public void captureNextTap(OnClickListener onClickListener) {
+		this.nextTapListener = onClickListener;
 	}
 }

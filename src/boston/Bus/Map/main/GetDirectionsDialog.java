@@ -4,9 +4,11 @@ import boston.Bus.Map.R;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.widget.Button;
 import android.widget.EditText;
 
 public class GetDirectionsDialog extends Activity {
@@ -59,7 +61,7 @@ public class GetDirectionsDialog extends Activity {
 							fromField.setText(getString(R.string.getDirectionsCurrentLocation));
 							break;
 						case 1: //pick a stop
-							setResult(NEEDS_INPUT_FROM);
+							setResult(NEEDS_INPUT_FROM, makeData());
 							finish();
 							break;
 						}
@@ -85,7 +87,7 @@ public class GetDirectionsDialog extends Activity {
 							
 							break;
 						case 1: //pick a stop
-							setResult(NEEDS_INPUT_TO);
+							setResult(NEEDS_INPUT_TO, makeData());
 							finish();
 							break;
 						}
@@ -96,13 +98,40 @@ public class GetDirectionsDialog extends Activity {
 			}
 		});
 		
-		fromField.setText(savedInstanceState.getString(START_DISPLAY_KEY));
-		toField.setText(savedInstanceState.getString(STOP_DISPLAY_KEY));
+		Bundle bundle = savedInstanceState;
+		if (bundle == null) {
+			bundle = getIntent().getExtras();
+		}
+		if (bundle != null) {
+			fromField.setText(bundle.getString(START_DISPLAY_KEY));
+			toField.setText(bundle.getString(STOP_DISPLAY_KEY));
+
+			startTag = bundle.getString(START_TAG_KEY);
+			stopTag = bundle.getString(STOP_TAG_KEY);
+		}
 		
-		startTag = savedInstanceState.getString(START_TAG_KEY);
-		stopTag = savedInstanceState.getString(STOP_TAG_KEY);
+		Button button = (Button)findViewById(R.id.getDirectionsButton);
+		button.setOnClickListener(new OnClickListener() {
+			
+			@Override
+			public void onClick(View v) {
+				setResult(EVERYTHING_OK, makeData());
+				finish();
+			}
+		});
 	}
 	
+	private Intent makeData() {
+		Intent ret = new Intent();
+		
+		ret.putExtra(START_TAG_KEY, startTag);
+		ret.putExtra(STOP_TAG_KEY, stopTag);
+		ret.putExtra(START_DISPLAY_KEY, fromField.getText().toString());
+		ret.putExtra(STOP_DISPLAY_KEY, toField.getText().toString());
+		
+		return ret;
+	}
+
 	@Override
 	protected void onSaveInstanceState(Bundle outState) {
 		outState.putString(START_DISPLAY_KEY, fromField.getText().toString());

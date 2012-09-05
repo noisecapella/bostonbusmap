@@ -1053,20 +1053,63 @@ public class Main extends MapActivity
 	}
 
 	@Override
-	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+	protected void onActivityResult(final int requestCode, final int resultCode, Intent data) {
 		if (requestCode == GetDirectionsDialog.GETDIRECTIONS_REQUEST_CODE) {
+			
+			final String startTag = data != null ? data.getStringExtra(GetDirectionsDialog.START_TAG_KEY) : null;
+			final String stopTag = data != null ? data.getStringExtra(GetDirectionsDialog.STOP_TAG_KEY) : null;
+			final String startDisplay = data != null ? data.getStringExtra(GetDirectionsDialog.START_DISPLAY_KEY) : null;
+			final String stopDisplay = data != null ? data.getStringExtra(GetDirectionsDialog.STOP_DISPLAY_KEY) : null;
+			
 			switch (resultCode) {
 			case GetDirectionsDialog.EVERYTHING_OK:
-				String startTag = data.getStringExtra(GetDirectionsDialog.START_TAG_KEY);
-				String stopTag = data.getStringExtra(GetDirectionsDialog.STOP_TAG_KEY);
-				
+			{
 				LocationManager locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
 				Location location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
 				
 				arguments.getBusLocations().startGetDirectionsTask(this, startTag, stopTag, location.getLatitude(), location.getLongitude());
 				break;
-				
 			}
+			case GetDirectionsDialog.NEEDS_INPUT_FROM:
+			case GetDirectionsDialog.NEEDS_INPUT_TO:
+				setMode(Main.BUS_PREDICTIONS_ALL, true);
+				arguments.getBusOverlay().captureNextTap(new BusOverlay.OnClickListener() {
+					
+					@Override
+					public void onClick(boston.Bus.Map.data.Location location) {
+						if (location instanceof StopLocation) {
+							StopLocation stopLocation = (StopLocation)location;
+							if (resultCode == GetDirectionsDialog.NEEDS_INPUT_FROM) {
+								String newStartTag = stopLocation.getStopTag();
+								Intent intent = new Intent(Main.this, GetDirectionsDialog.class);
+								intent.putExtra(GetDirectionsDialog.START_TAG_KEY, newStartTag);
+								intent.putExtra(GetDirectionsDialog.STOP_TAG_KEY, stopTag);
+								intent.putExtra(GetDirectionsDialog.START_DISPLAY_KEY, stopLocation.getTitle());
+								intent.putExtra(GetDirectionsDialog.STOP_DISPLAY_KEY, stopDisplay);
+								startActivityForResult(intent, GetDirectionsDialog.GETDIRECTIONS_REQUEST_CODE);
+							}
+							else
+							{
+								String newStopTag = stopLocation.getStopTag();
+								Intent intent = new Intent(Main.this, GetDirectionsDialog.class);
+								intent.putExtra(GetDirectionsDialog.START_TAG_KEY, startTag);
+								intent.putExtra(GetDirectionsDialog.STOP_TAG_KEY, newStopTag);
+								intent.putExtra(GetDirectionsDialog.START_DISPLAY_KEY, startDisplay);
+								intent.putExtra(GetDirectionsDialog.STOP_DISPLAY_KEY, stopLocation.getTitle());
+								startActivityForResult(intent, GetDirectionsDialog.GETDIRECTIONS_REQUEST_CODE);
+							}
+						}
+						else
+						{
+							Log.e("BostonBusMap", "weird... that should have selected a stop, not a vehicle");
+						}
+						
+					}
+				});
+				Toast.makeText(this, "Click on the stop you wish to select", Toast.LENGTH_LONG).show();
+				break;
+			}
+			
 		}
 	}
 }
