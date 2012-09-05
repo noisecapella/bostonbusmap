@@ -1,6 +1,8 @@
 package boston.Bus.Map.data;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 
 public class Direction {
 	private final String name;
@@ -27,5 +29,9 @@ public class Direction {
 
 	public boolean isUseForUI() {
 		return useForUI;
+	}
+
+	public Collection<String> getStopTags() {
+		return Collections.emptyList();
 	}
 }

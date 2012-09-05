@@ -8,6 +8,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 
+import android.util.Log;
 import android.util.Pair;
 import boston.Bus.Map.data.Direction;
 import boston.Bus.Map.data.Directions;
@@ -185,7 +186,8 @@ public class GetDirections  {
 		ArrayList<DirectionPath> path = getDirections(from, to);
 		
 		for (DirectionPath directionPath : path) {
-			System.out.println("Stop: " + directionPath.getStop().getStopTag() + ", " + directionPath.getStop().getTitle());
+			Log.i("BostonBusMap", "Stop: " + directionPath.getStop().getStopTag() + ", " + 
+		directionPath.getStop().getTitle() + ", dirPath: " + directionPath.getDirTag());
 		}
 	}
 

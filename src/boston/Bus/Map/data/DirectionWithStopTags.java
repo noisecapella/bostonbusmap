@@ -1,6 +1,7 @@
 package boston.Bus.Map.data;
 
 import java.util.ArrayList;
+import java.util.Collection;
 
 /**
  * Temporary class used in populating database
@@ -19,4 +20,8 @@ public class DirectionWithStopTags extends Direction {
 		stopTags.add(tag);
 	}
 
+	@Override
+	public Collection<String> getStopTags() {
+		return stopTags;
+	}
 }

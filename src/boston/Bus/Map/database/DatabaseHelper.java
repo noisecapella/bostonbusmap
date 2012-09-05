@@ -819,6 +819,20 @@ public class DatabaseHelper extends SQLiteOpenHelper
 				{
 					database.replace(directionsTable, null, values);
 				}
+				
+				for (String stopTag : direction.getStopTags()) {
+					ContentValues stopValues = new ContentValues();
+					stopValues.put(stopTagKey, stopTag);
+					stopValues.put(dirTagKey, dirTag);
+					if (wipe) {
+						database.insert(directionsStopsTable, null, stopValues);
+					}
+					else
+					{
+						database.replace(directionsStopsTable, null, stopValues);
+					}
+				}
+
 			}
 			database.setTransactionSuccessful();
 			database.endTransaction();
