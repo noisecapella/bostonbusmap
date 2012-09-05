@@ -35,6 +35,7 @@ import org.apache.http.impl.conn.tsccm.RouteSpecificPool;
 import org.xml.sax.SAXException;
 
 import boston.Bus.Map.R;
+import boston.Bus.Map.algorithms.GetDirections;
 import boston.Bus.Map.data.Direction;
 import boston.Bus.Map.data.DirectionByTitle;
 import boston.Bus.Map.data.Locations;
@@ -143,7 +144,11 @@ public class Main extends MapActivity
 	
 	private static final String introScreenKey = "introScreen";
 	private EditText searchView;
-	
+
+	/**
+	 * This only exists so TransitContentProvider
+	 */
+	public static int suggestionsMode;
 	
 	/**
 	 * Used to make updateBuses run every 10 seconds or so
@@ -196,18 +201,17 @@ public class Main extends MapActivity
 	
 	public static final int[] modesSupported = new int[]{
 		VEHICLE_LOCATIONS_ALL, VEHICLE_LOCATIONS_ONE, BUS_PREDICTIONS_ALL, 
-		BUS_PREDICTIONS_ONE, BUS_PREDICTIONS_STAR, VEHICLE_LOCATIONS_BY_DIRECTION,
-		BUS_PREDICTIONS_BY_DIRECTION
+		BUS_PREDICTIONS_ONE, BUS_PREDICTIONS_STAR
 	};
 	
 	public static final int[] modeIconsSupported = new int[]{
 		R.drawable.bus_all, R.drawable.bus_one, R.drawable.busstop_all, R.drawable.busstop_one, R.drawable.busstop_star,
-		R.drawable.bus_directions, R.drawable.busstop_directions
+		
 	};
 	
 	public static final int[] modeTextSupported = new int[]{
 		R.string.all_buses, R.string.vehicles_on_one_route, R.string.stops_and_predictions_on_all_routes, R.string.stops_and_predictions_on_one_route, R.string.favorite_stops,
-		R.string.bus_directions, R.string.busstop_directions
+		
 	};
 	
 	
@@ -733,6 +737,9 @@ public class Main extends MapActivity
     		
     		break;
     		
+    	case R.id.getDirectionsMenuItem:
+    		arguments.getBusLocations().doDirections();
+    		
     	case R.id.chooseStop:
     		if (arguments != null)
     		{
@@ -1020,7 +1027,7 @@ public class Main extends MapActivity
 			setMode(mode);
 		}
 		
-		
+		suggestionsMode = setTo;
 		handler.setSelectedBusPredictions(setTo);
 
 		handler.triggerUpdate();

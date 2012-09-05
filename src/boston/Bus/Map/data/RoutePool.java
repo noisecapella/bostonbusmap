@@ -13,25 +13,22 @@ import boston.Bus.Map.main.UpdateAsyncTask;
 import boston.Bus.Map.transit.TransitSystem;
 import boston.Bus.Map.ui.ProgressMessage;
 
-public class RoutePool {
+public class RoutePool extends Pool<String, RouteConfig> {
 	private final DatabaseHelper helper;
 	
-	
-	private final LinkedList<String> priorities = new LinkedList<String>();
-	private final MyHashMap<String, RouteConfig> pool = new MyHashMap<String, RouteConfig>();
 	private final MyHashMap<String, StopLocation> sharedStops = new MyHashMap<String, StopLocation>();
 	
 	/**
 	 * A mapping of stop key to route key. Look in sharedStops for the StopLocation
 	 */
 	private final HashSet<String> favoriteStops = new HashSet<String>();
-
 	private final TransitSystem transitSystem;
 	
-	private static final int MAX_ROUTES = 50;
 	
 	
 	public RoutePool(DatabaseHelper helper, TransitSystem transitSystem) {
+		super(50);
+
 		this.helper = helper;
 		this.transitSystem = transitSystem;
 		
@@ -113,78 +110,13 @@ public class RoutePool {
 		return false;
 	}
 
-	public RouteConfig get(String routeToUpdate) throws IOException {
-		RouteConfig routeConfig = pool.get(routeToUpdate);
-		if (routeConfig != null)
+	protected RouteConfig create(String routeToUpdate) throws IOException {
+		synchronized (helper)
 		{
-			return routeConfig;
-		}
-		else
-		{
-			synchronized (helper)
-			{
-				routeConfig = helper.getRoute(routeToUpdate, sharedStops, transitSystem);
-				if (routeConfig == null)
-				{
-					return null;
-				}
-				else
-				{
-					if (priorities.size() >= MAX_ROUTES)
-					{
-						removeARoute(priorities.get(0));
-					}
-
-					addARoute(routeToUpdate, routeConfig);
-
-					return routeConfig;
-				}
-			}
-		}
+			return helper.getRoute(routeToUpdate, sharedStops, transitSystem);
+		}		
 	}
-
-	private void addARoute(String routeToUpdate, RouteConfig routeConfig) {
-		priorities.add(routeToUpdate);
-		pool.put(routeToUpdate, routeConfig);
-	}
-
-	private void removeARoute(String routeToRemove) {
-		RouteConfig routeConfig = pool.get(routeToRemove);
-		priorities.remove(routeToRemove);
-		pool.remove(routeToRemove);
-		
-		//TODO: can this be done faster?
-		if (routeConfig == null)
-		{
-			return;
-		}
-		//remove all stops from sharedStops,
-		//unless that stop is owned by another route also which is currently in the pool, or it's a favorite
-		for (StopLocation stopLocation : routeConfig.getStops())
-		{
-			boolean keepStop = false;
-			for (String route : stopLocation.getRoutes())
-			{
-				if (pool.containsKey(route))
-				{
-					//keep this stop
-					keepStop = true;
-					break;
-				}
-			}
-			
-			if (keepStop == false && favoriteStops.contains(stopLocation.getStopTag()))
-			{
-				keepStop = true;
-			}
-			
-			if (keepStop == false)
-			{
-				sharedStops.remove(stopLocation.getStopTag());
-			}
-		}
-	}
-
+	
 	public void writeToDatabase(MyHashMap<String, RouteConfig> map, boolean wipe, UpdateAsyncTask task, boolean silent) throws IOException {
 		if (!silent)
 		{
@@ -207,9 +139,8 @@ public class RoutePool {
 
 	}
 
-	private void clearAll() {
-		priorities.clear();
-		pool.clear();
+	protected void clearAll() {
+		super.clearAll();
 		favoriteStops.clear();
 		sharedStops.clear();
 	}
@@ -278,7 +209,7 @@ public class RoutePool {
 			stop.clearRecentlyUpdated();
 		}
 		
-		for (RouteConfig route : pool.values())
+		for (RouteConfig route : values())
 		{
 			for (StopLocation stop : route.getStopMapping().values())
 			{

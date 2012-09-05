@@ -36,6 +36,7 @@ import org.xml.sax.SAXException;
 
 import android.content.Context;
 import android.util.Log;
+import boston.Bus.Map.algorithms.GetDirections;
 import boston.Bus.Map.database.DatabaseHelper;
 import boston.Bus.Map.main.Main;
 import boston.Bus.Map.main.UpdateAsyncTask;
@@ -455,5 +456,17 @@ public final class Locations
 		}
 		
 		return null;
+	}
+
+	public void doDirections()  {
+		try
+		{
+			StopLocation from = routeMapping.get("71").getStop("8178");
+			StopLocation to = routeMapping.get("85").getStop("2533");
+			new GetDirections(directions, routeMapping).run(from, to);
+		}
+		catch (Exception e) {
+			LogUtil.e(e);
+		}
 	}
 }

@@ -2,6 +2,7 @@ package boston.Bus.Map.provider;
 
 import boston.Bus.Map.data.RoutePool;
 import boston.Bus.Map.database.DatabaseHelper;
+import boston.Bus.Map.main.Main;
 import boston.Bus.Map.transit.TransitSystem;
 import android.app.SearchManager;
 import android.content.ContentProvider;
@@ -54,7 +55,7 @@ public class TransitContentProvider extends SearchRecentSuggestionsProvider {
 			}
 			else
 			{
-				return helper.getCursorForSearch(selectionArgs[0]);
+				return helper.getCursorForSearch(selectionArgs[0], Main.suggestionsMode);
 			}
 		default:
 			return super.query(uri, projection, selection, selectionArgs, sortOrder);

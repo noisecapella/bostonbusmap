@@ -20,6 +20,7 @@ import boston.Bus.Map.data.MyHashMap;
 import boston.Bus.Map.data.RouteConfig;
 import boston.Bus.Map.data.StopLocation;
 import boston.Bus.Map.data.SubwayStopLocation;
+import boston.Bus.Map.main.Main;
 import boston.Bus.Map.main.UpdateAsyncTask;
 import boston.Bus.Map.math.Geometry;
 import boston.Bus.Map.transit.TransitSource;
@@ -884,16 +885,23 @@ public class DatabaseHelper extends SQLiteOpenHelper
 		return database.query(verboseRoutes, new String[]{routeKey}, null, null, null, null, null);
 	}
 
-	public synchronized Cursor getCursorForSearch(String search) {
+	public synchronized Cursor getCursorForSearch(String search, int mode) {
 		String[] columns = new String[] {BaseColumns._ID, SearchManager.SUGGEST_COLUMN_TEXT_1, SearchManager.SUGGEST_COLUMN_QUERY, SearchManager.SUGGEST_COLUMN_TEXT_2};
 		MatrixCursor ret = new MatrixCursor(columns);
 		
 		SQLiteDatabase database = getReadableDatabase();
 		try
 		{
-			addSearchRoutes(database, search, ret);
-			addSearchStops(database, search, ret);
-			addSearchDirections(database, search, ret);
+			switch (mode) {
+			case Main.BUS_PREDICTIONS_BY_DIRECTION:
+			case Main.VEHICLE_LOCATIONS_BY_DIRECTION:
+				addSearchDirections(database, search, ret);
+				break;
+			default:
+				addSearchRoutes(database, search, ret);
+				addSearchStops(database, search, ret);
+				break;
+			}
 		}
 		finally
 		{

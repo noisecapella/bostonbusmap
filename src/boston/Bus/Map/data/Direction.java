@@ -7,7 +7,7 @@ public class Direction {
 	private final String title;
 	private final String route;
 	private final boolean useForUI;
-	private final ArrayList<String> stopTags = new ArrayList<String>();
+	private DirectionStops directionStops;
 	
 	public Direction(String name, String title, String route, boolean useForUI) {
 		this.name = name;
@@ -30,11 +30,24 @@ public class Direction {
 		return useForUI;
 	}
 	
-	public void addStopTag(String tag) {
-		stopTags.add(tag);
-	}	
+	public boolean containsStop(String stopTag) {
+		if (directionStops == null) {
+			throw new RuntimeException("Expected directionStops to exist");
+		}
+		return directionStops.containsStopTag(stopTag);
+	}
+
+	public void addStopTag(String stopTag) {
+		if (directionStops == null) {
+			directionStops = new DirectionStops();
+		}
+		directionStops.addStopTag(stopTag);
+	}
 
 	public ArrayList<String> getStopTags() {
-		return stopTags;
+		if (directionStops == null) {
+			throw new RuntimeException("Expected directionStops to exist");
+		}
+		return directionStops.getStopTags();
 	}
 }
