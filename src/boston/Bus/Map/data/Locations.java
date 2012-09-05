@@ -38,6 +38,7 @@ import android.content.Context;
 import android.util.Log;
 import boston.Bus.Map.algorithms.GetDirections;
 import boston.Bus.Map.database.DatabaseHelper;
+import boston.Bus.Map.main.GetDirectionsAsyncTask;
 import boston.Bus.Map.main.Main;
 import boston.Bus.Map.main.UpdateAsyncTask;
 import boston.Bus.Map.transit.TransitSource;
@@ -446,5 +447,12 @@ public final class Locations
 		catch (Exception e) {
 			LogUtil.e(e);
 		}
+	}
+
+	public void startGetDirectionsTask(Context context, String startTag, String stopTag,
+			double currentLat, double currentLon) {
+		GetDirectionsAsyncTask task = new GetDirectionsAsyncTask(context, 
+				startTag, stopTag, directions, routeMapping, currentLat, currentLon);
+		task.execute();
 	}
 }

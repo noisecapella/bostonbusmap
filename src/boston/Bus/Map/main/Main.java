@@ -690,7 +690,13 @@ public class Main extends MapActivity
     		break;
     		
     	case R.id.getDirectionsMenuItem:
-    		arguments.getBusLocations().doDirections();
+    		{
+    			// this activity starts with an Intent with an empty Bundle, which indicates
+    			// all fields are blank
+    			startActivityForResult(new Intent(this, GetDirectionsDialog.class), GetDirectionsDialog.GETDIRECTIONS_REQUEST_CODE);
+    		}
+    		
+    		break;
     		
     	case R.id.chooseStop:
     		if (arguments != null)
@@ -1046,4 +1052,21 @@ public class Main extends MapActivity
 		return dropdownRoutes[selectedRouteIndex];
 	}
 
+	@Override
+	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+		if (requestCode == GetDirectionsDialog.GETDIRECTIONS_REQUEST_CODE) {
+			switch (resultCode) {
+			case GetDirectionsDialog.EVERYTHING_OK:
+				String startTag = data.getStringExtra(GetDirectionsDialog.START_TAG_KEY);
+				String stopTag = data.getStringExtra(GetDirectionsDialog.STOP_TAG_KEY);
+				
+				LocationManager locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+				Location location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+				
+				arguments.getBusLocations().startGetDirectionsTask(this, startTag, stopTag, location.getLatitude(), location.getLongitude());
+				break;
+				
+			}
+		}
+	}
 }

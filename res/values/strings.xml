@@ -60,4 +60,7 @@ Are any enabled (like GPS) in your system settings?</string>
     <string name="modeOption">Mode Option</string>
     <string name="bus_directions">Vehicles by direction</string>
     <string name="busstop_directions">Stops and predictions by direction</string>
+    <string name="getDirectionsCurrentLocation">Current Location</string>
+    <string name="pickCurrentLocation">My Current Location</string>
+    <string name="chooseAStop">Pick a stop</string>
 </resources>

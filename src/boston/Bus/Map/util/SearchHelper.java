@@ -211,6 +211,7 @@ public class SearchHelper
 	public static String naiveSearch(String indexingQuery, String lowercaseQuery, String[] routes,
 			MyHashMap<String, String> routeKeysToTitles)
 	{
+		
 		int position = Arrays.asList(routes).indexOf(indexingQuery);
 
 		if (position != -1)

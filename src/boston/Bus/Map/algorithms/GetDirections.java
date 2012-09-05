@@ -23,10 +23,10 @@ import boston.Bus.Map.math.Geometry;
 public class GetDirections  {
 	private final HashSet<DirectionPath> closedSet = new HashSet<DirectionPath>();
 	private final HashSet<DirectionPath> openSet = new HashSet<DirectionPath>();
-	private final MyHashMap<DirectionPath, DirectionPath> cameFrom = new MyHashMap<DirectionPath, DirectionPath>();
+	private final MyHashMap<String, DirectionPath> cameFrom = new MyHashMap<String, DirectionPath>();
 	
-	private final MyHashMap<DirectionPath, Float> gScore = new MyHashMap<DirectionPath, Float>();
-	private final MyHashMap<DirectionPath, Float> fScore = new MyHashMap<DirectionPath, Float>();
+	private final MyHashMap<String, Float> gScore = new MyHashMap<String, Float>();
+	private final MyHashMap<String, Float> fScore = new MyHashMap<String, Float>();
 	
 	private final Directions directions;
 	private final RoutePool routePool;
@@ -51,7 +51,7 @@ public class GetDirections  {
 		}
 		
 		for (DirectionPath direction : openSet) {
-			fScore.put(direction, 0 + heuristicCostEstimate(start, goal));
+			fScore.put(direction.getDirTag(), 0 + heuristicCostEstimate(start, goal));
 		}
 		
 		DirectionPath current = null;
@@ -59,7 +59,7 @@ public class GetDirections  {
 			current = getNodeWithLowestFScore();
 			HashSet<String> stopsForDirTag = getStopsForDirTag(current.getDirTag());
 			if (stopsForDirTag.contains(goal.getStopTag())) {
-				return doReconstructPath(new DirectionPath(goal, null, null));
+				return doReconstructPath(current);
 			}
 			
 			//publishProgress("At " + current.getTitle());
@@ -77,9 +77,9 @@ public class GetDirections  {
 				
 				if (openSet.contains(neighbor) == false || tentativeGScore < getGScore(neighbor)) {
 					openSet.add(neighbor);
-					cameFrom.put(neighbor, current);
-					gScore.put(neighbor, tentativeGScore);
-					fScore.put(neighbor, tentativeGScore + heuristicCostEstimate(neighbor.getStop(), goal));
+					cameFrom.put(neighbor.getDirTag(), current);
+					gScore.put(neighbor.getDirTag(), tentativeGScore);
+					fScore.put(neighbor.getDirTag(), tentativeGScore + heuristicCostEstimate(neighbor.getStop(), goal));
 				}
 			}
 		}
@@ -131,9 +131,9 @@ public class GetDirections  {
 	}
 
 	private float getGScore(DirectionPath neighbor) {
-		Float f = gScore.get(neighbor);
+		Float f = gScore.get(neighbor.getDirTag());
 		if (f == null) {
-			gScore.put(neighbor, 0f);
+			gScore.put(neighbor.getDirTag(), 0f);
 			return 0f;
 		}
 		else
@@ -149,9 +149,9 @@ public class GetDirections  {
 				neighbor.getLongitudeAsDegrees());
 	}
 
-	private static void reconstructPath(MyHashMap<DirectionPath, DirectionPath> cameFrom, DirectionPath currentNode, ArrayList<DirectionPath> reverseRet) {
-		if (cameFrom.containsKey(currentNode)) {
-			reconstructPath(cameFrom, cameFrom.get(currentNode), reverseRet);
+	private static void reconstructPath(MyHashMap<String, DirectionPath> cameFrom, DirectionPath currentNode, ArrayList<DirectionPath> reverseRet) {
+		if (cameFrom.containsKey(currentNode.getDirTag())) {
+			reconstructPath(cameFrom, cameFrom.get(currentNode.getDirTag()), reverseRet);
 		}
 		reverseRet.add(currentNode);
 	}
@@ -169,7 +169,7 @@ public class GetDirections  {
 		float lastFScore = Float.MAX_VALUE;
 		
 		for (DirectionPath directionPath : openSet) {
-			Float f = fScore.get(directionPath);
+			Float f = fScore.get(directionPath.getDirTag());
 			if (f != null && f.floatValue() < lastFScore) {
 				lowest = directionPath;
 				lastFScore = f.floatValue();
@@ -182,13 +182,8 @@ public class GetDirections  {
 		return distanceBetween(start, end);
 	}
 
-	public void run(StopLocation from, StopLocation to) throws IOException {
-		ArrayList<DirectionPath> path = getDirections(from, to);
-		
-		for (DirectionPath directionPath : path) {
-			Log.i("BostonBusMap", "Stop: " + directionPath.getStop().getStopTag() + ", " + 
-		directionPath.getStop().getTitle() + ", dirPath: " + directionPath.getDirTag());
-		}
+	public ArrayList<DirectionPath> run(StopLocation from, StopLocation to) throws IOException {
+		return getDirections(from, to);
 	}
 
 	/**
@@ -196,7 +191,7 @@ public class GetDirections  {
 	 * @author schneg
 	 *
 	 */
-	private class DirectionPath {
+	public class DirectionPath {
 		private final StopLocation stop;
 		private final String dirTag;
 		private final Direction direction;
