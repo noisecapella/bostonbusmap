@@ -94,7 +94,7 @@ public class BusOverlay extends BalloonItemizedOverlay<BusOverlayItem> {
 		
 		if (selectedBusIndex != NOT_SELECTED)
 		{
-			onTap(selectedBusIndex);
+			onTap(selectedBusIndex, false);
 		}
 		
 		setLastFocusedIndex(busOverlay.getLastFocusedIndex());
@@ -321,7 +321,7 @@ public class BusOverlay extends BalloonItemizedOverlay<BusOverlayItem> {
 		}
 		else
 		{
-			onTap(selectedBusIndex);
+			onTap(selectedBusIndex, false);
 		}
 	}
 	
@@ -366,9 +366,16 @@ public class BusOverlay extends BalloonItemizedOverlay<BusOverlayItem> {
 	@Override
 	protected boolean onTap(int index) {
 		boolean ret = super.onTap(index);
-		
+
+		onTap(index, true);
+		return ret;
+	}
+	
+	
+	
+	private void onTap(int index, boolean triggerListener) {
 		Location location = locations.get(index);
-		if (nextTapListener != null) {
+		if (nextTapListener != null && triggerListener) {
 			nextTapListener.onClick(location);
 			nextTapListener = null;
 		}
@@ -381,9 +388,10 @@ public class BusOverlay extends BalloonItemizedOverlay<BusOverlayItem> {
 			boolean isVisible = location instanceof StopLocation;
 			view.setState(location.isFavorite(), isVisible, isVisible, location);
 		}
-		return ret;
+		
 	}
-	
+
+
 	protected BalloonOverlayView<BusOverlayItem> createBalloonOverlayView() {
 		BusPopupView view = new BusPopupView(getMapView().getContext(), getBalloonBottomOffset(), locationsObj, routeKeysToTitles,
 				density);
