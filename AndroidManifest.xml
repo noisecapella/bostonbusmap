@@ -38,6 +38,7 @@
 		
 	<uses-library android:name="android.test.runner"></uses-library>
 	<provider android:name=".provider.TransitContentProvider" android:authorities="com.bostonbusmap.transitprovider"></provider>
+	<provider android:name=".provider.DatabaseContentProvider" android:authorities="com.bostonbusmap.databaseprovider"></provider>
 </application>
 
 </manifest>
