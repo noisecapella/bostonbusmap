@@ -28,7 +28,6 @@ import boston.Bus.Map.data.Path;
 import boston.Bus.Map.data.RouteConfig;
 import boston.Bus.Map.data.RoutePool;
 import boston.Bus.Map.data.StopLocation;
-import boston.Bus.Map.database.DatabaseHelper;
 import boston.Bus.Map.main.UpdateAsyncTask;
 import boston.Bus.Map.transit.NextBusTransitSource;
 import boston.Bus.Map.transit.TransitSource;
@@ -36,8 +35,10 @@ import boston.Bus.Map.transit.TransitSystem;
 import boston.Bus.Map.util.FeedException;
 
 
+import android.content.OperationApplicationException;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
+import android.os.RemoteException;
 import android.util.Xml.Encoding;
 
 public class RouteConfigFeedParser extends DefaultHandler
@@ -257,7 +258,7 @@ public class RouteConfigFeedParser extends DefaultHandler
 		}
 	}
 
-	public void writeToDatabase(RoutePool routeMapping, boolean wipe, UpdateAsyncTask task, boolean silent) throws IOException {
+	public void writeToDatabase(RoutePool routeMapping, boolean wipe, UpdateAsyncTask task, boolean silent) throws IOException, RemoteException, OperationApplicationException {
 		routeMapping.writeToDatabase(map, wipe, task, silent);
 		directions.writeToDatabase(wipe);
 	}

@@ -6,7 +6,6 @@ import boston.Bus.Map.data.Direction;
 import boston.Bus.Map.data.Locations;
 import boston.Bus.Map.data.MyHashMap;
 import boston.Bus.Map.data.UpdateArguments;
-import boston.Bus.Map.database.DatabaseHelper;
 import boston.Bus.Map.transit.TransitSystem;
 import boston.Bus.Map.ui.BusOverlay;
 import boston.Bus.Map.ui.LocationOverlay;

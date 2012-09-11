@@ -13,6 +13,8 @@ import org.apache.http.client.ClientProtocolException;
 import org.xml.sax.SAXException;
 
 import android.content.Context;
+import android.content.OperationApplicationException;
+import android.os.RemoteException;
 import boston.Bus.Map.data.BusLocation;
 import boston.Bus.Map.data.Directions;
 import boston.Bus.Map.data.Location;
@@ -96,7 +98,7 @@ public abstract class NextBusTransitSource implements TransitSource
 	@Override
 	public void populateStops(RoutePool routeMapping, String routeToUpdate,
 			RouteConfig oldRouteConfig, Directions directions, UpdateAsyncTask task, boolean silent) 
-	throws ClientProtocolException, IOException, ParserConfigurationException, SAXException 
+	throws ClientProtocolException, IOException, ParserConfigurationException, SAXException, RemoteException, OperationApplicationException 
 	{
 		final String urlString = getRouteConfigUrl(routeToUpdate);
 
@@ -307,7 +309,7 @@ public abstract class NextBusTransitSource implements TransitSource
 	@Override
 	public void initializeAllRoutes(UpdateAsyncTask task, Context context, Directions directions,
 			RoutePool routeMapping)
-	throws IOException, ParserConfigurationException, SAXException {
+	throws IOException, ParserConfigurationException, SAXException, RemoteException, OperationApplicationException {
 		task.publish(new ProgressMessage(ProgressMessage.PROGRESS_DIALOG_ON, "Decompressing route data", null));
 
 		final int contentLength = getInitialContentLength();

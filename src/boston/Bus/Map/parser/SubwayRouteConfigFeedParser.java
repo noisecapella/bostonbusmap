@@ -31,7 +31,9 @@ import boston.Bus.Map.main.UpdateAsyncTask;
 import boston.Bus.Map.transit.SubwayTransitSource;
 import boston.Bus.Map.transit.TransitSystem;
 
+import android.content.OperationApplicationException;
 import android.graphics.drawable.Drawable;
+import android.os.RemoteException;
 
 public class SubwayRouteConfigFeedParser
 {
@@ -197,7 +199,7 @@ public class SubwayRouteConfigFeedParser
 		}
 	}
 
-	public void writeToDatabase(RoutePool routeMapping, boolean wipe, UpdateAsyncTask task, boolean silent) throws IOException {
+	public void writeToDatabase(RoutePool routeMapping, boolean wipe, UpdateAsyncTask task, boolean silent) throws IOException, RemoteException, OperationApplicationException {
 		routeMapping.writeToDatabase(map, wipe, task, silent);
 		directions.writeToDatabase(wipe);
 	}

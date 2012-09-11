@@ -10,8 +10,8 @@ import boston.Bus.Map.data.Direction;
 import boston.Bus.Map.data.MyHashMap;
 import boston.Bus.Map.data.StopLocation;
 import boston.Bus.Map.data.UpdateArguments;
-import boston.Bus.Map.database.DatabaseHelper;
 import boston.Bus.Map.main.Main;
+import boston.Bus.Map.provider.DatabaseContentProvider.DatabaseAgent;
 import boston.Bus.Map.transit.TransitSystem;
 
 public class SearchHelper
@@ -132,7 +132,6 @@ public class SearchHelper
 	}
 
 	private void returnResults(Runnable onFinish, String indexingQuery, String lowercaseQuery, String printableQuery) {
-		final DatabaseHelper databaseHelper = arguments.getDatabaseHelper();
 		final TransitSystem transitSystem = arguments.getTransitSystem();
 		if (queryType == QUERY_NONE || queryType == QUERY_ROUTE)
 		{
@@ -165,7 +164,8 @@ public class SearchHelper
 				exactQuery = printableQuery;
 			}
 
-			StopLocation stop = databaseHelper.getStopByTagOrTitle(indexingQuery, exactQuery, transitSystem);
+			StopLocation stop = DatabaseAgent.getStopByTagOrTitle(context.getContentResolver(), 
+					indexingQuery, exactQuery, transitSystem);
 			if (stop != null)
 			{	
 				context.setNewStop(stop.getFirstRoute(), stop.getStopTag());

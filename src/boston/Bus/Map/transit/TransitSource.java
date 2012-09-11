@@ -9,6 +9,8 @@ import org.apache.http.client.ClientProtocolException;
 import org.xml.sax.SAXException;
 
 import android.content.Context;
+import android.content.OperationApplicationException;
+import android.os.RemoteException;
 import boston.Bus.Map.data.BusLocation;
 import boston.Bus.Map.data.Directions;
 import boston.Bus.Map.data.Locations;
@@ -23,7 +25,7 @@ public interface TransitSource {
 
 	void populateStops(RoutePool routeMapping, String routeToUpdate,
 			RouteConfig oldRouteConfig, Directions directions, UpdateAsyncTask task, boolean silent)
-		throws ClientProtocolException, IOException, ParserConfigurationException, SAXException ;
+		throws ClientProtocolException, IOException, ParserConfigurationException, SAXException, RemoteException, OperationApplicationException ;
 
 	void refreshData(RouteConfig routeConfig, int selectedBusPredictions,
 			int maxStops, double centerLatitude, double centerLongitude,
@@ -35,7 +37,7 @@ public interface TransitSource {
 
 	public void initializeAllRoutes(UpdateAsyncTask task, Context context,
 			Directions directions, RoutePool routeMapping) throws IOException,
-			ParserConfigurationException, SAXException;
+			ParserConfigurationException, SAXException, RemoteException, OperationApplicationException;
 	
 	public String[] getRoutes();
 	

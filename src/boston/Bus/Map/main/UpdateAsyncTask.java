@@ -45,7 +45,6 @@ import boston.Bus.Map.data.Path;
 import boston.Bus.Map.data.RouteConfig;
 import boston.Bus.Map.data.StopLocation;
 import boston.Bus.Map.data.UpdateArguments;
-import boston.Bus.Map.database.DatabaseHelper;
 import boston.Bus.Map.transit.TransitSystem;
 import boston.Bus.Map.ui.BusOverlay;
 import boston.Bus.Map.ui.LocationOverlay;
@@ -248,12 +247,6 @@ public class UpdateAsyncTask extends AsyncTask<Object, Object, Locations>
 				if (doInit)
 				{
 					//publishProgress("Did not find route info in database, checking if there's free space to download it...");
-				}
-				if (busLocations.checkFreeSpace(arguments.getDatabaseHelper(), allRoutes) == false)
-				{
-					publish(new ProgressMessage(ProgressMessage.TOAST, null, 
-							"There is not enough free space to download the route info. About 2MB free is required"));
-					return null;
 				}
 				
 				if (doInit)

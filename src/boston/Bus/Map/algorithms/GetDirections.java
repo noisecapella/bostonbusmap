@@ -16,7 +16,6 @@ import boston.Bus.Map.data.MyHashMap;
 import boston.Bus.Map.data.RouteConfig;
 import boston.Bus.Map.data.RoutePool;
 import boston.Bus.Map.data.StopLocation;
-import boston.Bus.Map.database.DatabaseHelper;
 import boston.Bus.Map.math.Geometry;
 
 

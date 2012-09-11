@@ -35,9 +35,10 @@ import org.xml.sax.SAXException;
 
 
 import android.content.Context;
+import android.content.OperationApplicationException;
+import android.os.RemoteException;
 import android.util.Log;
 import boston.Bus.Map.algorithms.GetDirections;
-import boston.Bus.Map.database.DatabaseHelper;
 import boston.Bus.Map.main.GetDirectionsAsyncTask;
 import boston.Bus.Map.main.Main;
 import boston.Bus.Map.main.UpdateAsyncTask;
@@ -69,12 +70,12 @@ public final class Locations
 	private int selectedBusPredictions;
 	private final TransitSystem transitSystem;
 
-	public Locations(DatabaseHelper helper, 
+	public Locations(Context context, 
 			TransitSystem transitSystem)
 	{
 		this.transitSystem = transitSystem;
-		routeMapping = new RoutePool(helper, transitSystem);
-		directions = new Directions(helper);
+		routeMapping = new RoutePool(context, transitSystem);
+		directions = new Directions(context);
 	}
 	
 	public String getRouteName(String key)
@@ -89,9 +90,11 @@ public final class Locations
 	 * @throws FactoryConfigurationError
 	 * @throws SAXException
 	 * @throws IOException
+	 * @throws OperationApplicationException 
+	 * @throws RemoteException 
 	 */
 	public void initializeAllRoutes(UpdateAsyncTask task, Context context, String[] routesToCheck)
-		throws ParserConfigurationException, FactoryConfigurationError, SAXException, IOException
+		throws ParserConfigurationException, FactoryConfigurationError, SAXException, IOException, RemoteException, OperationApplicationException
 	{
 		ArrayList<String> routesThatNeedUpdating = routeInfoNeedsUpdating(routesToCheck); 
 		boolean hasNoMissingData = routesThatNeedUpdating == null || routesThatNeedUpdating.size() == 0;
@@ -109,8 +112,6 @@ public final class Locations
 				system.initializeAllRoutes(task, context, directions, routeMapping);
 			}
 			routeMapping.fillInFavoritesRoutes();
-			//TODO: fill routeMapping somehow
-			
 		}
 	}
 	
@@ -131,12 +132,14 @@ public final class Locations
 	 * @throws IOException
 	 * @throws ParserConfigurationException
 	 * @throws FactoryConfigurationError
+	 * @throws OperationApplicationException 
+	 * @throws RemoteException 
 	 * @throws FeedException 
 	 */
 	public void refresh(boolean inferBusRoutes, String routeToUpdate,
 			int selectedBusPredictions, double centerLatitude, double centerLongitude,
 			UpdateAsyncTask updateAsyncTask, boolean showRoute) throws SAXException, IOException,
-			ParserConfigurationException, FactoryConfigurationError 
+			ParserConfigurationException, FactoryConfigurationError, RemoteException, OperationApplicationException 
 	{
 		final int maxStops = 15;
 
@@ -194,7 +197,7 @@ public final class Locations
 	}
 
 	private void populateStops(String routeToUpdate, RouteConfig oldRouteConfig, UpdateAsyncTask task, boolean silent) 
-		throws IOException, ParserConfigurationException, SAXException
+		throws IOException, ParserConfigurationException, SAXException, RemoteException, OperationApplicationException
 	{
 		
 		TransitSource transitSource;
@@ -365,29 +368,11 @@ public final class Locations
 		return routeMapping.routeInfoNeedsUpdating(routesToCheck);
 	}
 
-	/**
-	 * Is there enough space available, if we need any?
-	 * @return
-	 * @throws IOException 
-	 */
-	public boolean checkFreeSpace(DatabaseHelper helper, String[] routesToCheck) throws IOException {
-		ArrayList<String> routesThatNeedUpdating = routeInfoNeedsUpdating(routesToCheck);
-		if (routesThatNeedUpdating == null || routesThatNeedUpdating.size() == 0)
-		{
-			//everything is already in the database
-			return true;
-		}
-		else
-		{
-			return helper.checkFreeSpace();
-		}
-	}
-
 	public RouteConfig getSelectedRoute() throws IOException {
 		return routeMapping.get(selectedRoute);
 	}
 	
-	public int toggleFavorite(StopLocation location)
+	public int toggleFavorite(StopLocation location) throws RemoteException, OperationApplicationException
 	{
 		boolean isFavorite = routeMapping.isFavorite(location);
 		return routeMapping.setFavorite(location, !isFavorite);

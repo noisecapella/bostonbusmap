@@ -6,10 +6,12 @@ import java.util.HashMap;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.OperationApplicationException;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
 
+import android.os.RemoteException;
 import android.text.Html;
 import android.text.Spanned;
 import android.util.Log;
@@ -19,6 +21,7 @@ import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 import android.widget.FrameLayout.LayoutParams;
 import boston.Bus.Map.R;
 import boston.Bus.Map.data.Alert;
@@ -32,6 +35,7 @@ import boston.Bus.Map.main.AlertInfo;
 import boston.Bus.Map.main.Main;
 import boston.Bus.Map.main.MoreInfo;
 import boston.Bus.Map.transit.TransitSystem;
+import boston.Bus.Map.util.LogUtil;
 import boston.Bus.Map.util.StringUtil;
 
 import com.google.android.maps.OverlayItem;
@@ -80,8 +84,15 @@ public class BusPopupView extends BalloonOverlayView<BusOverlayItem>
 				{
 					StopLocation stopLocation = (StopLocation)location;
 
-					int result = BusPopupView.this.locations.toggleFavorite(stopLocation);
-					favorite.setBackgroundResource(result);
+					int result;
+					try {
+						result = BusPopupView.this.locations.toggleFavorite(stopLocation);
+						favorite.setBackgroundResource(result);
+					} catch (RemoteException e) {
+						LogUtil.e(e);
+					} catch (OperationApplicationException e) {
+						LogUtil.e(e);
+					}
 				}
 			}
 		});

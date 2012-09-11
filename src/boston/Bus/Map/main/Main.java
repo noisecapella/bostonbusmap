@@ -43,7 +43,6 @@ import boston.Bus.Map.data.RouteConfig;
 import boston.Bus.Map.data.StopLocation;
 import boston.Bus.Map.data.TransitDrawables;
 import boston.Bus.Map.data.UpdateArguments;
-import boston.Bus.Map.database.DatabaseHelper;
 import boston.Bus.Map.provider.TransitContentProvider;
 import boston.Bus.Map.transit.TransitSystem;
 import boston.Bus.Map.ui.BusOverlay;
@@ -298,9 +297,6 @@ public class Main extends MapActivity
         toggleButton.setAdapter(modeSpinnerAdapter);
 
         
-        final DatabaseHelper databaseHelper = new DatabaseHelper(this);
-        
-        
         dropdownRoutes = transitSystem.getRoutes();
         dropdownRouteKeysToTitles = transitSystem.getRouteKeysToTitles();
         
@@ -391,12 +387,12 @@ public class Main extends MapActivity
 
         if (busLocations == null)
         {
-        	busLocations = new Locations(databaseHelper, transitSystem);
+        	busLocations = new Locations(this, transitSystem);
         }
 
         arguments = new UpdateArguments(progress, progressDialog,
         		mapView, this, busOverlay, routeOverlay, myLocationOverlay,
-        		majorHandler, busLocations, databaseHelper, transitSystem);
+        		majorHandler, busLocations, transitSystem);
         handler = new UpdateHandler(arguments);
         busOverlay.setUpdateable(handler);
         

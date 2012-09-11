@@ -17,7 +17,9 @@ import org.apache.http.client.ClientProtocolException;
 import org.xml.sax.SAXException;
 
 import android.content.Context;
+import android.content.OperationApplicationException;
 import android.graphics.drawable.Drawable;
+import android.os.RemoteException;
 import android.util.Log;
 import boston.Bus.Map.data.AlertsMapping;
 import boston.Bus.Map.data.BusLocation;
@@ -114,7 +116,7 @@ public class CommuterRailTransitSource implements TransitSource {
 	public void populateStops(RoutePool routeMapping, String routeToUpdate,
 			RouteConfig oldRouteConfig, Directions directions,
 			UpdateAsyncTask task, boolean silent) throws ClientProtocolException, IOException,
-			ParserConfigurationException, SAXException
+			ParserConfigurationException, SAXException, RemoteException, OperationApplicationException
 	{
 		
 		//this will probably never be executed
@@ -322,7 +324,7 @@ public class CommuterRailTransitSource implements TransitSource {
 	@Override
 	public void initializeAllRoutes(UpdateAsyncTask task, Context context,
 			Directions directions, RoutePool routeMapping) throws IOException,
-			ParserConfigurationException, SAXException {
+			ParserConfigurationException, SAXException, RemoteException, OperationApplicationException {
 		task.publish(new ProgressMessage(ProgressMessage.PROGRESS_DIALOG_ON, "Downloading commuter info", null));
 		//final String subwayUrl = getRouteConfigUrl();
 		//URL url = new URL(subwayUrl);

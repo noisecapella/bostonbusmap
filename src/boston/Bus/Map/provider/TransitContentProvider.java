@@ -1,7 +1,6 @@
 package boston.Bus.Map.provider;
 
 import boston.Bus.Map.data.RoutePool;
-import boston.Bus.Map.database.DatabaseHelper;
 import boston.Bus.Map.main.Main;
 import boston.Bus.Map.provider.DatabaseContentProvider.DatabaseAgent;
 import boston.Bus.Map.transit.TransitSystem;

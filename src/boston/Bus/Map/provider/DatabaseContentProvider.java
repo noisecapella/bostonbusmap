@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
 
 import boston.Bus.Map.data.Direction;
 import boston.Bus.Map.data.MyHashMap;
@@ -85,6 +86,10 @@ public class DatabaseContentProvider extends ContentProvider {
 	private static final String STOPS_WITH_DISTANCE_TYPE = "vnd.android.cursor.dir/vnd.bostonbusmap.stop_with_distance";
 	private static final Uri STOPS_WITH_DISTANCE_URI = Uri.parse("content://" + AUTHORITY + "/stops_with_distance");
 	private static final int STOPS_WITH_DISTANCE = 11;
+
+	private static final String FAVORITES_WITH_SAME_LOCATION_TYPE = "vnd.android.cursor.dir/vnd.bostonbusmap.favorite_with_same_location";
+	private static final Uri FAVORITES_WITH_SAME_LOCATION_URI = Uri.parse("content://" + AUTHORITY + "/favorites_with_same_location");
+	private static final int FAVORITES_WITH_SAME_LOCATION = 12;
 
 	private final static String dbName = "bostonBusMap";
 
@@ -178,7 +183,7 @@ public class DatabaseContentProvider extends ContentProvider {
 	 * @author schneg
 	 *
 	 */
-	public static class DatabaseHelper extends SQLiteOpenHelper
+	private static class DatabaseHelper extends SQLiteOpenHelper
 	{
 
 
@@ -271,11 +276,25 @@ public class DatabaseContentProvider extends ContentProvider {
 		 * @param favorites
 		 */
 		public static void populateFavorites(ContentResolver contentResolver, 
-				HashSet<String> favorites)
+				HashSet<String> favorites, boolean lookForOtherStopsAtSameLocation)
 		{
-			Cursor cursor = contentResolver.query(FAVORITES_URI, new String[]{stopTagKey},
-					null, null, null);
-			
+			Cursor cursor;
+			if (lookForOtherStopsAtSameLocation)
+			{
+				//get all stop tags which are at the same location as stop tags in the database
+				//this is a relatively expensive query but it should only be done once, when the
+				//database needs it
+				SQLiteQueryBuilder builder = new SQLiteQueryBuilder();
+				builder.setDistinct(true);
+
+				cursor = contentResolver.query(FAVORITES_WITH_SAME_LOCATION_URI, new String[]{"s2." + stopTagKey}, null, null, null);
+			}
+			else
+			{
+				cursor = contentResolver.query(FAVORITES_URI, new String[]{stopTagKey},
+						null, null, null);
+			}
+
 			cursor.moveToFirst();
 			while (cursor.isAfterLast() == false)
 			{
@@ -577,7 +596,7 @@ public class DatabaseContentProvider extends ContentProvider {
 		 * @param names
 		 * @param titles
 		 */
-		public static void refreshDirections(ContentResolver resolver, MyHashMap<String, Direction> directions) {
+		public static void refreshDirections(ContentResolver resolver, ConcurrentHashMap<String, Direction> directions) {
 			Cursor cursor = resolver.query(DIRECTIONS_URI, new String[]{dirTagKey, dirNameKey, dirTitleKey, dirRouteKey, dirUseAsUIKey},
 					null, null, null);
 			cursor.moveToFirst();
@@ -598,7 +617,7 @@ public class DatabaseContentProvider extends ContentProvider {
 			cursor.close();
 		}
 
-		public static void writeDirections(ContentResolver resolver, boolean wipe, MyHashMap<String, Direction> directions) throws RemoteException, OperationApplicationException {
+		public static void writeDirections(ContentResolver resolver, boolean wipe, ConcurrentHashMap<String, Direction> directions) throws RemoteException, OperationApplicationException {
 			ArrayList<ContentProviderOperation> operations = new ArrayList<ContentProviderOperation>();
 			if (wipe)
 			{
@@ -1047,6 +1066,7 @@ public class DatabaseContentProvider extends ContentProvider {
 		uriMatcher.addURI(AUTHORITY, "stops_lookup_2", STOPS_LOOKUP_2);
 		uriMatcher.addURI(AUTHORITY, "stops_lookup_3", STOPS_LOOKUP_3);
 		uriMatcher.addURI(AUTHORITY, "stops_with_distance/#/#/#", STOPS_WITH_DISTANCE);
+		uriMatcher.addURI(AUTHORITY, "favorite_with_same_location", FAVORITES_WITH_SAME_LOCATION);
 	}
 
 	@Override
@@ -1105,6 +1125,8 @@ public class DatabaseContentProvider extends ContentProvider {
 			return STOPS_LOOKUP_3_TYPE;
 		case STOPS_WITH_DISTANCE:
 			return STOPS_WITH_DISTANCE_TYPE;
+		case FAVORITES_WITH_SAME_LOCATION:
+			return FAVORITES_WITH_SAME_LOCATION_TYPE;
 		default:
 			throw new IllegalArgumentException("Unknown URI " + uri);
 		}
@@ -1195,6 +1217,12 @@ public class DatabaseContentProvider extends ContentProvider {
 		switch (uriMatcher.match(uri)) {
 		case FAVORITES:
 			builder.setTables(verboseFavorites);
+			break;
+		case FAVORITES_WITH_SAME_LOCATION:
+			builder.setTables(verboseFavorites + " JOIN stops as s1 ON " + verboseFavorites + "." + stopTagKey +
+						" = s1." + stopTagKey + " JOIN stops as s2 ON s1." +  latitudeKey + 
+						" = s2." + latitudeKey + " AND s1." + longitudeKey + " = s2." + longitudeKey + "");
+			builder.setDistinct(true);
 			break;
 		case STOPS:
 			builder.setTables(verboseStops);

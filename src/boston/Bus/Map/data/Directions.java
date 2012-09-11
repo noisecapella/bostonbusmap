@@ -2,31 +2,30 @@ package boston.Bus.Map.data;
 
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.concurrent.ConcurrentHashMap;
+
+import boston.Bus.Map.provider.DatabaseContentProvider.DatabaseAgent;
 
 
+import android.content.Context;
+import android.content.OperationApplicationException;
+import android.os.RemoteException;
 import android.util.Log;
-import boston.Bus.Map.database.DatabaseHelper;
 
 public class Directions {
-	private final MyHashMap<String, Direction> directions = new MyHashMap<String, Direction>();
-	
-	private final DatabaseHelper helper;
+	private final ConcurrentHashMap<String, Direction> directions
+		= new ConcurrentHashMap<String, Direction>();
 	
 	private boolean isRefreshed = false;
+
+	private Context context;
 	
-	public Directions(DatabaseHelper helper) {
-		this.helper = helper;
+	public Directions(Context context) {
+		this.context = context;
 	}
 
 	public void add(String dirTag, Direction direction) {
-		if (directions.containsKey(dirTag) == false)
-		{
-			synchronized(directions)
-			{
-				directions.put(dirTag, direction);
-			}
-		}
-		
+		directions.putIfAbsent(dirTag, direction);
 	}
 	
 	public Direction getDirection(String dirTag)
@@ -53,17 +52,14 @@ public class Directions {
 	private void doRefresh() {
 		if (isRefreshed == false)
 		{
-			synchronized(directions)
-			{
-				helper.refreshDirections(directions);
-			}
+			DatabaseAgent.refreshDirections(context.getContentResolver(), directions);
 			isRefreshed = true;
 		}
 		
 	}
 
-	public void writeToDatabase(boolean wipe) {
-		helper.writeDirections(wipe, directions);
+	public void writeToDatabase(boolean wipe) throws RemoteException, OperationApplicationException {
+		DatabaseAgent.writeDirections(context.getContentResolver(), wipe, directions);
 	}
 
 	/**
@@ -110,7 +106,7 @@ public class Directions {
 	}
 
 	public MyHashMap<String, Direction> getDirectionsForStop(String stopTag) {
-		HashSet<String> dirTags = helper.getDirectionTagsForStop(stopTag);
+		HashSet<String> dirTags = DatabaseAgent.getDirectionTagsForStop(context.getContentResolver(), stopTag);
 		MyHashMap<String, Direction> ret = new MyHashMap<String, Direction>();
 		for (String dirTag : dirTags) {
 			ret.put(dirTag, getDirection(dirTag));
@@ -119,6 +115,6 @@ public class Directions {
 	}
 
 	public HashSet<String> getStopTagsForDirTag(String dirTag) {
-		return helper.getStopTagsForDirTag(dirTag);
+		return DatabaseAgent.getStopTagsForDirTag(context.getContentResolver(), dirTag);
 	}
 }

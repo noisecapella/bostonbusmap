@@ -12,7 +12,9 @@ import java.util.TreeMap;
 
 import skylight1.opengl.files.QuickParseUtil;
 
+import android.content.OperationApplicationException;
 import android.graphics.drawable.Drawable;
+import android.os.RemoteException;
 import boston.Bus.Map.data.CommuterRailStopLocation;
 import boston.Bus.Map.data.Directions;
 import boston.Bus.Map.data.MyHashMap;
@@ -371,7 +373,7 @@ public class CommuterRailRouteConfigParser
 		this.source = source;
 	}
 
-	public void writeToDatabase(RoutePool routeMapping, boolean wipe, UpdateAsyncTask task, boolean silent) throws IOException
+	public void writeToDatabase(RoutePool routeMapping, boolean wipe, UpdateAsyncTask task, boolean silent) throws IOException, RemoteException, OperationApplicationException
 	{
 		routeMapping.writeToDatabase(map, wipe, task, silent);
 		directions.writeToDatabase(wipe);

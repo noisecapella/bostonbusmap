@@ -1,6 +1,5 @@
 package boston.Bus.Map.data;
 
-import boston.Bus.Map.database.DatabaseHelper;
 import boston.Bus.Map.main.Main;
 import boston.Bus.Map.main.UpdateAsyncTask;
 import boston.Bus.Map.transit.TransitSystem;
@@ -24,14 +23,13 @@ public class UpdateArguments {
 	private LocationOverlay myLocationOverlay;
 	private UpdateAsyncTask majorHandler;
 	private Locations busLocations;
-	private DatabaseHelper databaseHelper;
 	private TransitSystem transitSystem;
 	
 	public UpdateArguments(ProgressBar progress,
 			ProgressDialog progressDialog, MapView mapView, Context context,
 			BusOverlay busOverlay, RouteOverlay routeOverlay,
 			LocationOverlay myLocationOverlay, UpdateAsyncTask majorHandler,
-			Locations busLocations, DatabaseHelper databaseHelper,
+			Locations busLocations,
 			TransitSystem transitSystem) {
 		this.progress = progress;
 		this.progressDialog = progressDialog;
@@ -42,7 +40,6 @@ public class UpdateArguments {
 		this.myLocationOverlay = myLocationOverlay;
 		this.majorHandler = majorHandler;
 		this.busLocations = busLocations;
-		this.databaseHelper = databaseHelper;
 		this.transitSystem = transitSystem;
 	}
 
@@ -94,10 +91,6 @@ public class UpdateArguments {
 		return busLocations;
 	}
 
-	public DatabaseHelper getDatabaseHelper() {
-		return databaseHelper;
-	}
-
 	public TransitSystem getTransitSystem() {
 		return transitSystem;
 	}
@@ -106,7 +99,6 @@ public class UpdateArguments {
 		this.busLocations = null;
 		this.busOverlay = null;
 		this.context = null;
-		this.databaseHelper = null;
 		this.majorHandler = null;
 		this.mapView = null;
 		this.myLocationOverlay = null;
