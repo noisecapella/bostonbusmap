@@ -278,31 +278,40 @@ public class DatabaseContentProvider extends ContentProvider {
 		public static void populateFavorites(ContentResolver contentResolver, 
 				HashSet<String> favorites, boolean lookForOtherStopsAtSameLocation)
 		{
-			Cursor cursor;
-			if (lookForOtherStopsAtSameLocation)
+			Cursor cursor = null;
+			try
 			{
-				//get all stop tags which are at the same location as stop tags in the database
-				//this is a relatively expensive query but it should only be done once, when the
-				//database needs it
-				SQLiteQueryBuilder builder = new SQLiteQueryBuilder();
-				builder.setDistinct(true);
+				if (lookForOtherStopsAtSameLocation)
+				{
+					//get all stop tags which are at the same location as stop tags in the database
+					//this is a relatively expensive query but it should only be done once, when the
+					//database needs it
+					SQLiteQueryBuilder builder = new SQLiteQueryBuilder();
+					builder.setDistinct(true);
 
-				cursor = contentResolver.query(FAVORITES_WITH_SAME_LOCATION_URI, new String[]{"s2." + stopTagKey}, null, null, null);
+					cursor = contentResolver.query(FAVORITES_WITH_SAME_LOCATION_URI, new String[]{"s2." + stopTagKey}, null, null, null);
+				}
+				else
+				{
+					cursor = contentResolver.query(FAVORITES_URI, new String[]{stopTagKey},
+							null, null, null);
+				}
+
+				cursor.moveToFirst();
+				while (cursor.isAfterLast() == false)
+				{
+					String favoriteStopKey = cursor.getString(0);
+
+					favorites.add(favoriteStopKey);
+
+					cursor.moveToNext();
+				}
 			}
-			else
+			finally
 			{
-				cursor = contentResolver.query(FAVORITES_URI, new String[]{stopTagKey},
-						null, null, null);
-			}
-
-			cursor.moveToFirst();
-			while (cursor.isAfterLast() == false)
-			{
-				String favoriteStopKey = cursor.getString(0);
-
-				favorites.add(favoriteStopKey);
-
-				cursor.moveToNext();
+				if (cursor != null) {
+					cursor.close();
+				}
 			}
 		}
 
@@ -310,7 +319,7 @@ public class DatabaseContentProvider extends ContentProvider {
 				MyHashMap<String, RouteConfig> mapping,
 				boolean wipe, HashSet<String> sharedStops, UpdateAsyncTask task)
 						throws IOException, RemoteException, OperationApplicationException
-						{
+		{
 			ArrayList<ContentProviderOperation> operations = 
 					new ArrayList<ContentProviderOperation>();
 			if (wipe)
@@ -422,21 +431,31 @@ public class DatabaseContentProvider extends ContentProvider {
 		public static ArrayList<String> getAllStopTagsAtLocation(ContentResolver resolver, 
 				String stopTag)
 		{
-			Cursor cursor = resolver.query(STOPS_STOPS_URI, 
-					new String[]{"s2." + stopTagKey}, "s1." + stopTagKey + " = ? AND s1." + latitudeKey + " = s2." + latitudeKey +
-					" AND s1." + longitudeKey + " = s2." + longitudeKey + "", new String[]{stopTag}, null);
-
-			ArrayList<String> ret = new ArrayList<String>();
-			cursor.moveToFirst();
-			while (cursor.isAfterLast() == false)
+			Cursor cursor = null;
+			try
 			{
-				String tag = cursor.getString(0);
-				ret.add(tag);
+				cursor = resolver.query(STOPS_STOPS_URI, 
+						new String[]{"s2." + stopTagKey}, "s1." + stopTagKey + " = ? AND s1." + latitudeKey + " = s2." + latitudeKey +
+						" AND s1." + longitudeKey + " = s2." + longitudeKey + "", new String[]{stopTag}, null);
 
-				cursor.moveToNext();
+				ArrayList<String> ret = new ArrayList<String>();
+				cursor.moveToFirst();
+				while (cursor.isAfterLast() == false)
+				{
+					String tag = cursor.getString(0);
+					ret.add(tag);
+
+					cursor.moveToNext();
+				}
+
+				return ret;
 			}
-
-			return ret;
+			finally
+			{
+				if (cursor != null) {
+					cursor.close();
+				}
+			}
 		}
 
 		private static void storeFavorite(ContentResolver resolver, ArrayList<String> stopTags) throws RemoteException, OperationApplicationException
@@ -482,24 +501,34 @@ public class DatabaseContentProvider extends ContentProvider {
 			//get the route-specific information, like the path outline and the color
 			RouteConfig routeConfig;
 			{
-				Cursor cursor = resolver.query(ROUTES_URI, new String[]{colorKey, oppositeColorKey, pathsBlobKey, routeTitleKey}, routeKey + "=?",
-						new String[]{routeToUpdate}, null);
-				if (cursor.getCount() == 0)
+				Cursor cursor = null;
+				try
 				{
-					return null;
+					cursor = resolver.query(ROUTES_URI, new String[]{colorKey, oppositeColorKey, pathsBlobKey, routeTitleKey}, routeKey + "=?",
+							new String[]{routeToUpdate}, null);
+					if (cursor.getCount() == 0)
+					{
+						return null;
+					}
+
+					cursor.moveToFirst();
+
+					TransitSource source = transitSystem.getTransitSource(routeToUpdate);
+
+					int color = cursor.getInt(0);
+					int oppositeColor = cursor.getInt(1);
+					byte[] pathsBlob = cursor.getBlob(2);
+					String routeTitle = cursor.getString(3);
+					Box pathsBlobBox = new Box(pathsBlob, CURRENT_DB_VERSION);
+
+					routeConfig = new RouteConfig(routeToUpdate, routeTitle, color, oppositeColor, source, pathsBlobBox);
 				}
-
-				cursor.moveToFirst();
-
-				TransitSource source = transitSystem.getTransitSource(routeToUpdate);
-
-				int color = cursor.getInt(0);
-				int oppositeColor = cursor.getInt(1);
-				byte[] pathsBlob = cursor.getBlob(2);
-				String routeTitle = cursor.getString(3);
-				Box pathsBlobBox = new Box(pathsBlob, CURRENT_DB_VERSION);
-
-				routeConfig = new RouteConfig(routeToUpdate, routeTitle, color, oppositeColor, source, pathsBlobBox);
+				finally
+				{
+					if (cursor != null) {
+						cursor.close();
+					}
+				}
 			}
 			{
 				//get all stops, joining in the subway stops, making sure that the stop references the route we're on
@@ -514,49 +543,59 @@ public class DatabaseContentProvider extends ContentProvider {
 				String select = "sm1." + routeKey + "=?";
 				String[] selectArray = new String[]{routeToUpdate};
 
-				Cursor cursor = resolver.query(STOPS_LOOKUP_URI, projectionIn, select, selectArray, null);
-
-
-				cursor.moveToFirst();
-				while (cursor.isAfterLast() == false)
+				Cursor cursor = null;
+				try
 				{
-					String stopTag = cursor.getString(0);
-					String dirTag = cursor.getString(6);
-					String route = cursor.getString(7);
+					cursor = resolver.query(STOPS_LOOKUP_URI, projectionIn, select, selectArray, null);
 
-					//we need to ensure this stop is in the sharedstops and the route
-					StopLocation stop = sharedStops.get(stopTag);
-					if (stop != null)
+
+					cursor.moveToFirst();
+					while (cursor.isAfterLast() == false)
 					{
-						//make sure it exists in the route too
-						StopLocation stopInRoute = routeConfig.getStop(stopTag);
-						if (stopInRoute == null)
+						String stopTag = cursor.getString(0);
+						String dirTag = cursor.getString(6);
+						String route = cursor.getString(7);
+
+						//we need to ensure this stop is in the sharedstops and the route
+						StopLocation stop = sharedStops.get(stopTag);
+						if (stop != null)
 						{
-							routeConfig.addStop(stopTag, stop);
+							//make sure it exists in the route too
+							StopLocation stopInRoute = routeConfig.getStop(stopTag);
+							if (stopInRoute == null)
+							{
+								routeConfig.addStop(stopTag, stop);
+							}
+							stop.addRouteAndDirTag(route, dirTag);
 						}
-						stop.addRouteAndDirTag(route, dirTag);
-					}
-					else
-					{
-						stop = routeConfig.getStop(stopTag);
-
-						if (stop == null)
+						else
 						{
-							float latitude = cursor.getFloat(1);
-							float longitude = cursor.getFloat(2);
-							String stopTitle = cursor.getString(3);
-							String branch = cursor.getString(5);
+							stop = routeConfig.getStop(stopTag);
 
-							int platformOrder = cursor.getInt(4);
+							if (stop == null)
+							{
+								float latitude = cursor.getFloat(1);
+								float longitude = cursor.getFloat(2);
+								String stopTitle = cursor.getString(3);
+								String branch = cursor.getString(5);
 
-							stop = transitSystem.createStop(latitude, longitude, stopTag, stopTitle, platformOrder, branch, route, dirTag);
+								int platformOrder = cursor.getInt(4);
 
-							routeConfig.addStop(stopTag, stop);
+								stop = transitSystem.createStop(latitude, longitude, stopTag, stopTitle, platformOrder, branch, route, dirTag);
+
+								routeConfig.addStop(stopTag, stop);
+							}
+
+							sharedStops.put(stopTag, stop);
 						}
-
-						sharedStops.put(stopTag, stop);
+						cursor.moveToNext();
 					}
-					cursor.moveToNext();
+				}
+				finally
+				{
+					if (cursor != null) {
+						cursor.close();
+					}
 				}
 			}
 
@@ -566,26 +605,36 @@ public class DatabaseContentProvider extends ContentProvider {
 		public static ArrayList<String> routeInfoNeedsUpdating(ContentResolver resolver, 
 				String[] supportedRoutes) {
 			HashSet<String> routesInDB = new HashSet<String>();
-			Cursor cursor = resolver.query(ROUTES_URI, new String[]{routeKey}, null, null, null);
-			cursor.moveToFirst();
-			while (cursor.isAfterLast() == false)
+			Cursor cursor = null;
+			try
 			{
-				routesInDB.add(cursor.getString(0));
-
-				cursor.moveToNext();
-			}
-
-			ArrayList<String> routesThatNeedUpdating = new ArrayList<String>();
-
-			for (String route : supportedRoutes)
-			{
-				if (routesInDB.contains(route) == false)
+				cursor = resolver.query(ROUTES_URI, new String[]{routeKey}, null, null, null);
+				cursor.moveToFirst();
+				while (cursor.isAfterLast() == false)
 				{
-					routesThatNeedUpdating.add(route);
+					routesInDB.add(cursor.getString(0));
+
+					cursor.moveToNext();
+				}
+
+				ArrayList<String> routesThatNeedUpdating = new ArrayList<String>();
+
+				for (String route : supportedRoutes)
+				{
+					if (routesInDB.contains(route) == false)
+					{
+						routesThatNeedUpdating.add(route);
+					}
+				}
+
+				return routesThatNeedUpdating;
+			}
+			finally
+			{
+				if (cursor != null) {
+					cursor.close();
 				}
 			}
-
-			return routesThatNeedUpdating;
 		}
 
 		/**
@@ -597,24 +646,32 @@ public class DatabaseContentProvider extends ContentProvider {
 		 * @param titles
 		 */
 		public static void refreshDirections(ContentResolver resolver, ConcurrentHashMap<String, Direction> directions) {
-			Cursor cursor = resolver.query(DIRECTIONS_URI, new String[]{dirTagKey, dirNameKey, dirTitleKey, dirRouteKey, dirUseAsUIKey},
-					null, null, null);
-			cursor.moveToFirst();
-			while (cursor.isAfterLast() == false)
+			Cursor cursor = null;
+			try
 			{
-				String dirTag = cursor.getString(0);
-				String dirName = cursor.getString(1);
-				String dirTitle = cursor.getString(2);
-				String dirRoute = cursor.getString(3);
-				boolean dirUseAsUI = cursor.getInt(4) == INT_TRUE;
+				cursor = resolver.query(DIRECTIONS_URI, new String[]{dirTagKey, dirNameKey, dirTitleKey, dirRouteKey, dirUseAsUIKey},
+						null, null, null);
+				cursor.moveToFirst();
+				while (cursor.isAfterLast() == false)
+				{
+					String dirTag = cursor.getString(0);
+					String dirName = cursor.getString(1);
+					String dirTitle = cursor.getString(2);
+					String dirRoute = cursor.getString(3);
+					boolean dirUseAsUI = cursor.getInt(4) == INT_TRUE;
 
-				Direction direction = new Direction(dirName, dirTitle, dirRoute, dirUseAsUI);
-				directions.put(dirTag, direction);
+					Direction direction = new Direction(dirName, dirTitle, dirRoute, dirUseAsUI);
+					directions.put(dirTag, direction);
 
-				cursor.moveToNext();
+					cursor.moveToNext();
+				}
 			}
-
-			cursor.close();
+			finally
+			{
+				if (cursor != null) {
+					cursor.close();
+				}
+			}
 		}
 
 		public static void writeDirections(ContentResolver resolver, boolean wipe, ConcurrentHashMap<String, Direction> directions) throws RemoteException, OperationApplicationException {
@@ -688,21 +745,31 @@ public class DatabaseContentProvider extends ContentProvider {
 				return;
 			}
 
-			Cursor cursor = resolver.query(ROUTES_URI, new String[]{routeTitleKey, routeKey}, routeTitleKey + " LIKE ?",
-					new String[]{"%" + search + "%"}, routeTitleKey);
-			if (cursor.moveToFirst() == false)
+			Cursor cursor = null;
+			try
 			{
-				return;
+				cursor = resolver.query(ROUTES_URI, new String[]{routeTitleKey, routeKey}, routeTitleKey + " LIKE ?",
+						new String[]{"%" + search + "%"}, routeTitleKey);
+				if (cursor.moveToFirst() == false)
+				{
+					return;
+				}
+
+				while (!cursor.isAfterLast())
+				{
+					String routeTitle = cursor.getString(0);
+					String routeKey = cursor.getString(1);
+
+					ret.addRow(new Object[]{ret.getCount(), routeTitle, "route " + routeKey, "Route"});
+
+					cursor.moveToNext();
+				}
 			}
-
-			while (!cursor.isAfterLast())
+			finally
 			{
-				String routeTitle = cursor.getString(0);
-				String routeKey = cursor.getString(1);
-
-				ret.addRow(new Object[]{ret.getCount(), routeTitle, "route " + routeKey, "Route"});
-
-				cursor.moveToNext();
+				if (cursor != null) {
+					cursor.close();
+				}
 			}
 		}
 
@@ -718,66 +785,76 @@ public class DatabaseContentProvider extends ContentProvider {
 			String select = thisStopTitleKey + " LIKE ?";
 			String[] selectArray = new String[]{"%" + search + "%"};
 
-			Cursor cursor = resolver.query(STOPS_LOOKUP_2_URI, 
-					projectionIn, select, selectArray, null);
-
-			if (cursor.moveToFirst() == false)
+			Cursor cursor = null;
+			try
 			{
-				return;
-			}
+				cursor = resolver.query(STOPS_LOOKUP_2_URI, 
+						projectionIn, select, selectArray, null);
 
-			int count = 0;
-			String prevStopTag = null;
-			String prevStopTitle = null;
-			StringBuilder routes = new StringBuilder();
-			int routeCount = 0;
-			while (!cursor.isAfterLast())
-			{
-				String stopTitle = cursor.getString(0);
-				String stopTag = cursor.getString(1);
-				String routeTitle = cursor.getString(2);
-
-				if (prevStopTag == null)
+				if (cursor.moveToFirst() == false)
 				{
-					// do nothing, first row
-					prevStopTag = stopTag;
-					prevStopTitle = stopTitle;
-					routeCount++;
-					routes.append(routeTitle);
+					return;
 				}
-				else if (!prevStopTag.equals(stopTag))
+
+				int count = 0;
+				String prevStopTag = null;
+				String prevStopTitle = null;
+				StringBuilder routes = new StringBuilder();
+				int routeCount = 0;
+				while (!cursor.isAfterLast())
 				{
-					// change in row. write out this row
+					String stopTitle = cursor.getString(0);
+					String stopTag = cursor.getString(1);
+					String routeTitle = cursor.getString(2);
+
+					if (prevStopTag == null)
+					{
+						// do nothing, first row
+						prevStopTag = stopTag;
+						prevStopTitle = stopTitle;
+						routeCount++;
+						routes.append(routeTitle);
+					}
+					else if (!prevStopTag.equals(stopTag))
+					{
+						// change in row. write out this row
+						String routeString = routeCount == 0 ? "Stop" 
+								: routeCount == 1 ? ("Stop on route " + routes.toString())
+										: ("Stop on routes " + routes);
+								ret.addRow(new Object[]{count, prevStopTitle, "stop " + prevStopTag, routeString});
+								prevStopTag = stopTag;
+								prevStopTitle = stopTitle;
+								routeCount = 1;
+								routes.setLength(0);
+								routes.append(routeTitle);
+					}
+					else
+					{
+						// just add a new route
+						routes.append(", ");
+						routes.append(routeTitle);
+						routeCount++;
+					}
+
+
+					cursor.moveToNext();
+					count++;
+				}
+
+				if (prevStopTag != null)
+				{
+					// at least one row
 					String routeString = routeCount == 0 ? "Stop" 
 							: routeCount == 1 ? ("Stop on route " + routes.toString())
 									: ("Stop on routes " + routes);
 							ret.addRow(new Object[]{count, prevStopTitle, "stop " + prevStopTag, routeString});
-							prevStopTag = stopTag;
-							prevStopTitle = stopTitle;
-							routeCount = 1;
-							routes.setLength(0);
-							routes.append(routeTitle);
 				}
-				else
-				{
-					// just add a new route
-					routes.append(", ");
-					routes.append(routeTitle);
-					routeCount++;
-				}
-
-
-				cursor.moveToNext();
-				count++;
 			}
-
-			if (prevStopTag != null)
+			finally
 			{
-				// at least one row
-				String routeString = routeCount == 0 ? "Stop" 
-						: routeCount == 1 ? ("Stop on route " + routes.toString())
-								: ("Stop on routes " + routes);
-						ret.addRow(new Object[]{count, prevStopTitle, "stop " + prevStopTag, routeString});
+				if (cursor != null) {
+					cursor.close();
+				}
 			}
 		}
 		
@@ -798,41 +875,41 @@ public class DatabaseContentProvider extends ContentProvider {
 			int currentLatAsInt = (int)(currentLat * Constants.E6);
 			int currentLonAsInt = (int)(currentLon * Constants.E6);
 			Uri uri = appendUris(STOPS_WITH_DISTANCE_URI, currentLatAsInt, currentLonAsInt, limit);
-			Cursor cursor = resolver.query(uri, projectionIn, null, null, distanceKey);
-			if (cursor.moveToFirst() == false)
+
+			Cursor cursor = null;
+			try
 			{
-				return new ArrayList<StopLocation>();
-			}
+				cursor = resolver.query(uri, projectionIn, null, null, distanceKey);
+				if (cursor.moveToFirst() == false)
+				{
+					return new ArrayList<StopLocation>();
+				}
 
-			ArrayList<String> stopTags = new ArrayList<String>();
-			while (!cursor.isAfterLast())
+				ArrayList<String> stopTags = new ArrayList<String>();
+				while (!cursor.isAfterLast())
+				{
+					String id = cursor.getString(0);
+					stopTags.add(id);
+
+					cursor.moveToNext();
+				}
+
+				getStops(resolver, stopTags, transitSystem, sharedStops);
+
+				ArrayList<StopLocation> ret = new ArrayList<StopLocation>();
+				for (String stopTag : stopTags)
+				{
+					ret.add(sharedStops.get(stopTag));
+				}
+
+				return ret;
+			}
+			finally
 			{
-				String id = cursor.getString(0);
-				stopTags.add(id);
-
-				cursor.moveToNext();
+				if (cursor != null) {
+					cursor.close();
+				}
 			}
-
-			getStops(resolver, stopTags, transitSystem, sharedStops);
-
-			ArrayList<StopLocation> ret = new ArrayList<StopLocation>();
-			for (String stopTag : stopTags)
-			{
-				ret.add(sharedStops.get(stopTag));
-			}
-
-			return ret;
-		}
-
-		public static Cursor getCursorForDirection(ContentResolver resolver, String dirTag) {
-			return resolver.query(DIRECTIONS_URI, new String[]{dirTagKey, dirTitleKey, dirRouteKey}, dirTagKey + "=?", 
-					new String[]{dirTag}, null);
-
-		}
-
-		public static Cursor getCursorForDirections(ContentResolver resolver) {
-			return resolver.query(DIRECTIONS_URI, new String[]{dirTagKey, dirTitleKey, dirRouteKey}, null, 
-					null, null);
 		}
 
 		public static StopLocation getStopByTagOrTitle(ContentResolver resolver, 
@@ -851,37 +928,46 @@ public class DatabaseContentProvider extends ContentProvider {
 			select = new StringBuilder(verboseStops + "." + stopTagKey + "=? OR " + verboseStops + "." + stopTitleKey + "=?");
 			selectArray = new String[]{tagQuery, titleQuery};
 
-			Cursor stopCursor = resolver.query(STOPS_LOOKUP_3_URI, projectionIn, select.toString(), selectArray, null);
-
-			stopCursor.moveToFirst();
-
-			if (stopCursor.isAfterLast() == false)
+			Cursor stopCursor = null;
+			try
 			{
-				String stopTag = stopCursor.getString(0);
+				stopCursor = resolver.query(STOPS_LOOKUP_3_URI, projectionIn, select.toString(), selectArray, null);
 
-				String route = stopCursor.getString(6);
-				String dirTag = stopCursor.getString(7);
+				stopCursor.moveToFirst();
 
-				float lat = stopCursor.getFloat(1);
-				float lon = stopCursor.getFloat(2);
-				String title = stopCursor.getString(3);
-
-				int platformOrder = 0;
-				String branch = null;
-				if (stopCursor.isNull(4) == false)
+				if (stopCursor.isAfterLast() == false)
 				{
-					platformOrder = stopCursor.getInt(4);
-					branch = stopCursor.getString(5);
+					String stopTag = stopCursor.getString(0);
+
+					String route = stopCursor.getString(6);
+					String dirTag = stopCursor.getString(7);
+
+					float lat = stopCursor.getFloat(1);
+					float lon = stopCursor.getFloat(2);
+					String title = stopCursor.getString(3);
+
+					int platformOrder = 0;
+					String branch = null;
+					if (stopCursor.isNull(4) == false)
+					{
+						platformOrder = stopCursor.getInt(4);
+						branch = stopCursor.getString(5);
+					}
+
+					StopLocation stop = transitSystem.createStop(lat, lon, stopTag, title, platformOrder, branch, route, dirTag);
+					return stop;
 				}
-
-				StopLocation stop = transitSystem.createStop(lat, lon, stopTag, title, platformOrder, branch, route, dirTag);
-				return stop;
+				else
+				{
+					return null;
+				}
 			}
-			else
+			finally
 			{
-				return null;
+				if (stopCursor != null) {
+					stopCursor.close();
+				}
 			}
-
 		}
 
 		/**
@@ -937,43 +1023,53 @@ public class DatabaseContentProvider extends ContentProvider {
 				//Log.v("BostonBusMap", select.toString());
 			}
 
-			Cursor stopCursor = resolver.query(STOPS_LOOKUP_3_URI, projectionIn, select.toString(), selectArray, null);
-
-			stopCursor.moveToFirst();
-
-			//iterate through the stops in the database and create new ones if necessary
-			//stops will be repeated if they are on multiple routes. If so, just skip to the bottom and add the route and dirTag
-			while (stopCursor.isAfterLast() == false)
+			Cursor stopCursor = null;
+			try
 			{
-				String stopTag = stopCursor.getString(0);
+				stopCursor = resolver.query(STOPS_LOOKUP_3_URI, projectionIn, select.toString(), selectArray, null);
 
-				String route = stopCursor.getString(6);
-				String dirTag = stopCursor.getString(7);
+				stopCursor.moveToFirst();
 
-				StopLocation stop = outputMapping.get(stopTag);
-				if (stop == null)
+				//iterate through the stops in the database and create new ones if necessary
+				//stops will be repeated if they are on multiple routes. If so, just skip to the bottom and add the route and dirTag
+				while (stopCursor.isAfterLast() == false)
 				{
-					float lat = stopCursor.getFloat(1);
-					float lon = stopCursor.getFloat(2);
-					String title = stopCursor.getString(3);
+					String stopTag = stopCursor.getString(0);
 
-					int platformOrder = 0;
-					String branch = null;
-					if (stopCursor.isNull(4) == false)
+					String route = stopCursor.getString(6);
+					String dirTag = stopCursor.getString(7);
+
+					StopLocation stop = outputMapping.get(stopTag);
+					if (stop == null)
 					{
-						platformOrder = stopCursor.getInt(4);
-						branch = stopCursor.getString(5);
+						float lat = stopCursor.getFloat(1);
+						float lon = stopCursor.getFloat(2);
+						String title = stopCursor.getString(3);
+
+						int platformOrder = 0;
+						String branch = null;
+						if (stopCursor.isNull(4) == false)
+						{
+							platformOrder = stopCursor.getInt(4);
+							branch = stopCursor.getString(5);
+						}
+
+						stop = transitSystem.createStop(lat, lon, stopTag, title, platformOrder, branch, route, dirTag);
+						outputMapping.put(stopTag, stop);
+					}
+					else
+					{
+						stop.addRouteAndDirTag(route, dirTag);
 					}
 
-					stop = transitSystem.createStop(lat, lon, stopTag, title, platformOrder, branch, route, dirTag);
-					outputMapping.put(stopTag, stop);
+					stopCursor.moveToNext();
 				}
-				else
-				{
-					stop.addRouteAndDirTag(route, dirTag);
+			}
+			finally
+			{
+				if (stopCursor != null) {
+					stopCursor.close();
 				}
-
-				stopCursor.moveToNext();
 			}
 		}
 
@@ -990,62 +1086,92 @@ public class DatabaseContentProvider extends ContentProvider {
 			select = new StringBuilder(verboseStops + "." + dirTagKey + "=?");
 			selectArray = new String[]{dirTag};
 
-			Cursor stopCursor = resolver.query(STOPS_LOOKUP_3_URI, projectionIn, select.toString(), selectArray, null);
-
-			stopCursor.moveToFirst();
-			while (stopCursor.isAfterLast() == false)
+			Cursor stopCursor = null;
+			try
 			{
-				String stopTag = stopCursor.getString(0);
+				stopCursor = resolver.query(STOPS_LOOKUP_3_URI, projectionIn, select.toString(), selectArray, null);
 
-				String route = stopCursor.getString(6);
-
-				float lat = stopCursor.getFloat(1);
-				float lon = stopCursor.getFloat(2);
-				String title = stopCursor.getString(3);
-
-				int platformOrder = 0;
-				String branch = null;
-				if (stopCursor.isNull(4) == false)
+				stopCursor.moveToFirst();
+				while (stopCursor.isAfterLast() == false)
 				{
-					platformOrder = stopCursor.getInt(4);
-					branch = stopCursor.getString(5);
-				}
+					String stopTag = stopCursor.getString(0);
 
-				StopLocation stop = transitSystem.createStop(lat, lon, stopTag, title, platformOrder, branch, route, dirTag);
-				ret.add(stop);
-				stopCursor.moveToNext();
+					String route = stopCursor.getString(6);
+
+					float lat = stopCursor.getFloat(1);
+					float lon = stopCursor.getFloat(2);
+					String title = stopCursor.getString(3);
+
+					int platformOrder = 0;
+					String branch = null;
+					if (stopCursor.isNull(4) == false)
+					{
+						platformOrder = stopCursor.getInt(4);
+						branch = stopCursor.getString(5);
+					}
+
+					StopLocation stop = transitSystem.createStop(lat, lon, stopTag, title, platformOrder, branch, route, dirTag);
+					ret.add(stop);
+					stopCursor.moveToNext();
+				}
+				return ret;
 			}
-			return ret;
+			finally
+			{
+				if (stopCursor != null) {
+					stopCursor.close();
+				}
+			}
 		}
 
 		public static HashSet<String> getDirectionTagsForStop(ContentResolver resolver, 
 				String stopTag) {
 			HashSet<String> ret = new HashSet<String>();
-			Cursor cursor = resolver.query(DIRECTIONS_STOPS_URI, new String[] {dirTagKey},
-					stopTagKey + " = ?", new String[] {stopTag}, null);
+			Cursor cursor = null;
+			try
+			{
+				cursor = resolver.query(DIRECTIONS_STOPS_URI, new String[] {dirTagKey},
+						stopTagKey + " = ?", new String[] {stopTag}, null);
 
-			cursor.moveToFirst();
-			while (cursor.isAfterLast() == false) {
-				String dirTag = cursor.getString(0);
-				ret.add(dirTag);
-				cursor.moveToNext();
+				cursor.moveToFirst();
+				while (cursor.isAfterLast() == false) {
+					String dirTag = cursor.getString(0);
+					ret.add(dirTag);
+					cursor.moveToNext();
+				}
+				return ret;
 			}
-			return ret;
+			finally
+			{
+				if (cursor != null) {
+					cursor.close();
+				}
+			}
 		}
 
 		public static HashSet<String> getStopTagsForDirTag(ContentResolver resolver,
 				String dirTag) {
 			HashSet<String> ret = new HashSet<String>();
-			Cursor cursor = resolver.query(DIRECTIONS_STOPS_URI, new String[] {stopTagKey},
-					dirTagKey + " = ?", new String[] {dirTag}, null);
+			Cursor cursor = null;
+			try
+			{
+				cursor = resolver.query(DIRECTIONS_STOPS_URI, new String[] {stopTagKey},
+						dirTagKey + " = ?", new String[] {dirTag}, null);
 
-			cursor.moveToFirst();
-			while (cursor.isAfterLast() == false) {
-				String stopTag = cursor.getString(0);
-				ret.add(stopTag);
-				cursor.moveToNext();
+				cursor.moveToFirst();
+				while (cursor.isAfterLast() == false) {
+					String stopTag = cursor.getString(0);
+					ret.add(stopTag);
+					cursor.moveToNext();
+				}
+				return ret;
 			}
-			return ret;
+			finally
+			{
+				if (cursor != null) {
+					cursor.close();
+				}
+			}
 		}
 
 	}
