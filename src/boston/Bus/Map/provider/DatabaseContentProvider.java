@@ -1065,7 +1065,7 @@ public class DatabaseContentProvider extends ContentProvider {
 		uriMatcher.addURI(AUTHORITY, "directions_stops", DIRECTIONS_STOPS);
 		uriMatcher.addURI(AUTHORITY, "stops_lookup_2", STOPS_LOOKUP_2);
 		uriMatcher.addURI(AUTHORITY, "stops_lookup_3", STOPS_LOOKUP_3);
-		uriMatcher.addURI(AUTHORITY, "stops_with_distance/#/#/#", STOPS_WITH_DISTANCE);
+		uriMatcher.addURI(AUTHORITY, "stops_with_distance/*/*/#", STOPS_WITH_DISTANCE);
 		uriMatcher.addURI(AUTHORITY, "favorite_with_same_location", FAVORITES_WITH_SAME_LOCATION);
 	}
 
