@@ -21,6 +21,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.FrameLayout.LayoutParams;
@@ -69,17 +70,28 @@ public class BusPopupView extends BalloonOverlayView<BusOverlayItem>
 
 	@Override
 	protected void setupView(final Context context, ViewGroup parent) {
-		View layoutView = parent;
+		// NOTE: constructor has not been called yet
+		LayoutInflater inflater = (LayoutInflater) context
+				.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+		RelativeLayout layoutView = (RelativeLayout)inflater.inflate(R.layout.balloon_overlay, parent);
+		layoutView.setBackgroundResource(R.drawable.tooltip);
+		title = (TextView) layoutView.findViewById(R.id.balloon_item_title);
+		snippet = (TextView) layoutView.findViewById(R.id.balloon_item_snippet);
+
 		favorite = (ImageView) layoutView.findViewById(R.id.balloon_item_favorite);
+		favorite.setBackgroundResource(R.drawable.empty_star);
 
 		moreInfo = (TextView) layoutView.findViewById(R.id.balloon_item_moreinfo);
 		moreInfoText = Html.fromHtml("\n<a href='com.bostonbusmap://moreinfo'>More info</a>\n");
+		moreInfo.setText(R.string.moreinfo);
 		
 		reportProblem = (TextView) layoutView.findViewById(R.id.balloon_item_report);
 		reportProblemText = Html.fromHtml("\n<a href='com.bostonbusmap://reportproblem'>Report<br/>Problem</a>\n");
+		reportProblem.setText(R.string.reportproblem);
 		
 		alertsTextView = (TextView) layoutView.findViewById(R.id.balloon_item_alerts);
 		alertsTextView.setVisibility(View.GONE);
+		alertsTextView.setText(R.string.noalerts);
 		noAlertsText = Html.fromHtml("<font color='grey'>No alerts</font>");
 		
 		favorite.setOnClickListener(new OnClickListener() {
