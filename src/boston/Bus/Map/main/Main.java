@@ -313,10 +313,6 @@ public class Main extends MapActivity
         	routeChooserDialog = builder.create();
         }
 		
-		DisplayMetrics metrics = new DisplayMetrics();
-		getWindowManager().getDefaultDisplay().getMetrics(metrics);
-		float density = metrics.density;
-		
         //get the busLocations variable if it already exists. We need to do that step here since handler
         long lastUpdateTime = 0;
         int previousUpdateConstantlyInterval = UPDATE_INTERVAL_NONE;
@@ -333,7 +329,7 @@ public class Main extends MapActivity
         	CurrentState currentState = (CurrentState)lastNonConfigurationInstance;
         	currentState.restoreWidgets();
         	
-        	busOverlay = currentState.cloneBusOverlay(this, mapView, dropdownRouteKeysToTitles, density);
+        	busOverlay = currentState.cloneBusOverlay(this, mapView, dropdownRouteKeysToTitles);
         	routeOverlay = currentState.cloneRouteOverlay(mapView.getProjection());
         	myLocationOverlay = new LocationOverlay(this, mapView, handler);
         	
@@ -374,7 +370,7 @@ public class Main extends MapActivity
         }
         else
         {
-        	busOverlay = new BusOverlay(busPicture, this, mapView, dropdownRouteKeysToTitles, density);
+        	busOverlay = new BusOverlay(busPicture, this, mapView, dropdownRouteKeysToTitles);
         	routeOverlay = new RouteOverlay(mapView.getProjection());
         	myLocationOverlay = new LocationOverlay(this, mapView, handler);
         	

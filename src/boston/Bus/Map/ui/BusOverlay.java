@@ -70,7 +70,6 @@ public class BusOverlay extends BalloonItemizedOverlay<BusOverlayItem> {
 	private final Paint paint;
 	
 	private final MyHashMap<String, String> routeKeysToTitles;
-	private final float density;
 	
 	//these two are temporary variables stored here so we don't create a new Point every time we draw
 	private final Point circleCenter = new Point();
@@ -78,9 +77,9 @@ public class BusOverlay extends BalloonItemizedOverlay<BusOverlayItem> {
 	
 	private Locations locationsObj;
 	
-	public BusOverlay(BusOverlay busOverlay, Main context, MapView mapView, MyHashMap<String, String> routeKeysToTitles, float density)
+	public BusOverlay(BusOverlay busOverlay, Main context, MapView mapView, MyHashMap<String, String> routeKeysToTitles)
 	{
-		this(busOverlay.busPicture, context, mapView, routeKeysToTitles, density);
+		this(busOverlay.busPicture, context, mapView, routeKeysToTitles);
 		
 		this.drawHighlightCircle = busOverlay.drawHighlightCircle;
 		
@@ -102,7 +101,7 @@ public class BusOverlay extends BalloonItemizedOverlay<BusOverlayItem> {
 	}
 	
 	
-	public BusOverlay(Drawable busPicture, Main context, MapView mapView, MyHashMap<String, String> routeKeysToTitles, float density)
+	public BusOverlay(Drawable busPicture, Main context, MapView mapView, MyHashMap<String, String> routeKeysToTitles)
 	{
 		super(boundCenterBottom(busPicture), mapView);
 
@@ -117,8 +116,6 @@ public class BusOverlay extends BalloonItemizedOverlay<BusOverlayItem> {
 		paint.setStrokeWidth(2);
 		paint.setAntiAlias(true);
 		paint.setAlpha(0x70);
-
-		this.density = density;
 
 		//NOTE: remember to set updateable!
 		this.setOnFocusChangeListener(new OnFocusChangeListener() {
@@ -366,7 +363,7 @@ public class BusOverlay extends BalloonItemizedOverlay<BusOverlayItem> {
 	}
 	
 	@Override
-	protected boolean onTap(int index) {
+	public boolean onTap(int index) {
 		return onTap(index, true);
 	}
 	
@@ -381,10 +378,10 @@ public class BusOverlay extends BalloonItemizedOverlay<BusOverlayItem> {
 		}
 		else
 		{
-			BusOverlayItem item = currentFocussedItem;
+			BusOverlayItem item = getFocus();
 			item.setCurrentLocation(location);
 
-			BusPopupView view = (BusPopupView)balloonView;
+			BusPopupView view = (BusPopupView)getBalloonView();
 			boolean isVisible = location instanceof StopLocation;
 			view.setState(location.isFavorite(), isVisible, isVisible, location);
 			setFocus(item);
@@ -397,8 +394,7 @@ public class BusOverlay extends BalloonItemizedOverlay<BusOverlayItem> {
 
 
 	protected BalloonOverlayView<BusOverlayItem> createBalloonOverlayView() {
-		BusPopupView view = new BusPopupView(getMapView().getContext(), getBalloonBottomOffset(), locationsObj, routeKeysToTitles,
-				density);
+		BusPopupView view = new BusPopupView(getMapView().getContext(), getBalloonBottomOffset(), locationsObj, routeKeysToTitles);
 		return view;
 	}
 

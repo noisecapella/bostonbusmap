@@ -18,6 +18,7 @@ import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -51,19 +52,24 @@ public class BusPopupView extends BalloonOverlayView<BusOverlayItem>
 	private final Locations locations;
 	private final MyHashMap<String, String> routeKeysToTitles;
 	private Location location;
-	private final Spanned moreInfoText;
-	private final Spanned reportProblemText;
-	private final Spanned noAlertsText;
+	private Spanned moreInfoText;
+	private Spanned reportProblemText;
+	private Spanned noAlertsText;
 	private ArrayList<Alert> alertsList;
 	
 	public BusPopupView(final Context context, int balloonBottomOffset, Locations locations,
-			MyHashMap<String, String> routeKeysToTitles, float density)
+			MyHashMap<String, String> routeKeysToTitles)
 	{
-		super(context, balloonBottomOffset, density);
+		super(context, balloonBottomOffset);
 		
 		this.locations = locations;
 		this.routeKeysToTitles = routeKeysToTitles;
 		
+	}
+
+	@Override
+	protected void setupView(final Context context, ViewGroup parent) {
+		View layoutView = parent;
 		favorite = (ImageView) layoutView.findViewById(R.id.balloon_item_favorite);
 
 		moreInfo = (TextView) layoutView.findViewById(R.id.balloon_item_moreinfo);
@@ -184,14 +190,7 @@ public class BusPopupView extends BalloonOverlayView<BusOverlayItem>
 				
 			}
 		});
-
-		FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(
-				LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
-		params.gravity = Gravity.NO_GRAVITY;
-		addView(layout, params);
 	}
-
-	
 	
 	protected void createInfoForDeveloper(Context context, StringBuilder otherText, int selectedBusPredictions, String selectedRoute)
 	{
