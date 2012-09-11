@@ -107,4 +107,8 @@ public class UpdateArguments {
 		this.routeOverlay = null;
 		this.transitSystem = null;
 	}
+
+	public UpdateArguments cloneMe() {
+		return new UpdateArguments(progress, progressDialog, mapView, context, busOverlay, routeOverlay, myLocationOverlay, majorHandler, busLocations, transitSystem);
+	}
 }
