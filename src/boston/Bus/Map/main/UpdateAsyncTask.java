@@ -107,7 +107,6 @@ public class UpdateAsyncTask extends AsyncTask<Object, Object, Locations>
 	private final int selectedBusPredictions;
 	private final boolean showRouteLine;
 
-	private final int idToSelect;
 	private final UpdateArguments arguments;
 	
 	/*public UpdateAsyncTask(ProgressBar progress, MapView mapView, LocationOverlay locationOverlay,
@@ -119,7 +118,7 @@ public class UpdateAsyncTask extends AsyncTask<Object, Object, Locations>
 	public UpdateAsyncTask(UpdateArguments arguments, boolean doShowUnpredictable,
 			boolean doRefresh, int maxOverlays, boolean drawCircle, boolean inferBusRoutes,
 			String routeToUpdate, int selectedBusPredictions, boolean doInit,
-			boolean showRouteLine, int idToSelect)
+			boolean showRouteLine)
 	{
 		super();
 		
@@ -135,7 +134,6 @@ public class UpdateAsyncTask extends AsyncTask<Object, Object, Locations>
 		this.doInit = doInit;
 		this.showRouteLine = showRouteLine;
 		//this.uiHandler = new Handler();
-		this.idToSelect = idToSelect;
 	}
 	
 	/**
@@ -427,19 +425,6 @@ public class UpdateAsyncTask extends AsyncTask<Object, Object, Locations>
 		
 		final BusOverlay busOverlay = arguments.getBusOverlay();
 		//get currently selected location id, or -1 if nothing is selected
-		final int selectedBusId;
-		if (idToSelect != 0)
-		{
-			selectedBusId = idToSelect;
-		}
-		else if (busOverlay != null)
-		{
-			selectedBusId = busOverlay.getSelectedBusId();
-		}
-		else
-		{
-			selectedBusId = BusOverlay.NOT_SELECTED;
-		}
 		
 		busOverlay.setDrawHighlightCircle(drawCircle);
 		
@@ -492,6 +477,7 @@ public class UpdateAsyncTask extends AsyncTask<Object, Object, Locations>
 		
 		//we need to run populate even if there are 0 busLocations. See this link:
 		//http://groups.google.com/group/android-beginners/browse_thread/thread/6d75c084681f943e?pli=1
+		final int selectedBusId = busOverlay != null ? busOverlay.getSelectedBusId() : BusOverlay.NOT_SELECTED;
 		busOverlay.clear();
 		
 		busOverlay.doPopulate();

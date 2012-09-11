@@ -122,12 +122,13 @@ public class UpdateHandler extends Handler {
 			//remove duplicate messages
 			removeMessages(MINOR);
 			
-			int idToSelect = msg.arg1;
+			if (msg.arg1 != 0) {
+				guiArguments.getBusOverlay().setSelectedBusId(msg.arg1);
+			}
 			minorUpdate = new UpdateAsyncTask(guiArguments, getShowUnpredictable(),
 					false, maxOverlays,
 					getHideHighlightCircle() == false, getInferBusRoutes(),
-					routeToUpdate, selectedBusPredictions, false, getShowRouteLine(), 
-					idToSelect);
+					routeToUpdate, selectedBusPredictions, false, getShowRouteLine());
 			
 
 			minorUpdate.runUpdate(guiArguments.getBusLocations(), 
@@ -183,8 +184,7 @@ public class UpdateHandler extends Handler {
 		
 		final UpdateAsyncTask updateAsyncTask = new UpdateAsyncTask(guiArguments, getShowUnpredictable(), true, maxOverlays,
 				getHideHighlightCircle() == false, getInferBusRoutes(),
-				routeToUpdate, selectedBusPredictions, isFirstTime, showRouteLine,
-				0);
+				routeToUpdate, selectedBusPredictions, isFirstTime, showRouteLine);
 		guiArguments.setMajorHandler(updateAsyncTask);
 		updateAsyncTask.runUpdate(guiArguments.getBusLocations(), centerLatitude, centerLongitude, guiArguments.getContext());
 		

@@ -45,6 +45,7 @@ import android.graphics.Point;
 import android.graphics.Paint.Style;
 import android.graphics.drawable.Drawable;
 import android.util.FloatMath;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View.OnClickListener;
 
@@ -314,7 +315,7 @@ public class BusOverlay extends BalloonItemizedOverlay<BusOverlayItem> {
 
 	public void refreshBalloons() {
 		
-		//Log.i("REFRESHBALLOONS", selectedBusIndex + " ");
+		Log.i("BostonBusMap", "refreshBalloons, selectedBusIndex: " + selectedBusIndex);
 		if (selectedBusIndex == NOT_SELECTED)
 		{
 			hideBalloon();
@@ -336,6 +337,7 @@ public class BusOverlay extends BalloonItemizedOverlay<BusOverlayItem> {
 
 				if (busLocation.containsId(selectedBusId))
 				{
+					Log.e("BostonBusMap", "selectedBusId was set to index " + i + ", id=" + selectedBusId);
 					selectedBusIndex = i;
 					break;
 				}
@@ -365,15 +367,13 @@ public class BusOverlay extends BalloonItemizedOverlay<BusOverlayItem> {
 	
 	@Override
 	protected boolean onTap(int index) {
-		boolean ret = super.onTap(index);
-
-		onTap(index, true);
-		return ret;
+		return onTap(index, true);
 	}
 	
-	
-	
-	private void onTap(int index, boolean triggerListener) {
+	private boolean onTap(int index, boolean triggerListener) {
+		Log.e("BostonBusMap", "onTap(" + index + ", " + triggerListener + ");");
+		boolean ret = super.onTap(index);
+
 		Location location = locations.get(index);
 		if (nextTapListener != null && triggerListener) {
 			nextTapListener.onClick(location);
@@ -387,8 +387,12 @@ public class BusOverlay extends BalloonItemizedOverlay<BusOverlayItem> {
 			BusPopupView view = (BusPopupView)balloonView;
 			boolean isVisible = location instanceof StopLocation;
 			view.setState(location.isFavorite(), isVisible, isVisible, location);
+			setFocus(item);
+			setLastFocusedIndex(index);
 		}
-		
+
+		Log.e("BostonBusMap", "end onTap");
+		return ret;
 	}
 
 
