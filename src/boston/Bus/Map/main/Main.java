@@ -847,7 +847,7 @@ public class Main extends MapActivity
 		int updateConstantlyInterval = getUpdateInterval(prefs);
 		
 		boolean progressVisibility = false;
-		if (arguments != null) {
+		if (arguments != null && arguments.getProgress() != null) {
 			progressVisibility = arguments.getProgress().getVisibility() == View.VISIBLE;
 		}
 		return new CurrentState(arguments, handler.getLastUpdateTime(), updateConstantlyInterval,
