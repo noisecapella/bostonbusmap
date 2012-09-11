@@ -1,35 +1,90 @@
 package boston.Bus.Map.provider;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 
+import boston.Bus.Map.data.Direction;
 import boston.Bus.Map.data.MyHashMap;
 import boston.Bus.Map.data.RouteConfig;
+import boston.Bus.Map.data.StopLocation;
+import boston.Bus.Map.data.SubwayStopLocation;
 import boston.Bus.Map.main.UpdateAsyncTask;
+import boston.Bus.Map.math.Geometry;
+import boston.Bus.Map.transit.TransitSource;
+import boston.Bus.Map.transit.TransitSystem;
+import boston.Bus.Map.ui.ProgressMessage;
+import boston.Bus.Map.util.Box;
+import boston.Bus.Map.util.Constants;
+import android.app.SearchManager;
 import android.content.ContentProvider;
 import android.content.ContentProviderOperation;
 import android.content.ContentResolver;
 import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Context;
+import android.content.OperationApplicationException;
 import android.content.UriMatcher;
 import android.database.Cursor;
+import android.database.MatrixCursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.database.sqlite.SQLiteQueryBuilder;
 import android.net.Uri;
+import android.os.RemoteException;
+import android.provider.BaseColumns;
 import android.util.Log;
 
 public class DatabaseContentProvider extends ContentProvider {
+	private static final UriMatcher uriMatcher;
 	private static final String AUTHORITY = "com.bostonbusmap.databaseprovider";
 
 	private static final String FAVORITES_TYPE = "vnd.android.cursor.dir/vnd.bostonbusmap.favorite";
 	private static final Uri FAVORITES_URI = Uri.parse("content://" + AUTHORITY + "/favorites");
-	private static final UriMatcher uriMatcher;
-
 	private static final int FAVORITES = 1;
+
+	private static final String STOPS_TYPE = "vnd.android.cursor.dir/vnd.bostonbusmap.stop";
+	private static final Uri STOPS_URI = Uri.parse("content://" + AUTHORITY + "/stops");
+	private static final int STOPS = 2;
+
+	private static final String ROUTES_TYPE = "vnd.android.cursor.dir/vnd.bostonbusmap.route";
+	private static final Uri ROUTES_URI = Uri.parse("content://" + AUTHORITY + "/routes");
+	private static final int ROUTES = 3;
+
+	private static final String STOPS_ROUTES_TYPE = "vnd.android.cursor.dir/vnd.bostonbusmap.stop_route";
+	private static final Uri STOPS_ROUTES_URI = Uri.parse("content://" + AUTHORITY + "/stops_routes");
+	private static final int STOPS_ROUTES = 4;
+
+	private static final String STOPS_STOPS_TYPE = "vnd.android.cursor.dir/vnd.bostonbusmap.stop_stop";
+	private static final Uri STOPS_STOPS_URI = Uri.parse("content://" + AUTHORITY + "/stops_stops");
+	private static final int STOPS_STOPS = 5;
+
+	private static final String STOPS_LOOKUP_TYPE = "vnd.android.cursor.dir/vnd.bostonbusmap.stop_lookup";
+	private static final Uri STOPS_LOOKUP_URI = Uri.parse("content://" + AUTHORITY + "/stops_lookup");
+	private static final int STOPS_LOOKUP = 6;
+
+	private static final String DIRECTIONS_TYPE = "vnd.android.cursor.dir/vnd.bostonbusmap.direction";
+	private static final Uri DIRECTIONS_URI = Uri.parse("content://" + AUTHORITY + "/directions");
+	private static final int DIRECTIONS = 7;
+
+	private static final String DIRECTIONS_STOPS_TYPE = "vnd.android.cursor.dir/vnd.bostonbusmap.direction_stop";
+	private static final Uri DIRECTIONS_STOPS_URI = Uri.parse("content://" + AUTHORITY + "/directions_stops");
+	private static final int DIRECTIONS_STOPS = 8;
+
+	private static final String STOPS_LOOKUP_2_TYPE = "vnd.android.cursor.dir/vnd.bostonbusmap.stop_lookup_2";
+	private static final Uri STOPS_LOOKUP_2_URI = Uri.parse("content://" + AUTHORITY + "/stops_lookup_2");
+	private static final int STOPS_LOOKUP_2 = 9;
+
+	private static final String STOPS_LOOKUP_3_TYPE = "vnd.android.cursor.dir/vnd.bostonbusmap.stop_lookup_3";
+	private static final Uri STOPS_LOOKUP_3_URI = Uri.parse("content://" + AUTHORITY + "/stops_lookup_3");
+	private static final int STOPS_LOOKUP_3 = 10;
+
+	private static final String STOPS_WITH_DISTANCE_TYPE = "vnd.android.cursor.dir/vnd.bostonbusmap.stop_with_distance";
+	private static final Uri STOPS_WITH_DISTANCE_URI = Uri.parse("content://" + AUTHORITY + "/stops_with_distance");
+	private static final int STOPS_WITH_DISTANCE = 11;
 
 	private final static String dbName = "bostonBusMap";
 
@@ -51,8 +106,6 @@ public class DatabaseContentProvider extends ContentProvider {
 	private final static String routesTable = "routes";
 	private final static String pathsTable = "paths";
 	private final static String blobsTable = "blobs";
-	private final static String oldFavoritesTable = "favs";
-	private final static String newFavoritesTable = "favs2";
 
 	private final static String verboseFavorites = "favorites";
 
@@ -76,6 +129,8 @@ public class DatabaseContentProvider extends ContentProvider {
 	private static final String dirTitleKey = "dirTitleKey";
 	private static final String dirRouteKey = "dirRouteKey";
 	private static final String dirUseAsUIKey = "useAsUI";
+	
+	private static final String distanceKey = "distance";
 
 	/**
 	 * The first version where we serialize as bytes, not necessarily the first db version
@@ -194,12 +249,6 @@ public class DatabaseContentProvider extends ContentProvider {
 				db.execSQL("DROP TABLE IF EXISTS " + stopsRoutesMap);
 			}
 
-			if (oldVersion < VERBOSE_DBV2_1)
-			{
-				db.execSQL("DROP TABLE IF EXISTS " + oldFavoritesTable);
-				db.execSQL("DROP TABLE IF EXISTS " + newFavoritesTable);
-			}
-
 			//if it's verboseFavorites, we want to save it since it's user specified data
 
 			onCreate(db);
@@ -241,19 +290,18 @@ public class DatabaseContentProvider extends ContentProvider {
 		public static void saveMapping(ContentResolver contentResolver, 
 				MyHashMap<String, RouteConfig> mapping,
 				boolean wipe, HashSet<String> sharedStops, UpdateAsyncTask task)
-						throws IOException
+						throws IOException, RemoteException, OperationApplicationException
 						{
-			ContentProviderOperation.newInsert(uri);
-			contentResolver.applyBatch(authority, operations);
+			ArrayList<ContentProviderOperation> operations = 
+					new ArrayList<ContentProviderOperation>();
 			if (wipe)
 			{
 				//database.delete(stopsTable, null, null);
 				//database.delete(directionsTable, null, null);
 				//database.delete(pathsTable, null, null);
 				//database.delete(blobsTable, null, null);
-
-				database.delete(verboseStops, null, null);
-				database.delete(verboseRoutes, null, null);
+				operations.add(ContentProviderOperation.newDelete(STOPS_URI).build());
+				operations.add(ContentProviderOperation.newDelete(ROUTES_URI).build());
 			}
 
 			int total = mapping.keySet().size();
@@ -266,16 +314,15 @@ public class DatabaseContentProvider extends ContentProvider {
 				if (routeConfig != null)
 				{
 					String routeTitle = routeConfig.getRouteTitle();
-					saveMappingKernel(database, route, routeTitle, routeConfig, sharedStops);
+					saveMappingKernel(operations, route, routeTitle, routeConfig, sharedStops);
 				}
 
 				count++;
 				task.publish(count);
 			}
 
-			database.setTransactionSuccessful();
-			database.endTransaction();
-				}
+			contentResolver.applyBatch(AUTHORITY, operations);
+		}
 
 		/**
 		 * 
@@ -285,7 +332,8 @@ public class DatabaseContentProvider extends ContentProvider {
 		 * @param useInsert insert all rows, don't replace them. I assume this is faster since there's no lookup involved
 		 * @throws IOException 
 		 */
-		private void saveMappingKernel(SQLiteDatabase database, String route, String routeTitle, RouteConfig routeConfig,
+		private static void saveMappingKernel(ArrayList<ContentProviderOperation> operations, 
+				String route, String routeTitle, RouteConfig routeConfig,
 				HashSet<String> sharedStops) throws IOException
 				{
 			Box serializedPath = new Box(null, CURRENT_DB_VERSION);
@@ -301,15 +349,11 @@ public class DatabaseContentProvider extends ContentProvider {
 				values.put(pathsBlobKey, serializedPathBlob);
 				values.put(colorKey, routeConfig.getColor());
 				values.put(oppositeColorKey, routeConfig.getOppositeColor());
-
-				database.replace(verboseRoutes, null, values);
+				operations.add(ContentProviderOperation.newInsert(ROUTES_URI).
+						withValues(values).build());
 			}
 
 			//add all stops associated with the route, if they don't already exist
-
-
-			database.delete(stopsRoutesMap, routeKey + "=?", new String[]{route});
-
 
 			for (StopLocation stop : routeConfig.getStops())
 			{
@@ -330,7 +374,7 @@ public class DatabaseContentProvider extends ContentProvider {
 						values.put(longitudeKey, stop.getLongitudeAsDegrees());
 						values.put(stopTitleKey, stop.getTitle());
 
-						database.replace(verboseStops, null, values);
+						operations.add(ContentProviderOperation.newInsert(STOPS_URI).withValues(values).build());
 					}
 
 					if (stop instanceof SubwayStopLocation)
@@ -341,7 +385,7 @@ public class DatabaseContentProvider extends ContentProvider {
 						values.put(platformOrderKey, subwayStop.getPlatformOrder());
 						values.put(branchKey, subwayStop.getBranch());
 
-						database.replace(subwaySpecificTable, null, values);
+						operations.add(ContentProviderOperation.newInsert(STOPS_URI).withValues(values).build());
 					}
 				}
 
@@ -351,185 +395,115 @@ public class DatabaseContentProvider extends ContentProvider {
 					values.put(routeKey, route);
 					values.put(stopTagKey, stopTag);
 					values.put(dirTagKey, stop.getDirTagForRoute(route));
-					database.replace(stopsRoutesMap, null, values);
+					operations.add(ContentProviderOperation.newInsert(STOPS_ROUTES_URI).withValues(values).build());
 				}
-			}
-				}
-
-		public synchronized boolean checkFreeSpace() {
-			SQLiteDatabase database = getReadableDatabase();
-			try
-			{
-				String path = database.getPath();
-
-				StatFs statFs = new StatFs(path);
-				long freeSpace = (long)statFs.getAvailableBlocks() * (long)statFs.getBlockSize(); 
-
-				Log.v("BostonBusMap", "free database space: " + freeSpace);
-				return freeSpace >= 1024 * 1024 * 4;
-			}
-			catch (Exception e)
-			{
-				//if for some reason we don't have permission to check free space available, just hope that everything's ok
-				return true;
 			}
 		}
 
-
-		public synchronized ArrayList<String> getAllStopTagsAtLocation(String stopTag)
+		public static ArrayList<String> getAllStopTagsAtLocation(ContentResolver resolver, 
+				String stopTag)
 		{
-			SQLiteDatabase database = getReadableDatabase();
-			Cursor cursor = null;
-			try
+			Cursor cursor = resolver.query(STOPS_STOPS_URI, 
+					new String[]{"s2." + stopTagKey}, "s1." + stopTagKey + " = ? AND s1." + latitudeKey + " = s2." + latitudeKey +
+					" AND s1." + longitudeKey + " = s2." + longitudeKey + "", new String[]{stopTag}, null);
+
+			ArrayList<String> ret = new ArrayList<String>();
+			cursor.moveToFirst();
+			while (cursor.isAfterLast() == false)
 			{
-				if (database.isOpen() == false)
-				{
-					Log.e("BostonBusMap", "SERIOUS ERROR: database didn't save data properly");
-					return null;
-				}
+				String tag = cursor.getString(0);
+				ret.add(tag);
 
-				SQLiteQueryBuilder builder = new SQLiteQueryBuilder();
-				builder.setTables(verboseStops + " as s1, " + verboseStops + " as s2");
-				cursor = builder.query(database, new String[] {"s2." + stopTagKey},
-						"s1." + stopTagKey + " = ? AND s1." + latitudeKey + " = s2." + latitudeKey +
-						" AND s1." + longitudeKey + " = s2." + longitudeKey + "", new String[]{stopTag}, null, null, null);
-
-				ArrayList<String> ret = new ArrayList<String>();
-				cursor.moveToFirst();
-				while (cursor.isAfterLast() == false)
-				{
-					String tag = cursor.getString(0);
-					ret.add(tag);
-
-					cursor.moveToNext();
-				}
-
-				return ret;
+				cursor.moveToNext();
 			}
-			finally
-			{
-				if (cursor != null)
-				{
-					cursor.close();
-				}
-			}
+
+			return ret;
 		}
 
-		private void storeFavorite(ArrayList<String> stopTags)
+		private static void storeFavorite(ContentResolver resolver, ArrayList<String> stopTags) throws RemoteException, OperationApplicationException
 		{
 			if (stopTags == null || stopTags.size() == 0)
 			{
 				return;
 			}
 
-			SQLiteDatabase database = getWritableDatabase();
-			database.beginTransaction();
+			ArrayList<ContentProviderOperation> operations = new ArrayList<ContentProviderOperation>();
 			for (String tag : stopTags)
 			{
 				ContentValues values = new ContentValues();
 				values.put(stopTagKey, tag);
 
-				database.replace(verboseFavorites, null, values);
+				operations.add(ContentProviderOperation.newInsert(FAVORITES_URI).withValues(values).build());
 			}
-
-			database.setTransactionSuccessful();
-			database.endTransaction();
+			
+			resolver.applyBatch(AUTHORITY, operations);
 		}
 
 
-		public synchronized void saveFavorite(String stopTag, ArrayList<String> stopTags, boolean isFavorite) {
+		public static void saveFavorite(ContentResolver resolver, 
+				String stopTag, ArrayList<String> stopTags, boolean isFavorite) throws RemoteException, OperationApplicationException {
 			if (isFavorite)
 			{
-				storeFavorite(stopTags);
+				storeFavorite(resolver, stopTags);
 			}
 			else
 			{
 				//delete all stops at location
-
-				SQLiteDatabase database = getWritableDatabase();
-
-				if (database.isOpen() == false)
-				{
-					Log.e("BostonBusMap", "SERIOUS ERROR: database didn't save data properly");
-					return;
-				}
-
-				database.beginTransaction();
-				//delete all tags from favorites where the lat/lon of stopTag matches those tags
-				database.delete(verboseFavorites, verboseFavorites + "." + stopTagKey + 
+				resolver.delete(FAVORITES_URI, verboseFavorites + "." + stopTagKey + 
 						" IN (SELECT s2." + stopTagKey + " FROM " + verboseStops + " as s1, " + verboseStops + " as s2 WHERE " +
 						"s1." + latitudeKey + " = s2." + latitudeKey + " AND s1." + longitudeKey +
 						" = s2." + longitudeKey + " AND s1." + stopTagKey + " = ?)", new String[]{stopTag});
-				database.setTransactionSuccessful();
-				database.endTransaction();
 			}
 		}
 
-		public synchronized RouteConfig getRoute(String routeToUpdate, MyHashMap<String, StopLocation> sharedStops,
+		public static RouteConfig getRoute(ContentResolver resolver, String routeToUpdate, 
+				MyHashMap<String, StopLocation> sharedStops,
 				TransitSystem transitSystem) throws IOException {
-			SQLiteDatabase database = getReadableDatabase();
-			Cursor routeCursor = null;
-			Cursor stopCursor = null;
-			try
-			{
-				/*db.execSQL("CREATE TABLE IF NOT EXISTS " + verboseRoutes + " (" + routeKey + " STRING PRIMARY KEY, " + colorKey + 
-						" INTEGER, " + oppositeColorKey + " INTEGER, " + pathsBlobKey + " BLOB)");*/
 
-				//get the route-specific information, like the path outline and the color
-				routeCursor = database.query(verboseRoutes, new String[]{colorKey, oppositeColorKey, pathsBlobKey, routeTitleKey}, routeKey + "=?",
-						new String[]{routeToUpdate}, null, null, null);
-				if (routeCursor.getCount() == 0)
+			//get the route-specific information, like the path outline and the color
+			RouteConfig routeConfig;
+			{
+				Cursor cursor = resolver.query(ROUTES_URI, new String[]{colorKey, oppositeColorKey, pathsBlobKey, routeTitleKey}, routeKey + "=?",
+						new String[]{routeToUpdate}, null);
+				if (cursor.getCount() == 0)
 				{
 					return null;
 				}
 
-				routeCursor.moveToFirst();
+				cursor.moveToFirst();
 
 				TransitSource source = transitSystem.getTransitSource(routeToUpdate);
 
-				int color = routeCursor.getInt(0);
-				int oppositeColor = routeCursor.getInt(1);
-				byte[] pathsBlob = routeCursor.getBlob(2);
-				String routeTitle = routeCursor.getString(3);
+				int color = cursor.getInt(0);
+				int oppositeColor = cursor.getInt(1);
+				byte[] pathsBlob = cursor.getBlob(2);
+				String routeTitle = cursor.getString(3);
 				Box pathsBlobBox = new Box(pathsBlob, CURRENT_DB_VERSION);
 
-				RouteConfig routeConfig = new RouteConfig(routeToUpdate, routeTitle, color, oppositeColor, source, pathsBlobBox);
-
-
-
+				routeConfig = new RouteConfig(routeToUpdate, routeTitle, color, oppositeColor, source, pathsBlobBox);
+			}
+			{
 				//get all stops, joining in the subway stops, making sure that the stop references the route we're on
-				SQLiteQueryBuilder builder = new SQLiteQueryBuilder();
-				String tables = verboseStops +
-						" JOIN " + stopsRoutesMap + " AS sm1 ON (" + verboseStops + "." + stopTagKey + " = sm1." + stopTagKey + ")" +
-						" JOIN " + stopsRoutesMap + " AS sm2 ON (" + verboseStops + "." + stopTagKey + " = sm2." + stopTagKey + ")" +
-						" LEFT OUTER JOIN " + subwaySpecificTable + " ON (" + verboseStops + "." + stopTagKey + " = " + 
-						subwaySpecificTable + "." + stopTagKey + ")";
-
 
 				/* select stops.tag, lat, lon, title, platformorder, branch, stopmapping1.dirTag, stopmapping2.route 
 				 * from stops inner join stopmapping as stopmapping1 on (stops.tag = stopmapping1.tag) 
 				 * inner join stopmapping as stopmapping2 on (stops.tag = stopmapping2.tag)
 				 * left outer join subway on (stops.tag = subway.tag) 
 				 * where stopmapping1.route=71;*/ 
-				builder.setTables(tables);
-
 				String[] projectionIn = new String[] {verboseStops + "." + stopTagKey, latitudeKey, longitudeKey, 
 						stopTitleKey, platformOrderKey, branchKey, "sm2." + dirTagKey, "sm2." + routeKey};
 				String select = "sm1." + routeKey + "=?";
 				String[] selectArray = new String[]{routeToUpdate};
 
-				//Log.v("BostonBusMap", SQLiteQueryBuilder.buildQueryString(false, tables, projectionIn, "sm1." + routeKey + "=\"" + routeToUpdate + "\"",
-				//		null, null, null, null));
-
-				stopCursor = builder.query(database, projectionIn, select, selectArray, null, null, null);
+				Cursor cursor = resolver.query(STOPS_LOOKUP_URI, projectionIn, select, selectArray, null);
 
 
-				stopCursor.moveToFirst();
-				while (stopCursor.isAfterLast() == false)
+				cursor.moveToFirst();
+				while (cursor.isAfterLast() == false)
 				{
-					String stopTag = stopCursor.getString(0);
-					String dirTag = stopCursor.getString(6);
-					String route = stopCursor.getString(7);
+					String stopTag = cursor.getString(0);
+					String dirTag = cursor.getString(6);
+					String route = cursor.getString(7);
 
 					//we need to ensure this stop is in the sharedstops and the route
 					StopLocation stop = sharedStops.get(stopTag);
@@ -549,12 +523,12 @@ public class DatabaseContentProvider extends ContentProvider {
 
 						if (stop == null)
 						{
-							float latitude = stopCursor.getFloat(1);
-							float longitude = stopCursor.getFloat(2);
-							String stopTitle = stopCursor.getString(3);
-							String branch = stopCursor.getString(5);
+							float latitude = cursor.getFloat(1);
+							float longitude = cursor.getFloat(2);
+							String stopTitle = cursor.getString(3);
+							String branch = cursor.getString(5);
 
-							int platformOrder = stopCursor.getInt(4);
+							int platformOrder = cursor.getInt(4);
 
 							stop = transitSystem.createStop(latitude, longitude, stopTag, stopTitle, platformOrder, branch, route, dirTag);
 
@@ -563,45 +537,23 @@ public class DatabaseContentProvider extends ContentProvider {
 
 						sharedStops.put(stopTag, stop);
 					}
-					stopCursor.moveToNext();
-				}
-
-				return routeConfig;
-			}
-			finally
-			{
-				if (routeCursor != null)
-				{
-					routeCursor.close();
-				}
-				if (stopCursor != null)
-				{
-					stopCursor.close();
-				}
-			}
-		}
-
-		public synchronized ArrayList<String> routeInfoNeedsUpdating(String[] supportedRoutes) {
-			HashSet<String> routesInDB = new HashSet<String>();
-			SQLiteDatabase database = getReadableDatabase();
-			Cursor cursor = null;
-			try
-			{
-				cursor = database.query(verboseRoutes, new String[]{routeKey}, null, null, null, null, null);
-				cursor.moveToFirst();
-				while (cursor.isAfterLast() == false)
-				{
-					routesInDB.add(cursor.getString(0));
-
 					cursor.moveToNext();
 				}
 			}
-			finally
+
+			return routeConfig;
+		}
+
+		public static ArrayList<String> routeInfoNeedsUpdating(ContentResolver resolver, 
+				String[] supportedRoutes) {
+			HashSet<String> routesInDB = new HashSet<String>();
+			Cursor cursor = resolver.query(ROUTES_URI, new String[]{routeKey}, null, null, null);
+			cursor.moveToFirst();
+			while (cursor.isAfterLast() == false)
 			{
-				if (cursor != null)
-				{
-					cursor.close();
-				}
+				routesInDB.add(cursor.getString(0));
+
+				cursor.moveToNext();
 			}
 
 			ArrayList<String> routesThatNeedUpdating = new ArrayList<String>();
@@ -625,46 +577,33 @@ public class DatabaseContentProvider extends ContentProvider {
 		 * @param names
 		 * @param titles
 		 */
-		public synchronized void refreshDirections(MyHashMap<String, Direction> directions) {
-			SQLiteDatabase database = getReadableDatabase();
-			Cursor cursor = null;
-			try
+		public static void refreshDirections(ContentResolver resolver, MyHashMap<String, Direction> directions) {
+			Cursor cursor = resolver.query(DIRECTIONS_URI, new String[]{dirTagKey, dirNameKey, dirTitleKey, dirRouteKey, dirUseAsUIKey},
+					null, null, null);
+			cursor.moveToFirst();
+			while (cursor.isAfterLast() == false)
 			{
-				cursor = database.query(directionsTable, new String[]{dirTagKey, dirNameKey, dirTitleKey, dirRouteKey, dirUseAsUIKey},
-						null, null, null, null, null);
-				cursor.moveToFirst();
-				while (cursor.isAfterLast() == false)
-				{
-					String dirTag = cursor.getString(0);
-					String dirName = cursor.getString(1);
-					String dirTitle = cursor.getString(2);
-					String dirRoute = cursor.getString(3);
-					boolean dirUseAsUI = cursor.getInt(4) == INT_TRUE;
+				String dirTag = cursor.getString(0);
+				String dirName = cursor.getString(1);
+				String dirTitle = cursor.getString(2);
+				String dirRoute = cursor.getString(3);
+				boolean dirUseAsUI = cursor.getInt(4) == INT_TRUE;
 
-					Direction direction = new Direction(dirName, dirTitle, dirRoute, dirUseAsUI);
-					directions.put(dirTag, direction);
+				Direction direction = new Direction(dirName, dirTitle, dirRoute, dirUseAsUI);
+				directions.put(dirTag, direction);
 
-					cursor.moveToNext();
-				}
-
-				cursor.close();
+				cursor.moveToNext();
 			}
-			finally
-			{
-				if (cursor != null)
-				{
-					cursor.close();
-				}
-			}
+
+			cursor.close();
 		}
 
-		public synchronized void writeDirections(boolean wipe, MyHashMap<String, Direction> directions) {
-			SQLiteDatabase database = getWritableDatabase();
-			database.beginTransaction();
+		public static void writeDirections(ContentResolver resolver, boolean wipe, MyHashMap<String, Direction> directions) throws RemoteException, OperationApplicationException {
+			ArrayList<ContentProviderOperation> operations = new ArrayList<ContentProviderOperation>();
 			if (wipe)
 			{
-				database.delete(directionsTable, null, null);
-				database.delete(directionsStopsTable, null, null);
+				operations.add(ContentProviderOperation.newDelete(DIRECTIONS_URI).build());
+				operations.add(ContentProviderOperation.newDelete(DIRECTIONS_STOPS_URI).build());
 			}
 
 			for (String dirTag : directions.keySet())
@@ -682,38 +621,22 @@ public class DatabaseContentProvider extends ContentProvider {
 				values.put(dirTitleKey, title);
 				values.put(dirUseAsUIKey, useAsUI ? INT_TRUE : INT_FALSE);
 
-				if (wipe)
-				{
-					database.insert(directionsTable, null, values);
-				}
-				else
-				{
-					database.replace(directionsTable, null, values);
-				}
+				operations.add(ContentProviderOperation.newInsert(DIRECTIONS_URI).withValues(values).build());
 
 				for (String stopTag : direction.getStopTags()) {
 					ContentValues stopValues = new ContentValues();
 					stopValues.put(stopTagKey, stopTag);
 					stopValues.put(dirTagKey, dirTag);
-					if (wipe) {
-						database.insert(directionsStopsTable, null, stopValues);
-					}
-					else
-					{
-						database.replace(directionsStopsTable, null, stopValues);
-					}
+					operations.add(ContentProviderOperation.newInsert(DIRECTIONS_STOPS_URI).withValues(stopValues).build());
 				}
 
 			}
-			database.setTransactionSuccessful();
-			database.endTransaction();
+			resolver.applyBatch(AUTHORITY, operations);
 		}
 
-		public synchronized void saveFavorites(HashSet<String> favoriteStops, MyHashMap<String, StopLocation> sharedStops) {
-			SQLiteDatabase database = getWritableDatabase();
-			database.beginTransaction();
-
-			database.delete(verboseFavorites, null, null);
+		public static void saveFavorites(ContentResolver resolver, HashSet<String> favoriteStops, MyHashMap<String, StopLocation> sharedStops) throws RemoteException, OperationApplicationException {
+			ArrayList<ContentProviderOperation> operations = new ArrayList<ContentProviderOperation>();
+			operations.add(ContentProviderOperation.newDelete(FAVORITES_URI).build());
 
 			for (String stopTag : favoriteStops)
 			{
@@ -721,388 +644,225 @@ public class DatabaseContentProvider extends ContentProvider {
 
 				if (stopLocation != null)
 				{
-					ContentValues values = new ContentValues();
-					values.put(stopTagKey, stopTag);
-					database.replace(verboseFavorites, null, values);
+					operations.add(ContentProviderOperation.newInsert(FAVORITES_URI).withValue(stopTagKey, stopTag).build());
 				}
 			}
-
-			database.setTransactionSuccessful();
-			database.endTransaction();
+			
+			resolver.applyBatch(AUTHORITY, operations);
 		}
 
-		public synchronized Cursor getCursorForRoutes() {
-			SQLiteDatabase database = getReadableDatabase();
-
-			return database.query(verboseRoutes, new String[]{routeKey}, null, null, null, null, null);
-		}
-
-		public synchronized Cursor getCursorForSearch(String search, int mode) {
+		public static Cursor getCursorForSearch(ContentResolver resolver, String search, int mode) {
 			String[] columns = new String[] {BaseColumns._ID, SearchManager.SUGGEST_COLUMN_TEXT_1, SearchManager.SUGGEST_COLUMN_QUERY, SearchManager.SUGGEST_COLUMN_TEXT_2};
 			MatrixCursor ret = new MatrixCursor(columns);
 
-			SQLiteDatabase database = getReadableDatabase();
-			addSearchRoutes(database, search, ret);
-			addSearchStops(database, search, ret);
+			addSearchRoutes(resolver, search, ret);
+			addSearchStops(resolver, search, ret);
 
 
 			return ret;
 		}
 
-		private void addSearchRoutes(SQLiteDatabase database, String search, MatrixCursor ret)
+		private static void addSearchRoutes(ContentResolver resolver, String search, MatrixCursor ret)
 		{
 			if (search == null)
 			{
 				return;
 			}
 
-			Cursor cursor = null;
-			try
+			Cursor cursor = resolver.query(ROUTES_URI, new String[]{routeTitleKey, routeKey}, routeTitleKey + " LIKE ?",
+					new String[]{"%" + search + "%"}, routeTitleKey);
+			if (cursor.moveToFirst() == false)
 			{
-				cursor = database.query(verboseRoutes, new String[]{routeTitleKey, routeKey}, routeTitleKey + " LIKE ?",
-						new String[]{"%" + search + "%"}, null, null, routeTitleKey);
-				if (cursor.moveToFirst() == false)
-				{
-					return;
-				}
-
-				while (!cursor.isAfterLast())
-				{
-					String routeTitle = cursor.getString(0);
-					String routeKey = cursor.getString(1);
-
-					ret.addRow(new Object[]{ret.getCount(), routeTitle, "route " + routeKey, "Route"});
-
-					cursor.moveToNext();
-				}
+				return;
 			}
-			finally
+
+			while (!cursor.isAfterLast())
 			{
-				if (cursor != null)
-				{
-					cursor.close();
-				}
+				String routeTitle = cursor.getString(0);
+				String routeKey = cursor.getString(1);
+
+				ret.addRow(new Object[]{ret.getCount(), routeTitle, "route " + routeKey, "Route"});
+
+				cursor.moveToNext();
 			}
 		}
 
-		private void addSearchStops(SQLiteDatabase database, String search, MatrixCursor ret)
+		private static void addSearchStops(ContentResolver resolver, String search, MatrixCursor ret)
 		{
 			if (search == null)
 			{
 				return;
 			}
 
-			Cursor cursor = null;
-			try
+			String thisStopTitleKey = verboseStops + "." + stopTitleKey;
+			String[] projectionIn = new String[] {thisStopTitleKey, verboseStops + "." + stopTagKey, "r1." + routeTitleKey};
+			String select = thisStopTitleKey + " LIKE ?";
+			String[] selectArray = new String[]{"%" + search + "%"};
+
+			Cursor cursor = resolver.query(STOPS_LOOKUP_2_URI, 
+					projectionIn, select, selectArray, null);
+
+			if (cursor.moveToFirst() == false)
 			{
-				SQLiteQueryBuilder builder = new SQLiteQueryBuilder();
+				return;
+			}
 
-				String tables = verboseStops +
-						" JOIN " + stopsRoutesMap + " AS sm1 ON (" + verboseStops + "." + stopTagKey + " = sm1." + stopTagKey + ")" +
-						" JOIN " + verboseRoutes + " AS r1 ON (sm1." + routeKey + " = r1." + routeKey + ")";
+			int count = 0;
+			String prevStopTag = null;
+			String prevStopTitle = null;
+			StringBuilder routes = new StringBuilder();
+			int routeCount = 0;
+			while (!cursor.isAfterLast())
+			{
+				String stopTitle = cursor.getString(0);
+				String stopTag = cursor.getString(1);
+				String routeTitle = cursor.getString(2);
 
-
-				builder.setTables(tables);
-
-
-				String thisStopTitleKey = verboseStops + "." + stopTitleKey;
-				String[] projectionIn = new String[] {thisStopTitleKey, verboseStops + "." + stopTagKey, "r1." + routeTitleKey};
-				String select = thisStopTitleKey + " LIKE ?";
-				String[] selectArray = new String[]{"%" + search + "%"};
-
-				cursor = builder.query(database, projectionIn, select, selectArray, null, null, thisStopTitleKey);
-
-				if (cursor.moveToFirst() == false)
+				if (prevStopTag == null)
 				{
-					return;
+					// do nothing, first row
+					prevStopTag = stopTag;
+					prevStopTitle = stopTitle;
+					routeCount++;
+					routes.append(routeTitle);
 				}
-
-				int count = 0;
-				String prevStopTag = null;
-				String prevStopTitle = null;
-				StringBuilder routes = new StringBuilder();
-				int routeCount = 0;
-				while (!cursor.isAfterLast())
+				else if (!prevStopTag.equals(stopTag))
 				{
-					String stopTitle = cursor.getString(0);
-					String stopTag = cursor.getString(1);
-					String routeTitle = cursor.getString(2);
-
-					if (prevStopTag == null)
-					{
-						// do nothing, first row
-						prevStopTag = stopTag;
-						prevStopTitle = stopTitle;
-						routeCount++;
-						routes.append(routeTitle);
-					}
-					else if (!prevStopTag.equals(stopTag))
-					{
-						// change in row. write out this row
-						String routeString = routeCount == 0 ? "Stop" 
-								: routeCount == 1 ? ("Stop on route " + routes.toString())
-										: ("Stop on routes " + routes);
-								ret.addRow(new Object[]{count, prevStopTitle, "stop " + prevStopTag, routeString});
-								prevStopTag = stopTag;
-								prevStopTitle = stopTitle;
-								routeCount = 1;
-								routes.setLength(0);
-								routes.append(routeTitle);
-					}
-					else
-					{
-						// just add a new route
-						routes.append(", ");
-						routes.append(routeTitle);
-						routeCount++;
-					}
-
-
-					cursor.moveToNext();
-					count++;
-				}
-
-				if (prevStopTag != null)
-				{
-					// at least one row
+					// change in row. write out this row
 					String routeString = routeCount == 0 ? "Stop" 
 							: routeCount == 1 ? ("Stop on route " + routes.toString())
 									: ("Stop on routes " + routes);
 							ret.addRow(new Object[]{count, prevStopTitle, "stop " + prevStopTag, routeString});
-				}
-			}
-			finally
-			{
-				if (cursor != null)
-				{
-					cursor.close();
-				}
-			}
-		}
-		public synchronized ArrayList<StopLocation> getClosestStops(double currentLat, double currentLon, TransitSystem transitSystem, MyHashMap<String, StopLocation> sharedStops, int limit)
-		{
-			SQLiteDatabase database = getReadableDatabase();
-			Cursor cursor = null;
-			try
-			{
-				// what we should scale longitude by for 1 unit longitude to roughly equal 1 unit latitude
-				double lonFactor = Math.cos(currentLat * Geometry.degreesToRadians);
-
-
-				SQLiteQueryBuilder builder = new SQLiteQueryBuilder();
-
-				String tables = verboseStops;
-
-				builder.setTables(tables);
-
-				final String distanceKey = "distance";
-				String[] projectionIn = new String[] {stopTagKey, distanceKey};
-				HashMap<String, String> projectionMap = new HashMap<String, String>();
-				projectionMap.put(stopTagKey, stopTagKey);
-
-				String latDiff = "(" + latitudeKey + " - " + currentLat + ")";
-				String lonDiff = "((" + longitudeKey + " - " + currentLon + ")*" + lonFactor + ")";
-				projectionMap.put("distance", latDiff + "*" + latDiff + " + " + lonDiff + "*" + lonDiff + " AS " + distanceKey);
-				builder.setProjectionMap(projectionMap);
-				cursor = builder.query(database, projectionIn, null, null, null, null, distanceKey, Integer.valueOf(limit).toString());
-
-				if (cursor.moveToFirst() == false)
-				{
-					return new ArrayList<StopLocation>();
-				}
-
-				ArrayList<String> stopTags = new ArrayList<String>();
-				while (!cursor.isAfterLast())
-				{
-					String id = cursor.getString(0);
-					stopTags.add(id);
-
-					cursor.moveToNext();
-				}
-
-				getStops(stopTags, transitSystem, sharedStops);
-
-				ArrayList<StopLocation> ret = new ArrayList<StopLocation>();
-				for (String stopTag : stopTags)
-				{
-					ret.add(sharedStops.get(stopTag));
-				}
-
-				return ret;
-			}
-			finally
-			{
-				if (cursor != null)
-				{
-					cursor.close();
-				}
-			}
-		}
-
-		/*	public synchronized List<StopLocation> getClosestStopsWithDirTag(double currentLat, double currentLon, 
-				TransitSystem transitSystem, MyHashMap<String, StopLocation> sharedStops,
-				int limit, MyHashMap<String, Direction> directionsToUpdate)
-		{
-			if (directionsToUpdate.size() == 0) {
-				return Collections.emptyList();
-			}
-
-			SQLiteDatabase database = getReadableDatabase();
-			Cursor cursor = null;
-			try
-			{
-				// what we should scale longitude by for 1 unit longitude to roughly equal 1 unit latitude
-				double lonFactor = Math.cos(currentLat * Geometry.degreesToRadians);
-
-
-				SQLiteQueryBuilder builder = new SQLiteQueryBuilder();
-
-				String tables = verboseStops;
-
-				builder.setTables(tables);
-
-				String select;
-				String[] selectArray;
-				if (directionsToUpdate.keySet().size() == 1) {
-					select = stop + " LIKE ?";
-					selectArray = new String[]{"%" + search + "%"};
-				}
-
-				final String distanceKey = "distance";
-				String[] projectionIn = new String[] {stopTagKey, distanceKey};
-				HashMap<String, String> projectionMap = new HashMap<String, String>();
-				projectionMap.put(stopTagKey, stopTagKey);
-
-				String latDiff = "(" + latitudeKey + " - " + currentLat + ")";
-				String lonDiff = "((" + longitudeKey + " - " + currentLon + ")*" + lonFactor + ")";
-				projectionMap.put("distance", latDiff + "*" + latDiff + " + " + lonDiff + "*" + lonDiff + " AS " + distanceKey);
-				builder.setProjectionMap(projectionMap);
-				cursor = builder.query(database, projectionIn, select, selectArray, null, null, distanceKey, Integer.valueOf(limit).toString());
-
-				if (cursor.moveToFirst() == false)
-				{
-					return new ArrayList<StopLocation>();
-				}
-
-				ArrayList<String> stopTags = new ArrayList<String>();
-				while (!cursor.isAfterLast())
-				{
-					String id = cursor.getString(0);
-					stopTags.add(id);
-
-					cursor.moveToNext();
-				}
-
-				getStops(stopTags, transitSystem, sharedStops);
-
-				ArrayList<StopLocation> ret = new ArrayList<StopLocation>();
-				for (String stopTag : stopTags)
-				{
-					ret.add(sharedStops.get(stopTag));
-				}
-
-				return ret;
-			}
-			finally
-			{
-				if (cursor != null)
-				{
-					cursor.close();
-				}
-				database.close();
-			}
-		}*/
-
-		public synchronized Cursor getCursorForDirection(String dirTag) {
-			SQLiteDatabase database = getReadableDatabase();
-
-			return database.query(directionsTable, new String[]{dirTagKey, dirTitleKey, dirRouteKey}, dirTagKey + "=?", 
-					new String[]{dirTag}, null, null, null);
-
-		}
-
-		public synchronized Cursor getCursorForDirections() {
-			SQLiteDatabase database = getReadableDatabase();
-
-			return database.query(directionsTable, new String[]{dirTagKey, dirTitleKey, dirRouteKey}, null, 
-					null, null, null, null);
-		}
-
-		public synchronized void upgradeIfNecessary() {
-			//trigger an upgrade so future calls of getReadableDatabase won't complain that you can't upgrade a read only db
-			getWritableDatabase();
-
-		}
-
-
-
-		public StopLocation getStopByTagOrTitle(String tagQuery, String titleQuery, TransitSystem transitSystem)
-		{
-			SQLiteDatabase database = getReadableDatabase();
-			Cursor stopCursor = null;
-			try
-			{
-				//TODO: we should have a factory somewhere to abstract details away regarding subway vs bus
-
-				//get stop with name stopTag, joining with the subway table
-				SQLiteQueryBuilder builder = new SQLiteQueryBuilder();
-				String tables = verboseStops + " JOIN " + stopsRoutesMap + " ON (" + verboseStops + "." + stopTagKey + " = " +
-						stopsRoutesMap + "." + stopTagKey + ") LEFT OUTER JOIN " +
-						subwaySpecificTable + " ON (" + verboseStops + "." + stopTagKey + " = " + 
-						subwaySpecificTable + "." + stopTagKey + ")";
-
-
-				builder.setTables(tables);
-
-				String[] projectionIn = new String[] {verboseStops + "." + stopTagKey, latitudeKey, longitudeKey, 
-						stopTitleKey, platformOrderKey, branchKey, stopsRoutesMap + "." + routeKey, stopsRoutesMap + "." + dirTagKey};
-
-				//if size == 1, where clause is tag = ?. if size > 1, where clause is "IN (tag1, tag2, tag3...)"
-				StringBuilder select;
-				String[] selectArray;
-
-				select = new StringBuilder(verboseStops + "." + stopTagKey + "=? OR " + verboseStops + "." + stopTitleKey + "=?");
-				selectArray = new String[]{tagQuery, titleQuery};
-
-				stopCursor = builder.query(database, projectionIn, select.toString(), selectArray, null, null, null);
-
-				stopCursor.moveToFirst();
-
-				if (stopCursor.isAfterLast() == false)
-				{
-					String stopTag = stopCursor.getString(0);
-
-					String route = stopCursor.getString(6);
-					String dirTag = stopCursor.getString(7);
-
-					float lat = stopCursor.getFloat(1);
-					float lon = stopCursor.getFloat(2);
-					String title = stopCursor.getString(3);
-
-					int platformOrder = 0;
-					String branch = null;
-					if (stopCursor.isNull(4) == false)
-					{
-						platformOrder = stopCursor.getInt(4);
-						branch = stopCursor.getString(5);
-					}
-
-					StopLocation stop = transitSystem.createStop(lat, lon, stopTag, title, platformOrder, branch, route, dirTag);
-					return stop;
+							prevStopTag = stopTag;
+							prevStopTitle = stopTitle;
+							routeCount = 1;
+							routes.setLength(0);
+							routes.append(routeTitle);
 				}
 				else
 				{
-					return null;
+					// just add a new route
+					routes.append(", ");
+					routes.append(routeTitle);
+					routeCount++;
 				}
 
+
+				cursor.moveToNext();
+				count++;
 			}
-			finally
+
+			if (prevStopTag != null)
 			{
-				if (stopCursor != null)
-				{
-					stopCursor.close();
-				}
+				// at least one row
+				String routeString = routeCount == 0 ? "Stop" 
+						: routeCount == 1 ? ("Stop on route " + routes.toString())
+								: ("Stop on routes " + routes);
+						ret.addRow(new Object[]{count, prevStopTitle, "stop " + prevStopTag, routeString});
 			}
+		}
+		
+		private static Uri appendUris(Uri uri, int... x) {
+			for (int id : x) {
+				uri = ContentUris.withAppendedId(uri, id);
+			}
+			return uri;
+		}
+		
+		public static ArrayList<StopLocation> getClosestStops(ContentResolver resolver, 
+				double currentLat, double currentLon, TransitSystem transitSystem, 
+				MyHashMap<String, StopLocation> sharedStops, int limit)
+		{
+			// what we should scale longitude by for 1 unit longitude to roughly equal 1 unit latitude
+
+			String[] projectionIn = new String[] {stopTagKey, distanceKey};
+			int currentLatAsInt = (int)(currentLat * Constants.E6);
+			int currentLonAsInt = (int)(currentLon * Constants.E6);
+			Uri uri = appendUris(STOPS_WITH_DISTANCE_URI, currentLatAsInt, currentLonAsInt, limit);
+			Cursor cursor = resolver.query(uri, projectionIn, null, null, distanceKey);
+			if (cursor.moveToFirst() == false)
+			{
+				return new ArrayList<StopLocation>();
+			}
+
+			ArrayList<String> stopTags = new ArrayList<String>();
+			while (!cursor.isAfterLast())
+			{
+				String id = cursor.getString(0);
+				stopTags.add(id);
+
+				cursor.moveToNext();
+			}
+
+			getStops(resolver, stopTags, transitSystem, sharedStops);
+
+			ArrayList<StopLocation> ret = new ArrayList<StopLocation>();
+			for (String stopTag : stopTags)
+			{
+				ret.add(sharedStops.get(stopTag));
+			}
+
+			return ret;
+		}
+
+		public static Cursor getCursorForDirection(ContentResolver resolver, String dirTag) {
+			return resolver.query(DIRECTIONS_URI, new String[]{dirTagKey, dirTitleKey, dirRouteKey}, dirTagKey + "=?", 
+					new String[]{dirTag}, null);
+
+		}
+
+		public static Cursor getCursorForDirections(ContentResolver resolver) {
+			return resolver.query(DIRECTIONS_URI, new String[]{dirTagKey, dirTitleKey, dirRouteKey}, null, 
+					null, null);
+		}
+
+		public static StopLocation getStopByTagOrTitle(ContentResolver resolver, 
+				String tagQuery, String titleQuery, TransitSystem transitSystem)
+		{
+			//TODO: we should have a factory somewhere to abstract details away regarding subway vs bus
+
+			//get stop with name stopTag, joining with the subway table
+			String[] projectionIn = new String[] {verboseStops + "." + stopTagKey, latitudeKey, longitudeKey, 
+					stopTitleKey, platformOrderKey, branchKey, stopsRoutesMap + "." + routeKey, stopsRoutesMap + "." + dirTagKey};
+
+			//if size == 1, where clause is tag = ?. if size > 1, where clause is "IN (tag1, tag2, tag3...)"
+			StringBuilder select;
+			String[] selectArray;
+
+			select = new StringBuilder(verboseStops + "." + stopTagKey + "=? OR " + verboseStops + "." + stopTitleKey + "=?");
+			selectArray = new String[]{tagQuery, titleQuery};
+
+			Cursor stopCursor = resolver.query(STOPS_LOOKUP_3_URI, projectionIn, select.toString(), selectArray, null);
+
+			stopCursor.moveToFirst();
+
+			if (stopCursor.isAfterLast() == false)
+			{
+				String stopTag = stopCursor.getString(0);
+
+				String route = stopCursor.getString(6);
+				String dirTag = stopCursor.getString(7);
+
+				float lat = stopCursor.getFloat(1);
+				float lon = stopCursor.getFloat(2);
+				String title = stopCursor.getString(3);
+
+				int platformOrder = 0;
+				String branch = null;
+				if (stopCursor.isNull(4) == false)
+				{
+					platformOrder = stopCursor.getInt(4);
+					branch = stopCursor.getString(5);
+				}
+
+				StopLocation stop = transitSystem.createStop(lat, lon, stopTag, title, platformOrder, branch, route, dirTag);
+				return stop;
+			}
+			else
+			{
+				return null;
+			}
+
 		}
 
 		/**
@@ -1111,147 +871,69 @@ public class DatabaseContentProvider extends ContentProvider {
 		 * @param transitSystem
 		 * @return
 		 */
-		public void getStops(List<String> stopTags, TransitSystem transitSystem, MyHashMap<String, StopLocation> outputMapping) {
+		public static void getStops(ContentResolver resolver, List<String> stopTags, TransitSystem transitSystem, MyHashMap<String, StopLocation> outputMapping) {
 			if (stopTags == null || stopTags.size() == 0)
 			{
 				return;
 			}
 
-			SQLiteDatabase database = getReadableDatabase();
-			Cursor stopCursor = null;
-			try
+			//TODO: we should have a factory somewhere to abstract details away regarding subway vs bus
+
+			//get stop with name stopTag, joining with the subway table
+			String[] projectionIn = new String[] {verboseStops + "." + stopTagKey, latitudeKey, longitudeKey, 
+					stopTitleKey, platformOrderKey, branchKey, stopsRoutesMap + "." + routeKey, stopsRoutesMap + "." + dirTagKey};
+
+			//if size == 1, where clause is tag = ?. if size > 1, where clause is "IN (tag1, tag2, tag3...)"
+			StringBuilder select;
+			String[] selectArray;
+			if (stopTags.size() == 1)
 			{
-				//TODO: we should have a factory somewhere to abstract details away regarding subway vs bus
+				String stopTag = stopTags.get(0);
 
-				//get stop with name stopTag, joining with the subway table
-				SQLiteQueryBuilder builder = new SQLiteQueryBuilder();
-				String tables = verboseStops + " JOIN " + stopsRoutesMap + " ON (" + verboseStops + "." + stopTagKey + " = " +
-						stopsRoutesMap + "." + stopTagKey + ") LEFT OUTER JOIN " +
-						subwaySpecificTable + " ON (" + verboseStops + "." + stopTagKey + " = " + 
-						subwaySpecificTable + "." + stopTagKey + ")";
+				select = new StringBuilder(verboseStops + "." + stopTagKey + "=?");
+				selectArray = new String[]{stopTag};
 
+				//Log.v("BostonBusMap", SQLiteQueryBuilder.buildQueryString(false, tables, projectionIn, verboseStops + "." + stopTagKey + "=\"" + stopTagKey + "\"",
+				//		null, null, null, null));
+			}
+			else
+			{
+				select = new StringBuilder(verboseStops + "." + stopTagKey + " IN (");
 
-				builder.setTables(tables);
-
-				String[] projectionIn = new String[] {verboseStops + "." + stopTagKey, latitudeKey, longitudeKey, 
-						stopTitleKey, platformOrderKey, branchKey, stopsRoutesMap + "." + routeKey, stopsRoutesMap + "." + dirTagKey};
-
-				//if size == 1, where clause is tag = ?. if size > 1, where clause is "IN (tag1, tag2, tag3...)"
-				StringBuilder select;
-				String[] selectArray;
-				if (stopTags.size() == 1)
+				for (int i = 0; i < stopTags.size(); i++)
 				{
-					String stopTag = stopTags.get(0);
-
-					select = new StringBuilder(verboseStops + "." + stopTagKey + "=?");
-					selectArray = new String[]{stopTag};
-
-					//Log.v("BostonBusMap", SQLiteQueryBuilder.buildQueryString(false, tables, projectionIn, verboseStops + "." + stopTagKey + "=\"" + stopTagKey + "\"",
-					//		null, null, null, null));
-				}
-				else
-				{
-					select = new StringBuilder(verboseStops + "." + stopTagKey + " IN (");
-
-					for (int i = 0; i < stopTags.size(); i++)
+					String stopTag = stopTags.get(i);
+					select.append('\'').append(stopTag);
+					if (i != stopTags.size() - 1)
 					{
-						String stopTag = stopTags.get(i);
-						select.append('\'').append(stopTag);
-						if (i != stopTags.size() - 1)
-						{
-							select.append("', ");
-						}
-						else
-						{
-							select.append("')");
-						}
-					}
-					selectArray = null;
-
-					//Log.v("BostonBusMap", select.toString());
-				}
-
-				stopCursor = builder.query(database, projectionIn, select.toString(), selectArray, null, null, null);
-
-				stopCursor.moveToFirst();
-
-				//iterate through the stops in the database and create new ones if necessary
-				//stops will be repeated if they are on multiple routes. If so, just skip to the bottom and add the route and dirTag
-				while (stopCursor.isAfterLast() == false)
-				{
-					String stopTag = stopCursor.getString(0);
-
-					String route = stopCursor.getString(6);
-					String dirTag = stopCursor.getString(7);
-
-					StopLocation stop = outputMapping.get(stopTag);
-					if (stop == null)
-					{
-						float lat = stopCursor.getFloat(1);
-						float lon = stopCursor.getFloat(2);
-						String title = stopCursor.getString(3);
-
-						int platformOrder = 0;
-						String branch = null;
-						if (stopCursor.isNull(4) == false)
-						{
-							platformOrder = stopCursor.getInt(4);
-							branch = stopCursor.getString(5);
-						}
-
-						stop = transitSystem.createStop(lat, lon, stopTag, title, platformOrder, branch, route, dirTag);
-						outputMapping.put(stopTag, stop);
+						select.append("', ");
 					}
 					else
 					{
-						stop.addRouteAndDirTag(route, dirTag);
+						select.append("')");
 					}
-
-					stopCursor.moveToNext();
 				}
+				selectArray = null;
+
+				//Log.v("BostonBusMap", select.toString());
 			}
-			finally
+
+			Cursor stopCursor = resolver.query(STOPS_LOOKUP_3_URI, projectionIn, select.toString(), selectArray, null);
+
+			stopCursor.moveToFirst();
+
+			//iterate through the stops in the database and create new ones if necessary
+			//stops will be repeated if they are on multiple routes. If so, just skip to the bottom and add the route and dirTag
+			while (stopCursor.isAfterLast() == false)
 			{
-				if (stopCursor != null)
+				String stopTag = stopCursor.getString(0);
+
+				String route = stopCursor.getString(6);
+				String dirTag = stopCursor.getString(7);
+
+				StopLocation stop = outputMapping.get(stopTag);
+				if (stop == null)
 				{
-					stopCursor.close();
-				}
-			}
-		}
-
-		public ArrayList<StopLocation> getStopsByDirtag(String dirTag, TransitSystem transitSystem) {
-			SQLiteDatabase database = getReadableDatabase();
-			Cursor stopCursor = null;
-			ArrayList<StopLocation> ret = new ArrayList<StopLocation>();
-			try
-			{
-				SQLiteQueryBuilder builder = new SQLiteQueryBuilder();
-				String tables = verboseStops + " JOIN " + stopsRoutesMap + " ON (" + verboseStops + "." + stopTagKey + " = " +
-						stopsRoutesMap + "." + stopTagKey + ") LEFT OUTER JOIN " +
-						subwaySpecificTable + " ON (" + verboseStops + "." + stopTagKey + " = " + 
-						subwaySpecificTable + "." + stopTagKey + ")";	
-
-				builder.setTables(tables);
-
-				String[] projectionIn = new String[] {verboseStops + "." + stopTagKey, latitudeKey, longitudeKey, 
-						stopTitleKey, platformOrderKey, branchKey, stopsRoutesMap + "." + routeKey, stopsRoutesMap + "." + dirTagKey};
-
-				//if size == 1, where clause is tag = ?. if size > 1, where clause is "IN (tag1, tag2, tag3...)"
-				StringBuilder select;
-				String[] selectArray;
-
-				select = new StringBuilder(verboseStops + "." + dirTagKey + "=?");
-				selectArray = new String[]{dirTag};
-
-				stopCursor = builder.query(database, projectionIn, select.toString(), selectArray, null, null, null);
-
-				stopCursor.moveToFirst();
-				while (stopCursor.isAfterLast() == false)
-				{
-					String stopTag = stopCursor.getString(0);
-
-					String route = stopCursor.getString(6);
-
 					float lat = stopCursor.getFloat(1);
 					float lon = stopCursor.getFloat(2);
 					String title = stopCursor.getString(3);
@@ -1264,70 +946,85 @@ public class DatabaseContentProvider extends ContentProvider {
 						branch = stopCursor.getString(5);
 					}
 
-					StopLocation stop = transitSystem.createStop(lat, lon, stopTag, title, platformOrder, branch, route, dirTag);
-					ret.add(stop);
-					stopCursor.moveToNext();
+					stop = transitSystem.createStop(lat, lon, stopTag, title, platformOrder, branch, route, dirTag);
+					outputMapping.put(stopTag, stop);
 				}
+				else
+				{
+					stop.addRouteAndDirTag(route, dirTag);
+				}
+
+				stopCursor.moveToNext();
 			}
-			finally
+		}
+
+		public static ArrayList<StopLocation> getStopsByDirtag(ContentResolver resolver, 
+				String dirTag, TransitSystem transitSystem) {
+			ArrayList<StopLocation> ret = new ArrayList<StopLocation>();
+			String[] projectionIn = new String[] {verboseStops + "." + stopTagKey, latitudeKey, longitudeKey, 
+					stopTitleKey, platformOrderKey, branchKey, stopsRoutesMap + "." + routeKey, stopsRoutesMap + "." + dirTagKey};
+
+			//if size == 1, where clause is tag = ?. if size > 1, where clause is "IN (tag1, tag2, tag3...)"
+			StringBuilder select;
+			String[] selectArray;
+
+			select = new StringBuilder(verboseStops + "." + dirTagKey + "=?");
+			selectArray = new String[]{dirTag};
+
+			Cursor stopCursor = resolver.query(STOPS_LOOKUP_3_URI, projectionIn, select.toString(), selectArray, null);
+
+			stopCursor.moveToFirst();
+			while (stopCursor.isAfterLast() == false)
 			{
-				if (stopCursor != null) {
-					stopCursor.close();
+				String stopTag = stopCursor.getString(0);
+
+				String route = stopCursor.getString(6);
+
+				float lat = stopCursor.getFloat(1);
+				float lon = stopCursor.getFloat(2);
+				String title = stopCursor.getString(3);
+
+				int platformOrder = 0;
+				String branch = null;
+				if (stopCursor.isNull(4) == false)
+				{
+					platformOrder = stopCursor.getInt(4);
+					branch = stopCursor.getString(5);
 				}
+
+				StopLocation stop = transitSystem.createStop(lat, lon, stopTag, title, platformOrder, branch, route, dirTag);
+				ret.add(stop);
+				stopCursor.moveToNext();
 			}
 			return ret;
 		}
 
-		public HashSet<String> getDirectionTagsForStop(String stopTag) {
-			SQLiteDatabase database = getReadableDatabase();
-			Cursor cursor = null;
+		public static HashSet<String> getDirectionTagsForStop(ContentResolver resolver, 
+				String stopTag) {
 			HashSet<String> ret = new HashSet<String>();
-			try
-			{
-				SQLiteQueryBuilder builder = new SQLiteQueryBuilder();
-				builder.setTables(directionsStopsTable);
-				cursor = builder.query(database, new String[] {dirTagKey},
-						stopTagKey + " = ?", new String[] {stopTag}, null, null, null);
+			Cursor cursor = resolver.query(DIRECTIONS_STOPS_URI, new String[] {dirTagKey},
+					stopTagKey + " = ?", new String[] {stopTag}, null);
 
-				cursor.moveToFirst();
-				while (cursor.isAfterLast() == false) {
-					String dirTag = cursor.getString(0);
-					ret.add(dirTag);
-					cursor.moveToNext();
-				}
-			}
-			finally
-			{
-				if (cursor != null) {
-					cursor.close();
-				}
+			cursor.moveToFirst();
+			while (cursor.isAfterLast() == false) {
+				String dirTag = cursor.getString(0);
+				ret.add(dirTag);
+				cursor.moveToNext();
 			}
 			return ret;
 		}
 
-		public HashSet<String> getStopTagsForDirTag(String dirTag) {
-			SQLiteDatabase database = getReadableDatabase();
-			Cursor cursor = null;
+		public static HashSet<String> getStopTagsForDirTag(ContentResolver resolver,
+				String dirTag) {
 			HashSet<String> ret = new HashSet<String>();
-			try
-			{
-				SQLiteQueryBuilder builder = new SQLiteQueryBuilder();
-				builder.setTables(directionsStopsTable);
-				cursor = builder.query(database, new String[] {stopTagKey},
-						dirTagKey + " = ?", new String[] {dirTag}, null, null, null);
+			Cursor cursor = resolver.query(DIRECTIONS_STOPS_URI, new String[] {stopTagKey},
+					dirTagKey + " = ?", new String[] {dirTag}, null);
 
-				cursor.moveToFirst();
-				while (cursor.isAfterLast() == false) {
-					String stopTag = cursor.getString(0);
-					ret.add(stopTag);
-					cursor.moveToNext();
-				}
-			}
-			finally
-			{
-				if (cursor != null) {
-					cursor.close();
-				}
+			cursor.moveToFirst();
+			while (cursor.isAfterLast() == false) {
+				String stopTag = cursor.getString(0);
+				ret.add(stopTag);
+				cursor.moveToNext();
 			}
 			return ret;
 		}
@@ -1339,7 +1036,17 @@ public class DatabaseContentProvider extends ContentProvider {
 
 	static {
 		uriMatcher = new UriMatcher(UriMatcher.NO_MATCH);
-		uriMatcher.addURI(AUTHORITY, "favorites/#", FAVORITES);
+		uriMatcher.addURI(AUTHORITY, "favorites", FAVORITES);
+		uriMatcher.addURI(AUTHORITY, "stops", STOPS);
+		uriMatcher.addURI(AUTHORITY, "routes", ROUTES);
+		uriMatcher.addURI(AUTHORITY, "stops_routes", STOPS_ROUTES);
+		uriMatcher.addURI(AUTHORITY, "stops_stops", STOPS_STOPS);
+		uriMatcher.addURI(AUTHORITY, "stops_lookup", STOPS_LOOKUP);
+		uriMatcher.addURI(AUTHORITY, "directions", DIRECTIONS);
+		uriMatcher.addURI(AUTHORITY, "directions_stops", DIRECTIONS_STOPS);
+		uriMatcher.addURI(AUTHORITY, "stops_lookup_2", STOPS_LOOKUP_2);
+		uriMatcher.addURI(AUTHORITY, "stops_lookup_3", STOPS_LOOKUP_3);
+		uriMatcher.addURI(AUTHORITY, "stops_with_distance/#/#/#", STOPS_WITH_DISTANCE);
 	}
 
 	@Override
@@ -1349,6 +1056,21 @@ public class DatabaseContentProvider extends ContentProvider {
 		switch (uriMatcher.match(uri)) {
 		case FAVORITES:
 			count = db.delete(verboseFavorites, selection, selectionArgs);
+			break;
+		case STOPS:
+			count = db.delete(verboseStops, selection, selectionArgs);
+			break;
+		case ROUTES:
+			count = db.delete(verboseRoutes, selection, selectionArgs);
+			break;
+		case STOPS_ROUTES:
+			count = db.delete(stopsRoutesMap, selection, selectionArgs);
+			break;
+		case DIRECTIONS:
+			count = db.delete(directionsTable, selection, selectionArgs);
+			break;
+		case DIRECTIONS_STOPS:
+			count = db.delete(directionsStopsTable, selection, selectionArgs);
 			break;
 		default:
 			throw new IllegalArgumentException("Unknown URI " + uri);
@@ -1363,6 +1085,26 @@ public class DatabaseContentProvider extends ContentProvider {
 		switch (uriMatcher.match(uri)) {
 		case FAVORITES:
 			return FAVORITES_TYPE;
+		case STOPS:
+			return STOPS_TYPE;
+		case ROUTES:
+			return ROUTES_TYPE;
+		case STOPS_ROUTES:
+			return STOPS_ROUTES_TYPE;
+		case STOPS_STOPS:
+			return STOPS_STOPS_TYPE;
+		case STOPS_LOOKUP:
+			return STOPS_LOOKUP_TYPE;
+		case DIRECTIONS:
+			return DIRECTIONS_TYPE;
+		case DIRECTIONS_STOPS:
+			return DIRECTIONS_STOPS_TYPE;
+		case STOPS_LOOKUP_2:
+			return STOPS_LOOKUP_2_TYPE;
+		case STOPS_LOOKUP_3:
+			return STOPS_LOOKUP_3_TYPE;
+		case STOPS_WITH_DISTANCE:
+			return STOPS_WITH_DISTANCE_TYPE;
 		default:
 			throw new IllegalArgumentException("Unknown URI " + uri);
 		}
@@ -1373,6 +1115,11 @@ public class DatabaseContentProvider extends ContentProvider {
 		int match = uriMatcher.match(uri);
 		switch (match) {
 		case FAVORITES:
+		case STOPS:
+		case ROUTES:
+		case STOPS_ROUTES:
+		case DIRECTIONS:
+		case DIRECTIONS_STOPS:
 			break;
 		default:
 			throw new IllegalArgumentException("Unknown URI " + uri);
@@ -1381,11 +1128,54 @@ public class DatabaseContentProvider extends ContentProvider {
 		SQLiteDatabase db = helper.getWritableDatabase();
 		switch (match) {
 		case FAVORITES:
-			long rowId = db.insert(verboseFavorites, null, values);
+		{
+			long rowId = db.replace(verboseFavorites, null, values);
 			if (rowId > 0) {
-				Uri favoriteUri = ContentUris.withAppendedId(FAVORITES_URI, rowId);
-				return favoriteUri;
+				return FAVORITES_URI;
 			}
+		}
+		break;
+			
+		case STOPS:
+		{
+			long rowId = db.replace(verboseStops, null, values);
+			if (rowId > 0) {
+				return STOPS_URI;
+			}
+		}
+		break;
+		case ROUTES:
+		{
+			long rowId = db.replace(verboseRoutes, null, values);
+			if (rowId > 0) {
+				return ROUTES_URI;
+			}
+		}
+		break;
+		case STOPS_ROUTES:
+		{
+			long rowId = db.replace(stopsRoutesMap, null, values);
+			if (rowId > 0) {
+				return STOPS_ROUTES_URI;
+			}
+		}
+		break;
+		case DIRECTIONS:
+		{
+			long rowId = db.replace(directionsTable, null, values);
+			if (rowId > 0) {
+				return DIRECTIONS_URI;
+			}
+		}
+		break;
+		case DIRECTIONS_STOPS:
+		{
+			long rowId = db.replace(directionsStopsTable, null, values);
+			if (rowId > 0) {
+				return DIRECTIONS_STOPS_URI;
+			}
+		}
+		break;
 		}
 		throw new SQLException("Failed to insert row into " + uri);
 	}
@@ -1400,10 +1190,66 @@ public class DatabaseContentProvider extends ContentProvider {
 	public Cursor query(Uri uri, String[] projection, String selection,
 			String[] selectionArgs, String sortOrder) {
 		SQLiteQueryBuilder builder = new SQLiteQueryBuilder();
+		String limit = null;
 
 		switch (uriMatcher.match(uri)) {
 		case FAVORITES:
 			builder.setTables(verboseFavorites);
+			break;
+		case STOPS:
+			builder.setTables(verboseStops);
+			break;
+		case ROUTES:
+			builder.setTables(verboseRoutes);
+			break;
+		case STOPS_ROUTES:
+			builder.setTables(stopsRoutesMap);
+			break;
+		case STOPS_STOPS:
+			builder.setTables(verboseStops + " as s1, " + verboseStops + " as s2");
+			break;
+		case STOPS_LOOKUP:
+			builder.setTables(verboseStops +
+						" JOIN " + stopsRoutesMap + " AS sm1 ON (" + verboseStops + "." + stopTagKey + " = sm1." + stopTagKey + ")" +
+						" JOIN " + stopsRoutesMap + " AS sm2 ON (" + verboseStops + "." + stopTagKey + " = sm2." + stopTagKey + ")" +
+						" LEFT OUTER JOIN " + subwaySpecificTable + " ON (" + verboseStops + "." + stopTagKey + " = " + 
+						subwaySpecificTable + "." + stopTagKey + ")");
+			break;
+		case DIRECTIONS:
+			builder.setTables(directionsTable);
+			break;
+		case DIRECTIONS_STOPS:
+			builder.setTables(directionsStopsTable);
+			break;
+		case STOPS_LOOKUP_2:
+			builder.setTables(verboseStops +
+					" JOIN " + stopsRoutesMap + " AS sm1 ON (" + verboseStops + "." + stopTagKey + " = sm1." + stopTagKey + ")" +
+					" JOIN " + verboseRoutes + " AS r1 ON (sm1." + routeKey + " = r1." + routeKey + ")");
+			
+			break;
+		case STOPS_LOOKUP_3:
+			builder.setTables(verboseStops + " JOIN " + stopsRoutesMap + " ON (" + verboseStops + "." + stopTagKey + " = " +
+					stopsRoutesMap + "." + stopTagKey + ") LEFT OUTER JOIN " +
+					subwaySpecificTable + " ON (" + verboseStops + "." + stopTagKey + " = " + 
+					subwaySpecificTable + "." + stopTagKey + ")");
+			break;
+		case STOPS_WITH_DISTANCE:
+		{
+			builder.setTables(verboseStops);
+
+			List<String> pathSegments = uri.getPathSegments();
+			double currentLat = Integer.parseInt(pathSegments.get(1)) * Constants.InvE6;
+			double currentLon = Integer.parseInt(pathSegments.get(2)) * Constants.InvE6;
+			limit = pathSegments.get(3);
+			HashMap<String, String> projectionMap = new HashMap<String, String>();
+			projectionMap.put(stopTagKey, stopTagKey);
+
+			double lonFactor = Math.cos(currentLat * Geometry.degreesToRadians);
+			String latDiff = "(" + latitudeKey + " - " + currentLat + ")";
+			String lonDiff = "((" + longitudeKey + " - " + currentLon + ")*" + lonFactor + ")";
+			projectionMap.put(distanceKey, latDiff + "*" + latDiff + " + " + lonDiff + "*" + lonDiff + " AS " + distanceKey);
+			builder.setProjectionMap(projectionMap);
+		}
 			break;
 		default:
 			throw new IllegalArgumentException("Unknown URI " + uri);
@@ -1411,7 +1257,7 @@ public class DatabaseContentProvider extends ContentProvider {
 		}
 
 		SQLiteDatabase db = helper.getReadableDatabase();
-		Cursor c = builder.query(db, projection, selection, selectionArgs, null, null, sortOrder);
+		Cursor c = builder.query(db, projection, selection, selectionArgs, null, null, sortOrder, limit);
 		c.setNotificationUri(getContext().getContentResolver(), uri);
 		return c;
 	}
@@ -1424,6 +1270,21 @@ public class DatabaseContentProvider extends ContentProvider {
 		switch (uriMatcher.match(uri)) {
 		case FAVORITES:
 			count = db.update(verboseFavorites, values, selection, selectionArgs);
+			break;
+		case STOPS:
+			count = db.update(verboseStops, values, selection, selectionArgs);
+			break;
+		case ROUTES:
+			count = db.update(verboseRoutes, values, selection, selectionArgs);
+			break;
+		case STOPS_ROUTES:
+			count = db.update(stopsRoutesMap, values, selection, selectionArgs);
+			break;
+		case DIRECTIONS:
+			count = db.update(directionsTable, values, selection, selectionArgs);
+			break;
+		case DIRECTIONS_STOPS:
+			count = db.update(directionsStopsTable, values, selection, selectionArgs);
 			break;
 		default:
 			throw new IllegalArgumentException("Unknown URI " + uri);

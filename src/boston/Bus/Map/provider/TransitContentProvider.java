@@ -3,20 +3,22 @@ package boston.Bus.Map.provider;
 import boston.Bus.Map.data.RoutePool;
 import boston.Bus.Map.database.DatabaseHelper;
 import boston.Bus.Map.main.Main;
+import boston.Bus.Map.provider.DatabaseContentProvider.DatabaseAgent;
 import boston.Bus.Map.transit.TransitSystem;
 import android.app.SearchManager;
 import android.content.ContentProvider;
+import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.SearchRecentSuggestionsProvider;
 import android.content.UriMatcher;
 import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteQueryBuilder;
 import android.net.Uri;
 
 public class TransitContentProvider extends SearchRecentSuggestionsProvider {
 
 	private UriMatcher matcher;
-	private DatabaseHelper helper;
 
 	public static final String AUTHORITY = "com.bostonbusmap.transitprovider";
 	public static final int MODE = SearchRecentSuggestionsProvider.DATABASE_MODE_QUERIES;
@@ -37,7 +39,6 @@ public class TransitContentProvider extends SearchRecentSuggestionsProvider {
 	@Override
 	public boolean onCreate() {
 		boolean create = super.onCreate();
-		helper = new DatabaseHelper(this.getContext());
 		return create;
 	}
 	
@@ -55,7 +56,8 @@ public class TransitContentProvider extends SearchRecentSuggestionsProvider {
 			}
 			else
 			{
-				return helper.getCursorForSearch(selectionArgs[0], Main.suggestionsMode);
+				ContentResolver resolver = getContext().getContentResolver();
+				return DatabaseAgent.getCursorForSearch(resolver, selectionArgs[0], Main.suggestionsMode);
 			}
 		default:
 			return super.query(uri, projection, selection, selectionArgs, sortOrder);
