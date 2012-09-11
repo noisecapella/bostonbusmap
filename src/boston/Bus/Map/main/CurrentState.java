@@ -29,7 +29,7 @@ public class CurrentState {
 			int selectedRouteIndex, int selectedBusPredictions,
 			boolean progressState, boolean locationEnabled) 
 	{
-		this.updateArguments = updateArguments;
+		this.updateArguments = updateArguments.cloneMe();
 		
 		this.lastUpdateTime = lastUpdateTime;
 		this.updateConstantlyInterval = updateConstantlyInterval;
