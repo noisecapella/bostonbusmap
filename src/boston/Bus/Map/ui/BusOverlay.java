@@ -209,13 +209,18 @@ public class BusOverlay extends BalloonItemizedOverlay<BusOverlayItem> {
 
 
 	public void clear() {
+		setFocus(null);
+		setLastFocusedIndex(NOT_SELECTED);
+		clearExceptFocus();
+	}
+	
+	public void clearExceptFocus() {
 		overlays.clear();
 		
 		locations.clear();
 		
-		setFocus(null);
-		setLastFocusedIndex(NOT_SELECTED);
 		locationsObj = null;
+
 	}
 
 	@Override
@@ -316,6 +321,8 @@ public class BusOverlay extends BalloonItemizedOverlay<BusOverlayItem> {
 		if (selectedBusIndex == NOT_SELECTED)
 		{
 			hideBalloon();
+			setFocus(null);
+			
 		}
 		else
 		{
@@ -404,5 +411,10 @@ public class BusOverlay extends BalloonItemizedOverlay<BusOverlayItem> {
 
 	public void captureNextTap(OnClickListener onClickListener) {
 		this.nextTapListener = onClickListener;
+	}
+	
+	@Override
+	protected void animateTo(int index, GeoPoint center) {
+		// do nothing
 	}
 }

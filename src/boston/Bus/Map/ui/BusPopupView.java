@@ -73,7 +73,7 @@ public class BusPopupView extends BalloonOverlayView<BusOverlayItem>
 		// NOTE: constructor has not been called yet
 		LayoutInflater inflater = (LayoutInflater) context
 				.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-		RelativeLayout layoutView = (RelativeLayout)inflater.inflate(R.layout.balloon_overlay, parent);
+		View layoutView = inflater.inflate(R.layout.balloon_overlay, parent);
 		layoutView.setBackgroundResource(R.drawable.tooltip);
 		title = (TextView) layoutView.findViewById(R.id.balloon_item_title);
 		snippet = (TextView) layoutView.findViewById(R.id.balloon_item_snippet);
