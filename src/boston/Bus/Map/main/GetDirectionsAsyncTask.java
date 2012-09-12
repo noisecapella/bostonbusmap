@@ -75,9 +75,15 @@ public class GetDirectionsAsyncTask extends AsyncTask<Object, String, ArrayList<
 
 	@Override
 	protected void onPostExecute(ArrayList<DirectionPath> result) {
-		for (DirectionPath path : result) {
-			Toast.makeText(context, "Direction " + path.getDirection().getTitle() +
-					"\nStop: " + path.getStop().getTitle(), Toast.LENGTH_LONG).show();
+		if (result == null || result.size() == 0) {
+			Toast.makeText(context, "No directions!", Toast.LENGTH_LONG).show();
+		}
+		else
+		{
+			for (DirectionPath path : result) {
+				Toast.makeText(context, "Direction " + path.getDirection().getTitle() +
+						"\nStop: " + path.getStop().getTitle(), Toast.LENGTH_LONG).show();
+			}
 		}
 	}
 }
