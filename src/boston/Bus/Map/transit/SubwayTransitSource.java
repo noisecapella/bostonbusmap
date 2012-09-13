@@ -55,7 +55,7 @@ public class SubwayTransitSource implements TransitSource {
 	
 	
 	@Override
-	public void populateStops(RoutePool routeMapping, String routeToUpdate,
+	public void populateStops(Context context, RoutePool routeMapping, String routeToUpdate,
 			RouteConfig oldRouteConfig, Directions directions, UpdateAsyncTask task, boolean silent)
 			throws ClientProtocolException, IOException,
 			ParserConfigurationException, SAXException, RemoteException, OperationApplicationException {

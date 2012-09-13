@@ -96,7 +96,7 @@ public abstract class NextBusTransitSource implements TransitSource
 
 
 	@Override
-	public void populateStops(RoutePool routeMapping, String routeToUpdate,
+	public void populateStops(Context context, RoutePool routeMapping, String routeToUpdate,
 			RouteConfig oldRouteConfig, Directions directions, UpdateAsyncTask task, boolean silent) 
 	throws ClientProtocolException, IOException, ParserConfigurationException, SAXException, RemoteException, OperationApplicationException 
 	{
@@ -107,12 +107,10 @@ public abstract class NextBusTransitSource implements TransitSource
 		downloadHelper.connect();
 		//just initialize the route and then end for this round
 
-		RouteConfigFeedParser parser = new RouteConfigFeedParser(directions, oldRouteConfig,
+		RouteConfigFeedParser parser = new RouteConfigFeedParser(context,
 				this);
 
 		parser.runParse(downloadHelper.getResponseData()); 
-
-		parser.writeToDatabase(routeMapping, false, task, silent);
 
 	}
 
@@ -319,15 +317,9 @@ public abstract class NextBusTransitSource implements TransitSource
 
 		GZIPInputStream stream = new GZIPInputStream(in); 
 
-		RouteConfigFeedParser parser = new RouteConfigFeedParser(directions, null, this);
+		RouteConfigFeedParser parser = new RouteConfigFeedParser(context, this);
 
 		parser.runParse(stream);
-
-
-
-		parser.writeToDatabase(routeMapping, true, task, false);
-
-
 	}
 
 	/**

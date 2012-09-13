@@ -136,7 +136,7 @@ public final class Locations
 	 * @throws RemoteException 
 	 * @throws FeedException 
 	 */
-	public void refresh(boolean inferBusRoutes, String routeToUpdate,
+	public void refresh(Context context, boolean inferBusRoutes, String routeToUpdate,
 			int selectedBusPredictions, double centerLatitude, double centerLongitude,
 			UpdateAsyncTask updateAsyncTask, boolean showRoute) throws SAXException, IOException,
 			ParserConfigurationException, FactoryConfigurationError, RemoteException, OperationApplicationException 
@@ -156,7 +156,7 @@ public final class Locations
 			{
 				//populate route overlay (just in case we didn't already)
 				//updateAsyncTask.publish(new ProgressMessage(ProgressMessage.PROGRESS_DIALOG_ON, "Downloading data for route " + routeToUpdate, null));
-				populateStops(routeToUpdate, routeConfig, updateAsyncTask, true);
+				populateStops(context, routeToUpdate, routeConfig, updateAsyncTask, true);
 				
 				return;
 			}
@@ -165,7 +165,7 @@ public final class Locations
 		{
 			//populate route overlay (just in case we didn't already)
 			updateAsyncTask.publish(new ProgressMessage(ProgressMessage.PROGRESS_DIALOG_ON, "Downloading data for route " + routeToUpdate, null));
-			populateStops(routeToUpdate, routeConfig, updateAsyncTask, false);
+			populateStops(context, routeToUpdate, routeConfig, updateAsyncTask, false);
 			return;
 		}
 		
@@ -196,7 +196,8 @@ public final class Locations
 		}
 	}
 
-	private void populateStops(String routeToUpdate, RouteConfig oldRouteConfig, UpdateAsyncTask task, boolean silent) 
+	private void populateStops(Context context, 
+			String routeToUpdate, RouteConfig oldRouteConfig, UpdateAsyncTask task, boolean silent) 
 		throws IOException, ParserConfigurationException, SAXException, RemoteException, OperationApplicationException
 	{
 		
@@ -210,7 +211,7 @@ public final class Locations
 			transitSource = transitSystem.getTransitSource(routeToUpdate);
 		}
 		
-		transitSource.populateStops(routeMapping, routeToUpdate, oldRouteConfig, directions, task, silent);
+		transitSource.populateStops(context, routeMapping, routeToUpdate, oldRouteConfig, directions, task, silent);
 	}
 
 	public int getSelectedBusPredictions()

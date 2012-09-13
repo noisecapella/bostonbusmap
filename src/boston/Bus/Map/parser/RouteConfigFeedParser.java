@@ -29,12 +29,17 @@ import boston.Bus.Map.data.RouteConfig;
 import boston.Bus.Map.data.RoutePool;
 import boston.Bus.Map.data.StopLocation;
 import boston.Bus.Map.main.UpdateAsyncTask;
+import boston.Bus.Map.provider.DatabaseContentProvider;
+import boston.Bus.Map.provider.DatabaseContentProvider.DatabaseAgent;
 import boston.Bus.Map.transit.NextBusTransitSource;
 import boston.Bus.Map.transit.TransitSource;
 import boston.Bus.Map.transit.TransitSystem;
 import boston.Bus.Map.util.FeedException;
 
 
+import android.content.ContentProviderOperation;
+import android.content.ContentValues;
+import android.content.Context;
 import android.content.OperationApplicationException;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
@@ -43,9 +48,6 @@ import android.util.Xml.Encoding;
 
 public class RouteConfigFeedParser extends DefaultHandler
 {
-	private final MyHashMap<String, RouteConfig> map = new MyHashMap<String, RouteConfig>();
-	private final Directions directions;
-	private final RouteConfig oldRouteConfig;
 	private static final String routeKey = "route";
 	private static final String directionKey = "direction";
 	private static final String stopKey = "stop";
@@ -67,34 +69,26 @@ public class RouteConfigFeedParser extends DefaultHandler
 	private static final String oppositeColorKey = "oppositeColor";
 	
 	
-	private MyHashMap<String, StopLocation> allStops = new MyHashMap<String, StopLocation>();
-	
 	private boolean inRoute;
 	private boolean inDirection;
 	private boolean inStop;
 	private boolean inPath;
 	
-	private RouteConfig currentRouteConfig;
 	private ArrayList<Path> currentPaths;
-	private String currentRoute;
+	private RouteConfig currentRouteConfig;
 	
 	private ArrayList<Float> currentPathPoints;
 	private final TransitSource transitSource;
-	private DirectionWithStopTags currentDirection;
+	private String currentDirTag;
 	
-	 
+	private final ArrayList<ContentProviderOperation> currentOperations = new ArrayList<ContentProviderOperation>();
 	
-	public RouteConfigFeedParser(Directions directions,
-			RouteConfig oldRouteConfig, NextBusTransitSource transitSource)
+	private final Context context;
+	
+	public RouteConfigFeedParser(Context context, NextBusTransitSource transitSource)
 	{
-		this.directions = directions;
-		this.oldRouteConfig = oldRouteConfig;
-		
-		if (oldRouteConfig != null)
-		{
-			allStops.putAll(oldRouteConfig.getStopMapping());
-		}
 		this.transitSource = transitSource;
+		this.context = context;
 	}
 
 	public void runParse(InputStream inputStream)  throws ParserConfigurationException, SAXException, IOException
@@ -122,20 +116,15 @@ public class RouteConfigFeedParser extends DefaultHandler
 
 					String title = attributes.getValue(titleKey);
 
-					StopLocation stopLocation = allStops.get(tag);
-					if (stopLocation == null)
-					{
-						stopLocation = new StopLocation(latitudeAsDegrees, longitudeAsDegrees, transitSource.getDrawables(), tag,
-								title);
-						allStops.put(tag, stopLocation);
-					}
-
-					currentRouteConfig.addStop(tag, stopLocation);
-					stopLocation.addRouteAndDirTag(currentRouteConfig.getRouteName(), attributes.getValue(dirTagKey));
+					currentOperations.add(DatabaseAgent.makeStop( 
+							tag, latitudeAsDegrees, longitudeAsDegrees, title));
+					currentOperations.add(DatabaseAgent.makeStopRoute(
+							tag, currentRouteConfig.getRouteName(), attributes.getValue(dirTagKey)));
 				}
 				else
 				{
-					currentDirection.addStopTag(tag);
+					currentOperations.add(DatabaseAgent.makeStopDirection(
+							tag, currentDirTag));
 				}
 			}
 		}
@@ -149,24 +138,25 @@ public class RouteConfigFeedParser extends DefaultHandler
 				String title = attributes.getValue(titleKey);
 				String name = attributes.getValue(nameKey);
 				boolean useForUI = Boolean.getBoolean(attributes.getValue(useForUIKey));
-				
-				currentDirection = new DirectionWithStopTags(name, title, currentRoute, useForUI);
-				directions.add(tag, currentDirection);
+
+				currentOperations.add(DatabaseAgent.makeDirection(
+						tag, name, title, currentRouteConfig.getRouteName(), useForUI));
 			}
 		}
 		else if (routeKey.equals(localName))
 		{
 			inRoute = true;
 			
-			currentRoute = attributes.getValue(tagKey);
+			String currentRoute = attributes.getValue(tagKey);
 			int color = parseColor(attributes.getValue(colorKey));
 			int oppositeColor = parseColor(attributes.getValue(oppositeColorKey));
 			try
 			{
 				MyHashMap<String, String> routeKeysToTitles = transitSource.getRouteKeysToTitles();
 				String currentRouteTitle = routeKeysToTitles.get(currentRoute);
-				currentRouteConfig = new RouteConfig(currentRoute, currentRouteTitle, color, oppositeColor, transitSource);
-				currentPaths = new ArrayList<Path>(1);
+				currentRouteConfig = new RouteConfig(currentRoute, currentRouteTitle, color, 
+						oppositeColor, transitSource);
+				
 			}
 			catch (IOException e)
 			{
@@ -230,13 +220,19 @@ public class RouteConfigFeedParser extends DefaultHandler
 		{
 			inRoute = false;
 			
-			currentRouteConfig.setPaths(currentPaths.toArray(RouteConfig.nullPaths));
-			
-			map.put(currentRoute, currentRouteConfig);
+			try
+			{
+				currentOperations.add(DatabaseAgent.makeRoute(
+						currentRouteConfig.getRouteName(), currentRouteConfig.getRouteTitle(),
+						currentRouteConfig.getColor(), currentRouteConfig.getOppositeColor(), 
+						currentPaths != null ? currentPaths.toArray(new Path[0]) : null));
 
-			currentRoute = null;
-			currentRouteConfig = null;
-			currentPaths = null;
+				currentRouteConfig = null;
+				currentPaths = null;
+			}
+			catch (IOException e) {
+				throw new RuntimeException(e);
+			}
 		}
 		else if (pathKey.equals(localName))
 		{
@@ -251,16 +247,9 @@ public class RouteConfigFeedParser extends DefaultHandler
 		
 	}
 	
-	public void fillMapping(MyHashMap<String, RouteConfig> stopMapping) {
-		for (String route : map.keySet())
-		{
-			stopMapping.put(route, map.get(route));
-		}
-	}
+	public void writeToDatabase() throws RemoteException, OperationApplicationException {
+		context.getContentResolver().applyBatch(DatabaseContentProvider.AUTHORITY,
+				currentOperations);
 
-	public void writeToDatabase(RoutePool routeMapping, boolean wipe, UpdateAsyncTask task, boolean silent) throws IOException, RemoteException, OperationApplicationException {
-		routeMapping.writeToDatabase(map, wipe, task, silent);
-		directions.writeToDatabase(wipe);
 	}
-	
 }

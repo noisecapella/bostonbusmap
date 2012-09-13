@@ -23,7 +23,7 @@ import boston.Bus.Map.main.UpdateAsyncTask;
 
 public interface TransitSource {
 
-	void populateStops(RoutePool routeMapping, String routeToUpdate,
+	void populateStops(Context context, RoutePool routeMapping, String routeToUpdate,
 			RouteConfig oldRouteConfig, Directions directions, UpdateAsyncTask task, boolean silent)
 		throws ClientProtocolException, IOException, ParserConfigurationException, SAXException, RemoteException, OperationApplicationException ;
 

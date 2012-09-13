@@ -253,7 +253,7 @@ public class UpdateAsyncTask extends AsyncTask<Object, Object, Locations>
 				}
 				busLocations.initializeAllRoutes(this, context, allRoutes);
 				
-				busLocations.refresh(inferBusRoutes, routeToUpdate, selectedBusPredictions,
+				busLocations.refresh(arguments.getContext(), inferBusRoutes, routeToUpdate, selectedBusPredictions,
 						centerLatitude, centerLongitude, this, showRouteLine);
 			}
 			catch (IOException e)

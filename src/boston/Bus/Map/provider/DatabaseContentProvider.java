@@ -9,6 +9,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import boston.Bus.Map.data.Direction;
 import boston.Bus.Map.data.MyHashMap;
+import boston.Bus.Map.data.Path;
 import boston.Bus.Map.data.RouteConfig;
 import boston.Bus.Map.data.StopLocation;
 import boston.Bus.Map.data.SubwayStopLocation;
@@ -41,55 +42,59 @@ import android.util.Log;
 
 public class DatabaseContentProvider extends ContentProvider {
 	private static final UriMatcher uriMatcher;
-	private static final String AUTHORITY = "com.bostonbusmap.databaseprovider";
+	public static final String AUTHORITY = "com.bostonbusmap.databaseprovider";
 
 	private static final String FAVORITES_TYPE = "vnd.android.cursor.dir/vnd.bostonbusmap.favorite";
-	private static final Uri FAVORITES_URI = Uri.parse("content://" + AUTHORITY + "/favorites");
+	public static final Uri FAVORITES_URI = Uri.parse("content://" + AUTHORITY + "/favorites");
 	private static final int FAVORITES = 1;
 
 	private static final String STOPS_TYPE = "vnd.android.cursor.dir/vnd.bostonbusmap.stop";
-	private static final Uri STOPS_URI = Uri.parse("content://" + AUTHORITY + "/stops");
+	public static final Uri STOPS_URI = Uri.parse("content://" + AUTHORITY + "/stops");
 	private static final int STOPS = 2;
 
 	private static final String ROUTES_TYPE = "vnd.android.cursor.dir/vnd.bostonbusmap.route";
-	private static final Uri ROUTES_URI = Uri.parse("content://" + AUTHORITY + "/routes");
+	public static final Uri ROUTES_URI = Uri.parse("content://" + AUTHORITY + "/routes");
 	private static final int ROUTES = 3;
 
 	private static final String STOPS_ROUTES_TYPE = "vnd.android.cursor.dir/vnd.bostonbusmap.stop_route";
-	private static final Uri STOPS_ROUTES_URI = Uri.parse("content://" + AUTHORITY + "/stops_routes");
+	public static final Uri STOPS_ROUTES_URI = Uri.parse("content://" + AUTHORITY + "/stops_routes");
 	private static final int STOPS_ROUTES = 4;
 
 	private static final String STOPS_STOPS_TYPE = "vnd.android.cursor.dir/vnd.bostonbusmap.stop_stop";
-	private static final Uri STOPS_STOPS_URI = Uri.parse("content://" + AUTHORITY + "/stops_stops");
+	public static final Uri STOPS_STOPS_URI = Uri.parse("content://" + AUTHORITY + "/stops_stops");
 	private static final int STOPS_STOPS = 5;
 
 	private static final String STOPS_LOOKUP_TYPE = "vnd.android.cursor.dir/vnd.bostonbusmap.stop_lookup";
-	private static final Uri STOPS_LOOKUP_URI = Uri.parse("content://" + AUTHORITY + "/stops_lookup");
+	public static final Uri STOPS_LOOKUP_URI = Uri.parse("content://" + AUTHORITY + "/stops_lookup");
 	private static final int STOPS_LOOKUP = 6;
 
 	private static final String DIRECTIONS_TYPE = "vnd.android.cursor.dir/vnd.bostonbusmap.direction";
-	private static final Uri DIRECTIONS_URI = Uri.parse("content://" + AUTHORITY + "/directions");
+	public static final Uri DIRECTIONS_URI = Uri.parse("content://" + AUTHORITY + "/directions");
 	private static final int DIRECTIONS = 7;
 
 	private static final String DIRECTIONS_STOPS_TYPE = "vnd.android.cursor.dir/vnd.bostonbusmap.direction_stop";
-	private static final Uri DIRECTIONS_STOPS_URI = Uri.parse("content://" + AUTHORITY + "/directions_stops");
+	public static final Uri DIRECTIONS_STOPS_URI = Uri.parse("content://" + AUTHORITY + "/directions_stops");
 	private static final int DIRECTIONS_STOPS = 8;
 
 	private static final String STOPS_LOOKUP_2_TYPE = "vnd.android.cursor.dir/vnd.bostonbusmap.stop_lookup_2";
-	private static final Uri STOPS_LOOKUP_2_URI = Uri.parse("content://" + AUTHORITY + "/stops_lookup_2");
+	public static final Uri STOPS_LOOKUP_2_URI = Uri.parse("content://" + AUTHORITY + "/stops_lookup_2");
 	private static final int STOPS_LOOKUP_2 = 9;
 
 	private static final String STOPS_LOOKUP_3_TYPE = "vnd.android.cursor.dir/vnd.bostonbusmap.stop_lookup_3";
-	private static final Uri STOPS_LOOKUP_3_URI = Uri.parse("content://" + AUTHORITY + "/stops_lookup_3");
+	public static final Uri STOPS_LOOKUP_3_URI = Uri.parse("content://" + AUTHORITY + "/stops_lookup_3");
 	private static final int STOPS_LOOKUP_3 = 10;
 
 	private static final String STOPS_WITH_DISTANCE_TYPE = "vnd.android.cursor.dir/vnd.bostonbusmap.stop_with_distance";
-	private static final Uri STOPS_WITH_DISTANCE_URI = Uri.parse("content://" + AUTHORITY + "/stops_with_distance");
+	public static final Uri STOPS_WITH_DISTANCE_URI = Uri.parse("content://" + AUTHORITY + "/stops_with_distance");
 	private static final int STOPS_WITH_DISTANCE = 11;
 
 	private static final String FAVORITES_WITH_SAME_LOCATION_TYPE = "vnd.android.cursor.dir/vnd.bostonbusmap.favorite_with_same_location";
-	private static final Uri FAVORITES_WITH_SAME_LOCATION_URI = Uri.parse("content://" + AUTHORITY + "/favorites_with_same_location");
+	public static final Uri FAVORITES_WITH_SAME_LOCATION_URI = Uri.parse("content://" + AUTHORITY + "/favorites_with_same_location");
 	private static final int FAVORITES_WITH_SAME_LOCATION = 12;
+
+	private static final String SUBWAY_STOPS_TYPE = "vnd.android.cursor.dir/vnd.bostonbusmap.subway_stop";
+	public static final Uri SUBWAY_STOPS_URI = Uri.parse("content://" + AUTHORITY + "/subway_stops");
+	private static final int SUBWAY_STOPS = 13;
 
 	private final static String dbName = "bostonBusMap";
 
@@ -363,23 +368,8 @@ public class DatabaseContentProvider extends ContentProvider {
 		private static void saveMappingKernel(ArrayList<ContentProviderOperation> operations, 
 				String route, String routeTitle, RouteConfig routeConfig,
 				HashSet<String> sharedStops) throws IOException
-				{
-			Box serializedPath = new Box(null, CURRENT_DB_VERSION);
-
-			routeConfig.serializePath(serializedPath);
-
-			byte[] serializedPathBlob = serializedPath.getBlob();
-
-			{
-				ContentValues values = new ContentValues();
-				values.put(routeKey, route);
-				values.put(routeTitleKey, routeTitle);
-				values.put(pathsBlobKey, serializedPathBlob);
-				values.put(colorKey, routeConfig.getColor());
-				values.put(oppositeColorKey, routeConfig.getOppositeColor());
-				operations.add(ContentProviderOperation.newInsert(ROUTES_URI).
-						withValues(values).build());
-			}
+		{
+			operations.add(makeRoute(routeKey, routeTitle, routeConfig.getColor(), routeConfig.getOppositeColor(), routeConfig.getPaths()));
 
 			//add all stops associated with the route, if they don't already exist
 
@@ -395,36 +385,17 @@ public class DatabaseContentProvider extends ContentProvider {
 
 					sharedStops.add(stopTag);
 
-					{
-						ContentValues values = new ContentValues();
-						values.put(stopTagKey, stopTag);
-						values.put(latitudeKey, stop.getLatitudeAsDegrees());
-						values.put(longitudeKey, stop.getLongitudeAsDegrees());
-						values.put(stopTitleKey, stop.getTitle());
-
-						operations.add(ContentProviderOperation.newInsert(STOPS_URI).withValues(values).build());
-					}
+					operations.add(makeStop(stopTag, stop.getLatitudeAsDegrees(), stop.getLongitudeAsDegrees(), stop.getTitle()));
 
 					if (stop instanceof SubwayStopLocation)
 					{
 						SubwayStopLocation subwayStop = (SubwayStopLocation)stop;
-						ContentValues values = new ContentValues();
-						values.put(stopTagKey, stopTag);
-						values.put(platformOrderKey, subwayStop.getPlatformOrder());
-						values.put(branchKey, subwayStop.getBranch());
-
-						operations.add(ContentProviderOperation.newInsert(STOPS_URI).withValues(values).build());
+						operations.add(makeSubwayStop(stopTag, subwayStop.getPlatformOrder(), subwayStop.getBranch()));
 					}
 				}
 
-				{
-					//show that there's a relationship between the stop and this route
-					ContentValues values = new ContentValues();
-					values.put(routeKey, route);
-					values.put(stopTagKey, stopTag);
-					values.put(dirTagKey, stop.getDirTagForRoute(route));
-					operations.add(ContentProviderOperation.newInsert(STOPS_ROUTES_URI).withValues(values).build());
-				}
+				//show that there's a relationship between the stop and this route
+				operations.add(makeStopRoute(route, stopTag, stop.getDirTagForRoute(route)));
 			}
 		}
 
@@ -690,20 +661,10 @@ public class DatabaseContentProvider extends ContentProvider {
 				String route = direction.getRoute();
 				boolean useAsUI = direction.isUseForUI();
 
-				ContentValues values = new ContentValues();
-				values.put(dirNameKey, name);
-				values.put(dirRouteKey, route);
-				values.put(dirTagKey, dirTag);
-				values.put(dirTitleKey, title);
-				values.put(dirUseAsUIKey, useAsUI ? INT_TRUE : INT_FALSE);
-
-				operations.add(ContentProviderOperation.newInsert(DIRECTIONS_URI).withValues(values).build());
+				operations.add(makeDirection(dirTag, name, title, route, useAsUI));
 
 				for (String stopTag : direction.getStopTags()) {
-					ContentValues stopValues = new ContentValues();
-					stopValues.put(stopTagKey, stopTag);
-					stopValues.put(dirTagKey, dirTag);
-					operations.add(ContentProviderOperation.newInsert(DIRECTIONS_STOPS_URI).withValues(stopValues).build());
+					operations.add(makeStopDirection(stopTag, dirTag));
 				}
 
 			}
@@ -1174,6 +1135,72 @@ public class DatabaseContentProvider extends ContentProvider {
 			}
 		}
 
+		public static ContentProviderOperation makeStop(
+				String tag,
+				float latitudeAsDegrees, float longitudeAsDegrees, String title) {
+			return ContentProviderOperation.newInsert(STOPS_URI).withValue(stopTagKey, tag)
+					.withValue(latitudeKey, latitudeAsDegrees)
+					.withValue(longitudeKey, longitudeAsDegrees)
+					.withValue(stopTitleKey, title).build();
+		}
+
+		public static ContentProviderOperation makeRoute(
+				String tag,
+				String routeTitle, int color, int oppositeColor,
+				Path[] currentPaths) throws IOException {
+			byte[] pathsBlob = null;
+			if (currentPaths != null) {
+				Box serializedPath = new Box(null, CURRENT_DB_VERSION);
+
+				serializedPath.writePathsList(currentPaths);
+
+				pathsBlob = serializedPath.getBlob();
+			}
+	
+			
+			return ContentProviderOperation.newInsert(ROUTES_URI).withValue(routeKey, tag)
+					.withValue(routeTitleKey, routeTitle)
+					.withValue(colorKey, color)
+					.withValue(oppositeColorKey, oppositeColor)
+					.withValue(pathsBlobKey, pathsBlob).build();
+		}
+
+		public static ContentProviderOperation makeDirection(
+				String tag, String name,
+				String title, String routeName, boolean useForUI) {
+			return ContentProviderOperation.newInsert(DIRECTIONS_URI)
+					.withValue(dirTagKey, tag)
+					.withValue(dirNameKey, name)
+					.withValue(dirTitleKey, title)
+					.withValue(dirRouteKey, routeName)
+					.withValue(dirUseAsUIKey, useForUI).build();
+		}
+
+		public static ContentProviderOperation makeStopRoute(String tag,
+				String routeName, String dirTag) {
+			return ContentProviderOperation.newInsert(STOPS_ROUTES_URI)
+					.withValue(stopTagKey, tag)
+					.withValue(routeKey, routeName)
+					.withValue(dirTagKey, dirTag).build();
+		}
+
+		private static ContentProviderOperation makeSubwayStop(String stopTag,
+				int platformOrder, String branch) {
+			ContentValues values = new ContentValues();
+			values.put(stopTagKey, stopTag);
+			values.put(platformOrderKey, platformOrder);
+			values.put(branchKey, branch);
+
+			return ContentProviderOperation.newInsert(SUBWAY_STOPS_URI).withValues(values).build();
+		}
+
+		public static ContentProviderOperation makeStopDirection(String stopTag,
+				String dirTag) {
+			return ContentProviderOperation.newInsert(DIRECTIONS_STOPS_URI)
+					.withValue(stopTagKey, stopTag)
+					.withValue(dirTagKey, dirTag).build();
+		}
+
 	}
 
 
@@ -1193,6 +1220,7 @@ public class DatabaseContentProvider extends ContentProvider {
 		uriMatcher.addURI(AUTHORITY, "stops_lookup_3", STOPS_LOOKUP_3);
 		uriMatcher.addURI(AUTHORITY, "stops_with_distance/*/*/#", STOPS_WITH_DISTANCE);
 		uriMatcher.addURI(AUTHORITY, "favorite_with_same_location", FAVORITES_WITH_SAME_LOCATION);
+		uriMatcher.addURI(AUTHORITY, "subway_stops", SUBWAY_STOPS);
 	}
 
 	@Override
@@ -1217,6 +1245,9 @@ public class DatabaseContentProvider extends ContentProvider {
 			break;
 		case DIRECTIONS_STOPS:
 			count = db.delete(directionsStopsTable, selection, selectionArgs);
+			break;
+		case SUBWAY_STOPS:
+			count = db.delete(subwaySpecificTable, selection, selectionArgs);
 			break;
 		default:
 			throw new IllegalArgumentException("Unknown URI " + uri);
@@ -1253,6 +1284,8 @@ public class DatabaseContentProvider extends ContentProvider {
 			return STOPS_WITH_DISTANCE_TYPE;
 		case FAVORITES_WITH_SAME_LOCATION:
 			return FAVORITES_WITH_SAME_LOCATION_TYPE;
+		case SUBWAY_STOPS:
+			return SUBWAY_STOPS_TYPE;
 		default:
 			throw new IllegalArgumentException("Unknown URI " + uri);
 		}
@@ -1264,6 +1297,7 @@ public class DatabaseContentProvider extends ContentProvider {
 		switch (match) {
 		case FAVORITES:
 		case STOPS:
+		case SUBWAY_STOPS:
 		case ROUTES:
 		case STOPS_ROUTES:
 		case DIRECTIONS:
@@ -1278,7 +1312,7 @@ public class DatabaseContentProvider extends ContentProvider {
 		case FAVORITES:
 		{
 			long rowId = db.replace(verboseFavorites, null, values);
-			if (rowId > 0) {
+			if (rowId >= 0) {
 				return FAVORITES_URI;
 			}
 		}
@@ -1287,7 +1321,7 @@ public class DatabaseContentProvider extends ContentProvider {
 		case STOPS:
 		{
 			long rowId = db.replace(verboseStops, null, values);
-			if (rowId > 0) {
+			if (rowId >= 0) {
 				return STOPS_URI;
 			}
 		}
@@ -1295,7 +1329,7 @@ public class DatabaseContentProvider extends ContentProvider {
 		case ROUTES:
 		{
 			long rowId = db.replace(verboseRoutes, null, values);
-			if (rowId > 0) {
+			if (rowId >= 0) {
 				return ROUTES_URI;
 			}
 		}
@@ -1303,7 +1337,7 @@ public class DatabaseContentProvider extends ContentProvider {
 		case STOPS_ROUTES:
 		{
 			long rowId = db.replace(stopsRoutesMap, null, values);
-			if (rowId > 0) {
+			if (rowId >= 0) {
 				return STOPS_ROUTES_URI;
 			}
 		}
@@ -1311,7 +1345,7 @@ public class DatabaseContentProvider extends ContentProvider {
 		case DIRECTIONS:
 		{
 			long rowId = db.replace(directionsTable, null, values);
-			if (rowId > 0) {
+			if (rowId >= 0) {
 				return DIRECTIONS_URI;
 			}
 		}
@@ -1319,8 +1353,16 @@ public class DatabaseContentProvider extends ContentProvider {
 		case DIRECTIONS_STOPS:
 		{
 			long rowId = db.replace(directionsStopsTable, null, values);
-			if (rowId > 0) {
+			if (rowId >= 0) {
 				return DIRECTIONS_STOPS_URI;
+			}
+		}
+		break;
+		case SUBWAY_STOPS:
+		{
+			long rowId = db.replace(subwaySpecificTable, null, values);
+			if (rowId >= 0) {
+				return SUBWAY_STOPS_URI;
 			}
 		}
 		break;
@@ -1352,6 +1394,9 @@ public class DatabaseContentProvider extends ContentProvider {
 			break;
 		case STOPS:
 			builder.setTables(verboseStops);
+			break;
+		case SUBWAY_STOPS:
+			builder.setTables(subwaySpecificTable);
 			break;
 		case ROUTES:
 			builder.setTables(verboseRoutes);
@@ -1439,6 +1484,9 @@ public class DatabaseContentProvider extends ContentProvider {
 			break;
 		case DIRECTIONS_STOPS:
 			count = db.update(directionsStopsTable, values, selection, selectionArgs);
+			break;
+		case SUBWAY_STOPS:
+			count = db.update(subwaySpecificTable, values, selection, selectionArgs);
 			break;
 		default:
 			throw new IllegalArgumentException("Unknown URI " + uri);
