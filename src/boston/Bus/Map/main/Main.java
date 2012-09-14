@@ -1047,6 +1047,15 @@ public class Main extends MapActivity
 			switch (resultCode) {
 			case GetDirectionsDialog.EVERYTHING_OK:
 			{
+				if (startTag == null) {
+					Toast.makeText(this, "Starting location is not set", Toast.LENGTH_LONG).show();
+					break;
+				}
+				if (stopTag == null) {
+					Toast.makeText(this, "Ending location is not set", Toast.LENGTH_LONG).show();
+					break;
+				}
+				
 				LocationManager locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
 				Location location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
 				

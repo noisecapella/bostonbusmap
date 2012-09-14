@@ -21,10 +21,12 @@
         android:ems="10"
         android:focusable="false"
         android:hint="@string/endingPoint"
+        android:layout_below="@+id/fromField"
          />
 
     <Button android:id="@+id/getDirectionsButton"
         android:text="@string/getDirections"         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_below="@+id/toField"
         />
 </RelativeLayout>
