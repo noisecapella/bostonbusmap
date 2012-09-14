@@ -531,10 +531,7 @@ public class UpdateAsyncTask extends AsyncTask<Object, Object, Locations>
 		busOverlay.refreshBalloons();
 		
 		final MapView mapView = arguments.getMapView();
-		mapView.getOverlays().clear();
-		mapView.getOverlays().add(routeOverlay);
-		mapView.getOverlays().add(arguments.getOverlayGroup().getMyLocationOverlay());
-		mapView.getOverlays().add(busOverlay);
+		arguments.getOverlayGroup().refreshMapView(mapView);
 		
 		
 		//make sure we redraw map
