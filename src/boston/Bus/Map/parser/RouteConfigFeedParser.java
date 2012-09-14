@@ -229,8 +229,14 @@ public class RouteConfigFeedParser extends DefaultHandler
 
 				currentRouteConfig = null;
 				currentPaths = null;
+				
+				writeToDatabase();
 			}
 			catch (IOException e) {
+				throw new RuntimeException(e);
+			} catch (RemoteException e) {
+				throw new RuntimeException(e);
+			} catch (OperationApplicationException e) {
 				throw new RuntimeException(e);
 			}
 		}
@@ -247,9 +253,9 @@ public class RouteConfigFeedParser extends DefaultHandler
 		
 	}
 	
-	public void writeToDatabase() throws RemoteException, OperationApplicationException {
+	private void writeToDatabase() throws RemoteException, OperationApplicationException {
 		context.getContentResolver().applyBatch(DatabaseContentProvider.AUTHORITY,
 				currentOperations);
-
+		currentOperations.clear();
 	}
 }

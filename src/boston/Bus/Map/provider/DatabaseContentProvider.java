@@ -23,6 +23,7 @@ import boston.Bus.Map.util.Constants;
 import android.app.SearchManager;
 import android.content.ContentProvider;
 import android.content.ContentProviderOperation;
+import android.content.ContentProviderResult;
 import android.content.ContentResolver;
 import android.content.ContentUris;
 import android.content.ContentValues;
@@ -369,7 +370,7 @@ public class DatabaseContentProvider extends ContentProvider {
 				String route, String routeTitle, RouteConfig routeConfig,
 				HashSet<String> sharedStops) throws IOException
 		{
-			operations.add(makeRoute(routeKey, routeTitle, routeConfig.getColor(), routeConfig.getOppositeColor(), routeConfig.getPaths()));
+			operations.add(makeRoute(route, routeTitle, routeConfig.getColor(), routeConfig.getOppositeColor(), routeConfig.getPaths()));
 
 			//add all stops associated with the route, if they don't already exist
 
@@ -395,7 +396,7 @@ public class DatabaseContentProvider extends ContentProvider {
 				}
 
 				//show that there's a relationship between the stop and this route
-				operations.add(makeStopRoute(route, stopTag, stop.getDirTagForRoute(route)));
+				operations.add(makeStopRoute(stopTag, route, stop.getDirTagForRoute(route)));
 			}
 		}
 
@@ -1219,7 +1220,7 @@ public class DatabaseContentProvider extends ContentProvider {
 		uriMatcher.addURI(AUTHORITY, "stops_lookup_2", STOPS_LOOKUP_2);
 		uriMatcher.addURI(AUTHORITY, "stops_lookup_3", STOPS_LOOKUP_3);
 		uriMatcher.addURI(AUTHORITY, "stops_with_distance/*/*/#", STOPS_WITH_DISTANCE);
-		uriMatcher.addURI(AUTHORITY, "favorite_with_same_location", FAVORITES_WITH_SAME_LOCATION);
+		uriMatcher.addURI(AUTHORITY, "favorites_with_same_location", FAVORITES_WITH_SAME_LOCATION);
 		uriMatcher.addURI(AUTHORITY, "subway_stops", SUBWAY_STOPS);
 	}
 
@@ -1494,6 +1495,28 @@ public class DatabaseContentProvider extends ContentProvider {
 		}
 		getContext().getContentResolver().notifyChange(uri, null);
 		return count;
+	}
+	
+	@Override
+	public ContentProviderResult[] applyBatch(
+			ArrayList<ContentProviderOperation> operations)
+			throws OperationApplicationException {
+		final SQLiteDatabase db = helper.getWritableDatabase();
+		db.beginTransaction();
+		try
+		{
+			final int numOperations = operations.size();
+			final ContentProviderResult[] results = new ContentProviderResult[numOperations];
+			for (int i = 0; i < numOperations; i++) {
+				results[i] = operations.get(i).apply(this, results, i);
+			}
+			db.setTransactionSuccessful();
+			return results;
+		}
+		finally
+		{
+			db.endTransaction();
+		}
 	}
 
 }

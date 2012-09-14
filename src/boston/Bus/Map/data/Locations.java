@@ -200,7 +200,6 @@ public final class Locations
 			String routeToUpdate, RouteConfig oldRouteConfig, UpdateAsyncTask task, boolean silent) 
 		throws IOException, ParserConfigurationException, SAXException, RemoteException, OperationApplicationException
 	{
-		
 		TransitSource transitSource;
 		if (oldRouteConfig != null)
 		{

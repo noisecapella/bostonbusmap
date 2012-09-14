@@ -379,17 +379,24 @@ public class Box {
 
 	public Path[] readPathsList() throws IOException {
 		showProgress("readPathsMap");
-		int size = readInt();
-		
-		ArrayList<Path> paths = new ArrayList<Path>(size);
-		
-		for (int i = 0; i < size; i++)
-		{
-			Path value = new Path(this);
-			paths.add(value);
+		if (!isOutput()) {
+			//TODO: this actually means it's input, but the input was null
+			int size = readInt();
+
+			ArrayList<Path> paths = new ArrayList<Path>(size);
+
+			for (int i = 0; i < size; i++)
+			{
+				Path value = new Path(this);
+				paths.add(value);
+			}
+
+			return paths.toArray(RouteConfig.nullPaths);
 		}
-		
-		return paths.toArray(RouteConfig.nullPaths);
+		else
+		{
+			return new Path[0];
+		}
 	}
 
 	public void writeDouble(double d) throws IOException {
@@ -478,5 +485,9 @@ public class Box {
 			ret.add(readString());
 		}
 		return ret;
+	}
+
+	public boolean isOutput() {
+		return inputStream == null;
 	}
 }
