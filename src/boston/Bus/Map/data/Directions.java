@@ -1,7 +1,10 @@
 package boston.Bus.Map.data;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashSet;
+import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 
 import boston.Bus.Map.provider.DatabaseContentProvider.DatabaseAgent;
@@ -15,6 +18,10 @@ import android.util.Log;
 public class Directions {
 	private final ConcurrentHashMap<String, Direction> directions
 		= new ConcurrentHashMap<String, Direction>();
+	private final ConcurrentHashMap<String, String[]> dirTagToStops
+		= new ConcurrentHashMap<String, String[]>();;
+	private final ConcurrentHashMap<String, String[]> stopsToDirTag
+		= new ConcurrentHashMap<String, String[]>();;
 	
 	private boolean isRefreshed = false;
 
@@ -106,7 +113,18 @@ public class Directions {
 	}
 
 	public MyHashMap<String, Direction> getDirectionsForStop(String stopTag) {
-		HashSet<String> dirTags = DatabaseAgent.getDirectionTagsForStop(context.getContentResolver(), stopTag);
+		String[] dirTags = stopsToDirTag.get(stopTag);
+		if (dirTags != null) {
+			return getDirections(Arrays.asList(dirTags));
+		}
+		else
+		{
+			ArrayList<String> dirTagSet = DatabaseAgent.getDirectionTagsForStop(context.getContentResolver(), stopTag);
+			return getDirections(dirTagSet);
+		}
+	}
+
+	private MyHashMap<String, Direction> getDirections(Collection<String> dirTags) {
 		MyHashMap<String, Direction> ret = new MyHashMap<String, Direction>();
 		for (String dirTag : dirTags) {
 			ret.put(dirTag, getDirection(dirTag));
@@ -114,7 +132,16 @@ public class Directions {
 		return ret;
 	}
 
-	public HashSet<String> getStopTagsForDirTag(String dirTag) {
-		return DatabaseAgent.getStopTagsForDirTag(context.getContentResolver(), dirTag);
+	public Collection<String> getStopTagsForDirTag(String dirTag) {
+		String[] stopTags = dirTagToStops.get(dirTag);
+		if (stopTags != null) {
+			return Arrays.asList(stopTags);
+		}
+		else
+		{
+			Collection<String> ret = DatabaseAgent.getStopTagsForDirTag(context.getContentResolver(), dirTag);
+			dirTagToStops.put(dirTag, ret.toArray(new String[0]));
+			return ret;
+		}
 	}
 }

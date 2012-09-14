@@ -63,4 +63,6 @@ Are any enabled (like GPS) in your system settings?</string>
     <string name="getDirectionsCurrentLocation">Current Location</string>
     <string name="pickCurrentLocation">My Current Location</string>
     <string name="chooseAStop">Pick a stop</string>
+    <string name="startingPoint">Starting point</string>
+    <string name="endingPoint">Ending point</string>
 </resources>

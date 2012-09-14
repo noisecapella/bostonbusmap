@@ -81,8 +81,7 @@ public class GetDirectionsAsyncTask extends AsyncTask<Object, String, ArrayList<
 		else
 		{
 			for (DirectionPath path : result) {
-				Toast.makeText(context, "Direction " + path.getDirection().getTitle() +
-						"\nStop: " + path.getStop().getTitle(), Toast.LENGTH_LONG).show();
+				Toast.makeText(context, path.toString(), Toast.LENGTH_LONG).show();
 			}
 		}
 	}

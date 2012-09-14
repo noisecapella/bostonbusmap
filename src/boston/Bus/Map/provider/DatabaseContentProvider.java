@@ -2,6 +2,7 @@ package boston.Bus.Map.provider;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -1086,9 +1087,9 @@ public class DatabaseContentProvider extends ContentProvider {
 			}
 		}
 
-		public static HashSet<String> getDirectionTagsForStop(ContentResolver resolver, 
+		public static ArrayList<String> getDirectionTagsForStop(ContentResolver resolver, 
 				String stopTag) {
-			HashSet<String> ret = new HashSet<String>();
+			ArrayList<String> ret = new ArrayList<String>();
 			Cursor cursor = null;
 			try
 			{
@@ -1111,9 +1112,9 @@ public class DatabaseContentProvider extends ContentProvider {
 			}
 		}
 
-		public static HashSet<String> getStopTagsForDirTag(ContentResolver resolver,
+		public static Collection<String> getStopTagsForDirTag(ContentResolver resolver,
 				String dirTag) {
-			HashSet<String> ret = new HashSet<String>();
+			ArrayList<String> ret = new ArrayList<String>();
 			Cursor cursor = null;
 			try
 			{

@@ -30,12 +30,6 @@ public class GetDirections  {
 	private final Directions directions;
 	private final RoutePool routePool;
 	
-	private final MyHashMap<String, MyHashMap<String, Direction>> stopsToDirections = 
-			new MyHashMap<String, MyHashMap<String,Direction>>();
-	
-	private final MyHashMap<String, HashSet<String>> dirTagsToStopTags = 
-			new MyHashMap<String, HashSet<String>>();
-	
 	public GetDirections(Directions directions, RoutePool routePool) {
 		this.directions = directions;
 		this.routePool = routePool;
@@ -56,12 +50,12 @@ public class GetDirections  {
 		DirectionPath current = null;
 		while (openSet.size() != 0) {
 			current = getNodeWithLowestFScore();
-			HashSet<String> stopsForDirTag = getStopsForDirTag(current.getDirTag());
+			Collection<String> stopsForDirTag = directions.getStopTagsForDirTag(current.getDirTag());
 			if (stopsForDirTag.contains(goal.getStopTag())) {
 				return doReconstructPath(current);
 			}
 			
-			//publishProgress("At " + current.getTitle());
+			publishProgress(current);
 			
 			openSet.remove(current);
 			closedSet.add(current);
@@ -85,39 +79,20 @@ public class GetDirections  {
 		throw new RuntimeException("No path found from " + start.getStopTag() + " to " + goal.getStopTag());
 	}
 
-	private HashSet<String> getStopsForDirTag(String dirTag) {
-		HashSet<String> ret = dirTagsToStopTags.get(dirTag);
-		if (ret == null) {
-			ret = directions.getStopTagsForDirTag(dirTag);
-			dirTagsToStopTags.put(dirTag, ret);
-		}
-		return ret;
-	}
-
-
-	private MyHashMap<String, Direction> getDirectionsForStop(String stopTag) {
-		MyHashMap<String, Direction> ret = stopsToDirections.get(stopTag);
-		if (ret == null)
-		{
-			ret = directions.getDirectionsForStop(stopTag);
-			stopsToDirections.put(stopTag, ret);
-		}
-		return ret;
-	}
-
-	private void publishProgress(String string) {
+	private void publishProgress(DirectionPath path) {
 		// TODO Auto-generated method stub
 		//System.out.println(string);
+		Log.i("BostonBusMap", "PUBLISHPROGRESS: " + path);
 	}
 
 	private Collection<DirectionPath> getNeighborNodes(DirectionPath current) throws IOException {
 		ArrayList<DirectionPath> ret = new ArrayList<DirectionPath>();
 		HashSet<String> directionsAdded = new HashSet<String>();
-		HashSet<String> stopsForDirTag = getStopsForDirTag(current.getDirTag());
+		Collection<String> stopsForDirTag = directions.getStopTagsForDirTag(current.getDirTag());
 		for (String stopTag : stopsForDirTag) {
 			RouteConfig route = routePool.get(current.getDirection().getRoute());
 			StopLocation stop = route.getStop(stopTag);
-			MyHashMap<String, Direction> directionsForStop = getDirectionsForStop(stopTag);
+			MyHashMap<String, Direction> directionsForStop = directions.getDirectionsForStop(stopTag);
 			for (String dirTag : directionsForStop.keySet()) {
 				if (directionsAdded.contains(dirTag) == false) {
 					Direction direction = directionsForStop.get(dirTag);
@@ -227,6 +202,14 @@ public class GetDirections  {
 			{
 				return false;
 			}
+		}
+		
+		@Override
+		public String toString() {
+			String directionString = direction != null ? direction.getTitle() + ":" + direction.getRoute() : "NULL";
+			String stopString = stop != null ? ", " + stop.getTitle() : "null";
+			
+			return "[" + directionString + stopString + "]"; 
 		}
 	}
 }

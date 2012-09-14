@@ -36,6 +36,7 @@ import org.xml.sax.SAXException;
 
 import android.content.Context;
 import android.content.OperationApplicationException;
+import android.os.PowerManager;
 import android.os.RemoteException;
 import android.util.Log;
 import boston.Bus.Map.algorithms.GetDirections;
@@ -101,17 +102,30 @@ public final class Locations
 		
 		if (hasNoMissingData == false)
 		{
-			HashSet<TransitSource> systems = new HashSet<TransitSource>();
-			for (String route : routesThatNeedUpdating)
+			/*
+			 * TODO: is this a good idea?
+			PowerManager powerManager = (PowerManager) context.getSystemService(Context.POWER_SERVICE);
+			PowerManager.WakeLock wakelock = powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "Initialization wakelock");
+			wakelock.acquire();
+			*/
+			try
 			{
-				systems.add(transitSystem.getTransitSource(route));
+				HashSet<TransitSource> systems = new HashSet<TransitSource>();
+				for (String route : routesThatNeedUpdating)
+				{
+					systems.add(transitSystem.getTransitSource(route));
+				}
+
+				for (TransitSource system : systems)
+				{
+					system.initializeAllRoutes(task, context, directions, routeMapping);
+				}
+				routeMapping.fillInFavoritesRoutes();
 			}
-			
-			for (TransitSource system : systems)
+			finally
 			{
-				system.initializeAllRoutes(task, context, directions, routeMapping);
+				//wakelock.release();
 			}
-			routeMapping.fillInFavoritesRoutes();
 		}
 	}
 	
@@ -420,18 +434,6 @@ public final class Locations
 		}
 		
 		return null;
-	}
-
-	public void doDirections()  {
-		try
-		{
-			StopLocation from = routeMapping.get("71").getStop("8178");
-			StopLocation to = routeMapping.get("85").getStop("2533");
-			new GetDirections(directions, routeMapping).run(from, to);
-		}
-		catch (Exception e) {
-			LogUtil.e(e);
-		}
 	}
 
 	public void startGetDirectionsTask(Context context, String startTag, String stopTag,

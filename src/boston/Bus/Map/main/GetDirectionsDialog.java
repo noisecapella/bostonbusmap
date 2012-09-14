@@ -37,6 +37,8 @@ public class GetDirectionsDialog extends Activity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.get_directions_dialog);
+		
+		setTitle(getString(R.string.getDirections));
 
 		fromField = (EditText) findViewById(R.id.fromField); 
 		toField = (EditText) findViewById(R.id.toField);

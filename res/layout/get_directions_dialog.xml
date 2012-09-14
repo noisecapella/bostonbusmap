@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical" >
+    android:orientation="vertical" 
+    >
 
     <EditText
         android:id="@+id/fromField"
@@ -10,18 +11,20 @@
         android:layout_height="wrap_content"
         android:ems="10" 
         android:focusable="false"
+        android:hint="@string/startingPoint"
         />
-
+    
     <EditText
         android:id="@+id/toField"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:ems="10"
         android:focusable="false"
+        android:hint="@string/endingPoint"
          />
 
     <Button android:id="@+id/getDirectionsButton"
         android:text="@string/getDirections"         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         />
-</LinearLayout>
+</RelativeLayout>

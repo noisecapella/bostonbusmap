@@ -21,7 +21,6 @@ import org.xml.sax.helpers.DefaultHandler;
 import skylight1.opengl.files.QuickParseUtil;
 
 import boston.Bus.Map.data.Direction;
-import boston.Bus.Map.data.DirectionWithStopTags;
 import boston.Bus.Map.data.Directions;
 import boston.Bus.Map.data.MyHashMap;
 import boston.Bus.Map.data.Path;
@@ -135,6 +134,7 @@ public class RouteConfigFeedParser extends DefaultHandler
 			if (inRoute)
 			{
 				String tag = attributes.getValue(tagKey);
+				currentDirTag = tag;
 				String title = attributes.getValue(titleKey);
 				String name = attributes.getValue(nameKey);
 				boolean useForUI = Boolean.getBoolean(attributes.getValue(useForUIKey));
