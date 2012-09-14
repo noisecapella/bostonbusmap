@@ -9,6 +9,10 @@ public class Path implements CanBeSerialized
 {
 	private final float[] points;
 	
+	/**
+	 * points is a series of lat lon pairs. Therefore points must have an even number of elements
+	 * @param points
+	 */
 	public Path(ArrayList<Float> points)
 	{
 		this.points = new float[points.size()];

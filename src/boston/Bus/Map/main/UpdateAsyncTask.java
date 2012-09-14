@@ -105,7 +105,6 @@ public class UpdateAsyncTask extends AsyncTask<Object, Object, Locations>
 	
 	private final String routeToUpdate;
 	private final int selectedBusPredictions;
-	private final boolean showRouteLine;
 
 	private final UpdateArguments arguments;
 	
@@ -117,8 +116,7 @@ public class UpdateAsyncTask extends AsyncTask<Object, Object, Locations>
 		TransitSystem transitSystem, ProgressDialog progressDialog, int idToSelect)*/
 	public UpdateAsyncTask(UpdateArguments arguments, boolean doShowUnpredictable,
 			boolean doRefresh, int maxOverlays, boolean drawCircle, boolean inferBusRoutes,
-			String routeToUpdate, int selectedBusPredictions, boolean doInit,
-			boolean showRouteLine)
+			String routeToUpdate, int selectedBusPredictions, boolean doInit)
 	{
 		super();
 		
@@ -132,8 +130,6 @@ public class UpdateAsyncTask extends AsyncTask<Object, Object, Locations>
 		this.routeToUpdate = routeToUpdate;
 		this.selectedBusPredictions = selectedBusPredictions;
 		this.doInit = doInit;
-		this.showRouteLine = showRouteLine;
-		//this.uiHandler = new Handler();
 	}
 	
 	/**
@@ -254,7 +250,7 @@ public class UpdateAsyncTask extends AsyncTask<Object, Object, Locations>
 				busLocations.initializeAllRoutes(this, context, allRoutes);
 				
 				busLocations.refresh(arguments.getContext(), inferBusRoutes, routeToUpdate, selectedBusPredictions,
-						centerLatitude, centerLongitude, this, showRouteLine);
+						centerLatitude, centerLongitude, this, arguments.getOverlayGroup().getRouteOverlay().isShowLine());
 			}
 			catch (IOException e)
 			{
@@ -429,7 +425,6 @@ public class UpdateAsyncTask extends AsyncTask<Object, Object, Locations>
 		busOverlay.setDrawHighlightCircle(drawCircle);
 		
 		final RouteOverlay routeOverlay = arguments.getOverlayGroup().getRouteOverlay();
-		routeOverlay.setDrawLine(showRouteLine);
 		//routeOverlay.setDrawCoarseLine(showCoarseRouteLine);
 		
 		//get a list of lat/lon pairs which describe the route

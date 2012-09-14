@@ -57,7 +57,6 @@ public class UpdateHandler extends Handler {
 	private boolean inferBusRoutes;
 	
 	private boolean isFirstRefresh;
-	private boolean showRouteLine;
 	
 	private final UpdateArguments guiArguments;
 	
@@ -128,7 +127,7 @@ public class UpdateHandler extends Handler {
 			minorUpdate = new UpdateAsyncTask(guiArguments, getShowUnpredictable(),
 					false, maxOverlays,
 					getHideHighlightCircle() == false, getInferBusRoutes(),
-					routeToUpdate, selectedBusPredictions, false, getShowRouteLine());
+					routeToUpdate, selectedBusPredictions, false);
 			
 
 			minorUpdate.runUpdate(guiArguments.getBusLocations(), 
@@ -184,7 +183,7 @@ public class UpdateHandler extends Handler {
 		
 		final UpdateAsyncTask updateAsyncTask = new UpdateAsyncTask(guiArguments, getShowUnpredictable(), true, maxOverlays,
 				getHideHighlightCircle() == false, getInferBusRoutes(),
-				routeToUpdate, selectedBusPredictions, isFirstTime, showRouteLine);
+				routeToUpdate, selectedBusPredictions, isFirstTime);
 		guiArguments.setMajorHandler(updateAsyncTask);
 		updateAsyncTask.runUpdate(guiArguments.getBusLocations(), centerLatitude, centerLongitude, guiArguments.getContext());
 		
@@ -269,17 +268,6 @@ public class UpdateHandler extends Handler {
 	{
 		return isFirstRefresh;
 	}
-	
-
-	public void setShowRouteLine(boolean b) {
-		showRouteLine = b;
-	}
-
-	public boolean getShowRouteLine()
-	{
-		return showRouteLine;
-	}
-	
 	
 	public void triggerUpdate(int millis) {
 		sendEmptyMessageDelayed(MINOR, millis);

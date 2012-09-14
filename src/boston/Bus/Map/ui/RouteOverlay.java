@@ -29,7 +29,7 @@ public class RouteOverlay extends Overlay
 {
 	private LinkedList<Path> paths = new LinkedList<Path>();
 	private final Projection projection;
-	private boolean showRouteLine;
+	private boolean showRouteLine = true;
 	
 	private final Paint paint;
 	private String currentRoute;
@@ -223,5 +223,9 @@ public class RouteOverlay extends Overlay
 
 	public void setDrawLine(boolean showRouteLine) {
 		this.showRouteLine = showRouteLine;
+	}
+
+	public boolean isShowLine() {	
+		return showRouteLine;
 	}
 }
