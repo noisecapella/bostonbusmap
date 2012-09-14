@@ -1,10 +1,13 @@
 package boston.Bus.Map.main;
 
 
+import android.content.Context;
 import boston.Bus.Map.data.Locations;
 import boston.Bus.Map.data.MyHashMap;
 import boston.Bus.Map.data.UpdateArguments;
 import boston.Bus.Map.ui.BusOverlay;
+import boston.Bus.Map.ui.LocationOverlay;
+import boston.Bus.Map.ui.OverlayGroup;
 import boston.Bus.Map.ui.RouteOverlay;
 
 import com.google.android.maps.MapView;
@@ -57,19 +60,6 @@ public class CurrentState {
 		return updateConstantlyInterval;
 	}
 
-	/**
-	 * It's probably unnecessary to clone a new object for this
-	 * @param context
-	 * @param mapView
-	 * @return
-	 */
-	public BusOverlay cloneBusOverlay(Main context, MapView mapView, MyHashMap<String, String> routeKeysToTitles)
-	{
-		BusOverlay ret = new BusOverlay(updateArguments.getBusOverlay(), context, mapView, routeKeysToTitles);
-		
-		return ret;
-	}
-
 	public int getSelectedRouteIndex()
 	{
 		return selectedRouteIndex;
@@ -83,19 +73,22 @@ public class CurrentState {
 		return updateArguments;
 	}
 
-	/**
-	 * It's probably unnecessary to clone here 
-	 * @param projection
-	 * @return
-	 */
-	public RouteOverlay cloneRouteOverlay(Projection projection) {
-		RouteOverlay ret = new RouteOverlay(updateArguments.getRouteOverlay(), projection);
-		
-		return ret;
-	}
-
 	public boolean getLocationEnabled() {
 		return locationEnabled;
+	}
+
+	/**
+	 * Might be unnecessary to clone, but there shouldn't be a big performance penalty
+	 * @param context
+	 * @param mapView
+	 * @param dropdownRouteKeysToTitles
+	 * @param handler
+	 * @return
+	 */
+	public OverlayGroup cloneOverlays(Main context, MapView mapView,
+			MyHashMap<String, String> dropdownRouteKeysToTitles,
+			UpdateHandler handler) {
+		return updateArguments.getOverlayGroup().cloneOverlays(context, mapView, dropdownRouteKeysToTitles, handler);
 	}
 	
 }

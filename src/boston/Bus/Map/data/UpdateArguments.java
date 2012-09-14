@@ -5,6 +5,7 @@ import boston.Bus.Map.main.UpdateAsyncTask;
 import boston.Bus.Map.transit.TransitSystem;
 import boston.Bus.Map.ui.BusOverlay;
 import boston.Bus.Map.ui.LocationOverlay;
+import boston.Bus.Map.ui.OverlayGroup;
 import boston.Bus.Map.ui.RouteOverlay;
 
 import com.google.android.maps.MapView;
@@ -18,26 +19,21 @@ public class UpdateArguments {
 	private ProgressDialog progressDialog;
 	private MapView mapView;
 	private Context context;
-	private BusOverlay busOverlay;
-	private RouteOverlay routeOverlay;
-	private LocationOverlay myLocationOverlay;
+	private OverlayGroup overlayGroup;
 	private UpdateAsyncTask majorHandler;
 	private Locations busLocations;
 	private TransitSystem transitSystem;
 	
 	public UpdateArguments(ProgressBar progress,
 			ProgressDialog progressDialog, MapView mapView, Context context,
-			BusOverlay busOverlay, RouteOverlay routeOverlay,
-			LocationOverlay myLocationOverlay, UpdateAsyncTask majorHandler,
+			OverlayGroup overlayGroup, UpdateAsyncTask majorHandler,
 			Locations busLocations,
 			TransitSystem transitSystem) {
 		this.progress = progress;
 		this.progressDialog = progressDialog;
 		this.mapView = mapView;
 		this.context = context;
-		this.busOverlay = busOverlay;
-		this.routeOverlay = routeOverlay;
-		this.myLocationOverlay = myLocationOverlay;
+		this.overlayGroup = overlayGroup;
 		this.majorHandler = majorHandler;
 		this.busLocations = busLocations;
 		this.transitSystem = transitSystem;
@@ -67,18 +63,6 @@ public class UpdateArguments {
 		return context;
 	}
 
-	public BusOverlay getBusOverlay() {
-		return busOverlay;
-	}
-
-	public RouteOverlay getRouteOverlay() {
-		return routeOverlay;
-	}
-
-	public LocationOverlay getMyLocationOverlay() {
-		return myLocationOverlay;
-	}
-
 	public UpdateAsyncTask getMajorHandler() {
 		return majorHandler;
 	}
@@ -95,20 +79,23 @@ public class UpdateArguments {
 		return transitSystem;
 	}
 
+	public OverlayGroup getOverlayGroup() {
+		return overlayGroup;
+	}
+	
 	public void nullify() {
 		this.busLocations = null;
-		this.busOverlay = null;
 		this.context = null;
 		this.majorHandler = null;
 		this.mapView = null;
-		this.myLocationOverlay = null;
 		this.progress = null;
 		this.progressDialog = null;
-		this.routeOverlay = null;
 		this.transitSystem = null;
+		this.overlayGroup.nullify();
+		this.overlayGroup = null;
 	}
 
 	public UpdateArguments cloneMe() {
-		return new UpdateArguments(progress, progressDialog, mapView, context, busOverlay, routeOverlay, myLocationOverlay, majorHandler, busLocations, transitSystem);
+		return new UpdateArguments(progress, progressDialog, mapView, context, overlayGroup, majorHandler, busLocations, transitSystem);
 	}
 }

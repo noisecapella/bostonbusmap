@@ -123,7 +123,7 @@ public class UpdateHandler extends Handler {
 			removeMessages(MINOR);
 			
 			if (msg.arg1 != 0) {
-				guiArguments.getBusOverlay().setSelectedBusId(msg.arg1);
+				guiArguments.getOverlayGroup().getBusOverlay().setSelectedBusId(msg.arg1);
 			}
 			minorUpdate = new UpdateAsyncTask(guiArguments, getShowUnpredictable(),
 					false, maxOverlays,

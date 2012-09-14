@@ -423,12 +423,12 @@ public class UpdateAsyncTask extends AsyncTask<Object, Object, Locations>
 			return;
 		}
 		
-		final BusOverlay busOverlay = arguments.getBusOverlay();
+		final BusOverlay busOverlay = arguments.getOverlayGroup().getBusOverlay();
 		//get currently selected location id, or -1 if nothing is selected
 		
 		busOverlay.setDrawHighlightCircle(drawCircle);
 		
-		final RouteOverlay routeOverlay = arguments.getRouteOverlay();
+		final RouteOverlay routeOverlay = arguments.getOverlayGroup().getRouteOverlay();
 		routeOverlay.setDrawLine(showRouteLine);
 		//routeOverlay.setDrawCoarseLine(showCoarseRouteLine);
 		
@@ -538,7 +538,7 @@ public class UpdateAsyncTask extends AsyncTask<Object, Object, Locations>
 		final MapView mapView = arguments.getMapView();
 		mapView.getOverlays().clear();
 		mapView.getOverlays().add(routeOverlay);
-		mapView.getOverlays().add(arguments.getMyLocationOverlay());
+		mapView.getOverlays().add(arguments.getOverlayGroup().getMyLocationOverlay());
 		mapView.getOverlays().add(busOverlay);
 		
 		

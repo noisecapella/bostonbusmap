@@ -49,6 +49,7 @@ import boston.Bus.Map.ui.BusOverlay;
 
 import boston.Bus.Map.ui.LocationOverlay;
 import boston.Bus.Map.ui.ModeAdapter;
+import boston.Bus.Map.ui.OverlayGroup;
 import boston.Bus.Map.ui.RouteOverlay;
 import boston.Bus.Map.ui.ViewingMode;
 import boston.Bus.Map.util.Constants;
@@ -320,31 +321,23 @@ public class Main extends MapActivity
         UpdateAsyncTask majorHandler = null;
         
         Object lastNonConfigurationInstance = getLastNonConfigurationInstance();
-        final BusOverlay busOverlay;
-        final RouteOverlay routeOverlay;
-        final LocationOverlay myLocationOverlay;
+        final OverlayGroup overlayGroup;
         Locations busLocations = null;
         if (lastNonConfigurationInstance != null)
         {
         	CurrentState currentState = (CurrentState)lastNonConfigurationInstance;
         	currentState.restoreWidgets();
         	
-        	busOverlay = currentState.cloneBusOverlay(this, mapView, dropdownRouteKeysToTitles);
-        	routeOverlay = currentState.cloneRouteOverlay(mapView.getProjection());
-        	myLocationOverlay = new LocationOverlay(this, mapView, handler);
-        	
-        	mapView.getOverlays().clear();
-        	mapView.getOverlays().add(routeOverlay);
-        	mapView.getOverlays().add(myLocationOverlay);
-        	mapView.getOverlays().add(busOverlay);
+        	overlayGroup = currentState.cloneOverlays(this, mapView, dropdownRouteKeysToTitles, handler);
+        	overlayGroup.refreshMapView(mapView);
         	
         	if (currentState.getLocationEnabled())
         	{
         		locationEnabled = true;
-        		myLocationOverlay.enableMyLocation();
+        		overlayGroup.getMyLocationOverlay().enableMyLocation();
         	}
         	
-        	busOverlay.refreshBalloons();
+        	overlayGroup.getBusOverlay().refreshBalloons();
         	
         	final UpdateArguments otherArguments = currentState.getUpdateArguments();
         	
@@ -370,9 +363,7 @@ public class Main extends MapActivity
         }
         else
         {
-        	busOverlay = new BusOverlay(busPicture, this, mapView, dropdownRouteKeysToTitles);
-        	routeOverlay = new RouteOverlay(mapView.getProjection());
-        	myLocationOverlay = new LocationOverlay(this, mapView, handler);
+        	overlayGroup = new OverlayGroup(this, busPicture, mapView, dropdownRouteKeysToTitles, handler);
         	
         	locationEnabled = prefs.getBoolean(getString(R.string.alwaysShowLocationCheckbox), true);
         }
@@ -387,10 +378,10 @@ public class Main extends MapActivity
         }
 
         arguments = new UpdateArguments(progress, progressDialog,
-        		mapView, this, busOverlay, routeOverlay, myLocationOverlay,
+        		mapView, this, overlayGroup,
         		majorHandler, busLocations, transitSystem);
         handler = new UpdateHandler(arguments);
-        busOverlay.setUpdateable(handler);
+        overlayGroup.getBusOverlay().setUpdateable(handler);
         
         populateHandlerSettings();
         
@@ -599,7 +590,7 @@ public class Main extends MapActivity
 		}
 		
 		if (arguments != null) {
-			arguments.getMyLocationOverlay().disableMyLocation();
+			arguments.getOverlayGroup().getMyLocationOverlay().disableMyLocation();
 			if (arguments.getProgressDialog() != null) {
 				arguments.getProgressDialog().dismiss();
 			}
@@ -613,8 +604,8 @@ public class Main extends MapActivity
 	protected void onDestroy() {
 		handler = null;
 		if (arguments != null) {
-			arguments.getBusOverlay().setUpdateable(null);
-			arguments.getBusOverlay().clear();
+			arguments.getOverlayGroup().getBusOverlay().setUpdateable(null);
+			arguments.getOverlayGroup().getBusOverlay().clear();
 			arguments.getMapView().getOverlays().clear();
 			
 			arguments.nullify();
@@ -660,7 +651,7 @@ public class Main extends MapActivity
     		
     		if (arguments != null)
     		{
-    			final LocationOverlay myLocationOverlay = arguments.getMyLocationOverlay();
+    			final LocationOverlay myLocationOverlay = arguments.getOverlayGroup().getMyLocationOverlay();
     			if (myLocationOverlay.isMyLocationEnabled() == false)
     			{
     				myLocationOverlay.enableMyLocation();
@@ -768,7 +759,7 @@ public class Main extends MapActivity
 
 		if (locationEnabled && arguments != null)
 		{
-			arguments.getMyLocationOverlay().enableMyLocation();
+			arguments.getOverlayGroup().getMyLocationOverlay().enableMyLocation();
 		}
 		
 		//check the result
@@ -1067,7 +1058,7 @@ public class Main extends MapActivity
 			case GetDirectionsDialog.NEEDS_INPUT_FROM:
 			case GetDirectionsDialog.NEEDS_INPUT_TO:
 				setMode(Main.BUS_PREDICTIONS_ALL, true);
-				arguments.getBusOverlay().captureNextTap(new BusOverlay.OnClickListener() {
+				arguments.getOverlayGroup().getBusOverlay().captureNextTap(new BusOverlay.OnClickListener() {
 					
 					@Override
 					public void onClick(boston.Bus.Map.data.Location location) {
