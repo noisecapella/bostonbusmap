@@ -436,9 +436,9 @@ public final class Locations
 		return null;
 	}
 
-	public void startGetDirectionsTask(Context context, String startTag, String stopTag,
+	public void startGetDirectionsTask(UpdateArguments arguments, String startTag, String stopTag,
 			double currentLat, double currentLon) {
-		GetDirectionsAsyncTask task = new GetDirectionsAsyncTask(context, 
+		GetDirectionsAsyncTask task = new GetDirectionsAsyncTask(arguments, 
 				startTag, stopTag, directions, routeMapping, currentLat, currentLon);
 		task.execute();
 	}

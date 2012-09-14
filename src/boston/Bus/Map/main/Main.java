@@ -1050,7 +1050,7 @@ public class Main extends MapActivity
 				LocationManager locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
 				Location location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
 				
-				arguments.getBusLocations().startGetDirectionsTask(this, startTag, stopTag,
+				arguments.getBusLocations().startGetDirectionsTask(arguments, startTag, stopTag,
 						location != null ? location.getLatitude() : 0,
 								location != null ? location.getLongitude() : 0);
 				break;

@@ -1112,7 +1112,7 @@ public class DatabaseContentProvider extends ContentProvider {
 			}
 		}
 
-		public static Collection<String> getStopTagsForDirTag(ContentResolver resolver,
+		public static List<String> getStopTagsForDirTag(ContentResolver resolver,
 				String dirTag) {
 			ArrayList<String> ret = new ArrayList<String>();
 			Cursor cursor = null;

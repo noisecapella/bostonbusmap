@@ -1,31 +1,41 @@
 package boston.Bus.Map.main;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
 
 import boston.Bus.Map.algorithms.GetDirections;
 import boston.Bus.Map.algorithms.GetDirections.DirectionPath;
 import boston.Bus.Map.data.Directions;
 import boston.Bus.Map.data.MyHashMap;
+import boston.Bus.Map.data.Path;
+import boston.Bus.Map.data.RouteConfig;
 import boston.Bus.Map.data.RoutePool;
 import boston.Bus.Map.data.StopLocation;
+import boston.Bus.Map.data.UpdateArguments;
+import boston.Bus.Map.ui.RouteOverlay;
 import boston.Bus.Map.util.LogUtil;
+import boston.Bus.Map.util.StringUtil;
 import android.content.Context;
+import android.graphics.Color;
 import android.os.AsyncTask;
 import android.widget.Toast;
 
 public class GetDirectionsAsyncTask extends AsyncTask<Object, String, ArrayList<DirectionPath>> {
-	private final Context context;
 	private final String startTag;
 	private final String stopTag;
 	private final Directions directions;
 	private final RoutePool routePool;
 	private final double currentLat;
 	private final double currentLon;
+	private final UpdateArguments arguments;
 	
-	public GetDirectionsAsyncTask(Context context, String startTag, String stopTag,
+	public GetDirectionsAsyncTask(UpdateArguments arguments, String startTag, String stopTag,
 			Directions directions, RoutePool routePool, double currentLat, double currentLon) {
-		this.context = context;
+		this.arguments = arguments;
 		this.startTag = startTag;
 		this.stopTag = stopTag;
 		this.directions = directions;
@@ -40,7 +50,7 @@ public class GetDirectionsAsyncTask extends AsyncTask<Object, String, ArrayList<
 	
 	@Override
 	protected void onProgressUpdate(String... values) {
-		Toast.makeText(context, values[0], Toast.LENGTH_LONG).show();
+		Toast.makeText(arguments.getContext(), values[0], Toast.LENGTH_LONG).show();
 	}
 	
 	private StopLocation resolve(String tag) {
@@ -76,13 +86,66 @@ public class GetDirectionsAsyncTask extends AsyncTask<Object, String, ArrayList<
 	@Override
 	protected void onPostExecute(ArrayList<DirectionPath> result) {
 		if (result == null || result.size() == 0) {
-			Toast.makeText(context, "No directions!", Toast.LENGTH_LONG).show();
+			Toast.makeText(arguments.getContext(), "No directions!", Toast.LENGTH_LONG).show();
 		}
 		else
 		{
-			for (DirectionPath path : result) {
-				Toast.makeText(context, path.toString(), Toast.LENGTH_LONG).show();
+			RouteOverlay overlay = arguments.getOverlayGroup().getDirectionsOverlay();
+			overlay.clearPaths();
+			
+			List<Path> paths;
+			try
+			{
+				paths = createPath(result);
 			}
+			catch (IOException e) {
+				LogUtil.e(e);
+				paths = Collections.emptyList();
+			}
+			
+			overlay.setPathsAndColor(paths.toArray(new Path[0]), Color.RED, StringUtil.buildFromToString(result));
 		}
+	}
+
+	private List<Path> createPath(ArrayList<DirectionPath> directionPaths) throws IOException {
+		ArrayList<Path> ret = new ArrayList<Path>();
+		
+		for (int i = 0; i < directionPaths.size(); i++) {
+			ArrayList<Float> points = new ArrayList<Float>();
+			
+			DirectionPath path = directionPaths.get(i);
+			DirectionPath next = directionPaths.get(i + 1);
+			StopLocation start = path.getStop();
+			StopLocation stop = next.getStop();
+			
+			String route = path.getDirection().getRoute();
+			RouteConfig routeConfig = routePool.get(route);
+			
+			List<String> stopTagsInDirection = directions.getStopTagsForDirTag(path.getDirTag());
+			int startIndex = stopTagsInDirection.indexOf(start.getStopTag());
+			int stopIndex = stopTagsInDirection.indexOf(stop.getStopTag());
+			
+			if (startIndex < stopIndex) {
+				for (int j = startIndex; j <= stopIndex; j++) {
+					String thisStopTag = stopTagsInDirection.get(j);
+					StopLocation thisStop = routeConfig.getStop(thisStopTag);
+					points.add(thisStop.getLatitudeAsDegrees());
+					points.add(thisStop.getLongitudeAsDegrees());
+				}
+			} else if (startIndex > stopIndex) {
+				for (int j = startIndex; j >= stopIndex; j--) {
+					String thisStopTag = stopTagsInDirection.get(j);
+					StopLocation thisStop = routeConfig.getStop(thisStopTag);
+					points.add(thisStop.getLatitudeAsDegrees());
+					points.add(thisStop.getLongitudeAsDegrees());
+				}
+
+			} else {
+				throw new RuntimeException("start and stop are the same");
+			}
+			
+			ret.add(new Path(points));
+		}
+		return ret;
 	}
 }

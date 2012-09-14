@@ -156,6 +156,14 @@ public class GetDirections  {
 		return distanceBetween(start, end);
 	}
 
+	/**
+	 * Returns a list of DirectionPath. It starts with the direction and some stop the direction is on,
+	 * and ends with a direction which contains the end stop
+	 * @param from
+	 * @param to
+	 * @return
+	 * @throws IOException
+	 */
 	public ArrayList<DirectionPath> run(StopLocation from, StopLocation to) throws IOException {
 		return getDirections(from, to);
 	}

@@ -27,6 +27,9 @@ import com.google.android.maps.Projection;
 
 public class RouteOverlay extends Overlay
 {
+	/**
+	 * TODO: what's the advantage of a linked list if we aren't doing any inserts?
+	 */
 	private LinkedList<Path> paths = new LinkedList<Path>();
 	private final Projection projection;
 	private boolean showRouteLine = true;
@@ -227,5 +230,9 @@ public class RouteOverlay extends Overlay
 
 	public boolean isShowLine() {	
 		return showRouteLine;
+	}
+
+	public void clearPaths() {
+		this.paths.clear();
 	}
 }

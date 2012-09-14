@@ -5,6 +5,11 @@ import java.util.ArrayList;
 import boston.Bus.Map.util.Box;
 import boston.Bus.Map.util.CanBeSerialized;
 
+/**
+ * A connected path following a series of points, defined as lat lon pairs
+ * @author schneg
+ *
+ */
 public class Path implements CanBeSerialized
 {
 	private final float[] points;

@@ -132,14 +132,14 @@ public class Directions {
 		return ret;
 	}
 
-	public Collection<String> getStopTagsForDirTag(String dirTag) {
+	public List<String> getStopTagsForDirTag(String dirTag) {
 		String[] stopTags = dirTagToStops.get(dirTag);
 		if (stopTags != null) {
 			return Arrays.asList(stopTags);
 		}
 		else
 		{
-			Collection<String> ret = DatabaseAgent.getStopTagsForDirTag(context.getContentResolver(), dirTag);
+			List<String> ret = DatabaseAgent.getStopTagsForDirTag(context.getContentResolver(), dirTag);
 			dirTagToStops.put(dirTag, ret.toArray(new String[0]));
 			return ret;
 		}
