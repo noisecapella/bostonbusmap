@@ -3,7 +3,9 @@ package boston.Bus.Map.data;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
+import boston.Bus.Map.math.Geometry;
 import boston.Bus.Map.transit.TransitSource;
 import boston.Bus.Map.util.Box;
 
@@ -141,5 +143,24 @@ public class RouteConfig
 
 	public boolean obtainedAlerts() {
 		return obtainedAlerts;
+	}
+
+	/**
+	 * Find what stop has the same location as the given stop
+	 * @param stop
+	 * @return
+	 */
+	public String getCrossStopTag(StopLocation otherStop, List<String> stopTagsToChooseFrom) {
+		float minDistance = 9999999;
+		StopLocation candidate = null;
+		for (String stopTag : stopTagsToChooseFrom) {
+			StopLocation stop = stops.get(stopTag);
+			float distance = Geometry.computeCompareDistanceFloat(stop.getLatitudeAsDegrees(), stop.getLongitudeAsDegrees(), otherStop.getLatitudeAsDegrees(), otherStop.getLongitudeAsDegrees());
+			if (distance < minDistance) {
+				candidate = stop;
+				minDistance = distance;
+			}
+		}
+		return candidate.getStopTag();
 	}
 }

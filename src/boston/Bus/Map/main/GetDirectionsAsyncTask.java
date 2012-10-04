@@ -22,6 +22,7 @@ import boston.Bus.Map.util.StringUtil;
 import android.content.Context;
 import android.graphics.Color;
 import android.os.AsyncTask;
+import android.util.Log;
 import android.widget.Toast;
 
 public class GetDirectionsAsyncTask extends AsyncTask<Object, String, ArrayList<DirectionPath>> {
@@ -110,7 +111,7 @@ public class GetDirectionsAsyncTask extends AsyncTask<Object, String, ArrayList<
 	private List<Path> createPath(ArrayList<DirectionPath> directionPaths) throws IOException {
 		ArrayList<Path> ret = new ArrayList<Path>();
 		
-		for (int i = 0; i < directionPaths.size(); i++) {
+		for (int i = 0; i < directionPaths.size() - 1; i++) {
 			ArrayList<Float> points = new ArrayList<Float>();
 			
 			DirectionPath path = directionPaths.get(i);
@@ -118,24 +119,33 @@ public class GetDirectionsAsyncTask extends AsyncTask<Object, String, ArrayList<
 			StopLocation start = path.getStop();
 			StopLocation stop = next.getStop();
 			
-			String route = path.getDirection().getRoute();
-			RouteConfig routeConfig = routePool.get(route);
+			String startRoute = path.getDirection().getRoute();
+			RouteConfig startRouteConfig = routePool.get(startRoute);
 			
 			List<String> stopTagsInDirection = directions.getStopTagsForDirTag(path.getDirTag());
 			int startIndex = stopTagsInDirection.indexOf(start.getStopTag());
-			int stopIndex = stopTagsInDirection.indexOf(stop.getStopTag());
+			String crossStopTag = startRouteConfig.getCrossStopTag(stop, stopTagsInDirection);
+			Log.i("BostonBusMap", "crossStopTag for " + stop + " is " + crossStopTag);
+			int stopIndex = stopTagsInDirection.indexOf(crossStopTag);
+			
+			if (startIndex == -1) {
+				throw new RuntimeException("startIndex is -1. path = " + path + ", next = " + next);
+			}
+			if (stopIndex == -1) {
+				throw new RuntimeException("stopIndex is -1. path = " + path + ", next = " + next);
+			}
 			
 			if (startIndex < stopIndex) {
 				for (int j = startIndex; j <= stopIndex; j++) {
 					String thisStopTag = stopTagsInDirection.get(j);
-					StopLocation thisStop = routeConfig.getStop(thisStopTag);
+					StopLocation thisStop = startRouteConfig.getStop(thisStopTag);
 					points.add(thisStop.getLatitudeAsDegrees());
 					points.add(thisStop.getLongitudeAsDegrees());
 				}
 			} else if (startIndex > stopIndex) {
 				for (int j = startIndex; j >= stopIndex; j--) {
 					String thisStopTag = stopTagsInDirection.get(j);
-					StopLocation thisStop = routeConfig.getStop(thisStopTag);
+					StopLocation thisStop = startRouteConfig.getStop(thisStopTag);
 					points.add(thisStop.getLatitudeAsDegrees());
 					points.add(thisStop.getLongitudeAsDegrees());
 				}
