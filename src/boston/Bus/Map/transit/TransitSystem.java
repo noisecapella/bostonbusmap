@@ -12,6 +12,10 @@ import javax.xml.parsers.ParserConfigurationException;
 
 import org.xml.sax.SAXException;
 
+import com.google.common.collect.ImmutableBiMap;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
+
 import android.R.string;
 import android.content.Context;
 import android.graphics.drawable.Drawable;
@@ -21,9 +25,9 @@ import boston.Bus.Map.data.BusLocation;
 import boston.Bus.Map.data.Directions;
 import boston.Bus.Map.data.Location;
 import boston.Bus.Map.data.Locations;
-import boston.Bus.Map.data.MyHashMap;
 import boston.Bus.Map.data.RouteConfig;
 import boston.Bus.Map.data.RoutePool;
+import boston.Bus.Map.data.RouteTitles;
 import boston.Bus.Map.data.StopLocation;
 import boston.Bus.Map.data.TransitDrawables;
 import boston.Bus.Map.main.Main;
@@ -73,9 +77,11 @@ public class TransitSystem {
 	}
 	
 
-	
-	private final MyHashMap<String, TransitSource> transitSourceMap = new MyHashMap<String, TransitSource>();
-	private final ArrayList<TransitSource> transitSources = new ArrayList<TransitSource>();
+	/**
+	 * Mapping of route name to its transit source
+	 */
+	private ImmutableMap<String, TransitSource> transitSourceMap;
+	private ImmutableList<TransitSource> transitSources;
 	
 	/**
 	 * Be careful with this; this stays around forever since it's static
@@ -87,20 +93,29 @@ public class TransitSystem {
 		if (defaultTransitSource == null)
 		{
 			defaultTransitSource = new BusTransitSource(this, busDrawables, alertsMapping);
+			
+			ImmutableMap.Builder<String, TransitSource> mapBuilder = ImmutableMap.builder();
 			SubwayTransitSource subwayTransitSource = new SubwayTransitSource(subwayDrawables, alertsMapping);
-			transitSourceMap.put(SubwayTransitSource.RedLine, subwayTransitSource);
-			transitSourceMap.put(SubwayTransitSource.OrangeLine, subwayTransitSource);
-			transitSourceMap.put(SubwayTransitSource.BlueLine, subwayTransitSource);
+			mapBuilder.put(SubwayTransitSource.RedLine, subwayTransitSource);
+			mapBuilder.put(SubwayTransitSource.OrangeLine, subwayTransitSource);
+			mapBuilder.put(SubwayTransitSource.BlueLine, subwayTransitSource);
 			
 			CommuterRailTransitSource commuterRailTransitSource = new CommuterRailTransitSource(commuterRailDrawables, alertsMapping);
-			for (String route : commuterRailTransitSource.getRoutes())
+			for (String route : commuterRailTransitSource.getRouteKeysToTitles().routeTags())
 			{
-				transitSourceMap.put(route, commuterRailTransitSource);
+				mapBuilder.put(route, commuterRailTransitSource);
 			}
-			
-			transitSources.add(commuterRailTransitSource);
-			transitSources.add(subwayTransitSource);
-			transitSources.add(defaultTransitSource);
+			transitSourceMap = mapBuilder.build();
+
+			ImmutableList.Builder<TransitSource> listBuilder = ImmutableList.builder();
+			listBuilder.add(commuterRailTransitSource);
+			listBuilder.add(subwayTransitSource);
+			listBuilder.add(defaultTransitSource);
+			transitSources = listBuilder.build();
+		}
+		else
+		{
+			Log.e("BostonBusMap", "ERROR: called setDefaultTransitSource twice");
 		}
 	}
 	
@@ -125,48 +140,16 @@ public class TransitSystem {
 		}
 	}
 
-	public String[] getRoutes() {
-		if (transitSources.size() > 1)
-		{
-			ArrayList<String> ret = new ArrayList<String>();
+	public RouteTitles getRouteKeysToTitles() {
+		ImmutableBiMap.Builder<String, String> builder = ImmutableBiMap.builder();
 
-			for (TransitSource source : transitSources)
-			{
-				for (String route : source.getRoutes())
-				{
-					ret.add(route);
-				}
-			}
-			
-			return ret.toArray(new String[0]);
-		}
-		else
+		for (TransitSource source : transitSources)
 		{
-			String[] routes = defaultTransitSource.getRoutes();
-			return routes;
+			RouteTitles sourceRouteKeyMap = source.getRouteKeysToTitles();
+			sourceRouteKeyMap.addSelfTo(builder);
 		}
-	}
 
-	public MyHashMap<String, String> getRouteKeysToTitles() {
-		if (transitSources.size() <= 1)
-		{
-			return defaultTransitSource.getRouteKeysToTitles();
-		}
-		else
-		{
-			MyHashMap<String, String> ret = new MyHashMap<String, String>();
-			
-			for (TransitSource source : transitSources)
-			{
-				MyHashMap<String, String> sourceRouteKeyMap = source.getRouteKeysToTitles();
-				if (sourceRouteKeyMap != null)
-				{
-					ret.putAll(sourceRouteKeyMap);
-				}
-			}
-			
-			return ret;
-		}
+		return new RouteTitles(builder.build());
 	}
 
 	public void refreshData(RouteConfig routeConfig,

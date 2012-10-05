@@ -6,14 +6,18 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 
 import java.util.Map;
+
+import com.google.common.collect.BiMap;
+import com.google.common.collect.HashBiMap;
+
 import android.util.SparseArray;
-import boston.Bus.Map.data.MyHashMap;
 import boston.Bus.Map.data.Path;
 import boston.Bus.Map.data.RouteConfig;
 
-public class Box {
+public class Box implements IBox  {
 	private final DataInputStream inputStream;
 	private final DataOutputStream outputStream;
 	private final ByteArrayOutputStream innerOutputStream;
@@ -23,8 +27,8 @@ public class Box {
 	
 	private final byte[] single = new byte[1];
 
-	private final MyHashMap<String, Integer> sharedStringTable = new MyHashMap<String, Integer>();
-	private final SparseArray<String> sharedStringTableReverse = new SparseArray<String>();
+	
+	private final BiMap<String, Integer> sharedStringTable = HashBiMap.create();
 	
 	/**
 	 * The serialization version number
@@ -48,6 +52,10 @@ public class Box {
 		}
 	}
 	
+	/* (non-Javadoc)
+	 * @see boston.Bus.Map.util.IBox2#writeBytes(byte[])
+	 */
+	@Override
 	public void writeBytes(byte[] b) throws IOException
 	{
 		showProgress("writeBytes");
@@ -63,6 +71,10 @@ public class Box {
 		}
 	}
 	
+	/* (non-Javadoc)
+	 * @see boston.Bus.Map.util.IBox2#writeInt(int)
+	 */
+	@Override
 	public void writeInt(int i) throws IOException
 	{
 		showProgress("writeInt");
@@ -72,24 +84,40 @@ public class Box {
 	
 
 	
+	/* (non-Javadoc)
+	 * @see boston.Bus.Map.util.IBox2#readInt()
+	 */
+	@Override
 	public int readInt() throws IOException
 	{
 		showProgress("readInt");
 		return inputStream.readInt();
 	}
 	
+	/* (non-Javadoc)
+	 * @see boston.Bus.Map.util.IBox2#writeShort(short)
+	 */
+	@Override
 	public void writeShort(short s) throws IOException
 	{
 		showProgress("writeShort");
 		outputStream.writeShort(s);
 	}
 	
+	/* (non-Javadoc)
+	 * @see boston.Bus.Map.util.IBox2#readShort()
+	 */
+	@Override
 	public short readShort() throws IOException
 	{
 		showProgress("readShort");
 		return inputStream.readShort();
 	}
 	
+	/* (non-Javadoc)
+	 * @see boston.Bus.Map.util.IBox2#readBytes()
+	 */
+	@Override
 	public byte[] readBytes() throws IOException
 	{
 		showProgress("readBytes");
@@ -108,22 +136,20 @@ public class Box {
 		}
 	}
 	
-	/**
-	 * Writes a string to the stream
-	 * @return
-	 * @throws IOException
+	/* (non-Javadoc)
+	 * @see boston.Bus.Map.util.IBox2#readStringUnique()
 	 */
+	@Override
 	public String readStringUnique() throws IOException
 	{
 		showProgress("readStringUnique");
 		return inputStream.readUTF();
 	}
 
-	/**
-	 * Reads a string from the stream
-	 * @param s
-	 * @throws IOException
+	/* (non-Javadoc)
+	 * @see boston.Bus.Map.util.IBox2#writeStringUnique(java.lang.String)
 	 */
+	@Override
 	public void writeStringUnique(String s) throws IOException
 	{
 		showProgress("writeStringUnique");
@@ -132,11 +158,10 @@ public class Box {
 	
 	private static final int NULL_STRING = -1;
 	
-	/**
-	 * If it's a new string, reads a string from the stream, else it takes it from the hashtable
-	 * @return
-	 * @throws IOException
+	/* (non-Javadoc)
+	 * @see boston.Bus.Map.util.IBox2#readString()
 	 */
+	@Override
 	public String readString() throws IOException
 	{
 		showProgress("readString");
@@ -146,24 +171,25 @@ public class Box {
 			return null;
 		}
 		
-		String s = sharedStringTableReverse.get(index);
-		if (null == s)
+		String s; 
+		if (sharedStringTable.containsValue(index) == false)
 		{
 			//new string
 			s = inputStream.readUTF();
 			sharedStringTable.put(s, index);
-			sharedStringTableReverse.put(index, s);
+		}
+		else
+		{
+			s = sharedStringTable.inverse().get(index);
 		}
 		
 		return s;
 	}
 
-	/**
-	 * If it's a new string, it adds the string to the hashtable and writes its value to the stream,
-	 * else it just writes its index
-	 * @param s
-	 * @throws IOException
+	/* (non-Javadoc)
+	 * @see boston.Bus.Map.util.IBox2#writeString(java.lang.String)
 	 */
+	@Override
 	public void writeString(String s) throws IOException {
 		showProgress("writeStringUnique");
 		
@@ -179,7 +205,6 @@ public class Box {
 				//new string
 				int newIndex = sharedStringTable.size();
 				sharedStringTable.put(s, newIndex);
-				sharedStringTableReverse.put(newIndex, s);
 
 				outputStream.writeInt(newIndex);
 				outputStream.writeUTF(s);
@@ -192,6 +217,10 @@ public class Box {
 		}
 	}
 	
+	/* (non-Javadoc)
+	 * @see boston.Bus.Map.util.IBox2#readByte()
+	 */
+	@Override
 	public byte readByte() throws IOException
 	{
 		showProgress("readByte");
@@ -199,6 +228,10 @@ public class Box {
 		return single[0];
 	}
 	
+	/* (non-Javadoc)
+	 * @see boston.Bus.Map.util.IBox2#writeByte(byte)
+	 */
+	@Override
 	public void writeByte(byte b) throws IOException
 	{
 		showProgress("writeByte");
@@ -206,15 +239,19 @@ public class Box {
 		outputStream.write(single, 0, 1);
 	}
 	
-	/**
-	 * Pretend to write out a map
-	 * @throws IOException 
+	/* (non-Javadoc)
+	 * @see boston.Bus.Map.util.IBox2#writeFakeStringMap()
 	 */
+	@Override
 	public void writeFakeStringMap() throws IOException {
 		writeByte(IS_NOT_NULL);
 		writeInt(0);
 	}
 
+	/* (non-Javadoc)
+	 * @see boston.Bus.Map.util.IBox2#readFakeStringMap()
+	 */
+	@Override
 	public void readFakeStringMap() throws IOException
 	{
 		byte b = readByte();
@@ -256,45 +293,10 @@ public class Box {
 	private static final String outbound = "Outbound";
 	
 	
-	/*public Object[] readStringKeyValue(boolean optimizeForInbound) throws IOException
-	{
-		showProgress("readStringMap");
-		byte b = readByte();
-		if (b == IS_NULL)
-		{
-			//do nothing
-			return new Object[]{new ArrayList<String>(), new ArrayList<String>()};
-		}
-		else
-		{
-			int size = readInt();
-			ArrayList<String> keys = new ArrayList<String>(size);
-			ArrayList<String> values = new ArrayList<String>(size);
-			for (int i = 0; i < size; i++)
-			{
-				String key = readString();
-				String value = readString();
-				
-				if (optimizeForInbound)
-				{
-					if (inbound.equals(value))
-					{
-						value = inbound;
-					}
-					else if (outbound.equals(value))
-					{
-						value = outbound;
-					}
-				}
-				
-				keys.add(key);
-				values.add(value);
-			}
-			
-			return new Object[]{keys, values};
-		}
-	}*/
-	
+	/* (non-Javadoc)
+	 * @see boston.Bus.Map.util.IBox2#writeStringMap(java.util.Map)
+	 */
+	@Override
 	public void writeStringMap(Map<String, String> map) throws IOException
 	{
 		showProgress("writeStringMap");
@@ -318,7 +320,7 @@ public class Box {
 		}
 	}
 	
-	public void readStringMap(Map<String, String> map) throws IOException
+/*	public void readStringMap(Map<String, String> map) throws IOException
 	{
 		showProgress("readStringMap(map)");
 		byte b = readByte();
@@ -341,14 +343,14 @@ public class Box {
 
 	}
 	
-	public MyHashMap<String, String> readStringMap() throws IOException
+	public Map<String, String> readStringMap() throws IOException
 	{
 		showProgress("readStringMap");
 		byte b = readByte();
 		if (b == IS_NULL)
 		{
 			//do nothing
-			return new MyHashMap<String, String>(0);
+			return Collections.emptyMap();
 		}
 		else
 		{
@@ -365,7 +367,11 @@ public class Box {
 			return map;
 		}
 	}
-
+*/
+	/* (non-Javadoc)
+	 * @see boston.Bus.Map.util.IBox2#writePathsList(boston.Bus.Map.data.Path[])
+	 */
+	@Override
 	public void writePathsList(Path[] paths) throws IOException {
 		showProgress("writePathsMap");
 		int size = paths.length;
@@ -377,6 +383,10 @@ public class Box {
 		}
 	}
 
+	/* (non-Javadoc)
+	 * @see boston.Bus.Map.util.IBox2#readPathsList()
+	 */
+	@Override
 	public Path[] readPathsList() throws IOException {
 		showProgress("readPathsMap");
 		if (!isOutput()) {
@@ -399,46 +409,78 @@ public class Box {
 		}
 	}
 
+	/* (non-Javadoc)
+	 * @see boston.Bus.Map.util.IBox2#writeDouble(double)
+	 */
+	@Override
 	public void writeDouble(double d) throws IOException {
 		showProgress("writeDouble");
 		outputStream.writeDouble(d);
 	}
 	
+	/* (non-Javadoc)
+	 * @see boston.Bus.Map.util.IBox2#readDouble()
+	 */
+	@Override
 	public double readDouble() throws IOException
 	{
 		showProgress("readDouble");
 		return inputStream.readDouble();
 	}
 
+	/* (non-Javadoc)
+	 * @see boston.Bus.Map.util.IBox2#writeFloat(float)
+	 */
+	@Override
 	public void writeFloat(float f) throws IOException
 	{
 		showProgress("writeFloat");
 		outputStream.writeFloat(f);
 	}
 	
+	/* (non-Javadoc)
+	 * @see boston.Bus.Map.util.IBox2#readFloat()
+	 */
+	@Override
 	public float readFloat() throws IOException
 	{
 		showProgress("readFloat");
 		return inputStream.readFloat();
 	}
 	
+	/* (non-Javadoc)
+	 * @see boston.Bus.Map.util.IBox2#writeBoolean(boolean)
+	 */
+	@Override
 	public void writeBoolean(boolean b) throws IOException
 	{
 		showProgress("writeBoolean");
 		outputStream.writeBoolean(b);
 	}
 	
+	/* (non-Javadoc)
+	 * @see boston.Bus.Map.util.IBox2#readBoolean()
+	 */
+	@Override
 	public boolean readBoolean() throws IOException
 	{
 		showProgress("readBoolean");
 		return inputStream.readBoolean();
 	}
 	
+	/* (non-Javadoc)
+	 * @see boston.Bus.Map.util.IBox2#writeLong(long)
+	 */
+	@Override
 	public void writeLong(long i) throws IOException {
 		showProgress("writeLong");
 		outputStream.writeLong(i);
 	}
 	
+	/* (non-Javadoc)
+	 * @see boston.Bus.Map.util.IBox2#readLong()
+	 */
+	@Override
 	public long readLong() throws IOException
 	{
 		showProgress("readLong");
@@ -457,16 +499,28 @@ public class Box {
 		
 	}
 
+	/* (non-Javadoc)
+	 * @see boston.Bus.Map.util.IBox2#getBlob()
+	 */
+	@Override
 	public byte[] getBlob() throws IOException {
 		outputStream.flush();
 		outputStream.close();
 		return innerOutputStream.toByteArray();
 	}
 
+	/* (non-Javadoc)
+	 * @see boston.Bus.Map.util.IBox2#getVersionNumber()
+	 */
+	@Override
 	public int getVersionNumber() {
 		return versionNumber;
 	}
 
+	/* (non-Javadoc)
+	 * @see boston.Bus.Map.util.IBox2#writeStrings(java.util.ArrayList)
+	 */
+	@Override
 	public void writeStrings(ArrayList<String> routes) throws IOException {
 		writeInt(routes.size());
 		for (String route : routes)
@@ -476,6 +530,10 @@ public class Box {
 		
 	}
 
+	/* (non-Javadoc)
+	 * @see boston.Bus.Map.util.IBox2#readStrings()
+	 */
+	@Override
 	public ArrayList<String> readStrings() throws IOException
 	{
 		int size = readInt();
@@ -487,7 +545,191 @@ public class Box {
 		return ret;
 	}
 
+	/* (non-Javadoc)
+	 * @see boston.Bus.Map.util.IBox2#isOutput()
+	 */
+	@Override
 	public boolean isOutput() {
 		return inputStream == null;
+	}
+	
+	@Override
+	public boolean isEmpty() {
+		// TODO: double check. But usually if we're using this it should be empty
+		return false;
+	}
+	
+	public static IBox emptyBox() {
+		return new IBox() {
+			
+			@Override
+			public void writeStrings(ArrayList<String> routes) throws IOException {
+				throw new RuntimeException("Unimplemented");
+				
+			}
+			
+			@Override
+			public void writeStringUnique(String s) throws IOException {
+				throw new RuntimeException("Unimplemented");
+				
+			}
+			
+			@Override
+			public void writeStringMap(Map<String, String> map) throws IOException {
+				throw new RuntimeException("Unimplemented");
+				
+			}
+			
+			@Override
+			public void writeString(String s) throws IOException {
+				throw new RuntimeException("Unimplemented");
+				
+			}
+			
+			@Override
+			public void writeShort(short s) throws IOException {
+				throw new RuntimeException("Unimplemented");
+				
+			}
+			
+			@Override
+			public void writePathsList(Path[] paths) throws IOException {
+				throw new RuntimeException("Unimplemented");
+				
+			}
+			
+			@Override
+			public void writeLong(long i) throws IOException {
+				throw new RuntimeException("Unimplemented");
+				
+			}
+			
+			@Override
+			public void writeInt(int i) throws IOException {
+				throw new RuntimeException("Unimplemented");
+				
+			}
+			
+			@Override
+			public void writeFloat(float f) throws IOException {
+				throw new RuntimeException("Unimplemented");
+				
+			}
+			
+			@Override
+			public void writeFakeStringMap() throws IOException {
+				throw new RuntimeException("Unimplemented");
+				
+			}
+			
+			@Override
+			public void writeDouble(double d) throws IOException {
+				throw new RuntimeException("Unimplemented");
+				
+			}
+			
+			@Override
+			public void writeBytes(byte[] b) throws IOException {
+				throw new RuntimeException("Unimplemented");
+				
+			}
+			
+			@Override
+			public void writeByte(byte b) throws IOException {
+				throw new RuntimeException("Unimplemented");
+				
+			}
+			
+			@Override
+			public void writeBoolean(boolean b) throws IOException {
+				throw new RuntimeException("Unimplemented");
+				
+			}
+			
+			@Override
+			public ArrayList<String> readStrings() throws IOException {
+				throw new RuntimeException("Unimplemented");
+			}
+			
+			@Override
+			public String readStringUnique() throws IOException {
+				throw new RuntimeException("Unimplemented");
+			}
+			
+			@Override
+			public String readString() throws IOException {
+				throw new RuntimeException("Unimplemented");
+			}
+			
+			@Override
+			public short readShort() throws IOException {
+				throw new RuntimeException("Unimplemented");
+			}
+			
+			@Override
+			public Path[] readPathsList() throws IOException {
+				throw new RuntimeException("Unimplemented");
+			}
+			
+			@Override
+			public long readLong() throws IOException {
+				throw new RuntimeException("Unimplemented");
+			}
+			
+			@Override
+			public int readInt() throws IOException {
+				throw new RuntimeException("Unimplemented");
+			}
+			
+			@Override
+			public float readFloat() throws IOException {
+				throw new RuntimeException("Unimplemented");
+			}
+			
+			@Override
+			public void readFakeStringMap() throws IOException {
+				throw new RuntimeException("Unimplemented");
+			}
+			
+			@Override
+			public double readDouble() throws IOException {
+				throw new RuntimeException("Unimplemented");
+			}
+			
+			@Override
+			public byte[] readBytes() throws IOException {
+				throw new RuntimeException("Unimplemented");
+			}
+			
+			@Override
+			public byte readByte() throws IOException {
+				throw new RuntimeException("Unimplemented");
+			}
+			
+			@Override
+			public boolean readBoolean() throws IOException {
+				throw new RuntimeException("Unimplemented");
+			}
+			
+			@Override
+			public boolean isOutput() {
+				return false;
+			}
+			
+			@Override
+			public int getVersionNumber() {
+				return 0;
+			}
+			
+			@Override
+			public byte[] getBlob() throws IOException {
+				throw new RuntimeException("Unimplemented");
+			}
+			
+			@Override
+			public boolean isEmpty() {
+				return true;
+			}
+		};
 	}
 }

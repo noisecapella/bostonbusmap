@@ -5,7 +5,12 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableMap.Builder;
+import com.google.common.collect.Maps;
 
 import boston.Bus.Map.provider.DatabaseContentProvider.DatabaseAgent;
 
@@ -112,7 +117,7 @@ public class Directions {
 		}
 	}
 
-	public MyHashMap<String, Direction> getDirectionsForStop(String stopTag) {
+	public Map<String, Direction> getDirectionsForStop(String stopTag) {
 		String[] dirTags = stopsToDirTag.get(stopTag);
 		if (dirTags != null) {
 			return getDirections(Arrays.asList(dirTags));
@@ -124,12 +129,12 @@ public class Directions {
 		}
 	}
 
-	private MyHashMap<String, Direction> getDirections(Collection<String> dirTags) {
-		MyHashMap<String, Direction> ret = new MyHashMap<String, Direction>();
+	private ImmutableMap<String, Direction> getDirections(Collection<String> dirTags) {
+		Builder<String, Direction> ret = ImmutableMap.builder();
 		for (String dirTag : dirTags) {
 			ret.put(dirTag, getDirection(dirTag));
 		}
-		return ret;
+		return ret.build();
 	}
 
 	public List<String> getStopTagsForDirTag(String dirTag) {

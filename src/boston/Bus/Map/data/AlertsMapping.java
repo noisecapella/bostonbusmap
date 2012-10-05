@@ -1,5 +1,11 @@
 package boston.Bus.Map.data;
 
+import java.util.Map;
+
+import com.google.common.collect.ImmutableBiMap;
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Maps;
+
 
 
 public class AlertsMapping {
@@ -209,11 +215,12 @@ public class AlertsMapping {
 	"Red Line - Mattapan Line,233\n";
 	public static final String alertUrlPrefix = "http://talerts.com/rssfeed/alertsrss.aspx?";
 
-	private final MyHashMap<String, Integer> routeDescriptionToAlertKey = new MyHashMap<String, Integer>();
+	private final ImmutableMap<String, Integer> routeDescriptionToAlertKey;
 	
 	public AlertsMapping()
 	{
 		String[] lines = alertsMappingData.split("\n");
+		ImmutableMap.Builder<String, Integer> builder = ImmutableMap.builder();
 		for (String line : lines)
 		{
 			line = line.trim();
@@ -222,15 +229,16 @@ public class AlertsMapping {
 			int alertKey = Integer.parseInt(fields[fields.length - 1]);
 			String routeDescription = fields[0];
 			
-			routeDescriptionToAlertKey.put(routeDescription, alertKey);
+			builder.put(routeDescription, alertKey);
 		}
+		routeDescriptionToAlertKey = builder.build();				
 	}
 
-	public MyHashMap<String, Integer> getAlertNumbers(String[] routeNames, MyHashMap<String, String> routeKeysToTitles)
+	public ImmutableMap<String, Integer> getAlertNumbers(RouteTitles routeKeysToTitles)
 	{
-		MyHashMap<String, Integer> ret = new MyHashMap<String, Integer>();
+		Map<String, Integer> ret = Maps.newHashMap();
 		
-		for (String routeName : routeNames)
+		for (String routeName : routeKeysToTitles.routeTags())
 		{
 			for (String routeDescription : routeDescriptionToAlertKey.keySet())
 			{
@@ -273,14 +281,14 @@ public class AlertsMapping {
 		ret.put("Orange", 16);
 		ret.put("Blue", 18);
 
-		return ret;
+		return ImmutableMap.copyOf(ret);
 	}
 
-	private void addToList(String routeTitle, int alertIndex, MyHashMap<String, String> routeKeysToTitles,
-			MyHashMap<String, Integer> alertsMapping) {
-		for (String routeKey : routeKeysToTitles.values())
+	private void addToList(String routeTitle, int alertIndex, RouteTitles routeKeysToTitles,
+			Map<String, Integer> alertsMapping) {
+		for (String routeKey : routeKeysToTitles.routeTitles())
 		{
-			String potentialRouteTitle = routeKeysToTitles.get(routeKey);
+			String potentialRouteTitle = routeKeysToTitles.getTitle(routeKey);
 			if (routeTitle.equals(potentialRouteTitle))
 			{
 				alertsMapping.put(routeKey, alertIndex);

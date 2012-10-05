@@ -23,15 +23,21 @@ import java.io.InputStream;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 
 import java.util.HashSet;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
+
 import javax.xml.parsers.FactoryConfigurationError;
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.xml.sax.SAXException;
+
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 
 
 import android.content.Context;
@@ -81,7 +87,7 @@ public final class Locations
 	
 	public String getRouteName(String key)
 	{
-		return transitSystem.getTransitSource(key).getRouteKeysToTitles().get(key);
+		return transitSystem.getTransitSource(key).getRouteKeysToTitles().getTitle(key);
 	}
 	
 	/**
@@ -94,10 +100,10 @@ public final class Locations
 	 * @throws OperationApplicationException 
 	 * @throws RemoteException 
 	 */
-	public void initializeAllRoutes(UpdateAsyncTask task, Context context, String[] routesToCheck)
+	public void initializeAllRoutes(UpdateAsyncTask task, Context context, RouteTitles routesToCheck)
 		throws ParserConfigurationException, FactoryConfigurationError, SAXException, IOException, RemoteException, OperationApplicationException
 	{
-		ArrayList<String> routesThatNeedUpdating = routeInfoNeedsUpdating(routesToCheck); 
+		ImmutableList<String> routesThatNeedUpdating = routeInfoNeedsUpdating(routesToCheck); 
 		boolean hasNoMissingData = routesThatNeedUpdating == null || routesThatNeedUpdating.size() == 0;
 		
 		if (hasNoMissingData == false)
@@ -303,7 +309,7 @@ public final class Locations
 		}
 		else if (selectedBusPredictions == Main.BUS_PREDICTIONS_ALL)
 		{
-			ArrayList<StopLocation> stops = routeMapping.getClosestStops(centerLatitude, centerLongitude, maxLocations);
+			Collection<StopLocation> stops = routeMapping.getClosestStops(centerLatitude, centerLongitude, maxLocations);
 			for (StopLocation stop : stops)
 			{
 				if (!(stop instanceof SubwayStopLocation))
@@ -377,7 +383,7 @@ public final class Locations
 	}
 
 	
-	private ArrayList<String> routeInfoNeedsUpdating(String[] routesToCheck) throws IOException
+	private ImmutableList<String> routeInfoNeedsUpdating(RouteTitles routesToCheck) throws IOException
 	{
 		return routeMapping.routeInfoNeedsUpdating(routesToCheck);
 	}
@@ -406,7 +412,7 @@ public final class Locations
 		return (long)lastUpdateTime;
 	}
 	
-	public MyHashMap<String, StopLocation> getAllStopsAtStop(String stopTag)
+	public ConcurrentMap<String, StopLocation> getAllStopsAtStop(String stopTag)
 	{
 		return routeMapping.getAllStopTagsAtLocation(stopTag);
 	}

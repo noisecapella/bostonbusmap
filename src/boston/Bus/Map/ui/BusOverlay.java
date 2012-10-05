@@ -19,12 +19,14 @@
 package boston.Bus.Map.ui;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 
 import boston.Bus.Map.data.Alert;
+import boston.Bus.Map.data.PredictionView;
 import boston.Bus.Map.data.Locations;
-import boston.Bus.Map.data.MyHashMap;
+import boston.Bus.Map.data.RouteTitles;
 import boston.Bus.Map.data.StopLocation;
 
 import boston.Bus.Map.data.Location;
@@ -35,6 +37,8 @@ import com.google.android.maps.ItemizedOverlay;
 import com.google.android.maps.MapView;
 import com.google.android.maps.OverlayItem;
 import com.google.android.maps.Projection;
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Lists;
 import com.readystatesoftware.mapviewballoons.BalloonItemizedOverlay;
 import com.readystatesoftware.mapviewballoons.BalloonOverlayView;
 
@@ -54,14 +58,14 @@ import android.view.View.OnClickListener;
  * 
  * The bus overlay on the MapView
  * Much of this was borrowed from the helpful tutorial at http://developer.android.com/guide/tutorials/views/hello-mapview.html
- * 
+ * Not in the least bit thread safe. Only access from UI thread!
  */
 public class BusOverlay extends BalloonItemizedOverlay<BusOverlayItem> {
 
 	public static final int NOT_SELECTED = -1;
-	private final ArrayList<BusOverlayItem> overlays = new ArrayList<BusOverlayItem>();
+	private final ArrayList<BusOverlayItem> overlays = Lists.newArrayList();
 	private Main context;
-	private final List<Location> locations = new ArrayList<Location>();
+	private final List<Location> locations = Lists.newArrayList();
 	private int selectedBusIndex;
 	private UpdateHandler updateable;
 	private boolean drawHighlightCircle;
@@ -69,7 +73,7 @@ public class BusOverlay extends BalloonItemizedOverlay<BusOverlayItem> {
 	private final Drawable busPicture;
 	private final Paint paint;
 	
-	private final MyHashMap<String, String> routeKeysToTitles;
+	private final RouteTitles routeKeysToTitles;
 	
 	//these two are temporary variables stored here so we don't create a new Point every time we draw
 	private final Point circleCenter = new Point();
@@ -77,7 +81,7 @@ public class BusOverlay extends BalloonItemizedOverlay<BusOverlayItem> {
 	
 	private Locations locationsObj;
 	
-	public BusOverlay(BusOverlay busOverlay, Main context, MapView mapView, MyHashMap<String, String> routeKeysToTitles)
+	public BusOverlay(BusOverlay busOverlay, Main context, MapView mapView, RouteTitles routeKeysToTitles)
 	{
 		this(busOverlay.busPicture, context, mapView, routeKeysToTitles);
 		
@@ -101,7 +105,7 @@ public class BusOverlay extends BalloonItemizedOverlay<BusOverlayItem> {
 	}
 	
 	
-	public BusOverlay(Drawable busPicture, Main context, MapView mapView, MyHashMap<String, String> routeKeysToTitles)
+	public BusOverlay(Drawable busPicture, Main context, MapView mapView, RouteTitles routeKeysToTitles)
 	{
 		super(boundCenterBottom(busPicture), mapView);
 
@@ -360,9 +364,10 @@ public class BusOverlay extends BalloonItemizedOverlay<BusOverlayItem> {
 		for (int i = 0; i < locations.size(); i++)
 		{
 			Location location = locations.get(i);
-			String titleText = location.getSnippetTitle();
-			String snippetText = location.getSnippet();
-			ArrayList<Alert> alerts = location.getSnippetAlerts();
+			PredictionView predictionView = location.getPredictionView();
+			String titleText = predictionView.getSnippetTitle();
+			String snippetText = predictionView.getSnippet();
+			Alert[] alerts = predictionView.getAlerts();
 			BusOverlayItem overlayItem = new BusOverlayItem(points.get(i),titleText, snippetText, alerts);
 			overlays.add(overlayItem);
 		}

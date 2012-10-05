@@ -11,14 +11,17 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Maps;
+
 import boston.Bus.Map.data.BusLocation;
 import boston.Bus.Map.data.CommuterRailPrediction;
 import boston.Bus.Map.data.CommuterTrainLocation;
 import boston.Bus.Map.data.Direction;
 import boston.Bus.Map.data.Directions;
-import boston.Bus.Map.data.MyHashMap;
 import boston.Bus.Map.data.Prediction;
 import boston.Bus.Map.data.RouteConfig;
+import boston.Bus.Map.data.RouteTitles;
 import boston.Bus.Map.data.StopLocation;
 import boston.Bus.Map.data.TransitDrawables;
 import boston.Bus.Map.transit.CommuterRailTransitSource;
@@ -32,14 +35,14 @@ public class CommuterRailPredictionsFeedParser
 	private final TransitDrawables drawables;
 
 	private final SimpleDateFormat format;
-	private final MyHashMap<String, Integer> indexes = new MyHashMap<String, Integer>();
+	private final Map<String, Integer> indexes = Maps.newHashMap();
 
 	
 	private final ConcurrentHashMap<String, BusLocation> busMapping;
-	private final MyHashMap<String, String> routeKeysToTitles;
+	private final RouteTitles routeKeysToTitles;
 
 	public CommuterRailPredictionsFeedParser(RouteConfig routeConfig, Directions directions, TransitDrawables drawables, 
-			ConcurrentHashMap<String, BusLocation> busMapping, MyHashMap<String, String> routeKeysToTitles)
+			ConcurrentHashMap<String, BusLocation> busMapping, RouteTitles routeKeysToTitles)
 	{
 		this.routeConfig = routeConfig;
 		this.directions = directions;
@@ -191,7 +194,7 @@ public class CommuterRailPredictionsFeedParser
 						heading = null;
 					}
 					
-					String routeTitle = routeKeysToTitles.get(route);
+					String routeTitle = routeKeysToTitles.getTitle(route);
 					if (routeTitle == null)
 					{
 						routeTitle = route;

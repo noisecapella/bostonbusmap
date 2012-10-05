@@ -7,12 +7,14 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+
+import com.google.common.collect.Maps;
 
 import android.util.Log;
 import android.util.Pair;
 import boston.Bus.Map.data.Direction;
 import boston.Bus.Map.data.Directions;
-import boston.Bus.Map.data.MyHashMap;
 import boston.Bus.Map.data.RouteConfig;
 import boston.Bus.Map.data.RoutePool;
 import boston.Bus.Map.data.StopLocation;
@@ -22,10 +24,10 @@ import boston.Bus.Map.math.Geometry;
 public class GetDirections  {
 	private final HashSet<DirectionPath> closedSet = new HashSet<DirectionPath>();
 	private final HashSet<DirectionPath> openSet = new HashSet<DirectionPath>();
-	private final MyHashMap<String, DirectionPath> cameFrom = new MyHashMap<String, DirectionPath>();
+	private final Map<String, DirectionPath> cameFrom = Maps.newHashMap();
 	
-	private final MyHashMap<String, Float> gScore = new MyHashMap<String, Float>();
-	private final MyHashMap<String, Float> fScore = new MyHashMap<String, Float>();
+	private final Map<String, Float> gScore = Maps.newHashMap();
+	private final Map<String, Float> fScore = Maps.newHashMap();
 	
 	private final Directions directions;
 	private final RoutePool routePool;
@@ -36,7 +38,7 @@ public class GetDirections  {
 	}
 	
 	private ArrayList<DirectionPath> getDirections(StopLocation start, StopLocation goal) throws IOException {
-		MyHashMap<String, Direction> directionsForStop = directions.getDirectionsForStop(start.getStopTag());
+		Map<String, Direction> directionsForStop = directions.getDirectionsForStop(start.getStopTag());
 		
 		for (String dirTag : directionsForStop.keySet()) {
 			Direction direction = directionsForStop.get(dirTag);
@@ -92,7 +94,7 @@ public class GetDirections  {
 		for (String stopTag : stopsForDirTag) {
 			RouteConfig route = routePool.get(current.getDirection().getRoute());
 			StopLocation stop = route.getStop(stopTag);
-			MyHashMap<String, Direction> directionsForStop = directions.getDirectionsForStop(stopTag);
+			Map<String, Direction> directionsForStop = directions.getDirectionsForStop(stopTag);
 			for (String dirTag : directionsForStop.keySet()) {
 				if (directionsAdded.contains(dirTag) == false) {
 					Direction direction = directionsForStop.get(dirTag);
@@ -123,7 +125,7 @@ public class GetDirections  {
 				neighbor.getLongitudeAsDegrees());
 	}
 
-	private static void reconstructPath(MyHashMap<String, DirectionPath> cameFrom, DirectionPath currentNode, ArrayList<DirectionPath> reverseRet) {
+	private static void reconstructPath(Map<String, DirectionPath> cameFrom, DirectionPath currentNode, ArrayList<DirectionPath> reverseRet) {
 		if (cameFrom.containsKey(currentNode.getDirTag())) {
 			reconstructPath(cameFrom, cameFrom.get(currentNode.getDirTag()), reverseRet);
 		}

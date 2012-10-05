@@ -6,11 +6,13 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
+
+import com.google.common.collect.Iterables;
 
 import boston.Bus.Map.algorithms.GetDirections;
 import boston.Bus.Map.algorithms.GetDirections.DirectionPath;
 import boston.Bus.Map.data.Directions;
-import boston.Bus.Map.data.MyHashMap;
 import boston.Bus.Map.data.Path;
 import boston.Bus.Map.data.RouteConfig;
 import boston.Bus.Map.data.RoutePool;
@@ -58,12 +60,12 @@ public class GetDirectionsAsyncTask extends AsyncTask<Object, String, ArrayList<
 		if (tag.equals(GetDirectionsDialog.CURRENT_LOCATION_TAG)) {
 			// note that this depends on the GPS being on when the app starts, which is
 			// the default behavior
-			ArrayList<StopLocation> closestStops = routePool.getClosestStops(currentLat, currentLon, 1);
-			return closestStops.get(0);
+			Collection<StopLocation> closestStops = routePool.getClosestStops(currentLat, currentLon, 1);
+			return Iterables.getFirst(closestStops, null);
 		}
 		else
 		{
-			MyHashMap<String, StopLocation> tagMap = routePool.getAllStopTagsAtLocation(tag);
+			Map<String, StopLocation> tagMap = routePool.getAllStopTagsAtLocation(tag);
 			return tagMap.values().iterator().next();
 		}
 	}

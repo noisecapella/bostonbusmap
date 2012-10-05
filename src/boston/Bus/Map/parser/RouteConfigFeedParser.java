@@ -22,10 +22,10 @@ import skylight1.opengl.files.QuickParseUtil;
 
 import boston.Bus.Map.data.Direction;
 import boston.Bus.Map.data.Directions;
-import boston.Bus.Map.data.MyHashMap;
 import boston.Bus.Map.data.Path;
 import boston.Bus.Map.data.RouteConfig;
 import boston.Bus.Map.data.RoutePool;
+import boston.Bus.Map.data.RouteTitles;
 import boston.Bus.Map.data.StopLocation;
 import boston.Bus.Map.main.UpdateAsyncTask;
 import boston.Bus.Map.provider.DatabaseContentProvider;
@@ -74,7 +74,7 @@ public class RouteConfigFeedParser extends DefaultHandler
 	private boolean inPath;
 	
 	private ArrayList<Path> currentPaths;
-	private RouteConfig currentRouteConfig;
+	private RouteConfig.Builder currentRouteConfig;
 	
 	private ArrayList<Float> currentPathPoints;
 	private final TransitSource transitSource;
@@ -150,20 +150,10 @@ public class RouteConfigFeedParser extends DefaultHandler
 			String currentRoute = attributes.getValue(tagKey);
 			int color = parseColor(attributes.getValue(colorKey));
 			int oppositeColor = parseColor(attributes.getValue(oppositeColorKey));
-			try
-			{
-				MyHashMap<String, String> routeKeysToTitles = transitSource.getRouteKeysToTitles();
-				String currentRouteTitle = routeKeysToTitles.get(currentRoute);
-				currentRouteConfig = new RouteConfig(currentRoute, currentRouteTitle, color, 
-						oppositeColor, transitSource);
-				
-			}
-			catch (IOException e)
-			{
-				//this shouldn't happen...
-				//this should be caught and reported where the caller originally called runParse
-				throw new RuntimeException(e);
-			}
+			RouteTitles routeKeysToTitles = transitSource.getRouteKeysToTitles();
+			String currentRouteTitle = routeKeysToTitles.getTitle(currentRoute);
+			currentRouteConfig = new RouteConfig.Builder(currentRoute, currentRouteTitle, color, 
+					oppositeColor, transitSource);
 		}
 		else if (pathKey.equals(localName))
 		{

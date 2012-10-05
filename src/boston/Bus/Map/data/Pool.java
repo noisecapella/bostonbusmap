@@ -3,10 +3,24 @@ package boston.Bus.Map.data;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
 
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+
+/**
+ * A thread-safe pool of objects
+ * 
+ * TODO: replace with LoadingCache
+ * @author schneg
+ *
+ * @param <K>
+ * @param <V>
+ */
 public abstract class Pool<K, V> {
-	private final LinkedList<K> priorities = new LinkedList<K>();
-	private final MyHashMap<K, V> pool = new MyHashMap<K, V>();
+	private final List<K> priorities = Lists.newLinkedList();
+	private final Map<K, V> pool = Maps.newConcurrentMap();
 	
 	private final int limit;
 	

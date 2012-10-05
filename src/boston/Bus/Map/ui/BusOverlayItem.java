@@ -1,6 +1,7 @@
 package boston.Bus.Map.ui;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 
 import boston.Bus.Map.data.Alert;
@@ -13,9 +14,9 @@ import com.google.android.maps.OverlayItem;
 public class BusOverlayItem extends OverlayItem
 {
 	private Location location;
-	private final ArrayList<Alert> alerts;
+	private final Alert[] alerts;
 		
-	public BusOverlayItem(GeoPoint point, String title, String snippet, ArrayList<Alert> alerts)
+	public BusOverlayItem(GeoPoint point, String title, String snippet, Alert[] alerts)
 	{
 		super(point, title, snippet);
 		this.alerts = alerts;
@@ -31,7 +32,7 @@ public class BusOverlayItem extends OverlayItem
 		return location;
 	}
 
-	public ArrayList<Alert> getAlerts()
+	public Alert[] getAlerts()
 	{
 		return alerts;
 	}

@@ -3,7 +3,7 @@ package boston.Bus.Map.main;
 
 import android.content.Context;
 import boston.Bus.Map.data.Locations;
-import boston.Bus.Map.data.MyHashMap;
+import boston.Bus.Map.data.RouteTitles;
 import boston.Bus.Map.data.UpdateArguments;
 import boston.Bus.Map.ui.BusOverlay;
 import boston.Bus.Map.ui.LocationOverlay;
@@ -12,6 +12,7 @@ import boston.Bus.Map.ui.RouteOverlay;
 
 import com.google.android.maps.MapView;
 import com.google.android.maps.Projection;
+import com.google.common.collect.ImmutableMap;
 
 /**
  * Stores state when MainActivity pauses temporarily
@@ -21,8 +22,8 @@ import com.google.android.maps.Projection;
 public class CurrentState {
 	private final long lastUpdateTime;
 	private final int updateConstantlyInterval;
-	private int selectedRouteIndex;
-	private int selectedBusPredictions;
+	private final int selectedRouteIndex;
+	private final int selectedBusPredictions;
 	private final boolean progressState;
 	private final boolean locationEnabled;
 	
@@ -86,7 +87,7 @@ public class CurrentState {
 	 * @return
 	 */
 	public OverlayGroup cloneOverlays(Main context, MapView mapView,
-			MyHashMap<String, String> dropdownRouteKeysToTitles,
+			RouteTitles dropdownRouteKeysToTitles,
 			UpdateHandler handler) {
 		return updateArguments.getOverlayGroup().cloneOverlays(context, mapView, dropdownRouteKeysToTitles, handler);
 	}

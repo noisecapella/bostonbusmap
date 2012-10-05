@@ -3,9 +3,21 @@ package boston.Bus.Map.data;
 import java.io.IOException;
 import java.util.AbstractCollection;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Map;
+import java.util.Set;
 
 import java.util.HashSet;
 import java.util.LinkedList;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.CopyOnWriteArraySet;
+
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 
 import android.content.Context;
 import android.content.OperationApplicationException;
@@ -20,12 +32,12 @@ import boston.Bus.Map.ui.ProgressMessage;
 public class RoutePool extends Pool<String, RouteConfig> {
 	private final Context context;
 	
-	private final MyHashMap<String, StopLocation> sharedStops = new MyHashMap<String, StopLocation>();
+	private final ConcurrentMap<String, StopLocation> sharedStops = Maps.newConcurrentMap();
 	
 	/**
 	 * A mapping of stop key to route key. Look in sharedStops for the StopLocation
 	 */
-	private final HashSet<String> favoriteStops = new HashSet<String>();
+	private final CopyOnWriteArraySet<String> favoriteStops = Sets.newCopyOnWriteArraySet();
 	private final TransitSystem transitSystem;
 	
 	
@@ -52,8 +64,8 @@ public class RoutePool extends Pool<String, RouteConfig> {
 	 */
 	public void fillInFavoritesRoutes()
 	{
-		MyHashMap<String, StopLocation> stops = getStops(favoriteStops);
-		if (stops == null)
+		Map<String, StopLocation> stops = getStops(favoriteStops);
+		if (stops.isEmpty())
 		{
 			return;
 		}
@@ -71,13 +83,13 @@ public class RoutePool extends Pool<String, RouteConfig> {
 	}
 
 	
-	private MyHashMap<String, StopLocation> getStops(AbstractCollection<String> stopTags) {
+	private Map<String, StopLocation> getStops(AbstractCollection<String> stopTags) {
 		if (stopTags.size() == 0)
 		{
-			return null;
+			return Collections.emptyMap();
 		}
 		
-		MyHashMap<String, StopLocation> ret = new MyHashMap<String, StopLocation>();
+		ConcurrentMap<String, StopLocation> ret = Maps.newConcurrentMap();
 		ArrayList<String> stopTagsToRetrieve = new ArrayList<String>();
 		
 		for (String stopTag : stopTags)
@@ -93,7 +105,8 @@ public class RoutePool extends Pool<String, RouteConfig> {
 			}
 		}
 		
-		DatabaseAgent.getStops(context.getContentResolver(), stopTagsToRetrieve, transitSystem, ret);
+		DatabaseAgent.getStops(context.getContentResolver(), ImmutableList.copyOf(stopTagsToRetrieve), 
+				transitSystem, ret);
 		
 		if (ret != null)
 		{
@@ -117,7 +130,7 @@ public class RoutePool extends Pool<String, RouteConfig> {
 		return DatabaseAgent.getRoute(context.getContentResolver(), routeToUpdate, sharedStops, transitSystem);
 	}
 	
-	public void writeToDatabase(MyHashMap<String, RouteConfig> map, boolean wipe, UpdateAsyncTask task, boolean silent) throws IOException, RemoteException, OperationApplicationException {
+	public void writeToDatabase(ImmutableMap<String, RouteConfig> map, boolean wipe, UpdateAsyncTask task, boolean silent) throws IOException, RemoteException, OperationApplicationException {
 		if (!silent)
 		{
 			task.publish(new ProgressMessage(ProgressMessage.PROGRESS_DIALOG_ON, "Saving to database", null));
@@ -146,7 +159,7 @@ public class RoutePool extends Pool<String, RouteConfig> {
 	}
 
 
-	public ArrayList<String> routeInfoNeedsUpdating(String[] supportedRoutes) {
+	public ImmutableList<String> routeInfoNeedsUpdating(RouteTitles supportedRoutes) {
 		//TODO: what if another route gets added later, and we want to download it from the server and add it?
 		return DatabaseAgent.routeInfoNeedsUpdating(context.getContentResolver(), supportedRoutes);
 	}
@@ -173,7 +186,7 @@ public class RoutePool extends Pool<String, RouteConfig> {
 	}
 	
 	public int setFavorite(StopLocation location, boolean isFavorite) throws RemoteException, OperationApplicationException {
-		ArrayList<String> stopTags = DatabaseAgent.getAllStopTagsAtLocation(context.getContentResolver(), location.getStopTag());
+		Collection<String> stopTags = DatabaseAgent.getAllStopTagsAtLocation(context.getContentResolver(), location.getStopTag());
 
 		DatabaseAgent.saveFavorite(context.getContentResolver(), location.getStopTag(), stopTags, isFavorite);
 		favoriteStops.clear();
@@ -195,9 +208,9 @@ public class RoutePool extends Pool<String, RouteConfig> {
 		return isFavorite ? R.drawable.full_star : R.drawable.empty_star;
 	}
 
-	public MyHashMap<String, StopLocation> getAllStopTagsAtLocation(String stopTag) {
-		ArrayList<String> tags = DatabaseAgent.getAllStopTagsAtLocation(context.getContentResolver(), stopTag);
-		MyHashMap<String, StopLocation> outputMapping = new MyHashMap<String, StopLocation>();
+	public ConcurrentMap<String, StopLocation> getAllStopTagsAtLocation(String stopTag) {
+		ImmutableList<String> tags = DatabaseAgent.getAllStopTagsAtLocation(context.getContentResolver(), stopTag);
+		ConcurrentMap<String, StopLocation> outputMapping = Maps.newConcurrentMap();
 		DatabaseAgent.getStops(context.getContentResolver(), tags, transitSystem, outputMapping);
 		
 		return outputMapping;
@@ -218,7 +231,7 @@ public class RoutePool extends Pool<String, RouteConfig> {
 		}
 	}
 	
-	public ArrayList<StopLocation> getClosestStops(double centerLatitude,
+	public Collection<StopLocation> getClosestStops(double centerLatitude,
 			double centerLongitude, int maxStops)
 	{
 		return DatabaseAgent.getClosestStops(context.getContentResolver(), 

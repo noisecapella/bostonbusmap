@@ -1,6 +1,10 @@
 package boston.Bus.Map.data;
 
 import java.util.ArrayList;
+import java.util.Collection;
+
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 
 
 import android.content.Context;
@@ -37,7 +41,7 @@ public interface Location {
 	 * @param selectedRoute show only this route, if not null
 	 * @param context used for formatting the time
 	 */
-	void makeSnippetAndTitle(RouteConfig selectedRoute, MyHashMap<String, String> routeKeysToTitles, Context context);
+	void makeSnippetAndTitle(RouteConfig selectedRoute, RouteTitles routeKeysToTitles, Context context);
 
 	/**
 	 * In case two locations share the same space, combine the textbox text in a nice way
@@ -45,19 +49,7 @@ public interface Location {
 	 * @param location whose textbox info you're adding to this class
 	 * @param context used for formatting the time
 	 */
-	void addToSnippetAndTitle(RouteConfig routeConfig, Location location, MyHashMap<String, String> routeKeysToTitles, Context context);
-
-	/**
-	 * Get the title you previously created in makeSnippetAndTitle. This is HTML, so make sure newlines are <br />
-	 * @return
-	 */
-	String getSnippetTitle();
-	
-	/**
-	 * Get the title you previously created in makeSnippetAndTitle. This is HTML, so make sure newlines are <br />
-	 * @return
-	 */
-	String getSnippet();
+	void addToSnippetAndTitle(RouteConfig routeConfig, Location location, RouteTitles routeKeysToTitles, Context context);
 
 	/**
 	 * Does this location match the given id?
@@ -65,6 +57,6 @@ public interface Location {
 	 * @return
 	 */
 	boolean containsId(int selectedBusId);
-
-	ArrayList<Alert> getSnippetAlerts();
+	
+	PredictionView getPredictionView();
 }

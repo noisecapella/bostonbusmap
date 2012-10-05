@@ -2,7 +2,10 @@ package boston.Bus.Map.ui;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
+import java.util.concurrent.ConcurrentMap;
 
 import android.content.Context;
 import android.content.Intent;
@@ -30,9 +33,11 @@ import boston.Bus.Map.data.Alert;
 import boston.Bus.Map.data.BusLocation;
 import boston.Bus.Map.data.Location;
 import boston.Bus.Map.data.Locations;
-import boston.Bus.Map.data.MyHashMap;
 import boston.Bus.Map.data.Prediction;
+import boston.Bus.Map.data.PredictionView;
+import boston.Bus.Map.data.RouteTitles;
 import boston.Bus.Map.data.StopLocation;
+import boston.Bus.Map.data.StopPredictionView;
 import boston.Bus.Map.main.AlertInfo;
 import boston.Bus.Map.main.Main;
 import boston.Bus.Map.main.MoreInfo;
@@ -41,6 +46,9 @@ import boston.Bus.Map.util.LogUtil;
 import boston.Bus.Map.util.StringUtil;
 
 import com.google.android.maps.OverlayItem;
+import com.google.common.base.Joiner;
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Lists;
 import com.readystatesoftware.mapviewballoons.BalloonOverlayView;
 
 
@@ -51,15 +59,15 @@ public class BusPopupView extends BalloonOverlayView<BusOverlayItem>
 	private TextView reportProblem;
 	private TextView alertsTextView;
 	private final Locations locations;
-	private final MyHashMap<String, String> routeKeysToTitles;
+	private final RouteTitles routeKeysToTitles;
 	private Location location;
 	private Spanned moreInfoText;
 	private Spanned reportProblemText;
 	private Spanned noAlertsText;
-	private ArrayList<Alert> alertsList;
+	private Alert[] alertsList;
 	
 	public BusPopupView(final Context context, int balloonBottomOffset, Locations locations,
-			MyHashMap<String, String> routeKeysToTitles)
+			RouteTitles routeKeysToTitles)
 	{
 		super(context, balloonBottomOffset);
 		
@@ -129,29 +137,26 @@ public class BusPopupView extends BalloonOverlayView<BusOverlayItem>
 					StopLocation stopLocation = (StopLocation)location;
 					Intent intent = new Intent(context, MoreInfo.class);
 
-					Prediction[] predictionArray = stopLocation.getCombinedPredictions();
+					StopPredictionView predictionView = (StopPredictionView)stopLocation.getPredictionView();
+					Prediction[] predictionArray = predictionView.getPredictions();
 					if (predictionArray != null)
 					{
 						intent.putExtra(MoreInfo.predictionsKey, predictionArray);
 					}
 					
-					String[] keys = BusPopupView.this.routeKeysToTitles.keySet().toArray(new String[0]);
-					String[] values = new String[keys.length];
-					for (int i = 0; i < keys.length; i++)
-					{
-						values[i] = BusPopupView.this.routeKeysToTitles.get(keys[i]);
-					}
+					String[] keys = BusPopupView.this.routeKeysToTitles.tagArray();
+					String[] values = BusPopupView.this.routeKeysToTitles.titleArray();
 
 					intent.putExtra(MoreInfo.routeKeysKey, keys);
 					intent.putExtra(MoreInfo.routeTitlesKey, values);
 
-					String[] combinedTitles = stopLocation.getCombinedTitles();
+					String[] combinedTitles = predictionView.getTitles();
 					intent.putExtra(MoreInfo.titleKey, combinedTitles);
 
-					String[] combinedRoutes = stopLocation.getCombinedRoutes();
+					String[] combinedRoutes = predictionView.getRoutes();
 					intent.putExtra(MoreInfo.routeKey, combinedRoutes);
 
-					String combinedStops = stopLocation.getCombinedStops();
+					String combinedStops = predictionView.getStops();
 					intent.putExtra(MoreInfo.stopsKey, combinedStops);
 
 					intent.putExtra(MoreInfo.stopIsBetaKey, stopLocation.isBeta());
@@ -185,13 +190,12 @@ public class BusPopupView extends BalloonOverlayView<BusOverlayItem>
 			
 			@Override
 			public void onClick(View v) {
-				final ArrayList<Alert> alerts = alertsList;
+				final Alert[] alerts = alertsList;
 				
 				Intent intent = new Intent(context, AlertInfo.class);
 				if (alerts != null)
 				{
-					Alert[] alertArray = alerts.toArray(new Alert[0]);
-					intent.putExtra(AlertInfo.alertsKey, alertArray);
+					intent.putExtra(AlertInfo.alertsKey, alerts);
 					
 					context.startActivity(intent);
 				}
@@ -250,7 +254,7 @@ public class BusPopupView extends BalloonOverlayView<BusOverlayItem>
 		{
 			StopLocation stopLocation = (StopLocation)location;
 			String stopTag = stopLocation.getStopTag();
-			MyHashMap<String, StopLocation> stopTags = locations.getAllStopsAtStop(stopTag);
+			ConcurrentMap<String, StopLocation> stopTags = locations.getAllStopsAtStop(stopTag);
 
 
 			if (selectedBusPredictions == Main.BUS_PREDICTIONS_ONE)
@@ -262,13 +266,13 @@ public class BusPopupView extends BalloonOverlayView<BusOverlayItem>
 				}
 				else
 				{
-					ArrayList<String> stopTagStrings = new ArrayList<String>();
+					List<String> stopTagStrings = Lists.newArrayList();
 					for (StopLocation stop : stopTags.values())
 					{
 						String text = stop.getStopTag() + " (" + stop.getTitle() + ")";
 						stopTagStrings.add(text);
 					}
-					String stopTagsList = StringUtil.join(stopTagStrings, ",\n");
+					String stopTagsList = Joiner.on(",\n").join(stopTagStrings);
 					
 					ret.append("The stop ids are: ").append(stopTagsList).append(" on route ").append(selectedRoute).append(". ");
 				}
@@ -278,13 +282,13 @@ public class BusPopupView extends BalloonOverlayView<BusOverlayItem>
 				ArrayList<String> pairs = new ArrayList<String>();
 				for (StopLocation stop : stopTags.values())
 				{
-					String routesJoin = StringUtil.join(stop.getRoutes(), ", ");
+					String routesJoin = Joiner.on(", ").join(stop.getRoutes());
 					pairs.add(stop.getStopTag() + "(" + stop.getTitle() + ") on routes " + routesJoin);
 				}
 				
-				String list = StringUtil.join(pairs, ",\n");
+				//String list = Joiner.on(",\n").join(pairs);
 				ret.append("The stop ids are: ");
-				StringUtil.join(pairs, ", ", ret);
+				ret.append(Joiner.on(", ").join(pairs));
 				ret.append(". ");
 			}
 		}
@@ -335,12 +339,12 @@ public class BusPopupView extends BalloonOverlayView<BusOverlayItem>
 		//NOTE: originally this was going to be an actual link, but we can't click it on the popup except through its onclick listener
 		moreInfo.setText(moreInfoText);
 		reportProblem.setText(reportProblemText);
-		ArrayList<Alert> alerts = item.getAlerts();
+		Alert[] alerts = item.getAlerts();
 		alertsList = alerts;
 		
-		if (alerts != null && alerts.size() != 0)
+		if (alerts != null && alerts.length != 0)
 		{
-			int count = alerts.size();
+			int count = alerts.length;
 			alertsTextView.setVisibility(View.VISIBLE);
 			
 			String text;

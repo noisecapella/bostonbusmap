@@ -38,8 +38,9 @@ import boston.Bus.Map.R;
 import boston.Bus.Map.algorithms.GetDirections;
 import boston.Bus.Map.data.Direction;
 import boston.Bus.Map.data.Locations;
-import boston.Bus.Map.data.MyHashMap;
+
 import boston.Bus.Map.data.RouteConfig;
+import boston.Bus.Map.data.RouteTitles;
 import boston.Bus.Map.data.StopLocation;
 import boston.Bus.Map.data.TransitDrawables;
 import boston.Bus.Map.data.UpdateArguments;
@@ -64,6 +65,10 @@ import com.google.android.maps.MapView;
 import com.google.android.maps.MyLocationOverlay;
 import com.google.android.maps.Overlay;
 import com.google.android.maps.OverlayItem;
+import com.google.common.collect.ImmutableCollection;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableTable;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -170,8 +175,7 @@ public class Main extends MapActivity
 	/**
 	 * The list of routes that's selectable in the routes dropdown list
 	 */
-	private String[] dropdownRoutes;
-	private MyHashMap<String, String> dropdownRouteKeysToTitles;
+	private RouteTitles dropdownRouteKeysToTitles;
 	private AlertDialog routeChooserDialog;
 
 	private ImageButton searchButton;
@@ -298,11 +302,10 @@ public class Main extends MapActivity
         toggleButton.setAdapter(modeSpinnerAdapter);
 
         
-        dropdownRoutes = transitSystem.getRoutes();
         dropdownRouteKeysToTitles = transitSystem.getRouteKeysToTitles();
         
         {
-            String[] routeTitles = getRouteTitles(dropdownRoutes, dropdownRouteKeysToTitles);
+            String[] routeTitles = dropdownRouteKeysToTitles.titleArray();
             
         	AlertDialog.Builder builder = new AlertDialog.Builder(this);
         	builder.setTitle(getString(R.string.chooseRouteInBuilder));
@@ -387,8 +390,8 @@ public class Main extends MapActivity
         
         if (lastNonConfigurationInstance != null)
         {
-			String route = dropdownRoutes[selectedRouteIndex];
-			String routeTitle = dropdownRouteKeysToTitles.get(route);
+			String route = dropdownRouteKeysToTitles.getTagUsingIndex(selectedRouteIndex);
+			String routeTitle = dropdownRouteKeysToTitles.getTitle(route);
         	updateSearchText();
         	handler.setSelectedBusPredictions(getMode());
         	handler.setRouteToUpdate(route);
@@ -401,12 +404,12 @@ public class Main extends MapActivity
             selectedRouteIndex = prefs.getInt(selectedRouteIndexKey, 0);
             setMode(prefs.getInt(selectedBusPredictionsKey, VEHICLE_LOCATIONS_ONE));
             
-            if (selectedRouteIndex < 0 || selectedRouteIndex >= dropdownRoutes.length)
+            if (selectedRouteIndex < 0 || selectedRouteIndex >= dropdownRouteKeysToTitles.size())
             {
-            	selectedRouteIndex = dropdownRoutes.length - 1;
+            	selectedRouteIndex = dropdownRouteKeysToTitles.size() - 1;
             }
-        	String route = dropdownRoutes[selectedRouteIndex];
-        	String routeTitle = dropdownRouteKeysToTitles.get(route);
+        	String route = dropdownRouteKeysToTitles.getTagUsingIndex(selectedRouteIndex);
+        	String routeTitle = dropdownRouteKeysToTitles.getTitle(route);
         	updateSearchText();
             handler.setSelectedBusPredictions(getMode());
             handler.setRouteToUpdate(route);
@@ -456,31 +459,14 @@ public class Main extends MapActivity
         });*/
     }
 		
-	private static String[] getRouteTitles(String[] dropdownRoutes,
-			MyHashMap<String, String> dropdownRouteKeysToTitles) {
-    	String[] ret = new String[dropdownRoutes.length];
-    	for (int i = 0; i < dropdownRoutes.length; i++)
-    	{
-    		String route = dropdownRoutes[i];
-    		ret[i] = dropdownRouteKeysToTitles.get(route);
-    		
-    		if (ret[i] == null)
-    		{
-    			ret[i] = route;
-    		}
-    	}
-    	
-    	return ret;
-	}
-
 	/**
 	 * Updates search text depending on current mode
 	 */
 	private void updateSearchText() {
 		if (searchView != null)
 		{
-			String route = dropdownRoutes[selectedRouteIndex];
-			String routeTitle = dropdownRouteKeysToTitles.get(route);
+			String route = dropdownRouteKeysToTitles.getTagUsingIndex(selectedRouteIndex);
+			String routeTitle = dropdownRouteKeysToTitles.getTitle(route);
 			searchView.setText("Route " + routeTitle);
 		}
 		else
@@ -500,13 +486,13 @@ public class Main extends MapActivity
 		if (arguments != null && handler != null)
 		{
 			selectedRouteIndex = position;
-			String route = dropdownRoutes[position];
+			String route = dropdownRouteKeysToTitles.getTagUsingIndex(position);
 			handler.setRouteToUpdate(route);
 
 			handler.immediateRefresh();
 			handler.triggerUpdate();
 
-			String routeTitle = dropdownRouteKeysToTitles.get(route);
+			String routeTitle = dropdownRouteKeysToTitles.getTitle(route);
 			if (routeTitle == null)
 			{
 				routeTitle = route;
@@ -692,16 +678,7 @@ public class Main extends MapActivity
     			for (int i = 0; i < stops.length; i++)
     			{
     				StopLocation stop = stops[i];
-    				String routes;
-    				if (stop.getCombinedRoutes() != null)
-    				{
-    					String[] array = stop.getCombinedRoutes();
-    					routes = StringUtil.join(array, ", ");
-    				}
-    				else
-    				{
-    					routes = stop.getFirstRoute();
-    				}
+    				String routes = stop.getFirstRoute();
     				String title = stop.getTitle() + " (route " + routes + ")";
     				titles[i] = title;
     			}
@@ -925,7 +902,7 @@ public class Main extends MapActivity
 			}
 
 			
-			final SearchHelper helper = new SearchHelper(this, dropdownRoutes, dropdownRouteKeysToTitles, arguments, query);
+			final SearchHelper helper = new SearchHelper(this, dropdownRouteKeysToTitles, arguments, query);
 			helper.runSearch(new Runnable()
 			{
 				@Override
@@ -992,15 +969,7 @@ public class Main extends MapActivity
 			return;
 		}
 		
-		int routePosition = -1;
-		for (int position = 0; position < dropdownRoutes.length; position++)
-		{
-			if (route.equals(dropdownRoutes[position]))
-			{
-				routePosition = position;
-				break;
-			}
-		}
+		int routePosition = dropdownRouteKeysToTitles.getIndexForTag(route);
 		
 		
 		final int id = stopLocation.getId();
@@ -1032,7 +1001,7 @@ public class Main extends MapActivity
 	}
 
 	private String getRoute() {
-		return dropdownRoutes[selectedRouteIndex];
+		return dropdownRouteKeysToTitles.getTagUsingIndex(selectedRouteIndex);
 	}
 
 	@Override

@@ -6,9 +6,15 @@ import java.util.List;
 import java.util.Map;
 import java.util.SortedSet;
 
+import com.google.common.base.Joiner;
+import com.google.common.collect.ImmutableBiMap;
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Lists;
+
 import boston.Bus.Map.R;
-import boston.Bus.Map.data.MyHashMap;
+
 import boston.Bus.Map.data.Prediction;
+import boston.Bus.Map.data.RouteTitles;
 import boston.Bus.Map.ui.TextViewBinder;
 import boston.Bus.Map.util.StringUtil;
 import android.app.Activity;
@@ -49,7 +55,7 @@ public class MoreInfo extends ListActivity {
 	private TextView title1;
 	private TextView title2;
 	private Spinner routeSpinner;
-	private MyHashMap<String, String> routeKeysToTitles;
+	private RouteTitles routeKeysToTitles;
 	
 	/**
 	 * If false, don't try accessing predictions or routeKeysToTitles because they may be being populated
@@ -78,11 +84,13 @@ public class MoreInfo extends ListActivity {
 		String[] titles = extras.getStringArray(routeTitlesKey);
 		boolean stopIsBeta = extras.getBoolean(stopIsBetaKey);
 		
-		routeKeysToTitles = new MyHashMap<String, String>();
+		ImmutableBiMap.Builder<String, String> routeKeysToTitlesBuilder =
+				ImmutableBiMap.builder();
 		for (int i = 0; i < keys.length; i++)
 		{
-			routeKeysToTitles.put(keys[i], titles[i]);
+			routeKeysToTitlesBuilder.put(keys[i], titles[i]);
 		}
+		routeKeysToTitles = new RouteTitles(routeKeysToTitlesBuilder.build());
 
 		title1 = (TextView)findViewById(R.id.moreinfo_title1);
 		title2 = (TextView)findViewById(R.id.moreinfo_title2);
@@ -150,9 +158,9 @@ public class MoreInfo extends ListActivity {
 			for (int i = 0; i < routes.length; i++)
 			{
 				String route = routes[i];
-				routeTitles[i] = routeKeysToTitles.get(route);
+				routeTitles[i] = routeKeysToTitles.getTitle(route);
 			}
-			String routesText = StringUtil.join(routeTitles, ", ");
+			String routesText = Joiner.on(", ").join(routeTitles);
 			
 			titleText2.append("<br />Routes: ").append(routesText);
 			
@@ -186,7 +194,7 @@ public class MoreInfo extends ListActivity {
 			{
 				if (routeKeysToTitles != null)
 				{
-					String title = routeKeysToTitles.get(route);
+					String title = routeKeysToTitles.getTitle(route);
 					if (title != null)
 					{
 						adapter.add("Route " + title);
@@ -212,7 +220,7 @@ public class MoreInfo extends ListActivity {
 			return;
 		}
 		
-		ArrayList<HashMap<String, Spanned>> data = new ArrayList<HashMap<String,Spanned>>();
+		List<Map<String, Spanned>> data = Lists.newArrayList();
 		if (predictions != null)
 		{
 			for (Prediction prediction : predictions)
@@ -223,7 +231,7 @@ public class MoreInfo extends ListActivity {
 					if (route == null || route.equals(prediction.getRouteName()))
 					{
 						//data.add(prediction.generateMoreInfoMap());
-						HashMap<String, Spanned> map = prediction.makeSnippetMap(routeKeysToTitles, this);
+						ImmutableMap<String, Spanned> map = prediction.makeSnippetMap(routeKeysToTitles, this);
 						data.add(map);
 					}
 				}

@@ -8,7 +8,12 @@ import java.io.Reader;
 import java.util.ArrayList;
 
 import java.util.HashSet;
+import java.util.Map;
+import java.util.SortedMap;
 import java.util.TreeMap;
+
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Maps;
 
 import skylight1.opengl.files.QuickParseUtil;
 
@@ -17,13 +22,13 @@ import android.graphics.drawable.Drawable;
 import android.os.RemoteException;
 import boston.Bus.Map.data.CommuterRailStopLocation;
 import boston.Bus.Map.data.Directions;
-import boston.Bus.Map.data.MyHashMap;
-import boston.Bus.Map.data.MyTreeMap;
 import boston.Bus.Map.data.Path;
 import boston.Bus.Map.data.RouteConfig;
 import boston.Bus.Map.data.RoutePool;
+import boston.Bus.Map.data.RouteTitles;
 import boston.Bus.Map.data.StopLocation;
 import boston.Bus.Map.data.SubwayStopLocation;
+import boston.Bus.Map.data.RouteConfig.Builder;
 import boston.Bus.Map.main.UpdateAsyncTask;
 import boston.Bus.Map.transit.CommuterRailTransitSource;
 
@@ -35,7 +40,7 @@ import boston.Bus.Map.transit.CommuterRailTransitSource;
 public class CommuterRailRouteConfigParser
 {
 	private final Directions directions;
-	private final MyHashMap<String, RouteConfig> map = new MyHashMap<String, RouteConfig>();
+	private final Map<String, RouteConfig.Builder> map = Maps.newHashMap();
 	private final CommuterRailTransitSource source;
 	
 	public static final String temporaryInputData = "route_long_name,direction_id,stop_sequence,stop_id,stop_lat,stop_lon,Branch\n"+
@@ -364,7 +369,7 @@ public class CommuterRailRouteConfigParser
 	"Providence/Stoughton Line,1,13,South Station,42.352614,-71.055364,Trunk\n";
 	
 	
-	private final MyHashMap<String, Integer> indexes = new MyHashMap<String, Integer>();
+	private final Map<String, Integer> indexes = Maps.newHashMap();
 	
 	public CommuterRailRouteConfigParser(Directions directions, RouteConfig oldRouteConfig,
 			CommuterRailTransitSource source) 
@@ -375,7 +380,12 @@ public class CommuterRailRouteConfigParser
 
 	public void writeToDatabase(RoutePool routeMapping, boolean wipe, UpdateAsyncTask task, boolean silent) throws IOException, RemoteException, OperationApplicationException
 	{
-		routeMapping.writeToDatabase(map, wipe, task, silent);
+		ImmutableMap.Builder<String, RouteConfig> builder = ImmutableMap.builder();
+		for (String routeTag : map.keySet()) {
+			RouteConfig.Builder routeBuilder = map.get(routeTag);
+			builder.put(routeTag, routeBuilder.build());
+		}
+		routeMapping.writeToDatabase(builder.build(), wipe, task, silent);
 		directions.writeToDatabase(wipe);
 	}
 
@@ -395,16 +405,10 @@ public class CommuterRailRouteConfigParser
 	       platform order numbers to stops
 		 * 
 		 */
-		MyHashMap<String, MyHashMap<String, MyTreeMap<Short, StopLocation>>> orderedStations =
-			new MyHashMap<String, MyHashMap<String, MyTreeMap<Short, StopLocation>>>();
+		Map<String, Map<String, SortedMap<Short, StopLocation.Builder>>> orderedStations =
+			Maps.newHashMap();
 
-		MyHashMap<String, String> routeKeysToTitles = source.getRouteKeysToTitles();
-		MyHashMap<String, String> routeTitlesToKeys = new MyHashMap<String, String>();
-		for (String key : routeKeysToTitles.keySet())
-		{
-			String title = routeKeysToTitles.get(key);
-			routeTitlesToKeys.put(title, key);
-		}
+		RouteTitles routeKeysToTitles = source.getRouteKeysToTitles();
 		
 		String line;
 		while ((line = reader.readLine()) != null)
@@ -415,8 +419,8 @@ public class CommuterRailRouteConfigParser
 			{
 				routeTitle = routeTitle.substring(0, routeTitle.length() - 5);
 			}
-			String routeKey = routeTitlesToKeys.get(routeTitle);
-			RouteConfig route = map.get(routeKey);
+			String routeKey = routeKeysToTitles.getKey(routeTitle);
+			RouteConfig.Builder route = map.get(routeKey);
 			
 			float lat = QuickParseUtil.parseFloat(array[indexes.get("stop_lat")]);
 			float lon = QuickParseUtil.parseFloat(array[indexes.get("stop_lon")]);
@@ -426,10 +430,13 @@ public class CommuterRailRouteConfigParser
 			short platformOrder = Short.parseShort(array[indexes.get("stop_sequence")]);
 			String branch = array[indexes.get("Branch")];
 			
-			StopLocation stopLocation = route.getStop(stopTag);
+			StopLocation.Builder stopLocation = route.getStop(stopTag);
 			if (stopLocation == null)
 			{
-				stopLocation = new CommuterRailStopLocation(lat, lon, source.getDrawables(), stopTag, stopTitle, platformOrder, branch);
+				CommuterRailStopLocation.CommuterRailBuilder stopLocationBuilder =
+						new CommuterRailStopLocation.CommuterRailBuilder(
+								lat, lon, source.getDrawables(), stopTag, stopTitle, 
+								platformOrder, branch);
 				route.addStop(stopTag, stopLocation);
 			}
 			
@@ -437,10 +444,10 @@ public class CommuterRailRouteConfigParser
 			
 			route.addStop(stopTag, stopLocation);
 			
-			MyHashMap<String, MyTreeMap<Short, StopLocation>> innerMapping = orderedStations.get(routeKey);
+			Map<String, SortedMap<Short, StopLocation.Builder>> innerMapping = orderedStations.get(routeKey);
 			if (innerMapping == null)
 			{
-				innerMapping = new MyHashMap<String, MyTreeMap<Short, StopLocation>>();
+				innerMapping = Maps.newHashMap();
 				orderedStations.put(routeKey, innerMapping);
 			}
 			
@@ -448,10 +455,10 @@ public class CommuterRailRouteConfigParser
 			//for example, key is NBAshmont3 for fields corner
 			
 			String combinedDirectionBranch = createDirectionHash(direction, branch);
-			MyTreeMap<Short, StopLocation> innerInnerMapping = innerMapping.get(combinedDirectionBranch);
+			SortedMap<Short, StopLocation.Builder> innerInnerMapping = innerMapping.get(combinedDirectionBranch);
 			if (innerInnerMapping == null)
 			{
-				innerInnerMapping = new MyTreeMap<Short, StopLocation>();
+				innerInnerMapping = Maps.newTreeMap();
 				innerMapping.put(combinedDirectionBranch, innerInnerMapping);
 			}
 			
@@ -464,17 +471,17 @@ public class CommuterRailRouteConfigParser
 		for (String route : orderedStations.keySet())
 		{
 			
-			MyHashMap<String, MyTreeMap<Short, StopLocation>> innerMapping = orderedStations.get(route);
+			Map<String, SortedMap<Short, StopLocation.Builder>> innerMapping = orderedStations.get(route);
 
 			
 			for (String directionHash : innerMapping.keySet())
 			{
-				MyTreeMap<Short, StopLocation> stations = innerMapping.get(directionHash);
+				SortedMap<Short, StopLocation.Builder> stations = innerMapping.get(directionHash);
 
 				ArrayList<Float> floats = new ArrayList<Float>();
 				for (Short platformOrder : stations.keySet())
 				{
-					StopLocation station = stations.get(platformOrder);
+					StopLocation.Builder station = stations.get(platformOrder);
 
 					floats.add((float)station.getLatitudeAsDegrees());
 					floats.add((float)station.getLongitudeAsDegrees());
@@ -505,9 +512,9 @@ public class CommuterRailRouteConfigParser
 					continue;
 				}
 				
-				MyTreeMap<Short, StopLocation> branchInnerMapping = innerMapping.get(directionHash);
+				SortedMap<Short, StopLocation.Builder> branchInnerMapping = innerMapping.get(directionHash);
 				String trunkDirectionHash = createDirectionHash(direction, trunkBranch);
-				MyTreeMap<Short, StopLocation> trunkInnerMapping = innerMapping.get(trunkDirectionHash);
+				SortedMap<Short, StopLocation.Builder> trunkInnerMapping = innerMapping.get(trunkDirectionHash);
 				
 				int minBranchOrder = -1;
 				for (Short order : branchInnerMapping.keySet())
@@ -533,8 +540,8 @@ public class CommuterRailRouteConfigParser
 				
 				ArrayList<Float> points = new ArrayList<Float>();
 				
-				StopLocation branchStop = branchInnerMapping.get((short)minBranchOrder);
-				StopLocation trunkStop = trunkInnerMapping.get((short)maxTrunkOrder);
+				StopLocation.Builder branchStop = branchInnerMapping.get((short)minBranchOrder);
+				StopLocation.Builder trunkStop = trunkInnerMapping.get((short)maxTrunkOrder);
 				
 				if (trunkStop != null && branchStop != null)
 				{
@@ -558,11 +565,11 @@ public class CommuterRailRouteConfigParser
 	
 	public void runParse(Reader stream) throws IOException
 	{
-		MyHashMap<String, String> routeKeysToTitles = source.getRouteKeysToTitles();
-		for (String route : source.getRoutes())
+		RouteTitles routeKeysToTitles = source.getRouteKeysToTitles();
+		for (String route : routeKeysToTitles.routeTags())
 		{
-			String routeTitle = routeKeysToTitles.get(route);
-			map.put(route, new RouteConfig(route, routeTitle, 0, 0, source));
+			String routeTitle = routeKeysToTitles.getTitle(route);
+			map.put(route, new RouteConfig.Builder(route, routeTitle, 0, 0, source));
 		}
 
 		populateStops(stream);

@@ -1,6 +1,11 @@
 package boston.Bus.Map.data;
 
 import java.util.ArrayList;
+import java.util.List;
+
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Lists;
 
 
 import boston.Bus.Map.math.Geometry;
@@ -91,12 +96,13 @@ public class BusLocation implements Location {
 	private final int arrowTopDiff;
 
 	private final String routeTitle;
-	private String snippet;
-	private String snippetTitle;
 
 	private final boolean disappearAfterRefresh;
-	private ArrayList<Alert> snippetAlerts;
 
+	private SimplePredictionView predictionView = SimplePredictionView.empty();
+	
+	private Alert[] snippetAlerts = new Alert[0];
+	
 	private static final int LOCATIONTYPE = 1;
 	public static final int NO_HEADING = -1;
 
@@ -201,39 +207,43 @@ public class BusLocation implements Location {
 
 	@Override
 	public void addToSnippetAndTitle(RouteConfig routeConfig,
-			Location location, MyHashMap<String, String> routeKeysToTitles, Context context) {
+			Location location, RouteTitles routeKeysToTitles, Context context) {
 		BusLocation busLocation = (BusLocation) location;
 
-		snippet += "<br />" + busLocation.makeSnippet(routeConfig);
+		PredictionView oldPredictionView = predictionView;
+		String snippet = oldPredictionView.getSnippet() + "<br />" +
+				busLocation.makeSnippet(routeConfig);
 
+		String snippetTitle;
 		if (busLocation.predictable) {
-			snippetTitle += makeDirection(busLocation.dirTag);
+			snippetTitle = oldPredictionView.getSnippetTitle() + makeDirection(busLocation.dirTag);
+		}
+		else
+		{
+			snippetTitle = oldPredictionView.getSnippetTitle();
 		}
 
 		// multiple headings, don't show anything to avoid confusion
 		distanceFromLastX = 0;
 		distanceFromLastY = 0;
+		
+		//TODO: support alerts on multiple routes at once
+		predictionView = new SimplePredictionView(snippet, snippetTitle, snippetAlerts);
 	}
 
 	@Override
 	public void makeSnippetAndTitle(RouteConfig routeConfig,
-			MyHashMap<String, String> routeKeysToTitles, Context context) {
-		snippet = makeSnippet(routeConfig);
-		snippetTitle = makeTitle();
+			RouteTitles routeKeysToTitles, Context context) {
+		String snippet = makeSnippet(routeConfig);
+		String snippetTitle = makeTitle();
 		if (routeConfig.getRouteName().equals(routeName))
 		{
-			snippetAlerts = routeConfig.getAlerts();
+			snippetAlerts = routeConfig.getAlerts().toArray(new Alert[0]);
 		}
-	}
-
-	@Override
-	public String getSnippet() {
-		return snippet;
-	}
-
-	@Override
-	public String getSnippetTitle() {
-		return snippetTitle;
+		else
+		{
+			snippetAlerts = new Alert[0];
+		}
 	}
 
 	protected String getBetaWarning()
@@ -401,7 +411,7 @@ public class BusLocation implements Location {
 	}
 
 	@Override
-	public ArrayList<Alert> getSnippetAlerts() {
-		return snippetAlerts;
+	public PredictionView getPredictionView() {
+		return predictionView;
 	}
 }

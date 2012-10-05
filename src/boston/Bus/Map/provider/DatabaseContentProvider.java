@@ -3,15 +3,25 @@ package boston.Bus.Map.provider;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.CopyOnWriteArraySet;
+
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 
 import boston.Bus.Map.data.Direction;
-import boston.Bus.Map.data.MyHashMap;
 import boston.Bus.Map.data.Path;
 import boston.Bus.Map.data.RouteConfig;
+import boston.Bus.Map.data.RouteTitles;
 import boston.Bus.Map.data.StopLocation;
 import boston.Bus.Map.data.SubwayStopLocation;
 import boston.Bus.Map.main.UpdateAsyncTask;
@@ -21,6 +31,7 @@ import boston.Bus.Map.transit.TransitSystem;
 import boston.Bus.Map.ui.ProgressMessage;
 import boston.Bus.Map.util.Box;
 import boston.Bus.Map.util.Constants;
+import boston.Bus.Map.util.IBox;
 import android.app.SearchManager;
 import android.content.ContentProvider;
 import android.content.ContentProviderOperation;
@@ -283,7 +294,7 @@ public class DatabaseContentProvider extends ContentProvider {
 		 * @param favorites
 		 */
 		public static void populateFavorites(ContentResolver contentResolver, 
-				HashSet<String> favorites, boolean lookForOtherStopsAtSameLocation)
+				CopyOnWriteArraySet<String> favorites, boolean lookForOtherStopsAtSameLocation)
 		{
 			Cursor cursor = null;
 			try
@@ -323,7 +334,7 @@ public class DatabaseContentProvider extends ContentProvider {
 		}
 
 		public static void saveMapping(ContentResolver contentResolver, 
-				MyHashMap<String, RouteConfig> mapping,
+				Map<String, RouteConfig> mapping,
 				boolean wipe, HashSet<String> sharedStops, UpdateAsyncTask task)
 						throws IOException, RemoteException, OperationApplicationException
 		{
@@ -401,7 +412,7 @@ public class DatabaseContentProvider extends ContentProvider {
 			}
 		}
 
-		public static ArrayList<String> getAllStopTagsAtLocation(ContentResolver resolver, 
+		public static ImmutableList<String> getAllStopTagsAtLocation(ContentResolver resolver, 
 				String stopTag)
 		{
 			Cursor cursor = null;
@@ -411,7 +422,7 @@ public class DatabaseContentProvider extends ContentProvider {
 						new String[]{"s2." + stopTagKey}, "s1." + stopTagKey + " = ? AND s1." + latitudeKey + " = s2." + latitudeKey +
 						" AND s1." + longitudeKey + " = s2." + longitudeKey + "", new String[]{stopTag}, null);
 
-				ArrayList<String> ret = new ArrayList<String>();
+				ImmutableList.Builder<String> ret = ImmutableList.builder();
 				cursor.moveToFirst();
 				while (cursor.isAfterLast() == false)
 				{
@@ -421,7 +432,7 @@ public class DatabaseContentProvider extends ContentProvider {
 					cursor.moveToNext();
 				}
 
-				return ret;
+				return ret.build();
 			}
 			finally
 			{
@@ -431,7 +442,7 @@ public class DatabaseContentProvider extends ContentProvider {
 			}
 		}
 
-		private static void storeFavorite(ContentResolver resolver, ArrayList<String> stopTags) throws RemoteException, OperationApplicationException
+		private static void storeFavorite(ContentResolver resolver, Collection<String> stopTags) throws RemoteException, OperationApplicationException
 		{
 			if (stopTags == null || stopTags.size() == 0)
 			{
@@ -452,7 +463,7 @@ public class DatabaseContentProvider extends ContentProvider {
 
 
 		public static void saveFavorite(ContentResolver resolver, 
-				String stopTag, ArrayList<String> stopTags, boolean isFavorite) throws RemoteException, OperationApplicationException {
+				String stopTag, Collection<String> stopTags, boolean isFavorite) throws RemoteException, OperationApplicationException {
 			if (isFavorite)
 			{
 				storeFavorite(resolver, stopTags);
@@ -468,11 +479,11 @@ public class DatabaseContentProvider extends ContentProvider {
 		}
 
 		public static RouteConfig getRoute(ContentResolver resolver, String routeToUpdate, 
-				MyHashMap<String, StopLocation> sharedStops,
+				ConcurrentMap<String, StopLocation> sharedStops,
 				TransitSystem transitSystem) throws IOException {
 
 			//get the route-specific information, like the path outline and the color
-			RouteConfig routeConfig;
+			RouteConfig.Builder routeConfigBuilder;
 			{
 				Cursor cursor = null;
 				try
@@ -494,7 +505,7 @@ public class DatabaseContentProvider extends ContentProvider {
 					String routeTitle = cursor.getString(3);
 					Box pathsBlobBox = new Box(pathsBlob, CURRENT_DB_VERSION);
 
-					routeConfig = new RouteConfig(routeToUpdate, routeTitle, color, oppositeColor, source, pathsBlobBox);
+					routeConfigBuilder = new RouteConfig.Builder(routeToUpdate, routeTitle, color, oppositeColor, source, pathsBlobBox);
 				}
 				finally
 				{
@@ -503,6 +514,7 @@ public class DatabaseContentProvider extends ContentProvider {
 					}
 				}
 			}
+
 			{
 				//get all stops, joining in the subway stops, making sure that the stop references the route we're on
 
@@ -521,7 +533,6 @@ public class DatabaseContentProvider extends ContentProvider {
 				{
 					cursor = resolver.query(STOPS_LOOKUP_URI, projectionIn, select, selectArray, null);
 
-
 					cursor.moveToFirst();
 					while (cursor.isAfterLast() == false)
 					{
@@ -530,20 +541,19 @@ public class DatabaseContentProvider extends ContentProvider {
 						String route = cursor.getString(7);
 
 						//we need to ensure this stop is in the sharedstops and the route
-						StopLocation stop = sharedStops.get(stopTag);
+						StopLocation.Builder stop = sharedStops.get(stopTag);
 						if (stop != null)
 						{
 							//make sure it exists in the route too
-							StopLocation stopInRoute = routeConfig.getStop(stopTag);
-							if (stopInRoute == null)
+							if (routeConfigBuilder.containsStop(stopTag) == false)
 							{
-								routeConfig.addStop(stopTag, stop);
+								routeConfigBuilder.addStop(stopTag, stop);
 							}
 							stop.addRouteAndDirTag(route, dirTag);
 						}
 						else
 						{
-							stop = routeConfig.getStop(stopTag);
+							stop = stopsMap.get(stopTag);
 
 							if (stop == null)
 							{
@@ -556,7 +566,7 @@ public class DatabaseContentProvider extends ContentProvider {
 
 								stop = transitSystem.createStop(latitude, longitude, stopTag, stopTitle, platformOrder, branch, route, dirTag);
 
-								routeConfig.addStop(stopTag, stop);
+								stopsMap.put(stopTag, stop);
 							}
 
 							sharedStops.put(stopTag, stop);
@@ -572,12 +582,12 @@ public class DatabaseContentProvider extends ContentProvider {
 				}
 			}
 
-			return routeConfig;
+			return routeConfigBuilder.build();
 		}
 
-		public static ArrayList<String> routeInfoNeedsUpdating(ContentResolver resolver, 
-				String[] supportedRoutes) {
-			HashSet<String> routesInDB = new HashSet<String>();
+		public static ImmutableList<String> routeInfoNeedsUpdating(ContentResolver resolver, 
+				RouteTitles supportedRoutes) {
+			Set<String> routesInDB = Sets.newHashSet();
 			Cursor cursor = null;
 			try
 			{
@@ -590,9 +600,9 @@ public class DatabaseContentProvider extends ContentProvider {
 					cursor.moveToNext();
 				}
 
-				ArrayList<String> routesThatNeedUpdating = new ArrayList<String>();
+				ImmutableList.Builder<String> routesThatNeedUpdating = ImmutableList.builder();
 
-				for (String route : supportedRoutes)
+				for (String route : supportedRoutes.routeTags())
 				{
 					if (routesInDB.contains(route) == false)
 					{
@@ -600,7 +610,7 @@ public class DatabaseContentProvider extends ContentProvider {
 					}
 				}
 
-				return routesThatNeedUpdating;
+				return routesThatNeedUpdating.build();
 			}
 			finally
 			{
@@ -673,7 +683,7 @@ public class DatabaseContentProvider extends ContentProvider {
 			resolver.applyBatch(AUTHORITY, operations);
 		}
 
-		public static void saveFavorites(ContentResolver resolver, HashSet<String> favoriteStops, MyHashMap<String, StopLocation> sharedStops) throws RemoteException, OperationApplicationException {
+		public static void saveFavorites(ContentResolver resolver, Set<String> favoriteStops, Map<String, StopLocation> sharedStops) throws RemoteException, OperationApplicationException {
 			ArrayList<ContentProviderOperation> operations = new ArrayList<ContentProviderOperation>();
 			operations.add(ContentProviderOperation.newDelete(FAVORITES_URI).build());
 
@@ -828,9 +838,9 @@ public class DatabaseContentProvider extends ContentProvider {
 			return uri;
 		}
 		
-		public static ArrayList<StopLocation> getClosestStops(ContentResolver resolver, 
+		public static Collection<StopLocation> getClosestStops(ContentResolver resolver, 
 				double currentLat, double currentLon, TransitSystem transitSystem, 
-				MyHashMap<String, StopLocation> sharedStops, int limit)
+				ConcurrentMap<String, StopLocation> sharedStops, int limit)
 		{
 			// what we should scale longitude by for 1 unit longitude to roughly equal 1 unit latitude
 
@@ -845,7 +855,7 @@ public class DatabaseContentProvider extends ContentProvider {
 				cursor = resolver.query(uri, projectionIn, null, null, distanceKey);
 				if (cursor.moveToFirst() == false)
 				{
-					return new ArrayList<StopLocation>();
+					return Collections.emptyList();
 				}
 
 				ArrayList<String> stopTags = new ArrayList<String>();
@@ -857,15 +867,15 @@ public class DatabaseContentProvider extends ContentProvider {
 					cursor.moveToNext();
 				}
 
-				getStops(resolver, stopTags, transitSystem, sharedStops);
+				getStops(resolver, ImmutableList.copyOf(stopTags), transitSystem, sharedStops);
 
-				ArrayList<StopLocation> ret = new ArrayList<StopLocation>();
+				ImmutableList.Builder<StopLocation> builder = ImmutableList.builder();
 				for (String stopTag : stopTags)
 				{
-					ret.add(sharedStops.get(stopTag));
+					builder.add(sharedStops.get(stopTag));
 				}
 
-				return ret;
+				return builder.build();
 			}
 			finally
 			{
@@ -939,7 +949,8 @@ public class DatabaseContentProvider extends ContentProvider {
 		 * @param transitSystem
 		 * @return
 		 */
-		public static void getStops(ContentResolver resolver, List<String> stopTags, TransitSystem transitSystem, MyHashMap<String, StopLocation> outputMapping) {
+		public static void getStops(ContentResolver resolver, ImmutableList<String> stopTags, 
+				TransitSystem transitSystem, ConcurrentMap<String, StopLocation> outputMapping) {
 			if (stopTags == null || stopTags.size() == 0)
 			{
 				return;
@@ -1018,7 +1029,7 @@ public class DatabaseContentProvider extends ContentProvider {
 						}
 
 						stop = transitSystem.createStop(lat, lon, stopTag, title, platformOrder, branch, route, dirTag);
-						outputMapping.put(stopTag, stop);
+						outputMapping.putIfAbsent(stopTag, stop);
 					}
 					else
 					{
@@ -1152,7 +1163,7 @@ public class DatabaseContentProvider extends ContentProvider {
 				Path[] currentPaths) throws IOException {
 			byte[] pathsBlob = null;
 			if (currentPaths != null) {
-				Box serializedPath = new Box(null, CURRENT_DB_VERSION);
+				IBox serializedPath = new Box(null, CURRENT_DB_VERSION);
 
 				serializedPath.writePathsList(currentPaths);
 

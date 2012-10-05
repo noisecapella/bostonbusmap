@@ -2,12 +2,16 @@ package boston.Bus.Map.util;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
+import java.util.List;
+
 import com.google.android.maps.MapView;
+import com.google.common.collect.ImmutableMap;
 
 import android.util.Log;
 import android.widget.Toast;
 import boston.Bus.Map.data.Direction;
-import boston.Bus.Map.data.MyHashMap;
+import boston.Bus.Map.data.RouteTitles;
 import boston.Bus.Map.data.StopLocation;
 import boston.Bus.Map.data.UpdateArguments;
 import boston.Bus.Map.main.Main;
@@ -17,8 +21,7 @@ import boston.Bus.Map.transit.TransitSystem;
 public class SearchHelper
 {
 	private final Main context;
-	private final String[] dropdownRoutes;
-	private final MyHashMap<String, String> dropdownRouteKeysToTitles;
+	private final RouteTitles dropdownRouteKeysToTitles;
 	private final String query;
 	private String suggestionsQuery;
 	
@@ -30,11 +33,10 @@ public class SearchHelper
 	
 	private final UpdateArguments arguments;
 	
-	public SearchHelper(Main context, String[] dropdownRoutes, MyHashMap<String, String> dropdownRouteKeysToTitles,
+	public SearchHelper(Main context, RouteTitles dropdownRouteKeysToTitles,
 			UpdateArguments arguments, String query)
 	{
 		this.context = context;
-		this.dropdownRoutes = dropdownRoutes;
 		this.dropdownRouteKeysToTitles = dropdownRouteKeysToTitles;
 		this.query = query;
 		this.arguments = arguments;
@@ -47,11 +49,6 @@ public class SearchHelper
 	 */
 	public void runSearch(Runnable onFinish)
 	{
-		if (dropdownRoutes == null || dropdownRouteKeysToTitles == null)
-		{
-			return;
-		}
-
 		searchRoutes(onFinish);
 	}
 
@@ -141,8 +138,8 @@ public class SearchHelper
 			{
 				//done!
 				context.setNewRoute(position, false);
-				String routeKey = dropdownRoutes[position];
-				String routeTitle = dropdownRouteKeysToTitles.get(routeKey);
+				String routeKey = dropdownRouteKeysToTitles.getTagUsingIndex(position);
+				String routeTitle = dropdownRouteKeysToTitles.getTitle(routeKey);
 				suggestionsQuery = "route " + routeTitle;
 			}
 			else
@@ -191,16 +188,12 @@ public class SearchHelper
 		String route = arguments.getTransitSystem().searchForRoute(indexingQuery, lowercaseQuery);
 		if (route != null)
 		{
-			for (int i = 0; i < dropdownRoutes.length; i++)
-			{
-				String potentialRoute = dropdownRoutes[i];
-				if (route.equals(potentialRoute))
-				{
-					return i;
-				}
-			}
+			return dropdownRouteKeysToTitles.getIndexForTag(route);
 		}
-		return -1;
+		else
+		{
+			return -1;
+		}
 	}
 
 	public String getSuggestionsQuery()
@@ -208,28 +201,28 @@ public class SearchHelper
 		return suggestionsQuery;
 	}
 
-	public static String naiveSearch(String indexingQuery, String lowercaseQuery, String[] routes,
-			MyHashMap<String, String> routeKeysToTitles)
+	public static String naiveSearch(String indexingQuery, String lowercaseQuery,
+			RouteTitles routeKeysToTitles)
 	{
-		
-		int position = Arrays.asList(routes).indexOf(indexingQuery);
+		List<String> routes = routeKeysToTitles.getKeys();
+		int position = routes.indexOf(indexingQuery);
 
 		if (position != -1)
 		{
-			return routes[position];
+			return routes.get(position);
 		}
 		else
 		{
 			//try the titles
-			for (int i = 0; i < routes.length; i++)
+			for (int i = 0; i < routes.size(); i++)
 			{
-				String title = routeKeysToTitles.get(routes[i]);
+				String title = routeKeysToTitles.getTitle(routes.get(i));
 				if (title != null)
 				{
 					String titleWithoutSpaces = title.toLowerCase().replaceAll(" ", "");
 					if (titleWithoutSpaces.equals(lowercaseQuery))
 					{
-						return routes[i];
+						return routes.get(i);
 					}
 				}
 			}

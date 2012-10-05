@@ -3,6 +3,8 @@ package boston.Bus.Map.data;
 import java.text.DateFormat;
 import java.util.Date;
 
+import com.google.common.collect.ImmutableMap;
+
 
 import android.content.Context;
 import android.os.Parcel;
@@ -84,21 +86,19 @@ lateness. Used at the trip’s origin.
 				lateness);
 		this.flag = flag;
 	}
-
+	
 	@Override
-	public String makeSnippet(MyHashMap<String, String> routeKeysToTitles, Context context) {
-		String ret;
-		
+	public void makeSnippet(RouteTitles routeKeysToTitles, Context context, StringBuilder ret) {
 		int minutes = getMinutes();
 		if (minutes < 0)
 		{
-			ret = "";
+			return;
 		}
 		else
 		{
 			StringBuilder builder = new StringBuilder();
 			
-			builder.append("Line <b>").append(routeKeysToTitles.get(routeName)).append("</b>");
+			builder.append("Line <b>").append(routeKeysToTitles.getTitle(routeName)).append("</b>");
 			if (vehicleId != null)
 			{
 				builder.append(", Train <b>").append(vehicleId).append("</b>");
@@ -124,10 +124,7 @@ lateness. Used at the trip’s origin.
 			{
 				builder.append("<br /><b>Delayed ").append(lateness/60).append(" minutes</b>");
 			}
-			
-			ret = builder.toString();
 		}
-		return ret;
 	}
 
 	@Override

@@ -27,6 +27,7 @@ import java.util.ArrayList;
 
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 
 import javax.xml.parsers.FactoryConfigurationError;
 import javax.xml.parsers.ParserConfigurationException;
@@ -40,9 +41,9 @@ import boston.Bus.Map.data.BusLocation;
 import boston.Bus.Map.data.Direction;
 import boston.Bus.Map.data.Location;
 import boston.Bus.Map.data.Locations;
-import boston.Bus.Map.data.MyHashMap;
 import boston.Bus.Map.data.Path;
 import boston.Bus.Map.data.RouteConfig;
+import boston.Bus.Map.data.RouteTitles;
 import boston.Bus.Map.data.StopLocation;
 import boston.Bus.Map.data.UpdateArguments;
 import boston.Bus.Map.transit.TransitSystem;
@@ -58,6 +59,8 @@ import com.google.android.maps.GeoPoint;
 import com.google.android.maps.MapView;
 import com.google.android.maps.OverlayItem;
 import com.google.android.maps.Projection;
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Maps;
 
 import android.app.ProgressDialog;
 import android.content.Context;
@@ -237,16 +240,7 @@ public class UpdateAsyncTask extends AsyncTask<Object, Object, Locations>
 			{
 				publish(new ProgressMessage(ProgressMessage.PROGRESS_SPINNER_ON, null, null));
 				
-				String[] allRoutes = arguments.getTransitSystem().getRoutes();
-				if (doInit)
-				{
-					//publishProgress("Did not find route info in database, checking if there's free space to download it...");
-				}
-				
-				if (doInit)
-				{
-					//publishProgress("Did not find route info in database, downloading it now...");
-				}
+				RouteTitles allRoutes = arguments.getTransitSystem().getRouteKeysToTitles();
 				busLocations.initializeAllRoutes(this, context, allRoutes);
 				
 				busLocations.refresh(arguments.getContext(), inferBusRoutes, routeToUpdate, selectedBusPredictions,
@@ -474,13 +468,14 @@ public class UpdateAsyncTask extends AsyncTask<Object, Object, Locations>
 		//http://groups.google.com/group/android-beginners/browse_thread/thread/6d75c084681f943e?pli=1
 		final int selectedBusId = busOverlay != null ? busOverlay.getSelectedBusId() : BusOverlay.NOT_SELECTED;
 		busOverlay.clearExceptFocus();
-		
+		busOverlay.doPopulate();
+
 		busOverlay.setLocations(busLocationsObject);
 		
-		MyHashMap<String, String> routeKeysToTitles = arguments.getTransitSystem().getRouteKeysToTitles();
+		RouteTitles routeKeysToTitles = arguments.getTransitSystem().getRouteKeysToTitles();
 		
 		//point hash to index in busLocations
-		MyHashMap<Long, Integer> points = new MyHashMap<Long, Integer>();
+		Map<Long, Integer> points = Maps.newHashMap();
 		
 		ArrayList<GeoPoint> geoPointsToAdd = new ArrayList<GeoPoint>(busLocations.size());
 		//draw the buses on the map

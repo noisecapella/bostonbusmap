@@ -13,6 +13,9 @@ import javax.xml.parsers.ParserConfigurationException;
 import org.apache.http.client.ClientProtocolException;
 import org.xml.sax.SAXException;
 
+import com.google.common.collect.ImmutableBiMap;
+import com.google.common.collect.ImmutableMap;
+
 import android.content.Context;
 import android.content.OperationApplicationException;
 import android.graphics.Color;
@@ -22,9 +25,9 @@ import boston.Bus.Map.data.BusLocation;
 import boston.Bus.Map.data.Directions;
 import boston.Bus.Map.data.Location;
 import boston.Bus.Map.data.Locations;
-import boston.Bus.Map.data.MyHashMap;
 import boston.Bus.Map.data.RouteConfig;
 import boston.Bus.Map.data.RoutePool;
+import boston.Bus.Map.data.RouteTitles;
 import boston.Bus.Map.data.StopLocation;
 import boston.Bus.Map.data.SubwayStopLocation;
 import boston.Bus.Map.data.TransitDrawables;
@@ -40,17 +43,33 @@ import boston.Bus.Map.util.SearchHelper;
 public class SubwayTransitSource implements TransitSource {
 	private static String predictionsUrlSuffix = ".txt";
 	private final TransitDrawables drawables;
+	public static final String RedLine = "Red";
+	public static final String OrangeLine = "Orange";
+	public static final String BlueLine = "Blue";
+	private static final String[] subwayRoutes = new String[] {RedLine, OrangeLine, BlueLine};
+	private final ImmutableMap<String, Integer> alertKeys;
+	
+	
+	public static final int RedColor = Color.RED;
+	public static final int OrangeColor = 0xf88017; //orange isn't a built in color?
+	public static final int BlueColor = Color.BLUE;
+	
+	private static final int[] subwayColors = new int[] {RedColor, OrangeColor, BlueColor};
+	private final RouteTitles subwayRouteKeysToTitles;
+	
 	
 	public SubwayTransitSource(TransitDrawables drawables, AlertsMapping alertsMapping)
 	{
 		this.drawables = drawables;
 		
-		alertKeys = alertsMapping.getAlertNumbers(subwayRoutes, subwayRouteKeysToTitles);
+		ImmutableBiMap.Builder<String, String> builder = ImmutableBiMap.builder();
 		for (String route : subwayRoutes)
 		{
-			subwayRouteKeysToTitles.put(route, route);
-
+			builder.put(route, route);
 		}
+		subwayRouteKeysToTitles = new RouteTitles(builder.build());
+
+		alertKeys = alertsMapping.getAlertNumbers(subwayRouteKeysToTitles);
 	}
 	
 	
@@ -244,20 +263,6 @@ public class SubwayTransitSource implements TransitSource {
 		return false;
 	}
 
-	public static final String RedLine = "Red";
-	public static final String OrangeLine = "Orange";
-	public static final String BlueLine = "Blue";
-	private static final String[] subwayRoutes = new String[] {RedLine, OrangeLine, BlueLine};
-	private final MyHashMap<String, Integer> alertKeys;
-	
-	
-	public static final int RedColor = Color.RED;
-	public static final int OrangeColor = 0xf88017; //orange isn't a built in color?
-	public static final int BlueColor = Color.BLUE;
-	
-	private static final int[] subwayColors = new int[] {RedColor, OrangeColor, BlueColor};
-	private final MyHashMap<String, String> subwayRouteKeysToTitles = new MyHashMap<String, String>();
-	
 	public static String[] getAllSubwayRoutes() {
 		return subwayRoutes;
 	}
@@ -296,13 +301,7 @@ public class SubwayTransitSource implements TransitSource {
 
 
 	@Override
-	public String[] getRoutes() {
-		return subwayRoutes;
-	}
-
-
-	@Override
-	public MyHashMap<String, String> getRouteKeysToTitles() {
+	public RouteTitles getRouteKeysToTitles() {
 		return subwayRouteKeysToTitles;
 	}
 
@@ -313,9 +312,9 @@ public class SubwayTransitSource implements TransitSource {
 	@Override
 	public StopLocation createStop(float lat, float lon, String stopTag, String title,
 			int platformOrder, String branch, String route, String dirTag) {
-		SubwayStopLocation stop = new SubwayStopLocation(lat, lon, drawables, stopTag, title, platformOrder, branch);
+		SubwayStopLocation.SubwayBuilder stop = new SubwayStopLocation.SubwayBuilder(lat, lon, drawables, stopTag, title, platformOrder, branch);
 		stop.addRouteAndDirTag(route, dirTag);
-		return stop;
+		return stop.build();
 	}
 
 
@@ -331,6 +330,6 @@ public class SubwayTransitSource implements TransitSource {
 	@Override
 	public String searchForRoute(String indexingQuery, String lowercaseQuery)
 	{
-		return SearchHelper.naiveSearch(indexingQuery, lowercaseQuery, subwayRoutes, subwayRouteKeysToTitles);
+		return SearchHelper.naiveSearch(indexingQuery, lowercaseQuery, subwayRouteKeysToTitles);
 	}
 }

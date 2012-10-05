@@ -15,6 +15,7 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
@@ -26,10 +27,10 @@ import android.text.format.Time;
 import android.util.Log;
 import boston.Bus.Map.data.BusLocation;
 import boston.Bus.Map.data.Directions;
-import boston.Bus.Map.data.MyHashMap;
 import boston.Bus.Map.data.Prediction;
 import boston.Bus.Map.data.RouteConfig;
 import boston.Bus.Map.data.RoutePool;
+import boston.Bus.Map.data.RouteTitles;
 import boston.Bus.Map.data.StopLocation;
 import boston.Bus.Map.data.SubwayStopLocation;
 import boston.Bus.Map.data.SubwayTrainLocation;
@@ -45,8 +46,8 @@ public class SubwayPredictionsFeedParser
 	private final Directions directions;
 	private final TransitDrawables drawables;
 	
-	private final ConcurrentHashMap<String, BusLocation> busMapping;
-	private final MyHashMap<String, String> routeKeysToTitles;
+	private final ConcurrentMap<String, BusLocation> busMapping;
+	private final RouteTitles routeKeysToTitles;
 	
 	private static final int ROUTE_INDEX = 0;
 	private static final int TRIP_ID_INDEX = 1;
@@ -58,7 +59,7 @@ public class SubwayPredictionsFeedParser
 	private static final int BRANCH_INDEX = 7;
 	
 	public SubwayPredictionsFeedParser(String route, RoutePool routePool, Directions directions, TransitDrawables drawables, 
-			ConcurrentHashMap<String, BusLocation> busMapping, MyHashMap<String, String> routeKeysToTitles)
+			ConcurrentHashMap<String, BusLocation> busMapping, RouteTitles routeKeysToTitles)
 	{
 		this.currentRoute = route;
 		this.routePool = routePool;
@@ -187,7 +188,7 @@ public class SubwayPredictionsFeedParser
 					BusLocation busLocation = null;
 					String tripId = lineArray[TRIP_ID_INDEX].trim();
 
-					String routeTitle = routeKeysToTitles.get(route);
+					String routeTitle = routeKeysToTitles.getTitle(route);
 					if (routeTitle == null)
 					{
 						routeTitle = route;

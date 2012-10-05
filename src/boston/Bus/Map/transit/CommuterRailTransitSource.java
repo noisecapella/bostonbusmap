@@ -16,6 +16,9 @@ import javax.xml.parsers.ParserConfigurationException;
 import org.apache.http.client.ClientProtocolException;
 import org.xml.sax.SAXException;
 
+import com.google.common.collect.ImmutableBiMap;
+import com.google.common.collect.ImmutableMap;
+
 import android.content.Context;
 import android.content.OperationApplicationException;
 import android.graphics.drawable.Drawable;
@@ -27,9 +30,9 @@ import boston.Bus.Map.data.CommuterRailStopLocation;
 import boston.Bus.Map.data.Directions;
 import boston.Bus.Map.data.Location;
 import boston.Bus.Map.data.Locations;
-import boston.Bus.Map.data.MyHashMap;
 import boston.Bus.Map.data.RouteConfig;
 import boston.Bus.Map.data.RoutePool;
+import boston.Bus.Map.data.RouteTitles;
 import boston.Bus.Map.data.StopLocation;
 import boston.Bus.Map.data.SubwayStopLocation;
 import boston.Bus.Map.data.TransitDrawables;
@@ -46,13 +49,12 @@ import boston.Bus.Map.util.SearchHelper;
 
 public class CommuterRailTransitSource implements TransitSource {
 	public static final String stopTagPrefix = "CRK-";
-	private final String[] routes;
-	private final MyHashMap<String, String> routeKeysToTitles = new MyHashMap<String, String>(12);
+	private final RouteTitles routeKeysToTitles;
 	private static final String predictionsUrlSuffix = ".csv";
 	public static final String routeTagPrefix = "CR-";
 	private static final String dataUrlPrefix = "http://developer.mbta.com/lib/RTCR/RailLine_";
 	
-	private final MyHashMap<String, String> routeKeysToAlertUrls = new MyHashMap<String, String>();
+	private final ImmutableMap<String, String> routeKeysToAlertUrls;
 	private final TransitDrawables drawables;
 	
 	public CommuterRailTransitSource(TransitDrawables drawables, AlertsMapping alertsMapping)
@@ -75,42 +77,29 @@ public class CommuterRailTransitSource implements TransitSource {
 
 		};
 		
-		
-		
 		//map alert keys to numbers
-		MyHashMap<String, Integer> alertNumbers = alertsMapping.getAlertNumbers(routeNames, routeKeysToTitles);
-		
-		routes = new String[routeNames.length];
-		
+		ImmutableBiMap.Builder<String, String> routeBuilder = ImmutableBiMap.builder();
 		for (int i = 0; i < routeNames.length; i++)
 		{
-			addRoute(routeTagPrefix + (i+1), routeNames[i], i);
+			String key = routeTagPrefix + (i+1); 
+			String title = routeNames[i];
+			routeBuilder.put(key, title);
 		}
+		routeKeysToTitles = new RouteTitles(routeBuilder.build());
 
+		ImmutableMap<String, Integer> alertNumbers = alertsMapping.getAlertNumbers(routeKeysToTitles);
 		
+		
+		ImmutableMap.Builder<String, String> alertsBuilder = ImmutableMap.builder();
 		for (int i = 0; i < routeNames.length; i++)
 		{
 			String routeTitle = routeNames[i];
 			int alertKey = alertNumbers.get(routeTitle);
-			addAlert(routeTagPrefix + (i+1), alertKey);
+			String routeKey = routeTagPrefix + (i+1);
+			alertsBuilder.put(routeKey, AlertsMapping.alertUrlPrefix + alertKey);
 		}
+		routeKeysToAlertUrls = alertsBuilder.build();
 	}
-	
-	private void addAlert(String routeKey, int alertNum) {
-		routeKeysToAlertUrls.put(routeKey, AlertsMapping.alertUrlPrefix + alertNum);
-	}
-
-	private void addRoute(String key, String title, int index) {
-		routeKeysToTitles.put(key, title);
-		routes[index] = key;
-	}
-
-	public static String getRouteConfigUrl()
-	{
-
-		return null;
-	}
-
 
 	@Override
 	public void populateStops(Context context, RoutePool routeMapping, String routeToUpdate,
@@ -305,7 +294,7 @@ public class CommuterRailTransitSource implements TransitSource {
 	}
 
 	private boolean isCommuterRail(String routeName) {
-		for (String route : routes)
+		for (String route : routeKeysToTitles.routeTags())
 		{
 			if (route.equals(routeName))
 			{
@@ -340,12 +329,7 @@ public class CommuterRailTransitSource implements TransitSource {
 	}
 
 	@Override
-	public String[] getRoutes() {
-		return routes;
-	}
-
-	@Override
-	public MyHashMap<String, String> getRouteKeysToTitles() {
+	public RouteTitles getRouteKeysToTitles() {
 		return routeKeysToTitles;
 	}
 
@@ -358,10 +342,12 @@ public class CommuterRailTransitSource implements TransitSource {
 	public StopLocation createStop(float lat, float lon, String stopTag,
 			String title, int platformOrder, String branch, String route,
 			String dirTag) {
-		SubwayStopLocation stopLocation = new CommuterRailStopLocation(lat, lon, drawables, stopTag, title,
+		CommuterRailStopLocation.CommuterRailBuilder stopLocation =
+				new CommuterRailStopLocation.CommuterRailBuilder(
+						lat, lon, drawables, stopTag, title,
 				platformOrder, branch);
 		stopLocation.addRouteAndDirTag(route, dirTag);
-		return stopLocation;
+		return stopLocation.build();
 	}
 
 	@Override
@@ -374,9 +360,9 @@ public class CommuterRailTransitSource implements TransitSource {
 	public String searchForRoute(String indexingQuery, String lowercaseQuery)
 	{
 		//try splitting up the route keys along the diagonal and see if they match one piece of it
-		for (String route : routeKeysToTitles.keySet())
+		for (String route : routeKeysToTitles.getKeys())
 		{
-			String title = routeKeysToTitles.get(route);
+			String title = routeKeysToTitles.getTitle(route);
 			if (title.contains("/"))
 			{
 				String[] pieces = title.split("/");
@@ -390,7 +376,7 @@ public class CommuterRailTransitSource implements TransitSource {
 			}
 		}
 		
-		return SearchHelper.naiveSearch(indexingQuery, lowercaseQuery, routes, routeKeysToTitles);
+		return SearchHelper.naiveSearch(indexingQuery, lowercaseQuery, routeKeysToTitles);
 		
 	}
 }

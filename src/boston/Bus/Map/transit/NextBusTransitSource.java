@@ -12,6 +12,9 @@ import javax.xml.parsers.ParserConfigurationException;
 import org.apache.http.client.ClientProtocolException;
 import org.xml.sax.SAXException;
 
+import com.google.common.collect.ImmutableBiMap;
+import com.google.common.collect.ImmutableMap;
+
 import android.content.Context;
 import android.content.OperationApplicationException;
 import android.os.RemoteException;
@@ -19,9 +22,9 @@ import boston.Bus.Map.data.BusLocation;
 import boston.Bus.Map.data.Directions;
 import boston.Bus.Map.data.Location;
 import boston.Bus.Map.data.Locations;
-import boston.Bus.Map.data.MyHashMap;
 import boston.Bus.Map.data.RouteConfig;
 import boston.Bus.Map.data.RoutePool;
+import boston.Bus.Map.data.RouteTitles;
 import boston.Bus.Map.data.StopLocation;
 import boston.Bus.Map.data.SubwayStopLocation;
 import boston.Bus.Map.data.TransitDrawables;
@@ -57,11 +60,9 @@ public abstract class NextBusTransitSource implements TransitSource
 	private final int initialRouteResource;
 
 	private final TransitDrawables drawables;
-	private final String[] routes;
-	private ArrayList<String> tempRoutes;
-	private final MyHashMap<String, String> routeKeysToTitles = new MyHashMap<String, String>();
+	private final RouteTitles routeKeysToTitles;
 
-	
+	private ImmutableBiMap.Builder<String, String> tempBuilder;
 
 	public NextBusTransitSource(TransitSystem transitSystem, 
 			TransitDrawables drawables, String agency, int initialRouteResource)
@@ -76,21 +77,16 @@ public abstract class NextBusTransitSource implements TransitSource
 		mbtaPredictionsDataUrl = "http://" + prefix + ".nextbus.com/service/publicXMLFeed?command=predictionsForMultiStops&a=" + agency;
 		this.initialRouteResource = initialRouteResource;
 		
-		tempRoutes = new ArrayList<String>();
-
+		tempBuilder = ImmutableBiMap.builder();
 		addRoutes();
-
-		routes = tempRoutes.toArray(new String[0]);
-		tempRoutes.clear();
-		tempRoutes = null;
+		routeKeysToTitles = new RouteTitles(tempBuilder.build());
+		tempBuilder = null;
 	}
 
 	protected abstract void addRoutes();
 	
 	protected void addRoute(String key, String title) {
-		tempRoutes.add(key);
-
-		routeKeysToTitles.put(key, title);
+		tempBuilder.put(key, title);
 
 	}
 
@@ -329,13 +325,7 @@ public abstract class NextBusTransitSource implements TransitSource
 	protected abstract int getInitialContentLength();
 
 	@Override
-	public String[] getRoutes() {
-		return routes;
-	}
-
-
-	@Override
-	public MyHashMap<String, String> getRouteKeysToTitles() {
+	public RouteTitles getRouteKeysToTitles() {
 		return routeKeysToTitles;
 	}
 
@@ -344,15 +334,15 @@ public abstract class NextBusTransitSource implements TransitSource
 	public StopLocation createStop(float lat, float lon, String stopTag,
 			String title, int platformOrder, String branch, String route, String dirTag)
 	{
-		StopLocation stop = new StopLocation(lat, lon, drawables, stopTag, title);
+		StopLocation.Builder stop = new StopLocation.Builder(lat, lon, drawables, stopTag, title);
 		stop.addRouteAndDirTag(route, dirTag);
-		return stop;
+		return stop.build();
 	}
 
 	@Override
 	public String searchForRoute(String indexingQuery, String lowercaseQuery)
 	{
-		return SearchHelper.naiveSearch(indexingQuery, lowercaseQuery, routes, routeKeysToTitles);
+		return SearchHelper.naiveSearch(indexingQuery, lowercaseQuery, routeKeysToTitles);
 	}
 	
 	@Override
