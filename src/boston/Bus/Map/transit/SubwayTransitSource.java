@@ -309,27 +309,21 @@ public class SubwayTransitSource implements TransitSource {
 	public TransitDrawables getDrawables() {
 		return drawables;
 	}
-	@Override
-	public StopLocation createStop(float lat, float lon, String stopTag, String title,
-			int platformOrder, String branch, String route, String dirTag) {
-		SubwayStopLocation.SubwayBuilder stop = new SubwayStopLocation.SubwayBuilder(lat, lon, drawables, stopTag, title, platformOrder, branch);
-		stop.addRouteAndDirTag(route, dirTag);
-		return stop.build();
-	}
-
-
-	@Override
-	public void bindPredictionElementsForUrl(StringBuilder urlString,
-			String route, String stopTag, String dirTag)
-	{
-		//do nothing
-		
-	}
-
 
 	@Override
 	public String searchForRoute(String indexingQuery, String lowercaseQuery)
 	{
 		return SearchHelper.naiveSearch(indexingQuery, lowercaseQuery, subwayRouteKeysToTitles);
+	}
+
+
+	@Override
+	public SubwayStopLocation createStop(float latitude, float longitude,
+			String stopTag, String stopTitle, int platformOrder, String branch,
+			String route) {
+		SubwayStopLocation stop = new SubwayStopLocation.SubwayBuilder(
+				latitude, longitude, drawables, stopTag, stopTitle, platformOrder, branch).build();
+		stop.addRoute(route);
+		return stop;
 	}
 }

@@ -164,27 +164,6 @@ public class TransitSystem {
 		}
 	}
 
-	/**
-	 * Create a StopLocation from the parameters. 
-	 * This will use the route parameter to pick a TransitSource which does the instantiating 
-	 * 
-	 * @param lat
-	 * @param lon
-	 * @param stopTag
-	 * @param title
-	 * @param platformOrder
-	 * @param branch
-	 * @param route
-	 * @param dirTag
-	 * @return
-	 */
-	public StopLocation createStop(float lat, float lon, String stopTag, String title, int platformOrder, 
-			String branch, String route, String dirTag)
-	{
-		TransitSource source = getTransitSource(route);
-		
-		return source.createStop(lat, lon, stopTag, title, platformOrder, branch, route, dirTag);
-	}
 
 	private static final TimeZone bostonTimeZone = TimeZone.getTimeZone("America/New_York");
 	private static DateFormat defaultTimeFormat;
@@ -237,6 +216,14 @@ public class TransitSystem {
 			}
 		}
 		return null;
+	}
+
+	public StopLocation createStop(float latitude, float longitude,
+			String stopTag, String stopTitle, int platformOrder, String branch,
+			String route) {
+		TransitSource source = getTransitSource(route);
+		
+		return source.createStop(latitude, longitude, stopTag, stopTitle, platformOrder, branch, route);
 	}
 
 }

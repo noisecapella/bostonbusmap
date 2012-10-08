@@ -60,16 +60,7 @@ public class RouteConfig
 	
 	private RouteConfig(Builder builder)
 			throws IOException {
-		this(builder, buildStops(builder.stops));
-	}
-
-	private static ImmutableMap<String, StopLocation> buildStops(
-			Map<String, StopLocation.Builder> stops) {
-		ImmutableMap.Builder<String, StopLocation> builder = ImmutableMap.builder();
-		for (String stopTag : stops.keySet()) {
-			builder.put(stopTag, stops.get(stopTag).build());
-		}
-		return builder.build();
+		this(builder, ImmutableMap.copyOf(builder.stops));
 	}
 
 	public static class Builder {
@@ -79,7 +70,7 @@ public class RouteConfig
 		private final int oppositeColor;
 		private final TransitSource transitSource;
 		private final IBox serializedPath;
-		private final Map<String, StopLocation.Builder> stops = Maps.newHashMap();
+		private final Map<String, StopLocation> stops = Maps.newHashMap();
 		private final List<Path> paths = Lists.newArrayList();
 		
 		public Builder(String route, String routeTitle, int color, int oppositeColor,
@@ -97,11 +88,11 @@ public class RouteConfig
 			this.serializedPath = serializedPath;
 		}
 		
-		public StopLocation.Builder getStop(String tag) {
+		public StopLocation getStop(String tag) {
 			return stops.get(tag);
 		}
 
-		public void addStop(String stopTag, StopLocation.Builder stopLocation) {
+		public void addStop(String stopTag, StopLocation stopLocation) {
 			stops.put(stopTag, stopLocation);
 		}
 

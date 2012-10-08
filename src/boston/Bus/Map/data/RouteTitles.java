@@ -4,8 +4,14 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
+import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ImmutableBiMap;
 import com.google.common.collect.ImmutableBiMap.Builder;
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableMultimap;
+import com.google.common.collect.Iterables;
+import com.google.common.collect.Multimap;
+import com.google.common.collect.Multimaps;
 
 /**
  * Convenience class to handle mapping routes to route titles
@@ -13,10 +19,17 @@ import com.google.common.collect.ImmutableBiMap.Builder;
  *
  */
 public class RouteTitles {
-	private final ImmutableBiMap<String, String> map;
+	private final ImmutableMap<String, String> map;
+	private final ImmutableMultimap<String, String> inverse;
 	
-	public RouteTitles(ImmutableBiMap<String, String> map) {
+	public RouteTitles(ImmutableMap<String, String> map) {
 		this.map = map;
+		Multimap<String, String> s = ArrayListMultimap.create();
+		for (String key : map.keySet()) {
+			String value = map.get(key);
+			s.put(value, key);
+		}
+		inverse = ImmutableMultimap.copyOf(s);
 	}
 
 	public Set<String> routeTags() {
@@ -32,7 +45,7 @@ public class RouteTitles {
 	}
 
 	public String getKey(String routeTitle) {
-		return map.inverse().get(routeTitle);
+		return Iterables.getFirst(inverse.get(routeTitle), "");
 	}
 
 	public List<String> getKeys() {

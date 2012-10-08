@@ -95,7 +95,7 @@ public class SubwayRouteConfigFeedParser
 		       platform order numbers to stops
 		 * 
 		 */
-		Map<String, Map<String, SortedMap<Short, StopLocation.Builder>>> orderedStations =
+		Map<String, Map<String, SortedMap<Short, StopLocation>>> orderedStations =
 			Maps.newHashMap();
 		
 		RouteTitles routeKeysToTitles = transitSource.getRouteKeysToTitles();
@@ -128,15 +128,14 @@ public class SubwayRouteConfigFeedParser
 			String title = elements[indexes.get("stop_name")];
 			String branch = elements[indexes.get("Branch")];
 
-			SubwayStopLocation.SubwayBuilder stopLocationBuilder = new SubwayStopLocation.SubwayBuilder(latitudeAsDegrees, longitudeAsDegrees,
-					transitSource.getDrawables(), tag, title, platformOrder, branch);
+			SubwayStopLocation stopLocation = new SubwayStopLocation.SubwayBuilder(latitudeAsDegrees, longitudeAsDegrees,
+					transitSource.getDrawables(), tag, title, platformOrder, branch).build();
 
-			String dirTag = routeConfig.getRouteName() + elements[indexes.get("Direction")];
-			stopLocationBuilder.addRouteAndDirTag(routeConfig.getRouteName(), dirTag);
-			routeConfig.addStop(tag, stopLocationBuilder);
+			stopLocation.addRoute(routeConfig.getRouteName());
+			routeConfig.addStop(tag, stopLocation);
 			
 			
-			Map<String, SortedMap<Short, StopLocation.Builder>> innerMapping = orderedStations.get(routeName);
+			Map<String, SortedMap<Short, StopLocation>> innerMapping = orderedStations.get(routeName);
 			if (innerMapping == null)
 			{
 				innerMapping = Maps.newHashMap();
@@ -147,14 +146,14 @@ public class SubwayRouteConfigFeedParser
 			//for example, key is NBAshmont3 for fields corner
 			
 			String combinedDirectionBranch = elements[indexes.get("Direction")] + elements[indexes.get("Branch")];
-			SortedMap<Short, StopLocation.Builder> innerInnerMapping = innerMapping.get(combinedDirectionBranch);
+			SortedMap<Short, StopLocation> innerInnerMapping = innerMapping.get(combinedDirectionBranch);
 			if (innerInnerMapping == null)
 			{
 				innerInnerMapping = Maps.newTreeMap();
 				innerMapping.put(combinedDirectionBranch, innerInnerMapping);
 			}
 			
-			innerInnerMapping.put(platformOrder, stopLocationBuilder);
+			innerInnerMapping.put(platformOrder, stopLocation);
 		}
 		
 		//workaround
@@ -171,15 +170,15 @@ public class SubwayRouteConfigFeedParser
 		for (String route : orderedStations.keySet())
 		{
 			
-			Map<String, SortedMap<Short, StopLocation.Builder>> innerMapping = orderedStations.get(route);
+			Map<String, SortedMap<Short, StopLocation>> innerMapping = orderedStations.get(route);
 			for (String directionHash : innerMapping.keySet())
 			{
-				SortedMap<Short, StopLocation.Builder> stations = innerMapping.get(directionHash);
+				SortedMap<Short, StopLocation> stations = innerMapping.get(directionHash);
 
 				ArrayList<Float> floats = new ArrayList<Float>();
 				for (Short platformOrder : stations.keySet())
 				{
-					StopLocation.Builder station = stations.get(platformOrder);
+					StopLocation station = stations.get(platformOrder);
 
 					floats.add((float)station.getLatitudeAsDegrees());
 					floats.add((float)station.getLongitudeAsDegrees());
@@ -189,7 +188,7 @@ public class SubwayRouteConfigFeedParser
 				if (directionHash.equals("NBAshmont") || directionHash.equals("NBBraintree"))
 				{
 					final short jfkNorthBoundOrder = 5;
-					StopLocation.Builder jfkStation = innerMapping.get("NBTrunk").get(jfkNorthBoundOrder);
+					StopLocation jfkStation = innerMapping.get("NBTrunk").get(jfkNorthBoundOrder);
 					if (jfkStation != null)
 					{
 						floats.add((float)jfkStation.getLatitudeAsDegrees());

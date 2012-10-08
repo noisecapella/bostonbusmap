@@ -408,7 +408,7 @@ public class DatabaseContentProvider extends ContentProvider {
 				}
 
 				//show that there's a relationship between the stop and this route
-				operations.add(makeStopRoute(stopTag, route, stop.getDirTagForRoute(route)));
+				operations.add(makeStopRoute(stopTag, route, ""));
 			}
 		}
 
@@ -537,11 +537,10 @@ public class DatabaseContentProvider extends ContentProvider {
 					while (cursor.isAfterLast() == false)
 					{
 						String stopTag = cursor.getString(0);
-						String dirTag = cursor.getString(6);
 						String route = cursor.getString(7);
 
 						//we need to ensure this stop is in the sharedstops and the route
-						StopLocation.Builder stop = sharedStops.get(stopTag);
+						StopLocation stop = sharedStops.get(stopTag);
 						if (stop != null)
 						{
 							//make sure it exists in the route too
@@ -549,11 +548,11 @@ public class DatabaseContentProvider extends ContentProvider {
 							{
 								routeConfigBuilder.addStop(stopTag, stop);
 							}
-							stop.addRouteAndDirTag(route, dirTag);
+							stop.addRoute(route);
 						}
 						else
 						{
-							stop = stopsMap.get(stopTag);
+							stop = routeConfigBuilder.getStop(stopTag);
 
 							if (stop == null)
 							{
@@ -564,9 +563,9 @@ public class DatabaseContentProvider extends ContentProvider {
 
 								int platformOrder = cursor.getInt(4);
 
-								stop = transitSystem.createStop(latitude, longitude, stopTag, stopTitle, platformOrder, branch, route, dirTag);
+								stop = transitSystem.createStop(latitude, longitude, stopTag, stopTitle, platformOrder, branch, route);
 
-								stopsMap.put(stopTag, stop);
+								routeConfigBuilder.addStop(stopTag, stop);
 							}
 
 							sharedStops.put(stopTag, stop);
@@ -913,7 +912,6 @@ public class DatabaseContentProvider extends ContentProvider {
 					String stopTag = stopCursor.getString(0);
 
 					String route = stopCursor.getString(6);
-					String dirTag = stopCursor.getString(7);
 
 					float lat = stopCursor.getFloat(1);
 					float lon = stopCursor.getFloat(2);
@@ -927,7 +925,7 @@ public class DatabaseContentProvider extends ContentProvider {
 						branch = stopCursor.getString(5);
 					}
 
-					StopLocation stop = transitSystem.createStop(lat, lon, stopTag, title, platformOrder, branch, route, dirTag);
+					StopLocation stop = transitSystem.createStop(lat, lon, stopTag, title, platformOrder, branch, route);
 					return stop;
 				}
 				else
@@ -1011,7 +1009,6 @@ public class DatabaseContentProvider extends ContentProvider {
 					String stopTag = stopCursor.getString(0);
 
 					String route = stopCursor.getString(6);
-					String dirTag = stopCursor.getString(7);
 
 					StopLocation stop = outputMapping.get(stopTag);
 					if (stop == null)
@@ -1028,12 +1025,12 @@ public class DatabaseContentProvider extends ContentProvider {
 							branch = stopCursor.getString(5);
 						}
 
-						stop = transitSystem.createStop(lat, lon, stopTag, title, platformOrder, branch, route, dirTag);
+						stop = transitSystem.createStop(lat, lon, stopTag, title, platformOrder, branch, route);
 						outputMapping.putIfAbsent(stopTag, stop);
 					}
 					else
 					{
-						stop.addRouteAndDirTag(route, dirTag);
+						stop.addRoute(route);
 					}
 
 					stopCursor.moveToNext();
@@ -1084,7 +1081,7 @@ public class DatabaseContentProvider extends ContentProvider {
 						branch = stopCursor.getString(5);
 					}
 
-					StopLocation stop = transitSystem.createStop(lat, lon, stopTag, title, platformOrder, branch, route, dirTag);
+					StopLocation stop = transitSystem.createStop(lat, lon, stopTag, title, platformOrder, branch, route);
 					ret.add(stop);
 					stopCursor.moveToNext();
 				}

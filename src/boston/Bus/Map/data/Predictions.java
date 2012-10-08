@@ -15,6 +15,7 @@ import boston.Bus.Map.annotations.KeepSorted;
 import com.google.common.collect.Collections2;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 
@@ -48,11 +49,11 @@ public class Predictions
 	
 	public void makeSnippetAndTitle(RouteConfig routeConfig,
 			RouteTitles routeKeysToTitles, Context context,
-			ImmutableMap<String, String> dirTags, StopLocation stop, Set<Alert> alerts)
+			RouteSet routes, StopLocation stop, Set<Alert> alerts)
 	{
 		synchronized (modificationLock) {
-			routes.clear();
-			routes.addAll(dirTags.keySet());
+			this.routes.clear();
+			this.routes.addAll(routes.getRoutes());
 			
 			this.alerts.clear();
 			this.alerts.addAll(alerts);
@@ -60,7 +61,7 @@ public class Predictions
 			allStops.clear();
 			allStops.add(stop);
 			
-			predictionView = new StopPredictionViewImpl(routes, allStops,
+			predictionView = new StopPredictionViewImpl(this.routes, allStops,
 					ImmutableList.copyOf(predictions),
 					routeConfig, routeKeysToTitles, context, alerts);
 		}
@@ -71,7 +72,7 @@ public class Predictions
 	
 	public void addToSnippetAndTitle(RouteConfig routeConfig, StopLocation stopLocation, 
 			RouteTitles routeKeysToTitles,
-			Context context, String title, ImmutableMap<String, String> dirTags, Set<Alert> alerts)
+			Context context, String title, RouteSet routes, Set<Alert> alerts)
 	{
 		synchronized (modificationLock) {
 			allStops.add(stopLocation);
@@ -82,7 +83,7 @@ public class Predictions
 				
 			}
 			
-			routes.addAll(dirTags.keySet());
+			this.routes.addAll(routes.getRoutes());
 			
 			Set<Alert> newAlerts;
 			if (alerts.size() == 0) {
@@ -96,7 +97,7 @@ public class Predictions
 				newAlerts = dupAlerts;
 			}
 			
-			predictionView = new StopPredictionViewImpl(routes, allStops,
+			predictionView = new StopPredictionViewImpl(this.routes, allStops,
 					allPredictions,
 					routeConfig,
 					routeKeysToTitles, context, newAlerts);

@@ -3,9 +3,12 @@ package boston.Bus.Map.data;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.SortedSet;
 import java.util.TreeMap;
+import java.util.concurrent.CopyOnWriteArraySet;
 
 import com.google.common.base.Function;
 import com.google.common.base.Objects;
@@ -13,8 +16,12 @@ import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Iterables;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 
+import boston.Bus.Map.annotations.KeepSorted;
 import boston.Bus.Map.math.Geometry;
 import boston.Bus.Map.transit.TransitSource;
 import boston.Bus.Map.transit.TransitSystem;
@@ -55,9 +62,11 @@ public class StopLocation implements Location
 	private boolean recentlyUpdated;
 	
 	/**
-	 * A mapping of routes to dirTags
+	 * A set of routes the stop belongs to
 	 */
-	private final ImmutableMap<String, String> dirTags;
+	@KeepSorted
+	@GuardedBy("this")
+	private final RouteSet routes = new RouteSet();
 
 	private static final int LOCATIONTYPE = 3;
 	
@@ -70,7 +79,6 @@ public class StopLocation implements Location
 		this.drawables = builder.drawables;
 		this.tag = builder.tag;
 		this.title = builder.title;
-		this.dirTags = ImmutableMap.copyOf(builder.dirTags);
 	}
 
 	public static class Builder {
@@ -79,7 +87,6 @@ public class StopLocation implements Location
 		private final TransitDrawables drawables;
 		private final String tag;
 		private final String title;
-		private final Map<String, String> dirTags = Maps.newTreeMap();
 
 		public Builder(float latitudeAsDegrees, float longitudeAsDegrees,
 			TransitDrawables drawables, String tag, String title) {
@@ -90,10 +97,6 @@ public class StopLocation implements Location
 			this.title = title;
 		}
 		
-		public void addRouteAndDirTag(String route, String dirTag) {
-			dirTags.put(route, dirTag);
-		}
-
 		public float getLatitudeAsDegrees() {
 			return latitudeAsDegrees;
 		}
@@ -172,7 +175,7 @@ public class StopLocation implements Location
 			alerts = ImmutableSet.of();
 		}
 		
-		predictions.makeSnippetAndTitle(routeConfig, routeKeysToTitles, context, dirTags, this, alerts);
+		predictions.makeSnippetAndTitle(routeConfig, routeKeysToTitles, context, routes, this, alerts);
 	}
 	
 	@Override
@@ -189,7 +192,7 @@ public class StopLocation implements Location
 		// TODO: support mixing multiple alerts
 		ImmutableSet<Alert> alerts = ImmutableSet.of();
 		
-		predictions.addToSnippetAndTitle(routeConfig, stopLocation, routeKeysToTitles, context, title, dirTags, alerts);
+		predictions.addToSnippetAndTitle(routeConfig, stopLocation, routeKeysToTitles, context, title, routes, alerts);
 	}
 	
 	public String getStopTag()
@@ -235,40 +238,6 @@ public class StopLocation implements Location
 		return title;
 	}
 
-	/**
-	 * This should be in Locations instead but I need to synchronize routes
-	 * 
-	 * NOTE: this is only for bus routes
-	 * 
-	 * @param urlString
-	 */
-	public void createBusPredictionsUrl(TransitSystem system, StringBuilder urlString, String routeName) {
-		if (routeName != null)
-		{
-			//only do it for the given route
-			TransitSource source = system.getTransitSource(routeName);
-			if (source != null)
-			{
-				source.bindPredictionElementsForUrl(urlString, routeName, tag, dirTags.get(routeName));
-			}
-		}
-		else
-		{
-			//do it for all routes we know about
-			synchronized (dirTags)
-			{
-				for (String route : dirTags.keySet())
-				{
-					TransitSource source = system.getTransitSource(route);
-					if (source != null)
-					{
-						source.bindPredictionElementsForUrl(urlString, route, tag, dirTags.get(route));
-					}
-				}
-			}
-		}
-	}
-
 	public void setFavorite(boolean b)
 	{
 		isFavorite = b;
@@ -283,31 +252,11 @@ public class StopLocation implements Location
 	 * @return
 	 */
 	public Collection<String> getRoutes() {
-		return dirTags.keySet();
+		return routes.getRoutes();
 	}
 
 	public String getFirstRoute() {
-		String ret = null;
-		for (String route : dirTags.keySet())
-		{
-			if (ret == null)
-			{
-				ret = route;
-			}
-			else
-			{
-				int c = ret.compareTo(route);
-				if (c > 0)
-				{
-					ret = route;
-				}
-			}
-		}
-		return ret;
-	}
-	
-	public String getDirTagForRoute(String route) {
-		return dirTags.get(route);
+		return routes.getFirstRoute();
 	}
 	
 	@Override
@@ -390,5 +339,9 @@ public class StopLocation implements Location
 		{
 			return StopPredictionViewImpl.empty();
 		}
+	}
+
+	public void addRoute(String route) {
+		routes.addRoute(route);
 	}
 }

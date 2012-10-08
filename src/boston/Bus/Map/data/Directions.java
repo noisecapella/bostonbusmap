@@ -23,6 +23,8 @@ import android.util.Log;
 public class Directions {
 	private final ConcurrentHashMap<String, Direction> directions
 		= new ConcurrentHashMap<String, Direction>();
+	
+	//TODO: convert to Table
 	private final ConcurrentHashMap<String, String[]> dirTagToStops
 		= new ConcurrentHashMap<String, String[]>();;
 	private final ConcurrentHashMap<String, String[]> stopsToDirTag

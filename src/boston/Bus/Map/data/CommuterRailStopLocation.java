@@ -1,5 +1,7 @@
 package boston.Bus.Map.data;
 
+import com.google.common.collect.ImmutableSet;
+
 import android.graphics.drawable.Drawable;
 
 public class CommuterRailStopLocation extends SubwayStopLocation {
@@ -14,6 +16,11 @@ public class CommuterRailStopLocation extends SubwayStopLocation {
 				String title, int platformOrder, String branch) {
 			super (latitudeAsDegrees, longitudeAsDegrees, drawables, tag,
 					title, platformOrder, branch);
+		}
+		
+		@Override
+		public CommuterRailStopLocation build() {
+			return new CommuterRailStopLocation(this);
 		}
 	}
 	

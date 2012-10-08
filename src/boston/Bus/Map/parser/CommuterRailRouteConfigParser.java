@@ -405,7 +405,8 @@ public class CommuterRailRouteConfigParser
 	       platform order numbers to stops
 		 * 
 		 */
-		Map<String, Map<String, SortedMap<Short, StopLocation.Builder>>> orderedStations =
+		// TODO: replace with Table
+		Map<String, Map<String, SortedMap<Short, StopLocation>>> orderedStations =
 			Maps.newHashMap();
 
 		RouteTitles routeKeysToTitles = source.getRouteKeysToTitles();
@@ -430,21 +431,19 @@ public class CommuterRailRouteConfigParser
 			short platformOrder = Short.parseShort(array[indexes.get("stop_sequence")]);
 			String branch = array[indexes.get("Branch")];
 			
-			StopLocation.Builder stopLocation = route.getStop(stopTag);
+			StopLocation stopLocation = route.getStop(stopTag);
 			if (stopLocation == null)
 			{
-				CommuterRailStopLocation.CommuterRailBuilder stopLocationBuilder =
+				stopLocation =
 						new CommuterRailStopLocation.CommuterRailBuilder(
 								lat, lon, source.getDrawables(), stopTag, stopTitle, 
-								platformOrder, branch);
+								platformOrder, branch).build();
 				route.addStop(stopTag, stopLocation);
 			}
 			
-			stopLocation.addRouteAndDirTag(routeKey, direction);
+			stopLocation.addRoute(routeKey);
 			
-			route.addStop(stopTag, stopLocation);
-			
-			Map<String, SortedMap<Short, StopLocation.Builder>> innerMapping = orderedStations.get(routeKey);
+			Map<String, SortedMap<Short, StopLocation>> innerMapping = orderedStations.get(routeKey);
 			if (innerMapping == null)
 			{
 				innerMapping = Maps.newHashMap();
@@ -455,7 +454,7 @@ public class CommuterRailRouteConfigParser
 			//for example, key is NBAshmont3 for fields corner
 			
 			String combinedDirectionBranch = createDirectionHash(direction, branch);
-			SortedMap<Short, StopLocation.Builder> innerInnerMapping = innerMapping.get(combinedDirectionBranch);
+			SortedMap<Short, StopLocation> innerInnerMapping = innerMapping.get(combinedDirectionBranch);
 			if (innerInnerMapping == null)
 			{
 				innerInnerMapping = Maps.newTreeMap();
@@ -471,17 +470,17 @@ public class CommuterRailRouteConfigParser
 		for (String route : orderedStations.keySet())
 		{
 			
-			Map<String, SortedMap<Short, StopLocation.Builder>> innerMapping = orderedStations.get(route);
+			Map<String, SortedMap<Short, StopLocation>> innerMapping = orderedStations.get(route);
 
 			
 			for (String directionHash : innerMapping.keySet())
 			{
-				SortedMap<Short, StopLocation.Builder> stations = innerMapping.get(directionHash);
+				SortedMap<Short, StopLocation> stations = innerMapping.get(directionHash);
 
 				ArrayList<Float> floats = new ArrayList<Float>();
 				for (Short platformOrder : stations.keySet())
 				{
-					StopLocation.Builder station = stations.get(platformOrder);
+					StopLocation station = stations.get(platformOrder);
 
 					floats.add((float)station.getLatitudeAsDegrees());
 					floats.add((float)station.getLongitudeAsDegrees());
@@ -512,9 +511,9 @@ public class CommuterRailRouteConfigParser
 					continue;
 				}
 				
-				SortedMap<Short, StopLocation.Builder> branchInnerMapping = innerMapping.get(directionHash);
+				SortedMap<Short, StopLocation> branchInnerMapping = innerMapping.get(directionHash);
 				String trunkDirectionHash = createDirectionHash(direction, trunkBranch);
-				SortedMap<Short, StopLocation.Builder> trunkInnerMapping = innerMapping.get(trunkDirectionHash);
+				SortedMap<Short, StopLocation> trunkInnerMapping = innerMapping.get(trunkDirectionHash);
 				
 				int minBranchOrder = -1;
 				for (Short order : branchInnerMapping.keySet())
@@ -540,8 +539,8 @@ public class CommuterRailRouteConfigParser
 				
 				ArrayList<Float> points = new ArrayList<Float>();
 				
-				StopLocation.Builder branchStop = branchInnerMapping.get((short)minBranchOrder);
-				StopLocation.Builder trunkStop = trunkInnerMapping.get((short)maxTrunkOrder);
+				StopLocation branchStop = branchInnerMapping.get((short)minBranchOrder);
+				StopLocation trunkStop = trunkInnerMapping.get((short)maxTrunkOrder);
 				
 				if (trunkStop != null && branchStop != null)
 				{

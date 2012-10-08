@@ -306,7 +306,6 @@ public class CommuterRailTransitSource implements TransitSource {
 
 	@Override
 	public boolean hasPaths() {
-		// TODO Auto-generated method stub
 		return false;
 	}
 
@@ -337,24 +336,6 @@ public class CommuterRailTransitSource implements TransitSource {
 	public TransitDrawables getDrawables() {
 		return drawables;
 	}
-	
-	@Override
-	public StopLocation createStop(float lat, float lon, String stopTag,
-			String title, int platformOrder, String branch, String route,
-			String dirTag) {
-		CommuterRailStopLocation.CommuterRailBuilder stopLocation =
-				new CommuterRailStopLocation.CommuterRailBuilder(
-						lat, lon, drawables, stopTag, title,
-				platformOrder, branch);
-		stopLocation.addRouteAndDirTag(route, dirTag);
-		return stopLocation.build();
-	}
-
-	@Override
-	public void bindPredictionElementsForUrl(StringBuilder urlString,
-			String route, String stopTag, String dirTag) {
-		//do nothing
-	}
 
 	@Override
 	public String searchForRoute(String indexingQuery, String lowercaseQuery)
@@ -378,5 +359,15 @@ public class CommuterRailTransitSource implements TransitSource {
 		
 		return SearchHelper.naiveSearch(indexingQuery, lowercaseQuery, routeKeysToTitles);
 		
+	}
+
+	@Override
+	public CommuterRailStopLocation createStop(float latitude, float longitude,
+			String stopTag, String stopTitle, int platformOrder, String branch,
+			String route) {
+		CommuterRailStopLocation stop = new CommuterRailStopLocation.CommuterRailBuilder(
+				latitude, longitude, drawables, stopTag, stopTitle, platformOrder, branch).build();
+		stop.addRoute(route);
+		return stop;
 	}
 }

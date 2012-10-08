@@ -42,25 +42,11 @@ public interface TransitSource {
 			ParserConfigurationException, SAXException, RemoteException, OperationApplicationException;
 	
 	public RouteTitles getRouteKeysToTitles();
-	
-	/**
-	 * Create a StopLocation using the parameters
-	 * @param lat
-	 * @param lon
-	 * @param stopTag
-	 * @param title
-	 * @param platformOrder
-	 * @param branch
-	 * @param route
-	 * @param dirTag
-	 */
-	StopLocation createStop(float lat, float lon, String stopTag, String title,
-			int platformOrder, String branch, String route, String dirTag);
-
-	void bindPredictionElementsForUrl(StringBuilder urlString, String route,
-			String stopTag, String dirTag);
 
 	String searchForRoute(String indexingQuery, String lowercaseQuery);
 
 	TransitDrawables getDrawables();
+
+	StopLocation createStop(float latitude, float longitude, String stopTag,
+			String stopTitle, int platformOrder, String branch, String route);
 }

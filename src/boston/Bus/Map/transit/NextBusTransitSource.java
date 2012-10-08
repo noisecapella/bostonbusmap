@@ -246,27 +246,24 @@ public abstract class NextBusTransitSource implements TransitSource
 			if ((location instanceof StopLocation) && !(location instanceof SubwayStopLocation))
 			{
 				StopLocation stopLocation = (StopLocation)location;
-				stopLocation.createBusPredictionsUrl(transitSystem, urlString, route);
+				if (route != null) {
+					urlString.append("&stops=").append(route).append("%7C");
+					urlString.append("%7C").append(stopLocation.getStopTag());
+				}
+				else
+				{
+					for (String stopRoute : stopLocation.getRoutes()) {
+						urlString.append("&stops=").append(stopRoute).append("%7C");
+						urlString.append("%7C").append(stopLocation.getStopTag());
+						
+					}
+				}
 			}
 		}
 
 		//TODO: hard limit this to 150 requests
 
 		return urlString.toString();
-	}
-
-
-	@Override
-	public void bindPredictionElementsForUrl(StringBuilder urlString,
-			String routeName, String stopId, String direction) {
-		urlString.append("&stops=").append(routeName).append("%7C");
-		if (direction != null)
-		{
-			urlString.append(direction);
-		}
-
-		urlString.append("%7C").append(stopId);
-
 	}
 
 	protected String getVehicleLocationsUrl(long time, String route)
@@ -332,11 +329,11 @@ public abstract class NextBusTransitSource implements TransitSource
 
 	@Override
 	public StopLocation createStop(float lat, float lon, String stopTag,
-			String title, int platformOrder, String branch, String route, String dirTag)
+			String title, int platformOrder, String branch, String route)
 	{
-		StopLocation.Builder stop = new StopLocation.Builder(lat, lon, drawables, stopTag, title);
-		stop.addRouteAndDirTag(route, dirTag);
-		return stop.build();
+		StopLocation stop = new StopLocation.Builder(lat, lon, drawables, stopTag, title).build();
+		stop.addRoute(route);
+		return stop;
 	}
 
 	@Override
