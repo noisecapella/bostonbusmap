@@ -65,7 +65,7 @@ public class StopLocation implements Location
 	 * A set of routes the stop belongs to
 	 */
 	@KeepSorted
-	@GuardedBy("this")
+	@IsGuardedBy("this")
 	private final RouteSet routes = new RouteSet();
 
 	private static final int LOCATIONTYPE = 3;

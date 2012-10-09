@@ -52,7 +52,7 @@ public class TransitSystem {
 	public static final String[] emails = new String[]{"bostonbusmap@gmail.com", "t-trackertrial@mbta.com"};
 	public static final String emailSubject = "BostonBusMap error report";
 
-	private static final AlertsMapping alertsMapping = new AlertsMapping();
+	private AlertsMapping alertsMapping;
 	
 	public static double getCenterLat() {
 		return bostonLatitude;
@@ -88,10 +88,11 @@ public class TransitSystem {
 	 */
 	private TransitSource defaultTransitSource;
 	
-	public void setDefaultTransitSource(TransitDrawables busDrawables, TransitDrawables subwayDrawables, TransitDrawables commuterRailDrawables)
+	public void setDefaultTransitSource(TransitDrawables busDrawables, TransitDrawables subwayDrawables, TransitDrawables commuterRailDrawables, String alertsData)
 	{
 		if (defaultTransitSource == null)
 		{
+			alertsMapping = new AlertsMapping(alertsData);
 			defaultTransitSource = new BusTransitSource(this, busDrawables, alertsMapping);
 			
 			ImmutableMap.Builder<String, TransitSource> mapBuilder = ImmutableMap.builder();

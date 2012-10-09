@@ -31,18 +31,18 @@ import android.content.Context;
  */
 public class Predictions
 {
-	@GuardedBy("modificationLock")
+	@IsGuardedBy("modificationLock")
 	private PredictionView predictionView = StopPredictionViewImpl.empty();
-	@GuardedBy("modificationLock")
+	@IsGuardedBy("modificationLock")
 	private final SortedSet<String> routes = Sets.newTreeSet();
 	/**
 	 * A list of all stops that use this predictions list
 	 */
-	@GuardedBy("modificationLock")
+	@IsGuardedBy("modificationLock")
 	private final List<StopLocation> allStops = Lists.newArrayList(); 
-	@GuardedBy("modificationLock")
+	@IsGuardedBy("modificationLock")
 	private final Set<Prediction> predictions = Sets.newTreeSet();
-	@GuardedBy("modificationLock")
+	@IsGuardedBy("modificationLock")
 	private final Set<Alert> alerts = Sets.newTreeSet();
 	
 	private final Object modificationLock = new Object();
