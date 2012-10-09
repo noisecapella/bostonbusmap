@@ -60,6 +60,7 @@ import com.google.android.maps.MapView;
 import com.google.android.maps.OverlayItem;
 import com.google.android.maps.Projection;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
 import android.app.ProgressDialog;
@@ -468,7 +469,7 @@ public class UpdateAsyncTask extends AsyncTask<Object, Object, Locations>
 		//http://groups.google.com/group/android-beginners/browse_thread/thread/6d75c084681f943e?pli=1
 		final int selectedBusId = busOverlay != null ? busOverlay.getSelectedBusId() : BusOverlay.NOT_SELECTED;
 		busOverlay.clearExceptFocus();
-		busOverlay.doPopulate();
+		//busOverlay.doPopulate();
 
 		busOverlay.setLocations(busLocationsObject);
 		
@@ -477,7 +478,6 @@ public class UpdateAsyncTask extends AsyncTask<Object, Object, Locations>
 		//point hash to index in busLocations
 		Map<Long, Integer> points = Maps.newHashMap();
 		
-		ArrayList<GeoPoint> geoPointsToAdd = new ArrayList<GeoPoint>(busLocations.size());
 		//draw the buses on the map
 		int newSelectedBusId = selectedBusId;
 		for (int i = 0; i < busLocations.size(); i++)
@@ -515,15 +515,10 @@ public class UpdateAsyncTask extends AsyncTask<Object, Object, Locations>
 		
 				//the title is displayed when someone taps on the icon
 				busOverlay.addLocation(busLocation);
-				GeoPoint point = new GeoPoint(latInt, lonInt);
-				geoPointsToAdd.add(point);
 			}
 		}
-		busOverlay.doPopulate();
-		busOverlay.addOverlaysFromLocations(geoPointsToAdd);
-		
 		busOverlay.setSelectedBusId(newSelectedBusId);
-		busOverlay.refreshBalloons();
+		//busOverlay.refreshBalloons();
 		
 		final MapView mapView = arguments.getMapView();
 		arguments.getOverlayGroup().refreshMapView(mapView);

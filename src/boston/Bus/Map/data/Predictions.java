@@ -79,7 +79,9 @@ public class Predictions
 
 			List<Prediction> allPredictions = Lists.newArrayList();
 			for (StopLocation stop : allStops) {
-				allPredictions.addAll(stop.getPredictions().predictions);
+				if (stop.getPredictions() != null) {
+					allPredictions.addAll(stop.getPredictions().predictions);
+				}
 				
 			}
 			

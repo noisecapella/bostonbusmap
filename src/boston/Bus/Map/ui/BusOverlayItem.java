@@ -13,17 +13,14 @@ import com.google.android.maps.OverlayItem;
 
 public class BusOverlayItem extends OverlayItem
 {
-	private Location location;
+	private final Location location;
 	private final Alert[] alerts;
+	
 		
-	public BusOverlayItem(GeoPoint point, String title, String snippet, Alert[] alerts)
+	public BusOverlayItem(GeoPoint point, String title, String snippet, Alert[] alerts, Location location)
 	{
 		super(point, title, snippet);
 		this.alerts = alerts;
-	}
-
-	public void setCurrentLocation(Location location)
-	{
 		this.location = location;
 	}
 

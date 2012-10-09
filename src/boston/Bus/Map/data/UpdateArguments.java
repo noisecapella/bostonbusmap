@@ -84,7 +84,7 @@ public class UpdateArguments {
 	}
 	
 	public void nullify() {
-		this.busLocations = null;
+		/*this.busLocations = null;
 		this.context = null;
 		this.majorHandler = null;
 		this.mapView = null;
@@ -92,7 +92,7 @@ public class UpdateArguments {
 		this.progressDialog = null;
 		this.transitSystem = null;
 		this.overlayGroup.nullify();
-		this.overlayGroup = null;
+		this.overlayGroup = null;*/
 	}
 
 	public UpdateArguments cloneMe() {

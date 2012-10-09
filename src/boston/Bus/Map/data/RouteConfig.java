@@ -34,7 +34,7 @@ public class RouteConfig
 	private final TransitSource transitSource;
 	
 	public static final Path[] nullPaths = new Path[0];
-	private ImmutableSet<Alert> alerts;
+	private ImmutableSet<Alert> alerts = ImmutableSet.of();
 	
 	private boolean obtainedAlerts;
 

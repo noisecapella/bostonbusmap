@@ -15,7 +15,7 @@ import com.google.common.collect.ImmutableMap;
 
 public class OverlayGroup {
 	private LocationOverlay locationOverlay;
-	private final ImmutableMap<String, RouteOverlay> routeOverlays;
+	private ImmutableMap<String, RouteOverlay> routeOverlays;
 	private BusOverlay busOverlay;
 	
 	public static final String ROUTE_OVERLAY_KEY = "ROUTE";
@@ -57,7 +57,7 @@ public class OverlayGroup {
 	}
 	
 	public void nullify() {
-		routeOverlays.clear();
+		routeOverlays = null;
 		busOverlay = null;
 		locationOverlay = null;
 	}

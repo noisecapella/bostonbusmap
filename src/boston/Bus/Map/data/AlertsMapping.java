@@ -34,7 +34,7 @@ public class AlertsMapping {
 	{
 		Map<String, Integer> ret = Maps.newHashMap();
 		
-		for (String routeName : routeKeysToTitles.routeTags())
+		for (String routeName : routeKeysToTitles.routeTitles())
 		{
 			for (String routeDescription : routeDescriptionToAlertKey.keySet())
 			{
