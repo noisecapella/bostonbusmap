@@ -297,7 +297,7 @@ public class BusPopupView extends BalloonOverlayView<BusOverlayItem>
 			BusLocation busLocation = (BusLocation)location;
 			String busRouteId = busLocation.getRouteId();
 			ret.append("The bus number is ").append(busLocation.getBusNumber());
-			ret.append(" on route ").append(locations.getRouteName(busRouteId)).append(". ");
+			ret.append(" on route ").append(locations.getRouteTitle(busRouteId)).append(". ");
 		}
 
 	}
@@ -312,7 +312,7 @@ public class BusPopupView extends BalloonOverlayView<BusOverlayItem>
 			if (locations != null && locations.getSelectedRoute() != null && locations.getSelectedRoute().getRouteName() != null)
 			{
 				String routeKey = locations.getSelectedRoute().getRouteName();
-				route = locations.getRouteName(routeKey);
+				route = locations.getRouteTitle(routeKey);
 			}
 		}
 		catch (IOException e)

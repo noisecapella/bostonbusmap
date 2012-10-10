@@ -15,6 +15,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 
@@ -201,7 +202,7 @@ public class DatabaseContentProvider extends ContentProvider {
 	 * @author schneg
 	 *
 	 */
-	private static class DatabaseHelper extends SQLiteOpenHelper
+	public static class DatabaseHelper extends SQLiteOpenHelper
 	{
 
 
@@ -335,21 +336,9 @@ public class DatabaseContentProvider extends ContentProvider {
 
 		public static void saveMapping(ContentResolver contentResolver, 
 				Map<String, RouteConfig> mapping,
-				boolean wipe, HashSet<String> sharedStops, UpdateAsyncTask task)
+				HashSet<String> sharedStops, UpdateAsyncTask task)
 						throws IOException, RemoteException, OperationApplicationException
 		{
-			ArrayList<ContentProviderOperation> operations = 
-					new ArrayList<ContentProviderOperation>();
-			if (wipe)
-			{
-				//database.delete(stopsTable, null, null);
-				//database.delete(directionsTable, null, null);
-				//database.delete(pathsTable, null, null);
-				//database.delete(blobsTable, null, null);
-				operations.add(ContentProviderOperation.newDelete(STOPS_URI).build());
-				operations.add(ContentProviderOperation.newDelete(ROUTES_URI).build());
-			}
-
 			int total = mapping.keySet().size();
 			task.publish(new ProgressMessage(ProgressMessage.SET_MAX, total));
 
@@ -360,14 +349,12 @@ public class DatabaseContentProvider extends ContentProvider {
 				if (routeConfig != null)
 				{
 					String routeTitle = routeConfig.getRouteTitle();
-					saveMappingKernel(operations, route, routeTitle, routeConfig, sharedStops);
+					saveMappingKernel(contentResolver, route, routeTitle, routeConfig, sharedStops);
 				}
 
 				count++;
 				task.publish(count);
 			}
-
-			contentResolver.applyBatch(AUTHORITY, operations);
 		}
 
 		/**
@@ -378,14 +365,17 @@ public class DatabaseContentProvider extends ContentProvider {
 		 * @param useInsert insert all rows, don't replace them. I assume this is faster since there's no lookup involved
 		 * @throws IOException 
 		 */
-		private static void saveMappingKernel(ArrayList<ContentProviderOperation> operations, 
+		private static void saveMappingKernel(ContentResolver resolver, 
 				String route, String routeTitle, RouteConfig routeConfig,
 				HashSet<String> sharedStops) throws IOException
 		{
-			operations.add(makeRoute(route, routeTitle, routeConfig.getColor(), routeConfig.getOppositeColor(), routeConfig.getPaths()));
+			resolver.insert(ROUTES_URI, makeRoute(route, routeTitle, routeConfig.getColor(), routeConfig.getOppositeColor(), routeConfig.getPaths()));
 
 			//add all stops associated with the route, if they don't already exist
 
+			List<ContentValues> stopsToInsert = Lists.newArrayList();
+			List<ContentValues> subwayStopsToInsert = Lists.newArrayList();
+			List<ContentValues> stopRoutesToInsert = Lists.newArrayList();
 			for (StopLocation stop : routeConfig.getStops())
 			{
 				/*"CREATE TABLE IF NOT EXISTS " + verboseStops + " (" + stopTagKey + " STRING PRIMARY KEY, " + 
@@ -398,17 +388,17 @@ public class DatabaseContentProvider extends ContentProvider {
 
 					sharedStops.add(stopTag);
 
-					operations.add(makeStop(stopTag, stop.getLatitudeAsDegrees(), stop.getLongitudeAsDegrees(), stop.getTitle()));
+					stopsToInsert.add(makeStop(stopTag, stop.getTitle(), stop.getLatitudeAsDegrees(), stop.getLongitudeAsDegrees()));
 
 					if (stop instanceof SubwayStopLocation)
 					{
 						SubwayStopLocation subwayStop = (SubwayStopLocation)stop;
-						operations.add(makeSubwayStop(stopTag, subwayStop.getPlatformOrder(), subwayStop.getBranch()));
+						subwayStopsToInsert.add(makeSubwayStop(stopTag, subwayStop.getPlatformOrder(), subwayStop.getBranch()));
 					}
 				}
 
 				//show that there's a relationship between the stop and this route
-				operations.add(makeStopRoute(stopTag, route, ""));
+				stopRoutesToInsert.add(makeStopRoute(stopTag, route, ""));
 			}
 		}
 
@@ -449,16 +439,15 @@ public class DatabaseContentProvider extends ContentProvider {
 				return;
 			}
 
-			ArrayList<ContentProviderOperation> operations = new ArrayList<ContentProviderOperation>();
+			List<ContentValues> allValues = Lists.newArrayList();
 			for (String tag : stopTags)
 			{
 				ContentValues values = new ContentValues();
 				values.put(stopTagKey, tag);
-
-				operations.add(ContentProviderOperation.newInsert(FAVORITES_URI).withValues(values).build());
+				allValues.add(values);
 			}
-			
-			resolver.applyBatch(AUTHORITY, operations);
+
+			resolver.bulkInsert(FAVORITES_URI, allValues.toArray(new ContentValues[0]));
 		}
 
 
@@ -656,14 +645,9 @@ public class DatabaseContentProvider extends ContentProvider {
 			}
 		}
 
-		public static void writeDirections(ContentResolver resolver, boolean wipe, ConcurrentHashMap<String, Direction> directions) throws RemoteException, OperationApplicationException {
-			ArrayList<ContentProviderOperation> operations = new ArrayList<ContentProviderOperation>();
-			if (wipe)
-			{
-				operations.add(ContentProviderOperation.newDelete(DIRECTIONS_URI).build());
-				operations.add(ContentProviderOperation.newDelete(DIRECTIONS_STOPS_URI).build());
-			}
-
+		public static void writeDirections(ContentResolver resolver, ConcurrentHashMap<String, Direction> directions) throws RemoteException, OperationApplicationException {
+			List<ContentValues> directionsToWrite = Lists.newArrayList();
+			List<ContentValues> stopDirectionsToWrite = Lists.newArrayList();
 			for (String dirTag : directions.keySet())
 			{
 				Direction direction = directions.get(dirTag);
@@ -672,31 +656,34 @@ public class DatabaseContentProvider extends ContentProvider {
 				String route = direction.getRoute();
 				boolean useAsUI = direction.isUseForUI();
 
-				operations.add(makeDirection(dirTag, name, title, route, useAsUI));
+				directionsToWrite.add(makeDirection(dirTag, name, title, route, useAsUI));
 
 				for (String stopTag : direction.getStopTags()) {
-					operations.add(makeStopDirection(stopTag, dirTag));
+					stopDirectionsToWrite.add(makeStopDirection(stopTag, dirTag));
 				}
 
 			}
-			resolver.applyBatch(AUTHORITY, operations);
+			resolver.bulkInsert(DIRECTIONS_URI, directionsToWrite.toArray(new ContentValues[0]));
+			resolver.bulkInsert(DIRECTIONS_STOPS_URI, stopDirectionsToWrite.toArray(new ContentValues[0]));
 		}
 
 		public static void saveFavorites(ContentResolver resolver, Set<String> favoriteStops, Map<String, StopLocation> sharedStops) throws RemoteException, OperationApplicationException {
-			ArrayList<ContentProviderOperation> operations = new ArrayList<ContentProviderOperation>();
-			operations.add(ContentProviderOperation.newDelete(FAVORITES_URI).build());
-
+			resolver.delete(FAVORITES_URI, null, null);
+			
+			List<ContentValues> favoritesToWrite = Lists.newArrayList();
 			for (String stopTag : favoriteStops)
 			{
 				StopLocation stopLocation = sharedStops.get(stopTag);
 
 				if (stopLocation != null)
 				{
-					operations.add(ContentProviderOperation.newInsert(FAVORITES_URI).withValue(stopTagKey, stopTag).build());
+					ContentValues values = new ContentValues();
+					values.put(stopTagKey, stopTag);
+					favoritesToWrite.add(values);
 				}
 			}
 			
-			resolver.applyBatch(AUTHORITY, operations);
+			resolver.bulkInsert(FAVORITES_URI, favoritesToWrite.toArray(new ContentValues[0]));
 		}
 
 		public static Cursor getCursorForSearch(ContentResolver resolver, String search, int mode) {
@@ -1145,16 +1132,18 @@ public class DatabaseContentProvider extends ContentProvider {
 			}
 		}
 
-		public static ContentProviderOperation makeStop(
-				String tag,
-				float latitudeAsDegrees, float longitudeAsDegrees, String title) {
-			return ContentProviderOperation.newInsert(STOPS_URI).withValue(stopTagKey, tag)
-					.withValue(latitudeKey, latitudeAsDegrees)
-					.withValue(longitudeKey, longitudeAsDegrees)
-					.withValue(stopTitleKey, title).build();
+		public static ContentValues makeStop(
+				String tag, String title,
+				float latitudeAsDegrees, float longitudeAsDegrees) {
+			ContentValues ret = new ContentValues();
+			ret.put(stopTagKey, tag);
+			ret.put(stopTitleKey, title);
+			ret.put(latitudeKey, latitudeAsDegrees);
+			ret.put(longitudeKey, longitudeAsDegrees);
+			return ret;
 		}
 
-		public static ContentProviderOperation makeRoute(
+		public static ContentValues makeRoute(
 				String tag,
 				String routeTitle, int color, int oppositeColor,
 				Path[] currentPaths) throws IOException {
@@ -1167,48 +1156,52 @@ public class DatabaseContentProvider extends ContentProvider {
 				pathsBlob = serializedPath.getBlob();
 			}
 	
-			
-			return ContentProviderOperation.newInsert(ROUTES_URI).withValue(routeKey, tag)
-					.withValue(routeTitleKey, routeTitle)
-					.withValue(colorKey, color)
-					.withValue(oppositeColorKey, oppositeColor)
-					.withValue(pathsBlobKey, pathsBlob).build();
+			ContentValues ret = new ContentValues();
+			ret.put(routeKey, tag);
+			ret.put(routeTitleKey, routeTitle);
+			ret.put(colorKey, color);
+			ret.put(oppositeColorKey, oppositeColor);
+			ret.put(pathsBlobKey, pathsBlob);
+			return ret;
 		}
 
-		public static ContentProviderOperation makeDirection(
+		public static ContentValues makeDirection(
 				String tag, String name,
 				String title, String routeName, boolean useForUI) {
-			return ContentProviderOperation.newInsert(DIRECTIONS_URI)
-					.withValue(dirTagKey, tag)
-					.withValue(dirNameKey, name)
-					.withValue(dirTitleKey, title)
-					.withValue(dirRouteKey, routeName)
-					.withValue(dirUseAsUIKey, useForUI).build();
+			ContentValues ret = new ContentValues();
+			ret.put(dirTagKey, tag);
+			ret.put(dirNameKey, name);
+			ret.put(dirTitleKey, title);
+			ret.put(dirRouteKey, routeName);
+			ret.put(dirUseAsUIKey, useForUI);
+			return ret;
 		}
 
-		public static ContentProviderOperation makeStopRoute(String tag,
+		public static ContentValues makeStopRoute(String tag,
 				String routeName, String dirTag) {
-			return ContentProviderOperation.newInsert(STOPS_ROUTES_URI)
-					.withValue(stopTagKey, tag)
-					.withValue(routeKey, routeName)
-					.withValue(dirTagKey, dirTag).build();
+			ContentValues ret = new ContentValues();
+			ret.put(stopTagKey, tag);
+			ret.put(routeKey, routeName);
+			ret.put(dirTagKey, dirTag);
+			return ret;
 		}
 
-		private static ContentProviderOperation makeSubwayStop(String stopTag,
+		private static ContentValues makeSubwayStop(String stopTag,
 				int platformOrder, String branch) {
 			ContentValues values = new ContentValues();
 			values.put(stopTagKey, stopTag);
 			values.put(platformOrderKey, platformOrder);
 			values.put(branchKey, branch);
 
-			return ContentProviderOperation.newInsert(SUBWAY_STOPS_URI).withValues(values).build();
+			return values;
 		}
 
-		public static ContentProviderOperation makeStopDirection(String stopTag,
+		public static ContentValues makeStopDirection(String stopTag,
 				String dirTag) {
-			return ContentProviderOperation.newInsert(DIRECTIONS_STOPS_URI)
-					.withValue(stopTagKey, stopTag)
-					.withValue(dirTagKey, dirTag).build();
+			ContentValues values = new ContentValues();
+			values.put(stopTagKey, stopTag);
+			values.put(dirTagKey, dirTag);
+			return values;
 		}
 
 	}
@@ -1507,25 +1500,45 @@ public class DatabaseContentProvider extends ContentProvider {
 	}
 	
 	@Override
-	public ContentProviderResult[] applyBatch(
-			ArrayList<ContentProviderOperation> operations)
-			throws OperationApplicationException {
-		final SQLiteDatabase db = helper.getWritableDatabase();
+	public int bulkInsert(Uri uri, ContentValues[] values) {
+		SQLiteDatabase db = helper.getWritableDatabase();
+		String table;
+		switch (uriMatcher.match(uri)) {
+		case FAVORITES:
+			table = verboseFavorites;
+			break;
+		case STOPS:
+			table = verboseStops;
+			break;
+		case ROUTES:
+			table = verboseRoutes;
+			break;
+		case STOPS_ROUTES:
+			table = stopsRoutesMap;
+			break;
+		case DIRECTIONS:
+			table = directionsTable;
+			break;
+		case DIRECTIONS_STOPS:
+			table = directionsStopsTable;
+			break;
+		case SUBWAY_STOPS:
+			table = subwaySpecificTable;
+			break;
+		default:
+			throw new IllegalArgumentException("uri doesn't match any known uri");
+		}
 		db.beginTransaction();
-		try
-		{
-			final int numOperations = operations.size();
-			final ContentProviderResult[] results = new ContentProviderResult[numOperations];
-			for (int i = 0; i < numOperations; i++) {
-				results[i] = operations.get(i).apply(this, results, i);
+		for (int i = 0; i < values.length; i++) {
+			if (db.replace(table, null, values[i]) == -1) {
+				Log.e("BostonBusMap", "ERROR: unable to bulk insert rows for uri " + uri);
+				throw new SQLException("Error bulk inserting row for uri " + uri);
 			}
-			db.setTransactionSuccessful();
-			return results;
 		}
-		finally
-		{
-			db.endTransaction();
-		}
+		db.setTransactionSuccessful();
+		db.endTransaction();
+		
+		getContext().getContentResolver().notifyChange(uri, null);
+		return values.length;
 	}
-
 }

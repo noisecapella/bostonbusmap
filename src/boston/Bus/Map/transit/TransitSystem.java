@@ -52,6 +52,8 @@ public class TransitSystem {
 	public static final String[] emails = new String[]{"bostonbusmap@gmail.com", "t-trackertrial@mbta.com"};
 	public static final String emailSubject = "BostonBusMap error report";
 
+	private RouteTitles routeTitles;
+	
 	private AlertsMapping alertsMapping;
 	
 	public static double getCenterLat() {
@@ -88,6 +90,13 @@ public class TransitSystem {
 	 */
 	private TransitSource defaultTransitSource;
 	
+	/**
+	 * Only call this on the UI thread!
+	 * @param busDrawables
+	 * @param subwayDrawables
+	 * @param commuterRailDrawables
+	 * @param alertsData
+	 */
 	public void setDefaultTransitSource(TransitDrawables busDrawables, TransitDrawables subwayDrawables, TransitDrawables commuterRailDrawables, String alertsData)
 	{
 		if (defaultTransitSource == null)
@@ -113,6 +122,17 @@ public class TransitSystem {
 			listBuilder.add(subwayTransitSource);
 			listBuilder.add(defaultTransitSource);
 			transitSources = listBuilder.build();
+
+			ImmutableBiMap.Builder<String, String> builder = ImmutableBiMap.builder();
+
+			for (TransitSource source : transitSources)
+			{
+				RouteTitles sourceRouteKeyMap = source.getRouteKeysToTitles();
+				sourceRouteKeyMap.addSelfTo(builder);
+			}
+
+			routeTitles = new RouteTitles(builder.build());
+		
 		}
 		else
 		{
@@ -142,15 +162,7 @@ public class TransitSystem {
 	}
 
 	public RouteTitles getRouteKeysToTitles() {
-		ImmutableBiMap.Builder<String, String> builder = ImmutableBiMap.builder();
-
-		for (TransitSource source : transitSources)
-		{
-			RouteTitles sourceRouteKeyMap = source.getRouteKeysToTitles();
-			sourceRouteKeyMap.addSelfTo(builder);
-		}
-
-		return new RouteTitles(builder.build());
+		return routeTitles;
 	}
 
 	public void refreshData(RouteConfig routeConfig,

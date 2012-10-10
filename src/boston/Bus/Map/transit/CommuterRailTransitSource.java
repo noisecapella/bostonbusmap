@@ -121,7 +121,7 @@ public class CommuterRailTransitSource implements TransitSource {
 		//parser.runParse(downloadHelper.getResponseData()); 
 		parser.runParse(new StringReader(CommuterRailRouteConfigParser.temporaryInputData));
 
-		parser.writeToDatabase(routeMapping, false, task, silent);
+		parser.writeToDatabase(routeMapping, task, silent);
 	}
 
 	@Override
@@ -322,7 +322,7 @@ public class CommuterRailTransitSource implements TransitSource {
 		
 		subwayParser.runParse(new StringReader(CommuterRailRouteConfigParser.temporaryInputData));
 		
-		subwayParser.writeToDatabase(routeMapping, false, task, false);
+		subwayParser.writeToDatabase(routeMapping, task, false);
 		
 		
 	}

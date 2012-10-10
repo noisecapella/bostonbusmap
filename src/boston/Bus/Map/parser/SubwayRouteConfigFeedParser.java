@@ -202,13 +202,13 @@ public class SubwayRouteConfigFeedParser
 		}
 	}
 
-	public void writeToDatabase(RoutePool routeMapping, boolean wipe, UpdateAsyncTask task, boolean silent) throws IOException, RemoteException, OperationApplicationException {
+	public void writeToDatabase(RoutePool routeMapping, UpdateAsyncTask task, boolean silent) throws IOException, RemoteException, OperationApplicationException {
 		ImmutableMap.Builder<String, RouteConfig> builder = ImmutableMap.builder();
 		for (String routeTag : map.keySet()) {
 			RouteConfig.Builder routeBuilder = map.get(routeTag);
 			builder.put(routeTag, routeBuilder.build());
 		}
-		routeMapping.writeToDatabase(builder.build(), wipe, task, silent);
-		directions.writeToDatabase(wipe);
+		routeMapping.writeToDatabase(builder.build(), task, silent);
+		directions.writeToDatabase();
 	}
 }

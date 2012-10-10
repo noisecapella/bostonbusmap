@@ -2,6 +2,8 @@ package boston.Bus.Map.data;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
+
 import boston.Bus.Map.util.CanBeSerialized;
 import boston.Bus.Map.util.IBox;
 
@@ -18,7 +20,7 @@ public class Path implements CanBeSerialized
 	 * points is a series of lat lon pairs. Therefore points must have an even number of elements
 	 * @param points
 	 */
-	public Path(ArrayList<Float> points)
+	public Path(List<Float> points)
 	{
 		this.points = new float[points.size()];
 		for (int i = 0; i < points.size(); i++)

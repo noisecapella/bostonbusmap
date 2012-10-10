@@ -3,6 +3,8 @@ package boston.Bus.Map.parser;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 
 import javax.xml.parsers.ParserConfigurationException;
@@ -17,6 +19,10 @@ import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 import org.xml.sax.XMLReader;
 import org.xml.sax.helpers.DefaultHandler;
+
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 
 import skylight1.opengl.files.QuickParseUtil;
 
@@ -42,6 +48,7 @@ import android.content.Context;
 import android.content.OperationApplicationException;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
+import android.net.Uri;
 import android.os.RemoteException;
 import android.util.Xml.Encoding;
 
@@ -67,20 +74,31 @@ public class RouteConfigFeedParser extends DefaultHandler
 	private static final String colorKey = "color";
 	private static final String oppositeColorKey = "oppositeColor";
 	
+	private static final ContentValues[] nullContentValues = new ContentValues[0];
 	
 	private boolean inRoute;
 	private boolean inDirection;
 	private boolean inStop;
 	private boolean inPath;
 	
-	private ArrayList<Path> currentPaths;
-	private RouteConfig.Builder currentRouteConfig;
+	private final List<Path> currentPaths = Lists.newArrayList();
+	private String currentRouteTag;
+	private String currentRouteTitle;
+	private int currentRouteColor;
+	private int currentRouteOppositeColor;
 	
-	private ArrayList<Float> currentPathPoints;
+	private final List<Float> currentPathPoints = Lists.newArrayList();
 	private final TransitSource transitSource;
 	private String currentDirTag;
 	
-	private final ArrayList<ContentProviderOperation> currentOperations = new ArrayList<ContentProviderOperation>();
+	// these five lists are automatically cleared after writing to database
+	private final List<ContentValues> stopsToWrite = Lists.newArrayList();
+	private final List<ContentValues> stopsRoutesToWrite = Lists.newArrayList();
+	private final List<ContentValues> stopsDirectionsToWrite = Lists.newArrayList();
+	private final List<ContentValues> directionsToWrite = Lists.newArrayList();
+	private final List<ContentValues> routesToWrite = Lists.newArrayList();
+	
+	private final ImmutableMap<Uri, List<ContentValues>> databaseBuffer;
 	
 	private final Context context;
 	
@@ -88,6 +106,15 @@ public class RouteConfigFeedParser extends DefaultHandler
 	{
 		this.transitSource = transitSource;
 		this.context = context;
+		
+		ImmutableMap.Builder<Uri, List<ContentValues>> databaseBufferBuilder =
+				ImmutableMap.builder();
+		databaseBufferBuilder.put(DatabaseContentProvider.STOPS_URI, stopsToWrite);
+		databaseBufferBuilder.put(DatabaseContentProvider.STOPS_ROUTES_URI, stopsRoutesToWrite);
+		databaseBufferBuilder.put(DatabaseContentProvider.DIRECTIONS_STOPS_URI, stopsToWrite);
+		databaseBufferBuilder.put(DatabaseContentProvider.DIRECTIONS_URI, directionsToWrite);
+		databaseBufferBuilder.put(DatabaseContentProvider.ROUTES_URI, routesToWrite);
+		databaseBuffer = databaseBufferBuilder.build();
 	}
 
 	public void runParse(InputStream inputStream)  throws ParserConfigurationException, SAXException, IOException
@@ -114,15 +141,14 @@ public class RouteConfigFeedParser extends DefaultHandler
 					float longitudeAsDegrees = QuickParseUtil.parseFloat(attributes.getValue(longitudeKey));
 
 					String title = attributes.getValue(titleKey);
-
-					currentOperations.add(DatabaseAgent.makeStop( 
-							tag, latitudeAsDegrees, longitudeAsDegrees, title));
-					currentOperations.add(DatabaseAgent.makeStopRoute(
-							tag, currentRouteConfig.getRouteName(), attributes.getValue(dirTagKey)));
+					
+					stopsToWrite.add(DatabaseAgent.makeStop(tag, title, latitudeAsDegrees, longitudeAsDegrees));
+					stopsRoutesToWrite.add(DatabaseAgent.makeStopRoute(
+							tag, currentRouteTag, attributes.getValue(dirTagKey)));
 				}
 				else
 				{
-					currentOperations.add(DatabaseAgent.makeStopDirection(
+					stopsDirectionsToWrite.add(DatabaseAgent.makeStopDirection(
 							tag, currentDirTag));
 				}
 			}
@@ -139,27 +165,25 @@ public class RouteConfigFeedParser extends DefaultHandler
 				String name = attributes.getValue(nameKey);
 				boolean useForUI = Boolean.getBoolean(attributes.getValue(useForUIKey));
 
-				currentOperations.add(DatabaseAgent.makeDirection(
-						tag, name, title, currentRouteConfig.getRouteName(), useForUI));
+				directionsToWrite.add(DatabaseAgent.makeDirection(
+						tag, name, title, currentRouteTag, useForUI));
 			}
 		}
 		else if (routeKey.equals(localName))
 		{
 			inRoute = true;
 			
-			String currentRoute = attributes.getValue(tagKey);
-			int color = parseColor(attributes.getValue(colorKey));
-			int oppositeColor = parseColor(attributes.getValue(oppositeColorKey));
+			currentRouteTag = attributes.getValue(tagKey);
+			currentRouteColor = parseColor(attributes.getValue(colorKey));
+			currentRouteOppositeColor = parseColor(attributes.getValue(oppositeColorKey));
 			RouteTitles routeKeysToTitles = transitSource.getRouteKeysToTitles();
-			String currentRouteTitle = routeKeysToTitles.getTitle(currentRoute);
-			currentRouteConfig = new RouteConfig.Builder(currentRoute, currentRouteTitle, color, 
-					oppositeColor, transitSource);
+			currentRouteTitle = routeKeysToTitles.getTitle(currentRouteTag);
 		}
 		else if (pathKey.equals(localName))
 		{
 			inPath = true;
 			
-			currentPathPoints = new ArrayList<Float>();
+			currentPathPoints.clear();
 		}
 		else if (pointKey.equals(localName))
 		{
@@ -176,7 +200,7 @@ public class RouteConfigFeedParser extends DefaultHandler
 		
 		
 	}
-	
+
 	private int parseColor(String value) {
 		if (value == null)
 		{
@@ -212,21 +236,20 @@ public class RouteConfigFeedParser extends DefaultHandler
 			
 			try
 			{
-				currentOperations.add(DatabaseAgent.makeRoute(
-						currentRouteConfig.getRouteName(), currentRouteConfig.getRouteTitle(),
-						currentRouteConfig.getColor(), currentRouteConfig.getOppositeColor(), 
+				routesToWrite.add(DatabaseAgent.makeRoute(
+						currentRouteTag, currentRouteTitle,
+						currentRouteColor, currentRouteOppositeColor, 
 						currentPaths != null ? currentPaths.toArray(new Path[0]) : null));
 
-				currentRouteConfig = null;
-				currentPaths = null;
+				currentRouteTag = null;
+				currentRouteTitle = null;
+				currentRouteColor = 0;
+				currentRouteOppositeColor = 0;
+				currentPaths.clear();
 				
 				writeToDatabase();
 			}
 			catch (IOException e) {
-				throw new RuntimeException(e);
-			} catch (RemoteException e) {
-				throw new RuntimeException(e);
-			} catch (OperationApplicationException e) {
 				throw new RuntimeException(e);
 			}
 		}
@@ -234,7 +257,7 @@ public class RouteConfigFeedParser extends DefaultHandler
 		{
 			inPath = false;
 			
-			if (currentRouteConfig != null)
+			if (currentRouteTag != null)
 			{
 				Path path = new Path(currentPathPoints);
 				currentPaths.add(path);
@@ -243,9 +266,15 @@ public class RouteConfigFeedParser extends DefaultHandler
 		
 	}
 	
-	private void writeToDatabase() throws RemoteException, OperationApplicationException {
-		context.getContentResolver().applyBatch(DatabaseContentProvider.AUTHORITY,
-				currentOperations);
-		currentOperations.clear();
+	private void writeToDatabase() {
+		for (Uri uri : databaseBuffer.keySet()) {
+			List<ContentValues> insert = databaseBuffer.get(uri);
+			if (insert.size() > 0) {
+				ContentValues[] values = insert.toArray(nullContentValues);
+				context.getContentResolver().bulkInsert(uri, values);
+				
+				insert.clear();
+			}
+		}
 	}
 }

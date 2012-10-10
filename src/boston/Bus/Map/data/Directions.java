@@ -72,8 +72,8 @@ public class Directions {
 		
 	}
 
-	public void writeToDatabase(boolean wipe) throws RemoteException, OperationApplicationException {
-		DatabaseAgent.writeDirections(context.getContentResolver(), wipe, directions);
+	public void writeToDatabase() throws RemoteException, OperationApplicationException {
+		DatabaseAgent.writeDirections(context.getContentResolver(), directions);
 	}
 
 	/**

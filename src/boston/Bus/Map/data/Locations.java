@@ -85,7 +85,7 @@ public final class Locations
 		directions = new Directions(context);
 	}
 	
-	public String getRouteName(String key)
+	public String getRouteTitle(String key)
 	{
 		return transitSystem.getTransitSource(key).getRouteKeysToTitles().getTitle(key);
 	}

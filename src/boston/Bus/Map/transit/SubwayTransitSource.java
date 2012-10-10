@@ -91,7 +91,7 @@ public class SubwayTransitSource implements TransitSource {
 
 		parser.runParse(downloadHelper.getResponseData()); 
 
-		parser.writeToDatabase(routeMapping, false, task, silent);
+		parser.writeToDatabase(routeMapping, task, silent);
 
 	}
 
@@ -295,7 +295,7 @@ public class SubwayTransitSource implements TransitSource {
 		
 		subwayParser.runParse(in);
 		
-		subwayParser.writeToDatabase(routeMapping, false, task, false);
+		subwayParser.writeToDatabase(routeMapping, task, false);
 		
 	}
 
