@@ -27,7 +27,7 @@ android:id="@+id/linearLayoutMain" android:gravity="right">
 	>
 	<TableRow>
 	<EditText android:layout_width="wrap_content" android:id="@+id/searchTextView"
-		android:hint="@string/searchHint" android:inputType="text"
+		android:hint="@string/searchHint" android:inputType="textNoSuggestions"
 		android:imeActionId="1" android:imeOptions="actionGo"
 		android:focusable="false" android:focusableInTouchMode="false"
 		android:layout_height="wrap_content" android:textSize="16sp"

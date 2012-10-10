@@ -468,7 +468,7 @@ public class UpdateAsyncTask extends AsyncTask<Object, Object, Locations>
 		//we need to run populate even if there are 0 busLocations. See this link:
 		//http://groups.google.com/group/android-beginners/browse_thread/thread/6d75c084681f943e?pli=1
 		final int selectedBusId = busOverlay != null ? busOverlay.getSelectedBusId() : BusOverlay.NOT_SELECTED;
-		busOverlay.clearExceptFocus();
+		busOverlay.clear();
 		//busOverlay.doPopulate();
 
 		busOverlay.setLocations(busLocationsObject);

@@ -34,8 +34,6 @@ public class UpdateHandler extends Handler {
 	 */
 	public static final int MINOR = 2;
 	
-
-	
 	/**
 	 * The last time we updated, in milliseconds. Used to make sure we don't update more frequently than
 	 * every 10 seconds, to avoid unnecessary strain on their server
@@ -277,7 +275,7 @@ public class UpdateHandler extends Handler {
 		sendEmptyMessage(MINOR);
 		
 	}
-
+	
 	public void triggerUpdateThenSelect(int id)
 	{
 		Message msg = new Message();

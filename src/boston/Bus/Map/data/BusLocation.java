@@ -244,6 +244,8 @@ public class BusLocation implements Location {
 		{
 			snippetAlerts = new Alert[0];
 		}
+		
+		predictionView = new SimplePredictionView(snippet, snippetTitle, snippetAlerts);
 	}
 
 	protected String getBetaWarning()

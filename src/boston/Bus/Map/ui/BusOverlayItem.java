@@ -44,8 +44,10 @@ public class BusOverlayItem extends OverlayItem
 	
 	@Override
 	public Drawable getMarker(int stateBitset) {
-		Drawable drawable = super.getMarker(0);
-		drawable.setState(selected ? focusState : zeroState);
+		Drawable drawable = super.getMarker(OverlayItem.ITEM_STATE_FOCUSED_MASK);
+		if (drawable != null) {
+			drawable.setState(selected ? focusState : zeroState);
+		}
 		return drawable;
 	}
 }
