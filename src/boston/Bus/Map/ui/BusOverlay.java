@@ -126,15 +126,13 @@ public class BusOverlay extends BalloonItemizedOverlay<BusOverlayItem> {
 			@Override
 			public void onFocusChanged(ItemizedOverlay overlay,
 					OverlayItem newFocus) {
-				//if you click on a bus, it would normally draw the selected bus without this code
-				//but in certain cases (you click away from any bus, then click on the bus again) it got confused and didn't draw
-				//things right. This corrects that (hopefully)
-				setLastFocusedIndex(NOT_SELECTED);
-				setFocus((BusOverlayItem)newFocus);
 				if (newFocus == null)
 				{
 					hideBalloon();
+					setLastFocusedIndex(NOT_SELECTED);
 				}
+				
+				updateSelections((BusOverlayItem)newFocus);
 			}
 		});
 		
@@ -154,7 +152,7 @@ public class BusOverlay extends BalloonItemizedOverlay<BusOverlayItem> {
 	/**
 	 * Was there a drag between when the finger touched the touchscreen and when it released?
 	 */
-	private boolean mapMoved;
+	private GeoPoint oldMapGeoPoint;
 	private boston.Bus.Map.ui.BusOverlay.OnClickListener nextTapListener;
 	
 	public void setDrawHighlightCircle(boolean b)
@@ -173,17 +171,17 @@ public class BusOverlay extends BalloonItemizedOverlay<BusOverlayItem> {
 
 		if (event.getAction() == MotionEvent.ACTION_DOWN)
 		{
-			mapMoved = false;
-		}
-		else if (event.getAction() == MotionEvent.ACTION_MOVE)
-		{
-			mapMoved = true;
+			oldMapGeoPoint = mapView.getMapCenter();
 		}
 		else if (event.getAction() == MotionEvent.ACTION_UP)
 		{
-			if (mapMoved && updateable != null)
+			if (oldMapGeoPoint != null && updateable != null)
 			{
-				updateable.triggerUpdate(250);
+				GeoPoint newGeoPoint = mapView.getMapCenter();
+				if (!newGeoPoint.equals(oldMapGeoPoint)) {
+					updateable.triggerUpdate(250);
+					oldMapGeoPoint = null;
+				}
 			}
 		}
 		
@@ -224,19 +222,6 @@ public class BusOverlay extends BalloonItemizedOverlay<BusOverlayItem> {
 	public void draw(Canvas canvas, MapView mapView, boolean shadow)
 	{
 		int lastFocusedIndex = getLastFocusedIndex();
-		int count = 0;
-		for (BusOverlayItem item : overlays)
-		{
-			Location location = item.getCurrentLocation();
-
-			boolean isSelected = count == lastFocusedIndex;
-			Drawable drawable = location.getDrawable(context, shadow, isSelected);
-			item.setMarker(drawable);
-
-			boundCenterBottom(drawable);
-			count++;
-		}
-		
 		if (selectedBusIndex != NOT_SELECTED)
 		{
 			//make sure that selected buses are preserved during refreshes
@@ -244,6 +229,8 @@ public class BusOverlay extends BalloonItemizedOverlay<BusOverlayItem> {
 			selectedBusIndex = NOT_SELECTED;
 		}
 			
+		updateAllBoundCenterBottom(lastFocusedIndex, shadow);
+		
 		if (drawHighlightCircle && overlays.size() > 0)
 		{
 			final Point circleCenter = this.circleCenter;
@@ -358,6 +345,7 @@ public class BusOverlay extends BalloonItemizedOverlay<BusOverlayItem> {
 		GeoPoint geoPoint = new GeoPoint(latitudeE6, longitudeE6);
 		BusOverlayItem overlayItem = new BusOverlayItem(geoPoint,titleText, snippetText, alerts, location);
 		overlays.add(overlayItem);
+		//boundCenterBottom(location.getDrawable(context, false, selectedBusIndex == overlays.size() - 1));
 		populate();
 	}
 
@@ -379,9 +367,31 @@ public class BusOverlay extends BalloonItemizedOverlay<BusOverlayItem> {
 			BusPopupView view = (BusPopupView)getBalloonView();
 			boolean isVisible = location instanceof StopLocation;
 			view.setState(location.isFavorite(), isVisible, isVisible, location);
-			setLastFocusedIndex(index);
+			//setLastFocusedIndex(index);
+			setFocus(createItem(index));
 		}
+
+		//updateAllBoundCenterBottom(index);
+		
 		return ret;
+	}
+
+
+	private void updateAllBoundCenterBottom(int selectedIndex, boolean shadow) {
+		// update boundCenterBottom for newly selected item
+		int count = 0;
+		for (BusOverlayItem item : overlays)
+		{
+			Location newLocation = item.getCurrentLocation();
+
+			boolean isSelected = count == selectedIndex;
+			Drawable drawable = newLocation.getDrawable(context, shadow, isSelected);
+			item.setMarker(drawable);
+
+			boundCenterBottom(drawable);
+			count++;
+		}
+		
 	}
 
 
@@ -403,5 +413,14 @@ public class BusOverlay extends BalloonItemizedOverlay<BusOverlayItem> {
 		// do nothing
 	}
 
+	private void updateSelections(BusOverlayItem item) {
+		for (BusOverlayItem otherItem : overlays) {
+			otherItem.select(false);
+		}
+		
+		if (item != null) {
+			item.select(true);
+		}
 
+	}
 }
