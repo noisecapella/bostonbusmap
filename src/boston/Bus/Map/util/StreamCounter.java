@@ -13,6 +13,8 @@ public class StreamCounter extends InputStream
 	private final UpdateAsyncTask publisher;
 	private final byte[] byteSpace = new byte[1];
 	private final int contentLength;
+	private int lastPublish;
+	private final static int publishInterval = 4096;
 	
 	public StreamCounter(InputStream wrappedStream, UpdateAsyncTask publisher, int contentLength)
 	{
@@ -28,7 +30,9 @@ public class StreamCounter extends InputStream
 		int len = wrappedStream.read(b, offset, length);
 		count += len;
 		
-		publish(count);
+		if (count - lastPublish >= publishInterval) {
+			publish(count);
+		}
 		return len;
 	}
 
@@ -37,6 +41,7 @@ public class StreamCounter extends InputStream
 		{
 			publisher.publish(totalRead);
 		}
+		lastPublish = count;
 	}
 
 	@Override

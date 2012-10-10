@@ -33,9 +33,11 @@ import boston.Bus.Map.data.RouteConfig;
 import boston.Bus.Map.data.RoutePool;
 import boston.Bus.Map.data.RouteTitles;
 import boston.Bus.Map.data.StopLocation;
+import boston.Bus.Map.database.Schema;
 import boston.Bus.Map.main.UpdateAsyncTask;
 import boston.Bus.Map.provider.DatabaseContentProvider;
 import boston.Bus.Map.provider.DatabaseContentProvider.DatabaseAgent;
+import boston.Bus.Map.provider.DatabaseContentProvider.DatabaseHelper;
 import boston.Bus.Map.transit.NextBusTransitSource;
 import boston.Bus.Map.transit.TransitSource;
 import boston.Bus.Map.transit.TransitSystem;
@@ -46,6 +48,8 @@ import android.content.ContentProviderOperation;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.OperationApplicationException;
+import android.database.DatabaseUtils.InsertHelper;
+import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
@@ -91,30 +95,30 @@ public class RouteConfigFeedParser extends DefaultHandler
 	private final TransitSource transitSource;
 	private String currentDirTag;
 	
-	// these five lists are automatically cleared after writing to database
-	private final List<ContentValues> stopsToWrite = Lists.newArrayList();
-	private final List<ContentValues> stopsRoutesToWrite = Lists.newArrayList();
-	private final List<ContentValues> stopsDirectionsToWrite = Lists.newArrayList();
-	private final List<ContentValues> directionsToWrite = Lists.newArrayList();
-	private final List<ContentValues> routesToWrite = Lists.newArrayList();
-	
-	private final ImmutableMap<Uri, List<ContentValues>> databaseBuffer;
+	private final InsertHelper stopInsertHelper;
+	private final InsertHelper routeInsertHelper;
+	private final InsertHelper stopMappingInsertHelper;
+	private final InsertHelper directionsInsertHelper;
+	private final InsertHelper directionsStopsInsertHelper;
 	
 	private final Context context;
 	
+	/**
+	 * You must call cleanup() when you are done with this object!
+	 * @param context
+	 * @param transitSource
+	 */
 	public RouteConfigFeedParser(Context context, NextBusTransitSource transitSource)
 	{
 		this.transitSource = transitSource;
 		this.context = context;
 		
-		ImmutableMap.Builder<Uri, List<ContentValues>> databaseBufferBuilder =
-				ImmutableMap.builder();
-		databaseBufferBuilder.put(DatabaseContentProvider.STOPS_URI, stopsToWrite);
-		databaseBufferBuilder.put(DatabaseContentProvider.STOPS_ROUTES_URI, stopsRoutesToWrite);
-		databaseBufferBuilder.put(DatabaseContentProvider.DIRECTIONS_STOPS_URI, stopsToWrite);
-		databaseBufferBuilder.put(DatabaseContentProvider.DIRECTIONS_URI, directionsToWrite);
-		databaseBufferBuilder.put(DatabaseContentProvider.ROUTES_URI, routesToWrite);
-		databaseBuffer = databaseBufferBuilder.build();
+		SQLiteDatabase database = DatabaseHelper.getInstance(context).getWritableDatabase();
+		stopInsertHelper = new InsertHelper(database, Schema.Stops.table);
+		routeInsertHelper = new InsertHelper(database, Schema.Routes.table);
+		stopMappingInsertHelper = new InsertHelper(database, Schema.Stopmapping.table);
+		directionsInsertHelper = new InsertHelper(database, Schema.Directions.table);
+		directionsStopsInsertHelper = new InsertHelper(database, Schema.DirectionsStops.table);
 	}
 
 	public void runParse(InputStream inputStream)  throws ParserConfigurationException, SAXException, IOException
@@ -142,14 +146,13 @@ public class RouteConfigFeedParser extends DefaultHandler
 
 					String title = attributes.getValue(titleKey);
 					
-					stopsToWrite.add(DatabaseAgent.makeStop(tag, title, latitudeAsDegrees, longitudeAsDegrees));
-					stopsRoutesToWrite.add(DatabaseAgent.makeStopRoute(
-							tag, currentRouteTag, attributes.getValue(dirTagKey)));
+					Schema.Stops.executeInsertHelper(stopInsertHelper, tag, latitudeAsDegrees, longitudeAsDegrees, title);
+					Schema.Stopmapping.executeInsertHelper(stopMappingInsertHelper,
+							currentRouteTag, tag, attributes.getValue(dirTagKey));
 				}
 				else
 				{
-					stopsDirectionsToWrite.add(DatabaseAgent.makeStopDirection(
-							tag, currentDirTag));
+					Schema.DirectionsStops.executeInsertHelper(directionsStopsInsertHelper, currentDirTag, tag);
 				}
 			}
 		}
@@ -165,8 +168,7 @@ public class RouteConfigFeedParser extends DefaultHandler
 				String name = attributes.getValue(nameKey);
 				boolean useForUI = Boolean.getBoolean(attributes.getValue(useForUIKey));
 
-				directionsToWrite.add(DatabaseAgent.makeDirection(
-						tag, name, title, currentRouteTag, useForUI));
+				Schema.Directions.executeInsertHelper(directionsInsertHelper, tag, name, title, currentRouteTag, Schema.toInteger(useForUI));
 			}
 		}
 		else if (routeKey.equals(localName))
@@ -236,18 +238,15 @@ public class RouteConfigFeedParser extends DefaultHandler
 			
 			try
 			{
-				routesToWrite.add(DatabaseAgent.makeRoute(
-						currentRouteTag, currentRouteTitle,
-						currentRouteColor, currentRouteOppositeColor, 
-						currentPaths != null ? currentPaths.toArray(new Path[0]) : null));
+				Path[] pathblob = currentPaths != null ? currentPaths.toArray(new Path[0]) : null;
+				byte[] blob = DatabaseAgent.pathsToBlob(pathblob);
+				Schema.Routes.executeInsertHelper(routeInsertHelper, currentRouteTag, currentRouteColor, currentRouteOppositeColor, blob, currentRouteTitle);
 
 				currentRouteTag = null;
 				currentRouteTitle = null;
 				currentRouteColor = 0;
 				currentRouteOppositeColor = 0;
 				currentPaths.clear();
-				
-				writeToDatabase();
 			}
 			catch (IOException e) {
 				throw new RuntimeException(e);
@@ -266,15 +265,11 @@ public class RouteConfigFeedParser extends DefaultHandler
 		
 	}
 	
-	private void writeToDatabase() {
-		for (Uri uri : databaseBuffer.keySet()) {
-			List<ContentValues> insert = databaseBuffer.get(uri);
-			if (insert.size() > 0) {
-				ContentValues[] values = insert.toArray(nullContentValues);
-				context.getContentResolver().bulkInsert(uri, values);
-				
-				insert.clear();
-			}
-		}
+	public void cleanup() {
+		stopInsertHelper.close();
+		routeInsertHelper.close();
+		stopMappingInsertHelper.close();
+		directionsInsertHelper.close();
+		directionsStopsInsertHelper.close();
 	}
 }

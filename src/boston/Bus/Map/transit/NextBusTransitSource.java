@@ -1,5 +1,6 @@
 package boston.Bus.Map.transit;
 
+import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -105,8 +106,14 @@ public abstract class NextBusTransitSource implements TransitSource
 
 		RouteConfigFeedParser parser = new RouteConfigFeedParser(context,
 				this);
-
-		parser.runParse(downloadHelper.getResponseData()); 
+		try
+		{
+			parser.runParse(downloadHelper.getResponseData());
+		}
+		finally
+		{
+			parser.cleanup();
+		}
 
 	}
 
@@ -309,10 +316,17 @@ public abstract class NextBusTransitSource implements TransitSource
 				task, contentLength); 
 
 		GZIPInputStream stream = new GZIPInputStream(in); 
+		BufferedInputStream bufferedStream = new BufferedInputStream(stream);
 
 		RouteConfigFeedParser parser = new RouteConfigFeedParser(context, this);
-
-		parser.runParse(stream);
+		try
+		{
+			parser.runParse(bufferedStream);
+		}
+		finally
+		{
+			parser.cleanup();
+		}
 	}
 
 	/**

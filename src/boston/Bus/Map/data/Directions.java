@@ -73,7 +73,7 @@ public class Directions {
 	}
 
 	public void writeToDatabase() throws RemoteException, OperationApplicationException {
-		DatabaseAgent.writeDirections(context.getContentResolver(), directions);
+		DatabaseAgent.writeDirections(context, directions);
 	}
 
 	/**

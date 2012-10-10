@@ -136,8 +136,8 @@ public class RoutePool extends Pool<String, RouteConfig> {
 			task.publish(new ProgressMessage(ProgressMessage.PROGRESS_DIALOG_ON, "Saving to database", null));
 		}
 		
-		HashSet<String> stopTags = new HashSet<String>();
-		DatabaseAgent.saveMapping(context.getContentResolver(), map, stopTags, task);
+		HashSet<String> stopTags = Sets.newHashSet();
+		DatabaseAgent.saveMapping(context, map, stopTags, task);
 		
 		clearAll();
 		populateFavorites(true);
