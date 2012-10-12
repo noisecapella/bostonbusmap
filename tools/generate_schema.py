@@ -1,39 +1,19 @@
 indent = "    "
 indent2 = indent * 2
 indent3 = indent * 3
-exampleSql =     """
-CREATE TABLE android_metadata (locale TEXT);
-CREATE TABLE directions (dirTag STRING PRIMARY KEY, dirNameKey STRING, dirTitleKey STRING, dirRouteKey STRING, useAsUI INTEGER);
-CREATE TABLE directionsStops(dirTag STRING, tag STRING);
-CREATE TABLE favorites (tag STRING PRIMARY KEY);
-CREATE TABLE routes (route STRING PRIMARY KEY, color INTEGER, oppositecolor INTEGER, pathblob BLOB, routetitle STRING);
-CREATE TABLE stopmapping (route STRING, tag STRING, dirTag STRING, PRIMARY KEY (route, tag));
-CREATE TABLE stops (tag STRING PRIMARY KEY, lat FLOAT, lon FLOAT, title STRING);
-CREATE TABLE subway (tag STRING PRIMARY KEY, platformorder INTEGER, branch STRING);"""
+indent4 = indent * 4
+import schema
+import inspect
 
 def capitalizeFirst(s):
     return s[0].upper() + s[1:]
 
-def sqlForColumn(tableInfo, column):
-    type = "STRING"
-    if column["type"] == "float":
-        type = "FLOAT"
-    elif column["type"] == "byte[]":
-        type = "BLOB"
-    elif column["type"] == "int":
-        type = "INTEGER"
-    s = column["tag"] + " " + type
-
-    primaryKeys = tableInfo["primaryKeys"]
-    if column["tag"] in primaryKeys and len(primaryKeys) == 1:
-        s += " PRIMARY KEY"
-    return s
-
-def writeTable(tableName, tableInfo):
-    columns = tableInfo["columns"]
+def writeTable(table):
+    tableName = table.name
     print indent + "public static class %s {" % (capitalizeFirst(tableName),)
     print indent2 + "public static final String table = \"%s\"; "%(tableName,)
     print indent2 + "public static final String[] columns = new String[] {"
+    columns = table.arguments
     quotedColumns = ", ".join(("\"" + each["tag"] + "\"") for each in columns)
     print indent3 + quotedColumns
 
@@ -42,18 +22,33 @@ def writeTable(tableName, tableInfo):
     print
     for i in xrange(len(columns)):
         column = columns[i]
-        print indent2 + "public static final int " + column["tag"] + "Index = " + str(i) + ";"
+        print indent2 + "public static final int " + column["tag"] + "Index = " + str(i + 1) + ";"
         print indent2 + "public static final String " + column["tag"] + "Column = \"" + column["tag"] + "\";"
     print
 
-    createParams = ", ".join(sqlForColumn(tableInfo, column) for column in columns)
-    primaryKeys = tableInfo["primaryKeys"]
-    if len(primaryKeys) > 1:
-        createParams += ", PRIMARY KEY (" + ", ".join(primaryKeys) + ")"
+    createParams = ", ".join(getattr(table, column["tag"]).sqlForColumn(table.primaryKeys) for column in columns)
+    if len(table.primaryKeys) > 1:
+        createParams += ", PRIMARY KEY (" + ", ".join(table.primaryKeys) + ")"
     print indent2 + "public static final String createSql = \"CREATE TABLE IF NOT EXISTS " + tableName + " (" + createParams + ")\";"
 
     params = ", ".join((column["type"] + " " + column["tag"]) for column in columns)
 
+    print indent2 + "public static class Bean {"
+    for column in columns:
+        print indent3 + "public final " + column["type"] + " " + column["tag"] + ";"
+    print indent3 + "public Bean(" + params + ") {"
+    for column in columns:
+        print indent4 + "this." + column["tag"] + " = " + column["tag"] + ";"
+    print indent3 + "}"
+    print indent2 + "}"
+
+    beanParams = ", ".join(("bean." + column["tag"]) for column in columns)
+
+    print indent2 + "public static void executeInsertHelper(InsertHelper helper, Collection<Bean> beans) {"
+    print indent3 + "for (Bean bean : beans) {"
+    print indent4 + "executeInsertHelper(helper, " + beanParams + ");"
+    print indent3 + "}"
+    print indent2 + "}"
     print indent2 + "public static void executeInsertHelper(InsertHelper helper, " + params + ") {"
 
     print indent3 + "helper.prepareForReplace();"
@@ -71,6 +66,8 @@ def main():
 
 import android.database.DatabaseUtils.InsertHelper;
 
+import java.util.Collection;
+
 public class Schema {
     public static final String dbName = "bostonBusMap";
 
@@ -80,41 +77,12 @@ public class Schema {
 
 """
 
-    schema = {"directions" : {"columns":[
-            {"tag" : "dirTag", "type": "String"},
-            {"tag": "dirNameKey", "type": "String"},
-            {"tag": "dirTitleKey", "type": "String"},
-            {"tag": "dirRouteKey", "type": "String"},
-            {"tag": "useAsUI", "type": "int"}], "primaryKeys" : ["dirTag"]},
-              "directionsStops" : {"columns":[
-            {"tag": "dirTag", "type": "String"},
-            {"tag": "tag", "type": "String"}], "primaryKeys" : []},
-              "favorites" : {"columns":[
-            {"tag" : "tag", "type" : "String"}], "primaryKeys" : ["tag"]},
-              "routes" : {"columns":[
-            {"tag": "route", "type" : "String"},
-            {"tag": "color", "type": "int"},
-            {"tag": "oppositecolor", "type": "int"},
-            {"tag": "pathblob", "type": "byte[]"},
-            {"tag": "routetitle", "type": "String"}], "primaryKeys" : ["route"]},
-              "stopmapping" : {"columns":[
-            {"tag": "route", "type": "String"},
-            {"tag": "tag", "type": "String"},
-            {"tag": "dirTag", "type": "String"}], "primaryKeys" : ["route", "tag"]},
-              "stops" : {"columns":[
-            {"tag": "tag", "type": "String"},
-            {"tag": "lat", "type": "float"},
-            {"tag": "lon", "type": "float"},
-            {"tag": "title", "type": "String"}], "primaryKeys" : ["tag"]},
-              "subway" : {"columns":[
-            {"tag": "tag", "type": "String"},
-            {"tag": "platformorder", "type": "int"},
-            {"tag": "branch", "type": "String"}], "primaryKeys" : ["tag"]}}
+    schemaObj = schema.getSchemaAsObject()
+    for tableName in (each[0] for each in inspect.getmembers(schemaObj)):
+        if tableName[:2] != "__":
+            table = getattr(schemaObj, tableName)
 
-    for table in schema.iteritems():
-        tableName, columns = table
-
-        writeTable(tableName, columns)
+            writeTable(table)
 
     print """}"""
 
