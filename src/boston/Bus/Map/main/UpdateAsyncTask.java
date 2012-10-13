@@ -25,6 +25,8 @@ import java.net.SocketException;
 import java.net.SocketTimeoutException;
 import java.util.ArrayList;
 
+import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -59,6 +61,7 @@ import com.google.android.maps.GeoPoint;
 import com.google.android.maps.MapView;
 import com.google.android.maps.OverlayItem;
 import com.google.android.maps.Projection;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -85,7 +88,7 @@ import android.widget.Toast;
  * Handles the heavy work of downloading and parsing the XML in a separate thread from the UI.
  *
  */
-public class UpdateAsyncTask extends AsyncTask<Object, Object, Locations>
+public class UpdateAsyncTask extends AsyncTask<Double, Object, ImmutableList<Location>>
 {
 	private final boolean doShowUnpredictable;
 	private final boolean doRefresh;
@@ -140,15 +143,15 @@ public class UpdateAsyncTask extends AsyncTask<Object, Object, Locations>
 	 * A type safe wrapper around execute
 	 * @param busLocations
 	 */
-	public void runUpdate(Locations locations, double centerLatitude, double centerLongitude, Context context)
+	public void runUpdate(double centerLatitude, double centerLongitude)
 	{
-		execute(locations, centerLatitude, centerLongitude, context);
+		execute(centerLatitude, centerLongitude);
 	}
 
 	@Override
-	protected Locations doInBackground(Object... args) {
+	protected ImmutableList<Location> doInBackground(Double... args) {
 		//number of bus pictures to draw. Too many will make things slow
-		return updateBusLocations((Locations)args[0], (Double)args[1], (Double)args[2], (Context)args[3]);
+		return updateBusLocations(args[0], args[1]);
 	}
 
 	@Override
@@ -224,7 +227,7 @@ public class UpdateAsyncTask extends AsyncTask<Object, Object, Locations>
 		}
 	}
 
-	public Locations updateBusLocations(Locations busLocations, double centerLatitude, double centerLongitude, Context context)
+	public ImmutableList<Location> updateBusLocations(double centerLatitude, double centerLongitude)
 	{
 		if (doRefresh == false)
 		{
@@ -232,6 +235,7 @@ public class UpdateAsyncTask extends AsyncTask<Object, Object, Locations>
 			silenceUpdates = true;
 		}
 		
+		final Locations busLocations = arguments.getBusLocations();
 		busLocations.select(routeToUpdate, selectedBusPredictions);
 
 		
@@ -242,6 +246,7 @@ public class UpdateAsyncTask extends AsyncTask<Object, Object, Locations>
 				publish(new ProgressMessage(ProgressMessage.PROGRESS_SPINNER_ON, null, null));
 				
 				RouteTitles allRoutes = arguments.getTransitSystem().getRouteKeysToTitles();
+				final Context context = arguments.getContext();
 				busLocations.initializeAllRoutes(this, context, allRoutes);
 				
 				busLocations.refresh(arguments.getContext(), inferBusRoutes, routeToUpdate, selectedBusPredictions,
@@ -255,7 +260,6 @@ public class UpdateAsyncTask extends AsyncTask<Object, Object, Locations>
 				LogUtil.e(e);
 				
 				return null;
-
 			} catch (SAXException e) {
 				publish(new ProgressMessage(ProgressMessage.TOAST, null,
 						"XML parsing exception; cannot update. Maybe there was a hiccup in the feed?"));
@@ -359,15 +363,23 @@ public class UpdateAsyncTask extends AsyncTask<Object, Object, Locations>
 			}
 		}
 
-		return busLocations;
+		try {
+			return busLocations.getLocations(maxOverlays, centerLatitude, centerLongitude, doShowUnpredictable);
+		} catch (IOException e) {
+			publish(new ProgressMessage(ProgressMessage.TOAST, null, "Error getting route data from database"));
+
+			LogUtil.e(e);
+			
+			return null;
+		}
     }
 	
 	@Override
-	protected void onPostExecute(final Locations busLocationsObject)
+	protected void onPostExecute(final ImmutableList<Location> locations)
 	{
 		try
 		{
-			postExecute(busLocationsObject);
+			postExecute(locations);
 		}
 		catch (Throwable t)
 		{
@@ -375,36 +387,16 @@ public class UpdateAsyncTask extends AsyncTask<Object, Object, Locations>
 		}
 	}
 	
-	private void postExecute(final Locations busLocationsObject)
+	private void postExecute(final ImmutableList<Location> locationsNearCenter)
 	{
-		if (busLocationsObject == null)
+		if (locationsNearCenter == null)
 		{
 			//we probably posted an error message already; just return
 			return;
 		}
 		
-		GeoPoint center = arguments.getMapView().getMapCenter();
-		final double inve6 = Constants.InvE6;
-		final double e6 = Constants.E6;
-		final double latitude = center.getLatitudeE6() * inve6;
-		final double longitude = center.getLongitudeE6() * inve6;
-		
-		
-		final ArrayList<Location> busLocations = new ArrayList<Location>();
-		
-		try
-		{
-			//get bus locations sorted by closest to lat + lon
-			busLocations.addAll(busLocationsObject.getLocations(maxOverlays, latitude, longitude, doShowUnpredictable));
-		}
-		catch (IOException e)
-		{
-			publish(new ProgressMessage(ProgressMessage.TOAST, null, "Error getting route data from database"));
-			return;
-		}
-
 		//if doRefresh is false, we should skip this, it prevents the icons from updating locations
-		if (busLocations.size() == 0 && doRefresh)
+		if (locationsNearCenter.size() == 0 && doRefresh)
 		{
 			//no data? oh well
 			//sometimes the feed provides an empty XML message; completely valid but without any vehicle elements
@@ -424,8 +416,9 @@ public class UpdateAsyncTask extends AsyncTask<Object, Object, Locations>
 		
 		//get a list of lat/lon pairs which describe the route
         Path[] paths;
+		Locations locationsObj = arguments.getBusLocations();
 		try {
-			paths = busLocationsObject.getSelectedPaths();
+			paths = locationsObj.getSelectedPaths();
 		} catch (IOException e) {
 			LogUtil.e(e);
 			paths = RouteConfig.nullPaths;
@@ -438,7 +431,7 @@ public class UpdateAsyncTask extends AsyncTask<Object, Object, Locations>
 			//we want this to be null. Else, the snippet drawing code would only show data for a particular route
 			try {
 				//get the currently drawn route's color
-				RouteConfig route = busLocationsObject.getSelectedRoute();
+				RouteConfig route = locationsObj.getSelectedRoute();
 				String routeName = route != null ? route.getRouteName() : "";
 				routeOverlay.setPathsAndColor(paths, Color.BLUE, routeName);
 
@@ -451,7 +444,7 @@ public class UpdateAsyncTask extends AsyncTask<Object, Object, Locations>
 		else
 		{
 			try {
-				selectedRouteConfig = busLocationsObject.getSelectedRoute();
+				selectedRouteConfig = locationsObj.getSelectedRoute();
 			} catch (IOException e) {
 				LogUtil.e(e);
 				selectedRouteConfig = null;
@@ -471,7 +464,7 @@ public class UpdateAsyncTask extends AsyncTask<Object, Object, Locations>
 		busOverlay.clear();
 		//busOverlay.doPopulate();
 
-		busOverlay.setLocations(busLocationsObject);
+		busOverlay.setLocations(locationsObj);
 		
 		RouteTitles routeKeysToTitles = arguments.getTransitSystem().getRouteKeysToTitles();
 		
@@ -480,12 +473,12 @@ public class UpdateAsyncTask extends AsyncTask<Object, Object, Locations>
 		
 		//draw the buses on the map
 		int newSelectedBusId = selectedBusId;
-		for (int i = 0; i < busLocations.size(); i++)
+		for (int i = 0; i < locationsNearCenter.size(); i++)
 		{
-			Location busLocation = busLocations.get(i);
+			Location busLocation = locationsNearCenter.get(i);
 			
-			final int latInt = (int)(busLocation.getLatitudeAsDegrees() * e6);
-			final int lonInt = (int)(busLocation.getLongitudeAsDegrees() * e6);
+			final int latInt = (int)(busLocation.getLatitudeAsDegrees() * Constants.E6);
+			final int lonInt = (int)(busLocation.getLongitudeAsDegrees() * Constants.E6);
 					
 			//make a hash to easily compare this location's position against others
 			//get around sign extension issues by making them all positive numbers
@@ -497,7 +490,7 @@ public class UpdateAsyncTask extends AsyncTask<Object, Object, Locations>
 			if (null != index)
 			{
 				//two stops in one space. Just use the one overlay, and combine textboxes in an elegant manner
-				Location parent = busLocations.get(index);
+				Location parent = locationsNearCenter.get(index);
 				parent.addToSnippetAndTitle(selectedRouteConfig, busLocation, routeKeysToTitles, context);
 				
 				if (busLocation.getId() == selectedBusId)

@@ -370,4 +370,9 @@ public class CommuterRailTransitSource implements TransitSource {
 		stop.addRoute(route);
 		return stop;
 	}
+
+	@Override
+	public int getLoadOrder() {
+		return 3;
+	}
 }

@@ -25,6 +25,8 @@ import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Map;
+import java.util.SortedMap;
 
 import java.util.HashSet;
 import java.util.List;
@@ -38,6 +40,7 @@ import org.xml.sax.SAXException;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Maps;
 
 
 import android.content.Context;
@@ -116,13 +119,17 @@ public final class Locations
 			*/
 			try
 			{
-				HashSet<TransitSource> systems = new HashSet<TransitSource>();
+				SortedMap<Integer, TransitSource> systems = Maps.newTreeMap();
 				for (String route : routesThatNeedUpdating)
 				{
-					systems.add(transitSystem.getTransitSource(route));
+					TransitSource source = transitSystem.getTransitSource(route);
+					int loadOrder = source.getLoadOrder();
+					if (systems.containsKey(loadOrder) == false) {
+						systems.put(loadOrder, source);
+					}
 				}
 
-				for (TransitSource system : systems)
+				for (TransitSource system : systems.values())
 				{
 					system.initializeAllRoutes(task, context, directions, routeMapping);
 				}
@@ -247,7 +254,7 @@ public final class Locations
 	 * @return
 	 * @throws IOException 
 	 */
-	public List<Location> getLocations(int maxLocations, double centerLatitude, double centerLongitude, 
+	public ImmutableList<Location> getLocations(int maxLocations, double centerLatitude, double centerLongitude, 
 			boolean doShowUnpredictable) throws IOException {
 
 		ArrayList<Location> newLocations = new ArrayList<Location>(maxLocations);
@@ -336,7 +343,7 @@ public final class Locations
 
 		Collections.sort(newLocations, new LocationComparator(centerLatitude, centerLongitude));
 		
-		ArrayList<Location> ret = new ArrayList<Location>(maxLocations);
+		ImmutableList.Builder<Location> ret = ImmutableList.builder();
 		//add the first n-th locations, where n is the maximum number of icons we can display on screen without slowing things down
 		//however, we shouldn't cut two locations off where they would get combined into one icon anyway
 		int count = 0;
@@ -361,7 +368,7 @@ public final class Locations
 			lastLocation = location;
 		}
 		
-		return ret;
+		return ret.build();
 	}
 
 	public void select(String newRoute, int busPredictions) {

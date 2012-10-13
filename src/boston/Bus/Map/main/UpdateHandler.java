@@ -127,8 +127,7 @@ public class UpdateHandler extends Handler {
 					routeToUpdate, selectedBusPredictions, false);
 			
 
-			minorUpdate.runUpdate(guiArguments.getBusLocations(), 
-					centerLatitude, centerLongitude, guiArguments.getContext());
+			minorUpdate.runUpdate(centerLatitude, centerLongitude);
 			
 			break;
 		}		
@@ -182,7 +181,7 @@ public class UpdateHandler extends Handler {
 				getHideHighlightCircle() == false, getInferBusRoutes(),
 				routeToUpdate, selectedBusPredictions, isFirstTime);
 		guiArguments.setMajorHandler(updateAsyncTask);
-		updateAsyncTask.runUpdate(guiArguments.getBusLocations(), centerLatitude, centerLongitude, guiArguments.getContext());
+		updateAsyncTask.runUpdate(centerLatitude, centerLongitude);
 		
 	}
 

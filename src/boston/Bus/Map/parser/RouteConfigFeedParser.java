@@ -34,6 +34,7 @@ import boston.Bus.Map.data.RoutePool;
 import boston.Bus.Map.data.RouteTitles;
 import boston.Bus.Map.data.StopLocation;
 import boston.Bus.Map.database.Schema;
+import boston.Bus.Map.database.Schema.Stops.Bean;
 import boston.Bus.Map.main.UpdateAsyncTask;
 import boston.Bus.Map.provider.DatabaseContentProvider;
 import boston.Bus.Map.provider.DatabaseContentProvider.DatabaseAgent;
@@ -95,13 +96,16 @@ public class RouteConfigFeedParser extends DefaultHandler
 	private final TransitSource transitSource;
 	private String currentDirTag;
 	
-	private final InsertHelper stopInsertHelper;
+	/*private final InsertHelper stopInsertHelper;
 	private final InsertHelper routeInsertHelper;
 	private final InsertHelper stopMappingInsertHelper;
 	private final InsertHelper directionsInsertHelper;
-	private final InsertHelper directionsStopsInsertHelper;
-	
-	private final Context context;
+	private final InsertHelper directionsStopsInsertHelper;*/
+	private final List<Schema.Stops.Bean> stops = Lists.newArrayList();
+	private final List<Schema.Routes.Bean> routes = Lists.newArrayList();
+	private final List<Schema.Stopmapping.Bean> stopmapping = Lists.newArrayList();
+	private final List<Schema.Directions.Bean> directions = Lists.newArrayList();
+	private final List<Schema.DirectionsStops.Bean> directionsStops = Lists.newArrayList();
 	
 	/**
 	 * You must call cleanup() when you are done with this object!
@@ -111,14 +115,6 @@ public class RouteConfigFeedParser extends DefaultHandler
 	public RouteConfigFeedParser(Context context, NextBusTransitSource transitSource)
 	{
 		this.transitSource = transitSource;
-		this.context = context;
-		
-		SQLiteDatabase database = DatabaseHelper.getInstance(context).getWritableDatabase();
-		stopInsertHelper = new InsertHelper(database, Schema.Stops.table);
-		routeInsertHelper = new InsertHelper(database, Schema.Routes.table);
-		stopMappingInsertHelper = new InsertHelper(database, Schema.Stopmapping.table);
-		directionsInsertHelper = new InsertHelper(database, Schema.Directions.table);
-		directionsStopsInsertHelper = new InsertHelper(database, Schema.DirectionsStops.table);
 	}
 
 	public void runParse(InputStream inputStream)  throws ParserConfigurationException, SAXException, IOException
@@ -146,13 +142,12 @@ public class RouteConfigFeedParser extends DefaultHandler
 
 					String title = attributes.getValue(titleKey);
 					
-					Schema.Stops.executeInsertHelper(stopInsertHelper, tag, latitudeAsDegrees, longitudeAsDegrees, title);
-					Schema.Stopmapping.executeInsertHelper(stopMappingInsertHelper,
-							currentRouteTag, tag, attributes.getValue(dirTagKey));
+					stops.add(new Schema.Stops.Bean(tag, latitudeAsDegrees, longitudeAsDegrees, title));
+					stopmapping.add(new Schema.Stopmapping.Bean(currentRouteTag, tag, attributes.getValue(dirTagKey)));
 				}
 				else
 				{
-					Schema.DirectionsStops.executeInsertHelper(directionsStopsInsertHelper, currentDirTag, tag);
+					directionsStops.add(new Schema.DirectionsStops.Bean(currentDirTag, tag));
 				}
 			}
 		}
@@ -168,7 +163,7 @@ public class RouteConfigFeedParser extends DefaultHandler
 				String name = attributes.getValue(nameKey);
 				boolean useForUI = Boolean.getBoolean(attributes.getValue(useForUIKey));
 
-				Schema.Directions.executeInsertHelper(directionsInsertHelper, tag, name, title, currentRouteTag, Schema.toInteger(useForUI));
+				directions.add(new Schema.Directions.Bean(tag, name, title, currentRouteTag, Schema.toInteger(useForUI)));
 			}
 		}
 		else if (routeKey.equals(localName))
@@ -240,7 +235,7 @@ public class RouteConfigFeedParser extends DefaultHandler
 			{
 				Path[] pathblob = currentPaths != null ? currentPaths.toArray(new Path[0]) : null;
 				byte[] blob = DatabaseAgent.pathsToBlob(pathblob);
-				Schema.Routes.executeInsertHelper(routeInsertHelper, currentRouteTag, currentRouteColor, currentRouteOppositeColor, blob, currentRouteTitle);
+				routes.add(new Schema.Routes.Bean(currentRouteTag, currentRouteColor, currentRouteOppositeColor, blob, currentRouteTitle));
 
 				currentRouteTag = null;
 				currentRouteTitle = null;
@@ -265,11 +260,50 @@ public class RouteConfigFeedParser extends DefaultHandler
 		
 	}
 	
-	public void cleanup() {
-		stopInsertHelper.close();
-		routeInsertHelper.close();
-		stopMappingInsertHelper.close();
-		directionsInsertHelper.close();
-		directionsStopsInsertHelper.close();
+	public void writeToDatabase(Context context) {
+		SQLiteDatabase database = null;
+		try
+		{
+			
+			database = DatabaseHelper.getInstance(context).getWritableDatabase();
+			database.beginTransaction();
+			InsertHelper stopInsertHelper = null;
+			InsertHelper routeInsertHelper = null;
+			InsertHelper stopMappingInsertHelper = null;
+			InsertHelper directionsInsertHelper = null;
+			InsertHelper directionsStopsInsertHelper = null;
+			try
+			{
+				stopInsertHelper = new InsertHelper(database, Schema.Stops.table);
+				routeInsertHelper = new InsertHelper(database, Schema.Routes.table);
+				stopMappingInsertHelper = new InsertHelper(database, Schema.Stopmapping.table);
+				directionsInsertHelper = new InsertHelper(database, Schema.Directions.table);
+				directionsStopsInsertHelper = new InsertHelper(database, Schema.DirectionsStops.table);
+
+				Schema.Stops.executeInsertHelper(stopInsertHelper, stops);
+				Schema.Routes.executeInsertHelper(routeInsertHelper, routes);
+				Schema.Stopmapping.executeInsertHelper(stopMappingInsertHelper, stopmapping);
+				Schema.Directions.executeInsertHelper(directionsInsertHelper, directions);
+				Schema.DirectionsStops.executeInsertHelper(directionsStopsInsertHelper, directionsStops);
+				
+				database.setTransactionSuccessful();
+			}
+			finally
+			{
+				database.endTransaction();
+				// todo: check for null
+				stopInsertHelper.close();
+				routeInsertHelper.close();
+				stopMappingInsertHelper.close();
+				directionsInsertHelper.close();
+				directionsStopsInsertHelper.close();
+			}
+		}
+		finally
+		{
+			if (database != null) {
+				database.close();
+			}
+		}
 	}
 }

@@ -864,16 +864,16 @@ public class DatabaseContentProvider extends ContentProvider {
 					return Collections.emptyList();
 				}
 
-				ArrayList<String> stopTags = new ArrayList<String>();
+				ImmutableList.Builder<String> stopTagsBuilder = ImmutableList.builder();
 				while (!cursor.isAfterLast())
 				{
 					String id = cursor.getString(0);
-					stopTags.add(id);
+					stopTagsBuilder.add(id);
 
 					cursor.moveToNext();
 				}
-
-				getStops(resolver, ImmutableList.copyOf(stopTags), transitSystem, sharedStops);
+				ImmutableList<String> stopTags = stopTagsBuilder.build();
+				getStops(resolver, stopTags, transitSystem, sharedStops);
 
 				ImmutableList.Builder<StopLocation> builder = ImmutableList.builder();
 				for (String stopTag : stopTags)

@@ -326,4 +326,10 @@ public class SubwayTransitSource implements TransitSource {
 		stop.addRoute(route);
 		return stop;
 	}
+
+
+	@Override
+	public int getLoadOrder() {
+		return 2;
+	}
 }

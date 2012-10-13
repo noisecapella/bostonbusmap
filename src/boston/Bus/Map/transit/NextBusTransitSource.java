@@ -1,11 +1,14 @@
 package boston.Bus.Map.transit;
 
 import java.io.BufferedInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.logging.FileHandler;
 import java.util.zip.GZIPInputStream;
 
 import javax.xml.parsers.ParserConfigurationException;
@@ -106,14 +109,8 @@ public abstract class NextBusTransitSource implements TransitSource
 
 		RouteConfigFeedParser parser = new RouteConfigFeedParser(context,
 				this);
-		try
-		{
-			parser.runParse(downloadHelper.getResponseData());
-		}
-		finally
-		{
-			parser.cleanup();
-		}
+		parser.runParse(downloadHelper.getResponseData());
+		parser.writeToDatabase(context);
 
 	}
 
@@ -316,17 +313,21 @@ public abstract class NextBusTransitSource implements TransitSource
 				task, contentLength); 
 
 		GZIPInputStream stream = new GZIPInputStream(in); 
-		BufferedInputStream bufferedStream = new BufferedInputStream(stream);
+
+		
+		/*BufferedInputStream bufferedStream = new BufferedInputStream(stream);
 
 		RouteConfigFeedParser parser = new RouteConfigFeedParser(context, this);
-		try
-		{
-			parser.runParse(bufferedStream);
+		parser.runParse(bufferedStream);
+		parser.writeToDatabase(context);*/
+		OutputStream outputStream = new FileOutputStream("/data/data/boston.Bus.Map/databases/bostonBusMap");
+		byte[] buffer = new byte[4096];
+		int read;
+		while ((read = stream.read(buffer)) > 0) {
+			outputStream.write(buffer, 0, read);
 		}
-		finally
-		{
-			parser.cleanup();
-		}
+		stream.close();
+		outputStream.close();
 	}
 
 	/**
@@ -359,5 +360,10 @@ public abstract class NextBusTransitSource implements TransitSource
 	@Override
 	public TransitDrawables getDrawables() {
 		return drawables;
+	}
+	
+	@Override
+	public int getLoadOrder() {
+		return 1;
 	}
 }

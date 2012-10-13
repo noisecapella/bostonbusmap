@@ -49,4 +49,10 @@ public interface TransitSource {
 
 	StopLocation createStop(float latitude, float longitude, String stopTag,
 			String stopTitle, int platformOrder, String branch, String route);
+	
+	/**
+	 * The order in which to load transit sources. Lower numbers go first. Must be unique!
+	 * @return
+	 */
+	int getLoadOrder();
 }
