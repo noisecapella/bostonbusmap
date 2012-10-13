@@ -760,7 +760,7 @@ public class DatabaseContentProvider extends ContentProvider {
 			}
 
 			String thisStopTitleKey = Schema.Stops.table + "." + Schema.Stops.titleColumn;
-			String[] projectionIn = new String[] {thisStopTitleKey, Schema.Stops.table + "." + Schema.Stops.tagColumn, "r1." + Schema.Stops.titleColumn};
+			String[] projectionIn = new String[] {thisStopTitleKey, Schema.Stops.table + "." + Schema.Stops.tagColumn, "r1." + Schema.Routes.routetitleColumn};
 			String select = thisStopTitleKey + " LIKE ?";
 			String[] selectArray = new String[]{"%" + search + "%"};
 
