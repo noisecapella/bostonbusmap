@@ -1,3 +1,5 @@
+import inspect
+
 exampleSql =     """
 CREATE TABLE android_metadata (locale TEXT);
 CREATE TABLE directions (dirTag STRING PRIMARY KEY, dirNameKey STRING, dirTitleKey STRING, dirRouteKey STRING, useAsUI INTEGER);
@@ -24,12 +26,12 @@ schema = {"directions" : {"columns":[
             {"tag": "route", "type" : "String"},
             {"tag": "color", "type": "int"},
             {"tag": "oppositecolor", "type": "int"},
-            {"tag": "pathblob", "type": "byte[]"},
+            {"tag": "pathblob", "type": "byte[]", "canbenull" : "true"},
             {"tag": "routetitle", "type": "String"}], "primaryKeys" : ["route"]},
           "stopmapping" : {"columns":[
             {"tag": "route", "type": "String"},
             {"tag": "tag", "type": "String"},
-            {"tag": "dirTag", "type": "String"}], "primaryKeys" : ["route", "tag"]},
+            {"tag": "dirTag", "type": "String", "canbenull" : "true"}], "primaryKeys" : ["route", "tag"]},
           "stops" : {"columns":[
             {"tag": "tag", "type": "String"},
             {"tag": "lat", "type": "float"},
@@ -48,23 +50,31 @@ class Table:
         self.primaryKeys = primaryKeys
         self.arguments = []
 
+    def create(self):
+        createParams = ", ".join(getattr(self, column["tag"]).sqlForColumn(self.primaryKeys) for column in self.arguments)
+        if len(self.primaryKeys) > 1:
+            createParams += ", PRIMARY KEY (" + ", ".join(self.primaryKeys) + ")"
+        return "CREATE TABLE IF NOT EXISTS " + self.name + " (" + createParams + ")"
+
     def insert(self):
         print "INSERT INTO " + self.name + " VALUES (",
-        print ", ".join(getattr(self, argument["tag"]).insert() for argument in self.arguments)
+        print ", ".join(getattr(self, argument["tag"]).insert() for argument in self.arguments),
+        print ");"
 
 class Column:
     value = None
-    def __init__(self, name, type):
+    def __init__(self, name, type, canbenull):
         self.name = name
-        self.type = type
-        self.canbenull = False
+        self.data_type = type
+        self.canbenull = canbenull.lower() == "true"
+
     def sqlForColumn(self, primaryKeys):
         type = "STRING"
-        if self.type == "float":
+        if self.data_type == "float":
             type = "FLOAT"
-        elif self.type == "byte[]":
+        elif self.data_type == "byte[]":
             type = "BLOB"
-        elif self.type == "int":
+        elif self.data_type == "int":
             type = "INTEGER"
         s = self.name + " " + type
 
@@ -73,16 +83,16 @@ class Column:
         return s
     def insert(self):
         value = self.value
-        if not value:
+        if value is None:
             if self.canbenull:
                 value = "NULL"
             else:
-                raise "WRONG"
-        if self.type == "STRING":
+                raise Exception("value is null but shouldn't be: " + repr(inspect.getmembers(self)))
+        elif self.data_type == "String":
             value = "\"" + self.value.replace("\"", "\\\"") + "\""
 
         self.value = None
-        return value
+        return str(value)
 
 
 def getSchemaAsObject():
@@ -90,7 +100,10 @@ def getSchemaAsObject():
     for tableName, table in schema.iteritems():
         newTable = Table(tableName, table["primaryKeys"])
         for column in table["columns"]:
-            setattr(newTable, column["tag"], Column(column["tag"], column["type"]))
+            canbenull = "false"
+            if "canbenull" in column:
+                canbenull = column["canbenull"]
+            setattr(newTable, column["tag"], Column(column["tag"], column["type"], canbenull))
             newTable.arguments += [column]
         setattr(ret, tableName, newTable)
     return ret

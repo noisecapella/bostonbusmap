@@ -33,12 +33,12 @@ class ToSql(xml.sax.handler.ContentHandler):
             route = attributes["tag"]
             self.currentRoute = route
             table.routes.route.value = attributes["tag"]
-            if route in routeKeysToTitles:
-                table.routes.routetitle.value = routeKeysForTitles[route]
+            if route in self.routeKeysToTitles:
+                table.routes.routetitle.value = self.routeKeysToTitles[route]
             else:
                 table.routes.routetitle.value = route
-            table.routes.color.value = attributes["color"]
-            table.routes.oppositecolor.value = attributes["oppositeColor"]
+            table.routes.color.value = int(attributes["color"], 16)
+            table.routes.oppositecolor.value = int(attributes["oppositeColor"], 16)
             table.routes.insert()
 
         elif name == "stop":
@@ -51,6 +51,10 @@ class ToSql(xml.sax.handler.ContentHandler):
                     table.stops.lon.value = attributes["lon"]
                     table.stops.title.value = attributes["title"]
                     table.stops.insert()
+                table.stopmapping.route.value = self.currentRoute
+                table.stopmapping.tag.value = tag
+                table.stopmapping.dirTag.value = None
+                table.stopmapping.insert()
             else:
                 table.directionsStops.dirTag.value = self.currentDirection
                 table.directionsStops.tag.value = tag
@@ -67,7 +71,7 @@ class ToSql(xml.sax.handler.ContentHandler):
                 table.directions.useAsUI.value = self.getIntFromBool(attributes["useForUI"])
                 table.directions.insert()
             
-    def getIntFromBool(boolString):
+    def getIntFromBool(self, boolString):
         if boolString.lower() == "true":
             return 1
         else:
@@ -90,9 +94,9 @@ if __name__ == "__main__":
     routeTitleParser.setContentHandler(routeHandler)
     routeTitleParser.parse(sys.argv[2])
         
-    #print "BEGIN TRANSACTION;"
+    print "BEGIN TRANSACTION;"
     parser = xml.sax.make_parser()
-    handler = ToSql(routeTitleParser)
+    handler = ToSql(routeHandler.mapping)
     parser.setContentHandler(handler)
     parser.parse(sys.argv[1])
-    #print "END TRANSACTION;"
+    print "END TRANSACTION;"

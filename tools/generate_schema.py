@@ -26,10 +26,7 @@ def writeTable(table):
         print indent2 + "public static final String " + column["tag"] + "Column = \"" + column["tag"] + "\";"
     print
 
-    createParams = ", ".join(getattr(table, column["tag"]).sqlForColumn(table.primaryKeys) for column in columns)
-    if len(table.primaryKeys) > 1:
-        createParams += ", PRIMARY KEY (" + ", ".join(table.primaryKeys) + ")"
-    print indent2 + "public static final String createSql = \"CREATE TABLE IF NOT EXISTS " + tableName + " (" + createParams + ")\";"
+    print indent2 + "public static final String createSql = \"" + table.create() + "\";"
 
     params = ", ".join((column["type"] + " " + column["tag"]) for column in columns)
 
