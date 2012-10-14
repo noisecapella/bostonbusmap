@@ -185,7 +185,7 @@ public class RoutePool extends Pool<String, RouteConfig> {
 		return favoriteStops.contains(location.getStopTag());
 	}
 	
-	public int setFavorite(StopLocation location, boolean isFavorite) throws RemoteException, OperationApplicationException {
+	public int setFavorite(StopLocation location, boolean isFavorite) throws RemoteException {
 		Collection<String> stopTags = DatabaseAgent.getAllStopTagsAtLocation(context.getContentResolver(), location.getStopTag());
 
 		DatabaseAgent.saveFavorite(context.getContentResolver(), location.getStopTag(), stopTags, isFavorite);

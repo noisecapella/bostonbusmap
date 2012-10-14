@@ -473,6 +473,7 @@ public class UpdateAsyncTask extends AsyncTask<Double, Object, ImmutableList<Loc
 		
 		//draw the buses on the map
 		int newSelectedBusId = selectedBusId;
+		List<Location> busesToDisplay = Lists.newArrayList();
 		for (int i = 0; i < locationsNearCenter.size(); i++)
 		{
 			Location busLocation = locationsNearCenter.get(i);
@@ -507,8 +508,13 @@ public class UpdateAsyncTask extends AsyncTask<Double, Object, ImmutableList<Loc
 				points.put(hash, i);
 		
 				//the title is displayed when someone taps on the icon
-				busOverlay.addLocation(busLocation);
+				busesToDisplay.add(busLocation);
 			}
+		}
+		for (Location location : busesToDisplay) {
+			// we need to do this here because addLocation creates PredictionViews, which needs
+			// to happen after makeSnippetAndTitle and addToSnippetAndTitle
+			busOverlay.addLocation(location);
 		}
 		busOverlay.setSelectedBusId(newSelectedBusId);
 		//busOverlay.refreshBalloons();

@@ -365,8 +365,7 @@ public class BusOverlay extends BalloonItemizedOverlay<BusOverlayItem> {
 		else
 		{
 			BusPopupView view = (BusPopupView)getBalloonView();
-			boolean isVisible = location instanceof StopLocation;
-			view.setState(location.isFavorite(), isVisible, isVisible, location);
+			view.setState(location);
 			//setLastFocusedIndex(index);
 			setFocus(createItem(index));
 		}

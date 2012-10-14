@@ -437,7 +437,7 @@ public class DatabaseContentProvider extends ContentProvider {
 			}
 		}
 
-		private static void storeFavorite(ContentResolver resolver, Collection<String> stopTags) throws RemoteException, OperationApplicationException
+		private static void storeFavorite(ContentResolver resolver, Collection<String> stopTags) throws RemoteException
 		{
 			if (stopTags == null || stopTags.size() == 0)
 			{
@@ -457,7 +457,7 @@ public class DatabaseContentProvider extends ContentProvider {
 
 
 		public static void saveFavorite(ContentResolver resolver, 
-				String stopTag, Collection<String> stopTags, boolean isFavorite) throws RemoteException, OperationApplicationException {
+				String stopTag, Collection<String> stopTags, boolean isFavorite) throws RemoteException {
 			if (isFavorite)
 			{
 				storeFavorite(resolver, stopTags);

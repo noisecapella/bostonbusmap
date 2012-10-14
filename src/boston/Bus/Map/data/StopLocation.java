@@ -344,4 +344,14 @@ public class StopLocation implements Location
 	public void addRoute(String route) {
 		routes.addRoute(route);
 	}
+
+	@Override
+	public boolean hasMoreInfo() {
+		return true;
+	}
+
+	@Override
+	public boolean hasFavorite() {
+		return true;
+	}
 }

@@ -116,8 +116,6 @@ public class BusPopupView extends BalloonOverlayView<BusOverlayItem>
 						favorite.setBackgroundResource(result);
 					} catch (RemoteException e) {
 						LogUtil.e(e);
-					} catch (OperationApplicationException e) {
-						LogUtil.e(e);
 					}
 				}
 			}
@@ -332,13 +330,41 @@ public class BusPopupView extends BalloonOverlayView<BusOverlayItem>
 		return otherText.toString();
 	}
 
+	private void updateUIFromState(Location location) {
+		//TODO: figure out a more elegant way to make the layout use these items even if they're invisible
+		if (location.hasFavorite())
+		{
+			favorite.setBackgroundResource(location.isFavorite() ? boston.Bus.Map.R.drawable.full_star : R.drawable.empty_star);
+		}
+		else
+		{
+			favorite.setBackgroundResource(boston.Bus.Map.R.drawable.null_star);
+		}
+		
+		if (location.hasMoreInfo())
+		{
+			moreInfo.setText(moreInfoText);
+		}
+		else
+		{
+			moreInfo.setText("");
+		}
+		
+		if (location.hasReportProblem()) {
+			reportProblem.setText(reportProblemText);
+		}
+		else
+		{
+			reportProblem.setText("");
+		}
+	}
+	
 	@Override
 	public void setData(BusOverlayItem item) {
 		super.setData(item);
 		
 		//NOTE: originally this was going to be an actual link, but we can't click it on the popup except through its onclick listener
-		moreInfo.setText(moreInfoText);
-		reportProblem.setText(reportProblemText);
+		updateUIFromState(item.getCurrentLocation());
 		Alert[] alerts = item.getAlerts();
 		alertsList = alerts;
 		
@@ -368,29 +394,11 @@ public class BusPopupView extends BalloonOverlayView<BusOverlayItem>
 		}
 	}
 	
-	public void setState(boolean isFavorite, boolean favoriteVisible, boolean moreInfoVisible,
-			Location location)
+	public void setState(Location location)
 	{
-		//TODO: figure out a more elegant way to make the layout use these items even if they're invisible
-		if (favoriteVisible)
-		{
-			favorite.setBackgroundResource(isFavorite ? boston.Bus.Map.R.drawable.full_star : R.drawable.empty_star);
-		}
-		else
-		{
-			favorite.setBackgroundResource(boston.Bus.Map.R.drawable.null_star);
-		}
-		
-		if (moreInfoVisible)
-		{
-			moreInfo.setText(moreInfoText);
-		}
-		else
-		{
-			moreInfo.setText("");
-		}
-		
 		this.location = location;
+		
+		updateUIFromState(location);
 	}
 
 }

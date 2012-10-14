@@ -59,4 +59,10 @@ public interface Location {
 	boolean containsId(int selectedBusId);
 	
 	PredictionView getPredictionView();
+
+	boolean hasMoreInfo();
+	
+	boolean hasFavorite();
+
+	boolean hasReportProblem();
 }

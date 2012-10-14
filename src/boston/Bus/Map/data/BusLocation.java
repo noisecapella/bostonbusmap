@@ -416,4 +416,14 @@ public class BusLocation implements Location {
 	public PredictionView getPredictionView() {
 		return predictionView;
 	}
+
+	@Override
+	public boolean hasMoreInfo() {
+		return false;
+	}
+
+	@Override
+	public boolean hasFavorite() {
+		return false;
+	}
 }

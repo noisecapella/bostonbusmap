@@ -399,7 +399,7 @@ public final class Locations
 		return routeMapping.get(selectedRoute);
 	}
 	
-	public int toggleFavorite(StopLocation location) throws RemoteException, OperationApplicationException
+	public int toggleFavorite(StopLocation location) throws RemoteException
 	{
 		boolean isFavorite = routeMapping.isFavorite(location);
 		return routeMapping.setFavorite(location, !isFavorite);
