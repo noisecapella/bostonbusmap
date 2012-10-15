@@ -217,7 +217,7 @@ public class BusOverlay extends BalloonItemizedOverlay<BusOverlayItem> {
 		locationsObj = null;
 
 	}
-
+	
 	@Override
 	public void draw(Canvas canvas, MapView mapView, boolean shadow)
 	{
@@ -263,6 +263,7 @@ public class BusOverlay extends BalloonItemizedOverlay<BusOverlayItem> {
 
 			canvas.drawCircle(circleCenterX, circleCenterY, radius, paint);
 		}
+		
 		super.draw(canvas, mapView, shadow);
 	}
 
@@ -296,7 +297,6 @@ public class BusOverlay extends BalloonItemizedOverlay<BusOverlayItem> {
 		{
 			hideBalloon();
 			setFocus(null);
-			populate();
 		}
 		else
 		{
@@ -318,7 +318,6 @@ public class BusOverlay extends BalloonItemizedOverlay<BusOverlayItem> {
 					Log.e("BostonBusMap", "selectedBusId was set to index " + i + ", id=" + selectedBusId);
 					selectedBusIndex = i;
 					setFocus(createItem(i));
-					populate();
 					break;
 				}
 			}
@@ -363,7 +362,6 @@ public class BusOverlay extends BalloonItemizedOverlay<BusOverlayItem> {
 			view.setState(location);
 			//setLastFocusedIndex(index);
 			setFocus(createItem(index));
-			populate();
 		}
 
 		//updateAllBoundCenterBottom(index);
