@@ -662,7 +662,7 @@ public class Main extends MapActivity
     		
     		break;
     		
-    	case R.id.getDirectionsMenuItem:
+    	/*case R.id.getDirectionsMenuItem:
     		{
     			// this activity starts with an Intent with an empty Bundle, which indicates
     			// all fields are blank
@@ -670,7 +670,7 @@ public class Main extends MapActivity
     		}
     		
     		break;
-    		
+    		*/
     	case R.id.chooseStop:
     		if (arguments != null)
     		{
