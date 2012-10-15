@@ -426,4 +426,9 @@ public class BusLocation implements Location {
 	public boolean hasFavorite() {
 		return false;
 	}
+
+	@Override
+	public boolean hasReportProblem() {
+		return true;
+	}
 }

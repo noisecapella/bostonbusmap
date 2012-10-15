@@ -354,4 +354,9 @@ public class StopLocation implements Location
 	public boolean hasFavorite() {
 		return true;
 	}
+
+	@Override
+	public boolean hasReportProblem() {
+		return true;
+	}
 }

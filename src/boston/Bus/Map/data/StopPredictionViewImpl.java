@@ -11,6 +11,7 @@ import com.google.common.base.Joiner;
 import com.google.common.collect.Collections2;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 
 /**
  * Immutable view of prediction information, for sharing between threads
@@ -31,16 +32,17 @@ public class StopPredictionViewImpl extends StopPredictionView {
 	 * because Parcelables use arrays when transferring data
 	 * @param routes
 	 * @param stops
-	 * @param predictions
+	 * @param predictions. This should be sorted
 	 * @param ifOnlyOneRoute
 	 * @param routeKeysToTitles
 	 * @param context
 	 * @param alerts
 	 */
 	public StopPredictionViewImpl(SortedSet<String> routes, Collection<StopLocation> stops,
-			Collection<Prediction> predictions, RouteConfig ifOnlyOneRoute,
+			SortedSet<Prediction> predictions, RouteConfig ifOnlyOneRoute,
 			RouteTitles routeKeysToTitles, Context context, Set<Alert> alerts) {
-		Collection<String> titles = Collections2.transform(stops, StopLocation.getStopTitleFunction);
+		Set<String> titles = Sets.newTreeSet(Collections2.transform(stops, StopLocation.getStopTitleFunction));
+		
 
 		boolean isBeta = false;
 		for (StopLocation stop : stops) {
