@@ -50,8 +50,8 @@ schema = {"directions" : {"columns":[
 class Tables:
     pass
 class Table:
-    def __init__(self, name, primaryKeys):
-        self.name = name
+    def __init__(self, tablename, primaryKeys):
+        self.tablename = tablename
         self.primaryKeys = primaryKeys
         self.arguments = []
 
@@ -59,17 +59,17 @@ class Table:
         createParams = ", ".join(getattr(self, column["tag"]).sqlForColumn(self.primaryKeys) for column in self.arguments)
         if len(self.primaryKeys) > 1:
             createParams += ", PRIMARY KEY (" + ", ".join(self.primaryKeys) + ")"
-        return "CREATE TABLE IF NOT EXISTS " + self.name + " (" + createParams + ")"
+        return "CREATE TABLE IF NOT EXISTS " + self.tablename + " (" + createParams + ")"
 
     def insert(self):
-        print "INSERT INTO " + self.name + " VALUES (",
+        print "INSERT INTO " + self.tablename + " VALUES (",
         print ", ".join(getattr(self, argument["tag"]).insert() for argument in self.arguments),
         print ");"
 
 class Column:
     value = None
-    def __init__(self, name, type, canbenull):
-        self.name = name
+    def __init__(self, column_name, type, canbenull):
+        self.column_name = column_name
         self.data_type = type
         self.canbenull = canbenull.lower() == "true"
 
@@ -81,9 +81,9 @@ class Column:
             type = "BLOB"
         elif self.data_type == "int":
             type = "INTEGER"
-        s = self.name + " " + type
+        s = self.column_name + " " + type
 
-        if self.name in primaryKeys and len(primaryKeys) == 1:
+        if self.column_name in primaryKeys and len(primaryKeys) == 1:
             s += " PRIMARY KEY"
         return s
     def insert(self):

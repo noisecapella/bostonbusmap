@@ -9,7 +9,7 @@ def capitalizeFirst(s):
     return s[0].upper() + s[1:]
 
 def writeTable(table):
-    tableName = table.name
+    tableName = table.tablename
     print indent + "public static class %s {" % (capitalizeFirst(tableName),)
     print indent2 + "public static final String table = \"%s\"; "%(tableName,)
     print indent2 + "public static final String[] columns = new String[] {"
@@ -68,8 +68,15 @@ import java.util.Collection;
 public class Schema {
     public static final String dbName = "bostonBusMap";
 
+    private static final int INT_TRUE = 1;
+    private static final int INT_FALSE = 0;
+
     public static int toInteger(boolean b) {
-        return b ? 1 : 0;
+        return b ? INT_TRUE : INT_FALSE;
+    }
+
+    public static boolean fromInteger(int i) {
+        return i == INT_TRUE;
     }
 
 """
