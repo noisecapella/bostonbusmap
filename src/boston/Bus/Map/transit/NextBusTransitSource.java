@@ -129,6 +129,7 @@ public abstract class NextBusTransitSource implements TransitSource
 		case  Main.BUS_PREDICTIONS_ONE:
 		case  Main.BUS_PREDICTIONS_STAR:
 		case  Main.BUS_PREDICTIONS_ALL:
+		case  Main.BUS_PREDICTIONS_INTERSECT:
 		{
 
 			routePool.clearRecentlyUpdated();

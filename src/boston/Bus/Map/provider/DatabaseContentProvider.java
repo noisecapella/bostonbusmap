@@ -853,7 +853,7 @@ public class DatabaseContentProvider extends ContentProvider {
 			String[] projectionIn = new String[] {Schema.Stops.tagColumn, distanceKey};
 			int currentLatAsInt = (int)(currentLat * Constants.E6);
 			int currentLonAsInt = (int)(currentLon * Constants.E6);
-			Uri uri = appendUris(STOPS_WITH_DISTANCE_URI, currentLatAsInt, currentLonAsInt, limit);
+			Uri uri = appendUris(STOPS_WITH_DISTANCE_URI, currentLatAsInt, currentLonAsInt, limit, havingRoutes);
 
 			Cursor cursor = null;
 			try

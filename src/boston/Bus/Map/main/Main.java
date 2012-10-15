@@ -187,6 +187,7 @@ public class Main extends MapActivity
 	public static final int VEHICLE_LOCATIONS_ONE = 3;
 	public static final int BUS_PREDICTIONS_ALL = 4;
 	public static final int BUS_PREDICTIONS_STAR = 5;
+	public static final int BUS_PREDICTIONS_INTERSECT = 6;
 	
 	public static final int UPDATE_INTERVAL_INVALID = 9999;
 	public static final int UPDATE_INTERVAL_SHORT = 15;
@@ -196,16 +197,20 @@ public class Main extends MapActivity
 	
 	public static final int[] modesSupported = new int[]{
 		VEHICLE_LOCATIONS_ALL, VEHICLE_LOCATIONS_ONE, BUS_PREDICTIONS_ALL, 
-		BUS_PREDICTIONS_ONE, BUS_PREDICTIONS_STAR
+		BUS_PREDICTIONS_ONE, BUS_PREDICTIONS_STAR, BUS_PREDICTIONS_INTERSECT
 	};
 	
 	public static final int[] modeIconsSupported = new int[]{
-		R.drawable.bus_all, R.drawable.bus_one, R.drawable.busstop_all, R.drawable.busstop_one, R.drawable.busstop_star,
+		R.drawable.bus_all, R.drawable.bus_one, R.drawable.busstop_all, R.drawable.busstop_one, 
+		R.drawable.busstop_star, R.drawable.busstop_star
 		
 	};
 	
 	public static final int[] modeTextSupported = new int[]{
-		R.string.all_buses, R.string.vehicles_on_one_route, R.string.stops_and_predictions_on_all_routes, R.string.stops_and_predictions_on_one_route, R.string.favorite_stops,
+		R.string.all_buses, R.string.vehicles_on_one_route, 
+		R.string.stops_and_predictions_on_all_routes,
+		R.string.stops_and_predictions_on_one_route, R.string.favorite_stops,
+		R.string.intersection_stops
 		
 	};
 	

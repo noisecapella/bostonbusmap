@@ -40,7 +40,12 @@ schema = {"directions" : {"columns":[
           "subway" : {"columns":[
             {"tag": "tag", "type": "String"},
             {"tag": "platformorder", "type": "int"},
-            {"tag": "branch", "type": "String"}], "primaryKeys" : ["tag"]}}
+            {"tag": "branch", "type": "String"}], "primaryKeys" : ["tag"]},
+          "locations" : {"columns":[
+            {"tag" : "lat", "type" : "float"},
+            {"tag" : "lon", "type" : "float"},
+            {"tag" : "name", "type" : "String"}], "primaryKeys" : ["name"]}
+          }
 
 class Tables:
     pass

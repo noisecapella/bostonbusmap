@@ -5,6 +5,7 @@ import java.util.AbstractCollection;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -14,6 +15,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.CopyOnWriteArraySet;
 
+import com.google.android.maps.GeoPoint;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
@@ -40,7 +42,7 @@ public class RoutePool extends Pool<String, RouteConfig> {
 	private final CopyOnWriteArraySet<String> favoriteStops = Sets.newCopyOnWriteArraySet();
 	private final TransitSystem transitSystem;
 	
-	
+	private GeoPoint intersectPoint;
 	
 	public RoutePool(Context context, TransitSystem transitSystem) {
 		super(50);
@@ -49,6 +51,8 @@ public class RoutePool extends Pool<String, RouteConfig> {
 		this.transitSystem = transitSystem;
 		
 		populateFavorites(false);
+		
+		intersectPoint = new GeoPoint(TransitSystem.getCenterLatAsInt(), TransitSystem.getCenterLonAsInt());
 	}
 	
 	public void saveFavoritesToDatabase() throws RemoteException, OperationApplicationException
@@ -232,16 +236,20 @@ public class RoutePool extends Pool<String, RouteConfig> {
 	}
 	
 	public Collection<StopLocation> getClosestStops(double centerLatitude,
-			double centerLongitude, int maxStops)
+			double centerLongitude, int maxStops, Collection<String> routes)
 	{
 		return DatabaseAgent.getClosestStops(context.getContentResolver(), 
-				centerLatitude, centerLongitude, transitSystem, sharedStops, maxStops);
+				centerLatitude, centerLongitude, transitSystem, sharedStops, maxStops, routes);
 
 	}
 
 	public ArrayList<StopLocation> getStopsByDirtag(String dirTag) {
 		return DatabaseAgent.getStopsByDirtag(context.getContentResolver(), 
 				dirTag, transitSystem);
+	}
+
+	public List<IntersectionLocation> getIntersectPoints() {
+		return intersectPoints;
 	}
 
 }

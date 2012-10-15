@@ -26,6 +26,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
+import java.util.Set;
 import java.util.SortedMap;
 
 import java.util.HashSet;
@@ -38,9 +39,11 @@ import javax.xml.parsers.ParserConfigurationException;
 
 import org.xml.sax.SAXException;
 
+import com.google.android.maps.GeoPoint;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 
 
 import android.content.Context;
@@ -55,6 +58,7 @@ import boston.Bus.Map.main.UpdateAsyncTask;
 import boston.Bus.Map.transit.TransitSource;
 import boston.Bus.Map.transit.TransitSystem;
 import boston.Bus.Map.ui.ProgressMessage;
+import boston.Bus.Map.util.Constants;
 import boston.Bus.Map.util.FeedException;
 import boston.Bus.Map.util.LogUtil;
 import boston.Bus.Map.util.StreamCounter;
@@ -200,6 +204,7 @@ public final class Locations
 		{
 		case Main.BUS_PREDICTIONS_STAR:
 		case Main.VEHICLE_LOCATIONS_ALL:
+		case Main.BUS_PREDICTIONS_INTERSECT:
 			//get data from many transit sources
 			transitSystem.refreshData(routeConfig, selectedBusPredictions, maxStops, centerLatitude,
 					centerLongitude, busMapping, selectedRoute, routeMapping, directions, this);
@@ -316,7 +321,9 @@ public final class Locations
 		}
 		else if (selectedBusPredictions == Main.BUS_PREDICTIONS_ALL)
 		{
-			Collection<StopLocation> stops = routeMapping.getClosestStops(centerLatitude, centerLongitude, maxLocations);
+			Collection<String> emptySet = Collections.emptySet();
+			Collection<StopLocation> stops = routeMapping.getClosestStops(centerLatitude, centerLongitude, maxLocations,
+					emptySet);
 			for (StopLocation stop : stops)
 			{
 				if (!(stop instanceof SubwayStopLocation))
@@ -333,6 +340,20 @@ public final class Locations
 				newLocations.add(stopLocation);
 				locationKeys.add(stopLocation.getId());
 			}
+		}
+		else if (selectedBusPredictions == Main.BUS_PREDICTIONS_INTERSECT) {
+			List<IntersectionLocation> intersects = routeMapping.getIntersectPoints();
+			
+			//TODO: do this all in the database
+			final int maxStopsNearIntersect = 10;
+			Set<String> routeTags = Sets.newHashSet();
+			for (IntersectionLocation intersectionLocation : intersects) {
+				routeTags.addAll(intersectionLocation.getNearbyRoutes());
+			}
+			
+			Collection<StopLocation> centerStops = routeMapping.getClosestStops(centerLatitude,
+					centerLongitude, maxLocations, routeTags);
+			
 		}
 		
 		if (maxLocations > newLocations.size())

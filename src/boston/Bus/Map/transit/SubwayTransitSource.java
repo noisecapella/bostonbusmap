@@ -126,6 +126,7 @@ public class SubwayTransitSource implements TransitSource {
 		case Main.BUS_PREDICTIONS_ALL:
 		case Main.VEHICLE_LOCATIONS_ALL:
 		case Main.BUS_PREDICTIONS_STAR:
+		case Main.BUS_PREDICTIONS_INTERSECT:
 		{
 			List<Location> locations = locationsObj.getLocations(maxStops, centerLatitude, centerLongitude, false);
 			
@@ -198,7 +199,7 @@ public class SubwayTransitSource implements TransitSource {
 		}
 		else
 		{
-			if (mode == Main.BUS_PREDICTIONS_STAR)
+			if (mode == Main.BUS_PREDICTIONS_STAR || mode == Main.BUS_PREDICTIONS_INTERSECT)
 			{
 				//ok, let's look at the locations and see what we can get
 				for (Location location : locations)

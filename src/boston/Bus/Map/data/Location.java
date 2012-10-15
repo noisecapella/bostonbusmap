@@ -30,7 +30,7 @@ public interface Location {
 	/**
 	 * @param lat2 latitude in radians
 	 * @param lon2 longitude in radians
-	 * @return distance in miles
+	 * @return compare distance, not necessarily any particular unit
 	 */
 	float distanceFrom(double centerLatitudeAsRadians, double centerLongitudeAsRadians);
 

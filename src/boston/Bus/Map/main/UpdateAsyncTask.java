@@ -426,7 +426,8 @@ public class UpdateAsyncTask extends AsyncTask<Double, Object, ImmutableList<Loc
 		
 		RouteConfig selectedRouteConfig;
 		if (selectedBusPredictions == Main.BUS_PREDICTIONS_STAR || 
-				selectedBusPredictions == Main.BUS_PREDICTIONS_ALL)
+				selectedBusPredictions == Main.BUS_PREDICTIONS_ALL ||
+				selectedBusPredictions == Main.BUS_PREDICTIONS_INTERSECT)
 		{
 			//we want this to be null. Else, the snippet drawing code would only show data for a particular route
 			try {
