@@ -18,6 +18,7 @@ import org.xml.sax.SAXException;
 
 import com.google.common.collect.ImmutableBiMap;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.io.ByteStreams;
 
 import android.content.Context;
 import android.content.OperationApplicationException;
@@ -32,6 +33,7 @@ import boston.Bus.Map.data.RouteTitles;
 import boston.Bus.Map.data.StopLocation;
 import boston.Bus.Map.data.SubwayStopLocation;
 import boston.Bus.Map.data.TransitDrawables;
+import boston.Bus.Map.database.Schema;
 import boston.Bus.Map.main.Main;
 import boston.Bus.Map.main.UpdateAsyncTask;
 import boston.Bus.Map.parser.BusPredictionsFeedParser;
@@ -314,20 +316,17 @@ public abstract class NextBusTransitSource implements TransitSource
 
 		GZIPInputStream stream = new GZIPInputStream(in); 
 
-		
-		/*BufferedInputStream bufferedStream = new BufferedInputStream(stream);
-
-		RouteConfigFeedParser parser = new RouteConfigFeedParser(context, this);
-		parser.runParse(bufferedStream);
-		parser.writeToDatabase(context);*/
-		OutputStream outputStream = new FileOutputStream("/data/data/boston.Bus.Map/databases/bostonBusMap");
-		byte[] buffer = new byte[4096];
-		int read;
-		while ((read = stream.read(buffer)) > 0) {
-			outputStream.write(buffer, 0, read);
+		// overwrite database with prepopulated database
+		OutputStream outputStream = new FileOutputStream(context.getDatabasePath(Schema.dbName));
+		try
+		{
+			ByteStreams.copy(stream, outputStream);
 		}
-		stream.close();
-		outputStream.close();
+		finally
+		{
+			stream.close();
+			outputStream.close();
+		}
 	}
 
 	/**
