@@ -65,6 +65,7 @@ Are any enabled (like GPS) in your system settings?</string>
     <string name="chooseAStop">Pick a stop</string>
     <string name="startingPoint">Starting point</string>
     <string name="endingPoint">Ending point</string>
+    <string name="intersection_stops">Stops and predictions that\ncross through a point on the map</string>
 <string name="alertsData">Fairmount,1\n
 Fitchburg/South Acton,2\n
 Framingham/Worcester,4\n
