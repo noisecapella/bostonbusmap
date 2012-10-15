@@ -1,6 +1,8 @@
 package boston.Bus.Map.provider;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -14,6 +16,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.CopyOnWriteArraySet;
 
+import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
@@ -21,6 +24,7 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 
 import boston.Bus.Map.data.Direction;
+import boston.Bus.Map.data.IntersectionLocation;
 import boston.Bus.Map.data.Path;
 import boston.Bus.Map.data.RouteConfig;
 import boston.Bus.Map.data.RouteTitles;
@@ -36,6 +40,7 @@ import boston.Bus.Map.ui.ProgressMessage;
 import boston.Bus.Map.util.Box;
 import boston.Bus.Map.util.Constants;
 import boston.Bus.Map.util.IBox;
+import boston.Bus.Map.util.LogUtil;
 import android.app.SearchManager;
 import android.content.ContentProvider;
 import android.content.ContentProviderOperation;
@@ -113,6 +118,10 @@ public class DatabaseContentProvider extends ContentProvider {
 	private static final String SUBWAY_STOPS_TYPE = "vnd.android.cursor.dir/vnd.bostonbusmap.subway_stop";
 	public static final Uri SUBWAY_STOPS_URI = Uri.parse("content://" + AUTHORITY + "/subway_stops");
 	private static final int SUBWAY_STOPS = 13;
+	
+	private static final String LOCATIONS_TYPE = "vnd.android.cursor.dir/vnd.bostonbusmap.location";
+	public static final Uri LOCATIONS_URI = Uri.parse("content://" + AUTHORITY + "/locations");
+	private static final int LOCATIONS = 14;
 
 	private final static String stopsRoutesMapIndexTag = "IDX_stopmapping";
 	private final static String stopsRoutesMapIndexRoute = "IDX_routemapping";
@@ -157,9 +166,6 @@ public class DatabaseContentProvider extends ContentProvider {
 	public static final int ALWAYS_POPULATE = 3;
 	public static final int POPULATE_IF_UPGRADE = 2;
 	public static final int MAYBE = 1;
-
-	public static final int INT_TRUE = 1;
-	public static final int INT_FALSE = 0;
 
 	/**
 	 * Handles the database which stores route information
@@ -212,6 +218,8 @@ public class DatabaseContentProvider extends ContentProvider {
 			db.execSQL(Schema.Subway.createSql);
 
 			db.execSQL(Schema.DirectionsStops.createSql);
+			
+			db.execSQL(Schema.Locations.createSql);
 
 			db.execSQL("CREATE INDEX IF NOT EXISTS " + stopsRoutesMapIndexRoute + " ON " + Schema.Stopmapping.table + " (" + Schema.Stopmapping.routeColumn + ")");
 			db.execSQL("CREATE INDEX IF NOT EXISTS " + stopsRoutesMapIndexTag + " ON " + Schema.Stopmapping.table + " (" + Schema.Stopmapping.tagColumn + ")");
@@ -634,7 +642,7 @@ public class DatabaseContentProvider extends ContentProvider {
 					String dirName = cursor.getString(1);
 					String dirTitle = cursor.getString(2);
 					String dirRoute = cursor.getString(3);
-					boolean dirUseAsUI = cursor.getInt(4) == INT_TRUE;
+					boolean dirUseAsUI = Schema.fromInteger(cursor.getInt(4));
 
 					Direction direction = new Direction(dirName, dirTitle, dirRoute, dirUseAsUI);
 					directions.put(dirTag, direction);
@@ -692,7 +700,6 @@ public class DatabaseContentProvider extends ContentProvider {
 		public static void saveFavorites(ContentResolver resolver, Set<String> favoriteStops, Map<String, StopLocation> sharedStops) throws RemoteException, OperationApplicationException {
 			resolver.delete(FAVORITES_URI, null, null);
 			
-			List<ContentValues> favoritesToWrite = Lists.newArrayList();
 			for (String stopTag : favoriteStops)
 			{
 				StopLocation stopLocation = sharedStops.get(stopTag);
@@ -846,19 +853,41 @@ public class DatabaseContentProvider extends ContentProvider {
 		
 		public static Collection<StopLocation> getClosestStops(ContentResolver resolver, 
 				double currentLat, double currentLon, TransitSystem transitSystem, 
-				ConcurrentMap<String, StopLocation> sharedStops, int limit)
+				ConcurrentMap<String, StopLocation> sharedStops, int limit, Set<String> routes)
 		{
 			// what we should scale longitude by for 1 unit longitude to roughly equal 1 unit latitude
 
 			String[] projectionIn = new String[] {Schema.Stops.tagColumn, distanceKey};
 			int currentLatAsInt = (int)(currentLat * Constants.E6);
 			int currentLonAsInt = (int)(currentLon * Constants.E6);
-			Uri uri = appendUris(STOPS_WITH_DISTANCE_URI, currentLatAsInt, currentLonAsInt, limit, havingRoutes);
-
+			int hasRoutes = Schema.toInteger(routes.size() != 0);
+			Uri uri = appendUris(STOPS_WITH_DISTANCE_URI, currentLatAsInt, currentLonAsInt, limit, hasRoutes);
+			
 			Cursor cursor = null;
 			try
 			{
-				cursor = resolver.query(uri, projectionIn, null, null, distanceKey);
+				String select;
+				if (routes.size() == 0) {
+					select = null;
+				}
+				else
+				{
+					StringBuilder selectBuilder = new StringBuilder();
+					selectBuilder.append(Schema.Routes.routeColumn).append(" IN (");
+					
+					int size = routes.size();
+					int count = 0;
+					for (String route : routes) {
+						selectBuilder.append('\'').append(route).append('\'');
+						if (count < size - 1) {
+							selectBuilder.append(", ");
+						}
+						count++;
+					}
+					selectBuilder.append(")");
+					select = selectBuilder.toString();
+				}
+				cursor = resolver.query(uri, projectionIn, select, null, distanceKey);
 				if (cursor.moveToFirst() == false)
 				{
 					return Collections.emptyList();
@@ -1129,7 +1158,7 @@ public class DatabaseContentProvider extends ContentProvider {
 
 		public static List<String> getStopTagsForDirTag(ContentResolver resolver,
 				String dirTag) {
-			ArrayList<String> ret = new ArrayList<String>();
+			ArrayList<String> ret = Lists.newArrayList();
 			Cursor cursor = null;
 			try
 			{
@@ -1165,6 +1194,56 @@ public class DatabaseContentProvider extends ContentProvider {
 			return pathsBlob;
 		}
 
+		public static void populateIntersections(
+				ContentResolver resolver,
+				ConcurrentMap<String, IntersectionLocation> intersections,
+				TransitSystem transitSystem, ConcurrentMap<String, StopLocation> sharedStops) {
+			
+			Map<String, IntersectionLocation.Builder> ret = Maps.newHashMap();
+			
+			String[] projectionIn = new String[]{Schema.Locations.nameColumn,
+					Schema.Locations.latColumn, Schema.Locations.lonColumn};
+			Cursor cursor = resolver.query(LOCATIONS_URI, projectionIn, null, null, null);
+			try
+			{
+				while (cursor.isAfterLast() == false) {
+					String title = cursor.getString(0);
+					
+					float lat = cursor.getFloat(1);
+					float lon = cursor.getFloat(2);
+					IntersectionLocation.Builder builder = new IntersectionLocation.Builder(title, lat, lon);
+					ret.put(title, builder);
+					
+					cursor.moveToNext();
+				}
+			}
+			finally
+			{
+				if (cursor != null) {
+					cursor.close();
+				}
+			}
+			
+			for (String key : ret.keySet()) {
+				IntersectionLocation.Builder builder = ret.get(key);
+				
+				int limit = 15;
+				Set<String> routes = Collections.emptySet();
+				Collection<StopLocation> stops = getClosestStops(resolver, 
+						builder.getLatitudeAsDegrees(), builder.getLongitudeAsDegrees(),
+						transitSystem, sharedStops, limit, routes);
+				for (StopLocation stop : stops) {
+					routes.addAll(stop.getRoutes());
+				}
+				for (String route : routes) {
+					builder.addRoute(route);
+				}
+				
+				intersections.put(key, builder.build());
+			}
+			
+		}
+
 	}
 
 
@@ -1182,9 +1261,10 @@ public class DatabaseContentProvider extends ContentProvider {
 		uriMatcher.addURI(AUTHORITY, "directions_stops", DIRECTIONS_STOPS);
 		uriMatcher.addURI(AUTHORITY, "stops_lookup_2", STOPS_LOOKUP_2);
 		uriMatcher.addURI(AUTHORITY, "stops_lookup_3", STOPS_LOOKUP_3);
-		uriMatcher.addURI(AUTHORITY, "stops_with_distance/*/*/#", STOPS_WITH_DISTANCE);
+		uriMatcher.addURI(AUTHORITY, "stops_with_distance/*/*/#/#", STOPS_WITH_DISTANCE);
 		uriMatcher.addURI(AUTHORITY, "favorites_with_same_location", FAVORITES_WITH_SAME_LOCATION);
 		uriMatcher.addURI(AUTHORITY, "subway_stops", SUBWAY_STOPS);
+		uriMatcher.addURI(AUTHORITY, "locations", LOCATIONS);
 	}
 
 	@Override
@@ -1212,6 +1292,9 @@ public class DatabaseContentProvider extends ContentProvider {
 			break;
 		case SUBWAY_STOPS:
 			count = db.delete(Schema.Subway.table, selection, selectionArgs);
+			break;
+		case LOCATIONS:
+			count = db.delete(Schema.Locations.table, selection, selectionArgs);
 			break;
 		default:
 			throw new IllegalArgumentException("Unknown URI " + uri);
@@ -1250,6 +1333,8 @@ public class DatabaseContentProvider extends ContentProvider {
 			return FAVORITES_WITH_SAME_LOCATION_TYPE;
 		case SUBWAY_STOPS:
 			return SUBWAY_STOPS_TYPE;
+		case LOCATIONS:
+			return LOCATIONS_TYPE;
 		default:
 			throw new IllegalArgumentException("Unknown URI " + uri);
 		}
@@ -1266,6 +1351,7 @@ public class DatabaseContentProvider extends ContentProvider {
 		case STOPS_ROUTES:
 		case DIRECTIONS:
 		case DIRECTIONS_STOPS:
+		case LOCATIONS:
 			break;
 		default:
 			throw new IllegalArgumentException("Unknown URI " + uri);
@@ -1282,6 +1368,14 @@ public class DatabaseContentProvider extends ContentProvider {
 		}
 		break;
 			
+		case LOCATIONS:
+		{
+			long rowId = db.replace(Schema.Locations.table, null, values);
+			if (rowId >= 0) {
+				return LOCATIONS_URI;
+			}
+		}
+		break;
 		case STOPS:
 		{
 			long rowId = db.replace(Schema.Stops.table, null, values);
@@ -1398,12 +1492,22 @@ public class DatabaseContentProvider extends ContentProvider {
 			break;
 		case STOPS_WITH_DISTANCE:
 		{
-			builder.setTables(Schema.Stops.table);
-
 			List<String> pathSegments = uri.getPathSegments();
 			double currentLat = Integer.parseInt(pathSegments.get(1)) * Constants.InvE6;
 			double currentLon = Integer.parseInt(pathSegments.get(2)) * Constants.InvE6;
 			limit = pathSegments.get(3);
+			boolean joinRoutes = Schema.fromInteger(Integer.parseInt(pathSegments.get(4)));
+			if (joinRoutes) {
+				builder.setTables(Schema.Stops.table + " JOIN " + Schema.Stopmapping.table +
+						" ON " + Schema.Stops.table + "." + 
+						Schema.Stops.tagColumn + " = " + Schema.Stopmapping.table + "." + 
+						Schema.Stopmapping.tagColumn);
+			}
+			else
+			{
+				builder.setTables(Schema.Stops.table);
+			}
+
 			HashMap<String, String> projectionMap = new HashMap<String, String>();
 			projectionMap.put(Schema.Stops.tagColumn, Schema.Stops.tagColumn);
 
@@ -1413,6 +1517,9 @@ public class DatabaseContentProvider extends ContentProvider {
 			projectionMap.put(distanceKey, latDiff + "*" + latDiff + " + " + lonDiff + "*" + lonDiff + " AS " + distanceKey);
 			builder.setProjectionMap(projectionMap);
 		}
+			break;
+		case LOCATIONS:
+			builder.setTables(Schema.Locations.table);
 			break;
 		default:
 			throw new IllegalArgumentException("Unknown URI " + uri);
@@ -1451,6 +1558,9 @@ public class DatabaseContentProvider extends ContentProvider {
 			break;
 		case SUBWAY_STOPS:
 			count = db.update(Schema.Subway.table, values, selection, selectionArgs);
+			break;
+		case LOCATIONS:
+			count = db.update(Schema.Locations.table, values, selection, selectionArgs);
 			break;
 		default:
 			throw new IllegalArgumentException("Unknown URI " + uri);

@@ -7,8 +7,15 @@ import java.util.Collection;
 public class Schema {
     public static final String dbName = "bostonBusMap";
 
+    private static final int INT_TRUE = 1;
+    private static final int INT_FALSE = 0;
+
     public static int toInteger(boolean b) {
-        return b ? 1 : 0;
+        return b ? INT_TRUE : INT_FALSE;
+    }
+
+    public static boolean fromInteger(int i) {
+        return i == INT_TRUE;
     }
 
 
@@ -115,6 +122,43 @@ public class Schema {
         public static void executeInsertHelper(InsertHelper helper, String tag) {
             helper.prepareForReplace();
             helper.bind(tagIndex, tag);
+            helper.execute();
+        }
+    }
+    public static class Locations {
+        public static final String table = "locations"; 
+        public static final String[] columns = new String[] {
+            "lat", "lon", "name"
+        };
+
+        public static final int latIndex = 1;
+        public static final String latColumn = "lat";
+        public static final int lonIndex = 2;
+        public static final String lonColumn = "lon";
+        public static final int nameIndex = 3;
+        public static final String nameColumn = "name";
+
+        public static final String createSql = "CREATE TABLE IF NOT EXISTS locations (lat FLOAT, lon FLOAT, name STRING PRIMARY KEY)";
+        public static class Bean {
+            public final float lat;
+            public final float lon;
+            public final String name;
+            public Bean(float lat, float lon, String name) {
+                this.lat = lat;
+                this.lon = lon;
+                this.name = name;
+            }
+        }
+        public static void executeInsertHelper(InsertHelper helper, Collection<Bean> beans) {
+            for (Bean bean : beans) {
+                executeInsertHelper(helper, bean.lat, bean.lon, bean.name);
+            }
+        }
+        public static void executeInsertHelper(InsertHelper helper, float lat, float lon, String name) {
+            helper.prepareForReplace();
+            helper.bind(latIndex, lat);
+            helper.bind(lonIndex, lon);
+            helper.bind(nameIndex, name);
             helper.execute();
         }
     }

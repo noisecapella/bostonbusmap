@@ -7,6 +7,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import com.google.common.collect.Iterables;
 
@@ -60,13 +61,14 @@ public class GetDirectionsAsyncTask extends AsyncTask<Object, String, ArrayList<
 		if (tag.equals(GetDirectionsDialog.CURRENT_LOCATION_TAG)) {
 			// note that this depends on the GPS being on when the app starts, which is
 			// the default behavior
-			Collection<StopLocation> closestStops = routePool.getClosestStops(currentLat, currentLon, 1);
+			Set<String> emptySet = Collections.emptySet();
+			Collection<StopLocation> closestStops = routePool.getClosestStops(currentLat, currentLon, 1, emptySet);
 			return Iterables.getFirst(closestStops, null);
 		}
 		else
 		{
 			Map<String, StopLocation> tagMap = routePool.getAllStopTagsAtLocation(tag);
-			return tagMap.values().iterator().next();
+			return Iterables.getFirst(tagMap.values(), null);
 		}
 	}
 	

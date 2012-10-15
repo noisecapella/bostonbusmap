@@ -53,6 +53,18 @@ public class IntersectionLocation implements Location {
 		public void addRoute(String route) {
 			nearbyRoutes.add(route);
 		}
+
+		public IntersectionLocation build() {
+			return new IntersectionLocation(this);
+		}
+
+		public double getLatitudeAsDegrees() {
+			return latitudeAsDegrees;
+		}
+		
+		public double getLongitudeAsDegrees() {
+			return longitudeAsDegrees;
+		}
 	}
 	
 	@Override

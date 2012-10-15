@@ -40,9 +40,10 @@ public class RoutePool extends Pool<String, RouteConfig> {
 	 * A mapping of stop key to route key. Look in sharedStops for the StopLocation
 	 */
 	private final CopyOnWriteArraySet<String> favoriteStops = Sets.newCopyOnWriteArraySet();
-	private final TransitSystem transitSystem;
 	
-	private GeoPoint intersectPoint;
+	private final ConcurrentMap<String, IntersectionLocation> intersections = Maps.newConcurrentMap();
+	
+	private final TransitSystem transitSystem;
 	
 	public RoutePool(Context context, TransitSystem transitSystem) {
 		super(50);
@@ -52,12 +53,7 @@ public class RoutePool extends Pool<String, RouteConfig> {
 		
 		populateFavorites(false);
 		
-		intersectPoint = new GeoPoint(TransitSystem.getCenterLatAsInt(), TransitSystem.getCenterLonAsInt());
-	}
-	
-	public void saveFavoritesToDatabase() throws RemoteException, OperationApplicationException
-	{
-		DatabaseAgent.saveFavorites(context.getContentResolver(), favoriteStops, sharedStops);
+		populateIntersections();
 	}
 	
 	/**
@@ -155,11 +151,17 @@ public class RoutePool extends Pool<String, RouteConfig> {
 		fillInFavoritesRoutes();
 
 	}
+	
+	private void populateIntersections() {
+		DatabaseAgent.populateIntersections(context.getContentResolver(), intersections,
+				transitSystem, sharedStops);
+	}
 
 	protected void clearAll() {
 		super.clearAll();
 		favoriteStops.clear();
 		sharedStops.clear();
+		intersections.clear();
 	}
 
 
@@ -236,7 +238,7 @@ public class RoutePool extends Pool<String, RouteConfig> {
 	}
 	
 	public Collection<StopLocation> getClosestStops(double centerLatitude,
-			double centerLongitude, int maxStops, Collection<String> routes)
+			double centerLongitude, int maxStops, Set<String> routes)
 	{
 		return DatabaseAgent.getClosestStops(context.getContentResolver(), 
 				centerLatitude, centerLongitude, transitSystem, sharedStops, maxStops, routes);
@@ -248,8 +250,12 @@ public class RoutePool extends Pool<String, RouteConfig> {
 				dirTag, transitSystem);
 	}
 
-	public List<IntersectionLocation> getIntersectPoints() {
-		return intersectPoints;
+	/**
+	 * Be careful not to alter this object!
+	 * @return
+	 */
+	public ConcurrentMap<String, IntersectionLocation> getIntersectPoints() {
+		return intersections;
 	}
 
 }
