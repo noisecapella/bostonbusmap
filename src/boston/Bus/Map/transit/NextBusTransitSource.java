@@ -30,6 +30,7 @@ import boston.Bus.Map.data.Locations;
 import boston.Bus.Map.data.RouteConfig;
 import boston.Bus.Map.data.RoutePool;
 import boston.Bus.Map.data.RouteTitles;
+import boston.Bus.Map.data.Selection;
 import boston.Bus.Map.data.StopLocation;
 import boston.Bus.Map.data.SubwayStopLocation;
 import boston.Bus.Map.data.TransitDrawables;
@@ -99,7 +100,7 @@ public abstract class NextBusTransitSource implements TransitSource
 
 	@Override
 	public void populateStops(Context context, RoutePool routeMapping, String routeToUpdate,
-			RouteConfig oldRouteConfig, Directions directions, UpdateAsyncTask task, boolean silent) 
+			Directions directions, UpdateAsyncTask task, boolean silent) 
 	throws ClientProtocolException, IOException, ParserConfigurationException, SAXException, RemoteException, OperationApplicationException 
 	{
 		final String urlString = getRouteConfigUrl(routeToUpdate);
@@ -118,26 +119,27 @@ public abstract class NextBusTransitSource implements TransitSource
 
 
 	@Override
-	public void refreshData(RouteConfig routeConfig, int selectedBusPredictions, int maxStops,
+	public void refreshData(RouteConfig routeConfig, Selection selection, int maxStops,
 			double centerLatitude, double centerLongitude, ConcurrentHashMap<String, BusLocation> busMapping, 
-			String selectedRoute, RoutePool routePool, Directions directions, Locations locationsObj)
+			RoutePool routePool, Directions directions, Locations locationsObj)
 	throws IOException, ParserConfigurationException, SAXException {
 		//read data from the URL
 		DownloadHelper downloadHelper;
+		int selectedBusPredictions = selection.getMode();
 		switch (selectedBusPredictions)
 		{
-		case  Main.BUS_PREDICTIONS_ONE:
-		case  Main.BUS_PREDICTIONS_STAR:
-		case  Main.BUS_PREDICTIONS_ALL:
-		case  Main.BUS_PREDICTIONS_INTERSECT:
+		case  Selection.BUS_PREDICTIONS_ONE:
+		case  Selection.BUS_PREDICTIONS_STAR:
+		case  Selection.BUS_PREDICTIONS_ALL:
+		case  Selection.BUS_PREDICTIONS_INTERSECT:
 		{
 
 			routePool.clearRecentlyUpdated();
 
-			List<Location> locations = locationsObj.getLocations(maxStops, centerLatitude, centerLongitude, false);
+			List<Location> locations = locationsObj.getLocations(maxStops, centerLatitude, centerLongitude, false, selection);
 
 			//ok, do predictions now
-			String routeName = selectedBusPredictions == Main.BUS_PREDICTIONS_ONE ? routeConfig.getRouteName() : null;
+			String routeName = selectedBusPredictions == Selection.BUS_PREDICTIONS_ONE ? routeConfig.getRouteName() : null;
 			String url = getPredictionsUrl(locations, maxStops, routeName);
 
 			if (url == null)
@@ -149,13 +151,13 @@ public abstract class NextBusTransitSource implements TransitSource
 		}
 		break;
 
-		case Main.VEHICLE_LOCATIONS_ONE:
+		case Selection.VEHICLE_LOCATIONS_ONE:
 		{
 			final String urlString = getVehicleLocationsUrl(locationsObj.getLastUpdateTime(), routeConfig.getRouteName());
 			downloadHelper = new DownloadHelper(urlString);
 		}
 		break;
-		case Main.VEHICLE_LOCATIONS_ALL:
+		case Selection.VEHICLE_LOCATIONS_ALL:
 		default:
 		{
 			final String urlString = getVehicleLocationsUrl(locationsObj.getLastUpdateTime(), null);
@@ -168,9 +170,9 @@ public abstract class NextBusTransitSource implements TransitSource
 
 		InputStream data = downloadHelper.getResponseData();
 
-		if (selectedBusPredictions == Main.BUS_PREDICTIONS_ONE || 
-				selectedBusPredictions == Main.BUS_PREDICTIONS_ALL ||
-				selectedBusPredictions == Main.BUS_PREDICTIONS_STAR)
+		if (selectedBusPredictions == Selection.BUS_PREDICTIONS_ONE || 
+				selectedBusPredictions == Selection.BUS_PREDICTIONS_ALL ||
+				selectedBusPredictions == Selection.BUS_PREDICTIONS_STAR)
 		{
 			//bus prediction
 

@@ -25,6 +25,7 @@ import com.google.common.collect.Sets;
 
 import boston.Bus.Map.data.Direction;
 import boston.Bus.Map.data.IntersectionLocation;
+import boston.Bus.Map.data.IntersectionLocation.Builder;
 import boston.Bus.Map.data.Path;
 import boston.Bus.Map.data.RouteConfig;
 import boston.Bus.Map.data.RouteTitles;
@@ -713,7 +714,7 @@ public class DatabaseContentProvider extends ContentProvider {
 			}
 		}
 
-		public static Cursor getCursorForSearch(ContentResolver resolver, String search, int mode) {
+		public static Cursor getCursorForSearch(ContentResolver resolver, String search) {
 			String[] columns = new String[] {BaseColumns._ID, SearchManager.SUGGEST_COLUMN_TEXT_1, SearchManager.SUGGEST_COLUMN_QUERY, SearchManager.SUGGEST_COLUMN_TEXT_2};
 			MatrixCursor ret = new MatrixCursor(columns);
 
@@ -1242,6 +1243,32 @@ public class DatabaseContentProvider extends ContentProvider {
 				intersections.put(key, builder.build());
 			}
 			
+		}
+
+		/**
+		 * 
+		 * @param resolver
+		 * @param build
+		 * @return true for success, false for failure
+		 */
+		public static boolean addIntersection(ContentResolver resolver,
+				IntersectionLocation.Builder build) {
+			// temporary throwaway location. We still need to attach nearby routes to it,
+			// that gets done in populateIntersections
+			IntersectionLocation location = build.build();
+			ContentValues values = new ContentValues();
+			values.put(Schema.Locations.nameColumn, location.getName());
+			values.put(Schema.Locations.latColumn, location.getLatitudeAsDegrees());
+			values.put(Schema.Locations.lonColumn, location.getLongitudeAsDegrees());
+			try
+			{
+				resolver.insert(LOCATIONS_URI, values);
+				return true;
+			}
+			catch (SQLException e) {
+				LogUtil.e(e);
+				return false;
+			}
 		}
 
 	}

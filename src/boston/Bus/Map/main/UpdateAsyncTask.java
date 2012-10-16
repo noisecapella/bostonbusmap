@@ -46,6 +46,7 @@ import boston.Bus.Map.data.Locations;
 import boston.Bus.Map.data.Path;
 import boston.Bus.Map.data.RouteConfig;
 import boston.Bus.Map.data.RouteTitles;
+import boston.Bus.Map.data.Selection;
 import boston.Bus.Map.data.StopLocation;
 import boston.Bus.Map.data.UpdateArguments;
 import boston.Bus.Map.transit.TransitSystem;
@@ -110,10 +111,9 @@ public class UpdateAsyncTask extends AsyncTask<Double, Object, ImmutableList<Loc
 	
 	private final boolean inferBusRoutes;
 	
-	private final String routeToUpdate;
-	private final int selectedBusPredictions;
-
 	private final UpdateArguments arguments;
+	
+	private final Selection selection;
 	
 	/*public UpdateAsyncTask(ProgressBar progress, MapView mapView, LocationOverlay locationOverlay,
 			boolean doShowUnpredictable, boolean doRefresh, int maxOverlays,
@@ -123,7 +123,7 @@ public class UpdateAsyncTask extends AsyncTask<Double, Object, ImmutableList<Loc
 		TransitSystem transitSystem, ProgressDialog progressDialog, int idToSelect)*/
 	public UpdateAsyncTask(UpdateArguments arguments, boolean doShowUnpredictable,
 			boolean doRefresh, int maxOverlays, boolean drawCircle, boolean inferBusRoutes,
-			String routeToUpdate, int selectedBusPredictions, boolean doInit)
+			boolean doInit, Selection selection)
 	{
 		super();
 		
@@ -134,9 +134,8 @@ public class UpdateAsyncTask extends AsyncTask<Double, Object, ImmutableList<Loc
 		this.maxOverlays = maxOverlays;
 		this.drawCircle = drawCircle;
 		this.inferBusRoutes = inferBusRoutes;
-		this.routeToUpdate = routeToUpdate;
-		this.selectedBusPredictions = selectedBusPredictions;
 		this.doInit = doInit;
+		this.selection = selection;
 	}
 	
 	/**
@@ -236,8 +235,6 @@ public class UpdateAsyncTask extends AsyncTask<Double, Object, ImmutableList<Loc
 		}
 		
 		final Locations busLocations = arguments.getBusLocations();
-		busLocations.select(routeToUpdate, selectedBusPredictions);
-
 		
 		if (doRefresh)
 		{
@@ -249,7 +246,7 @@ public class UpdateAsyncTask extends AsyncTask<Double, Object, ImmutableList<Loc
 				final Context context = arguments.getContext();
 				busLocations.initializeAllRoutes(this, context, allRoutes);
 				
-				busLocations.refresh(arguments.getContext(), inferBusRoutes, routeToUpdate, selectedBusPredictions,
+				busLocations.refresh(arguments.getContext(), inferBusRoutes, selection,
 						centerLatitude, centerLongitude, this, arguments.getOverlayGroup().getRouteOverlay().isShowLine());
 			}
 			catch (IOException e)
@@ -364,7 +361,7 @@ public class UpdateAsyncTask extends AsyncTask<Double, Object, ImmutableList<Loc
 		}
 
 		try {
-			return busLocations.getLocations(maxOverlays, centerLatitude, centerLongitude, doShowUnpredictable);
+			return busLocations.getLocations(maxOverlays, centerLatitude, centerLongitude, doShowUnpredictable, selection);
 		} catch (IOException e) {
 			publish(new ProgressMessage(ProgressMessage.TOAST, null, "Error getting route data from database"));
 
@@ -418,43 +415,36 @@ public class UpdateAsyncTask extends AsyncTask<Double, Object, ImmutableList<Loc
         Path[] paths;
 		Locations locationsObj = arguments.getBusLocations();
 		try {
-			paths = locationsObj.getSelectedPaths();
+			paths = locationsObj.getPaths(selection.getRoute());
 		} catch (IOException e) {
 			LogUtil.e(e);
 			paths = RouteConfig.nullPaths;
 		}
 		
 		RouteConfig selectedRouteConfig;
-		if (selectedBusPredictions == Main.BUS_PREDICTIONS_STAR || 
-				selectedBusPredictions == Main.BUS_PREDICTIONS_ALL ||
-				selectedBusPredictions == Main.BUS_PREDICTIONS_INTERSECT)
+		int mode = selection.getMode();
+		if (mode == Selection.BUS_PREDICTIONS_STAR || 
+				mode == Selection.BUS_PREDICTIONS_ALL ||
+				mode == Selection.BUS_PREDICTIONS_INTERSECT)
 		{
 			//we want this to be null. Else, the snippet drawing code would only show data for a particular route
-			try {
-				//get the currently drawn route's color
-				RouteConfig route = locationsObj.getSelectedRoute();
-				String routeName = route != null ? route.getRouteName() : "";
-				routeOverlay.setPathsAndColor(paths, Color.BLUE, routeName);
-
-			} catch (IOException e) {
-				LogUtil.e(e);
-				routeOverlay.setPathsAndColor(paths, Color.BLUE, null);
-			}
+			routeOverlay.setPathsAndColor(paths, Color.BLUE, selection.getRoute());
 			selectedRouteConfig = null;
 		}
 		else
 		{
-			try {
-				selectedRouteConfig = locationsObj.getSelectedRoute();
-			} catch (IOException e) {
+			String route = selection.getRoute();
+			try
+			{
+				selectedRouteConfig = locationsObj.getRoute(route);
+			}
+			catch (IOException e) {
 				LogUtil.e(e);
 				selectedRouteConfig = null;
 			}
 			
-			if (selectedRouteConfig != null)
-			{
-				routeOverlay.setPathsAndColor(paths, selectedRouteConfig.getColor(), selectedRouteConfig.getRouteName());
-			}
+			int color = selectedRouteConfig == null ? Color.BLUE : selectedRouteConfig.getColor();
+			routeOverlay.setPathsAndColor(paths, color, selection.getRoute());
 		}
 		
 
@@ -475,6 +465,11 @@ public class UpdateAsyncTask extends AsyncTask<Double, Object, ImmutableList<Loc
 		//draw the buses on the map
 		int newSelectedBusId = selectedBusId;
 		List<Location> busesToDisplay = Lists.newArrayList();
+		
+		// first add intersection points. Not enough of these to affect performance
+		busesToDisplay.addAll(arguments.getBusLocations().getIntersectionPoints().values());
+		
+		// merge stops or buses to single items if necessary
 		for (int i = 0; i < locationsNearCenter.size(); i++)
 		{
 			Location busLocation = locationsNearCenter.get(i);
@@ -512,11 +507,9 @@ public class UpdateAsyncTask extends AsyncTask<Double, Object, ImmutableList<Loc
 				busesToDisplay.add(busLocation);
 			}
 		}
-		for (Location location : busesToDisplay) {
-			// we need to do this here because addLocation creates PredictionViews, which needs
-			// to happen after makeSnippetAndTitle and addToSnippetAndTitle
-			busOverlay.addLocation(location);
-		}
+		// we need to do this here because addLocation creates PredictionViews, which needs
+		// to happen after makeSnippetAndTitle and addToSnippetAndTitle
+		busOverlay.addAllLocations(busesToDisplay);
 		busOverlay.setSelectedBusId(newSelectedBusId);
 		//busOverlay.refreshBalloons();
 		

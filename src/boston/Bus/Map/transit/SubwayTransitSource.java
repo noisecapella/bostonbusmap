@@ -28,6 +28,7 @@ import boston.Bus.Map.data.Locations;
 import boston.Bus.Map.data.RouteConfig;
 import boston.Bus.Map.data.RoutePool;
 import boston.Bus.Map.data.RouteTitles;
+import boston.Bus.Map.data.Selection;
 import boston.Bus.Map.data.StopLocation;
 import boston.Bus.Map.data.SubwayStopLocation;
 import boston.Bus.Map.data.TransitDrawables;
@@ -75,7 +76,7 @@ public class SubwayTransitSource implements TransitSource {
 	
 	@Override
 	public void populateStops(Context context, RoutePool routeMapping, String routeToUpdate,
-			RouteConfig oldRouteConfig, Directions directions, UpdateAsyncTask task, boolean silent)
+			Directions directions, UpdateAsyncTask task, boolean silent)
 			throws ClientProtocolException, IOException,
 			ParserConfigurationException, SAXException, RemoteException, OperationApplicationException {
 		
@@ -87,7 +88,7 @@ public class SubwayTransitSource implements TransitSource {
 		downloadHelper.connect();
 		//just initialize the route and then end for this round
 		
-		SubwayRouteConfigFeedParser parser = new SubwayRouteConfigFeedParser(directions, oldRouteConfig, this);
+		SubwayRouteConfigFeedParser parser = new SubwayRouteConfigFeedParser(directions, this);
 
 		parser.runParse(downloadHelper.getResponseData()); 
 
@@ -97,13 +98,14 @@ public class SubwayTransitSource implements TransitSource {
 
 	@Override
 	public void refreshData(RouteConfig routeConfig,
-			int selectedBusPredictions, int maxStops, double centerLatitude,
+			Selection selection, int maxStops, double centerLatitude,
 			double centerLongitude, ConcurrentHashMap<String, BusLocation> busMapping,
-			String selectedRoute, RoutePool routePool, Directions directions,
+			RoutePool routePool, Directions directions,
 			Locations locationsObj)
 			throws IOException, ParserConfigurationException, SAXException {
 		//read data from the URL
-		if (selectedBusPredictions == Main.VEHICLE_LOCATIONS_ALL)
+		int selectedBusPredictions = selection.getMode();
+		if (selectedBusPredictions == Selection.VEHICLE_LOCATIONS_ALL)
 		{
 			//for now I'm only refreshing data for buses if this is checked
 			return;
@@ -113,22 +115,22 @@ public class SubwayTransitSource implements TransitSource {
 		HashSet<String> outputRoutes = new HashSet<String>();
 		switch (selectedBusPredictions)
 		{
-		case  Main.BUS_PREDICTIONS_ONE:
-		case Main.VEHICLE_LOCATIONS_ONE:
+		case  Selection.BUS_PREDICTIONS_ONE:
+		case Selection.VEHICLE_LOCATIONS_ONE:
 		{
 
-			List<Location> locations = locationsObj.getLocations(maxStops, centerLatitude, centerLongitude, false);
+			List<Location> locations = locationsObj.getLocations(maxStops, centerLatitude, centerLongitude, false, selection);
 
 			//ok, do predictions now
 			getPredictionsRoutes(locations, maxStops, routeConfig.getRouteName(), outputRoutes, selectedBusPredictions);
 			break;
 		}
-		case Main.BUS_PREDICTIONS_ALL:
-		case Main.VEHICLE_LOCATIONS_ALL:
-		case Main.BUS_PREDICTIONS_STAR:
-		case Main.BUS_PREDICTIONS_INTERSECT:
+		case Selection.BUS_PREDICTIONS_ALL:
+		case Selection.VEHICLE_LOCATIONS_ALL:
+		case Selection.BUS_PREDICTIONS_STAR:
+		case Selection.BUS_PREDICTIONS_INTERSECT:
 		{
-			List<Location> locations = locationsObj.getLocations(maxStops, centerLatitude, centerLongitude, false);
+			List<Location> locations = locationsObj.getLocations(maxStops, centerLatitude, centerLongitude, false, selection);
 			
 			getPredictionsRoutes(locations, maxStops, null, outputRoutes, selectedBusPredictions);
 
@@ -199,7 +201,7 @@ public class SubwayTransitSource implements TransitSource {
 		}
 		else
 		{
-			if (mode == Main.BUS_PREDICTIONS_STAR || mode == Main.BUS_PREDICTIONS_INTERSECT)
+			if (mode == Selection.BUS_PREDICTIONS_STAR || mode == Selection.BUS_PREDICTIONS_INTERSECT)
 			{
 				//ok, let's look at the locations and see what we can get
 				for (Location location : locations)
@@ -292,7 +294,7 @@ public class SubwayTransitSource implements TransitSource {
 		URL url = new URL(subwayUrl);
 		InputStream in = Locations.downloadStream(url, task);
 		
-		SubwayRouteConfigFeedParser subwayParser = new SubwayRouteConfigFeedParser(directions, null, this);
+		SubwayRouteConfigFeedParser subwayParser = new SubwayRouteConfigFeedParser(directions, this);
 		
 		subwayParser.runParse(in);
 		

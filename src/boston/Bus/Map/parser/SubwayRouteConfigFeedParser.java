@@ -56,7 +56,7 @@ public class SubwayRouteConfigFeedParser
 	
 	private final SubwayTransitSource transitSource;
 
-	public SubwayRouteConfigFeedParser(Directions directions, RouteConfig oldRouteConfig,
+	public SubwayRouteConfigFeedParser(Directions directions,
 			SubwayTransitSource transitSource) {
 		this.directions = directions;
 		this.transitSource = transitSource;

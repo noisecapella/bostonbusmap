@@ -28,6 +28,7 @@ import boston.Bus.Map.data.Locations;
 import boston.Bus.Map.data.RouteConfig;
 import boston.Bus.Map.data.RoutePool;
 import boston.Bus.Map.data.RouteTitles;
+import boston.Bus.Map.data.Selection;
 import boston.Bus.Map.data.StopLocation;
 import boston.Bus.Map.data.TransitDrawables;
 import boston.Bus.Map.main.Main;
@@ -97,7 +98,8 @@ public class TransitSystem {
 	 * @param commuterRailDrawables
 	 * @param alertsData
 	 */
-	public void setDefaultTransitSource(TransitDrawables busDrawables, TransitDrawables subwayDrawables, TransitDrawables commuterRailDrawables, String alertsData)
+	public void setDefaultTransitSource(TransitDrawables busDrawables, TransitDrawables subwayDrawables, 
+			TransitDrawables commuterRailDrawables, String alertsData, String commuterRailData)
 	{
 		if (defaultTransitSource == null)
 		{
@@ -110,7 +112,7 @@ public class TransitSystem {
 			mapBuilder.put(SubwayTransitSource.OrangeLine, subwayTransitSource);
 			mapBuilder.put(SubwayTransitSource.BlueLine, subwayTransitSource);
 			
-			CommuterRailTransitSource commuterRailTransitSource = new CommuterRailTransitSource(commuterRailDrawables, alertsMapping);
+			CommuterRailTransitSource commuterRailTransitSource = new CommuterRailTransitSource(commuterRailDrawables, alertsMapping, commuterRailData);
 			for (String route : commuterRailTransitSource.getRouteKeysToTitles().routeTags())
 			{
 				mapBuilder.put(route, commuterRailTransitSource);
@@ -166,14 +168,14 @@ public class TransitSystem {
 	}
 
 	public void refreshData(RouteConfig routeConfig,
-			int selectedBusPredictions, int maxStops, double centerLatitude,
+			Selection selection, int maxStops, double centerLatitude,
 			double centerLongitude, ConcurrentHashMap<String, BusLocation> busMapping,
-			String selectedRoute, RoutePool routePool,
+			RoutePool routePool,
 			Directions directions, Locations locations) throws IOException, ParserConfigurationException, SAXException {
 		for (TransitSource source : transitSources)
 		{
-			source.refreshData(routeConfig, selectedBusPredictions, maxStops, centerLatitude,
-					centerLongitude, busMapping, selectedRoute, routePool, directions, locations);
+			source.refreshData(routeConfig, selection, maxStops, centerLatitude,
+					centerLongitude, busMapping, routePool, directions, locations);
 		}
 	}
 

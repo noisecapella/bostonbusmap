@@ -82,18 +82,6 @@ public class UpdateArguments {
 	public OverlayGroup getOverlayGroup() {
 		return overlayGroup;
 	}
-	
-	public void nullify() {
-		/*this.busLocations = null;
-		this.context = null;
-		this.majorHandler = null;
-		this.mapView = null;
-		this.progress = null;
-		this.progressDialog = null;
-		this.transitSystem = null;
-		this.overlayGroup.nullify();
-		this.overlayGroup = null;*/
-	}
 
 	public UpdateArguments cloneMe() {
 		return new UpdateArguments(progress, progressDialog, mapView, context, overlayGroup, majorHandler, busLocations, transitSystem);

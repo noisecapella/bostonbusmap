@@ -19,6 +19,7 @@ import boston.Bus.Map.data.Locations;
 import boston.Bus.Map.data.RouteConfig;
 import boston.Bus.Map.data.RoutePool;
 import boston.Bus.Map.data.RouteTitles;
+import boston.Bus.Map.data.Selection;
 import boston.Bus.Map.data.StopLocation;
 import boston.Bus.Map.data.TransitDrawables;
 import boston.Bus.Map.main.UpdateAsyncTask;
@@ -26,12 +27,12 @@ import boston.Bus.Map.main.UpdateAsyncTask;
 public interface TransitSource {
 
 	void populateStops(Context context, RoutePool routeMapping, String routeToUpdate,
-			RouteConfig oldRouteConfig, Directions directions, UpdateAsyncTask task, boolean silent)
+			Directions directions, UpdateAsyncTask task, boolean silent)
 		throws ClientProtocolException, IOException, ParserConfigurationException, SAXException, RemoteException, OperationApplicationException ;
 
-	void refreshData(RouteConfig routeConfig, int selectedBusPredictions,
+	void refreshData(RouteConfig routeConfig, Selection selection,
 			int maxStops, double centerLatitude, double centerLongitude,
-			ConcurrentHashMap<String, BusLocation> busMapping, String selectedRoute,
+			ConcurrentHashMap<String, BusLocation> busMapping,
 			RoutePool routePool, Directions directions, Locations locationsObj)
 	throws IOException, ParserConfigurationException, SAXException;
 

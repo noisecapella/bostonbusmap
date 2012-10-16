@@ -214,6 +214,14 @@ public class RoutePool extends Pool<String, RouteConfig> {
 		return isFavorite ? R.drawable.full_star : R.drawable.empty_star;
 	}
 
+	public boolean addIntersection(IntersectionLocation.Builder build) {
+		boolean success = DatabaseAgent.addIntersection(context.getContentResolver(), build);
+		if (success) {
+			populateIntersections();
+		}
+		return success;
+	}
+	
 	public ConcurrentMap<String, StopLocation> getAllStopTagsAtLocation(String stopTag) {
 		ImmutableList<String> tags = DatabaseAgent.getAllStopTagsAtLocation(context.getContentResolver(), stopTag);
 		ConcurrentMap<String, StopLocation> outputMapping = Maps.newConcurrentMap();

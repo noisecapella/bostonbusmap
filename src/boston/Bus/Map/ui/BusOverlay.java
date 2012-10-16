@@ -328,18 +328,20 @@ public class BusOverlay extends BalloonItemizedOverlay<BusOverlayItem> {
 		return busPicture;
 	}
 
-	public void addLocation(Location location) {
-		PredictionView predictionView = location.getPredictionView();
-		String titleText = predictionView.getSnippetTitle();
-		String snippetText = predictionView.getSnippet();
-		Alert[] alerts = predictionView.getAlerts();
-		int latitudeE6 = (int)(Constants.E6 * location.getLatitudeAsDegrees());
-		int longitudeE6 = (int)(Constants.E6 * location.getLongitudeAsDegrees());
+	public void addAllLocations(Collection<Location> locations) {
+		for (Location location : locations) {
+			PredictionView predictionView = location.getPredictionView();
+			String titleText = predictionView.getSnippetTitle();
+			String snippetText = predictionView.getSnippet();
+			Alert[] alerts = predictionView.getAlerts();
+			int latitudeE6 = (int)(Constants.E6 * location.getLatitudeAsDegrees());
+			int longitudeE6 = (int)(Constants.E6 * location.getLongitudeAsDegrees());
 
-		GeoPoint geoPoint = new GeoPoint(latitudeE6, longitudeE6);
-		BusOverlayItem overlayItem = new BusOverlayItem(geoPoint,titleText, snippetText, alerts, location);
-		overlays.add(overlayItem);
-		//boundCenterBottom(location.getDrawable(context, false, selectedBusIndex == overlays.size() - 1));
+			GeoPoint geoPoint = new GeoPoint(latitudeE6, longitudeE6);
+			BusOverlayItem overlayItem = new BusOverlayItem(geoPoint,titleText, snippetText, alerts, location);
+			overlays.add(overlayItem);
+			//boundCenterBottom(location.getDrawable(context, false, selectedBusIndex == overlays.size() - 1));
+		}
 		populate();
 	}
 
@@ -353,8 +355,9 @@ public class BusOverlay extends BalloonItemizedOverlay<BusOverlayItem> {
 
 		Location location = overlays.get(index).getCurrentLocation();
 		if (nextTapListener != null && triggerListener) {
-			nextTapListener.onClick(location);
-			nextTapListener = null;
+			if (nextTapListener.onClick(location)) {
+				nextTapListener = null;
+			}
 		}
 		else
 		{
@@ -369,6 +372,19 @@ public class BusOverlay extends BalloonItemizedOverlay<BusOverlayItem> {
 		return ret;
 	}
 
+	@Override
+	public boolean onTap(GeoPoint arg0, MapView arg1) {
+		if (nextTapListener != null) {
+			if (nextTapListener.onClick(arg0)) {
+				nextTapListener = null;
+			}
+			return true;
+		}
+		else
+		{
+			return super.onTap(arg0, arg1);
+		}
+	}
 
 	private void updateAllBoundCenterBottom(int selectedIndex, boolean shadow) {
 		// update boundCenterBottom for newly selected item
@@ -394,7 +410,8 @@ public class BusOverlay extends BalloonItemizedOverlay<BusOverlayItem> {
 	}
 
 	public interface OnClickListener {
-		void onClick(Location location);
+		boolean onClick(Location location);
+		boolean onClick(GeoPoint point);
 	}
 
 	public void captureNextTap(OnClickListener onClickListener) {

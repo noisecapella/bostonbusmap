@@ -4,6 +4,7 @@ import org.apache.http.impl.conn.tsccm.RouteSpecificPool;
 
 import boston.Bus.Map.data.Direction;
 import boston.Bus.Map.data.Locations;
+import boston.Bus.Map.data.Selection;
 import boston.Bus.Map.data.UpdateArguments;
 import boston.Bus.Map.transit.TransitSystem;
 import boston.Bus.Map.ui.BusOverlay;
@@ -57,9 +58,6 @@ public class UpdateHandler extends Handler {
 	
 	private final UpdateArguments guiArguments;
 	
-	private String routeToUpdate;
-	private int selectedBusPredictions;
-
 	public UpdateHandler(UpdateArguments guiArguments)
 	{
 		this.guiArguments = guiArguments;
@@ -121,10 +119,11 @@ public class UpdateHandler extends Handler {
 			if (msg.arg1 != 0) {
 				guiArguments.getOverlayGroup().getBusOverlay().setSelectedBusId(msg.arg1);
 			}
+			Selection selection = guiArguments.getBusLocations().getSelection();
 			minorUpdate = new UpdateAsyncTask(guiArguments, getShowUnpredictable(),
 					false, maxOverlays,
 					getHideHighlightCircle() == false, getInferBusRoutes(),
-					routeToUpdate, selectedBusPredictions, false);
+					false, selection);
 			
 
 			minorUpdate.runUpdate(centerLatitude, centerLongitude);
@@ -176,10 +175,10 @@ public class UpdateHandler extends Handler {
 		double centerLatitude = geoPoint.getLatitudeE6() * Constants.InvE6;
 		double centerLongitude = geoPoint.getLongitudeE6() * Constants.InvE6;
 
-		
+		Selection selection = guiArguments.getBusLocations().getSelection();
 		final UpdateAsyncTask updateAsyncTask = new UpdateAsyncTask(guiArguments, getShowUnpredictable(), true, maxOverlays,
 				getHideHighlightCircle() == false, getInferBusRoutes(),
-				routeToUpdate, selectedBusPredictions, isFirstTime);
+				isFirstTime, selection);
 		guiArguments.setMajorHandler(updateAsyncTask);
 		updateAsyncTask.runUpdate(centerLatitude, centerLongitude);
 		
@@ -299,17 +298,6 @@ public class UpdateHandler extends Handler {
 		msg.arg1 = IMMEDIATE_REFRESH;
 		msg.what = MAJOR;
 		sendMessage(msg);
-	}
-
-
-
-	public void setRouteToUpdate(String routeToUpdate) {
-		this.routeToUpdate = routeToUpdate;
-	}
-
-	public void setSelectedBusPredictions(int b)
-	{
-		selectedBusPredictions = b; 
 	}
 
 	public void nullifyProgress() {

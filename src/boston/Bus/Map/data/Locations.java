@@ -53,6 +53,7 @@ import android.os.PowerManager;
 import android.os.RemoteException;
 import android.util.Log;
 import boston.Bus.Map.algorithms.GetDirections;
+import boston.Bus.Map.data.IntersectionLocation.Builder;
 import boston.Bus.Map.main.GetDirectionsAsyncTask;
 import boston.Bus.Map.main.Main;
 import boston.Bus.Map.main.UpdateAsyncTask;
@@ -81,21 +82,25 @@ public final class Locations
 	private double lastUpdateTime = 0;
 	
 
-	private String selectedRoute;
-	private int selectedBusPredictions;
+	private Selection mutableSelection;
 	private final TransitSystem transitSystem;
 
 	public Locations(Context context, 
-			TransitSystem transitSystem)
+			TransitSystem transitSystem, Selection selection)
 	{
 		this.transitSystem = transitSystem;
 		routeMapping = new RoutePool(context, transitSystem);
 		directions = new Directions(context);
+		mutableSelection = selection;
 	}
 	
 	public String getRouteTitle(String key)
 	{
-		return transitSystem.getTransitSource(key).getRouteKeysToTitles().getTitle(key);
+		return transitSystem.getRouteKeysToTitles().getTitle(key);
+	}
+	
+	public int getRouteAsIndex(String key) {
+		return transitSystem.getRouteKeysToTitles().getIndexForTag(key);
 	}
 	
 	/**
@@ -168,14 +173,15 @@ public final class Locations
 	 * @throws RemoteException 
 	 * @throws FeedException 
 	 */
-	public void refresh(Context context, boolean inferBusRoutes, String routeToUpdate,
-			int selectedBusPredictions, double centerLatitude, double centerLongitude,
+	public void refresh(Context context, boolean inferBusRoutes, Selection selection,
+			double centerLatitude, double centerLongitude,
 			UpdateAsyncTask updateAsyncTask, boolean showRoute) throws SAXException, IOException,
 			ParserConfigurationException, FactoryConfigurationError, RemoteException, OperationApplicationException 
 	{
 		final int maxStops = 15;
 
 		//see if route overlays need to be downloaded
+		String routeToUpdate = selection.getRoute();
 		RouteConfig routeConfig = routeMapping.get(routeToUpdate);
 		if (routeConfig != null)
 		{
@@ -188,7 +194,7 @@ public final class Locations
 			{
 				//populate route overlay (just in case we didn't already)
 				//updateAsyncTask.publish(new ProgressMessage(ProgressMessage.PROGRESS_DIALOG_ON, "Downloading data for route " + routeToUpdate, null));
-				populateStops(context, routeToUpdate, routeConfig, updateAsyncTask, true);
+				populateStops(context, routeToUpdate, updateAsyncTask, true);
 				
 				return;
 			}
@@ -197,60 +203,48 @@ public final class Locations
 		{
 			//populate route overlay (just in case we didn't already)
 			updateAsyncTask.publish(new ProgressMessage(ProgressMessage.PROGRESS_DIALOG_ON, "Downloading data for route " + routeToUpdate, null));
-			populateStops(context, routeToUpdate, routeConfig, updateAsyncTask, false);
+			populateStops(context, routeToUpdate, updateAsyncTask, false);
 			return;
 		}
 		
-		switch (selectedBusPredictions)
+		int mode = selection.getMode();
+		switch (mode)
 		{
-		case Main.BUS_PREDICTIONS_STAR:
-		case Main.VEHICLE_LOCATIONS_ALL:
-		case Main.BUS_PREDICTIONS_INTERSECT:
+		case Selection.BUS_PREDICTIONS_STAR:
+		case Selection.VEHICLE_LOCATIONS_ALL:
+		case Selection.BUS_PREDICTIONS_INTERSECT:
 			//get data from many transit sources
-			transitSystem.refreshData(routeConfig, selectedBusPredictions, maxStops, centerLatitude,
-					centerLongitude, busMapping, selectedRoute, routeMapping, directions, this);
+			transitSystem.refreshData(routeConfig, selection, maxStops, centerLatitude,
+					centerLongitude, busMapping, routeMapping, directions, this);
 			break;
-		case Main.BUS_PREDICTIONS_ALL:
+		case Selection.BUS_PREDICTIONS_ALL:
 		{
 			TransitSource transitSource = transitSystem.getTransitSource(null);
-			transitSource.refreshData(routeConfig, selectedBusPredictions, maxStops,
+			transitSource.refreshData(routeConfig, selection, maxStops,
 					centerLatitude, centerLongitude, busMapping,
-					selectedRoute, routeMapping, directions, this);
+					routeMapping, directions, this);
 		}
 			break;
 		default:
 		{
 			TransitSource transitSource = routeConfig.getTransitSource();
-			transitSource.refreshData(routeConfig, selectedBusPredictions, maxStops,
+			transitSource.refreshData(routeConfig, selection, maxStops,
 					centerLatitude, centerLongitude, busMapping,
-					selectedRoute, routeMapping, directions, this);
+					routeMapping, directions, this);
 		}
 			break;
 		}
 	}
 
 	private void populateStops(Context context, 
-			String routeToUpdate, RouteConfig oldRouteConfig, UpdateAsyncTask task, boolean silent) 
+			String route, UpdateAsyncTask task, boolean silent) 
 		throws IOException, ParserConfigurationException, SAXException, RemoteException, OperationApplicationException
 	{
-		TransitSource transitSource;
-		if (oldRouteConfig != null)
-		{
-			transitSource = oldRouteConfig.getTransitSource();
-		}
-		else
-		{
-			transitSource = transitSystem.getTransitSource(routeToUpdate);
-		}
+		TransitSource transitSource = transitSystem.getTransitSource(route);
 		
-		transitSource.populateStops(context, routeMapping, routeToUpdate, oldRouteConfig, directions, task, silent);
+		transitSource.populateStops(context, routeMapping, route, directions, task, silent);
 	}
 
-	public int getSelectedBusPredictions()
-	{
-		return selectedBusPredictions;
-	}
-	
 	/**
 	 * Return the 20 (or whatever maxLocations is) closest buses to the center
 	 * 
@@ -261,13 +255,14 @@ public final class Locations
 	 * @throws IOException 
 	 */
 	public ImmutableList<Location> getLocations(int maxLocations, double centerLatitude, double centerLongitude, 
-			boolean doShowUnpredictable) throws IOException {
+			boolean doShowUnpredictable, Selection selection) throws IOException {
 
 		ArrayList<Location> newLocations = Lists.newArrayListWithCapacity(maxLocations);
 		
-		
-		if (selectedBusPredictions == Main.VEHICLE_LOCATIONS_ALL ||
-				selectedBusPredictions == Main.VEHICLE_LOCATIONS_ONE)
+		String selectedRoute = selection.getRoute();
+		int mode = selection.getMode();
+		if (mode == Selection.VEHICLE_LOCATIONS_ALL ||
+				mode == Selection.VEHICLE_LOCATIONS_ONE)
 		{
 			if (doShowUnpredictable == false)
 			{
@@ -275,14 +270,14 @@ public final class Locations
 				{
 					if (busLocation.predictable == true)
 					{
-						if (selectedBusPredictions == Main.VEHICLE_LOCATIONS_ONE)
+						if (mode == Selection.VEHICLE_LOCATIONS_ONE)
 						{
 							if (selectedRoute != null && selectedRoute.equals(busLocation.getRouteId()))
 							{
 								newLocations.add(busLocation);
 							}
 						}
-						else if (selectedBusPredictions == Main.VEHICLE_LOCATIONS_ALL) {
+						else if (mode == Selection.VEHICLE_LOCATIONS_ALL) {
 							newLocations.add(busLocation);
 						}
 						else
@@ -294,7 +289,7 @@ public final class Locations
 			}
 			else
 			{
-				if (selectedBusPredictions == Main.VEHICLE_LOCATIONS_ALL)
+				if (mode == Selection.VEHICLE_LOCATIONS_ALL)
 				{
 					newLocations.addAll(busMapping.values());
 				}
@@ -310,15 +305,15 @@ public final class Locations
 				}
 			}
 		}
-		else if (selectedBusPredictions == Main.BUS_PREDICTIONS_ONE)
+		else if (mode == Selection.BUS_PREDICTIONS_ONE)
 		{
-			RouteConfig routeConfig = routeMapping.get(selectedRoute);
+			RouteConfig routeConfig = routeMapping.get(selection.getRoute());
 			if (routeConfig != null)
 			{
 				newLocations.addAll(routeConfig.getStops());
 			}
 		}
-		else if (selectedBusPredictions == Main.BUS_PREDICTIONS_ALL)
+		else if (mode == Selection.BUS_PREDICTIONS_ALL)
 		{
 			Set<String> emptySet = Collections.emptySet();
 			Collection<StopLocation> stops = routeMapping.getClosestStops(centerLatitude, centerLongitude, maxLocations, emptySet);
@@ -330,14 +325,14 @@ public final class Locations
 				}
 			}
 		}
-		else if (selectedBusPredictions == Main.BUS_PREDICTIONS_STAR)
+		else if (mode == Selection.BUS_PREDICTIONS_STAR)
 		{
 			for (StopLocation stopLocation : routeMapping.getFavoriteStops())
 			{
 				newLocations.add(stopLocation);
 			}
 		}
-		else if (selectedBusPredictions == Main.BUS_PREDICTIONS_INTERSECT) {
+		else if (mode == Selection.BUS_PREDICTIONS_INTERSECT) {
 			ConcurrentMap<String, IntersectionLocation> intersects = routeMapping.getIntersectPoints();
 			
 			//TODO: do this all in the database
@@ -390,14 +385,8 @@ public final class Locations
 		return ret.build();
 	}
 
-	public void select(String newRoute, int busPredictions) {
-		selectedRoute = newRoute;
-
-		selectedBusPredictions = busPredictions;
-	}
-
-	public Path[] getSelectedPaths() throws IOException {
-		RouteConfig routeConfig = routeMapping.get(selectedRoute);
+	public Path[] getPaths(String route) throws IOException {
+		RouteConfig routeConfig = routeMapping.get(route);
 		if (routeConfig != null)
 		{
 			return routeConfig.getPaths();
@@ -414,16 +403,17 @@ public final class Locations
 		return routeMapping.routeInfoNeedsUpdating(routesToCheck);
 	}
 
-	public RouteConfig getSelectedRoute() throws IOException {
-		return routeMapping.get(selectedRoute);
-	}
-	
 	public int toggleFavorite(StopLocation location) throws RemoteException
 	{
 		boolean isFavorite = routeMapping.isFavorite(location);
 		return routeMapping.setFavorite(location, !isFavorite);
 	}
 
+	public boolean addIntersection(IntersectionLocation.Builder builder) {
+		return routeMapping.addIntersection(builder);
+	}
+
+	
 	public StopLocation[] getCurrentFavorites()
 	{
 		return routeMapping.getFavoriteStops();
@@ -451,8 +441,8 @@ public final class Locations
 			if (routeConfig != null)
 			{
 				StopLocation stopLocation = routeConfig.getStop(stopTag);
-				select(route, Main.BUS_PREDICTIONS_ONE);
-			
+				Selection newSelection = new Selection(Selection.BUS_PREDICTIONS_ONE, route, mutableSelection.getIntersection());
+				mutableSelection = newSelection;
 				return stopLocation;
 			}
 			else
@@ -473,5 +463,37 @@ public final class Locations
 		GetDirectionsAsyncTask task = new GetDirectionsAsyncTask(arguments, 
 				startTag, stopTag, directions, routeMapping, currentLat, currentLon);
 		task.execute();
+	}
+
+	/**
+	 * Do not modify return value!
+	 * @return
+	 */
+	public ConcurrentMap<String, IntersectionLocation> getIntersectionPoints() {
+		return routeMapping.getIntersectPoints();
+	}
+
+	public String makeNewIntersectionName() {
+		int count = 1;
+		ConcurrentMap<String, IntersectionLocation> intersections = routeMapping.getIntersectPoints();
+		while (true) {
+			String name = "Place " + count;
+			if (intersections.containsKey(name) == false) {
+				return name;
+			}
+			count++;
+		}
+	}
+
+	public Selection getSelection() {
+		return mutableSelection;
+	}
+	
+	public void setSelection(Selection selection) {
+		mutableSelection = selection;
+	}
+
+	public RouteConfig getRoute(String route) throws IOException {
+		return routeMapping.get(route);
 	}
 }

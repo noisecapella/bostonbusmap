@@ -4,6 +4,7 @@ package boston.Bus.Map.main;
 import android.content.Context;
 import boston.Bus.Map.data.Locations;
 import boston.Bus.Map.data.RouteTitles;
+import boston.Bus.Map.data.Selection;
 import boston.Bus.Map.data.UpdateArguments;
 import boston.Bus.Map.ui.BusOverlay;
 import boston.Bus.Map.ui.LocationOverlay;
@@ -22,23 +23,18 @@ import com.google.common.collect.ImmutableMap;
 public class CurrentState {
 	private final long lastUpdateTime;
 	private final int updateConstantlyInterval;
-	private final int selectedRouteIndex;
-	private final int selectedBusPredictions;
 	private final boolean progressState;
 	private final boolean locationEnabled;
 	
 	private final UpdateArguments updateArguments;
 	
 	public CurrentState(UpdateArguments updateArguments, long lastUpdateTime, int updateConstantlyInterval,
-			int selectedRouteIndex, int selectedBusPredictions,
 			boolean progressState, boolean locationEnabled) 
 	{
 		this.updateArguments = updateArguments.cloneMe();
 		
 		this.lastUpdateTime = lastUpdateTime;
 		this.updateConstantlyInterval = updateConstantlyInterval;
-		this.selectedRouteIndex = selectedRouteIndex;
-		this.selectedBusPredictions = selectedBusPredictions;
 		this.progressState = progressState;
 		this.locationEnabled = locationEnabled;
 	}
@@ -59,15 +55,6 @@ public class CurrentState {
 	
 	public int getUpdateConstantlyInterval() {
 		return updateConstantlyInterval;
-	}
-
-	public int getSelectedRouteIndex()
-	{
-		return selectedRouteIndex;
-	}
-	
-	public int getSelectedBusPredictions() {
-		return selectedBusPredictions;
 	}
 
 	public UpdateArguments getUpdateArguments() {

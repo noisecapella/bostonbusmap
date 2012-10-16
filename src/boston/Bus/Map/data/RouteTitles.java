@@ -65,6 +65,11 @@ public class RouteTitles {
 	}
 
 	public String getTagUsingIndex(int index) {
+        if (index < 0 || index >= map.size())
+        {
+        	index = map.size() - 1;
+        }
+		
 		return map.keySet().asList().get(index);
 	}
 

@@ -149,4 +149,8 @@ public class IntersectionLocation implements Location {
 	public ImmutableSet<String> getNearbyRoutes() {
 		return nearbyRoutes;
 	}
+
+	public String getName() {
+		return name;
+	}
 }

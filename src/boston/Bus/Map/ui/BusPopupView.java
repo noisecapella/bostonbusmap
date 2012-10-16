@@ -36,6 +36,7 @@ import boston.Bus.Map.data.Locations;
 import boston.Bus.Map.data.Prediction;
 import boston.Bus.Map.data.PredictionView;
 import boston.Bus.Map.data.RouteTitles;
+import boston.Bus.Map.data.Selection;
 import boston.Bus.Map.data.StopLocation;
 import boston.Bus.Map.data.StopPredictionView;
 import boston.Bus.Map.main.AlertInfo;
@@ -206,27 +207,27 @@ public class BusPopupView extends BalloonOverlayView<BusOverlayItem>
 		});
 	}
 	
-	protected void createInfoForDeveloper(Context context, StringBuilder otherText, int selectedBusPredictions, String selectedRoute)
+	protected void createInfoForDeveloper(Context context, StringBuilder otherText, int mode, String routeTitle)
 	{
 		otherText.append("There was a problem with ");
-		switch (selectedBusPredictions)
+		switch (mode)
 		{
-		case Main.BUS_PREDICTIONS_ONE:
+		case Selection.BUS_PREDICTIONS_ONE:
 			otherText.append("bus predictions on one route. ");
 			break;
-		case Main.BUS_PREDICTIONS_STAR:
+		case Selection.BUS_PREDICTIONS_STAR:
 			otherText.append("bus predictions for favorited routes. ");
 			break;
-		case Main.BUS_PREDICTIONS_INTERSECT:
+		case Selection.BUS_PREDICTIONS_INTERSECT:
 			otherText.append("bus predictions intersecting certain locations. ");
 			break;
-		case Main.BUS_PREDICTIONS_ALL:
+		case Selection.BUS_PREDICTIONS_ALL:
 			otherText.append("bus predictions for all routes. ");
 			break;
-		case Main.VEHICLE_LOCATIONS_ALL:
+		case Selection.VEHICLE_LOCATIONS_ALL:
 			otherText.append("vehicle locations on all routes. ");
 			break;
-		case Main.VEHICLE_LOCATIONS_ONE:
+		case Selection.VEHICLE_LOCATIONS_ONE:
 			otherText.append("vehicle locations for one route. ");
 			break;
 		default:
@@ -246,10 +247,10 @@ public class BusPopupView extends BalloonOverlayView<BusOverlayItem>
 		}
 		otherText.append("OS: ").append(android.os.Build.MODEL).append(". ");
 
-		otherText.append("Currently selected route is '").append(selectedRoute).append("'. ");
+		otherText.append("Currently selected route is '").append(routeTitle).append("'. ");
 	}
 	
-	protected void createInfoForAgency(Context context, StringBuilder ret, int selectedBusPredictions, String selectedRoute)
+	protected void createInfoForAgency(Context context, StringBuilder ret, int mode, String routeTitle)
 	{
 		if (location instanceof StopLocation)
 		{
@@ -257,13 +258,12 @@ public class BusPopupView extends BalloonOverlayView<BusOverlayItem>
 			String stopTag = stopLocation.getStopTag();
 			ConcurrentMap<String, StopLocation> stopTags = locations.getAllStopsAtStop(stopTag);
 
-
-			if (selectedBusPredictions == Main.BUS_PREDICTIONS_ONE)
+			if (mode == Selection.BUS_PREDICTIONS_ONE)
 			{
 				if (stopTags.size() <= 1)
 				{
 					ret.append("The stop id is ").append(stopTag).append(" (").append(stopLocation.getTitle()).append(")");
-					ret.append(" on route ").append(selectedRoute).append(". ");
+					ret.append(" on route ").append(routeTitle).append(". ");
 				}
 				else
 				{
@@ -275,7 +275,7 @@ public class BusPopupView extends BalloonOverlayView<BusOverlayItem>
 					}
 					String stopTagsList = Joiner.on(",\n").join(stopTagStrings);
 					
-					ret.append("The stop ids are: ").append(stopTagsList).append(" on route ").append(selectedRoute).append(". ");
+					ret.append("The stop ids are: ").append(stopTagsList).append(" on route ").append(routeTitle).append(". ");
 				}
 			}
 			else
@@ -305,28 +305,26 @@ public class BusPopupView extends BalloonOverlayView<BusOverlayItem>
 	
 	protected String createEmailBody(Context context)
 	{
-		int selectedBusPredictions = locations != null ? locations.getSelectedBusPredictions() : -1;
-
-		String route = "";
-		try
-		{
-			if (locations != null && locations.getSelectedRoute() != null && locations.getSelectedRoute().getRouteName() != null)
-			{
-				String routeKey = locations.getSelectedRoute().getRouteName();
-				route = locations.getRouteTitle(routeKey);
-			}
+		Selection selection = locations.getSelection();
+		if (selection == null) {
+			selection = new Selection(-1, null, null);
 		}
-		catch (IOException e)
+
+		String routeTitle = selection.getRoute();
+		if (routeTitle != null) {
+			routeTitle = locations.getRouteTitle(routeTitle);
+		}
+		else
 		{
-			//don't worry about it
+			routeTitle = "";
 		}
 		
 		StringBuilder otherText = new StringBuilder();
 		otherText.append("(What is the problem?\nAdd any other info you want at the beginning or end of this message, and click send.)\n\n");
 		otherText.append("\n\n");
-		createInfoForAgency(context, otherText, selectedBusPredictions, route);
+		createInfoForAgency(context, otherText, selection.getMode(), routeTitle);
 		otherText.append("\n\n");
-		createInfoForDeveloper(context, otherText, selectedBusPredictions, route);
+		createInfoForDeveloper(context, otherText, selection.getMode(), routeTitle);
 
 		
 
