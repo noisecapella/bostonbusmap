@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8" ?> 
+<body copyright="All data copyright MBTA 2012.">
+<route tag="CR-1" title="Greenbush" />
+<route tag="CR-2" title="Kingston/Plymouth" />
+<route tag="CR-3" title="Middleborough/Lakeville" />
+<route tag="CR-4" title="Fairmount" />
+<route tag="CR-5" title="Providence/Stoughton" />
+<route tag="CR-6" title="Franklin" />
+<route tag="CR-7" title="Needham" />
+<route tag="CR-8" title="Framingham/Worcester" />
+<route tag="CR-9" title="Fitchburg/South Acton" />
+<route tag="CR-10" title="Lowell" />
+<route tag="CR-11" title="Haverhill" />
+<route tag="CR-12" title="Newburyport/Rockport" />
+
+</body>

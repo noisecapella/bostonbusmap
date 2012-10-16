@@ -56,9 +56,10 @@ class ToSql(xml.sax.handler.ContentHandler):
                 table.stopmapping.dirTag.value = None
                 table.stopmapping.insert()
             else:
-                table.directionsStops.dirTag.value = self.currentDirection
-                table.directionsStops.tag.value = tag
-                table.directionsStops.insert()
+                pass
+                #table.directionsStops.dirTag.value = self.currentDirection
+                #table.directionsStops.tag.value = tag
+                #table.directionsStops.insert()
                 
         elif name == "direction": #band attributes["useForUI"] == "true":
             dirTag = attributes["tag"]

@@ -44,7 +44,10 @@ schema = {"directions" : {"columns":[
           "locations" : {"columns":[
             {"tag" : "lat", "type" : "float"},
             {"tag" : "lon", "type" : "float"},
-            {"tag" : "name", "type" : "String"}], "primaryKeys" : ["name"]}
+            {"tag" : "name", "type" : "String"}], "primaryKeys" : ["name"]},
+          "alerts" : {"columns":[
+            {"tag" : "route", "type" : "String"},
+            {"tag" : "alertindex", "type" : "int"}], "primaryKeys" : ["alertindex"]}
           }
 
 class Tables:

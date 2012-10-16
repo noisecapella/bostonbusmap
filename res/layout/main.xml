@@ -11,7 +11,7 @@ android:id="@+id/linearLayoutMain" android:gravity="right">
 		 android:background="@android:drawable/btn_default"
 		 android:layout_alignParentRight="true"
 		></Spinner>
-
+	
     <ProgressBar android:id="@+id/progress"
 	android:layout_width="wrap_content" android:layout_height="wrap_content"
 	

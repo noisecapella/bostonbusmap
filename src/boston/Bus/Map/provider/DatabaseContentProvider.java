@@ -1207,6 +1207,7 @@ public class DatabaseContentProvider extends ContentProvider {
 			Cursor cursor = resolver.query(LOCATIONS_URI, projectionIn, null, null, null);
 			try
 			{
+				cursor.moveToFirst();
 				while (cursor.isAfterLast() == false) {
 					String title = cursor.getString(0);
 					
