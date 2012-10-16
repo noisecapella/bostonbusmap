@@ -649,9 +649,11 @@ public class Main extends MapActivity
 	    						public boolean onClick(GeoPoint point) {
 	    							Locations locations = arguments.getBusLocations();
 	    							String name = locations.makeNewIntersectionName();
+	    							Drawable drawable = arguments.getTransitSystem().getTransitSource(null).getDrawables().getVehicle();
 	    							IntersectionLocation.Builder builder = new IntersectionLocation.Builder(name, 
 	    									(float)(point.getLatitudeE6() * Constants.InvE6), 
-	    									(float)(point.getLongitudeE6() * Constants.InvE6));
+	    									(float)(point.getLongitudeE6() * Constants.InvE6),
+	    									drawable);
 	    							if (arguments.getBusLocations().addIntersection(builder) == false) {
 	    								Toast.makeText(Main.this, "Error adding location.\nMaybe there's already a location with that name?", Toast.LENGTH_LONG).show();
 	    							}

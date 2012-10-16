@@ -31,6 +31,7 @@ import boston.Bus.Map.data.RouteConfig;
 import boston.Bus.Map.data.RouteTitles;
 import boston.Bus.Map.data.StopLocation;
 import boston.Bus.Map.data.SubwayStopLocation;
+import boston.Bus.Map.data.UpdateArguments;
 import boston.Bus.Map.database.Schema;
 import boston.Bus.Map.database.Schema.Stopmapping;
 import boston.Bus.Map.main.UpdateAsyncTask;
@@ -59,6 +60,7 @@ import android.database.DatabaseUtils.InsertHelper;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.database.sqlite.SQLiteQueryBuilder;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.RemoteException;
 import android.provider.BaseColumns;
@@ -858,7 +860,7 @@ public class DatabaseContentProvider extends ContentProvider {
 		{
 			// what we should scale longitude by for 1 unit longitude to roughly equal 1 unit latitude
 
-			String[] projectionIn = new String[] {Schema.Stops.tagColumn, distanceKey};
+			String[] projectionIn = new String[] {Schema.Stops.table + "." + Schema.Stops.tagColumn, distanceKey};
 			int currentLatAsInt = (int)(currentLat * Constants.E6);
 			int currentLonAsInt = (int)(currentLon * Constants.E6);
 			int hasRoutes = Schema.toInteger(routes.size() != 0);
@@ -1208,12 +1210,13 @@ public class DatabaseContentProvider extends ContentProvider {
 			try
 			{
 				cursor.moveToFirst();
+				Drawable drawable = transitSystem.getTransitSource(null).getDrawables().getVehicle();
 				while (cursor.isAfterLast() == false) {
 					String title = cursor.getString(0);
 					
 					float lat = cursor.getFloat(1);
 					float lon = cursor.getFloat(2);
-					IntersectionLocation.Builder builder = new IntersectionLocation.Builder(title, lat, lon);
+					IntersectionLocation.Builder builder = new IntersectionLocation.Builder(title, lat, lon, drawable);
 					ret.put(title, builder);
 					
 					cursor.moveToNext();
@@ -1538,7 +1541,7 @@ public class DatabaseContentProvider extends ContentProvider {
 			}
 
 			HashMap<String, String> projectionMap = new HashMap<String, String>();
-			projectionMap.put(Schema.Stops.tagColumn, Schema.Stops.tagColumn);
+			projectionMap.put(Schema.Stops.table + "." + Schema.Stops.tagColumn, Schema.Stops.table + "." + Schema.Stops.tagColumn);
 
 			double lonFactor = Math.cos(currentLat * Geometry.degreesToRadians);
 			String latDiff = "(" + Schema.Stops.latColumn + " - " + currentLat + ")";

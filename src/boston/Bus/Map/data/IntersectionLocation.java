@@ -26,6 +26,8 @@ public class IntersectionLocation implements Location {
 	
 	private final ImmutableSet<String> nearbyRoutes;
 	
+	private final Drawable drawable;
+	
 	private IntersectionLocation(Builder builder) {
 		this.name = builder.name;
 		this.latitudeAsDegrees = builder.latitudeAsDegrees;
@@ -35,6 +37,7 @@ public class IntersectionLocation implements Location {
 		
 		predictionView = new SimplePredictionView("", name, new Alert[0]);
 		nearbyRoutes = builder.nearbyRoutes.build();
+		this.drawable = builder.drawable;
 	}
 	
 	public static class Builder {
@@ -42,12 +45,15 @@ public class IntersectionLocation implements Location {
 		private final float latitudeAsDegrees;
 		private final float longitudeAsDegrees;
 		private final ImmutableSet.Builder<String> nearbyRoutes;
+		private final Drawable drawable;
 		
-		public Builder(String name, float latitudeAsDegrees, float longitudeAsDegrees) {
+		public Builder(String name, float latitudeAsDegrees, float longitudeAsDegrees,
+				Drawable drawable) {
 			this.name = name;
 			this.latitudeAsDegrees = latitudeAsDegrees;
 			this.longitudeAsDegrees = longitudeAsDegrees;
 			this.nearbyRoutes = ImmutableSet.builder();
+			this.drawable = drawable;
 		}
 		
 		public void addRoute(String route) {
@@ -85,7 +91,7 @@ public class IntersectionLocation implements Location {
 	@Override
 	public Drawable getDrawable(Context context, boolean shadow,
 			boolean isSelected) {
-		return null;
+		return drawable;
 	}
 
 	@Override

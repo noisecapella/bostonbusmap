@@ -31,4 +31,8 @@ public class TransitDrawables {
 	public Drawable getStopUpdated() {
 		return stopUpdated;
 	}
+
+	public Drawable getIntersection() {
+		return vehicle;
+	}
 }
