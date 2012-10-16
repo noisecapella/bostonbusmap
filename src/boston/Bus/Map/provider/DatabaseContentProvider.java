@@ -1230,10 +1230,11 @@ public class DatabaseContentProvider extends ContentProvider {
 				IntersectionLocation.Builder builder = ret.get(key);
 				
 				int limit = 15;
-				Set<String> routes = Collections.emptySet();
+				Set<String> emptySet = Collections.emptySet();
 				Collection<StopLocation> stops = getClosestStops(resolver, 
 						builder.getLatitudeAsDegrees(), builder.getLongitudeAsDegrees(),
-						transitSystem, sharedStops, limit, routes);
+						transitSystem, sharedStops, limit, emptySet);
+				Set<String> routes = Sets.newHashSet();
 				for (StopLocation stop : stops) {
 					routes.addAll(stop.getRoutes());
 				}
