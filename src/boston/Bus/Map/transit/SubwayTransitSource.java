@@ -32,6 +32,8 @@ import boston.Bus.Map.data.Selection;
 import boston.Bus.Map.data.StopLocation;
 import boston.Bus.Map.data.SubwayStopLocation;
 import boston.Bus.Map.data.TransitDrawables;
+import boston.Bus.Map.data.TransitSourceTitles;
+import boston.Bus.Map.database.Schema;
 import boston.Bus.Map.main.Main;
 import boston.Bus.Map.main.UpdateAsyncTask;
 import boston.Bus.Map.parser.AlertParser;
@@ -44,33 +46,24 @@ import boston.Bus.Map.util.SearchHelper;
 public class SubwayTransitSource implements TransitSource {
 	private static String predictionsUrlSuffix = ".txt";
 	private final TransitDrawables drawables;
-	public static final String RedLine = "Red";
-	public static final String OrangeLine = "Orange";
-	public static final String BlueLine = "Blue";
-	private static final String[] subwayRoutes = new String[] {RedLine, OrangeLine, BlueLine};
-	private final ImmutableMap<String, Integer> alertKeys;
 	
 	
 	public static final int RedColor = Color.RED;
 	public static final int OrangeColor = 0xf88017; //orange isn't a built in color?
 	public static final int BlueColor = Color.BLUE;
 	
-	private static final int[] subwayColors = new int[] {RedColor, OrangeColor, BlueColor};
-	private final RouteTitles subwayRouteKeysToTitles;
+	public static final String RedLine = "Red";
+	public static final String OrangeLine = "Orange";
+	public static final String BlueLine = "Blue";
+	
+	private final TransitSourceTitles routeTitles;
 	
 	
-	public SubwayTransitSource(TransitDrawables drawables, AlertsMapping alertsMapping)
+	public SubwayTransitSource(TransitDrawables drawables, TransitSourceTitles routeTitles)
 	{
 		this.drawables = drawables;
 		
-		ImmutableBiMap.Builder<String, String> builder = ImmutableBiMap.builder();
-		for (String route : subwayRoutes)
-		{
-			builder.put(route, route);
-		}
-		subwayRouteKeysToTitles = new RouteTitles(builder.build());
-
-		alertKeys = alertsMapping.getAlertNumbers(subwayRouteKeysToTitles);
+		this.routeTitles = routeTitles;
 	}
 	
 	
@@ -152,19 +145,19 @@ public class SubwayTransitSource implements TransitSource {
 
 				//bus prediction
 
-				SubwayPredictionsFeedParser parser = new SubwayPredictionsFeedParser(route, routePool, directions, drawables, busMapping, subwayRouteKeysToTitles);
+				SubwayPredictionsFeedParser parser = new SubwayPredictionsFeedParser(route, routePool, directions, drawables, busMapping, routeTitles);
 
 				parser.runParse(data);
 			}
 			
 			//get alerts if necessary
-			int alertKey = alertKeys.get(route);
+			AlertsMapping alertKeys = locationsObj.getAlertsMapping();
+			String alertUrl = alertKeys.getUrlForRoute(route);
 			
 			RouteConfig railRouteConfig = routePool.get(route);
 			if (railRouteConfig.obtainedAlerts() == false)
 			{
-				String url = AlertsMapping.alertUrlPrefix + alertKey;
-				DownloadHelper downloadHelper = new DownloadHelper(url);
+				DownloadHelper downloadHelper = new DownloadHelper(alertUrl);
 				downloadHelper.connect();
 
 				InputStream stream = downloadHelper.getResponseData();
@@ -187,7 +180,7 @@ public class SubwayTransitSource implements TransitSource {
 		return dataUrlPrefix + route + predictionsUrlSuffix ;
 	}
 	
-	private static void getPredictionsRoutes(List<Location> locations, int maxStops,
+	private void getPredictionsRoutes(List<Location> locations, int maxStops,
 			String routeName, HashSet<String> outputRoutes, int mode) {
 		
 		//BUS_PREDICTIONS_ONE or VEHICLE_LOCATIONS_ONE
@@ -236,7 +229,7 @@ public class SubwayTransitSource implements TransitSource {
 			else
 			{
 				//add all three
-				for (String route : subwayRoutes)
+				for (String route : routeTitles.routeTags())
 				{
 					outputRoutes.add(route);
 				}
@@ -256,30 +249,12 @@ public class SubwayTransitSource implements TransitSource {
 		return "http://developer.mbta.com/RT_Archive/RealTimeHeavyRailKeys.csv";
 	}
 
-	private static boolean isSubway(String route) {
-		for (String subwayRoute : subwayRoutes)
-		{
-			if (subwayRoute.equals(route))
-			{
-				return true;
-			}
-		}
-		return false;
-	}
-
-	public static String[] getAllSubwayRoutes() {
-		return subwayRoutes;
+	private boolean isSubway(String route) {
+		return routeTitles.hasRoute(route);
 	}
 
 	public static int getSubwayColor(String subwayRoute)
 	{
-		for (int i = 0; i < subwayRoutes.length; i++)
-		{
-			if (subwayRoutes[i].equals(subwayRoute))
-			{
-				return subwayColors[i];
-			}
-		}
 		return BlueColor;
 	}
 
@@ -307,11 +282,6 @@ public class SubwayTransitSource implements TransitSource {
 
 
 	@Override
-	public RouteTitles getRouteKeysToTitles() {
-		return subwayRouteKeysToTitles;
-	}
-
-	@Override
 	public TransitDrawables getDrawables() {
 		return drawables;
 	}
@@ -319,7 +289,7 @@ public class SubwayTransitSource implements TransitSource {
 	@Override
 	public String searchForRoute(String indexingQuery, String lowercaseQuery)
 	{
-		return SearchHelper.naiveSearch(indexingQuery, lowercaseQuery, subwayRouteKeysToTitles);
+		return SearchHelper.naiveSearch(indexingQuery, lowercaseQuery, routeTitles);
 	}
 
 
@@ -337,5 +307,17 @@ public class SubwayTransitSource implements TransitSource {
 	@Override
 	public int getLoadOrder() {
 		return 2;
+	}
+
+
+	@Override
+	public int getTransitSourceId() {
+		return Schema.Routes.enumagencyidSubway;
+	}
+
+
+	@Override
+	public TransitSourceTitles getRouteTitles() {
+		return routeTitles;
 	}
 }

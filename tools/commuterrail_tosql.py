@@ -367,6 +367,7 @@ def write_sql(data, routeTitles, startOrder):
             obj.routes.color.value = purple
             obj.routes.oppositecolor.value = purple
             obj.routes.listorder.value = startOrder + order
+            obj.routes.agencyid.value = schema.CommuterRailAgencyId
             obj.routes.insert()
 
             routes_done[routeKey] = True

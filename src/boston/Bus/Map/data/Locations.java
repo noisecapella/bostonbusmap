@@ -496,4 +496,12 @@ public final class Locations
 	public RouteConfig getRoute(String route) throws IOException {
 		return routeMapping.get(route);
 	}
+
+	public RouteTitles getRouteTitles() {
+		return transitSystem.getRouteKeysToTitles();
+	}
+	
+	public AlertsMapping getAlertsMapping() {
+		return transitSystem.getAlertsMapping();
+	}
 }

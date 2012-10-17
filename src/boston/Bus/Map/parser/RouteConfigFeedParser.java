@@ -89,6 +89,7 @@ public class RouteConfigFeedParser extends DefaultHandler
 	private final List<Path> currentPaths = Lists.newArrayList();
 	private String currentRouteTag;
 	private String currentRouteTitle;
+	private int currentRouteListOrder;
 	private int currentRouteColor;
 	private int currentRouteOppositeColor;
 	
@@ -107,14 +108,18 @@ public class RouteConfigFeedParser extends DefaultHandler
 	private final List<Schema.Directions.Bean> directions = Lists.newArrayList();
 	private final List<Schema.DirectionsStops.Bean> directionsStops = Lists.newArrayList();
 	
+	private final RouteTitles routeTitles;
+	
 	/**
 	 * You must call cleanup() when you are done with this object!
 	 * @param context
 	 * @param transitSource
 	 */
-	public RouteConfigFeedParser(Context context, NextBusTransitSource transitSource)
+	public RouteConfigFeedParser(Context context, NextBusTransitSource transitSource,
+			RouteTitles routeTitles)
 	{
 		this.transitSource = transitSource;
+		this.routeTitles = routeTitles;
 	}
 
 	public void runParse(InputStream inputStream)  throws ParserConfigurationException, SAXException, IOException
@@ -173,8 +178,9 @@ public class RouteConfigFeedParser extends DefaultHandler
 			currentRouteTag = attributes.getValue(tagKey);
 			currentRouteColor = parseColor(attributes.getValue(colorKey));
 			currentRouteOppositeColor = parseColor(attributes.getValue(oppositeColorKey));
-			RouteTitles routeKeysToTitles = transitSource.getRouteKeysToTitles();
-			currentRouteTitle = routeKeysToTitles.getTitle(currentRouteTag);
+
+			currentRouteTitle = routeTitles.getTitle(currentRouteTag);
+			currentRouteListOrder = routeTitles.getIndexForTag(currentRouteTag);
 		}
 		else if (pathKey.equals(localName))
 		{
@@ -235,7 +241,8 @@ public class RouteConfigFeedParser extends DefaultHandler
 			{
 				Path[] pathblob = currentPaths != null ? currentPaths.toArray(new Path[0]) : null;
 				byte[] blob = DatabaseAgent.pathsToBlob(pathblob);
-				routes.add(new Schema.Routes.Bean(currentRouteTag, currentRouteColor, currentRouteOppositeColor, blob, currentRouteTitle));
+				routes.add(new Schema.Routes.Bean(currentRouteTag, currentRouteColor,
+						currentRouteOppositeColor, blob, currentRouteListOrder, Schema.Routes.enumagencyidBus, currentRouteTitle));
 
 				currentRouteTag = null;
 				currentRouteTitle = null;

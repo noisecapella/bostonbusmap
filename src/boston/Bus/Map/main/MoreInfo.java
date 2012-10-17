@@ -15,6 +15,7 @@ import boston.Bus.Map.R;
 
 import boston.Bus.Map.data.Prediction;
 import boston.Bus.Map.data.RouteTitles;
+import boston.Bus.Map.data.TransitSourceTitles;
 import boston.Bus.Map.ui.TextViewBinder;
 import boston.Bus.Map.util.StringUtil;
 import android.app.Activity;
@@ -55,7 +56,7 @@ public class MoreInfo extends ListActivity {
 	private TextView title1;
 	private TextView title2;
 	private Spinner routeSpinner;
-	private RouteTitles routeKeysToTitles;
+	private TransitSourceTitles routeKeysToTitles;
 	
 	/**
 	 * If false, don't try accessing predictions or routeKeysToTitles because they may be being populated
@@ -90,7 +91,7 @@ public class MoreInfo extends ListActivity {
 		{
 			routeKeysToTitlesBuilder.put(keys[i], titles[i]);
 		}
-		routeKeysToTitles = new RouteTitles(routeKeysToTitlesBuilder.build());
+		routeKeysToTitles = new TransitSourceTitles(routeKeysToTitlesBuilder.build());
 
 		title1 = (TextView)findViewById(R.id.moreinfo_title1);
 		title2 = (TextView)findViewById(R.id.moreinfo_title2);

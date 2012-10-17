@@ -2,14 +2,18 @@ package boston.Bus.Map.data;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ImmutableBiMap;
 import com.google.common.collect.ImmutableBiMap.Builder;
+import com.google.common.collect.ImmutableCollection;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableMultimap;
+import com.google.common.collect.ImmutableTable;
 import com.google.common.collect.Iterables;
+import com.google.common.collect.Maps;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.Multimaps;
 
@@ -18,46 +22,63 @@ import com.google.common.collect.Multimaps;
  * @author schneg
  *
  */
-public class RouteTitles {
-	private final ImmutableMap<String, String> map;
-	private final ImmutableMultimap<String, String> inverse;
+public class RouteTitles extends TransitSourceTitles
+{
+	private final ImmutableMap<String, Integer> tagToIndex;
+	private final ImmutableMap<Integer, TransitSourceTitles> transitSourceMaps;
+	private final ImmutableMap<String, Integer> transitSourceIds;
 	
-	public RouteTitles(ImmutableMap<String, String> map) {
-		this.map = map;
-		Multimap<String, String> s = ArrayListMultimap.create();
+	public RouteTitles(ImmutableBiMap<String, String> map, 
+			ImmutableMap<String, Integer> transitSourceIds) {
+		super(map);
+
+		ImmutableMap.Builder<String, Integer> builder = ImmutableMap.builder();
+		int count = 0;
 		for (String key : map.keySet()) {
-			String value = map.get(key);
-			s.put(value, key);
+			builder.put(key, count);
+			count++;
 		}
-		inverse = ImmutableMultimap.copyOf(s);
-	}
+		tagToIndex = builder.build();
 
-	public Set<String> routeTags() {
-		return map.keySet();
-	}
+		Map<Integer, ImmutableBiMap.Builder<String, String>> transitSourceBuilder 
+				= Maps.newHashMap();
+		
+		for (String name : map.keySet()) {
+			String title = map.get(name);
+			int transitSourceId = transitSourceIds.get(name);
 
-	public Collection<String> routeTitles() {
-		return map.values();
-	}
+			ImmutableBiMap.Builder<String, String> miniBuilder;
+			if (transitSourceBuilder.containsKey(transitSourceId) == false) {
+				miniBuilder = ImmutableBiMap.builder();
+				transitSourceBuilder.put(transitSourceId, miniBuilder);
+			}
+			else
+			{
+				miniBuilder = transitSourceBuilder.get(transitSourceId);
+			}
+			miniBuilder.put(name, title);
+		}
 
-	public String getTitle(String routeKey) {
-		return map.get(routeKey);
-	}
+		Map<Integer, TransitSourceTitles> transitionMap = Maps.newHashMap();
+		for (int transitSourceId : transitSourceBuilder.keySet()) {
+			ImmutableBiMap.Builder<String, String> value = transitSourceBuilder.get(transitSourceId);
 
-	public String getKey(String routeTitle) {
-		return Iterables.getFirst(inverse.get(routeTitle), "");
-	}
+			TransitSourceTitles transitSourceTitles = new TransitSourceTitles(value.build());
+			transitionMap.put(transitSourceId, transitSourceTitles);
+		}
 
-	public List<String> getKeys() {
-		return map.keySet().asList();
+		this.transitSourceMaps = ImmutableMap.copyOf(transitionMap);
+		this.transitSourceIds = transitSourceIds;
 	}
-
-	public String[] titleArray() {
-		return map.values().toArray(new String[0]);
-	}
-
-	public String[] tagArray() {
-		return map.keySet().toArray(new String[0]);
+	
+	public int getIndexForTag(String route) {
+		if (tagToIndex.containsKey(route)) {
+			return tagToIndex.get(route);
+		}
+		else
+		{
+			return -1;
+		}
 	}
 
 	public String getTagUsingIndex(int index) {
@@ -69,20 +90,13 @@ public class RouteTitles {
 		return map.keySet().asList().get(index);
 	}
 
-	public int size() {
-		return map.size();
+	public TransitSourceTitles getMappingForSource(
+			int transitSourceId) {
+		return transitSourceMaps.get(transitSourceId);
 	}
 
-	public int getIndexForTag(String route) {
-		int count = 0;
-		for (String routeTag : map.keySet())
-		{
-			if (route.equals(routeTag))
-			{
-				return count;
-			}
-			count++;
-		}
-		return -1;
+	public int getTransitSourceId(String routeName) {
+		return transitSourceIds.get(routeName);
 	}
+
 }

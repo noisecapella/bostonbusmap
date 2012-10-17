@@ -41,6 +41,8 @@ import boston.Bus.Map.data.Selection;
 import boston.Bus.Map.data.StopLocation;
 import boston.Bus.Map.data.SubwayStopLocation;
 import boston.Bus.Map.data.TransitDrawables;
+import boston.Bus.Map.data.TransitSourceTitles;
+import boston.Bus.Map.database.Schema;
 import boston.Bus.Map.main.Main;
 import boston.Bus.Map.main.UpdateAsyncTask;
 import boston.Bus.Map.parser.AlertParser;
@@ -54,57 +56,17 @@ import boston.Bus.Map.util.SearchHelper;
 
 public class CommuterRailTransitSource implements TransitSource {
 	public static final String stopTagPrefix = "CRK-";
-	private final RouteTitles routeKeysToTitles;
 	private static final String predictionsUrlSuffix = ".csv";
 	public static final String routeTagPrefix = "CR-";
 	private static final String dataUrlPrefix = "http://developer.mbta.com/lib/RTCR/RailLine_";
 	
-	private final ImmutableMap<String, String> routeKeysToAlertUrls;
 	private final TransitDrawables drawables;
+	private final TransitSourceTitles routeTitles;
 	
-	public CommuterRailTransitSource(TransitDrawables drawables, AlertsMapping alertsMapping)
+	public CommuterRailTransitSource(TransitDrawables drawables, TransitSourceTitles routeTitles)
 	{
 		this.drawables = drawables;
-		
-		String[] routeNames = new String[] {
-				"Greenbush",
-				"Kingston/Plymouth",
-				"Middleborough/Lakeville",
-				"Fairmount",
-				"Providence/Stoughton",
-				"Franklin",
-				"Needham",
-				"Framingham/Worcester",
-				"Fitchburg/South Acton",
-				"Lowell",
-				"Haverhill",
-				"Newburyport/Rockport"
-
-		};
-		
-		//map alert keys to numbers
-		ImmutableBiMap.Builder<String, String> routeBuilder = ImmutableBiMap.builder();
-		for (int i = 0; i < routeNames.length; i++)
-		{
-			String key = routeTagPrefix + (i+1); 
-			String title = routeNames[i];
-			routeBuilder.put(key, title);
-		}
-		routeKeysToTitles = new RouteTitles(routeBuilder.build());
-
-		ImmutableMap<String, Integer> alertNumbers = alertsMapping.getAlertNumbers(routeKeysToTitles);
-		
-		
-		ImmutableMap.Builder<String, String> alertsBuilder = ImmutableMap.builder();
-		for (int i = 0; i < routeNames.length; i++)
-		{
-			String routeTitle = routeNames[i];
-			int alertKey = alertNumbers.get(routeTitle);
-			String routeKey = routeTagPrefix + (i+1);
-			alertsBuilder.put(routeKey, AlertsMapping.alertUrlPrefix + alertKey);
-		}
-		routeKeysToAlertUrls = alertsBuilder.build();
-		this.commuterRailData = commuterRailData;
+		this.routeTitles = routeTitles;
 	}
 
 	@Override
@@ -147,8 +109,8 @@ public class CommuterRailTransitSource implements TransitSource {
 			return;
 		}
 		
-		ImmutableTable.Builder<Integer, Integer, String> table = ImmutableTable.builder();	
 		
+		AlertsMapping alertsMapping = locationsObj.getAlertsMapping();
 		List<RefreshData> outputData = Lists.newArrayList();
 		switch (selectedBusPredictions)
 		{
@@ -159,7 +121,7 @@ public class CommuterRailTransitSource implements TransitSource {
 			List<Location> locations = locationsObj.getLocations(maxStops, centerLatitude, centerLongitude, false, selection);
 
 			//ok, do predictions now
-			getPredictionsUrl(locations, maxStops, routeConfig.getRouteName(), outputData, selectedBusPredictions);
+			getPredictionsUrl(locations, maxStops, routeConfig.getRouteName(), outputData, selectedBusPredictions, alertsMapping);
 			break;
 		}
 		case Selection.BUS_PREDICTIONS_ALL:
@@ -169,7 +131,7 @@ public class CommuterRailTransitSource implements TransitSource {
 		{
 			List<Location> locations = locationsObj.getLocations(maxStops, centerLatitude, centerLongitude, false, selection);
 			
-			getPredictionsUrl(locations, maxStops, null, outputData, selectedBusPredictions);
+			getPredictionsUrl(locations, maxStops, null, outputData, selectedBusPredictions, alertsMapping);
 
 		}
 		break;
@@ -193,7 +155,7 @@ public class CommuterRailTransitSource implements TransitSource {
 			String route = outputRow.route;
 			RouteConfig railRouteConfig = routePool.get(route);
 			CommuterRailPredictionsFeedParser parser = new CommuterRailPredictionsFeedParser(railRouteConfig, directions,
-					drawables, busMapping, routeKeysToTitles);
+					drawables, busMapping, locationsObj.getRouteTitles());
 
 			parser.runParse(data);
 			data.close();
@@ -237,7 +199,7 @@ public class CommuterRailTransitSource implements TransitSource {
 	}
 	
 	private void getPredictionsUrl(List<Location> locations, int maxStops,
-			String routeName, List<RefreshData> outputData, int mode)
+			String routeName, List<RefreshData> outputData, int mode, AlertsMapping alertsMapping)
 	{
 		//http://developer.mbta.com/lib/RTCR/RailLine_1.csv
 		
@@ -249,7 +211,7 @@ public class CommuterRailTransitSource implements TransitSource {
 			{
 				String index = routeName.substring(routeTagPrefix.length()); //snip off beginning "CR-"
 				String url = dataUrlPrefix + index + predictionsUrlSuffix;
-				String alertUrl = routeKeysToAlertUrls.get(routeName);
+				String alertUrl = alertsMapping.getUrlForRoute(routeName);
 				
 				outputData.add(new RefreshData(url, alertUrl, routeName));
 				return;
@@ -273,7 +235,7 @@ public class CommuterRailTransitSource implements TransitSource {
 							{
 								String index = route.substring(routeTagPrefix.length());
 								String url = dataUrlPrefix + index + predictionsUrlSuffix;
-								String alertUrl = routeKeysToAlertUrls.get(route);
+								String alertUrl = alertsMapping.getUrlForRoute(route);
 								outputData.add(new RefreshData(url, alertUrl, route));
 							}
 						}
@@ -288,7 +250,7 @@ public class CommuterRailTransitSource implements TransitSource {
 						{
 							String index = route.substring(3);
 							String url = dataUrlPrefix + index + predictionsUrlSuffix;
-							String alertUrl = routeKeysToAlertUrls.get(route);
+							String alertUrl = alertsMapping.getUrlForRoute(route);
 							outputData.add(new RefreshData(url, alertUrl, route));
 						}
 					}
@@ -302,7 +264,7 @@ public class CommuterRailTransitSource implements TransitSource {
 				{
 					String url = dataUrlPrefix + i + predictionsUrlSuffix;
 					String routeKey = routeTagPrefix + i;
-					String alertUrl = routeKeysToAlertUrls.get(routeKey);
+					String alertUrl = alertsMapping.getUrlForRoute(routeKey);
 					
 					outputData.add(new RefreshData(url, alertUrl, routeKey));
 				}
@@ -322,14 +284,7 @@ public class CommuterRailTransitSource implements TransitSource {
 	}
 
 	private boolean isCommuterRail(String routeName) {
-		for (String route : routeKeysToTitles.routeTags())
-		{
-			if (route.equals(routeName))
-			{
-				return true;
-			}
-		}
-		return false;
+		return routeTitles.hasRoute(routeName);
 	}
 
 	@Override
@@ -357,11 +312,6 @@ public class CommuterRailTransitSource implements TransitSource {
 	}
 
 	@Override
-	public RouteTitles getRouteKeysToTitles() {
-		return routeKeysToTitles;
-	}
-
-	@Override
 	public TransitDrawables getDrawables() {
 		return drawables;
 	}
@@ -370,9 +320,9 @@ public class CommuterRailTransitSource implements TransitSource {
 	public String searchForRoute(String indexingQuery, String lowercaseQuery)
 	{
 		//try splitting up the route keys along the diagonal and see if they match one piece of it
-		for (String route : routeKeysToTitles.getKeys())
+		for (String route : routeTitles.routeTitles())
 		{
-			String title = routeKeysToTitles.getTitle(route);
+			String title = routeTitles.getTitle(route);
 			if (title.contains("/"))
 			{
 				String[] pieces = title.split("/");
@@ -386,7 +336,7 @@ public class CommuterRailTransitSource implements TransitSource {
 			}
 		}
 		
-		return SearchHelper.naiveSearch(indexingQuery, lowercaseQuery, routeKeysToTitles);
+		return SearchHelper.naiveSearch(indexingQuery, lowercaseQuery, routeTitles);
 		
 	}
 
@@ -403,5 +353,15 @@ public class CommuterRailTransitSource implements TransitSource {
 	@Override
 	public int getLoadOrder() {
 		return 3;
+	}
+
+	@Override
+	public TransitSourceTitles getRouteTitles() {
+		return routeTitles;
+	}
+
+	@Override
+	public int getTransitSourceId() {
+		return Schema.Routes.enumagencyidCommuterRail;
 	}
 }

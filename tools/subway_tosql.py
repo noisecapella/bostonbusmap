@@ -12,6 +12,10 @@ RedLine = "Red"
 OrangeLine = "Orange"
 BlueLine = "Blue"
 
+subway_color = {RedLine: 0xff0000,
+                OrangeLine: 0xf88017,
+                BlueLine: 0x0000ff}
+
 red = 0xff0000
 
 import urllib2
@@ -50,9 +54,10 @@ def write_sql(data, routeTitles, startOrder):
             obj.routes.route.value = routeName
             routeTitle, order = routeTitles[routeName]
             obj.routes.routetitle.value = routeTitle
-            obj.routes.color.value = red
-            obj.routes.oppositecolor.value = red
+            obj.routes.color.value = subway_color[routeName]
+            obj.routes.oppositecolor.value = subway_color[routeName]
             obj.routes.listorder.value = startOrder + order
+            obj.routes.agencyid.value = schema.SubwayAgencyId
             obj.routes.insert()
             
             routes_done[routeName] = True

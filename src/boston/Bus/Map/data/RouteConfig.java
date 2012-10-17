@@ -27,6 +27,8 @@ public class RouteConfig
 	private Path[] paths;
 	private final String route;
 	private final String routeTitle;
+	private final int listorder;
+	private final int transitSourceId;
 	
 	private final int color;
 	private final int oppositeColor;
@@ -56,6 +58,8 @@ public class RouteConfig
 			paths = nullPaths;
 		}
 		
+		this.listorder = builder.listorder;
+		this.transitSourceId = builder.transitSourceId;
 	}
 	
 	private RouteConfig(Builder builder)
@@ -72,20 +76,26 @@ public class RouteConfig
 		private final IBox serializedPath;
 		private final Map<String, StopLocation> stops = Maps.newHashMap();
 		private final List<Path> paths = Lists.newArrayList();
+		private final int listorder;
+		private final int transitSourceId;
 		
 		public Builder(String route, String routeTitle, int color, int oppositeColor,
-				TransitSource transitSource) {
-			this(route, routeTitle, color, oppositeColor, transitSource, Box.emptyBox());
+				TransitSource transitSource, int listorder, int transitSourceId) {
+			this(route, routeTitle, color, oppositeColor,
+					transitSource, listorder, transitSourceId, Box.emptyBox());
 		}
 		
 		public Builder(String route, String routeTitle, int color, int oppositeColor,
-				TransitSource transitSource, IBox serializedPath) {
+				TransitSource transitSource, 
+				int listorder, int transitSourceId, IBox serializedPath) {
 			this.route = route;
 			this.routeTitle = routeTitle;
 			this.color = color;
 			this.oppositeColor = oppositeColor;
 			this.transitSource = transitSource;
 			this.serializedPath = serializedPath;
+			this.listorder = listorder;
+			this.transitSourceId = transitSourceId;
 		}
 		
 		public StopLocation getStop(String tag) {
@@ -235,5 +245,13 @@ public class RouteConfig
 			}
 		}
 		return candidate.getStopTag();
+	}
+
+	public int getTransitSourceId() {
+		return transitSourceId;
+	}
+	
+	public int getListOrder() {
+		return listorder;
 	}
 }

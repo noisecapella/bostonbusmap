@@ -1,5 +1,9 @@
 import inspect
 
+CommuterRailAgencyId = 1
+SubwayAgencyId = 2
+BusAgencyId = 3
+
 exampleSql =     """
 CREATE TABLE android_metadata (locale TEXT);
 CREATE TABLE directions (dirTag STRING PRIMARY KEY, dirNameKey STRING, dirTitleKey STRING, dirRouteKey STRING, useAsUI INTEGER);
@@ -34,6 +38,9 @@ schema = {"directions" : {"columns":[
             {"tag": "oppositecolor", "type": "int"},
             {"tag": "pathblob", "type": "byte[]", "canbenull" : "true"},
             {"tag": "listorder", "type" :"int"},
+            {"tag": "agencyid", "type" : "int", "values" : {CommuterRailAgencyId:"CommuterRail",
+                                                            BusAgencyId : "Bus",
+                                                            SubwayAgencyId : "Subway"}},
             {"tag": "routetitle", "type": "String"}], "primaryKeys" : ["route"]},
           "stopmapping" : {"columns":[
             {"tag": "route", "type": "String"},
@@ -78,10 +85,11 @@ class Table:
 
 class Column:
     value = None
-    def __init__(self, column_name, type, canbenull):
+    def __init__(self, column_name, type, canbenull, valid_values):
         self.column_name = column_name
         self.data_type = type
         self.canbenull = canbenull.lower() == "true"
+        self.valid_values = valid_values
 
     def sqlForColumn(self, primaryKeys):
         type = "STRING"
@@ -103,10 +111,15 @@ class Column:
                 value = "NULL"
             else:
                 raise Exception("value is null but shouldn't be: " + repr(inspect.getmembers(self)))
-        elif self.data_type == "String":
-            value = "\"" + self.value.replace("\"", "\\\"") + "\""
+
+        if self.valid_values and value not in self.valid_values:
+            raise Exception("invalid value: " + str(value))
+            
+        if self.data_type == "String":
+            value = "\"" + value.replace("\"", "\\\"") + "\""
 
         self.value = None
+
         return str(value)
 
 
@@ -116,9 +129,12 @@ def getSchemaAsObject():
         newTable = Table(tableName, table["primaryKeys"])
         for column in table["columns"]:
             canbenull = "false"
+            valid_values = None
             if "canbenull" in column:
                 canbenull = column["canbenull"]
-            setattr(newTable, column["tag"], Column(column["tag"], column["type"], canbenull))
+            if "values" in column:
+                valid_values = column["values"]
+            setattr(newTable, column["tag"], Column(column["tag"], column["type"], canbenull, valid_values))
             newTable.arguments += [column]
         setattr(ret, tableName, newTable)
     return ret

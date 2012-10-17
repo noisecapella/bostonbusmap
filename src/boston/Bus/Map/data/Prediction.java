@@ -53,7 +53,7 @@ public class Prediction implements Comparable<Prediction>, Parcelable
 		this.lateness = lateness;
 	}
 
-	public void makeSnippet(RouteTitles routeKeysToTitles, Context context, StringBuilder builder) {
+	public void makeSnippet(TransitSourceTitles routeKeysToTitles, Context context, StringBuilder builder) {
 		int minutes = getMinutes();
 		if (minutes < 0)
 		{
@@ -204,7 +204,7 @@ public class Prediction implements Comparable<Prediction>, Parcelable
 	 * @param routeKeysToTitles
 	 * @return
 	 */
-	public ImmutableMap<String, Spanned> makeSnippetMap(RouteTitles routeKeysToTitles, Context context) {
+	public ImmutableMap<String, Spanned> makeSnippetMap(TransitSourceTitles routeKeysToTitles, Context context) {
 		StringBuilder ret = new StringBuilder();
 		makeSnippet(routeKeysToTitles, context, ret);
 		

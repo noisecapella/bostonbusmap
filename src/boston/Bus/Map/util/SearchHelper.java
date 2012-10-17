@@ -13,6 +13,7 @@ import android.widget.Toast;
 import boston.Bus.Map.data.Direction;
 import boston.Bus.Map.data.RouteTitles;
 import boston.Bus.Map.data.StopLocation;
+import boston.Bus.Map.data.TransitSourceTitles;
 import boston.Bus.Map.data.UpdateArguments;
 import boston.Bus.Map.main.Main;
 import boston.Bus.Map.provider.DatabaseContentProvider.DatabaseAgent;
@@ -202,28 +203,20 @@ public class SearchHelper
 	}
 
 	public static String naiveSearch(String indexingQuery, String lowercaseQuery,
-			RouteTitles routeKeysToTitles)
+			TransitSourceTitles routeKeysToTitles)
 	{
-		List<String> routes = routeKeysToTitles.getKeys();
-		int position = routes.indexOf(indexingQuery);
-
-		if (position != -1)
+		if (routeKeysToTitles.hasRoute(indexingQuery))
 		{
-			return routes.get(position);
+			return indexingQuery;
 		}
 		else
 		{
 			//try the titles
-			for (int i = 0; i < routes.size(); i++)
-			{
-				String title = routeKeysToTitles.getTitle(routes.get(i));
-				if (title != null)
-				{
-					String titleWithoutSpaces = title.toLowerCase().replaceAll(" ", "");
-					if (titleWithoutSpaces.equals(lowercaseQuery))
-					{
-						return routes.get(i);
-					}
+			for (String route : routeKeysToTitles.routeTags()) {
+				String title = routeKeysToTitles.getTitle(route);
+				String titleWithoutSpaces = title.toLowerCase().replaceAll(" ", "");
+				if (titleWithoutSpaces.equals(lowercaseQuery)) {
+					return route;
 				}
 			}
 			

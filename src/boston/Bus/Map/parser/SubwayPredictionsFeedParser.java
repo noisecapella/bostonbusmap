@@ -35,6 +35,7 @@ import boston.Bus.Map.data.StopLocation;
 import boston.Bus.Map.data.SubwayStopLocation;
 import boston.Bus.Map.data.SubwayTrainLocation;
 import boston.Bus.Map.data.TransitDrawables;
+import boston.Bus.Map.data.TransitSourceTitles;
 import boston.Bus.Map.transit.SubwayTransitSource;
 import boston.Bus.Map.transit.TransitSystem;
 import boston.Bus.Map.util.LogUtil;
@@ -47,7 +48,7 @@ public class SubwayPredictionsFeedParser
 	private final TransitDrawables drawables;
 	
 	private final ConcurrentMap<String, BusLocation> busMapping;
-	private final RouteTitles routeKeysToTitles;
+	private final TransitSourceTitles routeKeysToTitles;
 	
 	private static final int ROUTE_INDEX = 0;
 	private static final int TRIP_ID_INDEX = 1;
@@ -59,7 +60,7 @@ public class SubwayPredictionsFeedParser
 	private static final int BRANCH_INDEX = 7;
 	
 	public SubwayPredictionsFeedParser(String route, RoutePool routePool, Directions directions, TransitDrawables drawables, 
-			ConcurrentHashMap<String, BusLocation> busMapping, RouteTitles routeKeysToTitles)
+			ConcurrentHashMap<String, BusLocation> busMapping, TransitSourceTitles routeKeysToTitles)
 	{
 		this.currentRoute = route;
 		this.routePool = routePool;
@@ -87,7 +88,7 @@ public class SubwayPredictionsFeedParser
 		}
 		else
 		{
-			for (String subwayRoute : SubwayTransitSource.getAllSubwayRoutes())
+			for (String subwayRoute : routeKeysToTitles.routeTags())
 			{
 				RouteConfig routeConfig = routePool.get(subwayRoute);
 				if (routeConfig != null)

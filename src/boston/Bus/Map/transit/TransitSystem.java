@@ -32,6 +32,8 @@ import boston.Bus.Map.data.RouteTitles;
 import boston.Bus.Map.data.Selection;
 import boston.Bus.Map.data.StopLocation;
 import boston.Bus.Map.data.TransitDrawables;
+import boston.Bus.Map.data.TransitSourceTitles;
+import boston.Bus.Map.database.Schema;
 import boston.Bus.Map.main.Main;
 import boston.Bus.Map.provider.DatabaseContentProvider.DatabaseAgent;
 import boston.Bus.Map.util.Constants;
@@ -106,25 +108,29 @@ public class TransitSystem {
 		if (defaultTransitSource == null)
 		{
 			ContentResolver resolver = context.getContentResolver();
+			routeTitles = DatabaseAgent.getRouteTitles(resolver);
 			alertsMapping = DatabaseAgent.getAlerts(resolver);
-			defaultTransitSource = new BusTransitSource(this, busDrawables, alertsMapping);
+
+			TransitSourceTitles busTransitRoutes = routeTitles.getMappingForSource(Schema.Routes.enumagencyidBus);
+			TransitSourceTitles subwayTransitRoutes = routeTitles.getMappingForSource(Schema.Routes.enumagencyidSubway);
+			TransitSourceTitles commuterRailTransitRoutes = routeTitles.getMappingForSource(Schema.Routes.enumagencyidCommuterRail);
+			
+			defaultTransitSource = new BusTransitSource(this, busDrawables, busTransitRoutes, routeTitles);
 			
 			ImmutableMap.Builder<String, TransitSource> mapBuilder = ImmutableMap.builder();
-			SubwayTransitSource subwayTransitSource = new SubwayTransitSource(subwayDrawables, alertsMapping);
+			SubwayTransitSource subwayTransitSource = new SubwayTransitSource(subwayDrawables, subwayTransitRoutes);
 			mapBuilder.put(SubwayTransitSource.RedLine, subwayTransitSource);
 			mapBuilder.put(SubwayTransitSource.OrangeLine, subwayTransitSource);
 			mapBuilder.put(SubwayTransitSource.BlueLine, subwayTransitSource);
 			
-			CommuterRailTransitSource commuterRailTransitSource = new CommuterRailTransitSource(commuterRailDrawables, alertsMapping);
-			for (String route : commuterRailTransitSource.getRouteKeysToTitles().routeTags())
+			CommuterRailTransitSource commuterRailTransitSource = new CommuterRailTransitSource(commuterRailDrawables, commuterRailTransitRoutes);
+			for (String route : commuterRailTransitSource.getRouteTitles().routeTags())
 			{
 				mapBuilder.put(route, commuterRailTransitSource);
 			}
 			transitSourceMap = mapBuilder.build();
 
 			transitSources = ImmutableList.of(commuterRailTransitSource, subwayTransitSource, defaultTransitSource);
-
-			routeTitles = DatabaseAgent.getRouteTitles(resolver);
 		
 		}
 		else
@@ -230,6 +236,10 @@ public class TransitSystem {
 		TransitSource source = getTransitSource(route);
 		
 		return source.createStop(latitude, longitude, stopTag, stopTitle, platformOrder, branch, route);
+	}
+
+	public AlertsMapping getAlertsMapping() {
+		return alertsMapping;
 	}
 
 }

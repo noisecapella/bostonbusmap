@@ -31,6 +31,7 @@ import boston.Bus.Map.data.RoutePool;
 import boston.Bus.Map.data.RouteTitles;
 import boston.Bus.Map.data.StopLocation;
 import boston.Bus.Map.data.SubwayStopLocation;
+import boston.Bus.Map.data.TransitSourceTitles;
 import boston.Bus.Map.main.UpdateAsyncTask;
 import boston.Bus.Map.transit.SubwayTransitSource;
 import boston.Bus.Map.transit.TransitSystem;
@@ -80,7 +81,7 @@ public class SubwayRouteConfigFeedParser
 		
 		return platformOrder;
 	}
-	
+	/*
 	public void runParse(InputStream inputStream) throws ParserConfigurationException, SAXException, IOException {
 		BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream), 2048);
 		String[] definitions = reader.readLine().split(",");
@@ -90,15 +91,15 @@ public class SubwayRouteConfigFeedParser
 			indexes.put(definitions[i], i);
 		}
 		
-		/**route to a mapping of
+		**route to a mapping of
 		     direction + branch to a mapping of
 		       platform order numbers to stops
 		 * 
-		 */
+		 *
 		Map<String, Map<String, SortedMap<Short, StopLocation>>> orderedStations =
 			Maps.newHashMap();
 		
-		RouteTitles routeKeysToTitles = transitSource.getRouteKeysToTitles();
+		TransitSourceTitles routeKeysToTitles = transitSource.getRouteTitles();
 		String line;
 		while ((line = reader.readLine()) != null)
 		{
@@ -200,7 +201,7 @@ public class SubwayRouteConfigFeedParser
 				map.get(route).addPaths(path);
 			}
 		}
-	}
+	}*/
 
 	public void writeToDatabase(RoutePool routeMapping, UpdateAsyncTask task, boolean silent) throws IOException, RemoteException, OperationApplicationException {
 		ImmutableMap.Builder<String, RouteConfig> builder = ImmutableMap.builder();

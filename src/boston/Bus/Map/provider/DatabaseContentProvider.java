@@ -21,6 +21,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.zip.GZIPInputStream;
 
 import com.google.common.base.Joiner;
+import com.google.common.collect.ImmutableBiMap;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
@@ -28,6 +29,7 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.google.common.io.ByteStreams;
 
+import boston.Bus.Map.data.AlertsMapping;
 import boston.Bus.Map.data.Direction;
 import boston.Bus.Map.data.IntersectionLocation;
 import boston.Bus.Map.data.IntersectionLocation.Builder;
@@ -131,6 +133,12 @@ public class DatabaseContentProvider extends ContentProvider {
 	private static final String LOCATIONS_TYPE = "vnd.android.cursor.dir/vnd.bostonbusmap.location";
 	public static final Uri LOCATIONS_URI = Uri.parse("content://" + AUTHORITY + "/locations");
 	private static final int LOCATIONS = 14;
+	
+	private static final String ALERTS_TYPE = "vnd.android.cursor.dir/vnd.bostonbusmap.alert";
+	public static final Uri ALERTS_URI = Uri.parse("content://" + AUTHORITY + "/alerts");
+	private static final int ALERTS = 15;
+	
+	
 
 	private final static String stopsRoutesMapIndexTag = "IDX_stopmapping";
 	private final static String stopsRoutesMapIndexRoute = "IDX_routemapping";
@@ -346,7 +354,10 @@ public class DatabaseContentProvider extends ContentProvider {
 			InsertHelper routeInsertHelper = new InsertHelper(database, Schema.Routes.table);
 			try
 			{
-				Schema.Routes.executeInsertHelper(routeInsertHelper, route, routeConfig.getColor(), routeConfig.getOppositeColor(), pathsToBlob(routeConfig.getPaths()), routeTitle);
+				Schema.Routes.executeInsertHelper(routeInsertHelper, route, 
+						routeConfig.getColor(), routeConfig.getOppositeColor(),
+						pathsToBlob(routeConfig.getPaths()), routeConfig.getListOrder(),
+						routeConfig.getTransitSourceId(), routeTitle);
 			}
 			finally
 			{
@@ -466,7 +477,12 @@ public class DatabaseContentProvider extends ContentProvider {
 				Cursor cursor = null;
 				try
 				{
-					cursor = resolver.query(ROUTES_URI, new String[]{Schema.Routes.colorColumn, Schema.Routes.oppositecolorColumn, Schema.Routes.pathblobColumn, Schema.Routes.routetitleColumn}, Schema.Routes.routeColumn + "=?",
+					String[] projectionIn = new String[]{Schema.Routes.colorColumn,
+							Schema.Routes.oppositecolorColumn, Schema.Routes.pathblobColumn, 
+							Schema.Routes.routetitleColumn, Schema.Routes.listorderColumn, 
+							Schema.Routes.agencyidColumn};
+					cursor = resolver.query(ROUTES_URI, projectionIn,
+							Schema.Routes.routeColumn + "=?",
 							new String[]{routeToUpdate}, null);
 					if (cursor.getCount() == 0)
 					{
@@ -481,9 +497,13 @@ public class DatabaseContentProvider extends ContentProvider {
 					int oppositeColor = cursor.getInt(1);
 					byte[] pathsBlob = cursor.getBlob(2);
 					String routeTitle = cursor.getString(3);
+					int listorder = cursor.getInt(4);
+					int transitSourceId = cursor.getInt(5);
+					
 					Box pathsBlobBox = new Box(pathsBlob, CURRENT_DB_VERSION);
 
-					routeConfigBuilder = new RouteConfig.Builder(routeToUpdate, routeTitle, color, oppositeColor, source, pathsBlobBox);
+					routeConfigBuilder = new RouteConfig.Builder(routeToUpdate, routeTitle, 
+							color, oppositeColor, source, listorder, transitSourceId, pathsBlobBox);
 				}
 				finally
 				{
@@ -1250,8 +1270,60 @@ public class DatabaseContentProvider extends ContentProvider {
 		}
 
 		public static RouteTitles getRouteTitles(ContentResolver resolver) {
-			resolver.query(ROUTES_URI, new String[]{Schema.Routes.routeColumn, Schema.Routes.routetitleColumn},
-					null, null, null);
+			
+			Cursor cursor = resolver.query(ROUTES_URI, new String[]{
+					Schema.Routes.routeColumn, Schema.Routes.routetitleColumn, Schema.Routes.agencyidColumn},
+					null, null, Schema.Routes.listorderColumn);
+			try
+			{
+				cursor.moveToFirst();
+				
+				ImmutableBiMap.Builder<String, String> builder = ImmutableBiMap.builder();
+				ImmutableMap.Builder<String, Integer> agencyIdMap = ImmutableMap.builder();
+				while (cursor.isAfterLast() == false) {
+					String route = cursor.getString(0);
+					String routetitle = cursor.getString(1);
+					int agencyid = cursor.getInt(2);
+					
+					agencyIdMap.put(route, agencyid);
+					builder.put(route, routetitle);
+					cursor.moveToNext();
+				}
+				
+				return new RouteTitles(builder.build(), agencyIdMap.build());
+			}
+			finally
+			{
+				if (cursor != null) {
+					cursor.close();
+				}
+			}
+		}
+
+		public static AlertsMapping getAlerts(ContentResolver resolver) {
+			// TODO Auto-generated method stub
+			Cursor cursor = resolver.query(ALERTS_URI, new String[]{Schema.Alerts.routeColumn, Schema.Alerts.alertindexColumn}, null, null, null);
+			try
+			{
+				ImmutableMap.Builder<String, Integer> builder = ImmutableMap.builder();
+				
+				cursor.moveToFirst();
+				while (cursor.isAfterLast() == false) {
+					String route = cursor.getString(0);
+					int index = cursor.getInt(1);
+					builder.put(route, index);
+					
+					cursor.moveToNext();
+				}
+				
+				return new AlertsMapping(builder.build());
+			}
+			finally
+			{
+				if (cursor != null) {
+					cursor.close();
+				}
+			}
 		}
 
 	}
@@ -1275,6 +1347,7 @@ public class DatabaseContentProvider extends ContentProvider {
 		uriMatcher.addURI(AUTHORITY, "favorites_with_same_location", FAVORITES_WITH_SAME_LOCATION);
 		uriMatcher.addURI(AUTHORITY, "subway_stops", SUBWAY_STOPS);
 		uriMatcher.addURI(AUTHORITY, "locations", LOCATIONS);
+		uriMatcher.addURI(AUTHORITY, "alerts", ALERTS);
 	}
 
 	@Override
@@ -1305,6 +1378,9 @@ public class DatabaseContentProvider extends ContentProvider {
 			break;
 		case LOCATIONS:
 			count = db.delete(Schema.Locations.table, selection, selectionArgs);
+			break;
+		case ALERTS:
+			count = db.delete(Schema.Alerts.table, selection, selectionArgs);
 			break;
 		default:
 			throw new IllegalArgumentException("Unknown URI " + uri);
@@ -1345,6 +1421,8 @@ public class DatabaseContentProvider extends ContentProvider {
 			return SUBWAY_STOPS_TYPE;
 		case LOCATIONS:
 			return LOCATIONS_TYPE;
+		case ALERTS:
+			return ALERTS_TYPE;
 		default:
 			throw new IllegalArgumentException("Unknown URI " + uri);
 		}
@@ -1362,6 +1440,7 @@ public class DatabaseContentProvider extends ContentProvider {
 		case DIRECTIONS:
 		case DIRECTIONS_STOPS:
 		case LOCATIONS:
+		case ALERTS:
 			break;
 		default:
 			throw new IllegalArgumentException("Unknown URI " + uri);
@@ -1431,6 +1510,14 @@ public class DatabaseContentProvider extends ContentProvider {
 			long rowId = db.replace(Schema.Subway.table, null, values);
 			if (rowId >= 0) {
 				return SUBWAY_STOPS_URI;
+			}
+		}
+		break;
+		case ALERTS:
+		{
+			long rowId = db.replace(Schema.Alerts.table, null, values);
+			if (rowId >= 0) {
+				return ALERTS_URI;
 			}
 		}
 		break;
@@ -1531,6 +1618,9 @@ public class DatabaseContentProvider extends ContentProvider {
 		case LOCATIONS:
 			builder.setTables(Schema.Locations.table);
 			break;
+		case ALERTS:
+			builder.setTables(Schema.Alerts.table);
+			break;
 		default:
 			throw new IllegalArgumentException("Unknown URI " + uri);
 
@@ -1571,6 +1661,9 @@ public class DatabaseContentProvider extends ContentProvider {
 			break;
 		case LOCATIONS:
 			count = db.update(Schema.Locations.table, values, selection, selectionArgs);
+			break;
+		case ALERTS:
+			count = db.update(Schema.Alerts.table, values, selection, selectionArgs);
 			break;
 		default:
 			throw new IllegalArgumentException("Unknown URI " + uri);

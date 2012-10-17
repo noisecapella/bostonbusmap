@@ -28,6 +28,7 @@ import boston.Bus.Map.data.RoutePool;
 import boston.Bus.Map.data.RouteTitles;
 import boston.Bus.Map.data.StopLocation;
 import boston.Bus.Map.data.SubwayStopLocation;
+import boston.Bus.Map.data.TransitSourceTitles;
 import boston.Bus.Map.data.RouteConfig.Builder;
 import boston.Bus.Map.main.UpdateAsyncTask;
 import boston.Bus.Map.transit.CommuterRailTransitSource;
@@ -86,7 +87,7 @@ public class CommuterRailRouteConfigParser
 		Map<String, Map<String, SortedMap<Short, StopLocation>>> orderedStations =
 			Maps.newHashMap();
 
-		RouteTitles routeKeysToTitles = source.getRouteKeysToTitles();
+		TransitSourceTitles routeKeysToTitles = source.getRouteTitles();
 		
 		String line;
 		while ((line = reader.readLine()) != null)
@@ -238,7 +239,7 @@ public class CommuterRailRouteConfigParser
 	{
 		return direction + "|" + branch;
 	}
-	
+	/*
 	public void runParse(Reader stream) throws IOException
 	{
 		RouteTitles routeKeysToTitles = source.getRouteKeysToTitles();
@@ -250,6 +251,6 @@ public class CommuterRailRouteConfigParser
 
 		populateStops(stream);
 		
-	}
+	}*/
 	
 }

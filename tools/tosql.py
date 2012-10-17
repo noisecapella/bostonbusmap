@@ -31,6 +31,7 @@ class ToSql(xml.sax.handler.ContentHandler):
             table.routes.color.value = int(attributes["color"], 16)
             table.routes.oppositecolor.value = int(attributes["oppositeColor"], 16)
             table.routes.listorder.value = self.startingOrder + order
+            table.routes.agencyid.value = schema.BusAgencyId
             table.routes.insert()
 
         elif name == "stop":

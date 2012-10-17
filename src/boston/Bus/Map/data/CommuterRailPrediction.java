@@ -88,7 +88,7 @@ lateness. Used at the trip’s origin.
 	}
 	
 	@Override
-	public void makeSnippet(RouteTitles routeKeysToTitles, Context context, StringBuilder ret) {
+	public void makeSnippet(TransitSourceTitles routeKeysToTitles, Context context, StringBuilder ret) {
 		int minutes = getMinutes();
 		if (minutes < 0)
 		{

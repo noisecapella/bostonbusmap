@@ -24,6 +24,11 @@ def writeTable(table):
         column = columns[i]
         print indent2 + "public static final int " + column["tag"] + "Index = " + str(i + 1) + ";"
         print indent2 + "public static final String " + column["tag"] + "Column = \"" + column["tag"] + "\";"
+
+        if "values" in column:
+            print
+            for value, valueName in column["values"].iteritems():
+                print indent2 + "public static final int enum" + column["tag"] + str(valueName) + " = " + str(value) + ";"
     print
 
     print indent2 + "public static final String createSql = \"" + table.create() + "\";"

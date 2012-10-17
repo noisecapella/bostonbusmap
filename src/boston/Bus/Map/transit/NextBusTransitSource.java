@@ -23,6 +23,7 @@ import com.google.common.io.ByteStreams;
 import android.content.Context;
 import android.content.OperationApplicationException;
 import android.os.RemoteException;
+import boston.Bus.Map.data.AlertsMapping;
 import boston.Bus.Map.data.BusLocation;
 import boston.Bus.Map.data.Directions;
 import boston.Bus.Map.data.Location;
@@ -34,6 +35,7 @@ import boston.Bus.Map.data.Selection;
 import boston.Bus.Map.data.StopLocation;
 import boston.Bus.Map.data.SubwayStopLocation;
 import boston.Bus.Map.data.TransitDrawables;
+import boston.Bus.Map.data.TransitSourceTitles;
 import boston.Bus.Map.database.Schema;
 import boston.Bus.Map.main.Main;
 import boston.Bus.Map.main.UpdateAsyncTask;
@@ -64,13 +66,15 @@ public abstract class NextBusTransitSource implements TransitSource
 	private final String mbtaRouteConfigDataUrl;
 	private final String mbtaRouteConfigDataUrlAllRoutes;
 	private final String mbtaPredictionsDataUrl;
-	private final int initialRouteResource;
 
 	private final TransitDrawables drawables;
 
+	private final TransitSourceTitles routeTitles;
+	private final RouteTitles allRouteTitles;
 
 	public NextBusTransitSource(TransitSystem transitSystem, 
-			TransitDrawables drawables, String agency, int initialRouteResource)
+			TransitDrawables drawables, String agency, TransitSourceTitles routeTitles,
+			RouteTitles allRouteTitles)
 	{
 		this.transitSystem = transitSystem;
 		this.drawables = drawables;
@@ -80,8 +84,9 @@ public abstract class NextBusTransitSource implements TransitSource
 		mbtaRouteConfigDataUrl = "http://" + prefix + ".nextbus.com/service/publicXMLFeed?command=routeConfig&a=" + agency + "&r=";
 		mbtaRouteConfigDataUrlAllRoutes = "http://" + prefix + ".nextbus.com/service/publicXMLFeed?command=routeConfig&a=" + agency;
 		mbtaPredictionsDataUrl = "http://" + prefix + ".nextbus.com/service/publicXMLFeed?command=predictionsForMultiStops&a=" + agency;
-		this.initialRouteResource = initialRouteResource;
 		
+		this.routeTitles = routeTitles;
+		this.allRouteTitles = allRouteTitles;
 	}
 
 	@Override
@@ -97,7 +102,7 @@ public abstract class NextBusTransitSource implements TransitSource
 		//just initialize the route and then end for this round
 
 		RouteConfigFeedParser parser = new RouteConfigFeedParser(context,
-				this);
+				this, allRouteTitles);
 		parser.runParse(downloadHelper.getResponseData());
 		parser.writeToDatabase(context);
 
@@ -173,7 +178,7 @@ public abstract class NextBusTransitSource implements TransitSource
 
 			//lastUpdateTime = parser.getLastUpdateTime();
 
-			VehicleLocationsFeedParser parser = new VehicleLocationsFeedParser(drawables, directions, routeKeysToTitles);
+			VehicleLocationsFeedParser parser = new VehicleLocationsFeedParser(drawables, directions, transitSystem.getRouteKeysToTitles());
 			parser.runParse(data);
 
 			//get the time that this information is valid until
@@ -210,7 +215,7 @@ public abstract class NextBusTransitSource implements TransitSource
 			{
 				try
 				{
-					parseAlert(routeConfig);
+					parseAlert(routeConfig, transitSystem.getAlertsMapping());
 				}
 				catch (Exception e)
 				{
@@ -221,7 +226,7 @@ public abstract class NextBusTransitSource implements TransitSource
 		}
 	}
 
-	protected abstract void parseAlert(RouteConfig routeConfig) throws ClientProtocolException, IOException, SAXException;
+	protected abstract void parseAlert(RouteConfig routeConfig, AlertsMapping alertMapping) throws ClientProtocolException, IOException, SAXException;
 
 	protected String getPredictionsUrl(List<Location> locations, int maxStops, String route)
 	{
@@ -299,12 +304,6 @@ public abstract class NextBusTransitSource implements TransitSource
 		// this intentially left blank
 	}
 
-	/**
-	 * This is the size of the file at R.res.raw.routeconfig
-	 * @return
-	 */
-	protected abstract int getInitialContentLength();
-
 	@Override
 	public StopLocation createStop(float lat, float lon, String stopTag,
 			String title, int platformOrder, String branch, String route)
@@ -317,7 +316,7 @@ public abstract class NextBusTransitSource implements TransitSource
 	@Override
 	public String searchForRoute(String indexingQuery, String lowercaseQuery)
 	{
-		return SearchHelper.naiveSearch(indexingQuery, lowercaseQuery, routeKeysToTitles);
+		return SearchHelper.naiveSearch(indexingQuery, lowercaseQuery, transitSystem.getRouteKeysToTitles());
 	}
 	
 	@Override
@@ -328,5 +327,15 @@ public abstract class NextBusTransitSource implements TransitSource
 	@Override
 	public int getLoadOrder() {
 		return 1;
+	}
+	
+	@Override
+	public TransitSourceTitles getRouteTitles() {
+		return routeTitles;
+	}
+	
+	@Override
+	public int getTransitSourceId() {
+		return Schema.Routes.enumagencyidBus;
 	}
 }
