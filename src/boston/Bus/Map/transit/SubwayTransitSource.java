@@ -79,7 +79,7 @@ public class SubwayTransitSource implements TransitSource {
 			Directions directions, UpdateAsyncTask task, boolean silent)
 			throws ClientProtocolException, IOException,
 			ParserConfigurationException, SAXException, RemoteException, OperationApplicationException {
-		
+		/*
 		//this will probably never be executed
 		final String urlString = getRouteConfigUrl();
 
@@ -92,7 +92,8 @@ public class SubwayTransitSource implements TransitSource {
 
 		parser.runParse(downloadHelper.getResponseData()); 
 
-		parser.writeToDatabase(routeMapping, task, silent);
+		parser.writeToDatabase(routeMapping, task, silent);*/
+		// this space intentially left blank
 
 	}
 
@@ -288,7 +289,7 @@ public class SubwayTransitSource implements TransitSource {
 			RoutePool routeMapping) throws IOException,
 			ParserConfigurationException, SAXException, RemoteException, OperationApplicationException {
 		//download subway data
-		
+		/*
 		task.publish(new ProgressMessage(ProgressMessage.PROGRESS_DIALOG_ON, "Downloading subway info", null));
 		final String subwayUrl = getRouteConfigUrl();
 		URL url = new URL(subwayUrl);
@@ -298,7 +299,9 @@ public class SubwayTransitSource implements TransitSource {
 		
 		subwayParser.runParse(in);
 		
-		subwayParser.writeToDatabase(routeMapping, task, false);
+		subwayParser.writeToDatabase(routeMapping, task, false);*/
+		//this space intentially left blank
+
 		
 	}
 

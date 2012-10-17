@@ -114,7 +114,7 @@ public class CommuterRailTransitSource implements TransitSource {
 			UpdateAsyncTask task, boolean silent) throws ClientProtocolException, IOException,
 			ParserConfigurationException, SAXException, RemoteException, OperationApplicationException
 	{
-		
+		/*
 		//this will probably never be executed
 		//final String urlString = getRouteConfigUrl();
 
@@ -128,7 +128,8 @@ public class CommuterRailTransitSource implements TransitSource {
 		//parser.runParse(downloadHelper.getResponseData()); 
 		parser.runParse(new StringReader(commuterRailData));
 
-		parser.writeToDatabase(routeMapping, task, silent);
+		parser.writeToDatabase(routeMapping, task, silent);*/
+		//this space intentially left blank
 	}
 
 	@Override
@@ -341,7 +342,7 @@ public class CommuterRailTransitSource implements TransitSource {
 	public void initializeAllRoutes(UpdateAsyncTask task, Context context,
 			Directions directions, RoutePool routeMapping) throws IOException,
 			ParserConfigurationException, SAXException, RemoteException, OperationApplicationException {
-		task.publish(new ProgressMessage(ProgressMessage.PROGRESS_DIALOG_ON, "Downloading commuter info", null));
+/*		task.publish(new ProgressMessage(ProgressMessage.PROGRESS_DIALOG_ON, "Downloading commuter info", null));
 		//final String subwayUrl = getRouteConfigUrl();
 		//URL url = new URL(subwayUrl);
 		//InputStream in = Locations.downloadStream(url, task);
@@ -350,7 +351,8 @@ public class CommuterRailTransitSource implements TransitSource {
 		
 		subwayParser.runParse(new StringReader(commuterRailData));
 		
-		subwayParser.writeToDatabase(routeMapping, task, false);
+		subwayParser.writeToDatabase(routeMapping, task, false);*/
+		//this space intentially left blank
 		
 		
 	}
