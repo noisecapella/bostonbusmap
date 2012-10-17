@@ -41,6 +41,7 @@ import boston.Bus.Map.data.SubwayStopLocation;
 import boston.Bus.Map.data.UpdateArguments;
 import boston.Bus.Map.database.Schema;
 import boston.Bus.Map.database.Schema.Stopmapping;
+import boston.Bus.Map.main.Preferences;
 import boston.Bus.Map.main.UpdateAsyncTask;
 import boston.Bus.Map.math.Geometry;
 import boston.Bus.Map.transit.TransitSource;
@@ -50,6 +51,7 @@ import boston.Bus.Map.util.Box;
 import boston.Bus.Map.util.Constants;
 import boston.Bus.Map.util.IBox;
 import boston.Bus.Map.util.LogUtil;
+import boston.Bus.Map.util.StringUtil;
 import android.R;
 import android.app.SearchManager;
 import android.content.ContentProvider;
@@ -60,6 +62,7 @@ import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.OperationApplicationException;
+import android.content.SharedPreferences;
 import android.content.UriMatcher;
 import android.database.Cursor;
 import android.database.MatrixCursor;
@@ -71,16 +74,13 @@ import android.database.sqlite.SQLiteQueryBuilder;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.RemoteException;
+import android.preference.PreferenceManager;
 import android.provider.BaseColumns;
 import android.util.Log;
 
 public class DatabaseContentProvider extends ContentProvider {
 	private static final UriMatcher uriMatcher;
 	public static final String AUTHORITY = "com.bostonbusmap.databaseprovider";
-
-	private static final String FAVORITES_TYPE = "vnd.android.cursor.dir/vnd.bostonbusmap.favorite";
-	public static final Uri FAVORITES_URI = Uri.parse("content://" + AUTHORITY + "/favorites");
-	private static final int FAVORITES = 1;
 
 	private static final String STOPS_TYPE = "vnd.android.cursor.dir/vnd.bostonbusmap.stop";
 	public static final Uri STOPS_URI = Uri.parse("content://" + AUTHORITY + "/stops");
@@ -122,10 +122,6 @@ public class DatabaseContentProvider extends ContentProvider {
 	public static final Uri STOPS_WITH_DISTANCE_URI = Uri.parse("content://" + AUTHORITY + "/stops_with_distance");
 	private static final int STOPS_WITH_DISTANCE = 11;
 
-	private static final String FAVORITES_WITH_SAME_LOCATION_TYPE = "vnd.android.cursor.dir/vnd.bostonbusmap.favorite_with_same_location";
-	public static final Uri FAVORITES_WITH_SAME_LOCATION_URI = Uri.parse("content://" + AUTHORITY + "/favorites_with_same_location");
-	private static final int FAVORITES_WITH_SAME_LOCATION = 12;
-
 	private static final String SUBWAY_STOPS_TYPE = "vnd.android.cursor.dir/vnd.bostonbusmap.subway_stop";
 	public static final Uri SUBWAY_STOPS_URI = Uri.parse("content://" + AUTHORITY + "/subway_stops");
 	private static final int SUBWAY_STOPS = 13;
@@ -145,6 +141,8 @@ public class DatabaseContentProvider extends ContentProvider {
 	private final static String directionsStopsMapIndexStop = "IDX_directionsstop_stop";
 	private final static String directionsStopsMapIndexDirTag = "IDX_directionsstop_dirtag";
 
+	private final static String DATABASE_VERSION_KEY = "DB_VERSION";
+	
 	private static final String distanceKey = "distance";
 
 	/**
@@ -176,9 +174,9 @@ public class DatabaseContentProvider extends ContentProvider {
 	public final static int VERBOSE_DBV2_3 = 27;
 	public final static int VERBOSE_DBV2_4 = 28;
 
-	public final static int WITH_STOPS_FOR_DIR = 36;
-
-	public final static int CURRENT_DB_VERSION = WITH_STOPS_FOR_DIR;
+	public final static int FIRST_COPYING_DB = 37;
+	
+	public final static int CURRENT_DB_VERSION = FIRST_COPYING_DB;
 
 	public static final int ALWAYS_POPULATE = 3;
 	public static final int POPULATE_IF_UPGRADE = 2;
@@ -219,11 +217,27 @@ public class DatabaseContentProvider extends ContentProvider {
 			}
 		}
 		
-
 		@Override
-		public void onCreate(SQLiteDatabase db) {
-			db.close();
+		public SQLiteDatabase getWritableDatabase() {
+			SQLiteDatabase db = null;
 			
+			SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
+			int version = preferences.getInt(DATABASE_VERSION_KEY, -1);
+			if (version < CURRENT_DB_VERSION) {
+				copyDatabase();
+				
+				db = super.getWritableDatabase();
+			}
+			else
+			{
+				db = super.getWritableDatabase();
+			}
+			
+			preferences.edit().putInt(DATABASE_VERSION_KEY, CURRENT_DB_VERSION).commit();
+			return db;
+		}
+		
+		private void copyDatabase() {
 			InputStream in = null;
 			GZIPInputStream stream = null;
 			OutputStream outputStream = null;
@@ -258,12 +272,14 @@ public class DatabaseContentProvider extends ContentProvider {
 					LogUtil.e(e);
 				}
 			}
-			
+		}
+
+		@Override
+		public void onCreate(SQLiteDatabase db) {
 		}
 
 		@Override
 		public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-			HashSet<String> favorites = null;
 		}
 	}
 
@@ -274,36 +290,25 @@ public class DatabaseContentProvider extends ContentProvider {
 		 * @param favorites
 		 */
 		public static void populateFavorites(ContentResolver contentResolver, 
-				CopyOnWriteArraySet<String> favorites, boolean lookForOtherStopsAtSameLocation)
+				CopyOnWriteArraySet<String> favorites)
 		{
 			Cursor cursor = null;
 			try
 			{
-				if (lookForOtherStopsAtSameLocation)
-				{
-					//get all stop tags which are at the same location as stop tags in the database
-					//this is a relatively expensive query but it should only be done once, when the
-					//database needs it
-					SQLiteQueryBuilder builder = new SQLiteQueryBuilder();
-					builder.setDistinct(true);
-
-					cursor = contentResolver.query(FAVORITES_WITH_SAME_LOCATION_URI, new String[]{"s2." + Schema.Favorites.tagColumn}, null, null, null);
-				}
-				else
-				{
-					cursor = contentResolver.query(FAVORITES_URI, new String[]{Schema.Favorites.tagColumn},
-							null, null, null);
-				}
+				cursor = contentResolver.query(FavoritesContentProvider.FAVORITES_URI, new String[]{Schema.Favorites.tagColumn},
+						null, null, null);
 
 				cursor.moveToFirst();
+				List<String> toWrite = Lists.newArrayList();
 				while (cursor.isAfterLast() == false)
 				{
 					String favoriteStopKey = cursor.getString(0);
 
-					favorites.add(favoriteStopKey);
+					toWrite.add(favoriteStopKey);
 
 					cursor.moveToNext();
 				}
+				favorites.addAll(toWrite);
 			}
 			finally
 			{
@@ -447,23 +452,20 @@ public class DatabaseContentProvider extends ContentProvider {
 				allValues.add(values);
 			}
 
-			resolver.bulkInsert(FAVORITES_URI, allValues.toArray(new ContentValues[0]));
+			resolver.bulkInsert(FavoritesContentProvider.FAVORITES_URI, allValues.toArray(new ContentValues[0]));
 		}
 
 
 		public static void saveFavorite(ContentResolver resolver, 
-				String stopTag, Collection<String> stopTags, boolean isFavorite) throws RemoteException {
+				Collection<String> allStopTagsAtLocation, boolean isFavorite) throws RemoteException {
 			if (isFavorite)
 			{
-				storeFavorite(resolver, stopTags);
+				storeFavorite(resolver, allStopTagsAtLocation);
 			}
 			else
 			{
 				//delete all stops at location
-				resolver.delete(FAVORITES_URI, Schema.Favorites.table + "." + Schema.Favorites.tagColumn + 
-						" IN (SELECT s2." + Schema.Stops.tagColumn + " FROM " + Schema.Stops.table + " as s1, " + Schema.Stops.table + " as s2 WHERE " +
-						"s1." + Schema.Stops.latColumn + " = s2." + Schema.Stops.latColumn + " AND s1." + Schema.Stops.lonColumn +
-						" = s2." + Schema.Stops.lonColumn + " AND s1." + Schema.Stops.tagColumn + " = ?)", new String[]{stopTag});
+				resolver.delete(FavoritesContentProvider.FAVORITES_URI, Schema.Favorites.tagColumn + " IN (" + StringUtil.quotedJoin(allStopTagsAtLocation) + ")", null);
 			}
 		}
 
@@ -689,23 +691,6 @@ public class DatabaseContentProvider extends ContentProvider {
 					directionStopHelper.close();
 				}
 				database.endTransaction();
-			}
-		}
-
-
-		public static void saveFavorites(ContentResolver resolver, Set<String> favoriteStops, Map<String, StopLocation> sharedStops) throws RemoteException, OperationApplicationException {
-			resolver.delete(FAVORITES_URI, null, null);
-			
-			for (String stopTag : favoriteStops)
-			{
-				StopLocation stopLocation = sharedStops.get(stopTag);
-
-				if (stopLocation != null)
-				{
-					ContentValues values = new ContentValues();
-					values.put(Schema.Favorites.tagColumn, stopLocation.getStopTag());
-					resolver.insert(FAVORITES_URI, values);
-				}
 			}
 		}
 
@@ -1333,7 +1318,6 @@ public class DatabaseContentProvider extends ContentProvider {
 
 	static {
 		uriMatcher = new UriMatcher(UriMatcher.NO_MATCH);
-		uriMatcher.addURI(AUTHORITY, "favorites", FAVORITES);
 		uriMatcher.addURI(AUTHORITY, "stops", STOPS);
 		uriMatcher.addURI(AUTHORITY, "routes", ROUTES);
 		uriMatcher.addURI(AUTHORITY, "stops_routes", STOPS_ROUTES);
@@ -1344,7 +1328,6 @@ public class DatabaseContentProvider extends ContentProvider {
 		uriMatcher.addURI(AUTHORITY, "stops_lookup_2", STOPS_LOOKUP_2);
 		uriMatcher.addURI(AUTHORITY, "stops_lookup_3", STOPS_LOOKUP_3);
 		uriMatcher.addURI(AUTHORITY, "stops_with_distance/*/*/#/#", STOPS_WITH_DISTANCE);
-		uriMatcher.addURI(AUTHORITY, "favorites_with_same_location", FAVORITES_WITH_SAME_LOCATION);
 		uriMatcher.addURI(AUTHORITY, "subway_stops", SUBWAY_STOPS);
 		uriMatcher.addURI(AUTHORITY, "locations", LOCATIONS);
 		uriMatcher.addURI(AUTHORITY, "alerts", ALERTS);
@@ -1355,9 +1338,6 @@ public class DatabaseContentProvider extends ContentProvider {
 		SQLiteDatabase db = helper.getWritableDatabase();
 		int count;
 		switch (uriMatcher.match(uri)) {
-		case FAVORITES:
-			count = db.delete(Schema.Favorites.table, selection, selectionArgs);
-			break;
 		case STOPS:
 			count = db.delete(Schema.Stops.table, selection, selectionArgs);
 			break;
@@ -1393,8 +1373,6 @@ public class DatabaseContentProvider extends ContentProvider {
 	@Override
 	public String getType(Uri uri) {
 		switch (uriMatcher.match(uri)) {
-		case FAVORITES:
-			return FAVORITES_TYPE;
 		case STOPS:
 			return STOPS_TYPE;
 		case ROUTES:
@@ -1415,8 +1393,6 @@ public class DatabaseContentProvider extends ContentProvider {
 			return STOPS_LOOKUP_3_TYPE;
 		case STOPS_WITH_DISTANCE:
 			return STOPS_WITH_DISTANCE_TYPE;
-		case FAVORITES_WITH_SAME_LOCATION:
-			return FAVORITES_WITH_SAME_LOCATION_TYPE;
 		case SUBWAY_STOPS:
 			return SUBWAY_STOPS_TYPE;
 		case LOCATIONS:
@@ -1432,7 +1408,6 @@ public class DatabaseContentProvider extends ContentProvider {
 	public Uri insert(Uri uri, ContentValues values) {
 		int match = uriMatcher.match(uri);
 		switch (match) {
-		case FAVORITES:
 		case STOPS:
 		case SUBWAY_STOPS:
 		case ROUTES:
@@ -1448,19 +1423,12 @@ public class DatabaseContentProvider extends ContentProvider {
 
 		SQLiteDatabase db = helper.getWritableDatabase();
 		switch (match) {
-		case FAVORITES:
-		{
-			long rowId = db.replace(Schema.Favorites.table, null, values);
-			if (rowId >= 0) {
-				return FAVORITES_URI;
-			}
-		}
-		break;
 			
 		case LOCATIONS:
 		{
 			long rowId = db.replace(Schema.Locations.table, null, values);
 			if (rowId >= 0) {
+				getContext().getContentResolver().notifyChange(uri, null);
 				return LOCATIONS_URI;
 			}
 		}
@@ -1469,6 +1437,7 @@ public class DatabaseContentProvider extends ContentProvider {
 		{
 			long rowId = db.replace(Schema.Stops.table, null, values);
 			if (rowId >= 0) {
+				getContext().getContentResolver().notifyChange(uri, null);
 				return STOPS_URI;
 			}
 		}
@@ -1477,6 +1446,7 @@ public class DatabaseContentProvider extends ContentProvider {
 		{
 			long rowId = db.replace(Schema.Routes.table, null, values);
 			if (rowId >= 0) {
+				getContext().getContentResolver().notifyChange(uri, null);
 				return ROUTES_URI;
 			}
 		}
@@ -1485,6 +1455,7 @@ public class DatabaseContentProvider extends ContentProvider {
 		{
 			long rowId = db.replace(Schema.Stopmapping.table, null, values);
 			if (rowId >= 0) {
+				getContext().getContentResolver().notifyChange(uri, null);
 				return STOPS_ROUTES_URI;
 			}
 		}
@@ -1493,6 +1464,7 @@ public class DatabaseContentProvider extends ContentProvider {
 		{
 			long rowId = db.replace(Schema.Directions.table, null, values);
 			if (rowId >= 0) {
+				getContext().getContentResolver().notifyChange(uri, null);
 				return DIRECTIONS_URI;
 			}
 		}
@@ -1501,6 +1473,7 @@ public class DatabaseContentProvider extends ContentProvider {
 		{
 			long rowId = db.replace(Schema.DirectionsStops.table, null, values);
 			if (rowId >= 0) {
+				getContext().getContentResolver().notifyChange(uri, null);
 				return DIRECTIONS_STOPS_URI;
 			}
 		}
@@ -1509,6 +1482,7 @@ public class DatabaseContentProvider extends ContentProvider {
 		{
 			long rowId = db.replace(Schema.Subway.table, null, values);
 			if (rowId >= 0) {
+				getContext().getContentResolver().notifyChange(uri, null);
 				return SUBWAY_STOPS_URI;
 			}
 		}
@@ -1517,6 +1491,7 @@ public class DatabaseContentProvider extends ContentProvider {
 		{
 			long rowId = db.replace(Schema.Alerts.table, null, values);
 			if (rowId >= 0) {
+				getContext().getContentResolver().notifyChange(uri, null);
 				return ALERTS_URI;
 			}
 		}
@@ -1538,15 +1513,6 @@ public class DatabaseContentProvider extends ContentProvider {
 		String limit = null;
 
 		switch (uriMatcher.match(uri)) {
-		case FAVORITES:
-			builder.setTables(Schema.Favorites.table);
-			break;
-		case FAVORITES_WITH_SAME_LOCATION:
-			builder.setTables(Schema.Favorites.table + " JOIN " + Schema.Stops.table + " as s1 ON " + Schema.Favorites.table + "." + Schema.Favorites.tagColumn +
-						" = s1." + Schema.Stops.tagColumn + " JOIN " + Schema.Stops.table + " as s2 ON s1." +  Schema.Stops.latColumn + 
-						" = s2." + Schema.Stops.latColumn + " AND s1." + Schema.Stops.lonColumn + " = s2." + Schema.Stops.lonColumn + "");
-			builder.setDistinct(true);
-			break;
 		case STOPS:
 			builder.setTables(Schema.Stops.table);
 			break;
@@ -1638,9 +1604,6 @@ public class DatabaseContentProvider extends ContentProvider {
 		SQLiteDatabase db = helper.getWritableDatabase();
 		int count;
 		switch (uriMatcher.match(uri)) {
-		case FAVORITES:
-			count = db.update(Schema.Favorites.table, values, selection, selectionArgs);
-			break;
 		case STOPS:
 			count = db.update(Schema.Stops.table, values, selection, selectionArgs);
 			break;

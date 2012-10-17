@@ -31,6 +31,7 @@ def writeTable(table):
                 print indent2 + "public static final int enum" + column["tag"] + str(valueName) + " = " + str(value) + ";"
     print
 
+    print indent2 + "public static final String dropSql = \"DROP TABLE IF EXISTS " + table.tablename + "\";";
     print indent2 + "public static final String createSql = \"" + table.create() + "\";"
 
     params = ", ".join((column["type"] + " " + column["tag"]) for column in columns)
@@ -71,7 +72,8 @@ import android.database.DatabaseUtils.InsertHelper;
 import java.util.Collection;
 
 public class Schema {
-    public static final String dbName = "bostonBusMap";
+    public static final String dbName = "transitData";
+    public static final String oldDb = "bostonBusMap";
 
     private static final int INT_TRUE = 1;
     private static final int INT_FALSE = 0;

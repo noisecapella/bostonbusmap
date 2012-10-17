@@ -41,6 +41,9 @@
 	<provider android:name=".provider.DatabaseContentProvider" 
 	    android:authorities="com.bostonbusmap.databaseprovider"
 	    android:exported="false"></provider>
+	<provider android:name=".provider.FavoritesContentProvider" 
+	    android:authorities="com.bostonbusmap.favoritesprovider"
+	    android:exported="false"></provider>
 </application>
 
 </manifest>

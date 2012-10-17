@@ -5,7 +5,8 @@ import android.database.DatabaseUtils.InsertHelper;
 import java.util.Collection;
 
 public class Schema {
-    public static final String dbName = "bostonBusMap";
+    public static final String dbName = "transitData";
+    public static final String oldDb = "bostonBusMap";
 
     private static final int INT_TRUE = 1;
     private static final int INT_FALSE = 0;
@@ -30,6 +31,7 @@ public class Schema {
         public static final int alertindexIndex = 2;
         public static final String alertindexColumn = "alertindex";
 
+        public static final String dropSql = "DROP TABLE IF EXISTS alerts";
         public static final String createSql = "CREATE TABLE IF NOT EXISTS alerts (route STRING, alertindex INTEGER PRIMARY KEY)";
         public static class Bean {
             public final String route;
@@ -68,6 +70,7 @@ public class Schema {
         public static final int useAsUIIndex = 5;
         public static final String useAsUIColumn = "useAsUI";
 
+        public static final String dropSql = "DROP TABLE IF EXISTS directions";
         public static final String createSql = "CREATE TABLE IF NOT EXISTS directions (dirTag STRING PRIMARY KEY, dirNameKey STRING, dirTitleKey STRING, dirRouteKey STRING, useAsUI INTEGER)";
         public static class Bean {
             public final String dirTag;
@@ -109,6 +112,7 @@ public class Schema {
         public static final int tagIndex = 2;
         public static final String tagColumn = "tag";
 
+        public static final String dropSql = "DROP TABLE IF EXISTS directionsStops";
         public static final String createSql = "CREATE TABLE IF NOT EXISTS directionsStops (dirTag STRING, tag STRING)";
         public static class Bean {
             public final String dirTag;
@@ -139,6 +143,7 @@ public class Schema {
         public static final int tagIndex = 1;
         public static final String tagColumn = "tag";
 
+        public static final String dropSql = "DROP TABLE IF EXISTS favorites";
         public static final String createSql = "CREATE TABLE IF NOT EXISTS favorites (tag STRING PRIMARY KEY)";
         public static class Bean {
             public final String tag;
@@ -170,6 +175,7 @@ public class Schema {
         public static final int nameIndex = 3;
         public static final String nameColumn = "name";
 
+        public static final String dropSql = "DROP TABLE IF EXISTS locations";
         public static final String createSql = "CREATE TABLE IF NOT EXISTS locations (lat FLOAT, lon FLOAT, name STRING PRIMARY KEY)";
         public static class Bean {
             public final float lat;
@@ -219,6 +225,7 @@ public class Schema {
         public static final int routetitleIndex = 7;
         public static final String routetitleColumn = "routetitle";
 
+        public static final String dropSql = "DROP TABLE IF EXISTS routes";
         public static final String createSql = "CREATE TABLE IF NOT EXISTS routes (route STRING PRIMARY KEY, color INTEGER, oppositecolor INTEGER, pathblob BLOB, listorder INTEGER, agencyid INTEGER, routetitle STRING)";
         public static class Bean {
             public final String route;
@@ -268,6 +275,7 @@ public class Schema {
         public static final int dirTagIndex = 3;
         public static final String dirTagColumn = "dirTag";
 
+        public static final String dropSql = "DROP TABLE IF EXISTS stopmapping";
         public static final String createSql = "CREATE TABLE IF NOT EXISTS stopmapping (route STRING, tag STRING, dirTag STRING, PRIMARY KEY (route, tag))";
         public static class Bean {
             public final String route;
@@ -307,6 +315,7 @@ public class Schema {
         public static final int titleIndex = 4;
         public static final String titleColumn = "title";
 
+        public static final String dropSql = "DROP TABLE IF EXISTS stops";
         public static final String createSql = "CREATE TABLE IF NOT EXISTS stops (tag STRING PRIMARY KEY, lat FLOAT, lon FLOAT, title STRING)";
         public static class Bean {
             public final String tag;
@@ -347,6 +356,7 @@ public class Schema {
         public static final int branchIndex = 3;
         public static final String branchColumn = "branch";
 
+        public static final String dropSql = "DROP TABLE IF EXISTS subway";
         public static final String createSql = "CREATE TABLE IF NOT EXISTS subway (tag STRING PRIMARY KEY, platformorder INTEGER, branch STRING)";
         public static class Bean {
             public final String tag;

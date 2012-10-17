@@ -51,7 +51,7 @@ public class RoutePool extends Pool<String, RouteConfig> {
 		this.context = context;
 		this.transitSystem = transitSystem;
 		
-		populateFavorites(false);
+		populateFavorites();
 		
 		populateIntersections();
 	}
@@ -65,11 +65,6 @@ public class RoutePool extends Pool<String, RouteConfig> {
 	public void fillInFavoritesRoutes()
 	{
 		Map<String, StopLocation> stops = getStops(favoriteStops);
-		if (stops.isEmpty())
-		{
-			return;
-		}
-		
 		for (String stop : stops.keySet())
 		{
 			StopLocation stopLocation = stops.get(stop);
@@ -140,14 +135,14 @@ public class RoutePool extends Pool<String, RouteConfig> {
 		DatabaseAgent.saveMapping(context, map, stopTags, task);
 		
 		clearAll();
-		populateFavorites(true);
+		populateFavorites();
 		//saveFavoritesToDatabase();
 	}
 
 	
 	
-	private void populateFavorites(boolean lookForOtherStopsAtSameLocation) {
-		DatabaseAgent.populateFavorites(context.getContentResolver(), favoriteStops, lookForOtherStopsAtSameLocation);
+	private void populateFavorites() {
+		DatabaseAgent.populateFavorites(context.getContentResolver(), favoriteStops);
 		fillInFavoritesRoutes();
 
 	}
@@ -194,9 +189,9 @@ public class RoutePool extends Pool<String, RouteConfig> {
 	public int setFavorite(StopLocation location, boolean isFavorite) throws RemoteException {
 		Collection<String> stopTags = DatabaseAgent.getAllStopTagsAtLocation(context.getContentResolver(), location.getStopTag());
 
-		DatabaseAgent.saveFavorite(context.getContentResolver(), location.getStopTag(), stopTags, isFavorite);
+		DatabaseAgent.saveFavorite(context.getContentResolver(), stopTags, isFavorite);
 		favoriteStops.clear();
-		populateFavorites(false);
+		populateFavorites();
 		
 		if (isFavorite == false)
 		{

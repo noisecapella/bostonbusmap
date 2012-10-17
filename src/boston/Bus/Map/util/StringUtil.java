@@ -30,4 +30,19 @@ public class StringUtil {
 		
 		return ret.toString();
 	}
+
+	public static String quotedJoin(Collection<String> allStopTagsAtLocation) {
+		StringBuilder ret = new StringBuilder();
+		int count = 0;
+		final int size = allStopTagsAtLocation.size();
+		
+		for (String tag : allStopTagsAtLocation) {
+			ret.append("'").append(tag).append("'");
+			
+			if (count < size - 1) {
+				ret.append(", ");
+			}
+		}
+		return ret.toString();
+	}
 }
