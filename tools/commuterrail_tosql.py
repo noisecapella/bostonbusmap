@@ -325,9 +325,16 @@ Providence/Stoughton Line,1,13,South Station,42.352614,-71.055364,Trunk"""
 
 
 import schema
+import sys
+import xml.sax.handler
+import xml.sax
+import routetitleshandler
 
 # TODO: fix this
 purple = 0x0000ff
+
+def createDirectionHash(a, b):
+    return a + "|" + b
 
 if __name__ == "__main__":
     if len(sys.argv) < 2:
@@ -335,7 +342,7 @@ if __name__ == "__main__":
         exit(-1)
 
     routeTitleParser = xml.sax.make_parser()
-    routeHandler = RouteTitlesHandler()
+    routeHandler = routetitleshandler.RouteTitlesHandler()
     routeTitleParser.setContentHandler(routeHandler)
     routeTitleParser.parse(sys.argv[1])
         
@@ -345,6 +352,7 @@ if __name__ == "__main__":
         inverseTitles[v] = k
 
     routes_done = {}
+    stops_done = {}
 
     print "BEGIN TRANSACTION;"
     lines = data.split("\n")
@@ -354,9 +362,9 @@ if __name__ == "__main__":
     first_line = lines[0].strip()
     header_items = first_line.split(",")
     for i in xrange(len(header_items)):
-        indexes[i] = header_items[i]
-    for line in filter(lambda x: x, lines[1:].strip()):
-        obj = schema.getSchemaAsObject()
+        indexes[header_items[i]] = i
+    obj = schema.getSchemaAsObject()
+    for line in filter(lambda x: x, (line.strip() for line in lines[1:])):
         items = line.split(",")
         routeTitle = items[indexes["route_long_name"]]
         if routeTitle.endswith(" Line"):
@@ -367,7 +375,7 @@ if __name__ == "__main__":
             obj.routes.route.value = routeKey
             obj.routes.routetitle.value = routeTitle
             obj.routes.color.value = purple
-            obj.routes.color.oppositecolor = purple
+            obj.routes.oppositecolor.value = purple
             obj.routes.insert()
 
             routes_done[routeKey] = True
@@ -381,28 +389,32 @@ if __name__ == "__main__":
         platformOrder = int(items[indexes["stop_sequence"]])
         branch = items[indexes["Branch"]]
 
-        obj.stops.tag.value = stopTag
-        obj.stops.title.value = stopTitle
-        obj.stops.lat.value = lat
-        obj.stops.lon.value = lon
-        obj.stops.insert()
+        if stopTag not in stops_done:
+            obj.stops.tag.value = stopTag
+            obj.stops.title.value = stopTitle
+            obj.stops.lat.value = lat
+            obj.stops.lon.value = lon
+            obj.stops.insert()
 
-        obj.subway.platformOrder.value = platformOrder
-        obj.subway.branch.value = branch
-        obj.subway.tag.value = stopTag
-        obj.subway.insert()
 
-        obj.stopmapping.route.value = routeKey
-        obj.stopmapping.tag.value = stopTag
-        obj.stopmapping.dirTag.value = None
-        obj.stopmapping.insert()
+            obj.subway.platformorder.value = platformOrder
+            obj.subway.branch.value = branch
+            obj.subway.tag.value = stopTag
+            obj.subway.insert()
+
+            obj.stopmapping.route.value = routeKey
+            obj.stopmapping.tag.value = stopTag
+            obj.stopmapping.dirTag.value = None
+            obj.stopmapping.insert()
+            
+            stops_done[stopTag] = True
 
         if routeKey not in orderedStations:
             orderedStations[routeKey] = {}
             paths[routeKey] = []
         innerMapping = orderedStations[routeKey]
 
-        combinedDirectionHash = combinedDirectionHash(direction, branch)
+        combinedDirectionHash = createDirectionHash(direction, branch)
         if combinedDirectionHash not in innerMapping:
             innerMapping[combinedDirectionHash] = {}
         innerInnerMapping = innerMapping[combinedDirectionHash]

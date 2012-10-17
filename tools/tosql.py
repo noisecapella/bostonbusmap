@@ -3,21 +3,13 @@ import xml.sax
 import sys
 
 import schema
+import routetitleshandler
 
 def escaped(s):
     return s.replace("'", "''")
 
 def hexToDec(s):
     return str(int(s, 16))
-
-class RouteTitlesHandler(xml.sax.handler.ContentHandler):
-    def __init__(self):
-        self.mapping = {}
-
-    def startElement(self, name, attributes):
-        if name == "route":
-            self.mapping[attributes["tag"]] = attributes["title"]
-
 
 class ToSql(xml.sax.handler.ContentHandler):
     def __init__(self, routeKeysToTitles):
@@ -69,14 +61,8 @@ class ToSql(xml.sax.handler.ContentHandler):
                 table.directions.dirTitleKey.value = attributes["title"]
                 table.directions.dirRouteKey.value = self.currentRoute
                 table.directions.dirNameKey.value = attributes["name"]
-                table.directions.useAsUI.value = self.getIntFromBool(attributes["useForUI"])
+                table.directions.useAsUI.value = schema.getIntFromBool(attributes["useForUI"])
                 table.directions.insert()
-            
-    def getIntFromBool(self, boolString):
-        if boolString.lower() == "true":
-            return 1
-        else:
-            return 0
             
 
     def endElement(self, name):
@@ -91,7 +77,7 @@ if __name__ == "__main__":
         exit(-1)
 
     routeTitleParser = xml.sax.make_parser()
-    routeHandler = RouteTitlesHandler()
+    routeHandler = routetitleshandler.RouteTitlesHandler()
     routeTitleParser.setContentHandler(routeHandler)
     routeTitleParser.parse(sys.argv[2])
         

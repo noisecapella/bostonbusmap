@@ -10,11 +10,17 @@ CREATE TABLE stopmapping (route STRING, tag STRING, dirTag STRING, PRIMARY KEY (
 CREATE TABLE stops (tag STRING PRIMARY KEY, lat FLOAT, lon FLOAT, title STRING);
 CREATE TABLE subway (tag STRING PRIMARY KEY, platformorder INTEGER, branch STRING);"""
 
+def getIntFromBool(boolString):
+    if str(boolString).lower() == "true":
+        return 1
+    else:
+        return 0
+            
 
 schema = {"directions" : {"columns":[
             {"tag" : "dirTag", "type": "String"},
             {"tag": "dirNameKey", "type": "String"},
-            {"tag": "dirTitleKey", "type": "String"},
+            {"tag": "dirTitleKey", "type": "String", "canbenull" : "true"},
             {"tag": "dirRouteKey", "type": "String"},
             {"tag": "useAsUI", "type": "int"}], "primaryKeys" : ["dirTag"]},
           "directionsStops" : {"columns":[

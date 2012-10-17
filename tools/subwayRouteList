@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8" ?> 
+<body copyright="All data copyright MBTA 2012.">
+<route tag="Red" title="Red" />
+<route tag="Orange" title="Orange" />
+<route tag="Blue" title="Blue" />
+
+</body>
