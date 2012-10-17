@@ -52,10 +52,6 @@ public class RouteTitles {
 		return map.keySet().asList();
 	}
 
-	public void addSelfTo(Builder<String, String> builder) {
-		builder.putAll(map);
-	}
-
 	public String[] titleArray() {
 		return map.values().toArray(new String[0]);
 	}

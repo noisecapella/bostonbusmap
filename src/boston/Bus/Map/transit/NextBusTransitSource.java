@@ -67,9 +67,7 @@ public abstract class NextBusTransitSource implements TransitSource
 	private final int initialRouteResource;
 
 	private final TransitDrawables drawables;
-	private final RouteTitles routeKeysToTitles;
 
-	private ImmutableBiMap.Builder<String, String> tempBuilder;
 
 	public NextBusTransitSource(TransitSystem transitSystem, 
 			TransitDrawables drawables, String agency, int initialRouteResource)
@@ -84,19 +82,7 @@ public abstract class NextBusTransitSource implements TransitSource
 		mbtaPredictionsDataUrl = "http://" + prefix + ".nextbus.com/service/publicXMLFeed?command=predictionsForMultiStops&a=" + agency;
 		this.initialRouteResource = initialRouteResource;
 		
-		tempBuilder = ImmutableBiMap.builder();
-		addRoutes();
-		routeKeysToTitles = new RouteTitles(tempBuilder.build());
-		tempBuilder = null;
 	}
-
-	protected abstract void addRoutes();
-	
-	protected void addRoute(String key, String title) {
-		tempBuilder.put(key, title);
-
-	}
-
 
 	@Override
 	public void populateStops(Context context, RoutePool routeMapping, String routeToUpdate,
@@ -310,26 +296,7 @@ public abstract class NextBusTransitSource implements TransitSource
 	public void initializeAllRoutes(UpdateAsyncTask task, Context context, Directions directions,
 			RoutePool routeMapping)
 	throws IOException, ParserConfigurationException, SAXException, RemoteException, OperationApplicationException {
-		task.publish(new ProgressMessage(ProgressMessage.PROGRESS_DIALOG_ON, "Decompressing route data", null));
-
-		final int contentLength = getInitialContentLength();
-
-		InputStream in = new StreamCounter(context.getResources().openRawResource(initialRouteResource),
-				task, contentLength); 
-
-		GZIPInputStream stream = new GZIPInputStream(in); 
-
-		// overwrite database with prepopulated database
-		OutputStream outputStream = new FileOutputStream(context.getDatabasePath(Schema.dbName));
-		try
-		{
-			ByteStreams.copy(stream, outputStream);
-		}
-		finally
-		{
-			stream.close();
-			outputStream.close();
-		}
+		// this intentially left blank
 	}
 
 	/**
@@ -337,12 +304,6 @@ public abstract class NextBusTransitSource implements TransitSource
 	 * @return
 	 */
 	protected abstract int getInitialContentLength();
-
-	@Override
-	public RouteTitles getRouteKeysToTitles() {
-		return routeKeysToTitles;
-	}
-
 
 	@Override
 	public StopLocation createStop(float lat, float lon, String stopTag,

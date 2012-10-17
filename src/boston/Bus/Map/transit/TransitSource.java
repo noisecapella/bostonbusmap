@@ -42,8 +42,6 @@ public interface TransitSource {
 			Directions directions, RoutePool routeMapping) throws IOException,
 			ParserConfigurationException, SAXException, RemoteException, OperationApplicationException;
 	
-	public RouteTitles getRouteKeysToTitles();
-
 	String searchForRoute(String indexingQuery, String lowercaseQuery);
 
 	TransitDrawables getDrawables();

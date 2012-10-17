@@ -1,6 +1,9 @@
 package boston.Bus.Map.provider;
 
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.ArrayList;
@@ -15,6 +18,7 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.CopyOnWriteArraySet;
+import java.util.zip.GZIPInputStream;
 
 import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableList;
@@ -22,6 +26,7 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
+import com.google.common.io.ByteStreams;
 
 import boston.Bus.Map.data.Direction;
 import boston.Bus.Map.data.IntersectionLocation;
@@ -43,6 +48,7 @@ import boston.Bus.Map.util.Box;
 import boston.Bus.Map.util.Constants;
 import boston.Bus.Map.util.IBox;
 import boston.Bus.Map.util.LogUtil;
+import android.R;
 import android.app.SearchManager;
 import android.content.ContentProvider;
 import android.content.ContentProviderOperation;
@@ -179,6 +185,7 @@ public class DatabaseContentProvider extends ContentProvider {
 	public static class DatabaseHelper extends SQLiteOpenHelper
 	{
 		private static DatabaseHelper instance;
+		private Context context;
 
 		/**
 		 * Don't call this, use getInstance instead
@@ -187,6 +194,7 @@ public class DatabaseContentProvider extends ContentProvider {
 		private DatabaseHelper(Context context) {
 			super(context, Schema.dbName, null, CURRENT_DB_VERSION);
 
+			this.context = context;
 		}
 		
 		/**
@@ -206,83 +214,48 @@ public class DatabaseContentProvider extends ContentProvider {
 
 		@Override
 		public void onCreate(SQLiteDatabase db) {
-			/*db.execSQL("CREATE TABLE IF NOT EXISTS " + blobsTable + " (" + routeKey + " STRING PRIMARY KEY, " + blobKey + " BLOB)");
-			db.execSQL("CREATE TABLE IF NOT EXISTS " + routePoolTable + " (" + routeKey + " STRING PRIMARY KEY)");*/
-			db.execSQL(Schema.Favorites.createSql);
-
-			db.execSQL(Schema.Directions.createSql);
-
-			db.execSQL(Schema.Routes.createSql);
-
-			db.execSQL(Schema.Stops.createSql);
-
-			db.execSQL(Schema.Stopmapping.createSql);
-
-			db.execSQL(Schema.Subway.createSql);
-
-			db.execSQL(Schema.DirectionsStops.createSql);
+			db.close();
 			
-			db.execSQL(Schema.Locations.createSql);
+			InputStream in = null;
+			GZIPInputStream stream = null;
+			OutputStream outputStream = null;
+			try
+			{
+				in = context.getResources().openRawResource(boston.Bus.Map.R.raw.databasegz);
 
-			db.execSQL("CREATE INDEX IF NOT EXISTS " + stopsRoutesMapIndexRoute + " ON " + Schema.Stopmapping.table + " (" + Schema.Stopmapping.routeColumn + ")");
-			db.execSQL("CREATE INDEX IF NOT EXISTS " + stopsRoutesMapIndexTag + " ON " + Schema.Stopmapping.table + " (" + Schema.Stopmapping.tagColumn + ")");
-			db.execSQL("CREATE INDEX IF NOT EXISTS " + directionsStopsMapIndexStop + " ON " + Schema.DirectionsStops.table + " (" + Schema.DirectionsStops.tagColumn + ")");
-			db.execSQL("CREATE INDEX IF NOT EXISTS " + directionsStopsMapIndexDirTag + " ON " + Schema.DirectionsStops.table + " (" + Schema.DirectionsStops.dirTagColumn + ")");
+				stream = new GZIPInputStream(in); 
+
+				// overwrite database with prepopulated database
+				outputStream = new FileOutputStream(context.getDatabasePath(Schema.dbName));
+				ByteStreams.copy(stream, outputStream);
+			} catch (IOException e) {
+				// uh oh. App will probably crash, but there's not much we can do here anyway
+				LogUtil.e(e);
+			}
+			finally
+			{
+				try
+				{
+					if (in != null) {
+						in.close();
+					}
+					if (stream != null) {
+						stream.close();
+					}
+					if (outputStream != null) {
+						outputStream.close();
+					}
+				}
+				catch (IOException e) {
+					LogUtil.e(e);
+				}
+			}
+			
 		}
 
 		@Override
 		public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-			Log.v("BostonBusMap", "upgrading database from " + oldVersion + " to " + newVersion);
 			HashSet<String> favorites = null;
-
-			try
-			{
-				db.beginTransaction();
-				/*if (oldVersion > STOP_LOCATIONS_STORE_ROUTE_STRINGS && oldVersion < VERBOSE_DB)
-			{
-				favorites = readOldFavorites(db);
-			}
-			else if (oldVersion >= VERBOSE_DB)
-			{
-				favorites = new HashSet<String>();
-				populateFavorites(favorites, false, db);
-			}*/
-
-				if (oldVersion < CURRENT_DB_VERSION)
-				{
-					db.execSQL("DROP TABLE IF EXISTS " + Schema.Directions.table);
-					db.execSQL("DROP TABLE IF EXISTS " + Schema.DirectionsStops.table);
-					db.execSQL("DROP TABLE IF EXISTS " + Schema.Stops.table);
-					db.execSQL("DROP TABLE IF EXISTS " + Schema.Routes.table);
-					db.execSQL("DROP TABLE IF EXISTS " + Schema.Stopmapping.table);
-					db.execSQL("DROP TABLE IF EXISTS " + Schema.Subway.table);
-				}
-
-				//if it's verboseFavorites, we want to save it since it's user specified data
-
-				onCreate(db);
-
-				/*if (favorites != null)
-			{
-				writeVerboseFavorites(db, favorites);
-			}*/
-
-				db.setTransactionSuccessful();
-			}
-			finally
-			{
-				db.endTransaction();
-			}
-		}
-		
-		@Override
-		public SQLiteDatabase getReadableDatabase() {
-			return super.getReadableDatabase();
-		}
-		
-		@Override
-		public SQLiteDatabase getWritableDatabase() {
-			return super.getWritableDatabase();
 		}
 	}
 
@@ -1274,6 +1247,11 @@ public class DatabaseContentProvider extends ContentProvider {
 				LogUtil.e(e);
 				return false;
 			}
+		}
+
+		public static RouteTitles getRouteTitles(ContentResolver resolver) {
+			resolver.query(ROUTES_URI, new String[]{Schema.Routes.routeColumn, Schema.Routes.routetitleColumn},
+					null, null, null);
 		}
 
 	}

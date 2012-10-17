@@ -17,6 +17,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 
 import android.R.string;
+import android.content.ContentResolver;
 import android.content.Context;
 import android.graphics.drawable.Drawable;
 import android.util.Log;
@@ -32,6 +33,7 @@ import boston.Bus.Map.data.Selection;
 import boston.Bus.Map.data.StopLocation;
 import boston.Bus.Map.data.TransitDrawables;
 import boston.Bus.Map.main.Main;
+import boston.Bus.Map.provider.DatabaseContentProvider.DatabaseAgent;
 import boston.Bus.Map.util.Constants;
 /**
  * Any transit-system specific stuff should go here, if possible
@@ -99,11 +101,12 @@ public class TransitSystem {
 	 * @param alertsData
 	 */
 	public void setDefaultTransitSource(TransitDrawables busDrawables, TransitDrawables subwayDrawables, 
-			TransitDrawables commuterRailDrawables, String alertsData, String commuterRailData)
+			TransitDrawables commuterRailDrawables, Context context)
 	{
 		if (defaultTransitSource == null)
 		{
-			alertsMapping = new AlertsMapping(alertsData);
+			ContentResolver resolver = context.getContentResolver();
+			alertsMapping = DatabaseAgent.getAlerts(resolver);
 			defaultTransitSource = new BusTransitSource(this, busDrawables, alertsMapping);
 			
 			ImmutableMap.Builder<String, TransitSource> mapBuilder = ImmutableMap.builder();
@@ -112,28 +115,16 @@ public class TransitSystem {
 			mapBuilder.put(SubwayTransitSource.OrangeLine, subwayTransitSource);
 			mapBuilder.put(SubwayTransitSource.BlueLine, subwayTransitSource);
 			
-			CommuterRailTransitSource commuterRailTransitSource = new CommuterRailTransitSource(commuterRailDrawables, alertsMapping, commuterRailData);
+			CommuterRailTransitSource commuterRailTransitSource = new CommuterRailTransitSource(commuterRailDrawables, alertsMapping);
 			for (String route : commuterRailTransitSource.getRouteKeysToTitles().routeTags())
 			{
 				mapBuilder.put(route, commuterRailTransitSource);
 			}
 			transitSourceMap = mapBuilder.build();
 
-			ImmutableList.Builder<TransitSource> listBuilder = ImmutableList.builder();
-			listBuilder.add(commuterRailTransitSource);
-			listBuilder.add(subwayTransitSource);
-			listBuilder.add(defaultTransitSource);
-			transitSources = listBuilder.build();
+			transitSources = ImmutableList.of(commuterRailTransitSource, subwayTransitSource, defaultTransitSource);
 
-			ImmutableBiMap.Builder<String, String> builder = ImmutableBiMap.builder();
-
-			for (TransitSource source : transitSources)
-			{
-				RouteTitles sourceRouteKeyMap = source.getRouteKeysToTitles();
-				sourceRouteKeyMap.addSelfTo(builder);
-			}
-
-			routeTitles = new RouteTitles(builder.build());
+			routeTitles = DatabaseAgent.getRouteTitles(resolver);
 		
 		}
 		else

@@ -12,12 +12,13 @@ def hexToDec(s):
     return str(int(s, 16))
 
 class ToSql(xml.sax.handler.ContentHandler):
-    def __init__(self, routeKeysToTitles):
+    def __init__(self, routeKeysToTitles, startingOrder):
         self.currentDirection = None
         self.currentRoute = None
         self.sharedStops = {}
         self.table = schema.getSchemaAsObject()
         self.routeKeysToTitles = routeKeysToTitles
+        self.startingOrder = startingOrder
 
     def startElement(self, name, attributes):
         table = self.table
@@ -25,12 +26,11 @@ class ToSql(xml.sax.handler.ContentHandler):
             route = attributes["tag"]
             self.currentRoute = route
             table.routes.route.value = attributes["tag"]
-            if route in self.routeKeysToTitles:
-                table.routes.routetitle.value = self.routeKeysToTitles[route]
-            else:
-                table.routes.routetitle.value = route
+            routetitle, order = self.routeKeysToTitles[route]
+            table.routes.routetitle.value = routetitle
             table.routes.color.value = int(attributes["color"], 16)
             table.routes.oppositecolor.value = int(attributes["oppositeColor"], 16)
+            table.routes.listorder.value = self.startingOrder + order
             table.routes.insert()
 
         elif name == "stop":
@@ -72,8 +72,8 @@ class ToSql(xml.sax.handler.ContentHandler):
             self.currentRoute = None
 
 if __name__ == "__main__":
-    if len(sys.argv) < 3:
-        print "arg required: routeConfig.xml routeList.xml"
+    if len(sys.argv) < 4:
+        print "arg required: routeConfig.xml routeList.xml order"
         exit(-1)
 
     routeTitleParser = xml.sax.make_parser()
@@ -83,7 +83,7 @@ if __name__ == "__main__":
         
     print "BEGIN TRANSACTION;"
     parser = xml.sax.make_parser()
-    handler = ToSql(routeHandler.mapping)
+    handler = ToSql(routeHandler.mapping, int(sys.argv[3]))
     parser.setContentHandler(handler)
     parser.parse(sys.argv[1])
     print "END TRANSACTION;"

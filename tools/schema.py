@@ -33,6 +33,7 @@ schema = {"directions" : {"columns":[
             {"tag": "color", "type": "int"},
             {"tag": "oppositecolor", "type": "int"},
             {"tag": "pathblob", "type": "byte[]", "canbenull" : "true"},
+            {"tag": "listorder", "type" :"int"},
             {"tag": "routetitle", "type": "String"}], "primaryKeys" : ["route"]},
           "stopmapping" : {"columns":[
             {"tag": "route", "type": "String"},

@@ -204,6 +204,11 @@ Greenbush,232
 Red Line - Mattapan Line,233"""
 
 import schema
+import xml.sax
+import xml.sax.handler
+import sys
+import routetitleshandler
+
 
 def writeAlertMapping(routeTitles):
     obj = schema.getSchemaAsObject()
@@ -226,13 +231,45 @@ def writeAlertMapping(routeTitles):
                 break
         if routeName not in ret:
             for routeDescription in routeDescriptionToAlertKey.keys():
-                if routeDescription.startswith(routeName + " ") or
-                    routeDescription.startswith(routeName + "/"):
+                if routeDescription.startswith(routeName + " ") or routeDescription.startswith(routeName + "/"):
                     value = routeDescriptionToAlertKey[routeDescription]
                     ret[routeName] = value
                     break
+
+    #special cases
+    ret["Red"] = 15
+    ret["Orange"] = 16
+    ret["Blue"] = 18
+
+    #CTs
+    ret["701"] = 50
+    ret["747"] = 51
+    ret["708"] = 52
+
+    #silver line
+    ret["741"] = 20
+    ret["742"] = 28
+    ret["751"] = 53
+    # no info for SL5
 
     for route, index in ret.iteritems():
         obj.alerts.route.value = route
         obj.alerts.alertindex.value = index
         obj.alerts.insert()
+
+if __name__ == "__main__":
+    if len(sys.argv) < 4:
+        print "args required: routeList subwayRouteList commuterrailRouteList"
+        exit(-1)
+    
+    m = {}
+    for each in sys.argv[1:]:
+        routeTitleParser = xml.sax.make_parser()
+        routeHandler = routetitleshandler.RouteTitlesHandler()
+        routeTitleParser.setContentHandler(routeHandler)
+        routeTitleParser.parse(each)
+        for k, v in routeHandler.mapping.iteritems():
+            m[k] = v
+
+    writeAlertMapping(m)
+    

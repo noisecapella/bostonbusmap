@@ -197,7 +197,7 @@ public class Schema {
     public static class Routes {
         public static final String table = "routes"; 
         public static final String[] columns = new String[] {
-            "route", "color", "oppositecolor", "pathblob", "routetitle"
+            "route", "color", "oppositecolor", "pathblob", "listorder", "routetitle"
         };
 
         public static final int routeIndex = 1;
@@ -208,35 +208,40 @@ public class Schema {
         public static final String oppositecolorColumn = "oppositecolor";
         public static final int pathblobIndex = 4;
         public static final String pathblobColumn = "pathblob";
-        public static final int routetitleIndex = 5;
+        public static final int listorderIndex = 5;
+        public static final String listorderColumn = "listorder";
+        public static final int routetitleIndex = 6;
         public static final String routetitleColumn = "routetitle";
 
-        public static final String createSql = "CREATE TABLE IF NOT EXISTS routes (route STRING PRIMARY KEY, color INTEGER, oppositecolor INTEGER, pathblob BLOB, routetitle STRING)";
+        public static final String createSql = "CREATE TABLE IF NOT EXISTS routes (route STRING PRIMARY KEY, color INTEGER, oppositecolor INTEGER, pathblob BLOB, listorder INTEGER, routetitle STRING)";
         public static class Bean {
             public final String route;
             public final int color;
             public final int oppositecolor;
             public final byte[] pathblob;
+            public final int listorder;
             public final String routetitle;
-            public Bean(String route, int color, int oppositecolor, byte[] pathblob, String routetitle) {
+            public Bean(String route, int color, int oppositecolor, byte[] pathblob, int listorder, String routetitle) {
                 this.route = route;
                 this.color = color;
                 this.oppositecolor = oppositecolor;
                 this.pathblob = pathblob;
+                this.listorder = listorder;
                 this.routetitle = routetitle;
             }
         }
         public static void executeInsertHelper(InsertHelper helper, Collection<Bean> beans) {
             for (Bean bean : beans) {
-                executeInsertHelper(helper, bean.route, bean.color, bean.oppositecolor, bean.pathblob, bean.routetitle);
+                executeInsertHelper(helper, bean.route, bean.color, bean.oppositecolor, bean.pathblob, bean.listorder, bean.routetitle);
             }
         }
-        public static void executeInsertHelper(InsertHelper helper, String route, int color, int oppositecolor, byte[] pathblob, String routetitle) {
+        public static void executeInsertHelper(InsertHelper helper, String route, int color, int oppositecolor, byte[] pathblob, int listorder, String routetitle) {
             helper.prepareForReplace();
             helper.bind(routeIndex, route);
             helper.bind(colorIndex, color);
             helper.bind(oppositecolorIndex, oppositecolor);
             helper.bind(pathblobIndex, pathblob);
+            helper.bind(listorderIndex, listorder);
             helper.bind(routetitleIndex, routetitle);
             helper.execute();
         }

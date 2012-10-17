@@ -61,9 +61,8 @@ public class CommuterRailTransitSource implements TransitSource {
 	
 	private final ImmutableMap<String, String> routeKeysToAlertUrls;
 	private final TransitDrawables drawables;
-	private final String commuterRailData;
 	
-	public CommuterRailTransitSource(TransitDrawables drawables, AlertsMapping alertsMapping, String commuterRailData)
+	public CommuterRailTransitSource(TransitDrawables drawables, AlertsMapping alertsMapping)
 	{
 		this.drawables = drawables;
 		

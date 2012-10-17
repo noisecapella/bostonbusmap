@@ -336,25 +336,7 @@ purple = 0x0000ff
 def createDirectionHash(a, b):
     return a + "|" + b
 
-if __name__ == "__main__":
-    if len(sys.argv) < 2:
-        print "arg required: routeList"
-        exit(-1)
-
-    routeTitleParser = xml.sax.make_parser()
-    routeHandler = routetitleshandler.RouteTitlesHandler()
-    routeTitleParser.setContentHandler(routeHandler)
-    routeTitleParser.parse(sys.argv[1])
-        
-    routeTitles = routeHandler.mapping
-    inverseTitles = {}
-    for k, v in routeTitles.iteritems():
-        inverseTitles[v] = k
-
-    routes_done = {}
-    stops_done = {}
-
-    print "BEGIN TRANSACTION;"
+def write_sql(data, routeTitles, startOrder):
     lines = data.split("\n")
     indexes = {}
     paths = {}
@@ -369,13 +351,22 @@ if __name__ == "__main__":
         routeTitle = items[indexes["route_long_name"]]
         if routeTitle.endswith(" Line"):
             routeTitle = routeTitle[:-5]
-        routeKey = inverseTitles[routeTitle]
+        routeKey = None
+        for newRouteKey, value in routeTitles.iteritems():
+            (newRouteTitle, order) = value
+            if newRouteTitle == routeTitle:
+                routeKey = newRouteKey
+                break
+        if not routeKey:
+            raise Exception("Route key doesn't match anything")
 
         if routeKey not in routes_done:
             obj.routes.route.value = routeKey
-            obj.routes.routetitle.value = routeTitle
+            newRouteTitle, order = routeTitles[routeKey]
+            obj.routes.routetitle.value = newRouteTitle
             obj.routes.color.value = purple
             obj.routes.oppositecolor.value = purple
+            obj.routes.listorder.value = startOrder + order
             obj.routes.insert()
 
             routes_done[routeKey] = True
@@ -468,5 +459,28 @@ if __name__ == "__main__":
                 points.append(branchStop[1])
 
                 paths[routeKey].append(points)
+
+
+if __name__ == "__main__":
+    if len(sys.argv) < 3:
+        print "arg required: routeList startOrder"
+        exit(-1)
+
         
+    routeTitleParser = xml.sax.make_parser()
+    routeHandler = routetitleshandler.RouteTitlesHandler()
+    routeTitleParser.setContentHandler(routeHandler)
+    routeTitleParser.parse(sys.argv[1])
+        
+    routeTitles = routeHandler.mapping
+    inverseTitles = {}
+    for k, v in routeTitles.iteritems():
+        inverseTitles[v] = k
+
+    routes_done = {}
+    stops_done = {}
+
+    print "BEGIN TRANSACTION;"
+
+    write_sql(data, routeTitles, int(sys.argv[2]))
     print "END TRANSACTION;"

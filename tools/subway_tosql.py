@@ -31,22 +31,7 @@ class Direction:
         self.route = route
         self.useForUI = useForUI
 
-if __name__ == "__main__":
-    if len(sys.argv) < 2:
-        print "arg required: routeList"
-        exit(-1)
-
-    routeTitleParser = xml.sax.make_parser()
-    routeHandler = routetitleshandler.RouteTitlesHandler()
-    routeTitleParser.setContentHandler(routeHandler)
-    routeTitleParser.parse(sys.argv[1])
-
-    routeTitles = routeHandler.mapping
-    
-    response = urllib2.urlopen(mbtaUrl)
-    data = response.read()
-
-    print "BEGIN TRANSACTION;"
+def write_sql(data, routeTitles, startOrder):
     lines = data.split("\n")
     indexes = {}
     first_line = lines[0].strip()
@@ -63,12 +48,13 @@ if __name__ == "__main__":
         
         if routeName not in routes_done:
             obj.routes.route.value = routeName
-            obj.routes.routetitle.value = routeName
+            routeTitle, order = routeTitles[routeName]
+            obj.routes.routetitle.value = routeTitle
             obj.routes.color.value = red
             obj.routes.oppositecolor.value = red
+            obj.routes.listorder.value = startOrder + order
             obj.routes.insert()
-
-
+            
             routes_done[routeName] = True
 
 
@@ -142,7 +128,26 @@ if __name__ == "__main__":
                 floats.append(jfkLat)
                 floats.append(jfkLon)
             paths[route].append(floats)
-        
+
+
+if __name__ == "__main__":
+    if len(sys.argv) < 3:
+        print "arg required: routeList startOrder"
+        exit(-1)
+
+    routeTitleParser = xml.sax.make_parser()
+    routeHandler = routetitleshandler.RouteTitlesHandler()
+    routeTitleParser.setContentHandler(routeHandler)
+    routeTitleParser.parse(sys.argv[1])
+
+    routeTitles = routeHandler.mapping
+    
+    response = urllib2.urlopen(mbtaUrl)
+    data = response.read()
+
+    print "BEGIN TRANSACTION;"
+    write_sql(data, routeHandler.mapping, int(sys.argv[2]))
+    
     print "END TRANSACTION;"
 
 

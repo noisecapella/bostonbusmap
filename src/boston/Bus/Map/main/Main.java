@@ -249,11 +249,7 @@ public class Main extends MapActivity
         	TransitDrawables subwayDrawables = new TransitDrawables(busStop, busStopUpdated, rail, arrow);
         	TransitDrawables commuterRailDrawables = new TransitDrawables(busStop, busStopUpdated, rail, arrow);
         	
-        	String alertsData = getString(R.string.alertsData);
-        	String commuterRailData = getString(R.string.commuterrail);
-        	
-        	transitSystem.setDefaultTransitSource(busDrawables, subwayDrawables, commuterRailDrawables, 
-        			alertsData, commuterRailData);
+        	transitSystem.setDefaultTransitSource(busDrawables, subwayDrawables, commuterRailDrawables);
         }
         SpinnerAdapter modeSpinnerAdapter = makeModeSpinner(); 
 
