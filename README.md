@@ -15,7 +15,9 @@ Please email bostonbusmap@gmail.com if you have any problem, and please report a
 - this app should work for all touchscreen devices that are Android 1.5 and up (which means pretty much all Android phones and tablets). Please let me know if something doesn't work
 
 #Build
-First, `cd` into the `tools` directory, then run `autogenerate.sh` to create and populate the database file, which gets copied to `res/raw/databasegz`. `routeconfig.xml` and `routeLists` come from data collected from nextbus.com for a particular transit agency. For the MBTA, see their developer website for how to get their subway and commuter rail info.
+You'll need to `git clone git@github.com:bostonbusmap/android-mapviewballoons.git`. This project references that code to draw the mapview balloons.
+
+Then, `cd` into the `tools` directory, then run `autogenerate.sh` to create and populate the database file, which gets copied to `res/raw/databasegz`. `routeconfig.xml` and `routeLists` come from data collected from nextbus.com for a particular transit agency. For the MBTA, see their developer website for how to get their subway and commuter rail info.
 
 Otherwise this is a standard Android project. You might need to change the paths a little bit but you shouldn't need to install anything unexpected.
 Note that you may need a separate Google Maps API key to test with
