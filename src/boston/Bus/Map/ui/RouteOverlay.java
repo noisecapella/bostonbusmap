@@ -132,6 +132,22 @@ public class RouteOverlay extends Overlay
 		currentRoute = newRoute;
 	}
 	
+	public void addPathsAndColor(Path[] paths, int color, String newRoute)
+	{
+		paint.setColor(color);
+		paint.setAlpha(0x99);
+		
+		if (newRoute != null && currentRoute != null && currentRoute.equals(newRoute) && this.paths.size() == paths.length)
+		{
+			//don't delete and add paths if we already have them
+		}
+		else
+		{
+			addPaths(new CopyOnWriteArrayList<Path>(paths));
+		}
+		currentRoute = newRoute;
+	}
+	
 	@Override
 	public void draw(Canvas canvas, MapView mapView, boolean shadow) {
 		if (shadow || showRouteLine == false)

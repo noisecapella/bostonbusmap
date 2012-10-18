@@ -41,6 +41,7 @@ import org.xml.sax.SAXException;
 
 import boston.Bus.Map.data.BusLocation;
 import boston.Bus.Map.data.Direction;
+import boston.Bus.Map.data.IntersectionLocation;
 import boston.Bus.Map.data.Location;
 import boston.Bus.Map.data.Locations;
 import boston.Bus.Map.data.Path;
@@ -424,11 +425,25 @@ public class UpdateAsyncTask extends AsyncTask<Double, Object, ImmutableList<Loc
 		RouteConfig selectedRouteConfig;
 		int mode = selection.getMode();
 		if (mode == Selection.BUS_PREDICTIONS_STAR || 
-				mode == Selection.BUS_PREDICTIONS_ALL ||
-				mode == Selection.BUS_PREDICTIONS_INTERSECT)
+				mode == Selection.BUS_PREDICTIONS_ALL)
 		{
 			//we want this to be null. Else, the snippet drawing code would only show data for a particular route
 			routeOverlay.setPathsAndColor(paths, Color.BLUE, selection.getRoute());
+			selectedRouteConfig = null;
+		}
+		else if (mode == Selection.BUS_PREDICTIONS_INTERSECT) {
+			if (selection.getIntersection() != null) {
+				IntersectionLocation intersection = locationsObj.getIntersectionPoints().get(selection.getIntersection());
+				routeOverlay.clearPaths();
+				for (String route : intersection.getNearbyRoutes()) {
+					routeOverlay.addPathsAndColor(paths, Color.BLUE, route);
+				}
+			}
+			else
+			{
+				routeOverlay.setPathsAndColor(paths, Color.BLUE, selection.getRoute());
+			}
+			
 			selectedRouteConfig = null;
 		}
 		else

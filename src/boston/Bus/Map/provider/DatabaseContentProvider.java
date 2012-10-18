@@ -888,24 +888,13 @@ public class DatabaseContentProvider extends ContentProvider {
 			try
 			{
 				String select;
-				if (routes.size() == 0) {
+				if (filterRoutes == false) {
 					select = null;
 				}
 				else
 				{
 					StringBuilder selectBuilder = new StringBuilder();
-					selectBuilder.append(Schema.Routes.routeColumn).append(" IN (");
-					
-					int size = routes.size();
-					int count = 0;
-					for (String route : routes) {
-						selectBuilder.append('\'').append(route).append('\'');
-						if (count < size - 1) {
-							selectBuilder.append(", ");
-						}
-						count++;
-					}
-					selectBuilder.append(")");
+					selectBuilder.append(Schema.Routes.routeColumn).append(" IN (").append(StringUtil.quotedJoin(routes)).append(")");
 					select = selectBuilder.toString();
 				}
 				cursor = resolver.query(uri, projectionIn, select, null, distanceKey);
