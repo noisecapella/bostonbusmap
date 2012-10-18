@@ -229,6 +229,7 @@ public class DatabaseContentProvider extends ContentProvider {
 			if (version < CURRENT_DB_VERSION) {
 				try {
 					copyDatabase();
+					preferences.edit().putInt(DATABASE_VERSION_KEY, CURRENT_DB_VERSION).commit();
 				} catch (IOException e) {
 					LogUtil.e(e);
 					return null;
