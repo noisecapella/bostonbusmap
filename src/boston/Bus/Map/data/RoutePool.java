@@ -240,11 +240,18 @@ public class RoutePool extends Pool<String, RouteConfig> {
 		}
 	}
 	
+	public Collection<StopLocation> getClosestStopsAndFilterRoutes(double centerLatitude,
+			double centerLongitude, int maxStops, Set<String> routes) {
+		return DatabaseAgent.getClosestStopsAndFilterRoutes(context.getContentResolver(), 
+				centerLatitude, centerLongitude, transitSystem, sharedStops, maxStops, routes);
+		
+	}
+
 	public Collection<StopLocation> getClosestStops(double centerLatitude,
-			double centerLongitude, int maxStops, Set<String> routes)
+			double centerLongitude, int maxStops)
 	{
 		return DatabaseAgent.getClosestStops(context.getContentResolver(), 
-				centerLatitude, centerLongitude, transitSystem, sharedStops, maxStops, routes);
+				centerLatitude, centerLongitude, transitSystem, sharedStops, maxStops);
 
 	}
 

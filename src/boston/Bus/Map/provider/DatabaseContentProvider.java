@@ -134,12 +134,10 @@ public class DatabaseContentProvider extends ContentProvider {
 	public static final Uri ALERTS_URI = Uri.parse("content://" + AUTHORITY + "/alerts");
 	private static final int ALERTS = 15;
 	
+	private static final String STOPS_AND_ROUTES_WITH_DISTANCE_TYPE = "vnd.android.cursor.dir/vnd.bostonbusmap.stop_and_route_with_distance";
+	public static final Uri STOPS_AND_ROUTES_WITH_DISTANCE_URI = Uri.parse("content://" + AUTHORITY + "/stops_and_routes_with_distance");
+	private static final int STOPS_AND_ROUTES_WITH_DISTANCE = 17;
 	
-
-	private final static String stopsRoutesMapIndexTag = "IDX_stopmapping";
-	private final static String stopsRoutesMapIndexRoute = "IDX_routemapping";
-	private final static String directionsStopsMapIndexStop = "IDX_directionsstop_stop";
-	private final static String directionsStopsMapIndexDirTag = "IDX_directionsstop_dirtag";
 
 	private final static String DATABASE_VERSION_KEY = "DB_VERSION";
 	
@@ -218,13 +216,23 @@ public class DatabaseContentProvider extends ContentProvider {
 		}
 		
 		@Override
+		public SQLiteDatabase getReadableDatabase() {
+			return getWritableDatabase();
+		}
+		
+		@Override
 		public SQLiteDatabase getWritableDatabase() {
 			SQLiteDatabase db = null;
 			
 			SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
 			int version = preferences.getInt(DATABASE_VERSION_KEY, -1);
 			if (version < CURRENT_DB_VERSION) {
-				copyDatabase();
+				try {
+					copyDatabase();
+				} catch (IOException e) {
+					LogUtil.e(e);
+					return null;
+				}
 				
 				db = super.getWritableDatabase();
 			}
@@ -233,11 +241,10 @@ public class DatabaseContentProvider extends ContentProvider {
 				db = super.getWritableDatabase();
 			}
 			
-			preferences.edit().putInt(DATABASE_VERSION_KEY, CURRENT_DB_VERSION).commit();
 			return db;
 		}
 		
-		private void copyDatabase() {
+		private void copyDatabase() throws IOException {
 			InputStream in = null;
 			GZIPInputStream stream = null;
 			OutputStream outputStream = null;
@@ -247,12 +254,23 @@ public class DatabaseContentProvider extends ContentProvider {
 
 				stream = new GZIPInputStream(in); 
 
+				SQLiteDatabase tempDatabase = null;
+				try
+				{
+					tempDatabase = super.getWritableDatabase();
+				}
+				catch (Exception e) {
+					// ignore 
+				}
+				finally
+				{
+					if (tempDatabase != null) {
+						tempDatabase.close();
+					}
+				}
 				// overwrite database with prepopulated database
 				outputStream = new FileOutputStream(context.getDatabasePath(Schema.dbName));
 				ByteStreams.copy(stream, outputStream);
-			} catch (IOException e) {
-				// uh oh. App will probably crash, but there's not much we can do here anyway
-				LogUtil.e(e);
 			}
 			finally
 			{
@@ -832,17 +850,38 @@ public class DatabaseContentProvider extends ContentProvider {
 			return uri;
 		}
 		
+		public static Collection<StopLocation> getClosestStopsAndFilterRoutes(ContentResolver resolver, 
+				double currentLat, double currentLon, TransitSystem transitSystem, 
+				ConcurrentMap<String, StopLocation> sharedStops, int limit, Set<String> routes) {
+			return getClosestStops(resolver, currentLat, currentLon, transitSystem,
+					sharedStops, limit, routes, true);
+		}
 		public static Collection<StopLocation> getClosestStops(ContentResolver resolver, 
 				double currentLat, double currentLon, TransitSystem transitSystem, 
-				ConcurrentMap<String, StopLocation> sharedStops, int limit, Set<String> routes)
+				ConcurrentMap<String, StopLocation> sharedStops, int limit) {
+			Set<String> emptySet = Collections.emptySet();
+			return getClosestStops(resolver, currentLat, currentLon, transitSystem,
+					sharedStops, limit, emptySet, false);
+			
+		}
+		private static Collection<StopLocation> getClosestStops(ContentResolver resolver, 
+				double currentLat, double currentLon, TransitSystem transitSystem, 
+				ConcurrentMap<String, StopLocation> sharedStops, int limit, Set<String> routes, boolean filterRoutes)
 		{
 			// what we should scale longitude by for 1 unit longitude to roughly equal 1 unit latitude
 
 			String[] projectionIn = new String[] {Schema.Stops.table + "." + Schema.Stops.tagColumn, distanceKey};
 			int currentLatAsInt = (int)(currentLat * Constants.E6);
 			int currentLonAsInt = (int)(currentLon * Constants.E6);
-			int hasRoutes = Schema.toInteger(routes.size() != 0);
-			Uri uri = appendUris(STOPS_WITH_DISTANCE_URI, currentLatAsInt, currentLonAsInt, limit, hasRoutes);
+			Uri uri;
+			if (filterRoutes == false) {
+				uri = STOPS_WITH_DISTANCE_URI;
+			}
+			else
+			{
+				uri = STOPS_AND_ROUTES_WITH_DISTANCE_URI;
+			}
+			uri = appendUris(uri, currentLatAsInt, currentLonAsInt, limit);
 			
 			Cursor cursor = null;
 			try
@@ -875,10 +914,14 @@ public class DatabaseContentProvider extends ContentProvider {
 				}
 
 				ImmutableList.Builder<String> stopTagsBuilder = ImmutableList.builder();
+				List<String> stopTagsInAll = Lists.newArrayList();
 				while (!cursor.isAfterLast())
 				{
 					String id = cursor.getString(0);
-					stopTagsBuilder.add(id);
+					if (sharedStops.containsKey(id) == false) {
+						stopTagsBuilder.add(id);
+					}
+					stopTagsInAll.add(id);
 
 					cursor.moveToNext();
 				}
@@ -886,7 +929,7 @@ public class DatabaseContentProvider extends ContentProvider {
 				getStops(resolver, stopTags, transitSystem, sharedStops);
 
 				ImmutableList.Builder<StopLocation> builder = ImmutableList.builder();
-				for (String stopTag : stopTags)
+				for (String stopTag : stopTagsInAll)
 				{
 					builder.add(sharedStops.get(stopTag));
 				}
@@ -1211,10 +1254,10 @@ public class DatabaseContentProvider extends ContentProvider {
 				IntersectionLocation.Builder builder = ret.get(key);
 				
 				int limit = 15;
-				Set<String> emptySet = Collections.emptySet();
+
 				Collection<StopLocation> stops = getClosestStops(resolver, 
 						builder.getLatitudeAsDegrees(), builder.getLongitudeAsDegrees(),
-						transitSystem, sharedStops, limit, emptySet);
+						transitSystem, sharedStops, limit);
 				Set<String> routes = Sets.newHashSet();
 				for (StopLocation stop : stops) {
 					routes.addAll(stop.getRoutes());
@@ -1327,7 +1370,8 @@ public class DatabaseContentProvider extends ContentProvider {
 		uriMatcher.addURI(AUTHORITY, "directions_stops", DIRECTIONS_STOPS);
 		uriMatcher.addURI(AUTHORITY, "stops_lookup_2", STOPS_LOOKUP_2);
 		uriMatcher.addURI(AUTHORITY, "stops_lookup_3", STOPS_LOOKUP_3);
-		uriMatcher.addURI(AUTHORITY, "stops_with_distance/*/*/#/#", STOPS_WITH_DISTANCE);
+		uriMatcher.addURI(AUTHORITY, "stops_with_distance/*/*/#", STOPS_WITH_DISTANCE);
+		uriMatcher.addURI(AUTHORITY, "stops_and_routes_with_distance/*/*/#", STOPS_AND_ROUTES_WITH_DISTANCE);
 		uriMatcher.addURI(AUTHORITY, "subway_stops", SUBWAY_STOPS);
 		uriMatcher.addURI(AUTHORITY, "locations", LOCATIONS);
 		uriMatcher.addURI(AUTHORITY, "alerts", ALERTS);
@@ -1393,6 +1437,8 @@ public class DatabaseContentProvider extends ContentProvider {
 			return STOPS_LOOKUP_3_TYPE;
 		case STOPS_WITH_DISTANCE:
 			return STOPS_WITH_DISTANCE_TYPE;
+		case STOPS_AND_ROUTES_WITH_DISTANCE:
+			return STOPS_AND_ROUTES_WITH_DISTANCE_TYPE;
 		case SUBWAY_STOPS:
 			return SUBWAY_STOPS_TYPE;
 		case LOCATIONS:
@@ -1559,17 +1605,28 @@ public class DatabaseContentProvider extends ContentProvider {
 			double currentLat = Integer.parseInt(pathSegments.get(1)) * Constants.InvE6;
 			double currentLon = Integer.parseInt(pathSegments.get(2)) * Constants.InvE6;
 			limit = pathSegments.get(3);
-			boolean joinRoutes = Schema.fromInteger(Integer.parseInt(pathSegments.get(4)));
-			if (joinRoutes) {
-				builder.setTables(Schema.Stops.table + " JOIN " + Schema.Stopmapping.table +
-						" ON " + Schema.Stops.table + "." + 
-						Schema.Stops.tagColumn + " = " + Schema.Stopmapping.table + "." + 
-						Schema.Stopmapping.tagColumn);
-			}
-			else
-			{
-				builder.setTables(Schema.Stops.table);
-			}
+			builder.setTables(Schema.Stops.table);
+
+			HashMap<String, String> projectionMap = new HashMap<String, String>();
+			projectionMap.put(Schema.Stops.table + "." + Schema.Stops.tagColumn, Schema.Stops.table + "." + Schema.Stops.tagColumn);
+
+			double lonFactor = Math.cos(currentLat * Geometry.degreesToRadians);
+			String latDiff = "(" + Schema.Stops.latColumn + " - " + currentLat + ")";
+			String lonDiff = "((" + Schema.Stops.lonColumn + " - " + currentLon + ")*" + lonFactor + ")";
+			projectionMap.put(distanceKey, latDiff + "*" + latDiff + " + " + lonDiff + "*" + lonDiff + " AS " + distanceKey);
+			builder.setProjectionMap(projectionMap);
+		}
+			break;
+		case STOPS_AND_ROUTES_WITH_DISTANCE:
+		{
+			List<String> pathSegments = uri.getPathSegments();
+			double currentLat = Integer.parseInt(pathSegments.get(1)) * Constants.InvE6;
+			double currentLon = Integer.parseInt(pathSegments.get(2)) * Constants.InvE6;
+			limit = pathSegments.get(3);
+			builder.setTables(Schema.Stops.table + " JOIN " + Schema.Stopmapping.table +
+					" ON " + Schema.Stops.table + "." + 
+					Schema.Stops.tagColumn + " = " + Schema.Stopmapping.table + "." + 
+					Schema.Stopmapping.tagColumn);
 
 			HashMap<String, String> projectionMap = new HashMap<String, String>();
 			projectionMap.put(Schema.Stops.table + "." + Schema.Stops.tagColumn, Schema.Stops.table + "." + Schema.Stops.tagColumn);
@@ -1592,6 +1649,8 @@ public class DatabaseContentProvider extends ContentProvider {
 
 		}
 
+		Log.v("BostonBusMap", builder.buildQuery(projection, selection, null, null, null, sortOrder, limit));
+		
 		SQLiteDatabase db = helper.getReadableDatabase();
 		Cursor c = builder.query(db, projection, selection, selectionArgs, null, null, sortOrder, limit);
 		c.setNotificationUri(getContext().getContentResolver(), uri);

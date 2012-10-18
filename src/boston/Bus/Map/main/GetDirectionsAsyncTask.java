@@ -61,8 +61,7 @@ public class GetDirectionsAsyncTask extends AsyncTask<Object, String, ArrayList<
 		if (tag.equals(GetDirectionsDialog.CURRENT_LOCATION_TAG)) {
 			// note that this depends on the GPS being on when the app starts, which is
 			// the default behavior
-			Set<String> emptySet = Collections.emptySet();
-			Collection<StopLocation> closestStops = routePool.getClosestStops(currentLat, currentLon, 1, emptySet);
+			Collection<StopLocation> closestStops = routePool.getClosestStops(currentLat, currentLon, 1);
 			return Iterables.getFirst(closestStops, null);
 		}
 		else

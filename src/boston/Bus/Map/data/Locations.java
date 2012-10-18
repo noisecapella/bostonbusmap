@@ -315,8 +315,7 @@ public final class Locations
 		}
 		else if (mode == Selection.BUS_PREDICTIONS_ALL)
 		{
-			Set<String> emptySet = Collections.emptySet();
-			Collection<StopLocation> stops = routeMapping.getClosestStops(centerLatitude, centerLongitude, maxLocations, emptySet);
+			Collection<StopLocation> stops = routeMapping.getClosestStops(centerLatitude, centerLongitude, maxLocations);
 			for (StopLocation stop : stops)
 			{
 				if (!(stop instanceof SubwayStopLocation))
@@ -341,7 +340,7 @@ public final class Locations
 				routeTags.addAll(intersectionLocation.getNearbyRoutes());
 			}
 			
-			Collection<StopLocation> centerStops = routeMapping.getClosestStops(centerLatitude,
+			Collection<StopLocation> centerStops = routeMapping.getClosestStopsAndFilterRoutes(centerLatitude,
 					centerLongitude, maxLocations, routeTags);
 			for (StopLocation stop : centerStops) {
 				newLocations.add(stop);

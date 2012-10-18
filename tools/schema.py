@@ -26,52 +26,79 @@ schema = {"directions" : {"columns":[
             {"tag": "dirNameKey", "type": "String"},
             {"tag": "dirTitleKey", "type": "String", "canbenull" : "true"},
             {"tag": "dirRouteKey", "type": "String"},
-            {"tag": "useAsUI", "type": "int"}], "primaryKeys" : ["dirTag"]},
+            {"tag": "useAsUI", "type": "int"}],
+                          "primaryKeys" : ["dirTag"],
+                          "indexes" : []},
           "directionsStops" : {"columns":[
             {"tag": "dirTag", "type": "String"},
-            {"tag": "tag", "type": "String"}], "primaryKeys" : []},
-          "favorites" : {"columns":[
-            {"tag" : "tag", "type" : "String"}], "primaryKeys" : ["tag"]},
+            {"tag": "tag", "type": "String"}],
+                               "primaryKeys" : [],
+                               "indexes" : []},
+          "favorites" : {"columns":[ #NOTE: this is a different database
+            {"tag" : "tag", "type" : "String"}],
+                         "primaryKeys" : ["tag"],
+                         "indexes" : []},
           "routes" : {"columns":[
             {"tag": "route", "type" : "String"},
             {"tag": "color", "type": "int"},
             {"tag": "oppositecolor", "type": "int"},
             {"tag": "pathblob", "type": "byte[]", "canbenull" : "true"},
             {"tag": "listorder", "type" :"int"},
-            {"tag": "agencyid", "type" : "int", "values" : {CommuterRailAgencyId:"CommuterRail",
-                                                            BusAgencyId : "Bus",
-                                                            SubwayAgencyId : "Subway"}},
-            {"tag": "routetitle", "type": "String"}], "primaryKeys" : ["route"]},
+            {"tag": "agencyid", "type" : "int", 
+             "values" : {CommuterRailAgencyId:"CommuterRail",
+                         BusAgencyId : "Bus",
+                         SubwayAgencyId : "Subway"}},
+            {"tag": "routetitle", "type": "String"}],
+                      "primaryKeys" : ["route"],
+                          "indexes" : []},
           "stopmapping" : {"columns":[
             {"tag": "route", "type": "String"},
             {"tag": "tag", "type": "String"},
-            {"tag": "dirTag", "type": "String", "canbenull" : "true"}], "primaryKeys" : ["route", "tag"]},
+            {"tag": "dirTag", "type": "String", "canbenull" : "true"}],
+                           "primaryKeys" : ["route", "tag"],
+                           "indexes" : ["route", "tag"]},
           "stops" : {"columns":[
             {"tag": "tag", "type": "String"},
             {"tag": "lat", "type": "float"},
             {"tag": "lon", "type": "float"},
-            {"tag": "title", "type": "String"}], "primaryKeys" : ["tag"]},
+            {"tag": "title", "type": "String"}], 
+                     "primaryKeys" : ["tag"],
+                     "indexes" : []},
           "subway" : {"columns":[
             {"tag": "tag", "type": "String"},
             {"tag": "platformorder", "type": "int"},
-            {"tag": "branch", "type": "String"}], "primaryKeys" : ["tag"]},
+            {"tag": "branch", "type": "String"}],
+                      "primaryKeys" : ["tag"],
+                      "indexes" : []},
           "locations" : {"columns":[
             {"tag" : "lat", "type" : "float"},
             {"tag" : "lon", "type" : "float"},
-            {"tag" : "name", "type" : "String"}], "primaryKeys" : ["name"]},
+            {"tag" : "name", "type" : "String"}],
+                         "primaryKeys" : ["name"],
+                         "indexes" : []},
           "alerts" : {"columns":[
             {"tag" : "route", "type" : "String"},
-            {"tag" : "alertindex", "type" : "int"}], "primaryKeys" : ["alertindex"]}
+            {"tag" : "alertindex", "type" : "int"}],
+                      "primaryKeys" : ["alertindex"],
+                      "indexes" : []}
           }
 
 class Tables:
     pass
 class Table:
-    def __init__(self, tablename, primaryKeys):
+    def __init__(self, tablename, primaryKeys, indexes):
         self.tablename = tablename
         self.primaryKeys = primaryKeys
+        self.indexes = indexes
         self.arguments = []
 
+    def index(self):
+        if not self.indexes:
+            return
+        else:
+            for index in self.indexes:
+                yield "CREATE INDEX IF NOT EXISTS idx" + self.tablename + index + " ON " + self.tablename + " (" + index + ")";
+        
     def create(self):
         createParams = ", ".join(getattr(self, column["tag"]).sqlForColumn(self.primaryKeys) for column in self.arguments)
         if len(self.primaryKeys) > 1:
@@ -126,7 +153,7 @@ class Column:
 def getSchemaAsObject():
     ret = Tables()
     for tableName, table in schema.iteritems():
-        newTable = Table(tableName, table["primaryKeys"])
+        newTable = Table(tableName, table["primaryKeys"], table["indexes"])
         for column in table["columns"]:
             canbenull = "false"
             valid_values = None
