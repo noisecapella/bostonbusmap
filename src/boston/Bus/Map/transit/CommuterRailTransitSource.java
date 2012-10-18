@@ -320,7 +320,7 @@ public class CommuterRailTransitSource implements TransitSource {
 	public String searchForRoute(String indexingQuery, String lowercaseQuery)
 	{
 		//try splitting up the route keys along the diagonal and see if they match one piece of it
-		for (String route : routeTitles.routeTitles())
+		for (String route : routeTitles.routeTags())
 		{
 			String title = routeTitles.getTitle(route);
 			if (title.contains("/"))
