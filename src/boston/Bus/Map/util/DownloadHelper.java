@@ -70,9 +70,7 @@ public class DownloadHelper {
 			}
 		}
 		
-		inputStream = new BufferedInputStream(inputStream);
-		
-		inputStream = new ByteArrayInputStream(ByteStreams.toByteArray(inputStream));
+		inputStream = new BufferedInputStream(inputStream, 4096);
 	}
 
 	public InputStream getResponseData()

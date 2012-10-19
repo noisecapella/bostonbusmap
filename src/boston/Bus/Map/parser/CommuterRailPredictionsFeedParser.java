@@ -8,11 +8,14 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 
 import boston.Bus.Map.data.BusLocation;
 import boston.Bus.Map.data.CommuterRailPrediction;
@@ -65,6 +68,16 @@ public class CommuterRailPredictionsFeedParser
 		}
 	}
 
+	private class PredictionStopLocationPair {
+		private final Prediction prediction;
+		private final StopLocation stopLocation;
+		
+		public PredictionStopLocationPair(Prediction prediction, StopLocation stopLocation) {
+			this.prediction = prediction;
+			this.stopLocation = stopLocation;
+		}
+	}
+	
 	public void runParse(Reader data) throws IOException
 	{
 		BufferedReader reader = new BufferedReader(data, 2048);
@@ -84,11 +97,10 @@ public class CommuterRailPredictionsFeedParser
 		}
 		
 		//store everything here, then write out all out at once
-		ArrayList<Prediction> predictions = new ArrayList<Prediction>(); 
-		ArrayList<StopLocation> stopLocations = new ArrayList<StopLocation>(); 
+		List<PredictionStopLocationPair> pairs = Lists.newArrayList();
 
 		//start off with all the buses to be removed, and if they're still around remove them from toRemove
-		HashSet<String> toRemove = new HashSet<String>();
+		HashSet<String> toRemove = Sets.newHashSet();
 		for (String id : busMapping.keySet())
 		{
 			BusLocation busLocation = busMapping.get(id);
@@ -109,7 +121,7 @@ public class CommuterRailPredictionsFeedParser
 
 				String stopKey = getItem("Stop", array);
 
-				StopLocation stopLocation = (StopLocation)routeConfig.getStop(CommuterRailTransitSource.stopTagPrefix + stopKey);
+				StopLocation stopLocation = routeConfig.getStop(CommuterRailTransitSource.stopTagPrefix + stopKey);
 
 				if (stopLocation == null)
 				{
@@ -160,9 +172,9 @@ public class CommuterRailPredictionsFeedParser
 				 
 				String vehicleId = getItem("Trip", array);
 				
-				predictions.add(new CommuterRailPrediction(minutes, vehicleId, directions.getTitleAndName(direction),
-						routeConfig.getRouteName(), false, false, lateness, flagEnum));
-				stopLocations.add(stopLocation);
+				Prediction prediction = new CommuterRailPrediction(minutes, vehicleId, directions.getTitleAndName(direction),
+						routeConfig.getRouteName(), false, false, lateness, flagEnum);
+				pairs.add(new PredictionStopLocationPair(prediction, stopLocation));
 
 				float lat = 0;
 				float lon = 0;
@@ -231,10 +243,8 @@ public class CommuterRailPredictionsFeedParser
 
 		clearPredictions(route);
 
-		for (int i = 0; i < stopLocations.size(); i++)
-		{
-			StopLocation stopLocation = stopLocations.get(i);
-			stopLocation.addPrediction(predictions.get(i));
+		for (PredictionStopLocationPair pair : pairs) {
+			pair.stopLocation.addPrediction(pair.prediction);
 		}
 
 		for (String id : toRemove)
