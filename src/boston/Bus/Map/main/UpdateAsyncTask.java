@@ -380,7 +380,9 @@ public abstract class UpdateAsyncTask extends AsyncTask<Object, Object, Immutabl
 		List<Location> busesToDisplay = Lists.newArrayList();
 		
 		// first add intersection points. Not enough of these to affect performance
-		busesToDisplay.addAll(arguments.getBusLocations().getIntersectionPoints().values());
+		if (mode == Selection.BUS_PREDICTIONS_INTERSECT) {
+			busesToDisplay.addAll(arguments.getBusLocations().getIntersectionPoints().values());
+		}
 		
 		// merge stops or buses to single items if necessary
 		for (int i = 0; i < locationsNearCenter.size(); i++)
