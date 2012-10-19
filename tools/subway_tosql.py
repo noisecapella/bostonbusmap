@@ -51,16 +51,14 @@ def write_sql(data, routeTitles, startOrder):
         routeName = items[indexes["Line"]]
         
         if routeName not in routes_done:
-            obj.routes.route.value = routeName
             routeTitle, order = routeTitles[routeName]
-            obj.routes.routetitle.value = routeTitle
-            obj.routes.color.value = subway_color[routeName]
-            obj.routes.oppositecolor.value = subway_color[routeName]
-            obj.routes.listorder.value = startOrder + order
-            obj.routes.agencyid.value = schema.SubwayAgencyId
-            obj.routes.insert()
-            
-            routes_done[routeName] = True
+
+            routes_done[routeName] = {"route":routeName,
+                                      "routetitle":routeTitle,
+                                      "color":subway_color[routeName],
+                                      "oppositecolor":subway_color[routeName],
+                                      "listorder":startOrder + order,
+                                      "agencyid":schema.SubwayAgencyId}
 
 
         platformOrder = int(items[indexes["PlatformOrder"]])
@@ -121,19 +119,26 @@ def write_sql(data, routeTitles, startOrder):
         for directionHash, stations in innerMapping.iteritems():
             floats = []
             for platformOrder in sorted(stations.keys()):
-                lat, lon = stations[platformOrder]
-                floats.append(lat)
-                floats.append(lon)
+                floats.append(stations[platformOrder])
 
             #this is kind of a hack. We need to connect the southern branches of the red line
             if directionHash == "NBAshmont" or directionHash == "NBBraintree":
                 jfkNorthBoundOrder = 5
                 jfkStation = innerMapping["NBTrunk"][jfkNorthBoundOrder]
                 jfkLat, jfkLon = jfkStation
-                floats.append(jfkLat)
-                floats.append(jfkLon)
+                floats.append(jfkStation)
             paths[route].append(floats)
 
+    for route, routedata in routes_done.iteritems():
+        for key, value in routedata.iteritems():
+            getattr(obj.routes, key).value = value
+
+        if route in paths:
+            obj.routes.pathblob.value = schema.Box(paths[route]).get_blob_string()
+
+        obj.routes.insert()
+
+        
 
 if __name__ == "__main__":
     if len(sys.argv) < 3:

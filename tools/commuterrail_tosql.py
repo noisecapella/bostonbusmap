@@ -361,16 +361,15 @@ def write_sql(data, routeTitles, startOrder):
             raise Exception("Route key doesn't match anything")
 
         if routeKey not in routes_done:
-            obj.routes.route.value = routeKey
             newRouteTitle, order = routeTitles[routeKey]
-            obj.routes.routetitle.value = newRouteTitle
-            obj.routes.color.value = purple
-            obj.routes.oppositecolor.value = purple
-            obj.routes.listorder.value = startOrder + order
-            obj.routes.agencyid.value = schema.CommuterRailAgencyId
-            obj.routes.insert()
 
-            routes_done[routeKey] = True
+            routes_done[routeKey] = {"route" : routeKey,
+                                     "routetitle" : newRouteTitle,
+                                     "color" : purple,
+                                     "oppositecolor" : purple,
+                                     "listorder" : startOrder + order,
+                                     "agencyid" : schema.CommuterRailAgencyId}
+            
 
         lat = float(items[indexes["stop_lat"]])
         lon = float(items[indexes["stop_lon"]])
@@ -418,10 +417,9 @@ def write_sql(data, routeTitles, startOrder):
             
             for platformOrder in sorted(innerInnerMapping.keys()):
                 station = innerInnerMapping[platformOrder]
-                floats.append(station[0])
-                floats.append(station[1])
+                floats.append(station)
 
-            paths[routeKey].append(floats)
+            paths[route].append(floats)
                 
         alreadyHandledDirections = {}
         trunkBranch = "Trunk"
@@ -454,13 +452,20 @@ def write_sql(data, routeTitles, startOrder):
                 branchStop = branchInnerMapping[minBranchOrder]
                 trunkStop = trunkInnerMapping[maxTrunkOrder]
 
-                points.append(trunkStop[0])
-                points.append(trunkStop[1])
-                points.append(branchStop[0])
-                points.append(branchStop[1])
+                points.append(trunkStop)
+                points.append(branchStop)
 
                 paths[routeKey].append(points)
+    for route, routedata in routes_done.iteritems():
+        for key, value in routedata.iteritems():
+            getattr(obj.routes, key).value = value
 
+        if route in paths:
+            d = schema.Box(paths[route]).get_blob_string()
+            obj.routes.pathblob.value = d
+            
+        obj.routes.insert()
+            
 
 if __name__ == "__main__":
     if len(sys.argv) < 3:

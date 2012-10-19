@@ -1,4 +1,6 @@
 import inspect
+import struct
+import binascii
 
 CommuterRailAgencyId = 1
 SubwayAgencyId = 2
@@ -13,6 +15,40 @@ CREATE TABLE routes (route STRING PRIMARY KEY, color INTEGER, oppositecolor INTE
 CREATE TABLE stopmapping (route STRING, tag STRING, dirTag STRING, PRIMARY KEY (route, tag));
 CREATE TABLE stops (tag STRING PRIMARY KEY, lat FLOAT, lon FLOAT, title STRING);
 CREATE TABLE subway (tag STRING PRIMARY KEY, platformorder INTEGER, branch STRING);"""
+
+def rawhex(b):
+    if b > 0xff or b < 0:
+        raise Exception("invalid value for byte: " + b)
+    s = hex(b)[2:]
+    if len(s) == 1:
+        return "0" + s
+    else:
+        return s
+
+class Box:
+    def __init__(self, paths):
+        self.bytes = "" # this is hex
+        self.add_paths(paths)
+
+    def add_paths(self, paths):
+        self.add_int(len(paths))
+        for path in paths:
+            self.add_path(path)
+
+    def add_path(self, path):
+        self.add_int(len(path) * 2)
+        for floats in path:
+            for f in floats:
+                self.add_float(f)
+        
+    def add_int(self, x):
+        self.bytes += binascii.b2a_hex(struct.pack('>i', x))
+
+    def add_float(self, f):
+        self.bytes += binascii.b2a_hex(struct.pack('>f', f))
+
+    def get_blob_string(self):
+        return "X'" + self.bytes + "'"
 
 def getIntFromBool(boolString):
     if str(boolString).lower() == "true":
