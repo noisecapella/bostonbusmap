@@ -42,6 +42,7 @@ public class StringUtil {
 			if (count < size - 1) {
 				ret.append(", ");
 			}
+			count++;
 		}
 		return ret.toString();
 	}
