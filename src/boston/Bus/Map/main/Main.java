@@ -323,7 +323,7 @@ public class Main extends MapActivity
         long lastUpdateTime = 0;
         int previousUpdateConstantlyInterval = UPDATE_INTERVAL_NONE;
 
-        UpdateAsyncTask majorHandler = null;
+        RefreshAsyncTask majorHandler = null;
         
         Selection selection;
         Object lastNonConfigurationInstance = getLastNonConfigurationInstance();
@@ -827,7 +827,6 @@ public class Main extends MapActivity
     	handler.setUpdateConstantlyInterval(updateInterval);
     	handler.setShowUnpredictable(prefs.getBoolean(getString(R.string.showUnpredictableBusesCheckbox), false));
     	handler.setHideHighlightCircle(prefs.getBoolean(getString(R.string.hideCircleCheckbox), false));
-    	handler.setInferBusRoutes(false);
     	arguments.getOverlayGroup().getRouteOverlay().setDrawLine(prefs.getBoolean(getString(R.string.showRouteLineCheckbox), false));
     	boolean showCoarseRouteLineCheckboxValue = prefs.getBoolean(getString(R.string.showCoarseRouteLineCheckbox), true); 
     	//handler.setInitAllRouteInfo(prefs.getBoolean(getString(R.string.initAllRouteInfoCheckbox2), true));

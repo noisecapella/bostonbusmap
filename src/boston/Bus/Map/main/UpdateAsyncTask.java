@@ -70,6 +70,7 @@ import com.google.common.collect.Maps;
 
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.OperationApplicationException;
 import android.graphics.Color;
 import android.graphics.ColorFilter;
 import android.graphics.Paint;
@@ -79,6 +80,7 @@ import android.graphics.drawable.Drawable;
 
 import android.os.AsyncTask;
 import android.os.Handler;
+import android.os.RemoteException;
 import android.util.Log;
 import android.view.View;
 import android.view.WindowManager.BadTokenException;
@@ -90,10 +92,9 @@ import android.widget.Toast;
  * Handles the heavy work of downloading and parsing the XML in a separate thread from the UI.
  *
  */
-public class UpdateAsyncTask extends AsyncTask<Double, Object, ImmutableList<Location>>
+public abstract class UpdateAsyncTask extends AsyncTask<Object, Object, ImmutableList<Location>>
 {
 	private final boolean doShowUnpredictable;
-	private final boolean doRefresh;
 	/**
 	 * For now this is always false. I need to figure out how to download a 1 megabyte file gracefully
 	 */
@@ -108,74 +109,85 @@ public class UpdateAsyncTask extends AsyncTask<Double, Object, ImmutableList<Loc
 	private boolean progressDialogIsShowing;
 	private boolean progressIsShowing;
 	
-	private boolean silenceUpdates;
+	protected final UpdateArguments arguments;
+	protected final UpdateHandler handler;
 	
-	private final boolean inferBusRoutes;
+	protected final Selection selection;
 	
-	private final UpdateArguments arguments;
+	/**
+	 * The last read center of the map.
+	 */
+	protected final GeoPoint currentMapCenter;
 	
-	private final Selection selection;
-	
-	/*public UpdateAsyncTask(ProgressBar progress, MapView mapView, LocationOverlay locationOverlay,
-			boolean doShowUnpredictable, boolean doRefresh, int maxOverlays,
-			boolean drawCircle, boolean inferBusRoutes, BusOverlay busOverlay, RouteOverlay routeOverlay, 
-			DatabaseHelper helper, String routeToUpdate,
-			int selectedBusPredictions, boolean doInit, boolean showRouteLine,
-		TransitSystem transitSystem, ProgressDialog progressDialog, int idToSelect)*/
 	public UpdateAsyncTask(UpdateArguments arguments, boolean doShowUnpredictable,
-			boolean doRefresh, int maxOverlays, boolean drawCircle, boolean inferBusRoutes,
-			boolean doInit, Selection selection)
+			int maxOverlays, boolean drawCircle,
+			boolean doInit, Selection selection, UpdateHandler handler)
 	{
 		super();
 		
 		this.arguments = arguments;
 		//NOTE: these should only be used in one of the UI threads
 		this.doShowUnpredictable = doShowUnpredictable;
-		this.doRefresh = doRefresh;
 		this.maxOverlays = maxOverlays;
 		this.drawCircle = drawCircle;
-		this.inferBusRoutes = inferBusRoutes;
 		this.doInit = doInit;
 		this.selection = selection;
+		this.handler = handler;
+		
+		currentMapCenter = arguments.getMapView().getMapCenter();		
 	}
 	
 	/**
 	 * A type safe wrapper around execute
 	 * @param busLocations
 	 */
-	public void runUpdate(double centerLatitude, double centerLongitude)
+	public void runUpdate()
 	{
-		execute(centerLatitude, centerLongitude);
+		execute();
 	}
 
 	@Override
-	protected ImmutableList<Location> doInBackground(Double... args) {
+	protected ImmutableList<Location> doInBackground(Object... args) {
 		//number of bus pictures to draw. Too many will make things slow
-		return updateBusLocations(args[0], args[1]);
+		return updateBusLocations();
 	}
 
 	@Override
-	protected void onProgressUpdate(Object... strings)
-	{
-		if (silenceUpdates == false)
+	protected void onProgressUpdate(Object... values) {
+		try
 		{
-			final ProgressDialog progressDialog = arguments.getProgressDialog();
-			final ProgressBar progress = arguments.getProgress();
-			if (progressDialog == null || progress == null)
-			{
-				return;
-			}
+			progressUpdate(values);
+		}
+		catch (Throwable t) {
+			LogUtil.e(t);
+		}
+	}
+	
+	protected void progressUpdate(Object... objects)
+	{
+		if (objects.length == 0) {
+			return;
+		}
+		final ProgressDialog progressDialog = arguments.getProgressDialog();
+		final ProgressBar progress = arguments.getProgress();
+		if (progressDialog == null || progress == null)
+		{
+			return;
+		}
 
-			Object string = strings[0];
-			if (string instanceof Integer)
+		Object obj = objects[0];
+		if (areUpdatesSilenced() == false)
+		{
+
+			if (obj instanceof Integer)
 			{
-				int value = (Integer)string;
+				int value = (Integer)obj;
 				progressDialog.setProgress(value);
 				progressDialogProgress = value;
 			}
-			else if (string instanceof ProgressMessage)
+			else if (obj instanceof ProgressMessage)
 			{
-				ProgressMessage message = (ProgressMessage)string;
+				ProgressMessage message = (ProgressMessage)obj;
 
 				switch (message.type)
 				{
@@ -219,7 +231,7 @@ public class UpdateAsyncTask extends AsyncTask<Double, Object, ImmutableList<Loc
 					progressIsShowing = true;
 					break;
 				case ProgressMessage.TOAST:
-					Log.v("BostonBusMap", "Toast made: " + string);
+					Log.v("BostonBusMap", "Toast made: " + obj);
 					Toast.makeText(arguments.getContext(), message.message, Toast.LENGTH_LONG).show();
 					break;
 				}
@@ -227,141 +239,38 @@ public class UpdateAsyncTask extends AsyncTask<Double, Object, ImmutableList<Loc
 		}
 	}
 
-	public ImmutableList<Location> updateBusLocations(double centerLatitude, double centerLongitude)
-	{
-		if (doRefresh == false)
-		{
-			//if doRefresh is false, we just want to resort the overlays for a new center. Don't bother updating the text
-			silenceUpdates = true;
-		}
-		
+	/**
+	 * Do the time consuming stuff we need to do in the background thread
+	 * 
+	 * Returns true for success, false for failure. Errors should handled in function
+	 * to provide a helpful error message
+	 * @throws OperationApplicationException 
+	 * @throws RemoteException 
+	 */
+	protected abstract boolean doUpdate() throws RemoteException, OperationApplicationException;
+	
+	protected abstract boolean areUpdatesSilenced();
+	
+	protected ImmutableList<Location> updateBusLocations()	{
 		final Locations busLocations = arguments.getBusLocations();
-		
-		if (doRefresh)
+
+		try
 		{
-			try
-			{
-				publish(new ProgressMessage(ProgressMessage.PROGRESS_SPINNER_ON, null, null));
-				
-				RouteTitles allRoutes = arguments.getTransitSystem().getRouteKeysToTitles();
-				final Context context = arguments.getContext();
-				busLocations.initializeAllRoutes(this, context, allRoutes);
-				
-				busLocations.refresh(arguments.getContext(), inferBusRoutes, selection,
-						centerLatitude, centerLongitude, this, arguments.getOverlayGroup().getRouteOverlay().isShowLine());
-			}
-			catch (IOException e)
-			{
-				//this probably means that there is no Internet available, or there's something wrong with the feed
-				publish(new ProgressMessage(ProgressMessage.TOAST, null, "Feed is inaccessible; try again later"));
-
-				LogUtil.e(e);
-				
-				return null;
-			} catch (SAXException e) {
-				publish(new ProgressMessage(ProgressMessage.TOAST, null,
-						"XML parsing exception; cannot update. Maybe there was a hiccup in the feed?"));
-
-				LogUtil.e(e);
-				
-				return null;
-			} catch (NumberFormatException e) {
-				publish(new ProgressMessage(ProgressMessage.TOAST, null, "XML number parsing exception; cannot update. Maybe there was a hiccup in the feed?"));
-
-				LogUtil.e(e);
-				
-				return null;
-			} catch (ParserConfigurationException e) {
-				publish(new ProgressMessage(ProgressMessage.TOAST, null, "XML parser configuration exception; cannot update"));
-
-				LogUtil.e(e);
-				
-				return null;
-			} catch (FactoryConfigurationError e) {
-				publish(new ProgressMessage(ProgressMessage.TOAST, null, "XML parser factory configuration exception; cannot update"));
-
-				LogUtil.e(e);
-				
+			if (doUpdate() == false) {
 				return null;
 			}
-			catch (RuntimeException e)
-			{
-				if (e.getCause() instanceof FeedException)
-				{
-					publish(new ProgressMessage(ProgressMessage.TOAST, null, "The feed is reporting an error"));
-
-					LogUtil.e(e);
-					
-					return null;
-				}
-				else
-				{
-					throw e;
-				}
-			}
-			catch (Exception e)
-			{
-				publish(new ProgressMessage(ProgressMessage.TOAST, null, "Unknown exception occurred"));
-
-				LogUtil.e(e);
-				
-				return null;
-			}
-			catch (AssertionError e)
-			{
-				Throwable cause = e.getCause();
-				if (cause != null)
-				{
-					if (cause instanceof SocketTimeoutException)
-					{
-						publish(new ProgressMessage(ProgressMessage.TOAST, null, "Connection timed out"));
-
-						LogUtil.e(e);
-						
-						return null;
-					}
-					else if (cause instanceof SocketException)
-					{
-						publish(new ProgressMessage(ProgressMessage.TOAST, null, "Connection error occurred"));
-
-						LogUtil.e(e);
-						
-						return null;
-					}
-					else
-					{
-						publish(new ProgressMessage(ProgressMessage.TOAST, null, "Unknown exception occurred"));
-
-						LogUtil.e(e);
-						
-						return null;
-					}
-				}
-				else
-				{
-					publish(new ProgressMessage(ProgressMessage.TOAST, null, "Unknown exception occurred"));
-
-					LogUtil.e(e);
-					
-					return null;
-				}
-			}
-			catch (Error e)
-			{
-				publish(new ProgressMessage(ProgressMessage.TOAST, null, "Unknown exception occurred"));
-
-				LogUtil.e(e);
-				
-				return null;
-			}
-			finally
-			{
-				//we should always set the icon to invisible afterwards just in case
-				publish(new ProgressMessage(ProgressMessage.PROGRESS_OFF, null, null));
-			}
+		}
+		catch (Throwable e) {
+			LogUtil.e(e);
+			publish(new ProgressMessage(ProgressMessage.TOAST, null, "Unknown error occurred"));
+			return null;
 		}
 
 		try {
+			GeoPoint geoPoint = currentMapCenter;
+			double centerLatitude = geoPoint.getLatitudeE6() * Constants.InvE6;
+			double centerLongitude = geoPoint.getLongitudeE6() * Constants.InvE6;
+
 			return busLocations.getLocations(maxOverlays, centerLatitude, centerLongitude, doShowUnpredictable, selection);
 		} catch (IOException e) {
 			publish(new ProgressMessage(ProgressMessage.TOAST, null, "Error getting route data from database"));
@@ -385,22 +294,11 @@ public class UpdateAsyncTask extends AsyncTask<Double, Object, ImmutableList<Loc
 		}
 	}
 	
-	private void postExecute(final ImmutableList<Location> locationsNearCenter)
+	protected void postExecute(final ImmutableList<Location> locationsNearCenter)
 	{
 		if (locationsNearCenter == null)
 		{
 			//we probably posted an error message already; just return
-			return;
-		}
-		
-		//if doRefresh is false, we should skip this, it prevents the icons from updating locations
-		if (locationsNearCenter.size() == 0 && doRefresh)
-		{
-			//no data? oh well
-			//sometimes the feed provides an empty XML message; completely valid but without any vehicle elements
-			publish(new ProgressMessage(ProgressMessage.TOAST, null, "Finished update, no data provided"));
-
-			//an error probably occurred; keep buses where they were before, and don't overwrite message in textbox
 			return;
 		}
 		
@@ -534,6 +432,11 @@ public class UpdateAsyncTask extends AsyncTask<Double, Object, ImmutableList<Loc
 		
 		//make sure we redraw map
 		mapView.invalidate();
+		
+		GeoPoint newCenter = mapView.getMapCenter();
+		if (!newCenter.equals(currentMapCenter)) {
+			handler.triggerUpdate();
+		}
 	}
 	
 	/**

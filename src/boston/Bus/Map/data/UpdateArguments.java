@@ -1,6 +1,7 @@
 package boston.Bus.Map.data;
 
 import boston.Bus.Map.main.Main;
+import boston.Bus.Map.main.RefreshAsyncTask;
 import boston.Bus.Map.main.UpdateAsyncTask;
 import boston.Bus.Map.transit.TransitSystem;
 import boston.Bus.Map.ui.BusOverlay;
@@ -20,13 +21,13 @@ public class UpdateArguments {
 	private MapView mapView;
 	private Context context;
 	private OverlayGroup overlayGroup;
-	private UpdateAsyncTask majorHandler;
+	private RefreshAsyncTask majorHandler;
 	private Locations busLocations;
 	private TransitSystem transitSystem;
 	
 	public UpdateArguments(ProgressBar progress,
 			ProgressDialog progressDialog, MapView mapView, Context context,
-			OverlayGroup overlayGroup, UpdateAsyncTask majorHandler,
+			OverlayGroup overlayGroup, RefreshAsyncTask majorHandler,
 			Locations busLocations,
 			TransitSystem transitSystem) {
 		this.progress = progress;
@@ -63,11 +64,11 @@ public class UpdateArguments {
 		return context;
 	}
 
-	public UpdateAsyncTask getMajorHandler() {
+	public RefreshAsyncTask getMajorHandler() {
 		return majorHandler;
 	}
 	
-	public void setMajorHandler(UpdateAsyncTask majorHandler) {
+	public void setMajorHandler(RefreshAsyncTask majorHandler) {
 		this.majorHandler = majorHandler;
 	}
 

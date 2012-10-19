@@ -173,7 +173,7 @@ public final class Locations
 	 * @throws RemoteException 
 	 * @throws FeedException 
 	 */
-	public void refresh(Context context, boolean inferBusRoutes, Selection selection,
+	public void refresh(Context context, Selection selection,
 			double centerLatitude, double centerLongitude,
 			UpdateAsyncTask updateAsyncTask, boolean showRoute) throws SAXException, IOException,
 			ParserConfigurationException, FactoryConfigurationError, RemoteException, OperationApplicationException 

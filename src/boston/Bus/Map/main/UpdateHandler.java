@@ -50,9 +50,7 @@ public class UpdateHandler extends Handler {
 	private int updateConstantlyInterval;
 	private boolean hideHighlightCircle;
 	private boolean showUnpredictable;
-	private UpdateAsyncTask minorUpdate;
-	
-	private boolean inferBusRoutes;
+	private AdjustUIAsyncTask minorUpdate;
 	
 	private boolean isFirstRefresh;
 	
@@ -120,13 +118,13 @@ public class UpdateHandler extends Handler {
 				guiArguments.getOverlayGroup().getBusOverlay().setSelectedBusId(msg.arg1);
 			}
 			Selection selection = guiArguments.getBusLocations().getSelection();
-			minorUpdate = new UpdateAsyncTask(guiArguments, getShowUnpredictable(),
-					false, maxOverlays,
-					getHideHighlightCircle() == false, getInferBusRoutes(),
-					false, selection);
+			minorUpdate = new AdjustUIAsyncTask(guiArguments, getShowUnpredictable(),
+					maxOverlays,
+					getHideHighlightCircle() == false,
+					false, selection, this);
 			
 
-			minorUpdate.runUpdate(centerLatitude, centerLongitude);
+			minorUpdate.runUpdate();
 			
 			break;
 		}		
@@ -171,16 +169,12 @@ public class UpdateHandler extends Handler {
 			
 		}
 		
-		GeoPoint geoPoint = guiArguments.getMapView().getMapCenter();
-		double centerLatitude = geoPoint.getLatitudeE6() * Constants.InvE6;
-		double centerLongitude = geoPoint.getLongitudeE6() * Constants.InvE6;
-
 		Selection selection = guiArguments.getBusLocations().getSelection();
-		final UpdateAsyncTask updateAsyncTask = new UpdateAsyncTask(guiArguments, getShowUnpredictable(), true, maxOverlays,
-				getHideHighlightCircle() == false, getInferBusRoutes(),
-				isFirstTime, selection);
+		final RefreshAsyncTask updateAsyncTask = new RefreshAsyncTask(guiArguments, getShowUnpredictable(), maxOverlays,
+				getHideHighlightCircle() == false,
+				isFirstTime, selection, this);
 		guiArguments.setMajorHandler(updateAsyncTask);
-		updateAsyncTask.runUpdate(centerLatitude, centerLongitude);
+		updateAsyncTask.runUpdate();
 		
 	}
 
@@ -242,16 +236,6 @@ public class UpdateHandler extends Handler {
 	public boolean getShowUnpredictable()
 	{
 		return showUnpredictable;
-	}
-	
-	public void setInferBusRoutes(boolean b)
-	{
-		inferBusRoutes = b;
-	}
-
-	public boolean getInferBusRoutes()
-	{
-		return inferBusRoutes;
 	}
 	
 	public void setInitAllRouteInfo(boolean b)
