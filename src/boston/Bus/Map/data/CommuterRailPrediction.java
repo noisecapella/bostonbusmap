@@ -88,7 +88,7 @@ lateness. Used at the trip’s origin.
 	}
 	
 	@Override
-	public void makeSnippet(TransitSourceTitles routeKeysToTitles, Context context, StringBuilder ret) {
+	public void makeSnippet(TransitSourceTitles routeKeysToTitles, Context context, StringBuilder builder) {
 		int minutes = getMinutes();
 		if (minutes < 0)
 		{
@@ -96,8 +96,6 @@ lateness. Used at the trip’s origin.
 		}
 		else
 		{
-			StringBuilder builder = new StringBuilder();
-			
 			builder.append("Line <b>").append(routeKeysToTitles.getTitle(routeName)).append("</b>");
 			if (vehicleId != null)
 			{
