@@ -393,12 +393,16 @@ def write_sql(data, routeTitles, startOrder):
             obj.subway.tag.value = stopTag
             obj.subway.insert()
 
+            stops_done[stopTag] = True
+
+        if (stopTag, routeKey) not in stopmapping_done:
             obj.stopmapping.route.value = routeKey
             obj.stopmapping.tag.value = stopTag
             obj.stopmapping.dirTag.value = None
             obj.stopmapping.insert()
+
+            stopmapping_done[(stopTag, routeKey)] = True
             
-            stops_done[stopTag] = True
 
         if routeKey not in orderedStations:
             orderedStations[routeKey] = {}
@@ -485,6 +489,7 @@ if __name__ == "__main__":
 
     routes_done = {}
     stops_done = {}
+    stopmapping_done = {}
 
     print "BEGIN TRANSACTION;"
 
