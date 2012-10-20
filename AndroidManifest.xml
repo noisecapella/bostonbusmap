@@ -30,7 +30,9 @@
 		</activity> 
 		<activity android:name="boston.Bus.Map.main.GetDirectionsDialog" 
 		    android:theme="@android:style/Theme.Dialog" android:excludeFromRecents="true" />
-		<uses-library android:name="com.google.android.maps"></uses-library>
+				<activity android:name="boston.Bus.Map.main.PlacesDialog" 
+		    android:theme="@android:style/Theme.Dialog" android:excludeFromRecents="true" />
+				<uses-library android:name="com.google.android.maps"></uses-library>
 		<meta-data android:name="android.app.default_searchable"
                android:value="boston.Bus.Map.main.SearchResults" />
 		
