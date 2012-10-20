@@ -332,18 +332,16 @@ public final class Locations
 			}
 		}
 		else if (mode == Selection.BUS_PREDICTIONS_INTERSECT) {
+			String intersectionName = selection.getIntersection();
 			ConcurrentMap<String, IntersectionLocation> intersects = routeMapping.getIntersectPoints();
-			
-			//TODO: do this all in the database
-			Set<String> routeTags = Sets.newHashSet();
-			for (IntersectionLocation intersectionLocation : intersects.values()) {
-				routeTags.addAll(intersectionLocation.getNearbyRoutes());
-			}
-			
-			Collection<StopLocation> centerStops = routeMapping.getClosestStopsAndFilterRoutes(centerLatitude,
-					centerLongitude, maxLocations, routeTags);
-			for (StopLocation stop : centerStops) {
-				newLocations.add(stop);
+			if (intersectionName != null) {
+				IntersectionLocation intersection = intersects.get(intersectionName);
+				if (intersection != null) {
+					//TODO: do this all in the database
+					Collection<StopLocation> centerStops = routeMapping.getClosestStopsAndFilterRoutes(centerLatitude,
+							centerLongitude, maxLocations, intersection.getNearbyRoutes());
+					newLocations.addAll(centerStops);
+				}
 			}
 			
 		}

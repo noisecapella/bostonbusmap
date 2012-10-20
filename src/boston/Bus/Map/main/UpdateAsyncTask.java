@@ -30,6 +30,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentMap;
 
 import javax.xml.parsers.FactoryConfigurationError;
 import javax.xml.parsers.ParserConfigurationException;
@@ -330,11 +331,14 @@ public abstract class UpdateAsyncTask extends AsyncTask<Object, Object, Immutabl
 			selectedRouteConfig = null;
 		}
 		else if (mode == Selection.BUS_PREDICTIONS_INTERSECT) {
-			if (selection.getIntersection() != null) {
-				IntersectionLocation intersection = locationsObj.getIntersectionPoints().get(selection.getIntersection());
-				routeOverlay.clearPaths();
-				for (String route : intersection.getNearbyRoutes()) {
-					routeOverlay.addPathsAndColor(paths, Color.BLUE, route);
+			routeOverlay.clearPaths();
+			String intersectionName = selection.getIntersection();
+			if (intersectionName != null) {
+				IntersectionLocation intersection = locationsObj.getIntersectionPoints().get(intersectionName);
+				if (intersection != null) {
+					for (String route : intersection.getNearbyRoutes()) {
+						routeOverlay.addPathsAndColor(paths, Color.BLUE, route);
+					}
 				}
 			}
 			else
@@ -381,7 +385,14 @@ public abstract class UpdateAsyncTask extends AsyncTask<Object, Object, Immutabl
 		
 		// first add intersection points. Not enough of these to affect performance
 		if (mode == Selection.BUS_PREDICTIONS_INTERSECT) {
-			busesToDisplay.addAll(arguments.getBusLocations().getIntersectionPoints().values());
+			String intersectionName = selection.getIntersection();
+			ConcurrentMap<String, IntersectionLocation> intersections = arguments.getBusLocations().getIntersectionPoints();
+			if (intersectionName != null) {
+				IntersectionLocation location = intersections.get(intersectionName);
+				if (location != null) {
+					busesToDisplay.add(location);
+				}
+			}
 		}
 		
 		// merge stops or buses to single items if necessary
