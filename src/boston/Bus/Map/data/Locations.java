@@ -49,6 +49,7 @@ import com.google.common.collect.Sets;
 
 import android.content.Context;
 import android.content.OperationApplicationException;
+import android.graphics.drawable.Drawable;
 import android.os.PowerManager;
 import android.os.RemoteException;
 import android.util.Log;
@@ -81,17 +82,20 @@ public final class Locations
 	
 	private double lastUpdateTime = 0;
 	
+	private final Drawable intersectionDrawable;
+	
 
 	private Selection mutableSelection;
 	private final TransitSystem transitSystem;
 
 	public Locations(Context context, 
-			TransitSystem transitSystem, Selection selection)
+			TransitSystem transitSystem, Selection selection, Drawable intersectionDrawable)
 	{
 		this.transitSystem = transitSystem;
-		routeMapping = new RoutePool(context, transitSystem);
+		routeMapping = new RoutePool(context, transitSystem, intersectionDrawable);
 		directions = new Directions(context);
 		mutableSelection = selection;
+		this.intersectionDrawable = intersectionDrawable;
 	}
 	
 	public String getRouteTitle(String key)
@@ -500,5 +504,9 @@ public final class Locations
 	
 	public AlertsMapping getAlertsMapping() {
 		return transitSystem.getAlertsMapping();
+	}
+	
+	public Drawable getIntersectionDrawable() {
+		return intersectionDrawable;
 	}
 }

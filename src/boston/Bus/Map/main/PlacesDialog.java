@@ -9,9 +9,13 @@ import com.google.common.collect.Maps;
 import boston.Bus.Map.R;
 import boston.Bus.Map.ui.TextViewBinder;
 import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
 import android.text.Spanned;
 import android.text.SpannedString;
+import android.view.View;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.SimpleAdapter;
@@ -23,6 +27,11 @@ public class PlacesDialog extends Activity {
 	public static final String textKey = "intersectionName";
 	
 	public static final String extrasIntersectionNames = "intersectionNames";
+	
+	public static final int PLACES_DIALOG = 4;
+
+	public static final String addNewItem = "ADDNEWITEM";
+	public static final String item = "ITEM";
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -32,7 +41,7 @@ public class PlacesDialog extends Activity {
 		
 		listView = (ListView)findViewById(R.id.placesDialogListView);
 
-		String[] intersectionNames = getIntent().getExtras().getStringArray(extrasIntersectionNames);
+		final String[] intersectionNames = getIntent().getExtras().getStringArray(extrasIntersectionNames);
 		
 		//TODO: 
 		
@@ -48,6 +57,26 @@ public class PlacesDialog extends Activity {
 		
 		adapter.setViewBinder(new TextViewBinder());
 		listView.setAdapter(adapter);
+		listView.setOnItemClickListener(new OnItemClickListener() {
+
+			@Override
+			public void onItemClick(AdapterView<?> parent, View view, int position,
+					long id) {
+				Intent data = new Intent();
+				if (position == 0) {
+					// add item
+					data.putExtra(addNewItem, true);
+				}
+				else if (position > 0)
+				{
+					data.putExtra(item, intersectionNames[position - 1]);
+				}
+
+				setResult(RESULT_OK, data);
+				finish();
+			}
+			
+		});
 		
 	}
 }

@@ -52,6 +52,7 @@ import boston.Bus.Map.provider.TransitContentProvider;
 import boston.Bus.Map.transit.TransitSystem;
 import boston.Bus.Map.ui.BusOverlay;
 
+import boston.Bus.Map.ui.BusDrawable;
 import boston.Bus.Map.ui.LocationOverlay;
 import boston.Bus.Map.ui.ModeAdapter;
 import boston.Bus.Map.ui.OverlayGroup;
@@ -389,7 +390,8 @@ public class Main extends MapActivity
 
         if (busLocations == null)
         {
-        	busLocations = new Locations(this, transitSystem, selection);
+        	Drawable intersectionDrawable = getResources().getDrawable(R.drawable.bus);
+        	busLocations = new Locations(this, transitSystem, selection, intersectionDrawable);
         }
 
         arguments = new UpdateArguments(progress, progressDialog,
@@ -695,55 +697,9 @@ public class Main extends MapActivity
 			Collection<String> unsortedTitles = arguments.getBusLocations().getIntersectionPoints().keySet();
 			List<String> titles = Lists.newArrayList(unsortedTitles);
 			Collections.sort(titles);
-			
-			AlertDialog.Builder builder = new AlertDialog.Builder(this);
-			builder.setTitle(getString(R.string.places));
-			final String[] items = new String[titles.size() + 1];
-			items[0] = "Add new place...";
-			for (int i = 0; i < titles.size(); i++) {
-				items[i+1] = titles.get(i);
-			}
-			builder.setItems(items, new DialogInterface.OnClickListener() {
-				
-				@Override
-				public void onClick(DialogInterface dialog, int which) {
-					if (which == 0) {
-    					arguments.getOverlayGroup().getBusOverlay().captureNextTap(new BusOverlay.OnClickListener() {
-    						
-    						@Override
-    						public boolean onClick(GeoPoint point) {
-    							Locations locations = arguments.getBusLocations();
-    							String name = locations.makeNewIntersectionName();
-    							Drawable drawable = arguments.getTransitSystem().getTransitSource(null).getDrawables().getVehicle();
-    							IntersectionLocation.Builder builder = new IntersectionLocation.Builder(name, 
-    									(float)(point.getLatitudeE6() * Constants.InvE6), 
-    									(float)(point.getLongitudeE6() * Constants.InvE6),
-    									drawable);
-    							if (arguments.getBusLocations().addIntersection(builder) == false) {
-    								Toast.makeText(Main.this, "Error adding location.\nMaybe there's already a location with that name?", Toast.LENGTH_LONG).show();
-    							}
-    							return true;
-    						}
-    						
-    						@Override
-    						public boolean onClick(boston.Bus.Map.data.Location location) {
-    							int lat = (int) (Constants.E6 * location.getLatitudeAsDegrees());
-    							int lon = (int) (Constants.E6 * location.getLongitudeAsDegrees());
-    							GeoPoint point = new GeoPoint(lat, lon);
-    							return onClick(point);
-    						}
-    					});
-    					Toast.makeText(Main.this, "Tap a point on the map to create a new place", Toast.LENGTH_LONG).show();
 
-					}
-					else if (which < items.length)
-					{
-						setNewIntersection(items[which]);
-					}
-				}
-			});
-			AlertDialog dialog = builder.create();
-			dialog.show();
+			Intent intent = new Intent(this, PlacesDialog.class);
+			startActivityForResult(intent, PlacesDialog.PLACES_DIALOG);
 		}
 	}
 
@@ -1077,7 +1033,45 @@ public class Main extends MapActivity
 
 	@Override
 	protected void onActivityResult(final int requestCode, final int resultCode, Intent data) {
-		if (requestCode == GetDirectionsDialog.GETDIRECTIONS_REQUEST_CODE) {
+		if (requestCode == PlacesDialog.PLACES_DIALOG) {
+			if (resultCode == RESULT_OK) {
+				if (data.getBooleanExtra(PlacesDialog.addNewItem, false)) {
+					arguments.getOverlayGroup().getBusOverlay().captureNextTap(new BusOverlay.OnClickListener() {
+						
+						@Override
+						public boolean onClick(GeoPoint point) {
+							Locations locations = arguments.getBusLocations();
+							Drawable drawable = locations.getIntersectionDrawable();
+							String name = locations.makeNewIntersectionName();
+							float latitudeAsDegrees = (float) (point.getLatitudeE6()*Constants.InvE6);
+							float longitudeAsDegrees = (float) (point.getLongitudeE6()*Constants.InvE6);
+							IntersectionLocation.Builder builder = new IntersectionLocation.Builder(
+									name, latitudeAsDegrees, longitudeAsDegrees, drawable);
+							locations.addIntersection(builder);
+							
+							Toast.makeText(Main.this, "New place created!", Toast.LENGTH_LONG).show();
+							return true;
+						}
+						
+						@Override
+						public boolean onClick(boston.Bus.Map.data.Location location) {
+							int lat = (int) (location.getLatitudeAsDegrees() * Constants.E6);
+							int lon = (int) (location.getLongitudeAsDegrees() * Constants.E6);
+							GeoPoint point = new GeoPoint(lat, lon);
+							return onClick(point);
+						}
+					});
+				}
+				else {
+					String newIntersection = data.getStringExtra(PlacesDialog.item);
+					if (newIntersection != null) {
+						Selection selection = arguments.getBusLocations().getSelection();
+						arguments.getBusLocations().setSelection(selection.withDifferentIntersection(newIntersection));
+					}
+				}
+			}
+		}
+		else if (requestCode == GetDirectionsDialog.GETDIRECTIONS_REQUEST_CODE) {
 			
 			final String startTag = data != null ? data.getStringExtra(GetDirectionsDialog.START_TAG_KEY) : null;
 			final String stopTag = data != null ? data.getStringExtra(GetDirectionsDialog.STOP_TAG_KEY) : null;

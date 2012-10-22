@@ -23,6 +23,7 @@ import com.google.common.collect.Sets;
 
 import android.content.Context;
 import android.content.OperationApplicationException;
+import android.graphics.drawable.Drawable;
 import android.os.RemoteException;
 import android.util.Log;
 import boston.Bus.Map.R;
@@ -45,12 +46,14 @@ public class RoutePool extends Pool<String, RouteConfig> {
 	
 	private final TransitSystem transitSystem;
 	
-	public RoutePool(Context context, TransitSystem transitSystem) {
+	private final Drawable intersectionDrawable;
+	
+	public RoutePool(Context context, TransitSystem transitSystem, Drawable intersectionDrawable) {
 		super(50);
 
 		this.context = context;
 		this.transitSystem = transitSystem;
-		
+		this.intersectionDrawable = intersectionDrawable;
 		populateFavorites();
 		
 		populateIntersections();
@@ -149,7 +152,7 @@ public class RoutePool extends Pool<String, RouteConfig> {
 	
 	private void populateIntersections() {
 		DatabaseAgent.populateIntersections(context.getContentResolver(), intersections,
-				transitSystem, sharedStops);
+				transitSystem, sharedStops, intersectionDrawable);
 	}
 
 	protected void clearAll() {

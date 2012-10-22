@@ -1211,7 +1211,8 @@ public class DatabaseContentProvider extends ContentProvider {
 		public static void populateIntersections(
 				ContentResolver resolver,
 				ConcurrentMap<String, IntersectionLocation> intersections,
-				TransitSystem transitSystem, ConcurrentMap<String, StopLocation> sharedStops) {
+				TransitSystem transitSystem, ConcurrentMap<String, StopLocation> sharedStops,
+				Drawable intersectionDrawable) {
 			
 			Map<String, IntersectionLocation.Builder> ret = Maps.newHashMap();
 			
@@ -1221,13 +1222,13 @@ public class DatabaseContentProvider extends ContentProvider {
 			try
 			{
 				cursor.moveToFirst();
-				Drawable drawable = transitSystem.getTransitSource(null).getDrawables().getVehicle();
 				while (cursor.isAfterLast() == false) {
 					String title = cursor.getString(0);
 					
 					float lat = cursor.getFloat(1);
 					float lon = cursor.getFloat(2);
-					IntersectionLocation.Builder builder = new IntersectionLocation.Builder(title, lat, lon, drawable);
+					IntersectionLocation.Builder builder = 
+							new IntersectionLocation.Builder(title, lat, lon, intersectionDrawable);
 					ret.put(title, builder);
 					
 					cursor.moveToNext();
