@@ -699,6 +699,7 @@ public class Main extends MapActivity
 			Collections.sort(titles);
 
 			Intent intent = new Intent(this, PlacesDialog.class);
+			intent.putExtra(PlacesDialog.extrasIntersectionNames, titles.toArray(new String[0]));
 			startActivityForResult(intent, PlacesDialog.PLACES_DIALOG);
 		}
 	}

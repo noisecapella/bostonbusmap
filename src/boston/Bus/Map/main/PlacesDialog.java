@@ -3,6 +3,7 @@ package boston.Bus.Map.main;
 import java.util.List;
 import java.util.Map;
 
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
@@ -41,14 +42,25 @@ public class PlacesDialog extends Activity {
 		
 		listView = (ListView)findViewById(R.id.placesDialogListView);
 
-		final String[] intersectionNames = getIntent().getExtras().getStringArray(extrasIntersectionNames);
+		Bundle extras = getIntent().getExtras();
+		final String[] intersectionNames;
+		if (extras == null) {
+			intersectionNames = new String[0];
+		}
+		else
+		{
+			intersectionNames = extras.getStringArray(extrasIntersectionNames);
+		}
 		
 		//TODO: 
 		
 		List<Map<String, Spanned>> data = Lists.newArrayList();
+		{
+			ImmutableMap<String, Spanned> map = ImmutableMap.of(textKey, (Spanned)new SpannedString("Add new place..."));
+			data.add(map);
+		}
 		for (String name : intersectionNames) {
-			Map<String, Spanned> map = Maps.newHashMap();
-			map.put(textKey, new SpannedString(name));
+			ImmutableMap<String, Spanned> map = ImmutableMap.of(textKey, (Spanned)new SpannedString(name));
 			data.add(map);
 		}
 		SimpleAdapter adapter = new SimpleAdapter(this, data, R.layout.places_dialog_row,
