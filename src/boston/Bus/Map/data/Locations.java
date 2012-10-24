@@ -386,14 +386,21 @@ public final class Locations
 		return ret.build();
 	}
 
-	public Path[] getPaths(String route) throws IOException {
-		RouteConfig routeConfig = routeMapping.get(route);
-		if (routeConfig != null)
+	public Path[] getPaths(String route) {
+		try
 		{
-			return routeConfig.getPaths();
+			RouteConfig routeConfig = routeMapping.get(route);
+			if (routeConfig != null)
+			{
+				return routeConfig.getPaths();
+			}
+			else
+			{
+				return RouteConfig.nullPaths;
+			}
 		}
-		else
-		{
+		catch (IOException e) {
+			LogUtil.e(e);
 			return RouteConfig.nullPaths;
 		}
 	}

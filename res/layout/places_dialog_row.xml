@@ -3,7 +3,8 @@
     android:layout_width="fill_parent"
     android:layout_height="wrap_content"
     android:orientation="horizontal" 
-    android:background="@android:color/white">
+    android:background="@android:color/white"
+    >
 
     <TextView
         android:id="@+id/places_dialog_text"
@@ -12,7 +13,7 @@
         android:bufferType="spannable"
         android:text="Insert text here" 
         android:textColor="@android:color/black"
-        style="?android:attr/textAppearanceLarge">
+        >
     </TextView>
 
 </LinearLayout>

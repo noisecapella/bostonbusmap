@@ -16,6 +16,11 @@ import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.CopyOnWriteArraySet;
 
 import com.google.android.maps.GeoPoint;
+import com.google.common.base.Objects;
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.CacheLoader;
+import com.google.common.cache.LoadingCache;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
@@ -245,9 +250,8 @@ public class RoutePool extends Pool<String, RouteConfig> {
 	
 	public Collection<StopLocation> getClosestStopsAndFilterRoutes(double centerLatitude,
 			double centerLongitude, int maxStops, Set<String> routes) {
-		return DatabaseAgent.getClosestStopsAndFilterRoutes(context.getContentResolver(), 
+		return DatabaseAgent.getClosestStopsAndFilterRoutes(context.getContentResolver(),	
 				centerLatitude, centerLongitude, transitSystem, sharedStops, maxStops, routes);
-		
 	}
 
 	public Collection<StopLocation> getClosestStops(double centerLatitude,

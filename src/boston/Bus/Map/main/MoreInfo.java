@@ -33,6 +33,7 @@ import android.widget.AdapterView.OnItemClickListener;
 import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.ArrayAdapter;
 import android.widget.ListAdapter;
+import android.widget.ListView;
 import android.widget.SimpleAdapter;
 import android.widget.Spinner;
 import android.widget.SpinnerAdapter;
@@ -69,6 +70,7 @@ public class MoreInfo extends ListActivity {
 		super.onCreate(savedInstanceState);
 		
 		setContentView(R.layout.moreinfo);
+		
 		
 		Bundle extras = getIntent().getExtras();
 		

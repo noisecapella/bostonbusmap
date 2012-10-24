@@ -312,20 +312,14 @@ public abstract class UpdateAsyncTask extends AsyncTask<Object, Object, Immutabl
 		//routeOverlay.setDrawCoarseLine(showCoarseRouteLine);
 		
 		//get a list of lat/lon pairs which describe the route
-        Path[] paths;
 		Locations locationsObj = arguments.getBusLocations();
-		try {
-			paths = locationsObj.getPaths(selection.getRoute());
-		} catch (IOException e) {
-			LogUtil.e(e);
-			paths = RouteConfig.nullPaths;
-		}
 		
 		RouteConfig selectedRouteConfig;
 		int mode = selection.getMode();
 		if (mode == Selection.BUS_PREDICTIONS_STAR || 
 				mode == Selection.BUS_PREDICTIONS_ALL)
 		{
+	        Path[] paths = locationsObj.getPaths(selection.getRoute());
 			//we want this to be null. Else, the snippet drawing code would only show data for a particular route
 			routeOverlay.setPathsAndColor(paths, Color.BLUE, selection.getRoute());
 			selectedRouteConfig = null;
@@ -337,12 +331,14 @@ public abstract class UpdateAsyncTask extends AsyncTask<Object, Object, Immutabl
 				IntersectionLocation intersection = locationsObj.getIntersectionPoints().get(intersectionName);
 				if (intersection != null) {
 					for (String route : intersection.getNearbyRoutes()) {
+						Path[] paths = locationsObj.getPaths(route);
 						routeOverlay.addPathsAndColor(paths, Color.BLUE, route);
 					}
 				}
 			}
 			else
 			{
+		        Path[] paths = locationsObj.getPaths(selection.getRoute());
 				routeOverlay.setPathsAndColor(paths, Color.BLUE, selection.getRoute());
 			}
 			
@@ -350,14 +346,17 @@ public abstract class UpdateAsyncTask extends AsyncTask<Object, Object, Immutabl
 		}
 		else
 		{
-			String route = selection.getRoute();
+			Path[] paths;
 			try
 			{
+				paths = locationsObj.getPaths(selection.getRoute());
+				String route = selection.getRoute();
 				selectedRouteConfig = locationsObj.getRoute(route);
 			}
 			catch (IOException e) {
 				LogUtil.e(e);
 				selectedRouteConfig = null;
+				paths = RouteConfig.nullPaths;
 			}
 			
 			int color = selectedRouteConfig == null ? Color.BLUE : selectedRouteConfig.getColor();
