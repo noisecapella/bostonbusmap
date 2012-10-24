@@ -78,7 +78,7 @@ schema = {"directions" : {"columns":[
             {"tag": "route", "type" : "String"},
             {"tag": "color", "type": "int"},
             {"tag": "oppositecolor", "type": "int"},
-            {"tag": "pathblob", "type": "byte[]", "canbenull" : "true"},
+            {"tag": "pathblob", "type": "byte[]"},
             {"tag": "listorder", "type" :"int"},
             {"tag": "agencyid", "type" : "int", 
              "values" : {CommuterRailAgencyId:"CommuterRail",

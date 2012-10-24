@@ -19,6 +19,8 @@ class ToSql(xml.sax.handler.ContentHandler):
         self.table = schema.getSchemaAsObject()
         self.routeKeysToTitles = routeKeysToTitles
         self.startingOrder = startingOrder
+        self.inPath = False
+        self.paths = []
 
     def startElement(self, name, attributes):
         table = self.table
@@ -32,7 +34,6 @@ class ToSql(xml.sax.handler.ContentHandler):
             table.routes.oppositecolor.value = int(attributes["oppositeColor"], 16)
             table.routes.listorder.value = self.startingOrder + order
             table.routes.agencyid.value = schema.BusAgencyId
-            table.routes.insert()
 
         elif name == "stop":
             tag = attributes["tag"]
@@ -64,13 +65,28 @@ class ToSql(xml.sax.handler.ContentHandler):
                 table.directions.dirNameKey.value = attributes["name"]
                 table.directions.useAsUI.value = schema.getIntFromBool(attributes["useForUI"])
                 table.directions.insert()
+        elif name == "path":
+            self.inPath = True
+            self.currentPathPoints = []
+        elif name == "point":
+            lat = float(attributes["lat"])
+            lon = float(attributes["lon"])
             
+            self.currentPathPoints.append((lat, lon))
 
     def endElement(self, name):
         if name == "direction":
             self.currentDirection = None
         elif name == "route":
             self.currentRoute = None
+            if len(self.paths) > 0:
+                self.table.routes.pathblob.value = schema.Box(self.paths).get_blob_string()
+            self.paths = []
+            self.table.routes.insert()
+        elif name == "path":
+            self.inPath = False
+            self.paths.append(self.currentPathPoints)
+                
 
 if __name__ == "__main__":
     if len(sys.argv) < 4:
