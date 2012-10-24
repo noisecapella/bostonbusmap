@@ -24,6 +24,7 @@ def writeTable(table):
         column = columns[i]
         print indent2 + "public static final int " + column["tag"] + "Index = " + str(i + 1) + ";"
         print indent2 + "public static final String " + column["tag"] + "Column = \"" + column["tag"] + "\";"
+        print indent2 + "public static final String " + column["tag"] + "ColumnOnTable = \"" + tableName + "." + column["tag"] + "\";"
 
         if "values" in column:
             print

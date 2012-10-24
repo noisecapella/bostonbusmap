@@ -34,6 +34,7 @@ import android.util.Log;
 import boston.Bus.Map.R;
 import boston.Bus.Map.main.UpdateAsyncTask;
 import boston.Bus.Map.provider.DatabaseContentProvider.DatabaseAgent;
+import boston.Bus.Map.transit.TransitSource;
 import boston.Bus.Map.transit.TransitSystem;
 import boston.Bus.Map.ui.ProgressMessage;
 
@@ -248,10 +249,46 @@ public class RoutePool extends Pool<String, RouteConfig> {
 		}
 	}
 	
+	private static class ClosestCacheKey {
+		private final double lat;
+		private final double lon;
+		private final int maxStops;
+		private final Set<String> routes;
+		private final boolean usesRoutes;
+		
+		public ClosestCacheKey(double lat, double lon, int maxStops, Set<String> routes, boolean usesRoutes) {
+			this.lat = lat;
+			this.lon = lon;
+			this.maxStops = maxStops;
+			this.routes = routes;
+			this.usesRoutes = usesRoutes;
+		}
+		
+		public boolean equals(double lat, double lon, int maxStops, Set<String> routes, boolean usesRoutes) {
+			return this.usesRoutes == usesRoutes &&
+					this.lat == lat &&
+					this.lon == lon &&
+					this.maxStops == maxStops &&
+					this.routes.equals(routes);
+		}
+	}
+	
+	private ClosestCacheKey previousKey;
+	private Collection<StopLocation> previousValue;
+	
 	public Collection<StopLocation> getClosestStopsAndFilterRoutes(double centerLatitude,
 			double centerLongitude, int maxStops, Set<String> routes) {
-		return DatabaseAgent.getClosestStopsAndFilterRoutes(context.getContentResolver(),	
-				centerLatitude, centerLongitude, transitSystem, sharedStops, maxStops, routes);
+		if (previousKey == null || previousKey.equals(centerLatitude, centerLongitude, maxStops, routes, true) == false) {
+			Collection<StopLocation> value = DatabaseAgent.getClosestStopsAndFilterRoutes(context.getContentResolver(),	
+					centerLatitude, centerLongitude, transitSystem, sharedStops, maxStops, routes);
+			previousKey = new ClosestCacheKey(centerLatitude, centerLongitude, maxStops, routes, true);
+			previousValue = value;
+			return value;
+		}
+		else
+		{
+			return previousValue;
+		}
 	}
 
 	public Collection<StopLocation> getClosestStops(double centerLatitude,

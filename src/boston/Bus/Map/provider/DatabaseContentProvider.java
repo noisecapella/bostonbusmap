@@ -137,7 +137,7 @@ public class DatabaseContentProvider extends ContentProvider {
 	private static final String STOPS_AND_ROUTES_WITH_DISTANCE_TYPE = "vnd.android.cursor.dir/vnd.bostonbusmap.stop_and_route_with_distance";
 	public static final Uri STOPS_AND_ROUTES_WITH_DISTANCE_URI = Uri.parse("content://" + AUTHORITY + "/stops_and_routes_with_distance");
 	private static final int STOPS_AND_ROUTES_WITH_DISTANCE = 17;
-	
+
 
 	private final static String DATABASE_VERSION_KEY = "DB_VERSION";
 	
@@ -867,14 +867,15 @@ public class DatabaseContentProvider extends ContentProvider {
 		}
 		private static Collection<StopLocation> getClosestStops(ContentResolver resolver, 
 				double currentLat, double currentLon, TransitSystem transitSystem, 
-				ConcurrentMap<String, StopLocation> sharedStops, int limit, Set<String> routes, boolean filterRoutes)
+				ConcurrentMap<String, StopLocation> sharedStops, int limit, Set<String> routes,
+				boolean filterRoutes)
 		{
 			// what we should scale longitude by for 1 unit longitude to roughly equal 1 unit latitude
 
-			String[] projectionIn = new String[] {Schema.Stops.table + "." + Schema.Stops.tagColumn, distanceKey};
 			int currentLatAsInt = (int)(currentLat * Constants.E6);
 			int currentLonAsInt = (int)(currentLon * Constants.E6);
 			Uri uri;
+			String[] projectionIn = new String[] {Schema.Stops.tagColumnOnTable, distanceKey};
 			if (filterRoutes == false) {
 				uri = STOPS_WITH_DISTANCE_URI;
 			}
@@ -1567,10 +1568,10 @@ public class DatabaseContentProvider extends ContentProvider {
 			break;
 		case STOPS_LOOKUP:
 			builder.setTables(Schema.Stops.table +
-						" JOIN " + Schema.Stopmapping.table + " AS sm1 ON (" + Schema.Stops.table + "." + Schema.Stopmapping.tagColumn + " = sm1." + Schema.Stopmapping.tagColumn + ")" +
-						" JOIN " + Schema.Stopmapping.table + " AS sm2 ON (" + Schema.Stops.table + "." + Schema.Stopmapping.tagColumn + " = sm2." + Schema.Stopmapping.tagColumn + ")" +
-						" LEFT OUTER JOIN " + Schema.Subway.table + " ON (" + Schema.Stops.table + "." + Schema.Stopmapping.tagColumn + " = " + 
-						Schema.Subway.table + "." + Schema.Subway.tagColumn + ")");
+						" JOIN " + Schema.Stopmapping.table + " AS sm1 ON (" + Schema.Stops.tagColumnOnTable + " = sm1." + Schema.Stopmapping.tagColumn + ")" +
+						" JOIN " + Schema.Stopmapping.table + " AS sm2 ON (" + Schema.Stops.tagColumnOnTable + " = sm2." + Schema.Stopmapping.tagColumn + ")" +
+						" LEFT OUTER JOIN " + Schema.Subway.table + " ON (" + Schema.Stops.tagColumnOnTable + " = " + 
+						Schema.Subway.tagColumnOnTable + ")");
 			break;
 		case DIRECTIONS:
 			builder.setTables(Schema.Directions.table);
@@ -1585,10 +1586,10 @@ public class DatabaseContentProvider extends ContentProvider {
 			
 			break;
 		case STOPS_LOOKUP_3:
-			builder.setTables(Schema.Stops.table + " JOIN " + Schema.Stopmapping.table + " ON (" + Schema.Stops.table + "." + Schema.Stops.tagColumn + " = " +
-					Schema.Stopmapping.table + "." + Schema.Stopmapping.tagColumn + ") LEFT OUTER JOIN " +
-					Schema.Subway.table + " ON (" + Schema.Stops.table + "." + Schema.Stops.tagColumn + " = " + 
-					Schema.Subway.table + "." + Schema.Subway.tagColumn + ")");
+			builder.setTables(Schema.Stops.table + " JOIN " + Schema.Stopmapping.table + " ON (" + Schema.Stops.tagColumnOnTable + " = " +
+					Schema.Stopmapping.tagColumnOnTable + ") LEFT OUTER JOIN " +
+					Schema.Subway.table + " ON (" + Schema.Stops.tagColumnOnTable + " = " + 
+					Schema.Subway.tagColumnOnTable + ")");
 			break;
 		case STOPS_WITH_DISTANCE:
 		{
@@ -1615,12 +1616,10 @@ public class DatabaseContentProvider extends ContentProvider {
 			double currentLon = Integer.parseInt(pathSegments.get(2)) * Constants.InvE6;
 			limit = pathSegments.get(3);
 			builder.setTables(Schema.Stops.table + " JOIN " + Schema.Stopmapping.table +
-					" ON " + Schema.Stops.table + "." + 
-					Schema.Stops.tagColumn + " = " + Schema.Stopmapping.table + "." + 
-					Schema.Stopmapping.tagColumn);
+					" ON " + Schema.Stops.tagColumnOnTable + " = " + Schema.Stopmapping.tagColumnOnTable);
 
 			HashMap<String, String> projectionMap = new HashMap<String, String>();
-			projectionMap.put(Schema.Stops.table + "." + Schema.Stops.tagColumn, Schema.Stops.table + "." + Schema.Stops.tagColumn);
+			projectionMap.put(Schema.Stops.tagColumnOnTable, Schema.Stops.tagColumnOnTable);
 
 			double lonFactor = Math.cos(currentLat * Geometry.degreesToRadians);
 			String latDiff = "(" + Schema.Stops.latColumn + " - " + currentLat + ")";

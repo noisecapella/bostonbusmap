@@ -320,4 +320,9 @@ public class SubwayTransitSource implements TransitSource {
 	public TransitSourceTitles getRouteTitles() {
 		return routeTitles;
 	}
+	
+	@Override
+	public boolean requiresSubwayTable() {
+		return true;
+	}
 }

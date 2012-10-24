@@ -60,4 +60,6 @@ public interface TransitSource {
 	int getLoadOrder();
 	
 	int getTransitSourceId();
+
+	boolean requiresSubwayTable();
 }

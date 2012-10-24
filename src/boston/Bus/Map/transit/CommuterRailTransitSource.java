@@ -364,4 +364,9 @@ public class CommuterRailTransitSource implements TransitSource {
 	public int getTransitSourceId() {
 		return Schema.Routes.enumagencyidCommuterRail;
 	}
+	
+	@Override
+	public boolean requiresSubwayTable() {
+		return true;
+	}
 }

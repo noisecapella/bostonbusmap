@@ -338,4 +338,9 @@ public abstract class NextBusTransitSource implements TransitSource
 	public int getTransitSourceId() {
 		return Schema.Routes.enumagencyidBus;
 	}
+	
+	@Override
+	public boolean requiresSubwayTable() {
+		return false;
+	}
 }
