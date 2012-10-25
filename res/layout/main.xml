@@ -11,16 +11,18 @@ android:id="@+id/linearLayoutMain" android:gravity="right">
 		 android:background="@android:drawable/btn_default"
 		 android:layout_alignParentRight="true"
 		></Spinner>
-	<Button android:id="@+id/chooseAPlaceButton" android:layout_height="wrap_content"
+	<ImageButton android:id="@+id/chooseAPlaceButton" android:layout_height="wrap_content"
 	    android:layout_width="wrap_content" android:layout_toLeftOf="@+id/predictionsOrLocations"
-		android:background="@android:drawable/btn_default">
+		android:background="@android:drawable/btn_default"
+	android:src="@drawable/bus_one"
+		
+/>
 	    	    
-	</Button>
-		<Button android:id="@+id/chooseFavoriteButton" android:layout_height="wrap_content"
+		<ImageButton android:id="@+id/chooseFavoriteButton" android:layout_height="wrap_content"
 	    android:layout_width="wrap_content" android:layout_toLeftOf="@+id/chooseAPlaceButton"
-	    android:background="@android:drawable/btn_default">
-		    
-	</Button>
+	    android:background="@android:drawable/btn_default"
+	    android:src="@drawable/busstop_star"
+	    />
 		
 		
     <ProgressBar android:id="@+id/progress"

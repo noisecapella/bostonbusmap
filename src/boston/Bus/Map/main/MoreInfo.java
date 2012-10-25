@@ -21,6 +21,7 @@ import boston.Bus.Map.util.StringUtil;
 import android.app.Activity;
 import android.app.ListActivity;
 import android.content.Context;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.text.Html;
@@ -244,7 +245,7 @@ public class MoreInfo extends ListActivity {
 				new String[]{textKey},
 				new int[] {R.id.moreinfo_text});
 		
-		adapter.setViewBinder(new TextViewBinder());
+		adapter.setViewBinder(new TextViewBinder(Color.GRAY));
 		
 		setListAdapter(adapter);
 		

@@ -173,8 +173,8 @@ public class Main extends MapActivity
 	
 	private Spinner toggleButton;
 	
-	private Button chooseAPlaceButton;
-	private Button chooseAFavoriteButton;
+	private ImageButton chooseAPlaceButton;
+	private ImageButton chooseAFavoriteButton;
 	
 	/**
 	 * The list of routes that's selectable in the routes dropdown list
@@ -207,8 +207,8 @@ public class Main extends MapActivity
         //get widgets
         final MapView mapView = (MapView)findViewById(R.id.mapview);
         toggleButton = (Spinner)findViewById(R.id.predictionsOrLocations);
-        chooseAPlaceButton = (Button)findViewById(R.id.chooseAPlaceButton);
-        chooseAFavoriteButton = (Button)findViewById(R.id.chooseFavoriteButton);
+        chooseAPlaceButton = (ImageButton)findViewById(R.id.chooseAPlaceButton);
+        chooseAFavoriteButton = (ImageButton)findViewById(R.id.chooseFavoriteButton);
         searchView = (EditText)findViewById(R.id.searchTextView);
         final ProgressBar progress = (ProgressBar)findViewById(R.id.progress);
         searchButton = (ImageButton)findViewById(R.id.searchButton);

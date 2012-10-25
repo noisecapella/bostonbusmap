@@ -8,6 +8,7 @@ import boston.Bus.Map.R;
 import boston.Bus.Map.data.Alert;
 import boston.Bus.Map.ui.TextViewBinder;
 import android.app.ListActivity;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.text.Html;
@@ -59,7 +60,7 @@ public class AlertInfo extends ListActivity
 				new String[]{textKey},
 				new int[] {R.id.moreinfo_text});
 
-		adapter.setViewBinder(new TextViewBinder());
+		adapter.setViewBinder(new TextViewBinder(Color.GRAY));
 
 		setListAdapter(adapter);
 

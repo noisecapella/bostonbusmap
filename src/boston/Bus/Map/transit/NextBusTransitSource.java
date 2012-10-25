@@ -163,7 +163,8 @@ public abstract class NextBusTransitSource implements TransitSource
 
 		if (selectedBusPredictions == Selection.BUS_PREDICTIONS_ONE || 
 				selectedBusPredictions == Selection.BUS_PREDICTIONS_ALL ||
-				selectedBusPredictions == Selection.BUS_PREDICTIONS_STAR)
+				selectedBusPredictions == Selection.BUS_PREDICTIONS_STAR ||
+				selectedBusPredictions == Selection.BUS_PREDICTIONS_INTERSECT)
 		{
 			//bus prediction
 

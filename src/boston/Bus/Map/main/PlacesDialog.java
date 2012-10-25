@@ -11,6 +11,7 @@ import boston.Bus.Map.R;
 import boston.Bus.Map.ui.TextViewBinder;
 import android.app.Activity;
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.text.Spanned;
 import android.text.SpannedString;
@@ -67,7 +68,7 @@ public class PlacesDialog extends Activity {
 				new String[]{textKey},
 				new int[] {R.id.places_dialog_text});
 		
-		adapter.setViewBinder(new TextViewBinder());
+		adapter.setViewBinder(new TextViewBinder(Color.BLACK));
 		listView.setAdapter(adapter);
 		listView.setOnItemClickListener(new OnItemClickListener() {
 
