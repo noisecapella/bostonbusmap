@@ -115,6 +115,8 @@ public abstract class UpdateAsyncTask extends AsyncTask<Object, Object, Immutabl
 	
 	protected final Selection selection;
 	
+	private final Integer toSelect;
+	
 	/**
 	 * The last read center of the map.
 	 */
@@ -122,7 +124,7 @@ public abstract class UpdateAsyncTask extends AsyncTask<Object, Object, Immutabl
 	
 	public UpdateAsyncTask(UpdateArguments arguments, boolean doShowUnpredictable,
 			int maxOverlays, boolean drawCircle,
-			boolean doInit, Selection selection, UpdateHandler handler)
+			boolean doInit, Selection selection, UpdateHandler handler, Integer toSelect)
 	{
 		super();
 		
@@ -135,7 +137,9 @@ public abstract class UpdateAsyncTask extends AsyncTask<Object, Object, Immutabl
 		this.selection = selection;
 		this.handler = handler;
 		
-		currentMapCenter = arguments.getMapView().getMapCenter();		
+		currentMapCenter = arguments.getMapView().getMapCenter();
+		
+		this.toSelect = toSelect;
 	}
 	
 	/**
@@ -379,7 +383,14 @@ public abstract class UpdateAsyncTask extends AsyncTask<Object, Object, Immutabl
 		Map<Long, Integer> points = Maps.newHashMap();
 		
 		//draw the buses on the map
-		int newSelectedBusId = selectedBusId;
+		int newSelectedBusId;
+		if (toSelect != null) {
+			newSelectedBusId = toSelect;
+		}
+		else
+		{
+			newSelectedBusId = selectedBusId;
+		}
 		List<Location> busesToDisplay = Lists.newArrayList();
 		
 		// first add intersection points. Not enough of these to affect performance

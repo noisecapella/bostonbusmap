@@ -431,4 +431,9 @@ public class BusLocation implements Location {
 	public boolean hasReportProblem() {
 		return true;
 	}
+
+	@Override
+	public boolean isIntersection() {
+		return false;
+	}
 }

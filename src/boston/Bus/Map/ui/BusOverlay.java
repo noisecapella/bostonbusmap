@@ -422,6 +422,13 @@ public class BusOverlay extends BalloonItemizedOverlay<BusOverlayItem> {
 		boolean onClick(GeoPoint point);
 	}
 
+	public static GeoPoint toGeoPoint(Location location) {
+		int latE6 = (int) (location.getLatitudeAsDegrees() * Constants.E6);
+		int lonE6 = (int) (location.getLongitudeAsDegrees() * Constants.E6);
+		GeoPoint ret = new GeoPoint(latE6, lonE6);
+		return ret;
+	}
+	
 	public void captureNextTap(OnClickListener onClickListener) {
 		this.nextTapListener = onClickListener;
 	}

@@ -359,4 +359,9 @@ public class StopLocation implements Location
 	public boolean hasReportProblem() {
 		return true;
 	}
+	
+	@Override
+	public boolean isIntersection() {
+		return false;
+	}
 }

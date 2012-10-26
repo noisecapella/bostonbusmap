@@ -65,4 +65,6 @@ public interface Location {
 	boolean hasFavorite();
 
 	boolean hasReportProblem();
+
+	boolean isIntersection();
 }

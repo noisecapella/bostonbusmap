@@ -32,7 +32,7 @@ public class RefreshAsyncTask extends UpdateAsyncTask
 			boolean drawCircle, boolean doInit,
 			Selection selection, UpdateHandler handler) {
 		super(arguments, doShowUnpredictable, maxOverlays, drawCircle,
-				doInit, selection, handler);
+				doInit, selection, handler, null);
 	}
 
 	@Override

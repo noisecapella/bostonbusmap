@@ -114,14 +114,15 @@ public class UpdateHandler extends Handler {
 			//remove duplicate messages
 			removeMessages(MINOR);
 			
+			Integer toSelect = null;
 			if (msg.arg1 != 0) {
-				guiArguments.getOverlayGroup().getBusOverlay().setSelectedBusId(msg.arg1);
+				toSelect = msg.arg1;
 			}
 			Selection selection = guiArguments.getBusLocations().getSelection();
 			minorUpdate = new AdjustUIAsyncTask(guiArguments, getShowUnpredictable(),
 					maxOverlays,
 					getHideHighlightCircle() == false,
-					false, selection, this);
+					false, selection, this, toSelect);
 			
 
 			minorUpdate.runUpdate();

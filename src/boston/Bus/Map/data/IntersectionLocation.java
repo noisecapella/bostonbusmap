@@ -159,4 +159,9 @@ public class IntersectionLocation implements Location {
 	public String getName() {
 		return name;
 	}
+	
+	@Override
+	public boolean isIntersection() {
+		return true;
+	}
 }

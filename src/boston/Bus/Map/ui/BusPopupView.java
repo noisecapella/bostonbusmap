@@ -31,6 +31,7 @@ import android.widget.FrameLayout.LayoutParams;
 import boston.Bus.Map.R;
 import boston.Bus.Map.data.Alert;
 import boston.Bus.Map.data.BusLocation;
+import boston.Bus.Map.data.IntersectionLocation;
 import boston.Bus.Map.data.Location;
 import boston.Bus.Map.data.Locations;
 import boston.Bus.Map.data.Prediction;
@@ -59,6 +60,8 @@ public class BusPopupView extends BalloonOverlayView<BusOverlayItem>
 	private TextView moreInfo;
 	private TextView reportProblem;
 	private TextView alertsTextView;
+	private TextView deleteTextView;
+	private TextView editTextView;
 	private final Locations locations;
 	private final RouteTitles routeKeysToTitles;
 	private Location location;
@@ -97,6 +100,12 @@ public class BusPopupView extends BalloonOverlayView<BusOverlayItem>
 		reportProblem = (TextView) layoutView.findViewById(R.id.balloon_item_report);
 		reportProblemText = Html.fromHtml("\n<a href='com.bostonbusmap://reportproblem'>Report<br/>Problem</a>\n");
 		reportProblem.setText(R.string.reportproblem);
+		
+		deleteTextView = (TextView)layoutView.findViewById(R.id.balloon_item_delete);
+		deleteTextView.setText("Delete place");
+		
+		editTextView = (TextView)layoutView.findViewById(R.id.balloon_item_edit);
+		editTextView.setText("Edit place name");
 		
 		alertsTextView = (TextView) layoutView.findViewById(R.id.balloon_item_alerts);
 		alertsTextView.setVisibility(View.GONE);
@@ -344,19 +353,29 @@ public class BusPopupView extends BalloonOverlayView<BusOverlayItem>
 		
 		if (location.hasMoreInfo())
 		{
-			moreInfo.setText(moreInfoText);
+			moreInfo.setVisibility(View.VISIBLE);
 		}
 		else
 		{
-			moreInfo.setText("");
+			moreInfo.setVisibility(View.GONE);
 		}
 		
 		if (location.hasReportProblem()) {
-			reportProblem.setText(reportProblemText);
+			reportProblem.setVisibility(View.VISIBLE);
 		}
 		else
 		{
-			reportProblem.setText("");
+			reportProblem.setVisibility(View.GONE);
+		}
+		
+		if (location.isIntersection()) {
+			deleteTextView.setVisibility(View.VISIBLE);
+			editTextView.setVisibility(View.VISIBLE);
+		}
+		else
+		{
+			deleteTextView.setVisibility(View.GONE);
+			editTextView.setVisibility(View.GONE);
 		}
 	}
 	

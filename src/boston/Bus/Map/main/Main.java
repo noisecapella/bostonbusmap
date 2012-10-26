@@ -467,13 +467,29 @@ public class Main extends MapActivity
 	private void updateSearchText(Selection selection) {
 		if (searchView != null)
 		{
+			if (selection.getMode() == Selection.BUS_PREDICTIONS_INTERSECT) {
+				String intersection = selection.getIntersection();
+				if (intersection != null && arguments.getBusLocations().getIntersectionPoints().containsKey(intersection)) {
+					if (intersection.toLowerCase().startsWith("place ")) {
+						searchView.setText(intersection);
+					}
+					else
+					{
+						searchView.setText("Place " + intersection);
+					}
+				}
+				else
+				{
+					searchView.setText("No place selected, click '...'");
+				}
+			}
 			String route = selection.getRoute();
 			String routeTitle = dropdownRouteKeysToTitles.getTitle(route);
 			searchView.setText("Route " + routeTitle);
 		}
 		else
 		{
-			Log.i("BostonBusMap", "Warning: search view is null");
+			Log.i("BostonBusMap", "ERROR: search view is null");
 		}
 	}
 	
@@ -711,7 +727,28 @@ public class Main extends MapActivity
 				@Override
 				public void onClick(DialogInterface dialog, int which) {
 					if (which == 0) {
-						
+						Toast.makeText(Main.this, "Tap a spot on the map to create a place", Toast.LENGTH_LONG).show();
+						arguments.getOverlayGroup().getBusOverlay().captureNextTap(new BusOverlay.OnClickListener() {
+							
+							@Override
+							public boolean onClick(GeoPoint point) {
+								Drawable drawable = getResources().getDrawable(R.drawable.busstop_intersect);
+								Locations locations = arguments.getBusLocations();
+								String name = locations.makeNewIntersectionName();
+								float latitudeAsDegrees = (float) (point.getLatitudeE6() * Constants.InvE6); 
+								float longitudeAsDegrees = (float) (point.getLongitudeE6() * Constants.InvE6); 
+								IntersectionLocation.Builder builder = new IntersectionLocation.Builder(name, latitudeAsDegrees, longitudeAsDegrees, drawable);
+								locations.addIntersection(builder);
+								Toast.makeText(Main.this, "New place created!", Toast.LENGTH_LONG).show();
+								setNewIntersection(name);
+								return true;
+							}
+							
+							@Override
+							public boolean onClick(boston.Bus.Map.data.Location location) {
+								return onClick(BusOverlay.toGeoPoint(location));
+							}
+						});
 					}
 					else if (which >= 1 && which < titlesArray.length) {
 						setNewIntersection(titlesArray[which]);
@@ -1017,6 +1054,8 @@ public class Main extends MapActivity
 				GeoPoint geoPoint = new GeoPoint(latE6, lonE6);
 				controller.setCenter(geoPoint);
 				controller.scrollBy(0, -100);
+
+				handler.triggerUpdateThenSelect(newLocation.getId());
 			}
 			
 		}
