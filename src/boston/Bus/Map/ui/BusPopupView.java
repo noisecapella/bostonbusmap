@@ -7,7 +7,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.ConcurrentMap;
 
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.OperationApplicationException;
 import android.content.pm.PackageInfo;
@@ -65,8 +67,6 @@ public class BusPopupView extends BalloonOverlayView<BusOverlayItem>
 	private final Locations locations;
 	private final RouteTitles routeKeysToTitles;
 	private Location location;
-	private Spanned moreInfoText;
-	private Spanned reportProblemText;
 	private Spanned noAlertsText;
 	private Alert[] alertsList;
 	
@@ -94,18 +94,20 @@ public class BusPopupView extends BalloonOverlayView<BusOverlayItem>
 		favorite.setBackgroundResource(R.drawable.empty_star);
 
 		moreInfo = (TextView) layoutView.findViewById(R.id.balloon_item_moreinfo);
-		moreInfoText = Html.fromHtml("\n<a href='com.bostonbusmap://moreinfo'>More info</a>\n");
-		moreInfo.setText(R.string.moreinfo);
+		Spanned moreInfoText = Html.fromHtml("\n<a href='com.bostonbusmap://moreinfo'>More info</a>\n");
+		moreInfo.setText(moreInfoText);
 		
 		reportProblem = (TextView) layoutView.findViewById(R.id.balloon_item_report);
-		reportProblemText = Html.fromHtml("\n<a href='com.bostonbusmap://reportproblem'>Report<br/>Problem</a>\n");
-		reportProblem.setText(R.string.reportproblem);
+		Spanned reportProblemText = Html.fromHtml("\n<a href='com.bostonbusmap://reportproblem'>Report<br/>Problem</a>\n");
+		reportProblem.setText(reportProblemText);
 		
 		deleteTextView = (TextView)layoutView.findViewById(R.id.balloon_item_delete);
-		deleteTextView.setText("Delete place");
+		Spanned deleteText = Html.fromHtml("\n<a href='com.bostonbusmap://reportproblem'>Delete place</a>\n");
+		deleteTextView.setText(deleteText);
 		
 		editTextView = (TextView)layoutView.findViewById(R.id.balloon_item_edit);
-		editTextView.setText("Edit place name");
+		Spanned editText = Html.fromHtml("\n<a href='com.bostonbusmap://reportproblem'>Edit place name</a>\n");
+		editTextView.setText(editText);
 		
 		alertsTextView = (TextView) layoutView.findViewById(R.id.balloon_item_alerts);
 		alertsTextView.setVisibility(View.GONE);
@@ -212,6 +214,47 @@ public class BusPopupView extends BalloonOverlayView<BusOverlayItem>
 					Log.i("BostonBusMap", "alertsList is null");
 				}
 				
+			}
+		});
+		
+		deleteTextView.setOnClickListener(new OnClickListener() {
+			
+			@Override
+			public void onClick(View v) {
+				AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+				builder.setTitle("Delete Place");
+				builder.setMessage("Are you sure?");
+				builder.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+					
+					@Override
+					public void onClick(DialogInterface dialog, int which) {
+						if (location != null && location instanceof IntersectionLocation) {
+							IntersectionLocation intersection = (IntersectionLocation)location;
+							locations.removeIntersection(intersection.getName());
+							locations.setSelection(locations.getSelection().withDifferentIntersection(null));
+						}
+					}
+				});
+				builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+					
+					@Override
+					public void onClick(DialogInterface dialog, int which) {
+						dialog.dismiss();
+					}
+				});
+				builder.create().show();
+				
+			}
+		});
+		
+		editTextView.setOnClickListener(new OnClickListener() {
+			
+			@Override
+			public void onClick(View v) {
+				AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+				builder.setTitle("Edit place name");
+				
+				builder.create().show();
 			}
 		});
 	}

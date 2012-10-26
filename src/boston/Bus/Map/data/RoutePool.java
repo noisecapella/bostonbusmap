@@ -312,4 +312,17 @@ public class RoutePool extends Pool<String, RouteConfig> {
 		return intersections;
 	}
 
+	public void removeIntersection(String name) {
+		DatabaseAgent.removeIntersection(context.getContentResolver(), name);
+		
+		intersections.remove(name);
+	}
+
+	public void editIntersectionName(String oldName, String newName) {
+		DatabaseAgent.editIntersectionName(context.getContentResolver(), oldName, newName);
+		
+		intersections.remove(oldName);
+		
+		populateIntersections();
+	}
 }

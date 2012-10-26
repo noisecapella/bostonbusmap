@@ -1041,7 +1041,7 @@ public class Main extends MapActivity
 			Selection newSelection = oldSelection.withDifferentIntersection(name);
 			locations.setSelection(newSelection);
 			
-			setMode(Selection.BUS_PREDICTIONS_INTERSECT, true, true);
+			setMode(Selection.BUS_PREDICTIONS_INTERSECT, true, false);
 			
 			IntersectionLocation newLocation = locations.getIntersectionPoints().get(name);
 			if (newLocation != null) {
