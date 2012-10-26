@@ -28,6 +28,7 @@ import java.util.Collection;
 import java.util.Collections;
 
 import java.util.List;
+import java.util.concurrent.ConcurrentMap;
 
 import javax.xml.parsers.FactoryConfigurationError;
 import javax.xml.parsers.ParserConfigurationException;
@@ -173,8 +174,8 @@ public class Main extends MapActivity
 	
 	private Spinner toggleButton;
 	
-	private ImageButton chooseAPlaceButton;
-	private ImageButton chooseAFavoriteButton;
+	private Button chooseAPlaceButton;
+	private Button chooseAFavoriteButton;
 	
 	/**
 	 * The list of routes that's selectable in the routes dropdown list
@@ -207,8 +208,8 @@ public class Main extends MapActivity
         //get widgets
         final MapView mapView = (MapView)findViewById(R.id.mapview);
         toggleButton = (Spinner)findViewById(R.id.predictionsOrLocations);
-        chooseAPlaceButton = (ImageButton)findViewById(R.id.chooseAPlaceButton);
-        chooseAFavoriteButton = (ImageButton)findViewById(R.id.chooseFavoriteButton);
+        chooseAPlaceButton = (Button)findViewById(R.id.chooseAPlaceButton);
+        chooseAFavoriteButton = (Button)findViewById(R.id.chooseFavoriteButton);
         searchView = (EditText)findViewById(R.id.searchTextView);
         final ProgressBar progress = (ProgressBar)findViewById(R.id.progress);
         searchButton = (ImageButton)findViewById(R.id.searchButton);
@@ -390,7 +391,7 @@ public class Main extends MapActivity
 
         if (busLocations == null)
         {
-        	Drawable intersectionDrawable = getResources().getDrawable(R.drawable.bus);
+        	Drawable intersectionDrawable = getResources().getDrawable(R.drawable.busstop_intersect);
         	busLocations = new Locations(this, transitSystem, selection, intersectionDrawable);
         }
 
@@ -697,10 +698,29 @@ public class Main extends MapActivity
 			Collection<String> unsortedTitles = arguments.getBusLocations().getIntersectionPoints().keySet();
 			List<String> titles = Lists.newArrayList(unsortedTitles);
 			Collections.sort(titles);
+			final String[] titlesArray = new String[titles.size() + 1];
+			titlesArray[0] = "Add new place...";
+			for (int i = 0; i < titles.size(); i++) {
+				titlesArray[i+1] = titles.get(i);
+			}
 
-			Intent intent = new Intent(this, PlacesDialog.class);
-			intent.putExtra(PlacesDialog.extrasIntersectionNames, titles.toArray(new String[0]));
-			startActivityForResult(intent, PlacesDialog.PLACES_DIALOG);
+			AlertDialog.Builder builder = new AlertDialog.Builder(this);
+			builder.setTitle(getString(R.string.places));
+			builder.setItems(titlesArray, new DialogInterface.OnClickListener() {
+
+				@Override
+				public void onClick(DialogInterface dialog, int which) {
+					if (which == 0) {
+						
+					}
+					else if (which >= 1 && which < titlesArray.length) {
+						setNewIntersection(titlesArray[which]);
+					}
+				}
+			});
+			AlertDialog stopChooserDialog = builder.create();
+			stopChooserDialog.show();
+
 		}
 	}
 
@@ -983,6 +1003,22 @@ public class Main extends MapActivity
 			Selection oldSelection = locations.getSelection();
 			Selection newSelection = oldSelection.withDifferentIntersection(name);
 			locations.setSelection(newSelection);
+			
+			setMode(Selection.BUS_PREDICTIONS_INTERSECT, true, true);
+			
+			IntersectionLocation newLocation = locations.getIntersectionPoints().get(name);
+			if (newLocation != null) {
+
+				MapController controller = arguments.getMapView().getController();
+
+				int latE6 = (int)(newLocation.getLatitudeAsDegrees() * Constants.E6);
+				int lonE6 = (int)(newLocation.getLongitudeAsDegrees() * Constants.E6);
+
+				GeoPoint geoPoint = new GeoPoint(latE6, lonE6);
+				controller.setCenter(geoPoint);
+				controller.scrollBy(0, -100);
+			}
+			
 		}
 	}
 	
@@ -1034,45 +1070,7 @@ public class Main extends MapActivity
 
 	@Override
 	protected void onActivityResult(final int requestCode, final int resultCode, Intent data) {
-		if (requestCode == PlacesDialog.PLACES_DIALOG) {
-			if (resultCode == RESULT_OK) {
-				if (data.getBooleanExtra(PlacesDialog.addNewItem, false)) {
-					arguments.getOverlayGroup().getBusOverlay().captureNextTap(new BusOverlay.OnClickListener() {
-						
-						@Override
-						public boolean onClick(GeoPoint point) {
-							Locations locations = arguments.getBusLocations();
-							Drawable drawable = locations.getIntersectionDrawable();
-							String name = locations.makeNewIntersectionName();
-							float latitudeAsDegrees = (float) (point.getLatitudeE6()*Constants.InvE6);
-							float longitudeAsDegrees = (float) (point.getLongitudeE6()*Constants.InvE6);
-							IntersectionLocation.Builder builder = new IntersectionLocation.Builder(
-									name, latitudeAsDegrees, longitudeAsDegrees, drawable);
-							locations.addIntersection(builder);
-							
-							Toast.makeText(Main.this, "New place created!", Toast.LENGTH_LONG).show();
-							return true;
-						}
-						
-						@Override
-						public boolean onClick(boston.Bus.Map.data.Location location) {
-							int lat = (int) (location.getLatitudeAsDegrees() * Constants.E6);
-							int lon = (int) (location.getLongitudeAsDegrees() * Constants.E6);
-							GeoPoint point = new GeoPoint(lat, lon);
-							return onClick(point);
-						}
-					});
-				}
-				else {
-					String newIntersection = data.getStringExtra(PlacesDialog.item);
-					if (newIntersection != null) {
-						Selection selection = arguments.getBusLocations().getSelection();
-						arguments.getBusLocations().setSelection(selection.withDifferentIntersection(newIntersection));
-					}
-				}
-			}
-		}
-		else if (requestCode == GetDirectionsDialog.GETDIRECTIONS_REQUEST_CODE) {
+		if (requestCode == GetDirectionsDialog.GETDIRECTIONS_REQUEST_CODE) {
 			
 			final String startTag = data != null ? data.getStringExtra(GetDirectionsDialog.START_TAG_KEY) : null;
 			final String stopTag = data != null ? data.getStringExtra(GetDirectionsDialog.STOP_TAG_KEY) : null;

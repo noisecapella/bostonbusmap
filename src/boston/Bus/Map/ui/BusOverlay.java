@@ -24,6 +24,7 @@ import java.util.List;
 
 
 import boston.Bus.Map.data.Alert;
+import boston.Bus.Map.data.IntersectionLocation;
 import boston.Bus.Map.data.PredictionView;
 import boston.Bus.Map.data.Locations;
 import boston.Bus.Map.data.RouteTitles;
@@ -244,17 +245,24 @@ public class BusOverlay extends BalloonItemizedOverlay<BusOverlayItem> {
 			final int overlaysSize = overlays.size();
 			for (int i = 1; i < overlaysSize; i++)
 			{
-				OverlayItem item = overlays.get(i);
-				
-				GeoPoint geoPoint = item.getPoint();
-				projection.toPixels(geoPoint, radiusPoint);
-				final int diffX = radiusPoint.x - circleCenterX;
-				final int diffY = radiusPoint.y - circleCenterY;
-				final int distance = diffX*diffX + diffY*diffY;
-				
-				if (lastDistance < distance)
+				BusOverlayItem item = overlays.get(i);
+				if (item.getCurrentLocation() instanceof IntersectionLocation)
 				{
-					lastDistance = distance;
+					// skip
+				}
+				else
+				{
+
+					GeoPoint geoPoint = item.getPoint();
+					projection.toPixels(geoPoint, radiusPoint);
+					final int diffX = radiusPoint.x - circleCenterX;
+					final int diffY = radiusPoint.y - circleCenterY;
+					final int distance = diffX*diffX + diffY*diffY;
+
+					if (lastDistance < distance)
+					{
+						lastDistance = distance;
+					}
 				}
 			}
 		

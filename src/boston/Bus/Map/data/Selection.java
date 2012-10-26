@@ -22,7 +22,7 @@ public class Selection {
 	};
 	
 	public static final int[] modeIconsSupported = new int[]{
-		R.drawable.bus_all, R.drawable.bus_one, R.drawable.busstop_all, R.drawable.busstop_one, 
+		R.drawable.bus_all, R.drawable.bus_one, R.drawable.busstop_all, R.drawable.busstop, 
 		R.drawable.busstop_star, R.drawable.busstop_intersect
 		
 	};
