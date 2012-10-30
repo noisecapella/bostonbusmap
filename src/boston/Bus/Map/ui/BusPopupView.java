@@ -24,6 +24,7 @@ import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
@@ -255,7 +256,7 @@ public class BusPopupView extends BalloonOverlayView<BusOverlayItem>
 				AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
 				builder.setTitle("Edit place name");
 
-				final TextView textView = new TextView(getContext());
+				final EditText textView = new EditText(getContext());
 				textView.setHint("Place name (ie, Home)");
 				builder.setView(textView);
 				builder.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
@@ -459,7 +460,7 @@ public class BusPopupView extends BalloonOverlayView<BusOverlayItem>
 		super.setData(item);
 		
 		//NOTE: originally this was going to be an actual link, but we can't click it on the popup except through its onclick listener
-		updateUIFromState(item.getCurrentLocation());
+		setState(item.getCurrentLocation());
 		Alert[] alerts = item.getAlerts();
 		alertsList = alerts;
 		
