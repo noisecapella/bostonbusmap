@@ -1,5 +1,7 @@
 package boston.Bus.Map.ui;
 
+import android.R.color;
+import android.graphics.Color;
 import android.text.Spanned;
 import android.view.View;
 import android.widget.SimpleAdapter.ViewBinder;
@@ -7,10 +9,7 @@ import android.widget.TextView;
 
 public class TextViewBinder implements ViewBinder
 {
-	private final int color;
-	
-	public TextViewBinder(int color) {
-		this.color = color;
+	public TextViewBinder() {
 	}
 	
 	@Override
@@ -20,7 +19,7 @@ public class TextViewBinder implements ViewBinder
 		Spanned spanned = (Spanned)data;
 		
 		textView.setText(spanned);
-		textView.setTextColor(color);
+		textView.setTextColor(Color.WHITE);
 		return true;
 	}
 	

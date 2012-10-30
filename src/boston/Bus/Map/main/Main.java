@@ -360,7 +360,6 @@ public class Main extends MapActivity
 
         	lastUpdateTime = currentState.getLastUpdateTime();
         	previousUpdateConstantlyInterval = currentState.getUpdateConstantlyInterval();
-        	setMode(selection.getMode(), true, false);
         	progress.setVisibility(currentState.getProgressState() ? View.VISIBLE : View.INVISIBLE);
         	
         	
@@ -406,6 +405,7 @@ public class Main extends MapActivity
         if (lastNonConfigurationInstance != null)
         {
         	updateSearchText(selection);
+        	setMode(selection.getMode(), true, false);
         }
         else
         {
@@ -731,16 +731,46 @@ public class Main extends MapActivity
 						arguments.getOverlayGroup().getBusOverlay().captureNextTap(new BusOverlay.OnClickListener() {
 							
 							@Override
-							public boolean onClick(GeoPoint point) {
-								Drawable drawable = getResources().getDrawable(R.drawable.busstop_intersect);
-								Locations locations = arguments.getBusLocations();
-								String name = locations.makeNewIntersectionName();
-								float latitudeAsDegrees = (float) (point.getLatitudeE6() * Constants.InvE6); 
-								float longitudeAsDegrees = (float) (point.getLongitudeE6() * Constants.InvE6); 
-								IntersectionLocation.Builder builder = new IntersectionLocation.Builder(name, latitudeAsDegrees, longitudeAsDegrees, drawable);
-								locations.addIntersection(builder);
-								Toast.makeText(Main.this, "New place created!", Toast.LENGTH_LONG).show();
-								setNewIntersection(name);
+							public boolean onClick(final GeoPoint point) {
+								AlertDialog.Builder builder = new AlertDialog.Builder(Main.this);
+								builder.setTitle("New place name");
+
+								final EditText textView = new EditText(Main.this);
+								textView.setHint("Place name (ie, Home or Work)");
+								builder.setView(textView);
+								builder.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+									
+									@Override
+									public void onClick(DialogInterface dialog, int which) {
+										String newName = textView.getText().toString();
+										if (newName.length() == 0) {
+											Toast.makeText(Main.this, "Place name cannot be empty", Toast.LENGTH_LONG).show();
+										}
+										else
+										{
+											float latitudeAsDegrees = (float) (point.getLatitudeE6() * Constants.InvE6); 
+											float longitudeAsDegrees = (float) (point.getLongitudeE6() * Constants.InvE6); 
+											Drawable drawable = getResources().getDrawable(R.drawable.busstop_intersect);
+											IntersectionLocation.Builder builder = new IntersectionLocation.Builder(newName, latitudeAsDegrees, longitudeAsDegrees, drawable);
+											Locations locations = arguments.getBusLocations();
+											
+											locations.addIntersection(builder);
+											Toast.makeText(Main.this, "New place created!", Toast.LENGTH_LONG).show();
+											setNewIntersection(newName);
+										}
+										dialog.dismiss();
+									}
+								});
+								
+								builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+									
+									@Override
+									public void onClick(DialogInterface dialog, int which) {
+										dialog.dismiss();
+									}
+								});
+								
+								builder.create().show();
 								return true;
 							}
 							

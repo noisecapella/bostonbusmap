@@ -413,7 +413,7 @@ public class BusOverlay extends BalloonItemizedOverlay<BusOverlayItem> {
 
 
 	protected BalloonOverlayView<BusOverlayItem> createBalloonOverlayView() {
-		BusPopupView view = new BusPopupView(getMapView().getContext(), getBalloonBottomOffset(), locationsObj, routeKeysToTitles);
+		BusPopupView view = new BusPopupView(getMapView().getContext(), updateable, getBalloonBottomOffset(), locationsObj, routeKeysToTitles);
 		return view;
 	}
 

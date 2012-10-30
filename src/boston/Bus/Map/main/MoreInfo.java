@@ -245,7 +245,7 @@ public class MoreInfo extends ListActivity {
 				new String[]{textKey},
 				new int[] {R.id.moreinfo_text});
 		
-		adapter.setViewBinder(new TextViewBinder(Color.GRAY));
+		adapter.setViewBinder(new TextViewBinder());
 		
 		setListAdapter(adapter);
 		

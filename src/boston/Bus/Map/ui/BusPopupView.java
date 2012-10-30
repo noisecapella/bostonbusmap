@@ -46,6 +46,7 @@ import boston.Bus.Map.data.StopPredictionView;
 import boston.Bus.Map.main.AlertInfo;
 import boston.Bus.Map.main.Main;
 import boston.Bus.Map.main.MoreInfo;
+import boston.Bus.Map.main.UpdateHandler;
 import boston.Bus.Map.transit.TransitSystem;
 import boston.Bus.Map.util.LogUtil;
 import boston.Bus.Map.util.StringUtil;
@@ -70,14 +71,16 @@ public class BusPopupView extends BalloonOverlayView<BusOverlayItem>
 	private Location location;
 	private Spanned noAlertsText;
 	private Alert[] alertsList;
+	private UpdateHandler handler;
 	
-	public BusPopupView(final Context context, int balloonBottomOffset, Locations locations,
+	public BusPopupView(final Context context, UpdateHandler handler, int balloonBottomOffset, Locations locations,
 			RouteTitles routeKeysToTitles)
 	{
 		super(context, balloonBottomOffset);
 		
 		this.locations = locations;
 		this.routeKeysToTitles = routeKeysToTitles;
+		this.handler = handler;
 		
 	}
 
@@ -234,6 +237,7 @@ public class BusPopupView extends BalloonOverlayView<BusOverlayItem>
 							locations.removeIntersection(intersection.getName());
 							locations.setSelection(locations.getSelection().withDifferentIntersection(null));
 						}
+						handler.triggerUpdate();
 						dialog.dismiss();
 					}
 				});
@@ -273,6 +277,7 @@ public class BusPopupView extends BalloonOverlayView<BusOverlayItem>
 								IntersectionLocation intersection = (IntersectionLocation)location;
 								locations.editIntersection(intersection.getName(), newName);
 								locations.setSelection(locations.getSelection().withDifferentIntersection(newName));
+								handler.triggerUpdate();
 							}
 						}
 						dialog.dismiss();
