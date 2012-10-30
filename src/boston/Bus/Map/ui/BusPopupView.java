@@ -233,6 +233,7 @@ public class BusPopupView extends BalloonOverlayView<BusOverlayItem>
 							locations.removeIntersection(intersection.getName());
 							locations.setSelection(locations.getSelection().withDifferentIntersection(null));
 						}
+						dialog.dismiss();
 					}
 				});
 				builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
@@ -253,6 +254,37 @@ public class BusPopupView extends BalloonOverlayView<BusOverlayItem>
 			public void onClick(View v) {
 				AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
 				builder.setTitle("Edit place name");
+
+				final TextView textView = new TextView(getContext());
+				textView.setHint("Place name (ie, Home)");
+				builder.setView(textView);
+				builder.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+					
+					@Override
+					public void onClick(DialogInterface dialog, int which) {
+						String newName = textView.getText().toString();
+						if (newName.length() == 0) {
+							Toast.makeText(getContext(), "Place name cannot be empty", Toast.LENGTH_LONG).show();
+						}
+						else
+						{
+							if (location != null && location instanceof IntersectionLocation) {
+								IntersectionLocation intersection = (IntersectionLocation)location;
+								locations.editIntersection(intersection.getName(), newName);
+								locations.setSelection(locations.getSelection().withDifferentIntersection(newName));
+							}
+						}
+						dialog.dismiss();
+					}
+				});
+				
+				builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+					
+					@Override
+					public void onClick(DialogInterface dialog, int which) {
+						dialog.dismiss();
+					}
+				});
 				
 				builder.create().show();
 			}

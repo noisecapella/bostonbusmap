@@ -516,4 +516,12 @@ public final class Locations
 	public Drawable getIntersectionDrawable() {
 		return intersectionDrawable;
 	}
+
+	public void removeIntersection(String name) {
+		routeMapping.removeIntersection(name);
+	}
+	
+	public void editIntersection(String oldName, String newName) {
+		routeMapping.editIntersectionName(oldName, newName);
+	}
 }

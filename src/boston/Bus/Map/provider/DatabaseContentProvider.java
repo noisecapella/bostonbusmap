@@ -1346,6 +1346,29 @@ public class DatabaseContentProvider extends ContentProvider {
 			}
 		}
 
+		public static void removeIntersection(ContentResolver contentResolver,
+				String name) {
+			int result = contentResolver.delete(LOCATIONS_URI, Schema.Locations.nameColumn + "= ?", new String[] {name});
+			if (result == 0) {
+				Log.e("BostonBusMap", "Failed to delete intersection " + name);
+			}
+		}
+
+		public static void editIntersectionName(
+				ContentResolver contentResolver, String oldName, String newName) {
+			if (oldName.equals(newName))
+			{
+				return;
+			}
+			
+			ContentValues values = new ContentValues();
+			values.put(Schema.Locations.nameColumn, newName);
+			int result = contentResolver.update(LOCATIONS_URI, values, Schema.Locations.nameColumn + "= ?", new String[]{oldName});
+			if (result == 0) {
+				Log.e("BostonBusMap", "Failed to update intersection");
+			}
+		}
+
 	}
 
 
