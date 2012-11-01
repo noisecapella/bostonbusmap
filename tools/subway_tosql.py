@@ -201,14 +201,14 @@ def write_sql(data, routeTitles, startOrder):
         innerInnerMapping[platformOrder] = (latitudeAsDegrees, longitudeAsDegrees)
 
     # workaround
-    directions = {RedNorthToAlewife : Direction("North toward Alewife", None, RedLine, True),
-                  RedNorthToAlewife2 : Direction("North toward Alewife", None, RedLine, True),
-                  RedSouthToBraintree : Direction("South toward Braintree", None, RedLine, True),
-                  RedSouthToAshmont : Direction("South toward Ashmont", None, RedLine, True),
-                  BlueEastToWonderland : Direction("East toward Wonderland", None, BlueLine, True),
-                  BlueWestToBowdoin : Direction("West toward Bowdoin", None, BlueLine, True),
-                  OrangeNorthToOakGrove : Direction("North toward Oak Grove", None, OrangeLine, True),
-                  OrangeSouthToForestHills : Direction("South toward Forest Hills", None, OrangeLine, True)}
+    directions = {RedNorthToAlewife : Direction("North toward Alewife", "", RedLine, True),
+                  RedNorthToAlewife2 : Direction("North toward Alewife", "", RedLine, True),
+                  RedSouthToBraintree : Direction("South toward Braintree", "", RedLine, True),
+                  RedSouthToAshmont : Direction("South toward Ashmont", "", RedLine, True),
+                  BlueEastToWonderland : Direction("East toward Wonderland", "", BlueLine, True),
+                  BlueWestToBowdoin : Direction("West toward Bowdoin", "", BlueLine, True),
+                  OrangeNorthToOakGrove : Direction("North toward Oak Grove", "", OrangeLine, True),
+                  OrangeSouthToForestHills : Direction("South toward Forest Hills", "", OrangeLine, True)}
 
     for dirKey, direction in directions.iteritems():
         obj.directions.dirTag.value = dirKey
