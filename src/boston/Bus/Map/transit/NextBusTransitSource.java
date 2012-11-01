@@ -6,6 +6,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.FileHandler;
@@ -18,6 +20,7 @@ import org.xml.sax.SAXException;
 
 import com.google.common.collect.ImmutableBiMap;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
 import com.google.common.io.ByteStreams;
 
 import android.content.Context;
@@ -26,6 +29,7 @@ import android.os.RemoteException;
 import boston.Bus.Map.data.AlertsMapping;
 import boston.Bus.Map.data.BusLocation;
 import boston.Bus.Map.data.Directions;
+import boston.Bus.Map.data.IntersectionLocation;
 import boston.Bus.Map.data.Location;
 import boston.Bus.Map.data.Locations;
 import boston.Bus.Map.data.RouteConfig;
@@ -116,8 +120,8 @@ public abstract class NextBusTransitSource implements TransitSource
 	throws IOException, ParserConfigurationException, SAXException {
 		//read data from the URL
 		DownloadHelper downloadHelper;
-		int selectedBusPredictions = selection.getMode();
-		switch (selectedBusPredictions)
+		int mode = selection.getMode();
+		switch (mode)
 		{
 		case  Selection.BUS_PREDICTIONS_ONE:
 		case  Selection.BUS_PREDICTIONS_STAR:
@@ -130,8 +134,26 @@ public abstract class NextBusTransitSource implements TransitSource
 			List<Location> locations = locationsObj.getLocations(maxStops, centerLatitude, centerLongitude, false, selection);
 
 			//ok, do predictions now
-			String routeName = selectedBusPredictions == Selection.BUS_PREDICTIONS_ONE ? routeConfig.getRouteName() : null;
-			String url = getPredictionsUrl(locations, maxStops, routeName);
+			ImmutableSet<String> routes;
+			if (mode == Selection.BUS_PREDICTIONS_ONE) {
+				routes = ImmutableSet.of(routeConfig.getRouteName());
+			}
+			else if (mode == Selection.BUS_PREDICTIONS_INTERSECT) {
+				String intersection = selection.getIntersection();
+				IntersectionLocation intersectionLocation = routePool.getIntersectPoints().get(intersection);
+				if (intersectionLocation != null) {
+					routes = intersectionLocation.getNearbyRoutes();
+				}
+				else
+				{
+					routes = ImmutableSet.of();
+				}
+			}
+			else
+			{
+				routes = ImmutableSet.of();
+			}
+			String url = getPredictionsUrl(locations, maxStops, routes);
 
 			if (url == null)
 			{
@@ -161,10 +183,10 @@ public abstract class NextBusTransitSource implements TransitSource
 
 		InputStream data = downloadHelper.getResponseData();
 
-		if (selectedBusPredictions == Selection.BUS_PREDICTIONS_ONE || 
-				selectedBusPredictions == Selection.BUS_PREDICTIONS_ALL ||
-				selectedBusPredictions == Selection.BUS_PREDICTIONS_STAR ||
-				selectedBusPredictions == Selection.BUS_PREDICTIONS_INTERSECT)
+		if (mode == Selection.BUS_PREDICTIONS_ONE || 
+				mode == Selection.BUS_PREDICTIONS_ALL ||
+				mode == Selection.BUS_PREDICTIONS_STAR ||
+				mode == Selection.BUS_PREDICTIONS_INTERSECT)
 		{
 			//bus prediction
 
@@ -229,17 +251,8 @@ public abstract class NextBusTransitSource implements TransitSource
 
 	protected abstract void parseAlert(RouteConfig routeConfig, AlertsMapping alertMapping) throws ClientProtocolException, IOException, SAXException;
 
-	protected String getPredictionsUrl(List<Location> locations, int maxStops, String route)
+	protected String getPredictionsUrl(List<Location> locations, int maxStops, Collection<String> routes)
 	{
-		//TODO: technically we should be checking that it is a bus route, not that it's not a subway route
-		//but this is probably more efficient
-		TransitSource transitSource = transitSystem.getTransitSource(route);
-		if (!(transitSource instanceof NextBusTransitSource))
-		{
-			//there should only be one instance of a source in memory at a time, but just in case...
-			return null;
-		}
-		
 		StringBuilder urlString = new StringBuilder(mbtaPredictionsDataUrl);
 
 		for (Location location : locations)
@@ -247,9 +260,13 @@ public abstract class NextBusTransitSource implements TransitSource
 			if ((location instanceof StopLocation) && !(location instanceof SubwayStopLocation))
 			{
 				StopLocation stopLocation = (StopLocation)location;
-				if (route != null) {
-					urlString.append("&stops=").append(route).append("%7C");
-					urlString.append("%7C").append(stopLocation.getStopTag());
+				if (routes.isEmpty() == false) {
+					for (String route : routes) {
+						if (stopLocation.hasRoute(route)) {
+							urlString.append("&stops=").append(route).append("%7C");
+							urlString.append("%7C").append(stopLocation.getStopTag());
+						}
+					}
 				}
 				else
 				{

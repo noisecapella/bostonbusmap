@@ -364,4 +364,8 @@ public class StopLocation implements Location
 	public boolean isIntersection() {
 		return false;
 	}
+
+	public boolean hasRoute(String route) {
+		return routes.hasRoute(route);
+	}
 }

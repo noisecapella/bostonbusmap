@@ -47,6 +47,11 @@ public class RouteSet {
 	public synchronized String getFirstRoute() {
 		return Iterables.getFirst(routes, "");
 	}
+
+	public synchronized boolean hasRoute(String route) {
+		int insertionPoint = Collections.binarySearch(routes, route);
+		return insertionPoint >= 0;
+	}
 	
 
 }
