@@ -542,7 +542,7 @@ public class DatabaseContentProvider extends ContentProvider {
 				 * inner join stopmapping as stopmapping2 on (stops.tag = stopmapping2.tag)
 				 * left outer join subway on (stops.tag = subway.tag) 
 				 * where stopmapping1.route=71;*/ 
-				String[] projectionIn = new String[] {Schema.Stops.table + "." + Schema.Stops.tagColumn, Schema.Stops.latColumn, Schema.Stops.lonColumn, 
+				String[] projectionIn = new String[] {Schema.Stops.tagColumnOnTable, Schema.Stops.latColumn, Schema.Stops.lonColumn, 
 						Schema.Stops.titleColumn, Schema.Subway.platformorderColumn, Schema.Subway.branchColumn, "sm2." + Schema.Stopmapping.dirTagColumn, "sm2." + Schema.Stopmapping.routeColumn};
 				String select = "sm1." + Schema.Stopmapping.routeColumn + "=?";
 				String[] selectArray = new String[]{routeToUpdate};
@@ -766,8 +766,8 @@ public class DatabaseContentProvider extends ContentProvider {
 				return;
 			}
 
-			String thisStopTitleKey = Schema.Stops.table + "." + Schema.Stops.titleColumn;
-			String[] projectionIn = new String[] {thisStopTitleKey, Schema.Stops.table + "." + Schema.Stops.tagColumn, "r1." + Schema.Routes.routetitleColumn};
+			String thisStopTitleKey = Schema.Stops.titleColumnOnTable;
+			String[] projectionIn = new String[] {thisStopTitleKey, Schema.Stops.tagColumnOnTable, "r1." + Schema.Routes.routetitleColumn};
 			String select = thisStopTitleKey + " LIKE ?";
 			String[] selectArray = new String[]{"%" + search + "%"};
 
@@ -941,14 +941,14 @@ public class DatabaseContentProvider extends ContentProvider {
 			//TODO: we should have a factory somewhere to abstract details away regarding subway vs bus
 
 			//get stop with name stopTag, joining with the subway table
-			String[] projectionIn = new String[] {Schema.Stops.table + "." + Schema.Stops.tagColumn, Schema.Stops.latColumn, Schema.Stops.lonColumn, 
-					Schema.Stops.titleColumn, Schema.Subway.platformorderColumn, Schema.Subway.branchColumn, Schema.Stopmapping.table + "." + Schema.Stopmapping.routeColumn, Schema.Stopmapping.table + "." + Schema.Stopmapping.dirTagColumn};
+			String[] projectionIn = new String[] {Schema.Stops.tagColumnOnTable, Schema.Stops.latColumn, Schema.Stops.lonColumn, 
+					Schema.Stops.titleColumn, Schema.Subway.platformorderColumn, Schema.Subway.branchColumn, Schema.Stopmapping.routeColumnOnTable, Schema.Stopmapping.dirTagColumnOnTable};
 
 			//if size == 1, where clause is tag = ?. if size > 1, where clause is "IN (tag1, tag2, tag3...)"
 			StringBuilder select;
 			String[] selectArray;
 
-			select = new StringBuilder(Schema.Stops.table + "." + Schema.Stops.tagColumn + "=? OR " + Schema.Stops.table + "." + Schema.Stops.titleColumn + "=?");
+			select = new StringBuilder(Schema.Stops.tagColumnOnTable + "=? OR " + Schema.Stops.titleColumnOnTable + "=?");
 			selectArray = new String[]{tagQuery, titleQuery};
 
 			Cursor stopCursor = null;
@@ -1008,8 +1008,8 @@ public class DatabaseContentProvider extends ContentProvider {
 			//TODO: we should have a factory somewhere to abstract details away regarding subway vs bus
 
 			//get stop with name stopTag, joining with the subway table
-			String[] projectionIn = new String[] {Schema.Stops.table + "." + Schema.Stops.tagColumn, Schema.Stops.latColumn, Schema.Stops.lonColumn, 
-					Schema.Stops.titleColumn, Schema.Subway.platformorderColumn, Schema.Subway.branchColumn, Schema.Stopmapping.table + "." + Schema.Stopmapping.routeColumn, Schema.Stopmapping.table + "." + Schema.Stopmapping.dirTagColumn};
+			String[] projectionIn = new String[] {Schema.Stops.tagColumnOnTable, Schema.Stops.latColumn, Schema.Stops.lonColumn, 
+					Schema.Stops.titleColumn, Schema.Subway.platformorderColumn, Schema.Subway.branchColumn, Schema.Stopmapping.routeColumnOnTable, Schema.Stopmapping.dirTagColumnOnTable};
 
 			//if size == 1, where clause is tag = ?. if size > 1, where clause is "IN (tag1, tag2, tag3...)"
 			StringBuilder select;
@@ -1018,7 +1018,7 @@ public class DatabaseContentProvider extends ContentProvider {
 			{
 				String stopTag = stopTags.get(0);
 
-				select = new StringBuilder(Schema.Stops.table + "." + Schema.Stops.tagColumn + "=?");
+				select = new StringBuilder(Schema.Stops.tagColumnOnTable + "=?");
 				selectArray = new String[]{stopTag};
 
 				//Log.v("BostonBusMap", SQLiteQueryBuilder.buildQueryString(false, tables, projectionIn, verboseStops + "." + stopTagKey + "=\"" + stopTagKey + "\"",
@@ -1026,7 +1026,7 @@ public class DatabaseContentProvider extends ContentProvider {
 			}
 			else
 			{
-				select = new StringBuilder(Schema.Stops.table + "." + Schema.Stops.tagColumn + " IN (");
+				select = new StringBuilder(Schema.Stops.tagColumnOnTable + " IN (");
 
 				for (int i = 0; i < stopTags.size(); i++)
 				{
@@ -1098,14 +1098,14 @@ public class DatabaseContentProvider extends ContentProvider {
 		public static ArrayList<StopLocation> getStopsByDirtag(ContentResolver resolver, 
 				String dirTag, TransitSystem transitSystem) {
 			ArrayList<StopLocation> ret = new ArrayList<StopLocation>();
-			String[] projectionIn = new String[] {Schema.Stops.table + "." + Schema.Stops.tagColumn, Schema.Stops.latColumn, Schema.Stops.lonColumn, 
-					Schema.Stops.titleColumn, Schema.Subway.platformorderColumn, Schema.Subway.branchColumn, Schema.Stopmapping.table + "." + Schema.Stopmapping.routeColumn, Schema.Stopmapping.table + "." + Schema.Stopmapping.dirTagColumn};
+			String[] projectionIn = new String[] {Schema.Stops.tagColumnOnTable, Schema.Stops.latColumn, Schema.Stops.lonColumn, 
+					Schema.Stops.titleColumn, Schema.Subway.platformorderColumn, Schema.Subway.branchColumn, Schema.Stopmapping.routeColumnOnTable, Schema.Stopmapping.dirTagColumnOnTable};
 
 			//if size == 1, where clause is tag = ?. if size > 1, where clause is "IN (tag1, tag2, tag3...)"
 			StringBuilder select;
 			String[] selectArray;
 
-			select = new StringBuilder(Schema.Stopmapping.table + "." + Schema.Stopmapping.dirTagColumn + "=?");
+			select = new StringBuilder(Schema.Stopmapping.dirTagColumnOnTable + "=?");
 			selectArray = new String[]{dirTag};
 
 			Cursor stopCursor = null;
@@ -1604,7 +1604,7 @@ public class DatabaseContentProvider extends ContentProvider {
 			break;
 		case STOPS_LOOKUP_2:
 			builder.setTables(Schema.Stops.table +
-					" JOIN " + Schema.Stopmapping.table + " AS sm1 ON (" + Schema.Stops.table + "." + Schema.Stops.tagColumn + " = sm1." + Schema.Stopmapping.tagColumn + ")" +
+					" JOIN " + Schema.Stopmapping.table + " AS sm1 ON (" + Schema.Stops.tagColumnOnTable + " = sm1." + Schema.Stopmapping.tagColumn + ")" +
 					" JOIN " + Schema.Routes.table + " AS r1 ON (sm1." + Schema.Stopmapping.routeColumn + " = r1." + Schema.Routes.routeColumn + ")");
 			
 			break;
@@ -1623,7 +1623,7 @@ public class DatabaseContentProvider extends ContentProvider {
 			builder.setTables(Schema.Stops.table);
 
 			HashMap<String, String> projectionMap = new HashMap<String, String>();
-			projectionMap.put(Schema.Stops.table + "." + Schema.Stops.tagColumn, Schema.Stops.table + "." + Schema.Stops.tagColumn);
+			projectionMap.put(Schema.Stops.tagColumnOnTable, Schema.Stops.tagColumnOnTable);
 
 			double lonFactor = Math.cos(currentLat * Geometry.degreesToRadians);
 			String latDiff = "(" + Schema.Stops.latColumn + " - " + currentLat + ")";
@@ -1662,7 +1662,7 @@ public class DatabaseContentProvider extends ContentProvider {
 
 		}
 
-		Log.v("BostonBusMap", builder.buildQuery(projection, selection, null, null, null, sortOrder, limit));
+		//Log.v("BostonBusMap", builder.buildQuery(projection, selection, null, null, null, sortOrder, limit));
 		
 		SQLiteDatabase db = helper.getReadableDatabase();
 		Cursor c = builder.query(db, projection, selection, selectionArgs, null, null, sortOrder, limit);
