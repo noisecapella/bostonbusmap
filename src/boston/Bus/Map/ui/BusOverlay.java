@@ -225,14 +225,24 @@ public class BusOverlay extends BalloonItemizedOverlay<BusOverlayItem> {
 		int lastFocusedIndex = getLastFocusedIndex();
 		updateAllBoundCenterBottom(lastFocusedIndex, shadow);
 		
-		if (drawHighlightCircle && overlays.size() > 0)
+		if (drawHighlightCircle && overlays.size() > 0 && (overlays.size() > 1 || overlays.get(0).getCurrentLocation().isIntersection() == false))
 		{
 			// TODO: use some efficient minimum enclosing circle algorithm
+			
+			// currently drawing circle around first relevant item, since items are ordered by distance from center of screen
+			// which isn't quite perfect for minimum enclosing circle, but it's good enough
 			final Point circleCenter = this.circleCenter;
 			final Point radiusPoint = this.radiusPoint;
 			
 			//get screen location
-			GeoPoint firstPoint = overlays.get(0).getPoint();
+			GeoPoint firstPoint;
+			if (overlays.get(0).getCurrentLocation().isIntersection()) {
+				firstPoint = overlays.get(1).getPoint();
+			}
+			else
+			{
+				firstPoint = overlays.get(1).getPoint();
+			}
 
 			Projection projection = mapView.getProjection();
 			projection.toPixels(firstPoint, circleCenter);
@@ -247,11 +257,7 @@ public class BusOverlay extends BalloonItemizedOverlay<BusOverlayItem> {
 			for (int i = 0; i < overlaysSize; i++)
 			{
 				BusOverlayItem item = overlays.get(i);
-				if (item.getCurrentLocation().isIntersection())
-				{
-					// skip
-				}
-				else
+				if (item.getCurrentLocation().isIntersection() == false)
 				{
 
 					GeoPoint geoPoint = item.getPoint();

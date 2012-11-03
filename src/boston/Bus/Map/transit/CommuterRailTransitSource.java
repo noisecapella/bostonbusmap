@@ -63,6 +63,8 @@ public class CommuterRailTransitSource implements TransitSource {
 	private final TransitDrawables drawables;
 	private final TransitSourceTitles routeTitles;
 	
+	public static final int COLOR = 0x940088;
+	
 	public CommuterRailTransitSource(TransitDrawables drawables, TransitSourceTitles routeTitles)
 	{
 		this.drawables = drawables;
