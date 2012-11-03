@@ -119,6 +119,12 @@ public class IntersectionLocation implements Location {
 	}
 
 	@Override
+	public float distanceFromInMiles(double centerLatAsRadians,
+			double centerLonAsRadians) {
+		return Geometry.computeDistanceInMiles(latitude, longitude, centerLatAsRadians, centerLonAsRadians);
+	}
+	
+	@Override
 	public boolean isFavorite() {
 		return false;
 	}

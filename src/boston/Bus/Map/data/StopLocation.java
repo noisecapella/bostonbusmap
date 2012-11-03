@@ -100,6 +100,11 @@ public class StopLocation implements Location
 		return Geometry.computeCompareDistance(latitude, longitude, centerLatitude, centerLongitude);
 	}
 
+	public float distanceFromInMiles(double latitudeAsRads,
+			double longitudeAsRads) {
+		return Geometry.computeDistanceInMiles(latitude, longitude, latitudeAsRads, longitudeAsRads);
+	}
+
 	@Override
 	public Drawable getDrawable(Context context, boolean shadow,
 			boolean isSelected) {

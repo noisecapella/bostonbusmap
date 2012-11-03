@@ -180,6 +180,12 @@ public class BusLocation implements Location {
 		return Geometry.computeCompareDistance(latitude, longitude, lat2, lon2);
 	}
 
+	@Override
+	public float distanceFromInMiles(double centerLatAsRadians,
+			double centerLonAsRadians) {
+		return Geometry.computeDistanceInMiles(latitude, longitude, centerLatAsRadians, centerLonAsRadians);
+	}
+
 	public void movedFrom(float oldLatitude, float oldLongitude) {
 		if (oldLatitude == latitude && oldLongitude == longitude) {
 			// ignore

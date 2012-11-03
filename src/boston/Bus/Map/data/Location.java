@@ -34,6 +34,8 @@ public interface Location {
 	 */
 	float distanceFrom(double centerLatitudeAsRadians, double centerLongitudeAsRadians);
 
+	float distanceFromInMiles(double centerLatAsRadians, double centerLonAsRadians);
+	
 	boolean isFavorite();
 
 	/**

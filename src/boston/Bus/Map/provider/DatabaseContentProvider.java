@@ -1244,16 +1244,24 @@ public class DatabaseContentProvider extends ContentProvider {
 			}
 			
 			for (String key : ret.keySet()) {
+				// get 35 closest stops for each intersection point, and
+				// get all routes mentioned in that list
+				// then eliminate those which are farther than a mile
 				IntersectionLocation.Builder builder = ret.get(key);
 				
-				int limit = 15;
+				int limit = 35;
 
 				Collection<StopLocation> stops = getClosestStops(resolver, 
 						builder.getLatitudeAsDegrees(), builder.getLongitudeAsDegrees(),
 						transitSystem, sharedStops, limit);
 				Set<String> routes = Sets.newHashSet();
 				for (StopLocation stop : stops) {
-					routes.addAll(stop.getRoutes());
+					float lat = (float) (builder.getLatitudeAsDegrees() * Geometry.degreesToRadians);
+					float lon = (float) (builder.getLongitudeAsDegrees() * Geometry.degreesToRadians);
+					float distance = stop.distanceFromInMiles(lat, lon);
+					if (distance < 1.0) {
+						routes.addAll(stop.getRoutes());
+					}
 				}
 				for (String route : routes) {
 					builder.addRoute(route);
