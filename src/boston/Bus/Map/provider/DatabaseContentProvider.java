@@ -1214,7 +1214,7 @@ public class DatabaseContentProvider extends ContentProvider {
 				ContentResolver resolver,
 				ConcurrentMap<String, IntersectionLocation> intersections,
 				TransitSystem transitSystem, ConcurrentMap<String, StopLocation> sharedStops,
-				Drawable intersectionDrawable) {
+				Drawable intersectionDrawable, float miles, boolean filterByDistance) {
 			
 			Map<String, IntersectionLocation.Builder> ret = Maps.newHashMap();
 			
@@ -1259,10 +1259,11 @@ public class DatabaseContentProvider extends ContentProvider {
 					float lat = (float) (builder.getLatitudeAsDegrees() * Geometry.degreesToRadians);
 					float lon = (float) (builder.getLongitudeAsDegrees() * Geometry.degreesToRadians);
 					float distance = stop.distanceFromInMiles(lat, lon);
-					if (distance < 1.0) {
+					if (filterByDistance && distance < miles) {
 						routes.addAll(stop.getRoutes());
 					}
 				}
+				
 				for (String route : routes) {
 					builder.addRoute(route);
 				}

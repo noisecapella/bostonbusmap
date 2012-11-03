@@ -330,8 +330,7 @@ import xml.sax.handler
 import xml.sax
 import routetitleshandler
 
-# TODO: fix this
-purple = 0x0000ff
+purple = 0x940088
 
 def createDirectionHash(a, b):
     return a + "|" + b
