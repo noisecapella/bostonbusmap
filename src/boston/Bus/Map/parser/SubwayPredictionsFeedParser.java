@@ -175,7 +175,8 @@ public class SubwayPredictionsFeedParser
 				String vehicleId = null;
 
 				predictions.add(new Prediction(minutes, vehicleId, directions.getTitleAndName(direction),
-						routeConfig.getRouteName(), false, false, Prediction.NULL_LATENESS));
+						routeConfig.getRouteName(), routeConfig.getRouteTitle(), 
+						false, false, Prediction.NULL_LATENESS));
 				stopLocations.add(stopLocation);
 
 				String informationType = lineArray[ARRIVAL_STATUS_INDEX].trim();

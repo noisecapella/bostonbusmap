@@ -33,17 +33,20 @@ public class Prediction implements Comparable<Prediction>, Parcelable
 	protected final String vehicleId;
 	protected final String direction;
 	protected final String routeName;
+	protected final String routeTitle;
 	protected final long arrivalTimeMillis;
 	protected final boolean affectedByLayover;
 	protected final boolean isDelayed;
 	protected final int lateness;
 	
 	public Prediction(int minutes, String vehicleId,
-			String direction, String routeName, boolean affectedByLayover, boolean isDelayed, int lateness)
+			String direction, String routeName, String routeTitle,
+			boolean affectedByLayover, boolean isDelayed, int lateness)
 	{
 		this.vehicleId = vehicleId;
 		this.direction = direction;
 		this.routeName = routeName;
+		this.routeTitle = routeTitle;
 
 		arrivalTimeMillis = TransitSystem.currentTimeMillis() + minutes * 60 * 1000;
 		
@@ -53,14 +56,14 @@ public class Prediction implements Comparable<Prediction>, Parcelable
 		this.lateness = lateness;
 	}
 
-	public void makeSnippet(TransitSourceTitles routeKeysToTitles, Context context, StringBuilder builder) {
+	public void makeSnippet(Context context, StringBuilder builder) {
 		int minutes = getMinutes();
 		if (minutes < 0)
 		{
 			return;
 		}
 
-		builder.append("Route <b>").append(routeKeysToTitles.getTitle(routeName)).append("</b>");
+		builder.append("Route <b>").append(routeTitle).append("</b>");
 		if (vehicleId != null)
 		{
 			builder.append(", Bus <b>").append(vehicleId).append("</b>");
@@ -144,6 +147,10 @@ public class Prediction implements Comparable<Prediction>, Parcelable
 	public String getRouteName() {
 		return routeName;
 	}
+	
+	public String getRouteTitle() {
+		return routeTitle;
+	}
 
 	public static int calcMinutes(long arrivalTimeMillis)
 	{
@@ -166,6 +173,7 @@ public class Prediction implements Comparable<Prediction>, Parcelable
 		dest.writeString(vehicleId != null ? vehicleId : "");
 		dest.writeString(direction);
 		dest.writeString(routeName);
+		dest.writeString(routeTitle);
 		writeBoolean(dest, affectedByLayover);
 		writeBoolean(dest, isDelayed);
 		dest.writeInt(lateness);
@@ -189,12 +197,13 @@ public class Prediction implements Comparable<Prediction>, Parcelable
 			}
 			String direction = source.readString();
 			String routeName = source.readString();
+			String routeTitle = source.readString();
 			boolean affectedByLayover = readBoolean(source);
 			boolean isDelayed = readBoolean(source);
 			int lateness = source.readInt();
 			
 			int minutes = calcMinutes(arrivalTimeMillis);
-			Prediction prediction = new Prediction(minutes, vehicleId, direction, routeName, affectedByLayover, isDelayed, lateness);
+			Prediction prediction = new Prediction(minutes, vehicleId, direction, routeName, routeTitle, affectedByLayover, isDelayed, lateness);
 			return prediction;
 		}
 	};
@@ -204,9 +213,9 @@ public class Prediction implements Comparable<Prediction>, Parcelable
 	 * @param routeKeysToTitles
 	 * @return
 	 */
-	public ImmutableMap<String, Spanned> makeSnippetMap(TransitSourceTitles routeKeysToTitles, Context context) {
+	public ImmutableMap<String, Spanned> makeSnippetMap(Context context) {
 		StringBuilder ret = new StringBuilder();
-		makeSnippet(routeKeysToTitles, context, ret);
+		makeSnippet(context, ret);
 		
 		ImmutableMap<String, Spanned> map = ImmutableMap.of(MoreInfo.textKey, Html.fromHtml(ret.toString()));
 		

@@ -21,7 +21,7 @@ import com.google.common.collect.Sets;
 public class StopPredictionViewImpl extends StopPredictionView {
 	private final String snippetTitle;
 	private final String[] titles;
-	private final String[] routes;
+	private final String[] routeTitles;
 	private final String stops;
 	private final String snippet;
 	private final Prediction[] predictions;
@@ -30,7 +30,7 @@ public class StopPredictionViewImpl extends StopPredictionView {
 	/**
 	 * Note that this makes defensive copies of all containers. It doesn't use ImmutableList
 	 * because Parcelables use arrays when transferring data
-	 * @param routes
+	 * @param routeTitles
 	 * @param stops
 	 * @param predictions. This should be sorted
 	 * @param ifOnlyOneRoute
@@ -38,11 +38,15 @@ public class StopPredictionViewImpl extends StopPredictionView {
 	 * @param context
 	 * @param alerts
 	 */
-	public StopPredictionViewImpl(SortedSet<String> routes, Collection<StopLocation> stops,
+	public StopPredictionViewImpl(Set<String> routeTags, Collection<StopLocation> stops,
 			SortedSet<Prediction> predictions, RouteConfig ifOnlyOneRoute,
 			RouteTitles routeKeysToTitles, Context context, Set<Alert> alerts) {
-		Set<String> titles = Sets.newTreeSet(Collections2.transform(stops, StopLocation.getStopTitleFunction));
-		
+		Set<String> stopTitles = Sets.newTreeSet();
+		SortedSet<String> stopIds = Sets.newTreeSet();
+		for (StopLocation stop : stops) {
+			stopTitles.add(stop.getTitle());
+			stopIds.add(stop.getStopTag());
+		}
 
 		boolean isBeta = false;
 		for (StopLocation stop : stops) {
@@ -52,20 +56,26 @@ public class StopPredictionViewImpl extends StopPredictionView {
 			}
 		}
 		
-		snippetTitle = makeSnippetTitle(titles);
-		this.routes = routes.toArray(nullStrings);
-		this.titles = titles.toArray(nullStrings);
+		snippetTitle = makeSnippetTitle(stopTitles);
+		SortedSet<String> routeTitles = Sets.newTreeSet();
+		for (String tag : routeTags) {
+			String title = routeKeysToTitles.getTitle(tag);
+			routeTitles.add(title);
+		}
+		
+		this.routeTitles = routeTitles.toArray(nullStrings);
+		this.titles = stopTitles.toArray(nullStrings);
 		this.alerts = alerts.toArray(nullAlerts);
 		StringBuilder ret = new StringBuilder();
 		if (isBeta) {
 			ret.append("<font color='red' size='1'>Commuter rail predictions are experimental</font><br />");
 		}
-		makeSnippet(ifOnlyOneRoute, predictions, routeKeysToTitles, context, ret);
+		makeSnippet(ifOnlyOneRoute, predictions, context, ret);
 		
 		snippet = ret.toString();
 		
 		
-		this.stops = Joiner.on(", ").join(Collections2.transform(stops, StopLocation.getStopTagFunction));
+		this.stops = Joiner.on(", ").join(stopIds);
 		
 		this.predictions = predictions.toArray(nullPredictions);
 	}
@@ -90,7 +100,7 @@ public class StopPredictionViewImpl extends StopPredictionView {
 
 	private static void makeSnippet(RouteConfig routeConfig,
 			Collection<Prediction> predictions,
-			RouteTitles routeKeysToTitles, Context context, StringBuilder ret)
+			Context context, StringBuilder ret)
 	{
 		if (predictions == null || predictions.isEmpty()) {
 			return;
@@ -122,7 +132,7 @@ public class StopPredictionViewImpl extends StopPredictionView {
 
 			ret.append("<br />");
 
-			prediction.makeSnippet(routeKeysToTitles, context, ret);
+			prediction.makeSnippet(context, ret);
 
 			count++;
 			if (count >= max)
@@ -138,8 +148,8 @@ public class StopPredictionViewImpl extends StopPredictionView {
 	}
 
 	@Override
-	public String[] getRoutes() {
-		return routes;
+	public String[] getRouteTitles() {
+		return routeTitles;
 	}
 
 	@Override

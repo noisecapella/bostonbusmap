@@ -219,7 +219,7 @@ public class RoutePool extends Pool<String, RouteConfig> {
 	}
 
 	public boolean addIntersection(IntersectionLocation.Builder build) {
-		boolean success = DatabaseAgent.addIntersection(context.getContentResolver(), build);
+		boolean success = DatabaseAgent.addIntersection(context.getContentResolver(), build, transitSystem.getRouteKeysToTitles());
 		if (success) {
 			populateIntersections();
 		}

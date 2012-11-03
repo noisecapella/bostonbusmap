@@ -79,16 +79,16 @@ lateness. Used at the trip’s origin.
 	private final int flag; 
 	
 	public CommuterRailPrediction(int minutes, String vehicleId, String direction,
-			String routeName, boolean affectedByLayover, boolean isDelayed,
+			String routeName, String routeTitle, boolean affectedByLayover, boolean isDelayed,
 			int lateness, int flag)
 	{
-		super(minutes, vehicleId, direction, routeName, affectedByLayover, isDelayed,
+		super(minutes, vehicleId, direction, routeName, routeTitle, affectedByLayover, isDelayed,
 				lateness);
 		this.flag = flag;
 	}
 	
 	@Override
-	public void makeSnippet(TransitSourceTitles routeKeysToTitles, Context context, StringBuilder builder) {
+	public void makeSnippet(Context context, StringBuilder builder) {
 		int minutes = getMinutes();
 		if (minutes < 0)
 		{
@@ -96,7 +96,7 @@ lateness. Used at the trip’s origin.
 		}
 		else
 		{
-			builder.append("Line <b>").append(routeKeysToTitles.getTitle(routeName)).append("</b>");
+			builder.append("Line <b>").append(routeTitle).append("</b>");
 			if (vehicleId != null)
 			{
 				builder.append(", Train <b>").append(vehicleId).append("</b>");
@@ -150,6 +150,7 @@ lateness. Used at the trip’s origin.
 			}
 			String direction = source.readString();
 			String routeName = source.readString();
+			String routeTitle = source.readString();
 			boolean affectedByLayover = readBoolean(source);
 			boolean isDelayed = readBoolean(source);
 			int lateness = source.readInt();
@@ -158,7 +159,7 @@ lateness. Used at the trip’s origin.
 			
 			int flag = source.readInt();
 			
-			CommuterRailPrediction prediction = new CommuterRailPrediction(minutes, vehicleId, direction, routeName, affectedByLayover, isDelayed, lateness, flag);
+			CommuterRailPrediction prediction = new CommuterRailPrediction(minutes, vehicleId, direction, routeName, routeTitle, affectedByLayover, isDelayed, lateness, flag);
 			return prediction;
 		}
 	};

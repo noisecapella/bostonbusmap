@@ -34,7 +34,7 @@ public class Predictions
 	@IsGuardedBy("modificationLock")
 	private PredictionView predictionView = StopPredictionViewImpl.empty();
 	@IsGuardedBy("modificationLock")
-	private final SortedSet<String> routes = Sets.newTreeSet();
+	private final Set<String> routes = Sets.newHashSet();
 	/**
 	 * A list of all stops that use this predictions list
 	 */

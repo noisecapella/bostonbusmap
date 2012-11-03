@@ -173,7 +173,8 @@ public class CommuterRailPredictionsFeedParser
 				String vehicleId = getItem("Trip", array);
 				
 				Prediction prediction = new CommuterRailPrediction(minutes, vehicleId, directions.getTitleAndName(direction),
-						routeConfig.getRouteName(), false, false, lateness, flagEnum);
+						routeConfig.getRouteName(), routeConfig.getRouteTitle(), 
+						false, false, lateness, flagEnum);
 				pairs.add(new PredictionStopLocationPair(prediction, stopLocation));
 
 				float lat = 0;

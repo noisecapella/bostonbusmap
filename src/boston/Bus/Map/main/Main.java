@@ -554,6 +554,7 @@ public class Main extends MapActivity
 
     		Selection selection = arguments.getBusLocations().getSelection();
     		editor.putInt(selectedBusPredictionsKey, selection.getMode());
+    		editor.putString(selectedIntersectionKey, selection.getIntersection());
     		editor.putInt(selectedRouteIndexKey, arguments.getBusLocations().getRouteAsIndex(selection.getRoute()));
     		editor.putInt(centerLatKey, point.getLatitudeE6());
     		editor.putInt(centerLonKey, point.getLongitudeE6());

@@ -38,6 +38,7 @@ import boston.Bus.Map.data.RouteConfig;
 import boston.Bus.Map.data.RouteTitles;
 import boston.Bus.Map.data.StopLocation;
 import boston.Bus.Map.data.SubwayStopLocation;
+import boston.Bus.Map.data.TransitSourceTitles;
 import boston.Bus.Map.data.UpdateArguments;
 import boston.Bus.Map.database.Schema;
 import boston.Bus.Map.database.Schema.Stopmapping;
@@ -1258,7 +1259,7 @@ public class DatabaseContentProvider extends ContentProvider {
 					builder.addRoute(route);
 				}
 				
-				intersections.put(key, builder.build());
+				intersections.put(key, builder.build(transitSystem.getRouteKeysToTitles()));
 			}
 			
 		}
@@ -1270,10 +1271,10 @@ public class DatabaseContentProvider extends ContentProvider {
 		 * @return true for success, false for failure
 		 */
 		public static boolean addIntersection(ContentResolver resolver,
-				IntersectionLocation.Builder build) {
+				IntersectionLocation.Builder build, TransitSourceTitles routeTitles) {
 			// temporary throwaway location. We still need to attach nearby routes to it,
 			// that gets done in populateIntersections
-			IntersectionLocation location = build.build();
+			IntersectionLocation location = build.build(routeTitles);
 			ContentValues values = new ContentValues();
 			values.put(Schema.Locations.nameColumn, location.getName());
 			values.put(Schema.Locations.latColumn, location.getLatitudeAsDegrees());

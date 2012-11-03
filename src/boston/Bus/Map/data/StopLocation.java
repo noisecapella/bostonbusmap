@@ -30,22 +30,6 @@ import android.graphics.drawable.Drawable;
 
 public class StopLocation implements Location
 {
-	public final static Function<StopLocation, String> getStopTagFunction 
-	 = new Function<StopLocation, String>() {
-		@Override
-		public String apply(StopLocation arg0) {
-			return arg0.getStopTag();
-		}
-	};
-	public final static Function<StopLocation, String> getStopTitleFunction 
-	 = new Function<StopLocation, String>() {
-		@Override
-		public String apply(StopLocation arg0) {
-			return arg0.getTitle();
-		}
-	};
-	
-	
 	private final float latitude;
 	private final float longitude;
 	private final float latitudeAsDegrees;
@@ -229,7 +213,8 @@ public class StopLocation implements Location
 		}
 		
 		Prediction prediction = new Prediction(minutes, vehicleId, 
-				directions.getTitleAndName(direction), route.getRouteName(), affectedByLayover, isDelayed, lateness);
+				directions.getTitleAndName(direction), route.getRouteName(),
+				route.getRouteTitle(), affectedByLayover, isDelayed, lateness);
 		predictions.addPredictionIfNotExists(prediction);
 	}
 

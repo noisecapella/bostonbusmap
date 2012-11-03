@@ -42,12 +42,10 @@ import android.widget.TextView;
 
 public class MoreInfo extends ListActivity {
 	public static final String predictionsKey = "predictions";
-	public static final String routeKeysKey = "routes";
 	public static final String stopsKey = "stops";
-	public static final String routeTitlesKey = "titles";
 	
 	public static final String titleKey = "title";
-	public static final String routeKey = "route";
+	public static final String routeTitlesKey = "route";
 	
 	public static final String textKey = "text";
 	public static final String routeTextKey = "routeText";
@@ -58,13 +56,12 @@ public class MoreInfo extends ListActivity {
 	private TextView title1;
 	private TextView title2;
 	private Spinner routeSpinner;
-	private TransitSourceTitles routeKeysToTitles;
 	
 	/**
 	 * If false, don't try accessing predictions or routeKeysToTitles because they may be being populated
 	 */
 	private boolean dataIsInitialized;
-	private String[] routes;
+	private String[] routeTitles;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -84,23 +81,13 @@ public class MoreInfo extends ListActivity {
 			predictions[i] = (Prediction)parcelables[i];
 		}
 		
-		String[] keys = extras.getStringArray(routeKeysKey);
-		String[] titles = extras.getStringArray(routeTitlesKey);
 		boolean stopIsBeta = extras.getBoolean(stopIsBetaKey);
 		
-		ImmutableBiMap.Builder<String, String> routeKeysToTitlesBuilder =
-				ImmutableBiMap.builder();
-		for (int i = 0; i < keys.length; i++)
-		{
-			routeKeysToTitlesBuilder.put(keys[i], titles[i]);
-		}
-		routeKeysToTitles = new TransitSourceTitles(routeKeysToTitlesBuilder.build());
-
 		title1 = (TextView)findViewById(R.id.moreinfo_title1);
 		title2 = (TextView)findViewById(R.id.moreinfo_title2);
 		routeSpinner = (Spinner)findViewById(R.id.moreinfo_route_spinner);
 		
-		routes = extras.getStringArray(routeKey);
+		routeTitles = extras.getStringArray(routeTitlesKey);
 		refreshRouteAdapter();
 		
 		dataIsInitialized = true;
@@ -112,7 +99,7 @@ public class MoreInfo extends ListActivity {
 			@Override
 			public void onItemSelected(AdapterView<?> parent, View view,
 					int position, long id) {
-				if (routes == null)
+				if (routeTitles == null)
 				{
 					return;
 				}
@@ -124,13 +111,13 @@ public class MoreInfo extends ListActivity {
 				else
 				{
 					int index = position - 1;
-					if (index < 0 || index >= routes.length)
+					if (index < 0 || index >= routeTitles.length)
 					{
 						Log.e("BostonBusMap", "error, went past end of route list");
 					}
 					else
 					{
-						refreshAdapter(routes[index]);
+						refreshAdapter(routeTitles[index]);
 					}
 				}
 			}
@@ -155,15 +142,9 @@ public class MoreInfo extends ListActivity {
 		
 		StringBuilder titleText2 = new StringBuilder();
 		String stopTags = extras.getString(stopsKey);
-		if (routes != null)
+		if (routeTitles != null)
 		{
 			titleText2.append("<br />Stop ids: ").append(stopTags);
-			String[] routeTitles = new String[routes.length];
-			for (int i = 0; i < routes.length; i++)
-			{
-				String route = routes[i];
-				routeTitles[i] = routeKeysToTitles.getTitle(route);
-			}
 			String routesText = Joiner.on(", ").join(routeTitles);
 			
 			titleText2.append("<br />Routes: ").append(routesText);
@@ -182,32 +163,21 @@ public class MoreInfo extends ListActivity {
 	private void refreshRouteAdapter()
 	{
 		ArrayAdapter<CharSequence> adapter = new ArrayAdapter<CharSequence>(this, android.R.layout.simple_spinner_item);
-		if (routes == null)
+		if (routeTitles == null)
 		{
 			//shouldn't happen, but just in case
 			adapter.add("All routes");
 		}
 		else
 		{
-			if (routes.length != 1)
+			if (routeTitles.length != 1)
 			{
 				//if there's only one route, don't bother with this
 				adapter.add("All routes");
 			}
-			for (String route : routes)
+			for (String routeTitle : routeTitles)
 			{
-				if (routeKeysToTitles != null)
-				{
-					String title = routeKeysToTitles.getTitle(route);
-					if (title != null)
-					{
-						adapter.add("Route " + title);
-					}
-					else
-					{
-						adapter.add("Route " + route);
-					}
-				}
+				adapter.add("Route " + routeTitle);
 			}
 		}
 		
@@ -217,7 +187,7 @@ public class MoreInfo extends ListActivity {
 		routeSpinner.setAdapter(adapter);
 	}
 
-	private void refreshAdapter(String route)
+	private void refreshAdapter(String routeTitle)
 	{
 		if (!dataIsInitialized)
 		{
@@ -232,10 +202,10 @@ public class MoreInfo extends ListActivity {
 				if (prediction != null && prediction.getMinutes() >= 0)
 				{
 					//if a route is given, filter based on it, else show all routes
-					if (route == null || route.equals(prediction.getRouteName()))
+					if (routeTitle == null || routeTitle.equals(prediction.getRouteTitle()))
 					{
 						//data.add(prediction.generateMoreInfoMap());
-						ImmutableMap<String, Spanned> map = prediction.makeSnippetMap(routeKeysToTitles, this);
+						ImmutableMap<String, Spanned> map = prediction.makeSnippetMap(this);
 						data.add(map);
 					}
 				}

@@ -3,7 +3,7 @@ package boston.Bus.Map.data;
 public abstract class StopPredictionView extends PredictionView {
 	public abstract String[] getTitles();
 
-	public abstract String[] getRoutes();
+	public abstract String[] getRouteTitles();
 
 	public abstract String getStops();
 
@@ -16,7 +16,7 @@ public abstract class StopPredictionView extends PredictionView {
 		}
 
 		@Override
-		public String[] getRoutes() {
+		public String[] getRouteTitles() {
 			return nullStrings;
 		}
 

@@ -158,17 +158,11 @@ public class BusPopupView extends BalloonOverlayView<BusOverlayItem>
 						intent.putExtra(MoreInfo.predictionsKey, predictionArray);
 					}
 					
-					String[] keys = BusPopupView.this.routeKeysToTitles.tagArray();
-					String[] values = BusPopupView.this.routeKeysToTitles.titleArray();
-
-					intent.putExtra(MoreInfo.routeKeysKey, keys);
-					intent.putExtra(MoreInfo.routeTitlesKey, values);
-
 					String[] combinedTitles = predictionView.getTitles();
 					intent.putExtra(MoreInfo.titleKey, combinedTitles);
 
-					String[] combinedRoutes = predictionView.getRoutes();
-					intent.putExtra(MoreInfo.routeKey, combinedRoutes);
+					String[] combinedRoutes = predictionView.getRouteTitles();
+					intent.putExtra(MoreInfo.routeTitlesKey, combinedRoutes);
 
 					String combinedStops = predictionView.getStops();
 					intent.putExtra(MoreInfo.stopsKey, combinedStops);

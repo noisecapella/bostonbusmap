@@ -1,7 +1,9 @@
 package boston.Bus.Map.data;
 
 import java.util.Set;
+import java.util.SortedSet;
 
+import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
@@ -28,15 +30,21 @@ public class IntersectionLocation implements Location {
 	
 	private final Drawable drawable;
 	
-	private IntersectionLocation(Builder builder) {
+	private IntersectionLocation(Builder builder, TransitSourceTitles routeTitles) {
 		this.name = builder.name;
 		this.latitudeAsDegrees = builder.latitudeAsDegrees;
 		this.longitudeAsDegrees = builder.longitudeAsDegrees;
 		latitude = (float) (latitudeAsDegrees * Geometry.degreesToRadians);
 		longitude = (float) (longitudeAsDegrees * Geometry.degreesToRadians);
 		
-		predictionView = new SimplePredictionView("", name, new Alert[0]);
 		nearbyRoutes = builder.nearbyRoutes.build();
+		SortedSet<String> titles = Sets.newTreeSet();
+		for (String tag : nearbyRoutes) {
+			titles.add(routeTitles.getTitle(tag));
+		}
+		String routeTitleString = Joiner.on(", ").join(titles);
+
+		predictionView = new SimplePredictionView(routeTitleString, name, new Alert[0]);
 		this.drawable = builder.drawable;
 	}
 	
@@ -60,8 +68,8 @@ public class IntersectionLocation implements Location {
 			nearbyRoutes.add(route);
 		}
 
-		public IntersectionLocation build() {
-			return new IntersectionLocation(this);
+		public IntersectionLocation build(TransitSourceTitles routeTitles) {
+			return new IntersectionLocation(this, routeTitles);
 		}
 
 		public double getLatitudeAsDegrees() {

@@ -227,6 +227,7 @@ public class BusOverlay extends BalloonItemizedOverlay<BusOverlayItem> {
 		
 		if (drawHighlightCircle && overlays.size() > 0)
 		{
+			// TODO: use some efficient minimum enclosing circle algorithm
 			final Point circleCenter = this.circleCenter;
 			final Point radiusPoint = this.radiusPoint;
 			
@@ -243,10 +244,10 @@ public class BusOverlay extends BalloonItemizedOverlay<BusOverlayItem> {
 			//distance from the bus closest to the center, which is not quite the same
 			int lastDistance = 0;
 			final int overlaysSize = overlays.size();
-			for (int i = 1; i < overlaysSize; i++)
+			for (int i = 0; i < overlaysSize; i++)
 			{
 				BusOverlayItem item = overlays.get(i);
-				if (item.getCurrentLocation() instanceof IntersectionLocation)
+				if (item.getCurrentLocation().isIntersection())
 				{
 					// skip
 				}
