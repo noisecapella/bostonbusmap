@@ -42,7 +42,7 @@ public class IntersectionLocation implements Location {
 		for (String tag : nearbyRoutes) {
 			titles.add(routeTitles.getTitle(tag));
 		}
-		String routeTitleString = Joiner.on(", ").join(titles);
+		String routeTitleString = "<b>Nearby routes: " + Joiner.on(", ").join(titles);
 
 		predictionView = new SimplePredictionView(routeTitleString, name, new Alert[0]);
 		this.drawable = builder.drawable;
