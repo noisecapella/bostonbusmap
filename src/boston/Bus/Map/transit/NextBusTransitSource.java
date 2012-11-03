@@ -140,7 +140,7 @@ public abstract class NextBusTransitSource implements TransitSource
 			}
 			else if (mode == Selection.BUS_PREDICTIONS_INTERSECT) {
 				String intersection = selection.getIntersection();
-				IntersectionLocation intersectionLocation = routePool.getIntersectPoints().get(intersection);
+				IntersectionLocation intersectionLocation = routePool.getIntersection(intersection);
 				if (intersectionLocation != null) {
 					routes = intersectionLocation.getNearbyRoutes();
 				}

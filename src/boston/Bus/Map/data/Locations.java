@@ -337,17 +337,13 @@ public final class Locations
 		}
 		else if (mode == Selection.BUS_PREDICTIONS_INTERSECT) {
 			String intersectionName = selection.getIntersection();
-			ConcurrentMap<String, IntersectionLocation> intersects = routeMapping.getIntersectPoints();
-			if (intersectionName != null) {
-				IntersectionLocation intersection = intersects.get(intersectionName);
-				if (intersection != null) {
-					//TODO: do this all in the database
-					Collection<StopLocation> centerStops = routeMapping.getClosestStopsAndFilterRoutes(centerLatitude,
-							centerLongitude, maxLocations, intersection.getNearbyRoutes());
-					newLocations.addAll(centerStops);
-				}
+			IntersectionLocation intersection = routeMapping.getIntersection(intersectionName);
+			if (intersection != null) {
+				//TODO: do this all in the database
+				Collection<StopLocation> centerStops = routeMapping.getClosestStopsAndFilterRoutes(centerLatitude,
+						centerLongitude, maxLocations, intersection.getNearbyRoutes());
+				newLocations.addAll(centerStops);
 			}
-			
 		}
 		
 		if (maxLocations > newLocations.size())
@@ -477,16 +473,11 @@ public final class Locations
 	 * Do not modify return value!
 	 * @return
 	 */
-	public ConcurrentMap<String, IntersectionLocation> getIntersectionPoints() {
-		return routeMapping.getIntersectPoints();
-	}
-
 	public String makeNewIntersectionName() {
 		int count = 1;
-		ConcurrentMap<String, IntersectionLocation> intersections = routeMapping.getIntersectPoints();
 		while (true) {
 			String name = "Place " + count;
-			if (intersections.containsKey(name) == false) {
+			if (routeMapping.hasIntersection(name) == false) {
 				return name;
 			}
 			count++;
@@ -523,5 +514,17 @@ public final class Locations
 	
 	public void editIntersection(String oldName, String newName) {
 		routeMapping.editIntersectionName(oldName, newName);
+	}
+
+	public boolean containsIntersection(String intersection) {
+		return routeMapping.hasIntersection(intersection);
+	}
+	
+	public IntersectionLocation getIntersection(String name) {
+		return routeMapping.getIntersection(name);
+	}
+
+	public Collection<String> getIntersectionNames() {
+		return routeMapping.getIntersectionNames();
 	}
 }

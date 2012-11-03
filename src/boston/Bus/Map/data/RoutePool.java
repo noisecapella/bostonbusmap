@@ -304,14 +304,26 @@ public class RoutePool extends Pool<String, RouteConfig> {
 				dirTag, transitSystem);
 	}
 
-	/**
-	 * Be careful not to alter this object!
-	 * @return
-	 */
-	public ConcurrentMap<String, IntersectionLocation> getIntersectPoints() {
-		return intersections;
+	public IntersectionLocation getIntersection(String name) {
+		if (name == null) {
+			return null;
+		}
+		else
+		{
+			return intersections.get(name);
+		}
 	}
-
+	
+	public boolean hasIntersection(String name) {
+		if (name == null) {
+			return false;
+		}
+		else
+		{
+			return intersections.containsKey(name);
+		}
+	}
+	
 	public void removeIntersection(String name) {
 		DatabaseAgent.removeIntersection(context.getContentResolver(), name);
 		
@@ -324,5 +336,9 @@ public class RoutePool extends Pool<String, RouteConfig> {
 		intersections.remove(oldName);
 		
 		populateIntersections();
+	}
+
+	public Collection<String> getIntersectionNames() {
+		return intersections.keySet();
 	}
 }

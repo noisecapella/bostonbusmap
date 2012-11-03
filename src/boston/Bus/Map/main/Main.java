@@ -469,7 +469,7 @@ public class Main extends MapActivity
 		{
 			if (selection.getMode() == Selection.BUS_PREDICTIONS_INTERSECT) {
 				String intersection = selection.getIntersection();
-				if (intersection != null && arguments.getBusLocations().getIntersectionPoints().containsKey(intersection)) {
+				if (arguments.getBusLocations().containsIntersection(intersection)) {
 					if (intersection.toLowerCase().startsWith("place ")) {
 						searchView.setText(intersection);
 					}
@@ -711,7 +711,8 @@ public class Main extends MapActivity
 	private void showIntersectionsDialog() {
     	
 		if (arguments != null) {
-			Collection<String> unsortedTitles = arguments.getBusLocations().getIntersectionPoints().keySet();
+			Collection<String> unsortedTitles = arguments.getBusLocations().getIntersectionNames();
+			
 			List<String> titles = Lists.newArrayList(unsortedTitles);
 			Collections.sort(titles);
 			final String[] titlesArray = new String[titles.size() + 1];
@@ -1073,7 +1074,7 @@ public class Main extends MapActivity
 			
 			setMode(Selection.BUS_PREDICTIONS_INTERSECT, true, false);
 			
-			IntersectionLocation newLocation = locations.getIntersectionPoints().get(name);
+			IntersectionLocation newLocation = locations.getIntersection(name);
 			if (newLocation != null) {
 
 				MapController controller = arguments.getMapView().getController();
