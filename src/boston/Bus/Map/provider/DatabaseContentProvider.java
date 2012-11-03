@@ -1258,8 +1258,14 @@ public class DatabaseContentProvider extends ContentProvider {
 				for (StopLocation stop : stops) {
 					float lat = (float) (builder.getLatitudeAsDegrees() * Geometry.degreesToRadians);
 					float lon = (float) (builder.getLongitudeAsDegrees() * Geometry.degreesToRadians);
-					float distance = stop.distanceFromInMiles(lat, lon);
-					if (filterByDistance && distance < miles) {
+					if (filterByDistance) {
+						float distance = stop.distanceFromInMiles(lat, lon);
+						if (distance < miles) {
+							routes.addAll(stop.getRoutes());
+						}
+					}
+					else
+					{
 						routes.addAll(stop.getRoutes());
 					}
 				}

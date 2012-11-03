@@ -64,13 +64,14 @@ public class RoutePool extends Pool<String, RouteConfig> {
 		this.context = context;
 		this.transitSystem = transitSystem;
 		this.intersectionDrawable = intersectionDrawable;
+		//TODO: define these as settings
+		maximumDistanceFromIntersection = 1.0f;
+		filterStopsFromIntersection = true;
+
 		populateFavorites();
 		
 		populateIntersections();
 		
-		//TODO: define these as settings
-		maximumDistanceFromIntersection = 1.0f;
-		filterStopsFromIntersection = true;
 	}
 	
 	/**
