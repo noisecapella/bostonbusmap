@@ -387,7 +387,7 @@ public class Box implements IBox  {
 	 * @see boston.Bus.Map.util.IBox2#readPathsList()
 	 */
 	@Override
-	public Path[] readPathsList() throws IOException {
+	public Path[] readPathsList(int color) throws IOException {
 		showProgress("readPathsMap");
 		if (!isOutput()) {
 			//TODO: this actually means it's input, but the input was null
@@ -397,7 +397,7 @@ public class Box implements IBox  {
 
 			for (int i = 0; i < size; i++)
 			{
-				Path value = new Path(this);
+				Path value = new Path(this, color);
 				paths.add(value);
 			}
 
@@ -667,7 +667,7 @@ public class Box implements IBox  {
 			}
 			
 			@Override
-			public Path[] readPathsList() throws IOException {
+			public Path[] readPathsList(int color) throws IOException {
 				throw new RuntimeException("Unimplemented");
 			}
 			

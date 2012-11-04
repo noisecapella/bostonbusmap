@@ -114,7 +114,7 @@ public interface IBox {
 	 */
 	public abstract void writePathsList(Path[] paths) throws IOException;
 
-	public abstract Path[] readPathsList() throws IOException;
+	public abstract Path[] readPathsList(int color) throws IOException;
 
 	public abstract void writeDouble(double d) throws IOException;
 
