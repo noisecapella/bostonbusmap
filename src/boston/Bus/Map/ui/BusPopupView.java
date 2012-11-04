@@ -27,6 +27,8 @@ import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
+import android.widget.ListAdapter;
+import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -53,6 +55,7 @@ import boston.Bus.Map.util.StringUtil;
 
 import com.google.android.maps.OverlayItem;
 import com.google.common.base.Joiner;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.readystatesoftware.mapviewballoons.BalloonOverlayView;
@@ -67,6 +70,7 @@ public class BusPopupView extends BalloonOverlayView<BusOverlayItem>
 	private TextView alertsTextView;
 	private TextView deleteTextView;
 	private TextView editTextView;
+	private TextView nearbyRoutesTextView;
 	private final Locations locations;
 	private final RouteTitles routeKeysToTitles;
 	private Location location;
@@ -108,12 +112,16 @@ public class BusPopupView extends BalloonOverlayView<BusOverlayItem>
 		reportProblem.setVisibility(View.GONE);
 		
 		deleteTextView = (TextView)layoutView.findViewById(R.id.balloon_item_delete);
-		Spanned deleteText = Html.fromHtml("\n<a href='com.bostonbusmap://reportproblem'>Delete place</a>\n");
+		Spanned deleteText = Html.fromHtml("\n<a href='com.bostonbusmap://deleteplace'>Delete</a>\n");
 		deleteTextView.setText(deleteText);
 		
 		editTextView = (TextView)layoutView.findViewById(R.id.balloon_item_edit);
-		Spanned editText = Html.fromHtml("\n<a href='com.bostonbusmap://reportproblem'>Edit place name</a>\n");
+		Spanned editText = Html.fromHtml("\n<a href='com.bostonbusmap://editplace'>Edit name</a>\n");
 		editTextView.setText(editText);
+		
+		nearbyRoutesTextView = (TextView)layoutView.findViewById(R.id.balloon_item_nearby_routes);
+		Spanned nearbyRoutesText = Html.fromHtml("\n<a href='com.bostonbusmap://nearbyroutes'>Nearby<br/>Routes</a>\n");
+		nearbyRoutesTextView.setText(nearbyRoutesText);
 		
 		alertsTextView = (TextView) layoutView.findViewById(R.id.balloon_item_alerts);
 		alertsTextView.setVisibility(View.GONE);
@@ -249,46 +257,80 @@ public class BusPopupView extends BalloonOverlayView<BusOverlayItem>
 			}
 		});
 		
+		nearbyRoutesTextView.setOnClickListener(new OnClickListener() {
+			
+			@Override
+			public void onClick(View v) {
+				if (location != null && location instanceof IntersectionLocation) {
+					IntersectionLocation intersectionLocation = (IntersectionLocation)location;
+					
+					AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+					builder.setTitle("Routes nearby " + intersectionLocation.getName());
+					
+					ListView listView = new ListView(getContext());
+					listView.setClickable(false);
+					builder.setView(listView);
+					
+					String[] routes = intersectionLocation.getNearbyRouteTitles().toArray(new String[0]);
+					
+					builder.setAdapter(new NonClickableListAdapter(getContext(), routes), new DialogInterface.OnClickListener() {
+						
+						@Override
+						public void onClick(DialogInterface dialog, int which) {
+							// do nothing
+							
+						}
+					});
+					
+					builder.create().show();
+				}
+				
+			}
+		});
+		
 		editTextView.setOnClickListener(new OnClickListener() {
 			
 			@Override
 			public void onClick(View v) {
-				AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
-				builder.setTitle("Edit place name");
+				if (location != null && location instanceof IntersectionLocation) {
+					IntersectionLocation intersectionLocation = (IntersectionLocation)location;
 
-				final EditText textView = new EditText(getContext());
-				textView.setHint("Place name (ie, Home)");
-				builder.setView(textView);
-				builder.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
-					
-					@Override
-					public void onClick(DialogInterface dialog, int which) {
-						String newName = textView.getText().toString();
-						if (newName.length() == 0) {
-							Toast.makeText(getContext(), "Place name cannot be empty", Toast.LENGTH_LONG).show();
-						}
-						else
-						{
-							if (location != null && location instanceof IntersectionLocation) {
-								IntersectionLocation intersection = (IntersectionLocation)location;
-								locations.editIntersection(intersection.getName(), newName);
+					AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+					builder.setTitle("Edit place name");
+
+					final EditText textView = new EditText(getContext());
+					textView.setHint("Place name (ie, Home)");
+					final String oldName = intersectionLocation.getName();
+					textView.setText(oldName);
+					builder.setView(textView);
+					builder.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+
+						@Override
+						public void onClick(DialogInterface dialog, int which) {
+							String newName = textView.getText().toString();
+							if (newName.length() == 0) {
+								Toast.makeText(getContext(), "Place name cannot be empty", Toast.LENGTH_LONG).show();
+							}
+							else
+							{
+								locations.editIntersection(oldName, newName);
 								locations.setSelection(locations.getSelection().withDifferentIntersection(newName));
 								handler.triggerUpdate();
 							}
+							dialog.dismiss();
 						}
-						dialog.dismiss();
-					}
-				});
-				
-				builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-					
-					@Override
-					public void onClick(DialogInterface dialog, int which) {
-						dialog.dismiss();
-					}
-				});
-				
-				builder.create().show();
+					});
+
+					builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+
+						@Override
+						public void onClick(DialogInterface dialog, int which) {
+							dialog.dismiss();
+						}
+					});
+
+					builder.create().show();
+				}
 			}
 		});
 	}
@@ -445,14 +487,12 @@ public class BusPopupView extends BalloonOverlayView<BusOverlayItem>
 			reportProblem.setVisibility(View.GONE);
 		}
 		
-		if (location.isIntersection()) {
-			deleteTextView.setVisibility(View.VISIBLE);
-			editTextView.setVisibility(View.VISIBLE);
-		}
-		else
-		{
-			deleteTextView.setVisibility(View.GONE);
-			editTextView.setVisibility(View.GONE);
+		TextView[] intersectionViews = new TextView[] {
+				deleteTextView, editTextView, nearbyRoutesTextView
+		};
+		int intersectionVisibility = location.isIntersection() ? View.VISIBLE : View.GONE;
+		for (TextView view : intersectionViews) {
+			view.setVisibility(intersectionVisibility);
 		}
 	}
 	
