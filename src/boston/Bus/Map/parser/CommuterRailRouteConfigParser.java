@@ -164,7 +164,7 @@ public class CommuterRailRouteConfigParser
 					floats.add((float)station.getLongitudeAsDegrees());
 				}
 				
-				Path path = new Path(floats);
+				Path path = new Path(floats, CommuterRailTransitSource.COLOR);
 				
 				map.get(route).addPaths(path);
 			}
@@ -227,7 +227,7 @@ public class CommuterRailRouteConfigParser
 					points.add(branchStop.getLatitudeAsDegrees());
 					points.add(branchStop.getLongitudeAsDegrees());
 
-					Path path = new Path(points);
+					Path path = new Path(points, CommuterRailTransitSource.COLOR);
 					map.get(route).addPaths(path);
 				}
 			}

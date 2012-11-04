@@ -260,7 +260,7 @@ public class RouteConfigFeedParser extends DefaultHandler
 			
 			if (currentRouteTag != null)
 			{
-				Path path = new Path(currentPathPoints);
+				Path path = new Path(currentPathPoints, currentRouteColor);
 				currentPaths.add(path);
 			}
 		}

@@ -157,7 +157,7 @@ public class GetDirectionsAsyncTask extends AsyncTask<Object, String, ArrayList<
 				throw new RuntimeException("start and stop are the same");
 			}
 			
-			ret.add(new Path(points));
+			ret.add(new Path(points, Color.RED));
 		}
 		return ret;
 	}
