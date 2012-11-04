@@ -40,7 +40,14 @@ public class RouteTitleComparator implements Comparator<String> {
 
 	private static String getLeadingDigits(String string) {
 		// find first non digit, then return substring of that length
-		return string.substring(0, CharMatcher.DIGIT.negate().indexIn(string));	
+		int index = CharMatcher.DIGIT.negate().indexIn(string);
+		if (index <= 0) {
+			return "";
+		}
+		else
+		{
+			return string.substring(0, index);
+		}
 	}
 	
 }
