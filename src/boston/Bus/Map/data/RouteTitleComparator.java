@@ -17,8 +17,8 @@ public class RouteTitleComparator implements Comparator<String> {
 
 	@Override
 	public int compare(String lhs, String rhs) {
-		String lhsDigits = CharMatcher.DIGIT.trimLeadingFrom(lhs);
-		String rhsDigits = CharMatcher.DIGIT.trimLeadingFrom(rhs);
+		String lhsDigits = getLeadingDigits(lhs);
+		String rhsDigits = getLeadingDigits(rhs);
 		if (lhsDigits.length() != 0 && rhsDigits.length() != 0) {
 			try
 			{
@@ -36,6 +36,11 @@ public class RouteTitleComparator implements Comparator<String> {
 			}
 		}
 		return lhs.compareToIgnoreCase(rhs);
+	}
+
+	private static String getLeadingDigits(String string) {
+		// find first non digit, then return substring of that length
+		return string.substring(0, CharMatcher.DIGIT.negate().indexIn(string));	
 	}
 	
 }
