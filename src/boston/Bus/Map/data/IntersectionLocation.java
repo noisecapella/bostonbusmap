@@ -38,7 +38,7 @@ public class IntersectionLocation implements Location {
 		longitude = (float) (longitudeAsDegrees * Geometry.degreesToRadians);
 		
 		nearbyRoutes = builder.nearbyRoutes.build();
-		SortedSet<String> titles = Sets.newTreeSet();
+		SortedSet<String> titles = Sets.newTreeSet(new RouteTitleComparator());
 		for (String tag : nearbyRoutes) {
 			titles.add(routeTitles.getTitle(tag));
 		}
