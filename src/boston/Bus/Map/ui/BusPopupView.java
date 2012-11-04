@@ -107,11 +107,11 @@ public class BusPopupView extends BalloonOverlayView<BusOverlayItem>
 		reportProblem.setText(reportProblemText);
 		
 		deleteTextView = (TextView)layoutView.findViewById(R.id.balloon_item_delete);
-		Spanned deleteText = Html.fromHtml("\n<a href='com.bostonbusmap://reportproblem'>Delete place</a>\n");
+		Spanned deleteText = Html.fromHtml("\n<a href='com.bostonbusmap://reportproblem'>Delete</a>\n");
 		deleteTextView.setText(deleteText);
 		
 		editTextView = (TextView)layoutView.findViewById(R.id.balloon_item_edit);
-		Spanned editText = Html.fromHtml("\n<a href='com.bostonbusmap://reportproblem'>Edit place name</a>\n");
+		Spanned editText = Html.fromHtml("\n<a href='com.bostonbusmap://reportproblem'>Edit name</a>\n");
 		editTextView.setText(editText);
 		
 		alertsTextView = (TextView) layoutView.findViewById(R.id.balloon_item_alerts);
@@ -251,42 +251,45 @@ public class BusPopupView extends BalloonOverlayView<BusOverlayItem>
 			
 			@Override
 			public void onClick(View v) {
-				AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
-				builder.setTitle("Edit place name");
+				if (location != null && location instanceof IntersectionLocation) {
+					IntersectionLocation intersectionLocation = (IntersectionLocation)location;
 
-				final EditText textView = new EditText(getContext());
-				textView.setHint("Place name (ie, Home)");
-				builder.setView(textView);
-				builder.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
-					
-					@Override
-					public void onClick(DialogInterface dialog, int which) {
-						String newName = textView.getText().toString();
-						if (newName.length() == 0) {
-							Toast.makeText(getContext(), "Place name cannot be empty", Toast.LENGTH_LONG).show();
-						}
-						else
-						{
-							if (location != null && location instanceof IntersectionLocation) {
-								IntersectionLocation intersection = (IntersectionLocation)location;
-								locations.editIntersection(intersection.getName(), newName);
+					AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+					builder.setTitle("Edit place name");
+
+					final EditText textView = new EditText(getContext());
+					textView.setHint("Place name (ie, Home)");
+					final String oldName = intersectionLocation.getName();
+					textView.setText(oldName);
+					builder.setView(textView);
+					builder.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+
+						@Override
+						public void onClick(DialogInterface dialog, int which) {
+							String newName = textView.getText().toString();
+							if (newName.length() == 0) {
+								Toast.makeText(getContext(), "Place name cannot be empty", Toast.LENGTH_LONG).show();
+							}
+							else
+							{
+								locations.editIntersection(oldName, newName);
 								locations.setSelection(locations.getSelection().withDifferentIntersection(newName));
 								handler.triggerUpdate();
 							}
+							dialog.dismiss();
 						}
-						dialog.dismiss();
-					}
-				});
-				
-				builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-					
-					@Override
-					public void onClick(DialogInterface dialog, int which) {
-						dialog.dismiss();
-					}
-				});
-				
-				builder.create().show();
+					});
+
+					builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+
+						@Override
+						public void onClick(DialogInterface dialog, int which) {
+							dialog.dismiss();
+						}
+					});
+
+					builder.create().show();
+				}
 			}
 		});
 	}
