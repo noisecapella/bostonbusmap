@@ -107,7 +107,7 @@ public class GetDirectionsAsyncTask extends AsyncTask<Object, String, ArrayList<
 				paths = Collections.emptyList();
 			}
 			
-			overlay.setPathsAndColor(paths.toArray(new Path[0]), Color.RED, StringUtil.buildFromToString(result));
+			overlay.setPathsAndColor(paths.toArray(new Path[0]), StringUtil.buildFromToString(result));
 		}
 	}
 

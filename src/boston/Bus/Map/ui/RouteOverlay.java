@@ -118,15 +118,27 @@ public class RouteOverlay extends Overlay
 		}
 	}
 
+	private void populatePaintCache(Path[] paths) {
+		for (Path path : paths) {
+			int color = path.getColor();
+			if (paintCache.containsKey(color) == false) {
+				Paint paint = new Paint(defaultPaint);
+				paint.setColor(color);
+				paint.setAlpha(0x99);
+
+				paintCache.put(color, paint);
+			}
+		}		
+	}
+	
 	/**
 	 * 
 	 * @param paths
 	 * @param color assumes something like "1234ef"
 	 */
-	public void setPathsAndColor(Path[] paths, int color, String newRoute)
+	public void setPathsAndColor(Path[] paths, String newRoute)
 	{
-		defaultPaint.setColor(color);
-		defaultPaint.setAlpha(0x99);
+		populatePaintCache(paths);
 		
 		if (newRoute != null && currentRoute != null && currentRoute.equals(newRoute) && this.paths.size() == paths.length)
 		{
@@ -140,15 +152,9 @@ public class RouteOverlay extends Overlay
 		currentRoute = newRoute;
 	}
 	
-	public void addPathsAndColor(Path[] paths, int color, String newRoute)
+	public void addPathsAndColor(Path[] paths, String newRoute)
 	{
-		if (paintCache.containsKey(color) == false) {
-			Paint paint = new Paint(defaultPaint);
-			paint.setColor(color);
-			paint.setAlpha(0x99);
-			
-			paintCache.put(color, paint);
-		}
+		populatePaintCache(paths);
 		
 		addPaths(Arrays.asList(paths));
 		currentRoute = newRoute;
@@ -258,6 +264,7 @@ public class RouteOverlay extends Overlay
 
 	private static void flushDrawingQueue(Canvas canvas, android.graphics.Path drawingPath, Paint paint) {
 		canvas.drawPath(drawingPath, paint);
+		drawingPath.reset();
 	}
 
 	public void setDrawLine(boolean showRouteLine) {
