@@ -241,7 +241,7 @@ public class BusOverlay extends BalloonItemizedOverlay<BusOverlayItem> {
 			}
 			else
 			{
-				firstPoint = overlays.get(1).getPoint();
+				firstPoint = overlays.get(0).getPoint();
 			}
 
 			Projection projection = mapView.getProjection();
