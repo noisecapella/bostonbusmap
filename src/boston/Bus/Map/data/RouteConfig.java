@@ -51,7 +51,7 @@ public class RouteConfig
 
 		if (builder.serializedPath.isEmpty() == false)
 		{
-			paths = builder.serializedPath.readPathsList();
+			paths = builder.serializedPath.readPathsList(color);
 		}
 		else
 		{

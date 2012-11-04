@@ -1,9 +1,12 @@
 package boston.Bus.Map.ui;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.ListIterator;
+import java.util.Map;
 import java.util.TreeSet;
 import java.util.concurrent.CopyOnWriteArrayList;
 
@@ -23,26 +26,28 @@ import com.google.android.maps.GeoPoint;
 import com.google.android.maps.MapView;
 import com.google.android.maps.Overlay;
 import com.google.android.maps.Projection;
-import boston.Bus.Map.main.Main;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 
 public class RouteOverlay extends Overlay
 {
-	/**
-	 * TODO: what's the advantage of a linked list if we aren't doing any inserts?
-	 */
-	private LinkedList<Path> paths = new LinkedList<Path>();
+	private List<Path> paths = Lists.newLinkedList();
 	private final Projection projection;
 	private boolean showRouteLine = true;
 	
 	private final Paint defaultPaint;
+	private final Map<Integer, Paint> paintCache = Maps.newHashMap();
 	private String currentRoute;
+	
+	private static final int DEFAULTCOLOR = 0x990000;
 	
 	public RouteOverlay(Projection projection)
 	{
 		this.projection = projection;
 		
 		defaultPaint = new Paint();
-		defaultPaint.setColor(Color.argb(0x99, 0x00, 0x00, 0xff));
+		defaultPaint.setColor(DEFAULTCOLOR);
+		defaultPaint.setAlpha(0x99);
 		defaultPaint.setStrokeWidth(5);
 		defaultPaint.setAntiAlias(true);
 		defaultPaint.setStrokeMiter(3);
@@ -58,6 +63,9 @@ public class RouteOverlay extends Overlay
 	
 	/**
 	 * Add the collection of paths, such that the head of one path touches the tail of another when possible
+	 * 
+	 * Only run this in the UI thread
+	 * 
 	 * @param paths
 	 */
 	private void addPaths(Iterable<Path> paths) {
@@ -69,7 +77,6 @@ public class RouteOverlay extends Overlay
 			float lastLat = path.getPointLat(size - 1);
 			float lastLon = path.getPointLon(size - 1);
 
-			//can this attach onto a head or tail?
 			ListIterator<Path> iterator = this.paths.listIterator();
 			boolean addedItem = false;
 			while (iterator.hasNext())
@@ -110,15 +117,27 @@ public class RouteOverlay extends Overlay
 		}
 	}
 
+	private void populatePaintCache(Path[] paths) {
+		for (Path path : paths) {
+			int color = path.getColor();
+			if (paintCache.containsKey(color) == false) {
+				Paint paint = new Paint(defaultPaint);
+				paint.setColor(color);
+				paint.setAlpha(0x99);
+
+				paintCache.put(color, paint);
+			}
+		}		
+	}
+	
 	/**
 	 * 
 	 * @param paths
 	 * @param color assumes something like "1234ef"
 	 */
-	public void setPathsAndColor(Path[] paths, int color, String newRoute)
+	public void setPathsAndColor(Path[] paths, String newRoute)
 	{
-		defaultPaint.setColor(color);
-		defaultPaint.setAlpha(0x99);
+		populatePaintCache(paths);
 		
 		if (newRoute != null && currentRoute != null && currentRoute.equals(newRoute) && this.paths.size() == paths.length)
 		{
@@ -127,24 +146,16 @@ public class RouteOverlay extends Overlay
 		else
 		{
 			this.paths.clear();
-			addPaths(new CopyOnWriteArrayList<Path>(paths));
+			addPaths(Arrays.asList(paths));
 		}
 		currentRoute = newRoute;
 	}
 	
-	public void addPathsAndColor(Path[] paths, int color, String newRoute)
+	public void addPathsAndColor(Path[] paths, String newRoute)
 	{
-		defaultPaint.setColor(color);
-		defaultPaint.setAlpha(0x99);
+		populatePaintCache(paths);
 		
-		if (newRoute != null && currentRoute != null && currentRoute.equals(newRoute) && this.paths.size() == paths.length)
-		{
-			//don't delete and add paths if we already have them
-		}
-		else
-		{
-			addPaths(new CopyOnWriteArrayList<Path>(paths));
-		}
+		addPaths(Arrays.asList(paths));
 		currentRoute = newRoute;
 	}
 	
@@ -170,8 +181,19 @@ public class RouteOverlay extends Overlay
 		
 		//make sure the JVM knows this doesn't change unexpectedly
 		Point pixelPoint = new Point();
+		Paint currentPaint = defaultPaint;
 		for (Path path : paths)
 		{
+			if (path.getColor() != currentPaint.getColor()) {
+				Paint paint = paintCache.get(path.getColor());
+				if (paint == null) {
+					Log.e("BostonBusMap", "ERROR: paint not in cache");
+					paint = defaultPaint;
+				}
+				flushDrawingQueue(canvas, drawingPath, paint);
+				currentPaint = paint;
+			}
+			
 			int pointsSize = path.getPointsSize();
 
 			boolean prevOutOfBounds = true;
@@ -181,7 +203,6 @@ public class RouteOverlay extends Overlay
 			boolean prevOutOfBoundsAbove = true;
 			boolean prevOutOfBoundsBelow = true;
 			
-			int prevPointLonInt = 0;
 			int moveToLat = Integer.MAX_VALUE;
 			int moveToLon = Integer.MAX_VALUE;
 			for (int i = 0; i < pointsSize; i++)
@@ -237,7 +258,12 @@ public class RouteOverlay extends Overlay
 			}
 		}
 		
-		canvas.drawPath(drawingPath, defaultPaint);
+		flushDrawingQueue(canvas, drawingPath, currentPaint);
+	}
+
+	private static void flushDrawingQueue(Canvas canvas, android.graphics.Path drawingPath, Paint paint) {
+		canvas.drawPath(drawingPath, paint);
+		drawingPath.reset();
 	}
 
 	public void setDrawLine(boolean showRouteLine) {

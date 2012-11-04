@@ -17,16 +17,22 @@ public class Path implements CanBeSerialized
 	private final float[] points;
 	
 	/**
+	 * Current color of path. NOT Serialized or deserialized
+	 */
+	private final int color;
+	
+	/**
 	 * points is a series of lat lon pairs. Therefore points must have an even number of elements
 	 * @param points
 	 */
-	public Path(List<Float> points)
+	public Path(List<Float> points, int color)
 	{
 		this.points = new float[points.size()];
 		for (int i = 0; i < points.size(); i++)
 		{
 			this.points[i] = points.get(i);
 		}
+		this.color = color;
 	}
 
 	@Override
@@ -38,13 +44,14 @@ public class Path implements CanBeSerialized
 		}
 	}
 	
-	public Path(IBox source) throws IOException {
+	public Path(IBox source, int color) throws IOException {
 		int size = source.readInt();
 		points = new float[size];
 		for (int i = 0; i < size; i++)
 		{
 			points[i] = source.readFloat();
 		}
+		this.color = color;
 	}
 
 	/**
@@ -71,5 +78,9 @@ public class Path implements CanBeSerialized
 	public int getPointsSize() {
 		//divide by half
 		return points.length >> 1;
+	}
+	
+	public int getColor() {
+		return color;
 	}
 }

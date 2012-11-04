@@ -325,7 +325,7 @@ public abstract class UpdateAsyncTask extends AsyncTask<Object, Object, Immutabl
 		{
 	        Path[] paths = locationsObj.getPaths(selection.getRoute());
 			//we want this to be null. Else, the snippet drawing code would only show data for a particular route
-			routeOverlay.setPathsAndColor(paths, Color.BLUE, selection.getRoute());
+			routeOverlay.setPathsAndColor(paths, selection.getRoute());
 			selectedRouteConfig = null;
 		}
 		else if (mode == Selection.BUS_PREDICTIONS_INTERSECT) {
@@ -335,13 +335,13 @@ public abstract class UpdateAsyncTask extends AsyncTask<Object, Object, Immutabl
 			if (intersection != null) {
 				for (String route : intersection.getNearbyRoutes()) {
 					Path[] paths = locationsObj.getPaths(route);
-					routeOverlay.addPathsAndColor(paths, Color.BLUE, route);
+					routeOverlay.addPathsAndColor(paths, route);
 				}
 			}
 			else
 			{
 		        Path[] paths = locationsObj.getPaths(selection.getRoute());
-				routeOverlay.setPathsAndColor(paths, Color.BLUE, selection.getRoute());
+				routeOverlay.setPathsAndColor(paths, selection.getRoute());
 			}
 			
 			selectedRouteConfig = null;
@@ -361,8 +361,7 @@ public abstract class UpdateAsyncTask extends AsyncTask<Object, Object, Immutabl
 				paths = RouteConfig.nullPaths;
 			}
 			
-			int color = selectedRouteConfig == null ? Color.BLUE : selectedRouteConfig.getColor();
-			routeOverlay.setPathsAndColor(paths, color, selection.getRoute());
+			routeOverlay.setPathsAndColor(paths, selection.getRoute());
 		}
 		
 

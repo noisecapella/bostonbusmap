@@ -107,7 +107,7 @@ public class GetDirectionsAsyncTask extends AsyncTask<Object, String, ArrayList<
 				paths = Collections.emptyList();
 			}
 			
-			overlay.setPathsAndColor(paths.toArray(new Path[0]), Color.RED, StringUtil.buildFromToString(result));
+			overlay.setPathsAndColor(paths.toArray(new Path[0]), StringUtil.buildFromToString(result));
 		}
 	}
 
@@ -157,7 +157,7 @@ public class GetDirectionsAsyncTask extends AsyncTask<Object, String, ArrayList<
 				throw new RuntimeException("start and stop are the same");
 			}
 			
-			ret.add(new Path(points));
+			ret.add(new Path(points, Color.RED));
 		}
 		return ret;
 	}
