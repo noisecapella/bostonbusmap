@@ -1,10 +1,6 @@
 #!/bin/sh
-<<<<<<< HEAD
 agency="lametro"
-=======
-agency="ttc"
-agency_title="Toronto Transit Commission"
->>>>>>> toronto
+agency_title="Los Angeles Metro"
 prefix="webservices"
 
 wget "http://$prefix.nextbus.com/service/publicXMLFeed?a=$agency&command=routeList" -O routeList
