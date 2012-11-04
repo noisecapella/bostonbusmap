@@ -1,5 +1,10 @@
 #!/bin/sh
+<<<<<<< HEAD
 agency="lametro"
+=======
+agency="ttc"
+agency_title="Toronto Transit Commission"
+>>>>>>> toronto
 prefix="webservices"
 
 wget "http://$prefix.nextbus.com/service/publicXMLFeed?a=$agency&command=routeList" -O routeList
@@ -9,7 +14,7 @@ for each in `cat routes`; do wget "http://$prefix.nextbus.com/service/publicXMLF
 
 touch routeconfig_full.xml
 echo "<?xml version=\"1.0\" encoding=\"utf-8\" ?> " >> routeconfig_full.xml
-echo "<body copyright=\"All data copyright $agency 2011.\">" >> routeconfig_full.xml
+echo "<body copyright=\"All data copyright $agency_title 2011.\">" >> routeconfig_full.xml
 
 #for each in `cat routes`; do cat routeConfig$each | awk '$0 ~ /<body/ { next } $0 ~ /body>/ { next } $0 ~ /<\?xml/ { next } { print }' >> routeconfig_full.xml; done
 for each in `cat routes`; do cat routeConfig$each | awk 'BEGIN { in_path = 0 } $0 ~ /<body/ { next } $0 ~ /body>/ { next } $0 ~ /<\?xml/ { next } { print }' >> routeconfig_full.xml; done

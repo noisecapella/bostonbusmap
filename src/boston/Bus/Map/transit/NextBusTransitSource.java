@@ -1,10 +1,16 @@
 package boston.Bus.Map.transit;
 
+import java.io.BufferedInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.logging.FileHandler;
 import java.util.zip.GZIPInputStream;
 
 import javax.xml.parsers.ParserConfigurationException;
@@ -12,21 +18,29 @@ import javax.xml.parsers.ParserConfigurationException;
 import org.apache.http.client.ClientProtocolException;
 import org.xml.sax.SAXException;
 
-import com.schneeloch.latransit.R;
-import boston.Bus.Map.main.Main;
-import boston.Bus.Map.main.UpdateAsyncTask;
+import com.google.common.collect.ImmutableBiMap;
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
+import com.google.common.io.ByteStreams;
 
 import android.content.Context;
+import android.content.OperationApplicationException;
+import android.os.RemoteException;
+import boston.Bus.Map.data.AlertsMapping;
 import boston.Bus.Map.data.BusLocation;
 import boston.Bus.Map.data.Directions;
+import boston.Bus.Map.data.IntersectionLocation;
 import boston.Bus.Map.data.Location;
 import boston.Bus.Map.data.Locations;
-import boston.Bus.Map.data.MyHashMap;
 import boston.Bus.Map.data.RouteConfig;
 import boston.Bus.Map.data.RoutePool;
+import boston.Bus.Map.data.RouteTitles;
+import boston.Bus.Map.data.Selection;
 import boston.Bus.Map.data.StopLocation;
 import boston.Bus.Map.data.SubwayStopLocation;
 import boston.Bus.Map.data.TransitDrawables;
+import boston.Bus.Map.data.TransitSourceTitles;
+import boston.Bus.Map.database.Schema;
 import boston.Bus.Map.main.Main;
 import boston.Bus.Map.main.UpdateAsyncTask;
 import boston.Bus.Map.parser.BusPredictionsFeedParser;
@@ -56,17 +70,15 @@ public abstract class NextBusTransitSource implements TransitSource
 	private final String mbtaRouteConfigDataUrl;
 	private final String mbtaRouteConfigDataUrlAllRoutes;
 	private final String mbtaPredictionsDataUrl;
-	private final int initialRouteResource;
 
 	private final TransitDrawables drawables;
-	private final String[] routes;
-	private ArrayList<String> tempRoutes;
-	private final MyHashMap<String, String> routeKeysToTitles = new MyHashMap<String, String>();
 
-	
+	private final TransitSourceTitles routeTitles;
+	private final RouteTitles allRouteTitles;
 
 	public NextBusTransitSource(TransitSystem transitSystem, 
-			TransitDrawables drawables, String agency, int initialRouteResource)
+			TransitDrawables drawables, String agency, TransitSourceTitles routeTitles,
+			RouteTitles allRouteTitles)
 	{
 		this.transitSystem = transitSystem;
 		this.drawables = drawables;
@@ -76,31 +88,15 @@ public abstract class NextBusTransitSource implements TransitSource
 		mbtaRouteConfigDataUrl = "http://" + prefix + ".nextbus.com/service/publicXMLFeed?command=routeConfig&a=" + agency + "&r=";
 		mbtaRouteConfigDataUrlAllRoutes = "http://" + prefix + ".nextbus.com/service/publicXMLFeed?command=routeConfig&a=" + agency;
 		mbtaPredictionsDataUrl = "http://" + prefix + ".nextbus.com/service/publicXMLFeed?command=predictionsForMultiStops&a=" + agency;
-		this.initialRouteResource = initialRouteResource;
 		
-		tempRoutes = new ArrayList<String>();
-
-		addRoutes();
-
-		routes = tempRoutes.toArray(new String[0]);
-		tempRoutes.clear();
-		tempRoutes = null;
+		this.routeTitles = routeTitles;
+		this.allRouteTitles = allRouteTitles;
 	}
-
-	protected abstract void addRoutes();
-	
-	protected void addRoute(String key, String title) {
-		tempRoutes.add(key);
-
-		routeKeysToTitles.put(key, title);
-
-	}
-
 
 	@Override
-	public void populateStops(RoutePool routeMapping, String routeToUpdate,
-			RouteConfig oldRouteConfig, Directions directions, UpdateAsyncTask task, boolean silent) 
-	throws ClientProtocolException, IOException, ParserConfigurationException, SAXException 
+	public void populateStops(Context context, RoutePool routeMapping, String routeToUpdate,
+			Directions directions, UpdateAsyncTask task, boolean silent) 
+	throws ClientProtocolException, IOException, ParserConfigurationException, SAXException, RemoteException, OperationApplicationException 
 	{
 		final String urlString = getRouteConfigUrl(routeToUpdate);
 
@@ -109,37 +105,55 @@ public abstract class NextBusTransitSource implements TransitSource
 		downloadHelper.connect();
 		//just initialize the route and then end for this round
 
-		RouteConfigFeedParser parser = new RouteConfigFeedParser(directions, oldRouteConfig,
-				this);
-
-		parser.runParse(downloadHelper.getResponseData()); 
-
-		parser.writeToDatabase(routeMapping, false, task, silent);
+		RouteConfigFeedParser parser = new RouteConfigFeedParser(context,
+				this, allRouteTitles);
+		parser.runParse(downloadHelper.getResponseData());
+		parser.writeToDatabase(context);
 
 	}
 
 
 	@Override
-	public void refreshData(RouteConfig routeConfig, int selectedBusPredictions, int maxStops,
+	public void refreshData(RouteConfig routeConfig, Selection selection, int maxStops,
 			double centerLatitude, double centerLongitude, ConcurrentHashMap<String, BusLocation> busMapping, 
-			String selectedRoute, RoutePool routePool, Directions directions, Locations locationsObj)
+			RoutePool routePool, Directions directions, Locations locationsObj)
 	throws IOException, ParserConfigurationException, SAXException {
 		//read data from the URL
 		DownloadHelper downloadHelper;
-		switch (selectedBusPredictions)
+		int mode = selection.getMode();
+		switch (mode)
 		{
-		case  Main.BUS_PREDICTIONS_ONE:
-		case  Main.BUS_PREDICTIONS_STAR:
-		case  Main.BUS_PREDICTIONS_ALL:
+		case  Selection.BUS_PREDICTIONS_ONE:
+		case  Selection.BUS_PREDICTIONS_STAR:
+		case  Selection.BUS_PREDICTIONS_ALL:
+		case  Selection.BUS_PREDICTIONS_INTERSECT:
 		{
 
 			routePool.clearRecentlyUpdated();
 
-			List<Location> locations = locationsObj.getLocations(maxStops, centerLatitude, centerLongitude, false);
+			List<Location> locations = locationsObj.getLocations(maxStops, centerLatitude, centerLongitude, false, selection);
 
 			//ok, do predictions now
-			String routeName = selectedBusPredictions == Main.BUS_PREDICTIONS_ONE ? routeConfig.getRouteName() : null;
-			String url = getPredictionsUrl(locations, maxStops, routeName);
+			ImmutableSet<String> routes;
+			if (mode == Selection.BUS_PREDICTIONS_ONE) {
+				routes = ImmutableSet.of(routeConfig.getRouteName());
+			}
+			else if (mode == Selection.BUS_PREDICTIONS_INTERSECT) {
+				String intersection = selection.getIntersection();
+				IntersectionLocation intersectionLocation = routePool.getIntersection(intersection);
+				if (intersectionLocation != null) {
+					routes = intersectionLocation.getNearbyRoutes();
+				}
+				else
+				{
+					routes = ImmutableSet.of();
+				}
+			}
+			else
+			{
+				routes = ImmutableSet.of();
+			}
+			String url = getPredictionsUrl(locations, maxStops, routes);
 
 			if (url == null)
 			{
@@ -150,13 +164,13 @@ public abstract class NextBusTransitSource implements TransitSource
 		}
 		break;
 
-		case Main.VEHICLE_LOCATIONS_ONE:
+		case Selection.VEHICLE_LOCATIONS_ONE:
 		{
 			final String urlString = getVehicleLocationsUrl(locationsObj.getLastUpdateTime(), routeConfig.getRouteName());
 			downloadHelper = new DownloadHelper(urlString);
 		}
 		break;
-		case Main.VEHICLE_LOCATIONS_ALL:
+		case Selection.VEHICLE_LOCATIONS_ALL:
 		default:
 		{
 			final String urlString = getVehicleLocationsUrl(locationsObj.getLastUpdateTime(), null);
@@ -169,9 +183,10 @@ public abstract class NextBusTransitSource implements TransitSource
 
 		InputStream data = downloadHelper.getResponseData();
 
-		if (selectedBusPredictions == Main.BUS_PREDICTIONS_ONE || 
-				selectedBusPredictions == Main.BUS_PREDICTIONS_ALL ||
-				selectedBusPredictions == Main.BUS_PREDICTIONS_STAR)
+		if (mode == Selection.BUS_PREDICTIONS_ONE || 
+				mode == Selection.BUS_PREDICTIONS_ALL ||
+				mode == Selection.BUS_PREDICTIONS_STAR ||
+				mode == Selection.BUS_PREDICTIONS_INTERSECT)
 		{
 			//bus prediction
 
@@ -186,7 +201,7 @@ public abstract class NextBusTransitSource implements TransitSource
 
 			//lastUpdateTime = parser.getLastUpdateTime();
 
-			VehicleLocationsFeedParser parser = new VehicleLocationsFeedParser(drawables, directions, routeKeysToTitles);
+			VehicleLocationsFeedParser parser = new VehicleLocationsFeedParser(drawables, directions, transitSystem.getRouteKeysToTitles());
 			parser.runParse(data);
 
 			//get the time that this information is valid until
@@ -223,7 +238,7 @@ public abstract class NextBusTransitSource implements TransitSource
 			{
 				try
 				{
-					parseAlert(routeConfig);
+					parseAlert(routeConfig, transitSystem.getAlertsMapping());
 				}
 				catch (Exception e)
 				{
@@ -234,19 +249,10 @@ public abstract class NextBusTransitSource implements TransitSource
 		}
 	}
 
-	protected abstract void parseAlert(RouteConfig routeConfig) throws ClientProtocolException, IOException, SAXException;
+	protected abstract void parseAlert(RouteConfig routeConfig, AlertsMapping alertMapping) throws ClientProtocolException, IOException, SAXException;
 
-	protected String getPredictionsUrl(List<Location> locations, int maxStops, String route)
+	protected String getPredictionsUrl(List<Location> locations, int maxStops, Collection<String> routes)
 	{
-		//TODO: technically we should be checking that it is a bus route, not that it's not a subway route
-		//but this is probably more efficient
-		TransitSource transitSource = transitSystem.getTransitSource(route);
-		if (!(transitSource instanceof NextBusTransitSource))
-		{
-			//there should only be one instance of a source in memory at a time, but just in case...
-			return null;
-		}
-		
 		StringBuilder urlString = new StringBuilder(mbtaPredictionsDataUrl);
 
 		for (Location location : locations)
@@ -254,27 +260,28 @@ public abstract class NextBusTransitSource implements TransitSource
 			if ((location instanceof StopLocation))
 			{
 				StopLocation stopLocation = (StopLocation)location;
-				stopLocation.createBusPredictionsUrl(transitSystem, urlString, route);
+				if (routes.isEmpty() == false) {
+					for (String route : routes) {
+						if (stopLocation.hasRoute(route)) {
+							urlString.append("&stops=").append(route).append("%7C");
+							urlString.append("%7C").append(stopLocation.getStopTag());
+						}
+					}
+				}
+				else
+				{
+					for (String stopRoute : stopLocation.getRoutes()) {
+						urlString.append("&stops=").append(stopRoute).append("%7C");
+						urlString.append("%7C").append(stopLocation.getStopTag());
+						
+					}
+				}
 			}
 		}
 
 		//TODO: hard limit this to 150 requests
 
 		return urlString.toString();
-	}
-
-
-	@Override
-	public void bindPredictionElementsForUrl(StringBuilder urlString,
-			String routeName, String stopId, String direction) {
-		urlString.append("&stops=").append(routeName).append("%7C");
-		if (direction != null)
-		{
-			urlString.append(direction);
-		}
-
-		urlString.append("%7C").append(stopId);
-
 	}
 
 	protected String getVehicleLocationsUrl(long time, String route)
@@ -311,62 +318,47 @@ public abstract class NextBusTransitSource implements TransitSource
 	@Override
 	public void initializeAllRoutes(UpdateAsyncTask task, Context context, Directions directions,
 			RoutePool routeMapping)
-	throws IOException, ParserConfigurationException, SAXException {
-		task.publish(new ProgressMessage(ProgressMessage.PROGRESS_DIALOG_ON, "Decompressing route data", null));
-
-		final int contentLength = getInitialContentLength();
-
-		InputStream in = new StreamCounter(context.getResources().openRawResource(initialRouteResource),
-				task, contentLength); 
-
-		GZIPInputStream stream = new GZIPInputStream(in); 
-
-		RouteConfigFeedParser parser = new RouteConfigFeedParser(directions, null, this);
-
-		parser.runParse(stream);
-
-
-
-		parser.writeToDatabase(routeMapping, true, task, false);
-
-
+	throws IOException, ParserConfigurationException, SAXException, RemoteException, OperationApplicationException {
+		// this intentially left blank
 	}
-
-	/**
-	 * This is the size of the file at R.res.raw.routeconfig
-	 * @return
-	 */
-	protected abstract int getInitialContentLength();
-
-	@Override
-	public String[] getRoutes() {
-		return routes;
-	}
-
-
-	@Override
-	public MyHashMap<String, String> getRouteKeysToTitles() {
-		return routeKeysToTitles;
-	}
-
 
 	@Override
 	public StopLocation createStop(float lat, float lon, String stopTag,
-			String title, int platformOrder, String branch, String route, String dirTag)
+			String title, int platformOrder, String branch, String route)
 	{
-		StopLocation stop = new StopLocation(lat, lon, drawables, stopTag, title);
-		stop.addRouteAndDirTag(route, dirTag);
+		StopLocation stop = new StopLocation.Builder(lat, lon, drawables, stopTag, title).build();
+		stop.addRoute(route);
 		return stop;
 	}
 
 	@Override
 	public String searchForRoute(String indexingQuery, String lowercaseQuery)
 	{
-		return SearchHelper.naiveSearch(indexingQuery, lowercaseQuery, routes, routeKeysToTitles);
+		return SearchHelper.naiveSearch(indexingQuery, lowercaseQuery, transitSystem.getRouteKeysToTitles());
 	}
 	
 	@Override
 	public TransitDrawables getDrawables() {
 		return drawables;
+	}
+	
+	@Override
+	public int getLoadOrder() {
+		return 1;
+	}
+	
+	@Override
+	public TransitSourceTitles getRouteTitles() {
+		return routeTitles;
+	}
+	
+	@Override
+	public int getTransitSourceId() {
+		return Schema.Routes.enumagencyidBus;
+	}
+	
+	@Override
+	public boolean requiresSubwayTable() {
+		return false;
 	}
 }

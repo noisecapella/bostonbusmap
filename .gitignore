@@ -3,3 +3,6 @@ bin/*
 gen/*
 *.properties
 tools/route*
+tools/route*.xml
+
+*~

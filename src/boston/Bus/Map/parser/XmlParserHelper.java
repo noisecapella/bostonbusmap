@@ -2,13 +2,13 @@ package boston.Bus.Map.parser;
 
 
 
-import org.xml.sax.Attributes;
+import java.util.Map;
 
-import boston.Bus.Map.data.MyHashMap;
+import org.xml.sax.Attributes;
 
 public class XmlParserHelper {
 	
-	public static String getAttribute(String key, Attributes attributes, MyHashMap<String, Integer> tagCache)
+	public static String getAttribute(String key, Attributes attributes, Map<String, Integer> tagCache)
 	{
 		Integer value = tagCache.get(key);
 		if (null == value || value.intValue() == -1)
@@ -21,7 +21,7 @@ public class XmlParserHelper {
 		}
 	}
 
-	public static void clearAttributes(Attributes attributes, MyHashMap<String, Integer> tagCache)
+	public static void clearAttributes(Attributes attributes, Map<String, Integer> tagCache)
 	{
 		final int attributesLength = attributes.getLength();
 		for (String key : tagCache.keySet())

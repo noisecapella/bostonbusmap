@@ -1,83 +1,53 @@
 package boston.Bus.Map.util;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 
+import boston.Bus.Map.algorithms.GetDirections.DirectionPath;
+
 public class StringUtil {
-	public static String join(String[] array, String join)
-	{
-		if (array == null || array.length == 0)
+	
+	/**
+	 * Used to create a string which represents the objects in an array
+	 * @param result
+	 * @return
+	 */
+	public static <T> String buildFromToString(ArrayList<T> list) {
+		StringBuilder ret = new StringBuilder();
+		
+		int count = 0;
+		
+		for (T t : list)
 		{
-			return "";
-		}
-		if (join == null)
-		{
-			join = ""; 
+			if (count != 0) {
+				ret.append(", ");
+			}
+			ret.append(t.toString());
+			count++;
 		}
 		
-		StringBuilder ret = new StringBuilder(array[0]);
-		
-		for (int i = 1; i < array.length; i++)
-		{
-			ret.append(join);
-			ret.append(array[i]);
-		}
 		
 		return ret.toString();
 	}
-	public static String join(Collection<String> array, String join)
-	{
-		if (array == null || array.size() == 0)
-		{
-			return "";
-		}
-		if (join == null)
-		{
-			join = ""; 
-		}
-		
+
+	public static String quotedJoin(Collection<String> allStopTagsAtLocation) {
 		StringBuilder ret = new StringBuilder();
 		int count = 0;
+		final int size = allStopTagsAtLocation.size();
 		
-		Iterator<String> iterator = array.iterator();
-		while (iterator.hasNext())
-		{
-			if (count != 0)
-			{
-				ret.append(join);
+		for (String tag : allStopTagsAtLocation) {
+			ret.append("'").append(tag).append("'");
+			
+			if (count < size - 1) {
+				ret.append(", ");
 			}
-
-			String next = iterator.next();
-			ret.append(next);
 			count++;
 		}
-
 		return ret.toString();
 	}
-	public static void join(Collection<String> array, String join, StringBuilder ret)
-	{
-		if (array == null || array.size() == 0)
-		{
-			return;
-		}
-		if (join == null)
-		{
-			join = ""; 
-		}
-		
-		int count = 0;
-		
-		Iterator<String> iterator = array.iterator();
-		while (iterator.hasNext())
-		{
-			if (count != 0)
-			{
-				ret.append(join);
-			}
 
-			String next = iterator.next();
-			ret.append(next);
-			count++;
-		}
+	public static boolean isEmpty(String intersection) {
+		return intersection == null || intersection.length() == 0;
 	}
 }

@@ -1,5 +1,11 @@
 package boston.Bus.Map.data;
 
+import java.util.Set;
+import java.util.concurrent.CopyOnWriteArraySet;
+
+import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Sets;
+
 import android.graphics.drawable.Drawable;
 
 public class SubwayStopLocation extends StopLocation {
@@ -15,16 +21,32 @@ public class SubwayStopLocation extends StopLocation {
 	 */
 	private String branch;
 	
-	public SubwayStopLocation(float latitudeAsDegrees,
-			float longitudeAsDegrees, TransitDrawables drawables, String tag,
-			String title, int platformOrder, String branch)
+	protected SubwayStopLocation(SubwayBuilder builder)
 	{
-		super(latitudeAsDegrees, longitudeAsDegrees, drawables, tag, title);
+		super(builder);
 		
-		this.platformOrder = platformOrder;
-		this.branch = branch;
+		this.platformOrder = builder.platformOrder;
+		this.branch = builder.branch;
 	}
 	
+	public static class SubwayBuilder extends Builder {
+		private final int platformOrder;
+		private final String branch;
+
+		public SubwayBuilder(float latitudeAsDegrees,
+				float longitudeAsDegrees, TransitDrawables drawables, String tag,
+				String title, int platformOrder, String branch) {
+			super(latitudeAsDegrees, longitudeAsDegrees, drawables, tag, title);
+			
+			this.platformOrder = platformOrder;
+			this.branch = branch;
+		}
+		
+		@Override
+		public SubwayStopLocation build() {
+			return new SubwayStopLocation(this);
+		}
+	}
 
 	public int getPlatformOrder() {
 		return platformOrder;

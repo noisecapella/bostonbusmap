@@ -19,22 +19,29 @@
 package boston.Bus.Map.ui;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 
 import boston.Bus.Map.data.Alert;
+import boston.Bus.Map.data.IntersectionLocation;
+import boston.Bus.Map.data.PredictionView;
 import boston.Bus.Map.data.Locations;
-import boston.Bus.Map.data.MyHashMap;
+import boston.Bus.Map.data.RouteTitles;
 import boston.Bus.Map.data.StopLocation;
 
 import boston.Bus.Map.data.Location;
 import boston.Bus.Map.main.Main;
 import boston.Bus.Map.main.UpdateHandler;
+import boston.Bus.Map.util.Constants;
+
 import com.google.android.maps.GeoPoint;
 import com.google.android.maps.ItemizedOverlay;
 import com.google.android.maps.MapView;
 import com.google.android.maps.OverlayItem;
 import com.google.android.maps.Projection;
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Lists;
 import com.readystatesoftware.mapviewballoons.BalloonItemizedOverlay;
 import com.readystatesoftware.mapviewballoons.BalloonOverlayView;
 import boston.Bus.Map.main.Main;
@@ -47,21 +54,22 @@ import android.graphics.Point;
 import android.graphics.Paint.Style;
 import android.graphics.drawable.Drawable;
 import android.util.FloatMath;
+import android.util.Log;
 import android.view.MotionEvent;
+import android.view.View.OnClickListener;
 
 
 /**
  * 
  * The bus overlay on the MapView
  * Much of this was borrowed from the helpful tutorial at http://developer.android.com/guide/tutorials/views/hello-mapview.html
- * 
+ * Not in the least bit thread safe. Only access from UI thread!
  */
 public class BusOverlay extends BalloonItemizedOverlay<BusOverlayItem> {
 
 	public static final int NOT_SELECTED = -1;
-	private final ArrayList<BusOverlayItem> overlays = new ArrayList<BusOverlayItem>();
+	private final ArrayList<BusOverlayItem> overlays = Lists.newArrayList();
 	private Main context;
-	private final List<Location> locations = new ArrayList<Location>();
 	private int selectedBusIndex;
 	private UpdateHandler updateable;
 	private boolean drawHighlightCircle;
@@ -69,8 +77,7 @@ public class BusOverlay extends BalloonItemizedOverlay<BusOverlayItem> {
 	private final Drawable busPicture;
 	private final Paint paint;
 	
-	private final MyHashMap<String, String> routeKeysToTitles;
-	private final float density;
+	private final RouteTitles routeKeysToTitles;
 	
 	//these two are temporary variables stored here so we don't create a new Point every time we draw
 	private final Point circleCenter = new Point();
@@ -78,13 +85,11 @@ public class BusOverlay extends BalloonItemizedOverlay<BusOverlayItem> {
 	
 	private Locations locationsObj;
 	
-	public BusOverlay(BusOverlay busOverlay, Main context, MapView mapView, MyHashMap<String, String> routeKeysToTitles, float density)
+	public BusOverlay(BusOverlay busOverlay, Main context, MapView mapView, RouteTitles routeKeysToTitles)
 	{
-		this(busOverlay.busPicture, context, mapView, routeKeysToTitles, density);
+		this(busOverlay.busPicture, context, mapView, routeKeysToTitles);
 		
 		this.drawHighlightCircle = busOverlay.drawHighlightCircle;
-		
-		this.locations.addAll(busOverlay.locations);
 		
 		overlays.addAll(busOverlay.overlays);
 		
@@ -95,14 +100,14 @@ public class BusOverlay extends BalloonItemizedOverlay<BusOverlayItem> {
 		
 		if (selectedBusIndex != NOT_SELECTED)
 		{
-			onTap(selectedBusIndex);
+			onTap(selectedBusIndex, false);
 		}
 		
 		setLastFocusedIndex(busOverlay.getLastFocusedIndex());
 	}
 	
 	
-	public BusOverlay(Drawable busPicture, Main context, MapView mapView, MyHashMap<String, String> routeKeysToTitles, float density)
+	public BusOverlay(Drawable busPicture, Main context, MapView mapView, RouteTitles routeKeysToTitles)
 	{
 		super(boundCenterBottom(busPicture), mapView);
 
@@ -118,23 +123,19 @@ public class BusOverlay extends BalloonItemizedOverlay<BusOverlayItem> {
 		paint.setAntiAlias(true);
 		paint.setAlpha(0x70);
 
-		this.density = density;
-
 		//NOTE: remember to set updateable!
 		this.setOnFocusChangeListener(new OnFocusChangeListener() {
 
 			@Override
 			public void onFocusChanged(ItemizedOverlay overlay,
 					OverlayItem newFocus) {
-				//if you click on a bus, it would normally draw the selected bus without this code
-				//but in certain cases (you click away from any bus, then click on the bus again) it got confused and didn't draw
-				//things right. This corrects that (hopefully)
-				setLastFocusedIndex(NOT_SELECTED);
-				setFocus((BusOverlayItem)newFocus);
 				if (newFocus == null)
 				{
 					hideBalloon();
+					setLastFocusedIndex(NOT_SELECTED);
 				}
+				
+				updateSelections((BusOverlayItem)newFocus);
 			}
 		});
 		
@@ -154,16 +155,12 @@ public class BusOverlay extends BalloonItemizedOverlay<BusOverlayItem> {
 	/**
 	 * Was there a drag between when the finger touched the touchscreen and when it released?
 	 */
-	private boolean mapMoved;
+	private GeoPoint oldMapGeoPoint;
+	private boston.Bus.Map.ui.BusOverlay.OnClickListener nextTapListener;
 	
 	public void setDrawHighlightCircle(boolean b)
 	{
 		drawHighlightCircle = b;
-	}
-	
-	public void addLocation(Location location)
-	{
-		locations.add(location);
 	}
 	
 	public void setLocations(Locations locations)
@@ -177,17 +174,17 @@ public class BusOverlay extends BalloonItemizedOverlay<BusOverlayItem> {
 
 		if (event.getAction() == MotionEvent.ACTION_DOWN)
 		{
-			mapMoved = false;
-		}
-		else if (event.getAction() == MotionEvent.ACTION_MOVE)
-		{
-			mapMoved = true;
+			oldMapGeoPoint = mapView.getMapCenter();
 		}
 		else if (event.getAction() == MotionEvent.ACTION_UP)
 		{
-			if (mapMoved && updateable != null)
+			if (oldMapGeoPoint != null && updateable != null)
 			{
-				updateable.triggerUpdate(250);
+				GeoPoint newGeoPoint = mapView.getMapCenter();
+				if (!newGeoPoint.equals(oldMapGeoPoint)) {
+					updateable.triggerUpdate(250);
+					oldMapGeoPoint = null;
+				}
 			}
 		}
 		
@@ -211,46 +208,43 @@ public class BusOverlay extends BalloonItemizedOverlay<BusOverlayItem> {
 
 
 	public void clear() {
-		overlays.clear();
-		
-		locations.clear();
-		
 		setFocus(null);
 		setLastFocusedIndex(NOT_SELECTED);
-		locationsObj = null;
+		clearExceptFocus();
 	}
+	
+	public void clearExceptFocus() {
+		overlays.clear();
+		populate();
+		
+		locationsObj = null;
 
+	}
+	
 	@Override
 	public void draw(Canvas canvas, MapView mapView, boolean shadow)
 	{
 		int lastFocusedIndex = getLastFocusedIndex();
-		final int overlaysSize = Math.min(overlays.size(), locations.size());
-		for (int i = 0; i < overlaysSize; i++)
-		{
-			OverlayItem item = overlays.get(i);
-			Location location = locations.get(i);
-
-			boolean isSelected = i == lastFocusedIndex;
-			Drawable drawable = location.getDrawable(context, shadow, isSelected);
-			item.setMarker(drawable);
-
-			boundCenterBottom(drawable);
-		}
+		updateAllBoundCenterBottom(lastFocusedIndex, shadow);
 		
-		if (selectedBusIndex != NOT_SELECTED)
+		if (drawHighlightCircle && overlays.size() > 0 && (overlays.size() > 1 || overlays.get(0).getCurrentLocation().isIntersection() == false))
 		{
-			//make sure that selected buses are preserved during refreshes
-			setFocus(overlays.get(selectedBusIndex));
-			selectedBusIndex = NOT_SELECTED;
-		}
+			// TODO: use some efficient minimum enclosing circle algorithm
 			
-		if (drawHighlightCircle && overlays.size() > 0)
-		{
+			// currently drawing circle around first relevant item, since items are ordered by distance from center of screen
+			// which isn't quite perfect for minimum enclosing circle, but it's good enough
 			final Point circleCenter = this.circleCenter;
 			final Point radiusPoint = this.radiusPoint;
 			
 			//get screen location
-			GeoPoint firstPoint = overlays.get(0).getPoint();
+			GeoPoint firstPoint;
+			if (overlays.get(0).getCurrentLocation().isIntersection()) {
+				firstPoint = overlays.get(1).getPoint();
+			}
+			else
+			{
+				firstPoint = overlays.get(1).getPoint();
+			}
 
 			Projection projection = mapView.getProjection();
 			projection.toPixels(firstPoint, circleCenter);
@@ -261,19 +255,23 @@ public class BusOverlay extends BalloonItemizedOverlay<BusOverlayItem> {
 			//these points are sorted by distance from center of screen, but we want
 			//distance from the bus closest to the center, which is not quite the same
 			int lastDistance = 0;
-			for (int i = 1; i < overlaysSize; i++)
+			final int overlaysSize = overlays.size();
+			for (int i = 0; i < overlaysSize; i++)
 			{
-				OverlayItem item = overlays.get(i);
-				
-				GeoPoint geoPoint = item.getPoint();
-				projection.toPixels(geoPoint, radiusPoint);
-				final int diffX = radiusPoint.x - circleCenterX;
-				final int diffY = radiusPoint.y - circleCenterY;
-				final int distance = diffX*diffX + diffY*diffY;
-				
-				if (lastDistance < distance)
+				BusOverlayItem item = overlays.get(i);
+				if (item.getCurrentLocation().isIntersection() == false)
 				{
-					lastDistance = distance;
+
+					GeoPoint geoPoint = item.getPoint();
+					projection.toPixels(geoPoint, radiusPoint);
+					final int diffX = radiusPoint.x - circleCenterX;
+					final int diffY = radiusPoint.y - circleCenterY;
+					final int distance = diffX*diffX + diffY*diffY;
+
+					if (lastDistance < distance)
+					{
+						lastDistance = distance;
+					}
 				}
 			}
 		
@@ -282,6 +280,7 @@ public class BusOverlay extends BalloonItemizedOverlay<BusOverlayItem> {
 
 			canvas.drawCircle(circleCenterX, circleCenterY, radius, paint);
 		}
+		
 		super.draw(canvas, mapView, shadow);
 	}
 
@@ -295,33 +294,30 @@ public class BusOverlay extends BalloonItemizedOverlay<BusOverlayItem> {
 		}
 		else
 		{
-			if (selectedBusIndex >= locations.size())
+			if (selectedBusIndex >= overlays.size())
 			{
 				this.selectedBusIndex = NOT_SELECTED;
 				return NOT_SELECTED;
 			}
 			else
 			{
-				return locations.get(selectedBusIndex).getId();
+				return overlays.get(selectedBusIndex).getCurrentLocation().getId();
 			}
 		}
 		
 	}
 
-	public void doPopulate() {
-		populate();
-	}
-
 	public void refreshBalloons() {
 		
-		//Log.i("REFRESHBALLOONS", selectedBusIndex + " ");
+		Log.i("BostonBusMap", "refreshBalloons, selectedBusIndex: " + selectedBusIndex);
 		if (selectedBusIndex == NOT_SELECTED)
 		{
 			hideBalloon();
+			setFocus(null);
 		}
 		else
 		{
-			onTap(selectedBusIndex);
+			onTap(selectedBusIndex, false);
 		}
 	}
 	
@@ -330,13 +326,15 @@ public class BusOverlay extends BalloonItemizedOverlay<BusOverlayItem> {
 		selectedBusIndex = NOT_SELECTED;
 		if (selectedBusId != NOT_SELECTED)
 		{
-			for (int i = 0; i < locations.size(); i++)
+			for (int i = 0; i < overlays.size(); i++)
 			{
-				Location busLocation = locations.get(i);
+				Location busLocation = overlays.get(i).getCurrentLocation();
 
 				if (busLocation.containsId(selectedBusId))
 				{
+					Log.e("BostonBusMap", "selectedBusId was set to index " + i + ", id=" + selectedBusId);
 					selectedBusIndex = i;
+					setFocus(createItem(i));
 					break;
 				}
 			}
@@ -347,40 +345,116 @@ public class BusOverlay extends BalloonItemizedOverlay<BusOverlayItem> {
 		return busPicture;
 	}
 
-	public void addOverlaysFromLocations(ArrayList<GeoPoint> points)
-	{
-		overlays.ensureCapacity(overlays.size() + locations.size());
-		
-		for (int i = 0; i < locations.size(); i++)
-		{
-			Location location = locations.get(i);
-			String titleText = location.getSnippetTitle();
-			String snippetText = location.getSnippet();
-			ArrayList<Alert> alerts = location.getSnippetAlerts();
-			BusOverlayItem overlayItem = new BusOverlayItem(points.get(i),titleText, snippetText, alerts);
+	public void addAllLocations(Collection<Location> locations) {
+		for (Location location : locations) {
+			PredictionView predictionView = location.getPredictionView();
+			String titleText = predictionView.getSnippetTitle();
+			String snippetText = predictionView.getSnippet();
+			Alert[] alerts = predictionView.getAlerts();
+			int latitudeE6 = (int)(Constants.E6 * location.getLatitudeAsDegrees());
+			int longitudeE6 = (int)(Constants.E6 * location.getLongitudeAsDegrees());
+
+			GeoPoint geoPoint = new GeoPoint(latitudeE6, longitudeE6);
+			BusOverlayItem overlayItem = new BusOverlayItem(geoPoint,titleText, snippetText, alerts, location);
 			overlays.add(overlayItem);
+			//boundCenterBottom(location.getDrawable(context, false, selectedBusIndex == overlays.size() - 1));
 		}
 		populate();
 	}
-	
+
 	@Override
-	protected boolean onTap(int index) {
+	public boolean onTap(int index) {
+		return onTap(index, true);
+	}
+	
+	private boolean onTap(int index, boolean triggerListener) {
 		boolean ret = super.onTap(index);
-		
-		Location location = locations.get(index);
-		BusOverlayItem item = currentFocussedItem;
-		item.setCurrentLocation(location);
-		
-		BusPopupView view = (BusPopupView)balloonView;
-		boolean isVisible = location instanceof StopLocation;
-		view.setState(location.isFavorite(), isVisible, isVisible, location);
+
+		Location location = overlays.get(index).getCurrentLocation();
+		if (nextTapListener != null && triggerListener) {
+			if (nextTapListener.onClick(location)) {
+				nextTapListener = null;
+			}
+		}
+		else
+		{
+			BusPopupView view = (BusPopupView)getBalloonView();
+			view.setState(location);
+			//setLastFocusedIndex(index);
+			setFocus(createItem(index));
+		}
+
+		//updateAllBoundCenterBottom(index);
 		
 		return ret;
 	}
-	
+
+	@Override
+	public boolean onTap(GeoPoint arg0, MapView arg1) {
+		if (nextTapListener != null) {
+			if (nextTapListener.onClick(arg0)) {
+				nextTapListener = null;
+			}
+			return true;
+		}
+		else
+		{
+			return super.onTap(arg0, arg1);
+		}
+	}
+
+	private void updateAllBoundCenterBottom(int selectedIndex, boolean shadow) {
+		// update boundCenterBottom for newly selected item
+		int count = 0;
+		for (BusOverlayItem item : overlays)
+		{
+			Location newLocation = item.getCurrentLocation();
+
+			boolean isSelected = count == selectedIndex;
+			Drawable drawable = newLocation.getDrawable(context, shadow, isSelected);
+			item.setMarker(drawable);
+
+			boundCenterBottom(drawable);
+			count++;
+		}
+		
+	}
+
+
 	protected BalloonOverlayView<BusOverlayItem> createBalloonOverlayView() {
-		BusPopupView view = new BusPopupView(getMapView().getContext(), getBalloonBottomOffset(), locationsObj, routeKeysToTitles,
-				density);
+		BusPopupView view = new BusPopupView(getMapView().getContext(), updateable, getBalloonBottomOffset(), locationsObj, routeKeysToTitles);
 		return view;
+	}
+
+	public interface OnClickListener {
+		boolean onClick(Location location);
+		boolean onClick(GeoPoint point);
+	}
+
+	public static GeoPoint toGeoPoint(Location location) {
+		int latE6 = (int) (location.getLatitudeAsDegrees() * Constants.E6);
+		int lonE6 = (int) (location.getLongitudeAsDegrees() * Constants.E6);
+		GeoPoint ret = new GeoPoint(latE6, lonE6);
+		return ret;
+	}
+	
+	public void captureNextTap(OnClickListener onClickListener) {
+		this.nextTapListener = onClickListener;
+	}
+	
+	@Override
+	protected void animateTo(int index, GeoPoint center) {
+		// do nothing
+	}
+
+	private void updateSelections(BusOverlayItem item) {
+		for (BusOverlayItem otherItem : overlays) {
+			otherItem.select(false);
+		}
+		
+		if (item != null) {
+			item.select(true);
+		}
+
 	}
 }

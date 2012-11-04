@@ -5,6 +5,9 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 
+import com.google.common.base.Objects;
+import com.google.common.collect.ComparisonChain;
+
 import boston.Bus.Map.main.AlertInfo;
 import boston.Bus.Map.transit.TransitSystem;
 
@@ -14,8 +17,13 @@ import android.os.Parcelable;
 import android.text.Html;
 import android.text.Spanned;
 
-
-public class Alert implements Parcelable
+/**
+ * Immutable alert data
+ * 
+ * @author schneg
+ *
+ */
+public class Alert implements Parcelable, Comparable<Alert>
 {
 	private final Date date;
 	private final String title;
@@ -151,4 +159,32 @@ public class Alert implements Parcelable
 			return alert;
 		}
 	};
+
+	@Override
+	public int compareTo(Alert another) {
+		return ComparisonChain.start().compare(date, another.date)
+				.compare(title, another.title)
+				.compare(description, another.description)
+				.compare(delay, another.delay).result();
+	}
+	
+	@Override
+	public int hashCode() {
+		return Objects.hashCode(date, title, description, delay);
+	}
+	
+	@Override
+	public boolean equals(Object o) {
+		if (o instanceof Alert) {
+			Alert another = (Alert)o;
+			return Objects.equal(date, another.date) &&
+					Objects.equal(title, another.title) &&
+					Objects.equal(description, another.description) &&
+					Objects.equal(delay, another.delay);
+		}
+		else
+		{
+			return false;
+		}
+	}
 }

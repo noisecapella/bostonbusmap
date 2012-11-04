@@ -1,304 +1,163 @@
 package boston.Bus.Map.data;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
+import java.util.Set;
+import java.util.SortedSet;
+import java.util.TreeMap;
 import java.util.TreeSet;
+
+import boston.Bus.Map.annotations.KeepSorted;
+
+import com.google.common.collect.Collections2;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 
 import android.content.Context;
 
 /**
- * Info about predictions and snippets. Separate from StopLocation because most StopLocations won't need to instantiate this
+ * Info about predictions and snippets. 
+ * Separate from StopLocation because most StopLocations won't need to instantiate this
+ * Modification functions should be thread safe. Only predictionView should be published, because
+ * it's immutable
  * @author schneg
  *
  */
 public class Predictions
 {
-	private String snippetTitle;
-	private String snippetStop;
-	private String snippetPredictions;
-	private String[] snippetRoutes;
-	
+	@IsGuardedBy("modificationLock")
+	private PredictionView predictionView = StopPredictionViewImpl.empty();
+	@IsGuardedBy("modificationLock")
+	private final Set<String> routes = Sets.newHashSet();
 	/**
-	 * Other stops which are temporarily using the same overlay
+	 * A list of all stops that use this predictions list
 	 */
-	private ArrayList<StopLocation> sharedSnippetStops;
+	@IsGuardedBy("modificationLock")
+	private final List<StopLocation> allStops = Lists.newArrayList(); 
+	@IsGuardedBy("modificationLock")
+	private final SortedSet<Prediction> predictions = Sets.newTreeSet();
+	@IsGuardedBy("modificationLock")
+	private final Set<Alert> alerts = Sets.newTreeSet();
 	
-	private ArrayList<Prediction> combinedPredictions;
-	private TreeSet<String> combinedRoutes;
-	private TreeSet<String> combinedTitles;
+	private final Object modificationLock = new Object();
 	
-	private final ArrayList<Prediction> predictions = new ArrayList<Prediction>();
-	private ArrayList<Alert> snippetAlerts;
-
-	private static final String[] nullStrings = new String[0];
-	private static final Prediction[] nullPredictions = new Prediction[0];
-	
-	public synchronized void makeSnippetAndTitle(RouteConfig routeConfig,
-			MyHashMap<String, String> routeKeysToTitles, Context context, MyHashMap<String, String> dirTags, String title, String tag)
+	public void makeSnippetAndTitle(RouteConfig routeConfig,
+			RouteTitles routeKeysToTitles, Context context,
+			RouteSet routes, StopLocation stop, Set<Alert> alerts)
 	{
-		ArrayList<String> routes = new ArrayList<String>();
-		routes.addAll(dirTags.keySet());
-		Collections.sort(routes);
-		
-		snippetRoutes = routes.toArray(new String[0]);
-		snippetTitle = title;
-		snippetStop = tag;
-		if (routeConfig != null)
-		{
-			snippetAlerts = routeConfig.getAlerts();
+		synchronized (modificationLock) {
+			this.routes.clear();
+			this.routes.addAll(routes.getRoutes());
+			
+			this.alerts.clear();
+			this.alerts.addAll(alerts);
+			
+			allStops.clear();
+			allStops.add(stop);
+			
+			predictionView = new StopPredictionViewImpl(this.routes, allStops,
+					predictions,
+					routeConfig, routeKeysToTitles, context, alerts);
 		}
-		
-		snippetPredictions = makeSnippet(routeConfig, predictions, routeKeysToTitles, context);
-		sharedSnippetStops = null;
-		
 	}
 	
-	private static String makeSnippet(RouteConfig routeConfig, ArrayList<Prediction> predictions,
-			MyHashMap<String, String> routeKeysToTitles, Context context)
-	{
-		String ret = "";
-		
-		if (predictions == null)
-		{
-			return ret;
-		}
-		
-		synchronized (predictions)
-		{
-			if (predictions.size() == 0)
-			{
-				return null;
-			}
-
-			boolean anyNulls = false;
-			for (Prediction prediction : predictions)
-			{
-				if (prediction == null)
-				{
-					anyNulls = true;
-					break;
-				}
-			}
-			
-			if (anyNulls)
-			{
-				//argh, this shouldn't happen but one person reported a null ref with a prediction in predictions,
-				//so I should handle it. This isn't a bottleneck so it shouldn't matter that I'm cloning the list
-				
-				ArrayList<Prediction> newPredictions = new ArrayList<Prediction>(predictions.size());
-				for (Prediction prediction : predictions)
-				{
-					if (prediction != null)
-					{
-						newPredictions.add(prediction);
-					}
-				}
-				predictions = newPredictions;
-			}
-			
-			Collections.sort(predictions);
-
-			final int max = 3;
-			int count = 0;
-			
-			
-			
-			for (Prediction prediction : predictions)
-			{
-				if (routeConfig != null && routeConfig.getRouteName().equals(prediction.getRouteName()) == false)
-				{
-					continue;
-				}
-				
-				if (prediction.getMinutes() < 0)
-				{
-					continue;
-				}
-
-				
-				
-				if (count != 0)
-				{
-					ret += "<br />";
-				}
-				
-				ret += "<br />" + prediction.makeSnippet(routeKeysToTitles, context);
-
-				count++;
-				if (count >= max)
-				{
-					break;
-				}
-			}
-		}
-		return ret;
-	}
 	
 
 	
-	public synchronized void addToSnippetAndTitle(RouteConfig routeConfig, StopLocation stopLocation, MyHashMap<String, String> routeKeysToTitles,
-			Context context, String title, MyHashMap<String, String> dirTags)
+	public void addToSnippetAndTitle(RouteConfig routeConfig, StopLocation stopLocation, 
+			RouteTitles routeKeysToTitles,
+			Context context, String title, RouteSet routes, Set<Alert> alerts)
 	{
-		if (sharedSnippetStops == null)
-		{
-			sharedSnippetStops = new ArrayList<StopLocation>();
-		}
-		
-		
-		
-		sharedSnippetStops.add(stopLocation);
-		
-		combinedTitles = new TreeSet<String>();
-		combinedTitles.add(title);
-		
-		for (StopLocation s : sharedSnippetStops)
-		{
-			combinedTitles.add(s.getTitle());
-		}
-		
-		if (combinedTitles.size() > 1)
-		{
-			snippetTitle = title + ", ...";
-		}
-		else
-		{
-			snippetTitle = title;
-		}
-		
-		/*
-		 * uncomment to show all titles on front page
-		snippetTitle = makeSnippetTitle(combinedTitles);
-		*/
-		
-		snippetStop += ", " + stopLocation.getStopTag();
-		
-		combinedRoutes = new TreeSet<String>();
-		combinedRoutes.addAll(dirTags.keySet());
-		for (StopLocation s : sharedSnippetStops)
-		{
-			combinedRoutes.addAll(s.getRoutes());
-		}
-		snippetRoutes = combinedRoutes.toArray(new String[0]);
-		
-		combinedPredictions = new ArrayList<Prediction>();
-		if (predictions != null)
-		{
-			combinedPredictions.addAll(predictions);
-		}
-		for (StopLocation s : sharedSnippetStops)
-		{
-			Predictions predictions = s.getPredictions();
-			if (predictions != null)
-			{
-				ArrayList<Prediction> predictionsList = predictions.getPredictions();
-				combinedPredictions.addAll(predictionsList);
+		synchronized (modificationLock) {
+			allStops.add(stopLocation);
+
+			SortedSet<Prediction> allPredictions = Sets.newTreeSet();
+			for (StopLocation stop : allStops) {
+				if (stop.getPredictions() != null) {
+					allPredictions.addAll(stop.getPredictions().predictions);
+				}
+				
 			}
+			
+			this.routes.addAll(routes.getRoutes());
+			
+			Set<Alert> newAlerts;
+			if (alerts.size() == 0) {
+				newAlerts = Sets.newTreeSet(Arrays.asList(predictionView.getAlerts()));
+			}
+			else
+			{
+				SortedSet<Alert> dupAlerts = Sets.newTreeSet();
+				dupAlerts.addAll(Arrays.asList(predictionView.getAlerts()));
+				dupAlerts.addAll(alerts);
+				newAlerts = dupAlerts;
+			}
+			
+			predictionView = new StopPredictionViewImpl(this.routes, allStops,
+					allPredictions,
+					routeConfig,
+					routeKeysToTitles, context, newAlerts);
 		}
-		
-		snippetPredictions = makeSnippet(routeConfig, combinedPredictions, routeKeysToTitles, context);
-		
-	}
 
-	private ArrayList<Prediction> getPredictions()
-	{
-		return predictions;
-	}
-
-	public String getSnippetPredictions()
-	{
-		return snippetPredictions;
-	}
-
-	public String getSnippetTitle()
-	{
-		return snippetTitle;
 	}
 
 	/**
 	 * Clear all predictions for a single route
 	 * @param routeName
 	 */
-	public synchronized void clearPredictions(String currentRouteName)
+	public void clearPredictions(String currentRouteName)
 	{
-		ArrayList<Prediction> newPredictions = new ArrayList<Prediction>();
+		synchronized (modificationLock) {
+			ArrayList<Prediction> newPredictions = new ArrayList<Prediction>();
 
-		for (Prediction prediction : predictions)
-		{
-			if (prediction.getRouteName().equals(currentRouteName) == false)
+			for (Prediction prediction : predictions)
 			{
-				newPredictions.add(prediction);
+				if (prediction.getRouteName().equals(currentRouteName) == false)
+				{
+					newPredictions.add(prediction);
+				}
 			}
+			predictions.clear();
+			predictions.addAll(newPredictions);
 		}
-		predictions.clear();
-		predictions.addAll(newPredictions);
 		
 	}
 
-	public synchronized void addPredictionIfNotExists(Prediction prediction)
+	public void addPredictionIfNotExists(Prediction prediction)
 	{
-		if (predictions.contains(prediction) == false)
-		{
-			predictions.add(prediction);
-		}
-	}
-
-	public synchronized Prediction[] getCombinedPredictions()
-	{
-		if (combinedPredictions == null)
-		{
-			return predictions.toArray(nullPredictions);
-		}
-		else
-		{
-			return combinedPredictions.toArray(nullPredictions);
-		}
-	}
-
-	public String[] getSnippetRoutes()
-	{
-		return snippetRoutes;
-	}
-
-	public synchronized String[] getCombinedTitles()
-	{
-		if (combinedTitles != null)
-		{
-			return combinedTitles.toArray(nullStrings);
-		}
-		else
-		{
-			return null;
-		}
-	}
-
-	public String getCombinedStops()
-	{
-		if (snippetStop != null)
-		{
-			return snippetStop;
-		}
-		else
-		{
-			return "";
+		synchronized (modificationLock) {
+			if (predictions.contains(prediction) == false)
+			{
+				predictions.add(prediction);
+			}
 		}
 	}
 
 	public boolean containsId(int selectedBusId)
 	{
-		if (sharedSnippetStops != null)
-		{
-			for (StopLocation stop : sharedSnippetStops)
+		synchronized (modificationLock) {
+			for (StopLocation stop : allStops)
 			{
 				if (stop.getId() == selectedBusId)
 				{
 					return true;
 				}
 			}
+			
 		}
 		return false;
 	}
 
-	public ArrayList<Alert> getSnippetAlerts() {
-		return snippetAlerts;
+	public PredictionView getPredictionView() {
+		synchronized (modificationLock) {
+			// in case predictionView is still being constructed
+			return predictionView;
+		}
 	}
 }

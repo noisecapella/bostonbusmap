@@ -1,0 +1,175 @@
+<?xml version="1.0" encoding="utf-8" ?> 
+<body copyright="All data copyright Los Angeles Metro 2012.">
+<route tag="2" title="2 Downtown LA - Pacific Palisades Via"/>
+<route tag="4" title="4 Downtown LA - Santa Monica Via Santa"/>
+<route tag="10" title="10 W Hollywood-Dtwn LA -Avalon Sta Via"/>
+<route tag="14" title="14 Beverly Hlls-Dtwn LA-Wash/Fairfax Vi"/>
+<route tag="16" title="16 Downtown LA - Century City Via West"/>
+<route tag="18" title="18 Wilshire Ctr-Montebello Via 6th St-W"/>
+<route tag="20" title="20 Downtown LA - Santa Monica Via Wilsh"/>
+<route tag="28" title="28 Downtown LA - Century City Via West"/>
+<route tag="30" title="30 W Hollywood - Dtwn LA - Indiana Sta"/>
+<route tag="33" title="33 Downtown LA - Santa Monica Via Venic"/>
+<route tag="35" title="35 Downtown LA- WLA Via Washington Bl &amp;"/>
+<route tag="37" title="37 Beverly Hlls-Dtwn LA-Wash/Fairfax Vi"/>
+<route tag="38" title="38 Downtown LA- WLA Via Washington Bl &amp;"/>
+<route tag="40" title="40 Downtown LA-Sbay Galleria Via King B"/>
+<route tag="45" title="45 Lincoln Heights - Dwntwn LA- Rosewoo"/>
+<route tag="48" title="48 W Hollywood-Dtwn LA -Avalon Sta Via"/>
+<route tag="51" title="51 Wilshr Ctr-Dtwn LA-Compton-Artesia T"/>
+<route tag="52" title="52 Wilshr Ctr-Dtwn LA-Compton-Artesia T"/>
+<route tag="53" title="53 Downtown LA - Csu Domiguez Hills Via"/>
+<route tag="55" title="55 Downtown LA - Willowbrook Sta Via Co"/>
+<route tag="60" title="60 Downtown LA - Artesia Station Via Lo"/>
+<route tag="62" title="62 Downtown LA - Hawaiian Gardens Via T"/>
+<route tag="66" title="66 Wilshire Ctr-Dtwn LA-Montebello Via"/>
+<route tag="68" title="68 Eagle Rck-Dtw LA-Montbll Via Eagl Rc"/>
+<route tag="70" title="70 Downtown LA - El Monte Via Marengo S"/>
+<route tag="71" title="71 Downtown LA - Csu LA - Lac+usc Med C"/>
+<route tag="76" title="76 Downtown LA - El Monte Via Valley Bl"/>
+<route tag="78" title="78 Downtown LA - Arcadia Via Las Tunas-"/>
+<route tag="79" title="79 Downtown LA - Arcadia Via Las Tunas-"/>
+<route tag="81" title="81 Eagle Rock- Dwntwn LA- Harbor Fwy St"/>
+<route tag="83" title="83 Downtown LA - Eagle Rock Via York Bl"/>
+<route tag="84" title="84 Eagle Rck-Dtw LA-Montbll Via Eagl Rc"/>
+<route tag="90" title="90 Downtown LA- Sunland Via Foothill Bl"/>
+<route tag="91" title="91 Downtown LA- Sunland Via Foothill Bl"/>
+<route tag="92" title="92 Dwntwn LA- Burbank Sta Via Glendale"/>
+<route tag="94" title="94 Downtown LA - Sun Valley Via San Fer"/>
+<route tag="96" title="96 Dtwn LA- Burbank Sta Via Griffith Pk"/>
+<route tag="102" title="102 LAX Cty Bus Ctr - S Gate Via LA Tije"/>
+<route tag="105" title="105 W Hollywood - Vernon Via La Cienega"/>
+<route tag="108" title="108 Marina Del Rey - Pico Rivera Via Sla"/>
+<route tag="110" title="110 Playa Vista- Bell Gardens Via Jeffer"/>
+<route tag="111" title="111 LAX City Bus Ctr - Norwalk Sta Via F"/>
+<route tag="115" title="115 Playa Del Rey - Norwalk Via Manchest"/>
+<route tag="117" title="117 LAX Cty Bus Ctr-Downey Via Century B"/>
+<route tag="120" title="120 Aviation Station- Whittwood Mall Via"/>
+<route tag="125" title="125 El Segundo - Norwalk Station Via Ros"/>
+<route tag="126" title="126 Manhattn Beach- Hawthn/Lennox Sta Vi"/>
+<route tag="127" title="127 Compton Sta - Downey Via Compton - S"/>
+<route tag="128" title="128 Compton Sta - Cerritos Towne Center"/>
+<route tag="130" title="130 Redondo Beach - Los Cerritos Center"/>
+<route tag="150" title="150 Canoga Pk-Northridge-Universal City"/>
+<route tag="152" title="152 Woodland Hills - N Hollywood Sta Via"/>
+<route tag="154" title="154 Tarzana - Burbank Sta Via Oxnard St"/>
+<route tag="155" title="155 Sherman Oaks-Burbank Sta Via Riversi"/>
+<route tag="156" title="156 Panorama -Van Nuys-Hollywood Via Cha"/>
+<route tag="158" title="158 Chatsworth Sta-Sherman Oaks Via Devo"/>
+<route tag="161" title="161 Thousand Oaks -Agoura Hills -Calabas"/>
+<route tag="162" title="162 West Hills -Sun Valley-N Hollywood V"/>
+<route tag="163" title="163 West Hills -Sun Valley-N Hollywood V"/>
+<route tag="164" title="164 West Hills - Burbank Via Victory Bl"/>
+<route tag="165" title="165 West Hills - Burbank Via Vanowen St"/>
+<route tag="166" title="166 Chatsworth Sta -Sun Valley Via Nordh"/>
+<route tag="167" title="167 Chatsworth Sta-Studio Cty-Csun Via P"/>
+<route tag="169" title="169 West Hills -Sunland Via Saticoy St -"/>
+<route tag="175" title="175 Silverlake - Hollywood Via Hyperion"/>
+<route tag="176" title="176 Highland Park - Montebello Via Missi"/>
+<route tag="177" title="177 JPL-Pasadena-Pcc College Via Califor"/>
+<route tag="180" title="180 Hollywood-Glendale-Pasadena Via Los"/>
+<route tag="181" title="181 Hollywood-Glendale-Pasadena Via Los"/>
+<route tag="183" title="183 Sherman Oaks - Glendale Via Magnolia"/>
+<route tag="190" title="190 El Monte Sta - Cal Poly Pomona Via R"/>
+<route tag="194" title="194 El Monte Sta - Cal Poly Pomona Via R"/>
+<route tag="200" title="200 Echo Park- Exposition Park Via Alvar"/>
+<route tag="201" title="201 Glendale - Koreatown Via Silverlake"/>
+<route tag="202" title="202 Willowbrook - Compton- Wilmington Vi"/>
+<route tag="204" title="204 Hollywood -Athens Via Vermont Av"/>
+<route tag="205" title="205 Willowbrook Sta-San Pedro Via Wilmgt"/>
+<route tag="206" title="206 Hollywood - Athens Via Normandie Av"/>
+<route tag="207" title="207 Hollywood - Athens Via Western Av"/>
+<route tag="209" title="209 Wilshire Center - Athens Via Van Nes"/>
+<route tag="210" title="210 Hllywd/Vine Sta - So Bay Galleria Vi"/>
+<route tag="211" title="211 Inglewood-South Bay Galleria Via Pra"/>
+<route tag="212" title="212 Hllywd/Vine Sta - Hawthorne/Lennox S"/>
+<route tag="215" title="215 Inglewood-South Bay Galleria Via Pra"/>
+<route tag="217" title="217 Hlywd/Vine Sta-Culver City Tc Via Hl"/>
+<route tag="218" title="218 Studio Cty-Cedars Sinai Med Via Laur"/>
+<route tag="220" title="220 Beverly Ctr - Culver City Sta Via Ro"/>
+<route tag="222" title="222 Sun Valley - Hollywood Via Hollywood"/>
+<route tag="224" title="224 Sylmar-Universal Cty Via San Fernand"/>
+<route tag="230" title="230 Mission College - Studio City Via LA"/>
+<route tag="232" title="232 LAX City Bus Ctr-Long Beach-Via Sepu"/>
+<route tag="233" title="233 Lake View Terr - Sherman Oaks Via Va"/>
+<route tag="234" title="234 Sylmar - Sherman Oaks Via Sepulveda"/>
+<route tag="236" title="236 Sylmar Sta-Encino- Sherman Oaks Via"/>
+<route tag="237" title="237 Sylmar Sta-Encino- Sherman Oaks Via"/>
+<route tag="239" title="239 Sylmar Sta - Encino Via White Oak -"/>
+<route tag="240" title="240 Canoga Pk-Northridge-Universal City"/>
+<route tag="242" title="242 Porter Rnch-Woodland Hils Via Tampa"/>
+<route tag="243" title="243 Porter Rnch-Woodland Hils Via Tampa"/>
+<route tag="244" title="244 Chatsworth Sta-Woodlnd Hls Via De So"/>
+<route tag="245" title="245 Chatsworth Sta-Woodlnd Hls Via De So"/>
+<route tag="246" title="246 San Pedro - Artesia Transit Center V"/>
+<route tag="251" title="251 Cypress Park- Long Bch Green Line St"/>
+<route tag="252" title="252 Lincoln Heights - Boyle Heights Via"/>
+<route tag="254" title="254 Boyle Hghts-103rd/Watts Twrs Sta Vi"/>
+<route tag="256" title="256 Eastern Av - Avenue 64 - North Hill"/>
+<route tag="258" title="258 Alhambra - Paramount Via Fremont - E"/>
+<route tag="260" title="260 Altadena - Artesia Sta Via Fair Oaks"/>
+<route tag="264" title="264 Pasadena - Altadena - City Of Hope -"/>
+<route tag="265" title="265 Pico Rivera - Lakewood Ctr Mall Via"/>
+<route tag="266" title="266 S Madre Villa Sta-Lakewood Ctr Mall"/>
+<route tag="267" title="267 Pasadena - Altadena - City Of Hope -"/>
+<route tag="268" title="268 Altadena - El Monte Sta Via Washingt"/>
+<route tag="270" title="270 Monrovia - Norwalk Sta Via Workman M"/>
+<route tag="290" title="290 Sylmar - Sunland Via Foothill Bl"/>
+<route tag="292" title="292 Sylmar Sta-Burbank Sta Via Glenoaks"/>
+<route tag="302" title="302 Downtown LA - Pacific Palisades Via"/>
+<route tag="311" title="311 LAX City Bus Ctr - Norwalk Sta Via F"/>
+<route tag="312" title="312 Hllywd/Vine Sta - Hawthorne/Lennox S"/>
+<route tag="316" title="316 Downtown LA - Century City Via West"/>
+<route tag="330" title="330 W Hollywood - Dtwn LA - Indiana Sta"/>
+<route tag="344" title="344 Artesia Transit Ctr- Palos Verdes Vi"/>
+<route tag="352" title="352 Wilshr Ctr-Dtwn LA-Compton-Artesia T"/>
+<route tag="353" title="353 Woodland Hills - N Hollywood Sta Via"/>
+<route tag="355" title="355 Downtown LA - Willowbrook Sta Via Co"/>
+<route tag="358" title="358 Marina Del Rey - Pico Rivera Via Sla"/>
+<route tag="364" title="364 Chatsworth Sta -Sun Valley Via Nordh"/>
+<route tag="378" title="378 Downtown LA - Arcadia Via Las Tunas-"/>
+<route tag="442" title="442 Downtown LA - Hawthorne/Lennox Sta-"/>
+<route tag="450" title="450 Downtown LA - San Pedro Via Harbor T"/>
+<route tag="460" title="460 Downtown LA - Disneyland Via Harbor"/>
+<route tag="485" title="485 Downtown LA - Altadena Via Fremont -"/>
+<route tag="487" title="487 Downtown LA - S Madre Villa Sta - El"/>
+<route tag="489" title="489 Downtown LA - S Madre Villa Sta - El"/>
+<route tag="534" title="534 Malibu - Washington/Fairfax Via Paci"/>
+<route tag="550" title="550 Jefferson Park - San Pedro Via Harbo"/>
+<route tag="577" title="577 El Monte Sta- Long Beach Va Med Ctr"/>
+<route tag="603" title="603 Glendale-Grand Sta Via San Fernando-"/>
+<route tag="605" title="605 Lac+usc Med Ctr Out Patient - Olympi"/>
+<route tag="607" title="607 Windsor Hills - Inglewood Shuttle"/>
+<route tag="611" title="611 Huntington Park Shuttle"/>
+<route tag="612" title="612 South Gate Shuttle"/>
+<route tag="620" title="620 Boyle Heights Shuttle"/>
+<route tag="625" title="625 Metro Green Line Shuttle"/>
+<route tag="645" title="645 West Hills-Warner Ctr Via Valley Cir"/>
+<route tag="656" title="656 Panorama -Van Nuys-Hollywood Via Cha"/>
+<route tag="665" title="665 Cal State LA - City Terrace Shuttle"/>
+<route tag="685" title="685 Glendale College - Glassell Park Vi"/>
+<route tag="686" title="686 Altadena-Pasadena Via Fair Oaks-Los"/>
+<route tag="687" title="687 Altadena-Pasadena Via Fair Oaks-Los"/>
+<route tag="704" title="704 Downtown LA - Santa Monica Via Santa"/>
+<route tag="705" title="705 W Hollywood - Vernon Via La Cienega"/>
+<route tag="710" title="710 Wilshire Ctr - South Bay Galleria Vi"/>
+<route tag="720" title="720 Santa Monica-Commerce Via Wilshire -"/>
+<route tag="728" title="728 Downtown LA - Century City Via West"/>
+<route tag="733" title="733 Downtown LA - Santa Monica Via Venic"/>
+<route tag="734" title="734 Sylmar Sta - Sherman Oaks Via Sepulv"/>
+<route tag="740" title="740 Expo/Crenshaw Sta - So Bay Galleria"/>
+<route tag="741" title="741 Northridge - Tarzana - Csun Via Rese"/>
+<route tag="745" title="745 Downtown LA - Harbor Freeway Station"/>
+<route tag="750" title="750 Warner Ctr - Universal City Via Vent"/>
+<route tag="751" title="751 Cypress Park - Huntington Park Via S"/>
+<route tag="754" title="754 Hollywood - Athens Via Vermont Av"/>
+<route tag="757" title="757 Hollywood - Crenshaw Station Via Wes"/>
+<route tag="760" title="760 Downtown LA - Long Beach Gl Sta Via"/>
+<route tag="761" title="761 Pacoima-Westwood Via Van Nuys Bl - S"/>
+<route tag="762" title="762 Pasadena - Artesia Station Via Atlan"/>
+<route tag="770" title="770 Downtown LA - El Monte Sta Via Garve"/>
+<route tag="780" title="780 Pasadena-Washtn/Fairfax Via Colorado"/>
+<route tag="794" title="794 Downtown LA - Sylmar Sta Via San Fer"/>
+<route tag="901" title="901 Metro Orange Line"/>
+<route tag="910" title="910 El Monte Sta - Downtown LA - Artesa"/>
+</body>

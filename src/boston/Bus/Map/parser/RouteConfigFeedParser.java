@@ -3,6 +3,8 @@ package boston.Bus.Map.parser;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 
 import javax.xml.parsers.ParserConfigurationException;
@@ -18,31 +20,45 @@ import org.xml.sax.SAXException;
 import org.xml.sax.XMLReader;
 import org.xml.sax.helpers.DefaultHandler;
 
-import boston.Bus.Map.main.UpdateAsyncTask;
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+
 import skylight1.opengl.files.QuickParseUtil;
 
+import boston.Bus.Map.data.Direction;
 import boston.Bus.Map.data.Directions;
-import boston.Bus.Map.data.MyHashMap;
 import boston.Bus.Map.data.Path;
 import boston.Bus.Map.data.RouteConfig;
 import boston.Bus.Map.data.RoutePool;
+import boston.Bus.Map.data.RouteTitles;
 import boston.Bus.Map.data.StopLocation;
-import boston.Bus.Map.database.DatabaseHelper;
+import boston.Bus.Map.database.Schema;
+import boston.Bus.Map.database.Schema.Stops.Bean;
+import boston.Bus.Map.main.UpdateAsyncTask;
+import boston.Bus.Map.provider.DatabaseContentProvider;
+import boston.Bus.Map.provider.DatabaseContentProvider.DatabaseAgent;
+import boston.Bus.Map.provider.DatabaseContentProvider.DatabaseHelper;
 import boston.Bus.Map.transit.NextBusTransitSource;
 import boston.Bus.Map.transit.TransitSource;
 import boston.Bus.Map.transit.TransitSystem;
 import boston.Bus.Map.util.FeedException;
 
 
+import android.content.ContentProviderOperation;
+import android.content.ContentValues;
+import android.content.Context;
+import android.content.OperationApplicationException;
+import android.database.DatabaseUtils.InsertHelper;
+import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
+import android.net.Uri;
+import android.os.RemoteException;
 import android.util.Xml.Encoding;
 
 public class RouteConfigFeedParser extends DefaultHandler
 {
-	private final MyHashMap<String, RouteConfig> map = new MyHashMap<String, RouteConfig>();
-	private final Directions directions;
-	private final RouteConfig oldRouteConfig;
 	private static final String routeKey = "route";
 	private static final String directionKey = "direction";
 	private static final String stopKey = "stop";
@@ -58,38 +74,52 @@ public class RouteConfigFeedParser extends DefaultHandler
 	private static final String pointKey = "point";
 	private static final String latKey = "lat";
 	private static final String lonKey = "lon";
+	private static final String useForUIKey = "useForUI";
 	
 	private static final String colorKey = "color";
 	private static final String oppositeColorKey = "oppositeColor";
 	
-	
-	private MyHashMap<String, StopLocation> allStops = new MyHashMap<String, StopLocation>();
+	private static final ContentValues[] nullContentValues = new ContentValues[0];
 	
 	private boolean inRoute;
 	private boolean inDirection;
 	private boolean inStop;
 	private boolean inPath;
 	
-	private RouteConfig currentRouteConfig;
-	private ArrayList<Path> currentPaths;
-	private String currentRoute;
+	private final List<Path> currentPaths = Lists.newArrayList();
+	private String currentRouteTag;
+	private String currentRouteTitle;
+	private int currentRouteListOrder;
+	private int currentRouteColor;
+	private int currentRouteOppositeColor;
 	
-	private ArrayList<Float> currentPathPoints;
+	private final List<Float> currentPathPoints = Lists.newArrayList();
 	private final TransitSource transitSource;
+	private String currentDirTag;
 	
-	 
+	/*private final InsertHelper stopInsertHelper;
+	private final InsertHelper routeInsertHelper;
+	private final InsertHelper stopMappingInsertHelper;
+	private final InsertHelper directionsInsertHelper;
+	private final InsertHelper directionsStopsInsertHelper;*/
+	private final List<Schema.Stops.Bean> stops = Lists.newArrayList();
+	private final List<Schema.Routes.Bean> routes = Lists.newArrayList();
+	private final List<Schema.Stopmapping.Bean> stopmapping = Lists.newArrayList();
+	private final List<Schema.Directions.Bean> directions = Lists.newArrayList();
+	private final List<Schema.DirectionsStops.Bean> directionsStops = Lists.newArrayList();
 	
-	public RouteConfigFeedParser(Directions directions,
-			RouteConfig oldRouteConfig, NextBusTransitSource transitSource)
+	private final RouteTitles routeTitles;
+	
+	/**
+	 * You must call cleanup() when you are done with this object!
+	 * @param context
+	 * @param transitSource
+	 */
+	public RouteConfigFeedParser(Context context, NextBusTransitSource transitSource,
+			RouteTitles routeTitles)
 	{
-		this.directions = directions;
-		this.oldRouteConfig = oldRouteConfig;
-		
-		if (oldRouteConfig != null)
-		{
-			allStops.putAll(oldRouteConfig.getStopMapping());
-		}
 		this.transitSource = transitSource;
+		this.routeTitles = routeTitles;
 	}
 
 	public void runParse(InputStream inputStream)  throws ParserConfigurationException, SAXException, IOException
@@ -108,30 +138,21 @@ public class RouteConfigFeedParser extends DefaultHandler
 			
 			if (inRoute)
 			{
+				String tag = attributes.getValue(tagKey);
 
 				if (inDirection == false)
 				{
-					String tag = attributes.getValue(tagKey);
-
 					float latitudeAsDegrees = QuickParseUtil.parseFloat(attributes.getValue(latitudeKey));
 					float longitudeAsDegrees = QuickParseUtil.parseFloat(attributes.getValue(longitudeKey));
 
 					String title = attributes.getValue(titleKey);
-
-					StopLocation stopLocation = allStops.get(tag);
-					if (stopLocation == null)
-					{
-						stopLocation = new StopLocation(latitudeAsDegrees, longitudeAsDegrees, transitSource.getDrawables(), tag,
-								title);
-						allStops.put(tag, stopLocation);
-					}
-
-					currentRouteConfig.addStop(tag, stopLocation);
-					stopLocation.addRouteAndDirTag(currentRouteConfig.getRouteName(), attributes.getValue(dirTagKey));
+					
+					stops.add(new Schema.Stops.Bean(tag, latitudeAsDegrees, longitudeAsDegrees, title));
+					stopmapping.add(new Schema.Stopmapping.Bean(currentRouteTag, tag, attributes.getValue(dirTagKey)));
 				}
 				else
 				{
-					//ignore for now
+					directionsStops.add(new Schema.DirectionsStops.Bean(currentDirTag, tag));
 				}
 			}
 		}
@@ -142,38 +163,30 @@ public class RouteConfigFeedParser extends DefaultHandler
 			if (inRoute)
 			{
 				String tag = attributes.getValue(tagKey);
+				currentDirTag = tag;
 				String title = attributes.getValue(titleKey);
 				String name = attributes.getValue(nameKey);
-				
-				directions.add(tag, name, title, currentRoute);
+				boolean useForUI = Boolean.getBoolean(attributes.getValue(useForUIKey));
+
+				directions.add(new Schema.Directions.Bean(tag, name, title, currentRouteTag, Schema.toInteger(useForUI)));
 			}
 		}
 		else if (routeKey.equals(localName))
 		{
 			inRoute = true;
 			
-			currentRoute = attributes.getValue(tagKey);
-			int color = parseColor(attributes.getValue(colorKey));
-			int oppositeColor = parseColor(attributes.getValue(oppositeColorKey));
-			try
-			{
-				MyHashMap<String, String> routeKeysToTitles = transitSource.getRouteKeysToTitles();
-				String currentRouteTitle = routeKeysToTitles.get(currentRoute);
-				currentRouteConfig = new RouteConfig(currentRoute, currentRouteTitle, color, oppositeColor, transitSource);
-				currentPaths = new ArrayList<Path>(1);
-			}
-			catch (IOException e)
-			{
-				//this shouldn't happen...
-				//this should be caught and reported where the caller originally called runParse
-				throw new RuntimeException(e);
-			}
+			currentRouteTag = attributes.getValue(tagKey);
+			currentRouteColor = parseColor(attributes.getValue(colorKey));
+			currentRouteOppositeColor = parseColor(attributes.getValue(oppositeColorKey));
+
+			currentRouteTitle = routeTitles.getTitle(currentRouteTag);
+			currentRouteListOrder = routeTitles.getIndexForTag(currentRouteTag);
 		}
 		else if (pathKey.equals(localName))
 		{
 			inPath = true;
 			
-			currentPathPoints = new ArrayList<Float>();
+			currentPathPoints.clear();
 		}
 		else if (pointKey.equals(localName))
 		{
@@ -190,7 +203,7 @@ public class RouteConfigFeedParser extends DefaultHandler
 		
 		
 	}
-	
+
 	private int parseColor(String value) {
 		if (value == null)
 		{
@@ -224,19 +237,28 @@ public class RouteConfigFeedParser extends DefaultHandler
 		{
 			inRoute = false;
 			
-			currentRouteConfig.setPaths(currentPaths.toArray(RouteConfig.nullPaths));
-			
-			map.put(currentRoute, currentRouteConfig);
+			try
+			{
+				Path[] pathblob = currentPaths != null ? currentPaths.toArray(new Path[0]) : null;
+				byte[] blob = DatabaseAgent.pathsToBlob(pathblob);
+				routes.add(new Schema.Routes.Bean(currentRouteTag, currentRouteColor,
+						currentRouteOppositeColor, blob, currentRouteListOrder, Schema.Routes.enumagencyidBus, currentRouteTitle));
 
-			currentRoute = null;
-			currentRouteConfig = null;
-			currentPaths = null;
+				currentRouteTag = null;
+				currentRouteTitle = null;
+				currentRouteColor = 0;
+				currentRouteOppositeColor = 0;
+				currentPaths.clear();
+			}
+			catch (IOException e) {
+				throw new RuntimeException(e);
+			}
 		}
 		else if (pathKey.equals(localName))
 		{
 			inPath = false;
 			
-			if (currentRouteConfig != null)
+			if (currentRouteTag != null)
 			{
 				Path path = new Path(currentPathPoints);
 				currentPaths.add(path);
@@ -245,16 +267,50 @@ public class RouteConfigFeedParser extends DefaultHandler
 		
 	}
 	
-	public void fillMapping(MyHashMap<String, RouteConfig> stopMapping) {
-		for (String route : map.keySet())
+	public void writeToDatabase(Context context) {
+		SQLiteDatabase database = null;
+		try
 		{
-			stopMapping.put(route, map.get(route));
+			
+			database = DatabaseHelper.getInstance(context).getWritableDatabase();
+			database.beginTransaction();
+			InsertHelper stopInsertHelper = null;
+			InsertHelper routeInsertHelper = null;
+			InsertHelper stopMappingInsertHelper = null;
+			InsertHelper directionsInsertHelper = null;
+			InsertHelper directionsStopsInsertHelper = null;
+			try
+			{
+				stopInsertHelper = new InsertHelper(database, Schema.Stops.table);
+				routeInsertHelper = new InsertHelper(database, Schema.Routes.table);
+				stopMappingInsertHelper = new InsertHelper(database, Schema.Stopmapping.table);
+				directionsInsertHelper = new InsertHelper(database, Schema.Directions.table);
+				directionsStopsInsertHelper = new InsertHelper(database, Schema.DirectionsStops.table);
+
+				Schema.Stops.executeInsertHelper(stopInsertHelper, stops);
+				Schema.Routes.executeInsertHelper(routeInsertHelper, routes);
+				Schema.Stopmapping.executeInsertHelper(stopMappingInsertHelper, stopmapping);
+				Schema.Directions.executeInsertHelper(directionsInsertHelper, directions);
+				Schema.DirectionsStops.executeInsertHelper(directionsStopsInsertHelper, directionsStops);
+				
+				database.setTransactionSuccessful();
+			}
+			finally
+			{
+				database.endTransaction();
+				// todo: check for null
+				stopInsertHelper.close();
+				routeInsertHelper.close();
+				stopMappingInsertHelper.close();
+				directionsInsertHelper.close();
+				directionsStopsInsertHelper.close();
+			}
+		}
+		finally
+		{
+			if (database != null) {
+				database.close();
+			}
 		}
 	}
-
-	public void writeToDatabase(RoutePool routeMapping, boolean wipe, UpdateAsyncTask task, boolean silent) throws IOException {
-		routeMapping.writeToDatabase(map, wipe, task, silent);
-		directions.writeToDatabase(wipe);
-	}
-	
 }

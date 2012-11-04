@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
 	android:layout_width="fill_parent" android:layout_height="fill_parent"
-	android:orientation="vertical" android:background="#000000">
+	android:orientation="vertical" android:background="@android:color/black">
 	<LinearLayout android:layout_width="fill_parent"
 		android:layout_height="wrap_content" android:orientation="vertical" android:gravity="right">
 		<Spinner android:layout_height="wrap_content"
@@ -10,15 +10,18 @@
 	</LinearLayout>
 	<TextView android:bufferType="spannable"
 		android:layout_height="wrap_content" android:layout_width="fill_parent"
-		android:id="@+id/moreinfo_title1"></TextView>
+		android:id="@+id/moreinfo_title1"
+		></TextView>
 	<TextView android:id="@+id/moreinfo_title2"
 		android:layout_width="wrap_content" android:layout_height="wrap_content"
-		android:bufferType="spannable"></TextView>
+		android:bufferType="spannable"
+		></TextView>
 			
 
 	<ListView android:id="@android:id/list" android:layout_width="fill_parent"
 		android:layout_height="wrap_content"></ListView>
 	<TextView android:id="@android:id/empty" android:layout_width="fill_parent"
 		android:layout_height="wrap_content"
-		android:text="@string/thereAreCurrentlyNoPredictions"></TextView>
+		android:text="@string/thereAreCurrentlyNoPredictions"
+		></TextView>
 </LinearLayout>

@@ -7,13 +7,13 @@ import android.os.Bundle;
 import android.util.Log;
 import android.widget.Toast;
 
-import com.schneeloch.latransit.R;
 import boston.Bus.Map.main.UpdateHandler;
 
 
 import com.google.android.maps.GeoPoint;
 import com.google.android.maps.MapView;
 import com.google.android.maps.MyLocationOverlay;
+import com.schneeloch.latransit.R;
 
 public class LocationOverlay extends MyLocationOverlay {
 	private final Context context; 

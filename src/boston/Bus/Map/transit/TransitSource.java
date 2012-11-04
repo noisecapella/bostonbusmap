@@ -8,28 +8,33 @@ import javax.xml.parsers.ParserConfigurationException;
 import org.apache.http.client.ClientProtocolException;
 import org.xml.sax.SAXException;
 
-import boston.Bus.Map.main.UpdateAsyncTask;
+import com.google.common.collect.ImmutableMap;
 
 import android.content.Context;
+import android.content.OperationApplicationException;
+import android.os.RemoteException;
+import boston.Bus.Map.data.AlertsMapping;
 import boston.Bus.Map.data.BusLocation;
 import boston.Bus.Map.data.Directions;
 import boston.Bus.Map.data.Locations;
-import boston.Bus.Map.data.MyHashMap;
 import boston.Bus.Map.data.RouteConfig;
 import boston.Bus.Map.data.RoutePool;
+import boston.Bus.Map.data.RouteTitles;
+import boston.Bus.Map.data.Selection;
 import boston.Bus.Map.data.StopLocation;
 import boston.Bus.Map.data.TransitDrawables;
+import boston.Bus.Map.data.TransitSourceTitles;
 import boston.Bus.Map.main.UpdateAsyncTask;
 
 public interface TransitSource {
 
-	void populateStops(RoutePool routeMapping, String routeToUpdate,
-			RouteConfig oldRouteConfig, Directions directions, UpdateAsyncTask task, boolean silent)
-		throws ClientProtocolException, IOException, ParserConfigurationException, SAXException ;
+	void populateStops(Context context, RoutePool routeMapping, String routeToUpdate,
+			Directions directions, UpdateAsyncTask task, boolean silent)
+		throws ClientProtocolException, IOException, ParserConfigurationException, SAXException, RemoteException, OperationApplicationException ;
 
-	void refreshData(RouteConfig routeConfig, int selectedBusPredictions,
+	void refreshData(RouteConfig routeConfig, Selection selection,
 			int maxStops, double centerLatitude, double centerLongitude,
-			ConcurrentHashMap<String, BusLocation> busMapping, String selectedRoute,
+			ConcurrentHashMap<String, BusLocation> busMapping,
 			RoutePool routePool, Directions directions, Locations locationsObj)
 	throws IOException, ParserConfigurationException, SAXException;
 
@@ -37,30 +42,24 @@ public interface TransitSource {
 
 	public void initializeAllRoutes(UpdateAsyncTask task, Context context,
 			Directions directions, RoutePool routeMapping) throws IOException,
-			ParserConfigurationException, SAXException;
+			ParserConfigurationException, SAXException, RemoteException, OperationApplicationException;
 	
-	public String[] getRoutes();
-	
-	public MyHashMap<String, String> getRouteKeysToTitles();
-	
-	/**
-	 * Create a StopLocation using the parameters
-	 * @param lat
-	 * @param lon
-	 * @param stopTag
-	 * @param title
-	 * @param platformOrder
-	 * @param branch
-	 * @param route
-	 * @param dirTag
-	 */
-	StopLocation createStop(float lat, float lon, String stopTag, String title,
-			int platformOrder, String branch, String route, String dirTag);
-
-	void bindPredictionElementsForUrl(StringBuilder urlString, String route,
-			String stopTag, String dirTag);
-
 	String searchForRoute(String indexingQuery, String lowercaseQuery);
 
 	TransitDrawables getDrawables();
+
+	StopLocation createStop(float latitude, float longitude, String stopTag,
+			String stopTitle, int platformOrder, String branch, String route);
+	
+	TransitSourceTitles getRouteTitles();
+	
+	/**
+	 * The order in which to load transit sources. Lower numbers go first. Must be unique!
+	 * @return
+	 */
+	int getLoadOrder();
+	
+	int getTransitSourceId();
+
+	boolean requiresSubwayTable();
 }

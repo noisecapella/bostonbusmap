@@ -3,6 +3,12 @@ package boston.Bus.Map.data;
 import java.text.DateFormat;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Map;
+
+import com.google.common.base.Objects;
+import com.google.common.collect.ComparisonChain;
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Maps;
 
 import boston.Bus.Map.main.MoreInfo;
 
@@ -14,7 +20,7 @@ import android.text.Html;
 import android.text.Spanned;
 
 /**
- * A container of a prediction.
+ * A container of a prediction. Immutable
  * 
  * @author schneg
  *
@@ -28,17 +34,20 @@ public class Prediction implements Comparable<Prediction>, Parcelable
 	protected final String vehicleId;
 	protected final String direction;
 	protected final String routeName;
+	protected final String routeTitle;
 	protected final long arrivalTimeMillis;
 	protected final boolean affectedByLayover;
 	protected final boolean isDelayed;
 	protected final int lateness;
 	
 	public Prediction(int minutes, String vehicleId,
-			String direction, String routeName, boolean affectedByLayover, boolean isDelayed, int lateness)
+			String direction, String routeName, String routeTitle,
+			boolean affectedByLayover, boolean isDelayed, int lateness)
 	{
 		this.vehicleId = vehicleId;
 		this.direction = direction;
 		this.routeName = routeName;
+		this.routeTitle = routeTitle;
 
 		arrivalTimeMillis = TransitSystem.currentTimeMillis() + minutes * 60 * 1000;
 		
@@ -48,98 +57,100 @@ public class Prediction implements Comparable<Prediction>, Parcelable
 		this.lateness = lateness;
 	}
 
-	public String makeSnippet(MyHashMap<String, String> routeKeysToTitles, Context context) {
-		String ret;
-		
+	public void makeSnippet(Context context, StringBuilder builder) {
 		int minutes = getMinutes();
 		if (minutes < 0)
 		{
-			ret = "";
+			return;
+		}
+
+		builder.append("Route <b>").append(routeTitle).append("</b>");
+		if (vehicleId != null)
+		{
+			builder.append(", Bus <b>").append(vehicleId).append("</b>");
+		}
+
+		if (direction != null)
+		{
+			builder.append("<br />").append(direction);
+		}
+
+		if (isDelayed)
+		{
+			builder.append("<br /><b>Delayed</b>");
+		}
+
+		if (affectedByLayover)
+		{
+			//hmm...
+		}
+
+		if (minutes == 0)
+		{
+			builder.append("<br />Arriving <b>now</b>!");
 		}
 		else
 		{
-			StringBuilder builder = new StringBuilder();
-			
-			builder.append("Route <b>").append(routeKeysToTitles.get(routeName)).append("</b>");
-			if (vehicleId != null)
-			{
-				builder.append(", Bus <b>").append(vehicleId).append("</b>");
-			}
+			DateFormat dateFormat = TransitSystem.getDefaultTimeFormat();
 
-			if (direction != null)
+			Date date = new Date(arrivalTimeMillis - TransitSystem.getTimeZone().getOffset(arrivalTimeMillis));
+			if (dateFormat != null)
 			{
-				builder.append("<br />").append(direction);
-			}
-
-			if (isDelayed)
-			{
-				builder.append("<br /><b>Delayed</b>");
-			}
-			
-			if (affectedByLayover)
-			{
-				//hmm...
-			}
-			
-			if (minutes == 0)
-			{
-				builder.append("<br />Arriving <b>now</b>!");
+				//the vast majority of the time this should be true but someone reported an exception where it's not
+				String formatted = dateFormat.format(date);
+				builder.append("<br />Arriving in <b>").append(minutes);
+				builder.append(" min</b> at ").append(formatted.trim());
 			}
 			else
 			{
-				DateFormat dateFormat = TransitSystem.getDefaultTimeFormat();
-
-				Date date = new Date(arrivalTimeMillis - TransitSystem.getTimeZone().getOffset(arrivalTimeMillis));
-				if (dateFormat != null)
-				{
-					//the vast majority of the time this should be true but someone reported an exception where it's not
-					String formatted = dateFormat.format(date);
-					builder.append("<br />Arriving in <b>").append(minutes);
-					builder.append(" min</b> at ").append(formatted.trim());
-				}
-				else
-				{
-					builder.append("<br />Arriving in <b>").append(minutes).append(" min</b>");
-				}
+				builder.append("<br />Arriving in <b>").append(minutes).append(" min</b>");
 			}
-			
-			ret = builder.toString();
 		}
-		return ret;
 	}
 
 	@Override
 	public int compareTo(Prediction another)
 	{
-		return new Long(arrivalTimeMillis).compareTo(another.arrivalTimeMillis);
+		return ComparisonChain.start().compare(arrivalTimeMillis, another.arrivalTimeMillis)
+				.compare(vehicleId, another.vehicleId)
+				.compare(direction, another.direction)
+				.compare(routeName, another.routeName)
+				.compareFalseFirst(affectedByLayover, another.affectedByLayover)
+				.compareFalseFirst(isDelayed, another.isDelayed)
+				.compare(lateness, another.lateness)
+				.result();
 	}
 
 	@Override
 	public int hashCode() {
-		int vehicleIdHash = 0;
-		if (vehicleId != null)
-		{
-			vehicleIdHash = vehicleId.hashCode();
-		}
-		return (int) (arrivalTimeMillis ^ vehicleIdHash);
+		return Objects.hashCode(vehicleId, direction, routeName, arrivalTimeMillis,
+				affectedByLayover, isDelayed, lateness);
 	}
 	
 	@Override
 	public boolean equals(Object o) {
-		if (o instanceof Prediction)
-		{
-			Prediction other = (Prediction)o;
-			if (other.arrivalTimeMillis == arrivalTimeMillis && other.vehicleId == vehicleId)
-			{
-				//most likely the same
-				return true;
-			}
+		if (o instanceof Prediction) {
+			Prediction another = (Prediction)o;
+			return Objects.equal(arrivalTimeMillis, another.arrivalTimeMillis) &&
+					Objects.equal(vehicleId, another.vehicleId) &&
+					Objects.equal(direction, another.direction) &&
+					Objects.equal(routeName, another.routeName) &&
+					Objects.equal(affectedByLayover, another.affectedByLayover) &&
+					Objects.equal(isDelayed, another.isDelayed) &&
+					Objects.equal(lateness, another.lateness);
 		}
-		return false;
+		else
+		{
+			return false;
+		}
 	}
 	
 	public String getRouteName() {
 		return routeName;
+	}
+	
+	public String getRouteTitle() {
+		return routeTitle;
 	}
 
 	public static int calcMinutes(long arrivalTimeMillis)
@@ -163,6 +174,7 @@ public class Prediction implements Comparable<Prediction>, Parcelable
 		dest.writeString(vehicleId != null ? vehicleId : "");
 		dest.writeString(direction);
 		dest.writeString(routeName);
+		dest.writeString(routeTitle);
 		writeBoolean(dest, affectedByLayover);
 		writeBoolean(dest, isDelayed);
 		dest.writeInt(lateness);
@@ -186,12 +198,13 @@ public class Prediction implements Comparable<Prediction>, Parcelable
 			}
 			String direction = source.readString();
 			String routeName = source.readString();
+			String routeTitle = source.readString();
 			boolean affectedByLayover = readBoolean(source);
 			boolean isDelayed = readBoolean(source);
 			int lateness = source.readInt();
 			
 			int minutes = calcMinutes(arrivalTimeMillis);
-			Prediction prediction = new Prediction(minutes, vehicleId, direction, routeName, affectedByLayover, isDelayed, lateness);
+			Prediction prediction = new Prediction(minutes, vehicleId, direction, routeName, routeTitle, affectedByLayover, isDelayed, lateness);
 			return prediction;
 		}
 	};
@@ -201,12 +214,11 @@ public class Prediction implements Comparable<Prediction>, Parcelable
 	 * @param routeKeysToTitles
 	 * @return
 	 */
-	public HashMap<String, Spanned> makeSnippetMap(MyHashMap<String, String> routeKeysToTitles, Context context) {
-		HashMap<String, Spanned> map = new HashMap<String, Spanned>();
+	public ImmutableMap<String, Spanned> makeSnippetMap(Context context) {
+		StringBuilder ret = new StringBuilder();
+		makeSnippet(context, ret);
 		
-		String ret = makeSnippet(routeKeysToTitles, context);
-		
-		map.put(MoreInfo.textKey, Html.fromHtml(ret));
+		ImmutableMap<String, Spanned> map = ImmutableMap.of(MoreInfo.textKey, Html.fromHtml(ret.toString()));
 		
 		return map;
 	}

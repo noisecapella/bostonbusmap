@@ -11,12 +11,25 @@ android:id="@+id/linearLayoutMain" android:gravity="right">
 		 android:background="@android:drawable/btn_default"
 		 android:layout_alignParentRight="true"
 		></Spinner>
-
+	<Button android:id="@+id/chooseAPlaceButton" android:layout_height="wrap_content"
+	    android:layout_width="wrap_content" android:layout_toLeftOf="@+id/predictionsOrLocations"
+		android:background="@android:drawable/btn_default"
+	android:text="..."
+		
+/>
+	    	    
+		<Button android:id="@+id/chooseFavoriteButton" android:layout_height="wrap_content"
+	    android:layout_width="wrap_content" android:layout_toLeftOf="@+id/chooseAPlaceButton"
+	    android:background="@android:drawable/btn_default"
+	    android:text="..."
+	    />
+		
+		
     <ProgressBar android:id="@+id/progress"
 	android:layout_width="wrap_content" android:layout_height="wrap_content"
 	
 	android:indeterminateOnly="true" android:indeterminate="true"
-	android:layout_toLeftOf="@+id/predictionsOrLocations"
+	android:layout_toLeftOf="@+id/chooseFavoriteButton"
 	 />
 
 
@@ -27,7 +40,7 @@ android:id="@+id/linearLayoutMain" android:gravity="right">
 	>
 	<TableRow>
 	<EditText android:layout_width="wrap_content" android:id="@+id/searchTextView"
-		android:hint="@string/searchHint" android:inputType="text"
+		android:hint="@string/searchHint" android:inputType="textNoSuggestions"
 		android:imeActionId="1" android:imeOptions="actionGo"
 		android:focusable="false" android:focusableInTouchMode="false"
 		android:layout_height="wrap_content" android:textSize="16sp"
@@ -53,7 +66,7 @@ android:id="@+id/linearLayoutMain" android:gravity="right">
 		android:apiKey="04_mZq9Q_5sLuwYr34MsxnZKCXGYZR06-1pRSwg"
 		 />
 	<!-- debug key: 0UeumldxhB0bPpe6UgModFrG5tLPAwclzgqJhRg -->
-	<!-- release key: 04_mZq9Q_5sL2pltlDIYof4iIQimS_U5YPnRafg -->
+	<!-- release key: 0UeumldxhB0YU8VpzaChR1FzH5bPwFy8Wlfbd8g -->
 
 
 <!-- 

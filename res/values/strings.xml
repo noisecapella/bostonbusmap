@@ -8,7 +8,7 @@
 
 <string name="hideCircleCheckbox">hideCircleCheckboxKey</string>
 <string name="numOverlaysPreference">numOverlaysPreference</string>
-
+<string name="getDirections">Get Directions</string>
 <string name="showRouteLineCheckbox">showRouteLine</string>
 <string name="showCoarseRouteLineCheckbox">showCoarseRouteLine</string>
 <string name="initAllRouteInfoCheckbox2">initAllRouteInfo</string>
@@ -58,4 +58,13 @@ Are any enabled (like GPS) in your system settings?</string>
     <string name="thereAreCurrentlyNoPredictions">There are currently no predictions for this stop</string>
     <string name="chooseMode">Choose Mode</string>
     <string name="modeOption">Mode Option</string>
+    <string name="bus_directions">Vehicles by direction</string>
+    <string name="busstop_directions">Stops and predictions by direction</string>
+    <string name="getDirectionsCurrentLocation">Current Location</string>
+    <string name="pickCurrentLocation">My Current Location</string>
+    <string name="chooseAStop">Pick a stop</string>
+    <string name="startingPoint">Starting point</string>
+    <string name="endingPoint">Ending point</string>
+    <string name="places">Places</string>
+    <string name="intersection_stops">Stops and predictions that\ncross through a point on the map</string>
 </resources>

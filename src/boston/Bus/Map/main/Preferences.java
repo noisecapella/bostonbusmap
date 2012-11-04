@@ -18,7 +18,9 @@
     */
 package boston.Bus.Map.main;
 
+
 import com.schneeloch.latransit.R;
+
 import boston.Bus.Map.provider.TransitContentProvider;
 
 import boston.Bus.Map.transit.TransitSystem;

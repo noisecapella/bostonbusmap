@@ -3,6 +3,8 @@ package boston.Bus.Map.data;
 import java.text.DateFormat;
 import java.util.Date;
 
+import com.google.common.collect.ImmutableMap;
+
 
 import android.content.Context;
 import android.os.Parcel;
@@ -77,28 +79,24 @@ lateness. Used at the trip’s origin.
 	private final int flag; 
 	
 	public CommuterRailPrediction(int minutes, String vehicleId, String direction,
-			String routeName, boolean affectedByLayover, boolean isDelayed,
+			String routeName, String routeTitle, boolean affectedByLayover, boolean isDelayed,
 			int lateness, int flag)
 	{
-		super(minutes, vehicleId, direction, routeName, affectedByLayover, isDelayed,
+		super(minutes, vehicleId, direction, routeName, routeTitle, affectedByLayover, isDelayed,
 				lateness);
 		this.flag = flag;
 	}
-
+	
 	@Override
-	public String makeSnippet(MyHashMap<String, String> routeKeysToTitles, Context context) {
-		String ret;
-		
+	public void makeSnippet(Context context, StringBuilder builder) {
 		int minutes = getMinutes();
 		if (minutes < 0)
 		{
-			ret = "";
+			return;
 		}
 		else
 		{
-			StringBuilder builder = new StringBuilder();
-			
-			builder.append("Line <b>").append(routeKeysToTitles.get(routeName)).append("</b>");
+			builder.append("Line <b>").append(routeTitle).append("</b>");
 			if (vehicleId != null)
 			{
 				builder.append(", Train <b>").append(vehicleId).append("</b>");
@@ -124,10 +122,7 @@ lateness. Used at the trip’s origin.
 			{
 				builder.append("<br /><b>Delayed ").append(lateness/60).append(" minutes</b>");
 			}
-			
-			ret = builder.toString();
 		}
-		return ret;
 	}
 
 	@Override
@@ -155,6 +150,7 @@ lateness. Used at the trip’s origin.
 			}
 			String direction = source.readString();
 			String routeName = source.readString();
+			String routeTitle = source.readString();
 			boolean affectedByLayover = readBoolean(source);
 			boolean isDelayed = readBoolean(source);
 			int lateness = source.readInt();
@@ -163,7 +159,7 @@ lateness. Used at the trip’s origin.
 			
 			int flag = source.readInt();
 			
-			CommuterRailPrediction prediction = new CommuterRailPrediction(minutes, vehicleId, direction, routeName, affectedByLayover, isDelayed, lateness, flag);
+			CommuterRailPrediction prediction = new CommuterRailPrediction(minutes, vehicleId, direction, routeName, routeTitle, affectedByLayover, isDelayed, lateness, flag);
 			return prediction;
 		}
 	};
