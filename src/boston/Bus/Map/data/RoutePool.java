@@ -3,47 +3,76 @@ package boston.Bus.Map.data;
 import java.io.IOException;
 import java.util.AbstractCollection;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import java.util.HashSet;
 import java.util.LinkedList;
-
 import com.schneeloch.torontotransit.R;
 
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.CopyOnWriteArraySet;
+
+import com.google.android.maps.GeoPoint;
+import com.google.common.base.Objects;
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.CacheLoader;
+import com.google.common.cache.LoadingCache;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
+
+import android.content.Context;
+import android.content.OperationApplicationException;
+import android.graphics.drawable.Drawable;
+import android.os.RemoteException;
 import android.util.Log;
-import boston.Bus.Map.database.DatabaseHelper;
 import boston.Bus.Map.main.UpdateAsyncTask;
+import boston.Bus.Map.provider.DatabaseContentProvider.DatabaseAgent;
+import boston.Bus.Map.transit.TransitSource;
 import boston.Bus.Map.transit.TransitSystem;
 import boston.Bus.Map.ui.ProgressMessage;
 
-public class RoutePool {
-	private final DatabaseHelper helper;
+public class RoutePool extends Pool<String, RouteConfig> {
+	private final Context context;
 	
-	
-	private final LinkedList<String> priorities = new LinkedList<String>();
-	private final MyHashMap<String, RouteConfig> pool = new MyHashMap<String, RouteConfig>();
-	private final MyHashMap<String, StopLocation> sharedStops = new MyHashMap<String, StopLocation>();
+	private final ConcurrentMap<String, StopLocation> sharedStops = Maps.newConcurrentMap();
 	
 	/**
 	 * A mapping of stop key to route key. Look in sharedStops for the StopLocation
 	 */
-	private final HashSet<String> favoriteStops = new HashSet<String>();
-
+	private final CopyOnWriteArraySet<String> favoriteStops = Sets.newCopyOnWriteArraySet();
+	
+	private final ConcurrentMap<String, IntersectionLocation> intersections = Maps.newConcurrentMap();
+	
 	private final TransitSystem transitSystem;
 	
-	private static final int MAX_ROUTES = 50;
+	private final Drawable intersectionDrawable;
+
+	private float maximumDistanceFromIntersection;
+
+	private boolean filterStopsFromIntersection;
 	
-	
-	public RoutePool(DatabaseHelper helper, TransitSystem transitSystem) {
-		this.helper = helper;
+	public RoutePool(Context context, TransitSystem transitSystem, Drawable intersectionDrawable) {
+		super(50);
+
+		this.context = context;
 		this.transitSystem = transitSystem;
+		this.intersectionDrawable = intersectionDrawable;
+		//TODO: define these as settings
+		maximumDistanceFromIntersection = 1.0f;
+		filterStopsFromIntersection = true;
+
+		populateFavorites();
 		
-		helper.upgradeIfNecessary();
-		populateFavorites(false);
-	}
-	
-	public void saveFavoritesToDatabase()
-	{
-		helper.saveFavorites(favoriteStops, sharedStops);
+		populateIntersections();
+		
 	}
 	
 	/**
@@ -54,12 +83,7 @@ public class RoutePool {
 	 */
 	public void fillInFavoritesRoutes()
 	{
-		MyHashMap<String, StopLocation> stops = getStops(favoriteStops);
-		if (stops == null)
-		{
-			return;
-		}
-		
+		Map<String, StopLocation> stops = getStops(favoriteStops);
 		for (String stop : stops.keySet())
 		{
 			StopLocation stopLocation = stops.get(stop);
@@ -73,13 +97,13 @@ public class RoutePool {
 	}
 
 	
-	private MyHashMap<String, StopLocation> getStops(AbstractCollection<String> stopTags) {
+	private Map<String, StopLocation> getStops(AbstractCollection<String> stopTags) {
 		if (stopTags.size() == 0)
 		{
-			return null;
+			return Collections.emptyMap();
 		}
 		
-		MyHashMap<String, StopLocation> ret = new MyHashMap<String, StopLocation>();
+		ConcurrentMap<String, StopLocation> ret = Maps.newConcurrentMap();
 		ArrayList<String> stopTagsToRetrieve = new ArrayList<String>();
 		
 		for (String stopTag : stopTags)
@@ -95,7 +119,8 @@ public class RoutePool {
 			}
 		}
 		
-		helper.getStops(stopTagsToRetrieve, transitSystem, ret);
+		DatabaseAgent.getStops(context.getContentResolver(), ImmutableList.copyOf(stopTagsToRetrieve), 
+				transitSystem, ret);
 		
 		if (ret != null)
 		{
@@ -115,111 +140,48 @@ public class RoutePool {
 		return false;
 	}
 
-	public RouteConfig get(String routeToUpdate) throws IOException {
-		RouteConfig routeConfig = pool.get(routeToUpdate);
-		if (routeConfig != null)
-		{
-			return routeConfig;
-		}
-		else
-		{
-			synchronized (helper)
-			{
-				routeConfig = helper.getRoute(routeToUpdate, sharedStops, transitSystem);
-				if (routeConfig == null)
-				{
-					return null;
-				}
-				else
-				{
-					if (priorities.size() >= MAX_ROUTES)
-					{
-						removeARoute(priorities.get(0));
-					}
-
-					addARoute(routeToUpdate, routeConfig);
-
-					return routeConfig;
-				}
-			}
-		}
+	protected RouteConfig create(String routeToUpdate) throws IOException {
+		return DatabaseAgent.getRoute(context.getContentResolver(), routeToUpdate, sharedStops, transitSystem);
 	}
-
-	private void addARoute(String routeToUpdate, RouteConfig routeConfig) {
-		priorities.add(routeToUpdate);
-		pool.put(routeToUpdate, routeConfig);
-	}
-
-	private void removeARoute(String routeToRemove) {
-		RouteConfig routeConfig = pool.get(routeToRemove);
-		priorities.remove(routeToRemove);
-		pool.remove(routeToRemove);
-		
-		//TODO: can this be done faster?
-		if (routeConfig == null)
-		{
-			return;
-		}
-		//remove all stops from sharedStops,
-		//unless that stop is owned by another route also which is currently in the pool, or it's a favorite
-		for (StopLocation stopLocation : routeConfig.getStops())
-		{
-			boolean keepStop = false;
-			for (String route : stopLocation.getRoutes())
-			{
-				if (pool.containsKey(route))
-				{
-					//keep this stop
-					keepStop = true;
-					break;
-				}
-			}
-			
-			if (keepStop == false && favoriteStops.contains(stopLocation.getStopTag()))
-			{
-				keepStop = true;
-			}
-			
-			if (keepStop == false)
-			{
-				sharedStops.remove(stopLocation.getStopTag());
-			}
-		}
-	}
-
-	public void writeToDatabase(MyHashMap<String, RouteConfig> map, boolean wipe, UpdateAsyncTask task, boolean silent) throws IOException {
+	
+	public void writeToDatabase(ImmutableMap<String, RouteConfig> map, UpdateAsyncTask task, boolean silent) throws IOException, RemoteException, OperationApplicationException {
 		if (!silent)
 		{
 			task.publish(new ProgressMessage(ProgressMessage.PROGRESS_DIALOG_ON, "Saving to database", null));
 		}
 		
-		HashSet<String> stopTags = new HashSet<String>();
-		helper.saveMapping(map, wipe, stopTags, task);
+		HashSet<String> stopTags = Sets.newHashSet();
+		DatabaseAgent.saveMapping(context, map, stopTags, task);
 		
 		clearAll();
-		populateFavorites(true);
+		populateFavorites();
 		//saveFavoritesToDatabase();
 	}
 
 	
 	
-	private void populateFavorites(boolean lookForOtherStopsAtSameLocation) {
-		helper.populateFavorites(favoriteStops, lookForOtherStopsAtSameLocation);
+	private void populateFavorites() {
+		DatabaseAgent.populateFavorites(context.getContentResolver(), favoriteStops);
 		fillInFavoritesRoutes();
 
 	}
+	
+	private void populateIntersections() {
+		DatabaseAgent.populateIntersections(context.getContentResolver(), intersections,
+				transitSystem, sharedStops, intersectionDrawable, maximumDistanceFromIntersection, filterStopsFromIntersection);
+	}
 
-	private void clearAll() {
-		priorities.clear();
-		pool.clear();
+	protected void clearAll() {
+		super.clearAll();
 		favoriteStops.clear();
 		sharedStops.clear();
+		intersections.clear();
 	}
 
 
-	public ArrayList<String> routeInfoNeedsUpdating(String[] supportedRoutes) {
+	public ImmutableList<String> routeInfoNeedsUpdating(RouteTitles supportedRoutes) {
 		//TODO: what if another route gets added later, and we want to download it from the server and add it?
-		return helper.routeInfoNeedsUpdating(supportedRoutes);
+		return DatabaseAgent.routeInfoNeedsUpdating(context.getContentResolver(), supportedRoutes);
 	}
 
 	public StopLocation[] getFavoriteStops() {
@@ -243,12 +205,12 @@ public class RoutePool {
 		return favoriteStops.contains(location.getStopTag());
 	}
 	
-	public int setFavorite(StopLocation location, boolean isFavorite) {
-		ArrayList<String> stopTags = helper.getAllStopTagsAtLocation(location.getStopTag());
+	public int setFavorite(StopLocation location, boolean isFavorite) throws RemoteException {
+		Collection<String> stopTags = DatabaseAgent.getAllStopTagsAtLocation(context.getContentResolver(), location.getStopTag());
 
-		helper.saveFavorite(location.getStopTag(), stopTags, isFavorite);
+		DatabaseAgent.saveFavorite(context.getContentResolver(), stopTags, isFavorite);
 		favoriteStops.clear();
-		populateFavorites(false);
+		populateFavorites();
 		
 		if (isFavorite == false)
 		{
@@ -266,10 +228,18 @@ public class RoutePool {
 		return isFavorite ? R.drawable.full_star : R.drawable.empty_star;
 	}
 
-	public MyHashMap<String, StopLocation> getAllStopTagsAtLocation(String stopTag) {
-		ArrayList<String> tags = helper.getAllStopTagsAtLocation(stopTag);
-		MyHashMap<String, StopLocation> outputMapping = new MyHashMap<String, StopLocation>();
-		helper.getStops(tags, transitSystem, outputMapping);
+	public boolean addIntersection(IntersectionLocation.Builder build) {
+		boolean success = DatabaseAgent.addIntersection(context.getContentResolver(), build, transitSystem.getRouteKeysToTitles());
+		if (success) {
+			populateIntersections();
+		}
+		return success;
+	}
+	
+	public ConcurrentMap<String, StopLocation> getAllStopTagsAtLocation(String stopTag) {
+		ImmutableList<String> tags = DatabaseAgent.getAllStopTagsAtLocation(context.getContentResolver(), stopTag);
+		ConcurrentMap<String, StopLocation> outputMapping = Maps.newConcurrentMap();
+		DatabaseAgent.getStops(context.getContentResolver(), tags, transitSystem, outputMapping);
 		
 		return outputMapping;
 	}
@@ -280,7 +250,7 @@ public class RoutePool {
 			stop.clearRecentlyUpdated();
 		}
 		
-		for (RouteConfig route : pool.values())
+		for (RouteConfig route : values())
 		{
 			for (StopLocation stop : route.getStopMapping().values())
 			{
@@ -289,11 +259,96 @@ public class RoutePool {
 		}
 	}
 	
-	public ArrayList<StopLocation> getClosestStops(double centerLatitude,
+	private static class ClosestCacheKey {
+		private final double lat;
+		private final double lon;
+		private final int maxStops;
+		private final Set<String> routes;
+		private final boolean usesRoutes;
+		
+		public ClosestCacheKey(double lat, double lon, int maxStops, Set<String> routes, boolean usesRoutes) {
+			this.lat = lat;
+			this.lon = lon;
+			this.maxStops = maxStops;
+			this.routes = routes;
+			this.usesRoutes = usesRoutes;
+		}
+		
+		public boolean equals(double lat, double lon, int maxStops, Set<String> routes, boolean usesRoutes) {
+			return this.usesRoutes == usesRoutes &&
+					this.lat == lat &&
+					this.lon == lon &&
+					this.maxStops == maxStops &&
+					this.routes.equals(routes);
+		}
+	}
+	
+	private ClosestCacheKey previousKey;
+	private Collection<StopLocation> previousValue;
+	
+	public Collection<StopLocation> getClosestStopsAndFilterRoutes(double centerLatitude,
+			double centerLongitude, int maxStops, Set<String> routes) {
+		if (previousKey == null || previousKey.equals(centerLatitude, centerLongitude, maxStops, routes, true) == false) {
+			Collection<StopLocation> value = DatabaseAgent.getClosestStopsAndFilterRoutes(context.getContentResolver(),	
+					centerLatitude, centerLongitude, transitSystem, sharedStops, maxStops, routes);
+			previousKey = new ClosestCacheKey(centerLatitude, centerLongitude, maxStops, routes, true);
+			previousValue = value;
+			return value;
+		}
+		else
+		{
+			return previousValue;
+		}
+	}
+
+	public Collection<StopLocation> getClosestStops(double centerLatitude,
 			double centerLongitude, int maxStops)
 	{
-		return helper.getClosestStops(centerLatitude, centerLongitude, transitSystem, sharedStops, maxStops);
+		return DatabaseAgent.getClosestStops(context.getContentResolver(), 
+				centerLatitude, centerLongitude, transitSystem, sharedStops, maxStops);
 
 	}
 
+	public ArrayList<StopLocation> getStopsByDirtag(String dirTag) {
+		return DatabaseAgent.getStopsByDirtag(context.getContentResolver(), 
+				dirTag, transitSystem);
+	}
+
+	public IntersectionLocation getIntersection(String name) {
+		if (name == null) {
+			return null;
+		}
+		else
+		{
+			return intersections.get(name);
+		}
+	}
+	
+	public boolean hasIntersection(String name) {
+		if (name == null) {
+			return false;
+		}
+		else
+		{
+			return intersections.containsKey(name);
+		}
+	}
+	
+	public void removeIntersection(String name) {
+		DatabaseAgent.removeIntersection(context.getContentResolver(), name);
+		
+		intersections.remove(name);
+	}
+
+	public void editIntersectionName(String oldName, String newName) {
+		DatabaseAgent.editIntersectionName(context.getContentResolver(), oldName, newName);
+		
+		intersections.remove(oldName);
+		
+		populateIntersections();
+	}
+
+	public Collection<String> getIntersectionNames() {
+		return intersections.keySet();
+	}
 }

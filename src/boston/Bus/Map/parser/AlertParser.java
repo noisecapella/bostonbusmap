@@ -12,6 +12,9 @@ import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
 
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
+
 import android.util.Xml.Encoding;
 import boston.Bus.Map.data.Alert;
 import boston.Bus.Map.data.RouteConfig;
@@ -40,7 +43,7 @@ public class AlertParser extends DefaultHandler
 	private final StringBuilder currentTitle = new StringBuilder();
 	private final StringBuilder currentDescription = new StringBuilder();
 	private final StringBuilder currentDelay = new StringBuilder();
-	private final ArrayList<Alert> alerts = new ArrayList<Alert>();
+	private final ImmutableSet.Builder<Alert> alerts = ImmutableSet.builder();
 	
 	public AlertParser()
 	{
@@ -129,8 +132,8 @@ public class AlertParser extends DefaultHandler
 		}
 	}
 	
-	public ArrayList<Alert> getAlerts()
+	public ImmutableSet<Alert> getAlerts()
 	{
-		return alerts;
+		return alerts.build();
 	}
 }

@@ -2,14 +2,25 @@ package boston.Bus.Map.data;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import boston.Bus.Map.util.Box;
-import boston.Bus.Map.util.CanBeSerialized;
+import java.util.List;
 
+import boston.Bus.Map.util.CanBeSerialized;
+import boston.Bus.Map.util.IBox;
+
+/**
+ * A connected path following a series of points, defined as lat lon pairs
+ * @author schneg
+ *
+ */
 public class Path implements CanBeSerialized
 {
 	private final float[] points;
 	
-	public Path(ArrayList<Float> points)
+	/**
+	 * points is a series of lat lon pairs. Therefore points must have an even number of elements
+	 * @param points
+	 */
+	public Path(List<Float> points)
 	{
 		this.points = new float[points.size()];
 		for (int i = 0; i < points.size(); i++)
@@ -19,7 +30,7 @@ public class Path implements CanBeSerialized
 	}
 
 	@Override
-	public void serialize(Box dest) throws IOException {
+	public void serialize(IBox dest) throws IOException {
 		dest.writeInt(points.length);
 		for (float f : points)
 		{
@@ -27,7 +38,7 @@ public class Path implements CanBeSerialized
 		}
 	}
 	
-	public Path(Box source) throws IOException {
+	public Path(IBox source) throws IOException {
 		int size = source.readInt();
 		points = new float[size];
 		for (int i = 0; i < size; i++)

@@ -2,8 +2,10 @@ package boston.Bus.Map.main;
 
 import org.apache.http.impl.conn.tsccm.RouteSpecificPool;
 
+import boston.Bus.Map.data.Direction;
 import boston.Bus.Map.data.Locations;
-import boston.Bus.Map.database.DatabaseHelper;
+import boston.Bus.Map.data.Selection;
+import boston.Bus.Map.data.UpdateArguments;
 import boston.Bus.Map.transit.TransitSystem;
 import boston.Bus.Map.ui.BusOverlay;
 import boston.Bus.Map.ui.LocationOverlay;
@@ -33,8 +35,6 @@ public class UpdateHandler extends Handler {
 	 */
 	public static final int MINOR = 2;
 	
-
-	
 	/**
 	 * The last time we updated, in milliseconds. Used to make sure we don't update more frequently than
 	 * every 10 seconds, to avoid unnecessary strain on their server
@@ -50,48 +50,18 @@ public class UpdateHandler extends Handler {
 	private int updateConstantlyInterval;
 	private boolean hideHighlightCircle;
 	private boolean showUnpredictable;
-	private UpdateAsyncTask updateAsyncTask;
-	private UpdateAsyncTask minorUpdate;
-	
-	private final ProgressBar progress;
-	private final ProgressDialog progressDialog;
-	private final MapView mapView;
-	private boolean inferBusRoutes;
-	private final Locations busLocations;
-	private final DatabaseHelper helper;
-	private final Context context;
-	
-	private final BusOverlay busOverlay; 
-	private final RouteOverlay routeOverlay;
-	private final LocationOverlay locationOverlay;
+	private AdjustUIAsyncTask minorUpdate;
 	
 	private boolean isFirstRefresh;
-	private boolean showRouteLine;
 	
-	private final TransitSystem transitSystem;
+	private final UpdateArguments guiArguments;
 	
-	public UpdateHandler(ProgressBar progress, MapView mapView,
-			Locations busLocations, Context context, DatabaseHelper helper, BusOverlay busOverlay,
-			RouteOverlay routeOverlay,  LocationOverlay locationOverlay,
-			UpdateAsyncTask majorHandler, TransitSystem transitSystem, ProgressDialog progressDialog)
+	public UpdateHandler(UpdateArguments guiArguments)
 	{
-		this.progress = progress;
-		this.mapView = mapView;
-		this.busLocations = busLocations;
-		this.helper = helper;
-		this.busOverlay = busOverlay;
-		this.routeOverlay = routeOverlay;
-		this.locationOverlay = locationOverlay;
+		this.guiArguments = guiArguments;
 		lastUpdateTime = TransitSystem.currentTimeMillis();
-		
-		this.context = context;
-		this.updateAsyncTask = majorHandler;
-		this.transitSystem = transitSystem;
-		this.progressDialog = progressDialog;
 	}
 	
-	private String routeToUpdate;
-	private int selectedBusPredictions;
 	
 	@Override
 	public void handleMessage(Message msg) {
@@ -137,21 +107,25 @@ public class UpdateHandler extends Handler {
 				
 			}
 
-			GeoPoint geoPoint = mapView.getMapCenter();
+			GeoPoint geoPoint = guiArguments.getMapView().getMapCenter();
 			double centerLatitude = geoPoint.getLatitudeE6() * Constants.InvE6;
 			double centerLongitude = geoPoint.getLongitudeE6() * Constants.InvE6;
 			
 			//remove duplicate messages
 			removeMessages(MINOR);
 			
-			int idToSelect = msg.arg1;
-			minorUpdate = new UpdateAsyncTask(progress, mapView, locationOverlay, getShowUnpredictable(), false, maxOverlays,
-					getHideHighlightCircle() == false, getInferBusRoutes(), busOverlay, routeOverlay, helper,
-					routeToUpdate, selectedBusPredictions, false, getShowRouteLine(), 
-					transitSystem, progressDialog, idToSelect);
+			Integer toSelect = null;
+			if (msg.arg1 != 0) {
+				toSelect = msg.arg1;
+			}
+			Selection selection = guiArguments.getBusLocations().getSelection();
+			minorUpdate = new AdjustUIAsyncTask(guiArguments, getShowUnpredictable(),
+					maxOverlays,
+					getHideHighlightCircle() == false,
+					false, selection, this, toSelect);
 			
 
-			minorUpdate.runUpdate(busLocations, centerLatitude, centerLongitude, context);
+			minorUpdate.runUpdate();
 			
 			break;
 		}		
@@ -167,9 +141,9 @@ public class UpdateHandler extends Handler {
 	
 	public void kill()
 	{
-		if (updateAsyncTask != null)
+		if (guiArguments.getMajorHandler() != null)
 		{
-			updateAsyncTask.cancel(true);
+			guiArguments.getMajorHandler().cancel(true);
 		}
 
 		if (minorUpdate != null)
@@ -186,9 +160,9 @@ public class UpdateHandler extends Handler {
 		lastUpdateTime = TransitSystem.currentTimeMillis();
 
 		//don't do two updates at once
-		if (updateAsyncTask != null)
+		if (guiArguments.getMajorHandler() != null)
 		{
-			if (updateAsyncTask.getStatus().equals(UpdateAsyncTask.Status.FINISHED) == false)
+			if (guiArguments.getMajorHandler().getStatus().equals(UpdateAsyncTask.Status.FINISHED) == false)
 			{
 				//task is not finished yet
 				return;
@@ -196,16 +170,13 @@ public class UpdateHandler extends Handler {
 			
 		}
 		
-		GeoPoint geoPoint = mapView.getMapCenter();
-		double centerLatitude = geoPoint.getLatitudeE6() * Constants.InvE6;
-		double centerLongitude = geoPoint.getLongitudeE6() * Constants.InvE6;
-
+		Selection selection = guiArguments.getBusLocations().getSelection();
+		final RefreshAsyncTask updateAsyncTask = new RefreshAsyncTask(guiArguments, getShowUnpredictable(), maxOverlays,
+				getHideHighlightCircle() == false,
+				isFirstTime, selection, this);
+		guiArguments.setMajorHandler(updateAsyncTask);
+		updateAsyncTask.runUpdate();
 		
-		updateAsyncTask = new UpdateAsyncTask(progress, mapView, locationOverlay, getShowUnpredictable(), true, maxOverlays,
-				getHideHighlightCircle() == false, getInferBusRoutes(), busOverlay, routeOverlay, helper,
-				routeToUpdate, selectedBusPredictions, isFirstTime, showRouteLine,
-				transitSystem, progressDialog, 0);
-		updateAsyncTask.runUpdate(busLocations, centerLatitude, centerLongitude, context);
 	}
 
 	public boolean instantRefresh() {
@@ -268,16 +239,6 @@ public class UpdateHandler extends Handler {
 		return showUnpredictable;
 	}
 	
-	public void setInferBusRoutes(boolean b)
-	{
-		inferBusRoutes = b;
-	}
-
-	public boolean getInferBusRoutes()
-	{
-		return inferBusRoutes;
-	}
-	
 	public void setInitAllRouteInfo(boolean b)
 	{
 		isFirstRefresh = b;
@@ -288,17 +249,6 @@ public class UpdateHandler extends Handler {
 		return isFirstRefresh;
 	}
 	
-
-	public void setShowRouteLine(boolean b) {
-		showRouteLine = b;
-	}
-
-	public boolean getShowRouteLine()
-	{
-		return showRouteLine;
-	}
-	
-	
 	public void triggerUpdate(int millis) {
 		sendEmptyMessageDelayed(MINOR, millis);
 		
@@ -308,7 +258,7 @@ public class UpdateHandler extends Handler {
 		sendEmptyMessage(MINOR);
 		
 	}
-
+	
 	public void triggerUpdateThenSelect(int id)
 	{
 		Message msg = new Message();
@@ -335,29 +285,10 @@ public class UpdateHandler extends Handler {
 		sendMessage(msg);
 	}
 
-
-
-	public void setRouteToUpdate(String routeToUpdate) {
-		this.routeToUpdate = routeToUpdate;
-	}
-
-	public void setSelectedBusPredictions(int b)
-	{
-		selectedBusPredictions = b; 
-	}
-
-
-
-	public UpdateAsyncTask getMajorHandler() {
-		return updateAsyncTask;
-	}
-
-
-
 	public void nullifyProgress() {
-		if (updateAsyncTask != null)
+		if (guiArguments.getMajorHandler() != null)
 		{
-			updateAsyncTask.nullifyProgress();
+			guiArguments.getMajorHandler().nullifyProgress();
 		}
 		
 		if (minorUpdate != null)
@@ -366,6 +297,4 @@ public class UpdateHandler extends Handler {
 			minorUpdate.nullifyProgress();
 		}
 	}
-
-
 }

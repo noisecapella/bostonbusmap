@@ -1,38 +1,46 @@
 package boston.Bus.Map.util;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
+import java.util.List;
+
 import com.google.android.maps.MapView;
+import com.google.common.collect.ImmutableMap;
 
 import android.util.Log;
 import android.widget.Toast;
-import boston.Bus.Map.data.MyHashMap;
+import boston.Bus.Map.data.Direction;
+import boston.Bus.Map.data.RouteTitles;
 import boston.Bus.Map.data.StopLocation;
-import boston.Bus.Map.database.DatabaseHelper;
+import boston.Bus.Map.data.TransitSourceTitles;
+import boston.Bus.Map.data.UpdateArguments;
 import boston.Bus.Map.main.Main;
+import boston.Bus.Map.provider.DatabaseContentProvider.DatabaseAgent;
 import boston.Bus.Map.transit.TransitSystem;
 
 public class SearchHelper
 {
 	private final Main context;
-	private final String[] dropdownRoutes;
-	private final MyHashMap<String, String> dropdownRouteKeysToTitles;
+	private final RouteTitles dropdownRouteKeysToTitles;
 	private final String query;
 	private String suggestionsQuery;
-	private final DatabaseHelper databaseHelper;
 	
-	private boolean queryContainsRoute;
-	private boolean queryContainsStop;
-	private final TransitSystem transitSystem;
+	private static final int QUERY_NONE = 0;
+	private static final int QUERY_ROUTE = 1;
+	private static final int QUERY_STOP = 2;
 	
-	public SearchHelper(Main context, String[] dropdownRoutes, MyHashMap<String, String> dropdownRouteKeysToTitles,
-			MapView mapView, String query, DatabaseHelper databaseHelper, TransitSystem transitSystem)
+	private int queryType = QUERY_NONE;
+	
+	private final UpdateArguments arguments;
+	
+	public SearchHelper(Main context, RouteTitles dropdownRouteKeysToTitles,
+			UpdateArguments arguments, String query)
 	{
 		this.context = context;
-		this.dropdownRoutes = dropdownRoutes;
 		this.dropdownRouteKeysToTitles = dropdownRouteKeysToTitles;
 		this.query = query;
-		this.databaseHelper = databaseHelper;
-		this.transitSystem = transitSystem;
+		this.arguments = arguments;
 	}
 	
 	/**
@@ -42,11 +50,6 @@ public class SearchHelper
 	 */
 	public void runSearch(Runnable onFinish)
 	{
-		if (dropdownRoutes == null || dropdownRouteKeysToTitles == null)
-		{
-			return;
-		}
-
 		searchRoutes(onFinish);
 	}
 
@@ -60,10 +63,9 @@ public class SearchHelper
 		String printableQuery = query;
 		
 		//remove these words from the search
-		String[] wordsToRemove = new String[] {"route", "subway", "bus", "line", "stop"};
+		String[] wordsToRemove = new String[] {"route", "subway", "bus", "line", "stop", "direction"};
 
-		queryContainsRoute = false;
-		queryContainsStop = false;
+		queryType = QUERY_NONE;
 		String censoredQuery = query;
 		for (String wordToRemove : wordsToRemove)
 		{
@@ -95,11 +97,11 @@ public class SearchHelper
 				
 				if (wordToRemove.equals("route"))
 				{
-					queryContainsRoute = true;
+					queryType = QUERY_ROUTE;
 				}
 				else if (wordToRemove.equals("stop"))
 				{
-					queryContainsStop = true;
+					queryType = QUERY_STOP;
 				}
 			}
 		}
@@ -119,20 +121,6 @@ public class SearchHelper
 			indexingQuery = indexingQuery.substring(0, 1).toUpperCase() + queryWithoutSpaces.substring(1);
 		}
 		
-		if (queryContainsRoute && queryContainsStop)
-		{
-			//contains both stop and route keyword... nonsensical
-			queryContainsRoute = false;
-			queryContainsStop = false;
-		}
-
-		//NOTE: this hardwires the default to be queryContainsRoute, bypassing the popup menu
-		//it seems like a good idea for now so people aren't confused
-		if (queryContainsStop == false)
-		{
-			queryContainsRoute = true;
-		}
-		
 		//NOTE: the next section is currently never run since we set queryContainsStop to true if queryContainsRoute was false
 		final String finalLowercaseQuery = lowercaseQuery;
 		final String finalIndexingQuery = indexingQuery;
@@ -142,7 +130,8 @@ public class SearchHelper
 	}
 
 	private void returnResults(Runnable onFinish, String indexingQuery, String lowercaseQuery, String printableQuery) {
-		if (queryContainsRoute)
+		final TransitSystem transitSystem = arguments.getTransitSystem();
+		if (queryType == QUERY_NONE || queryType == QUERY_ROUTE)
 		{
 			int position = getAsRoute(indexingQuery, lowercaseQuery);
 
@@ -150,8 +139,8 @@ public class SearchHelper
 			{
 				//done!
 				context.setNewRoute(position, false);
-				String routeKey = dropdownRoutes[position];
-				String routeTitle = dropdownRouteKeysToTitles.get(routeKey);
+				String routeKey = dropdownRouteKeysToTitles.getTagUsingIndex(position);
+				String routeTitle = dropdownRouteKeysToTitles.getTitle(routeKey);
 				suggestionsQuery = "route " + routeTitle;
 			}
 			else
@@ -159,7 +148,7 @@ public class SearchHelper
 				Toast.makeText(context, "Route '" + printableQuery + "' doesn't exist. Did you mistype it?", Toast.LENGTH_LONG).show();
 			}
 		}
-		else if (queryContainsStop)
+		else if (queryType == QUERY_STOP)
 		{
 			// ideally we'd use RoutePool instead of DatabaseHelper, since RoutePool will
 			// reuse existing stops if they match. But stop is temporary so it doesn't really matter
@@ -172,8 +161,9 @@ public class SearchHelper
 			{
 				exactQuery = printableQuery;
 			}
-			
-			StopLocation stop = databaseHelper.getStopByTagOrTitle(indexingQuery, exactQuery, transitSystem);
+
+			StopLocation stop = DatabaseAgent.getStopByTagOrTitle(context.getContentResolver(), 
+					indexingQuery, exactQuery, transitSystem);
 			if (stop != null)
 			{	
 				context.setNewStop(stop.getFirstRoute(), stop.getStopTag());
@@ -181,14 +171,14 @@ public class SearchHelper
 			}
 			else
 			{
-				//invalid stop id
+				//invalid stop id, or we just didn't parse it correctly
 				Toast.makeText(context, "Stop '" + printableQuery + "' doesn't exist. Did you mistype it?", Toast.LENGTH_LONG).show();
 			}
 		}
 		else
 		{
 			//shouldn't happen
-			Log.e("BostonBusMap", "Error: query is neither about stops nor routes");
+			Log.e("BostonBusMap", "Error: query is neither about stops, routes, or directions");
 		}
 		
 		onFinish.run();
@@ -196,19 +186,15 @@ public class SearchHelper
 
 	private int getAsRoute(String indexingQuery, String lowercaseQuery)
 	{
-		String route = transitSystem.searchForRoute(indexingQuery, lowercaseQuery);
+		String route = arguments.getTransitSystem().searchForRoute(indexingQuery, lowercaseQuery);
 		if (route != null)
 		{
-			for (int i = 0; i < dropdownRoutes.length; i++)
-			{
-				String potentialRoute = dropdownRoutes[i];
-				if (route.equals(potentialRoute))
-				{
-					return i;
-				}
-			}
+			return dropdownRouteKeysToTitles.getIndexForTag(route);
 		}
-		return -1;
+		else
+		{
+			return -1;
+		}
 	}
 
 	public String getSuggestionsQuery()
@@ -216,28 +202,21 @@ public class SearchHelper
 		return suggestionsQuery;
 	}
 
-	public static String naiveSearch(String indexingQuery, String lowercaseQuery, String[] routes,
-			MyHashMap<String, String> routeKeysToTitles)
+	public static String naiveSearch(String indexingQuery, String lowercaseQuery,
+			TransitSourceTitles routeKeysToTitles)
 	{
-		int position = Arrays.asList(routes).indexOf(indexingQuery);
-
-		if (position != -1)
+		if (routeKeysToTitles.hasRoute(indexingQuery))
 		{
-			return routes[position];
+			return indexingQuery;
 		}
 		else
 		{
 			//try the titles
-			for (int i = 0; i < routes.length; i++)
-			{
-				String title = routeKeysToTitles.get(routes[i]);
-				if (title != null)
-				{
-					String titleWithoutSpaces = title.toLowerCase().replaceAll(" ", "");
-					if (titleWithoutSpaces.equals(lowercaseQuery))
-					{
-						return routes[i];
-					}
+			for (String route : routeKeysToTitles.routeTags()) {
+				String title = routeKeysToTitles.getTitle(route);
+				String titleWithoutSpaces = title.toLowerCase().replaceAll(" ", "");
+				if (titleWithoutSpaces.equals(lowercaseQuery)) {
+					return route;
 				}
 			}
 			

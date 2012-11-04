@@ -1,6 +1,7 @@
 package boston.Bus.Map.util;
 
 import java.io.BufferedInputStream;
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -20,6 +21,8 @@ import org.apache.http.impl.conn.DefaultClientConnection;
 import org.apache.http.params.BasicHttpParams;
 import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
+
+import com.google.common.io.ByteStreams;
 
 /**
  * The Android people really recommend using the apache HTTPClient over the URL class. Not sure why exactly but it should usually be a
@@ -67,7 +70,7 @@ public class DownloadHelper {
 			}
 		}
 		
-		inputStream = new BufferedInputStream(inputStream, 2048);
+		inputStream = new BufferedInputStream(inputStream, 4096);
 	}
 
 	public InputStream getResponseData()

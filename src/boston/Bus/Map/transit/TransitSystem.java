@@ -12,7 +12,12 @@ import javax.xml.parsers.ParserConfigurationException;
 
 import org.xml.sax.SAXException;
 
+import com.google.common.collect.ImmutableBiMap;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
+
 import android.R.string;
+import android.content.ContentResolver;
 import android.content.Context;
 import android.graphics.drawable.Drawable;
 import android.util.Log;
@@ -21,12 +26,16 @@ import boston.Bus.Map.data.BusLocation;
 import boston.Bus.Map.data.Directions;
 import boston.Bus.Map.data.Location;
 import boston.Bus.Map.data.Locations;
-import boston.Bus.Map.data.MyHashMap;
 import boston.Bus.Map.data.RouteConfig;
 import boston.Bus.Map.data.RoutePool;
+import boston.Bus.Map.data.RouteTitles;
+import boston.Bus.Map.data.Selection;
 import boston.Bus.Map.data.StopLocation;
 import boston.Bus.Map.data.TransitDrawables;
+import boston.Bus.Map.data.TransitSourceTitles;
+import boston.Bus.Map.database.Schema;
 import boston.Bus.Map.main.Main;
+import boston.Bus.Map.provider.DatabaseContentProvider.DatabaseAgent;
 import boston.Bus.Map.util.Constants;
 /**
  * Any transit-system specific stuff should go here, if possible
@@ -45,12 +54,14 @@ public class TransitSystem {
 	public static final double lowerLeftLon = -72.0428466796875;
 	public static final double upperRightLat = 42.74701217318067;
 	public static final double upperRightLon = -69.774169921875;
-*/
-	
-	public static final String[] emails = new String[]{"bostonbusmap@gmail.com"/*, "t-trackertrial@mbta.com"*/};
+	*/
+
+	public static final String[] emails = new String[]{"bostonbusmap@gmail.com"};
 	public static final String emailSubject = "Toronto Transit error report";
+
+	private RouteTitles routeTitles;
 	
-	private static final AlertsMapping alertsMapping = new AlertsMapping();
+	private AlertsMapping alertsMapping;
 	
 	public static double getCenterLat() {
 		return torontoLatitude;
@@ -75,22 +86,49 @@ public class TransitSystem {
 	}
 	
 
-	
-	private final MyHashMap<String, TransitSource> transitSourceMap = new MyHashMap<String, TransitSource>();
-	private final ArrayList<TransitSource> transitSources = new ArrayList<TransitSource>();
+	/**
+	 * Mapping of route name to its transit source
+	 */
+	private ImmutableMap<String, TransitSource> transitSourceMap;
+	private ImmutableList<TransitSource> transitSources;
 	
 	/**
 	 * Be careful with this; this stays around forever since it's static
 	 */
 	private TransitSource defaultTransitSource;
 	
-	public void setDefaultTransitSource(TransitDrawables busDrawables, TransitDrawables subwayDrawables, TransitDrawables commuterRailDrawables)
+	/**
+	 * Only call this on the UI thread!
+	 * @param busDrawables
+	 * @param subwayDrawables
+	 * @param commuterRailDrawables
+	 * @param alertsData
+	 */
+	public void setDefaultTransitSource(TransitDrawables busDrawables, TransitDrawables subwayDrawables, 
+			TransitDrawables commuterRailDrawables, Context context)
 	{
 		if (defaultTransitSource == null)
 		{
-			defaultTransitSource = new TorontoBusTransitSource(this, busDrawables);
+			ContentResolver resolver = context.getContentResolver();
+			routeTitles = DatabaseAgent.getRouteTitles(resolver);
+			alertsMapping = DatabaseAgent.getAlerts(resolver);
+
+			TransitSourceTitles busTransitRoutes = routeTitles.getMappingForSource(Schema.Routes.enumagencyidBus);
+			TransitSourceTitles subwayTransitRoutes = routeTitles.getMappingForSource(Schema.Routes.enumagencyidSubway);
+			TransitSourceTitles commuterRailTransitRoutes = routeTitles.getMappingForSource(Schema.Routes.enumagencyidCommuterRail);
 			
-			transitSources.add(defaultTransitSource);
+			defaultTransitSource = new TorontoBusTransitSource(this, busDrawables, busTransitRoutes, routeTitles);
+			
+			ImmutableMap.Builder<String, TransitSource> mapBuilder = ImmutableMap.builder();
+			
+			transitSourceMap = mapBuilder.build();
+
+			transitSources = ImmutableList.of(defaultTransitSource);
+		
+		}
+		else
+		{
+			Log.e("BostonBusMap", "ERROR: called setDefaultTransitSource twice");
 		}
 	}
 	
@@ -115,83 +153,22 @@ public class TransitSystem {
 		}
 	}
 
-	public String[] getRoutes() {
-		if (transitSources.size() > 1)
-		{
-			ArrayList<String> ret = new ArrayList<String>();
-
-			for (TransitSource source : transitSources)
-			{
-				for (String route : source.getRoutes())
-				{
-					ret.add(route);
-				}
-			}
-			
-			return ret.toArray(new String[0]);
-		}
-		else
-		{
-			String[] routes = defaultTransitSource.getRoutes();
-			return routes;
-		}
-	}
-
-	public MyHashMap<String, String> getRouteKeysToTitles() {
-		if (transitSources.size() <= 1)
-		{
-			return defaultTransitSource.getRouteKeysToTitles();
-		}
-		else
-		{
-			MyHashMap<String, String> ret = new MyHashMap<String, String>();
-			
-			for (TransitSource source : transitSources)
-			{
-				MyHashMap<String, String> sourceRouteKeyMap = source.getRouteKeysToTitles();
-				if (sourceRouteKeyMap != null)
-				{
-					ret.putAll(sourceRouteKeyMap);
-				}
-			}
-			
-			return ret;
-		}
+	public RouteTitles getRouteKeysToTitles() {
+		return routeTitles;
 	}
 
 	public void refreshData(RouteConfig routeConfig,
-			int selectedBusPredictions, int maxStops, double centerLatitude,
+			Selection selection, int maxStops, double centerLatitude,
 			double centerLongitude, ConcurrentHashMap<String, BusLocation> busMapping,
-			String selectedRoute, RoutePool routePool,
+			RoutePool routePool,
 			Directions directions, Locations locations) throws IOException, ParserConfigurationException, SAXException {
 		for (TransitSource source : transitSources)
 		{
-			source.refreshData(routeConfig, selectedBusPredictions, maxStops, centerLatitude,
-					centerLongitude, busMapping, selectedRoute, routePool, directions, locations);
+			source.refreshData(routeConfig, selection, maxStops, centerLatitude,
+					centerLongitude, busMapping, routePool, directions, locations);
 		}
 	}
 
-	/**
-	 * Create a StopLocation from the parameters. 
-	 * This will use the route parameter to pick a TransitSource which does the instantiating 
-	 * 
-	 * @param lat
-	 * @param lon
-	 * @param stopTag
-	 * @param title
-	 * @param platformOrder
-	 * @param branch
-	 * @param route
-	 * @param dirTag
-	 * @return
-	 */
-	public StopLocation createStop(float lat, float lon, String stopTag, String title, int platformOrder, 
-			String branch, String route, String dirTag)
-	{
-		TransitSource source = getTransitSource(route);
-		
-		return source.createStop(lat, lon, stopTag, title, platformOrder, branch, route, dirTag);
-	}
 
 	private static final TimeZone torontoTimeZone = TimeZone.getTimeZone("America/Toronto");
 	private static DateFormat defaultTimeFormat;
@@ -244,6 +221,18 @@ public class TransitSystem {
 			}
 		}
 		return null;
+	}
+
+	public StopLocation createStop(float latitude, float longitude,
+			String stopTag, String stopTitle, int platformOrder, String branch,
+			String route) {
+		TransitSource source = getTransitSource(route);
+		
+		return source.createStop(latitude, longitude, stopTag, stopTitle, platformOrder, branch, route);
+	}
+
+	public AlertsMapping getAlertsMapping() {
+		return alertsMapping;
 	}
 
 }

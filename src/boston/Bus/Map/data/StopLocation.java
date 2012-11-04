@@ -3,7 +3,25 @@ package boston.Bus.Map.data;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.SortedSet;
+import java.util.TreeMap;
+import java.util.concurrent.CopyOnWriteArraySet;
 
+import com.google.common.base.Function;
+import com.google.common.base.Objects;
+import com.google.common.base.Predicate;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Iterables;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
+
+import boston.Bus.Map.annotations.KeepSorted;
 import boston.Bus.Map.math.Geometry;
 import boston.Bus.Map.transit.TransitSource;
 import boston.Bus.Map.transit.TransitSystem;
@@ -28,35 +46,51 @@ public class StopLocation implements Location
 	private boolean recentlyUpdated;
 	
 	/**
-	 * A mapping of routes to dirTags
+	 * A set of routes the stop belongs to
 	 */
-	private final MyHashMap<String, String> dirTags;
+	@KeepSorted
+	@IsGuardedBy("this")
+	private final RouteSet routes = new RouteSet();
 
 	private static final int LOCATIONTYPE = 3;
 	
-	public StopLocation(float latitudeAsDegrees, float longitudeAsDegrees,
-			TransitDrawables drawables, String tag, String title)
+	protected StopLocation(Builder builder)
 	{
-		this.latitudeAsDegrees = latitudeAsDegrees;
-		this.longitudeAsDegrees = longitudeAsDegrees;
+		this.latitudeAsDegrees = builder.latitudeAsDegrees;
+		this.longitudeAsDegrees = builder.longitudeAsDegrees;
 		this.latitude = (float) (latitudeAsDegrees * Geometry.degreesToRadians);
 		this.longitude = (float) (longitudeAsDegrees * Geometry.degreesToRadians);
-		this.drawables = drawables;
-		this.tag = tag;
-		this.title = title;
-		this.dirTags = new MyHashMap<String, String>();
+		this.drawables = builder.drawables;
+		this.tag = builder.tag;
+		this.title = builder.title;
 	}
 
-	/**
-	 * Add a route and the dirTag for that stop which is mentioned in the routeConfig xml
-	 * @param route
-	 * @param dirTag
-	 */
-	public void addRouteAndDirTag(String route, String dirTag)
-	{
-		synchronized (dirTags)
-		{
-			dirTags.put(route, dirTag);
+	public static class Builder {
+		private final float latitudeAsDegrees;
+		private final float longitudeAsDegrees;
+		private final TransitDrawables drawables;
+		private final String tag;
+		private final String title;
+
+		public Builder(float latitudeAsDegrees, float longitudeAsDegrees,
+			TransitDrawables drawables, String tag, String title) {
+			this.latitudeAsDegrees = latitudeAsDegrees;
+			this.longitudeAsDegrees = longitudeAsDegrees;
+			this.drawables = drawables;
+			this.tag = tag;
+			this.title = title;
+		}
+		
+		public float getLatitudeAsDegrees() {
+			return latitudeAsDegrees;
+		}
+		
+		public float getLongitudeAsDegrees() {
+			return longitudeAsDegrees;
+		}
+		
+		public StopLocation build() {
+			return new StopLocation(this);
 		}
 	}
 	
@@ -64,6 +98,11 @@ public class StopLocation implements Location
 	public float distanceFrom(double centerLatitude, double centerLongitude)
 	{
 		return Geometry.computeCompareDistance(latitude, longitude, centerLatitude, centerLongitude);
+	}
+
+	public float distanceFromInMiles(double latitudeAsRads,
+			double longitudeAsRads) {
+		return Geometry.computeDistanceInMiles(latitude, longitude, latitudeAsRads, longitudeAsRads);
 	}
 
 	@Override
@@ -108,18 +147,28 @@ public class StopLocation implements Location
 	}
 	
 	@Override
-	public void makeSnippetAndTitle(RouteConfig routeConfig, MyHashMap<String, String> routeKeysToTitles, Context context)
+	public void makeSnippetAndTitle(RouteConfig routeConfig, RouteTitles routeKeysToTitles, 
+			Context context)
 	{
 		if (predictions == null)
 		{
 			predictions = new Predictions();
 		}
 		
-		predictions.makeSnippetAndTitle(routeConfig, routeKeysToTitles, context, dirTags, title, tag);
+		Set<Alert> alerts;
+		if (routeConfig != null) {
+			alerts = routeConfig.getAlerts();
+		}
+		else
+		{
+			alerts = ImmutableSet.of();
+		}
+		
+		predictions.makeSnippetAndTitle(routeConfig, routeKeysToTitles, context, routes, this, alerts);
 	}
 	
 	@Override
-	public void addToSnippetAndTitle(RouteConfig routeConfig, Location location, MyHashMap<String, String> routeKeysToTitles,
+	public void addToSnippetAndTitle(RouteConfig routeConfig, Location location, RouteTitles routeKeysToTitles,
 			Context context)
 	{
 		if (predictions == null)
@@ -129,51 +178,10 @@ public class StopLocation implements Location
 		
 		StopLocation stopLocation = (StopLocation)location;
 		
-		predictions.addToSnippetAndTitle(routeConfig, stopLocation, routeKeysToTitles, context, title, dirTags);
-	}
-	
-	@Override
-	public String getSnippet()
-	{
-		if (isBeta() == false)
-		{
-			if (predictions != null)
-			{
-				return predictions.getSnippetPredictions();
-			}
-			else
-			{
-				return null;
-			}
-		}
-		else
-		{
-			StringBuilder ret = new StringBuilder();
-			ret.append("<font color='red' size='1'>Commuter rail predictions are experimental</font>");
-			if (predictions != null)
-			{
-				 String predictionsString = predictions.getSnippetPredictions();
-				 if (predictionsString != null)
-				 {
-					 ret.append("<br />").append(predictionsString);
-				 }
-			}
-			return ret.toString();
-
-		}
-	}
-	
-	@Override
-	public String getSnippetTitle()
-	{
-		if (predictions != null)
-		{
-			return predictions.getSnippetTitle();
-		}
-		else
-		{
-			return null;
-		}
+		// TODO: support mixing multiple alerts
+		ImmutableSet<Alert> alerts = ImmutableSet.of();
+		
+		predictions.addToSnippetAndTitle(routeConfig, stopLocation, routeKeysToTitles, context, title, routes, alerts);
 	}
 	
 	public String getStopTag()
@@ -210,47 +218,14 @@ public class StopLocation implements Location
 		}
 		
 		Prediction prediction = new Prediction(minutes, vehicleId, 
-				directions.getTitleAndName(direction), route.getRouteName(), affectedByLayover, isDelayed, lateness);
+				directions.getTitleAndName(direction), route.getRouteName(),
+				route.getRouteTitle(), affectedByLayover, isDelayed, lateness);
 		predictions.addPredictionIfNotExists(prediction);
 	}
 
 	public String getTitle()
 	{
 		return title;
-	}
-
-	/**
-	 * This should be in Locations instead but I need to synchronize routes
-	 * 
-	 * NOTE: this is only for bus routes
-	 * 
-	 * @param urlString
-	 */
-	public void createBusPredictionsUrl(TransitSystem system, StringBuilder urlString, String routeName) {
-		if (routeName != null)
-		{
-			//only do it for the given route
-			TransitSource source = system.getTransitSource(routeName);
-			if (source != null)
-			{
-				source.bindPredictionElementsForUrl(urlString, routeName, tag, dirTags.get(routeName));
-			}
-		}
-		else
-		{
-			//do it for all routes we know about
-			synchronized (dirTags)
-			{
-				for (String route : dirTags.keySet())
-				{
-					TransitSource source = system.getTransitSource(route);
-					if (source != null)
-					{
-						source.bindPredictionElementsForUrl(urlString, route, tag, dirTags.get(route));
-					}
-				}
-			}
-		}
 	}
 
 	public void setFavorite(boolean b)
@@ -267,80 +242,11 @@ public class StopLocation implements Location
 	 * @return
 	 */
 	public Collection<String> getRoutes() {
-		return dirTags.keySet();
+		return routes.getRoutes();
 	}
 
 	public String getFirstRoute() {
-		String ret = null;
-		for (String route : dirTags.keySet())
-		{
-			if (ret == null)
-			{
-				ret = route;
-			}
-			else
-			{
-				int c = ret.compareTo(route);
-				if (c > 0)
-				{
-					ret = route;
-				}
-			}
-		}
-		return ret;
-	}
-
-	public Prediction[] getCombinedPredictions()
-	{
-		if (predictions != null)
-		{
-			return predictions.getCombinedPredictions();
-		}
-		else
-		{
-			return null;
-		}
-	}
-	
-	public String[] getCombinedRoutes()
-	{
-		if (predictions != null)
-		{
-			return predictions.getSnippetRoutes();
-		}
-		else
-		{
-			return null;
-		}
-	}
-	
-	public String[] getCombinedTitles()
-	{
-		if (predictions != null)
-		{
-			String[] combinedTitles = predictions.getCombinedTitles();
-			if (combinedTitles != null)
-			{
-				return combinedTitles;
-			}
-		}
-		
-		return new String[]{title};
-	}
-
-	public String getDirTagForRoute(String route) {
-		return dirTags.get(route);
-	}
-
-	public String getCombinedStops() {
-		if (predictions != null)
-		{
-			return predictions.getCombinedStops();
-		}
-		else
-		{
-			return "";
-		}
+		return routes.getFirstRoute();
 	}
 	
 	@Override
@@ -402,21 +308,9 @@ public class StopLocation implements Location
 	
 	@Override
 	public String toString() {
-		return "Stop@" + getStopTag();
+		return Objects.toStringHelper(this).add("id", tag).toString();
 	}
 
-	@Override
-	public ArrayList<Alert> getSnippetAlerts() {
-		if (predictions != null)
-		{
-			return predictions.getSnippetAlerts();
-		}
-		else
-		{
-			return null;
-		}
-	}
-	
 	/**
 	 * Are these predictions experimental?
 	 * @return
@@ -424,5 +318,45 @@ public class StopLocation implements Location
 	public boolean isBeta()
 	{
 		return false;
+	}
+
+	@Override
+	public PredictionView getPredictionView() {
+		if (predictions != null) {
+			return predictions.getPredictionView();
+		}
+		else
+		{
+			return StopPredictionViewImpl.empty();
+		}
+	}
+
+	public void addRoute(String route) {
+		routes.addRoute(route);
+	}
+
+	@Override
+	public boolean hasMoreInfo() {
+		return true;
+	}
+
+	@Override
+	public boolean hasFavorite() {
+		return true;
+	}
+
+	@Override
+	public boolean hasReportProblem() {
+		// false for toronto
+		return false;
+	}
+	
+	@Override
+	public boolean isIntersection() {
+		return false;
+	}
+
+	public boolean hasRoute(String route) {
+		return routes.hasRoute(route);
 	}
 }

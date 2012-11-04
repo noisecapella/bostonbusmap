@@ -12,7 +12,7 @@ import android.graphics.drawable.Drawable;
  *
  */
 public interface CanBeSerialized {
-	void serialize(Box blob) throws IOException;
+	void serialize(IBox blob) throws IOException;
 	
 	//implement a constructor taking Box
 }

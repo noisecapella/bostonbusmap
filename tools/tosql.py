@@ -2,106 +2,105 @@ import xml.sax.handler
 import xml.sax
 import sys
 
+import schema
+import routetitleshandler
+
 def escaped(s):
     return s.replace("'", "''")
 
 def hexToDec(s):
     return str(int(s, 16))
 
-
 class ToSql(xml.sax.handler.ContentHandler):
-    routesTable = "routes"
-    stopsTable = "stops"
-    stopsRoutesMap = "stopmapping"
-    
-    routeKey = "route"
-    pathsBlobKey = "pathblob"
-    colorKey = "color"
-    oppositeColorKey = "oppositecolor"
-
-    latitudeKey = "lat"
-    longitudeKey = "lon"
-    stopTitleKey = "title"
-    stopTagKey = "tag"
-    dirTagKey = "dirTag"
-
-
-    def insertRoute(self, color, oppositeColor):
-        print "INSERT INTO " + self.routesTable,
-        #print "(" + self.routeKey + ", " + self.pathsBlobKey + ", " + self.colorKey + ", " + self.oppositeColorKey + ") ",
-        print " VALUES (",
-        print "'" + self.currentRoute + "', ",
-        print "x'00000000', ",
-        print "" + hexToDec(color) + ", ",
-        print "" + hexToDec(oppositeColor) + ");"
-
-    def insertStop(self, tag, lat, lon, title):
-        print "INSERT INTO " + self.stopsTable,
-        #print "(" + self.stopTagKey + ", " + self.latitudeKey + ", " + self.longitudeKey + ", " + self.stopTitleKey + ") "
-        print " VALUES (",
-        print "'" + tag + "', ",
-        print "" + lat + ", ",
-        print "" + lon + ", ",
-        print "'" + escaped(title) + "');"
-
-
-    def insertStopInDirection(self, tag):
-        print "INSERT INTO " + self.stopsRoutesMap,
-        #print " (" + routeKey + ", " + stopTagKey + ", " + dirTagKey + ") " 
-        print " VALUES (",
-        print "'" + self.currentRoute + "', ",
-        print "'" + tag + "', ",
-        print "'" + self.currentDirection + "');"
-
-
-    def createTables(self):
-        print "CREATE TABLE IF NOT EXISTS " + self.routesTable + " (" + self.routeKey + " STRING PRIMARY KEY, " + self.colorKey + " INTEGER, " + self.oppositeColorKey + " INTEGER, " + self.pathsBlobKey + " BLOB);"
-        print "CREATE TABLE IF NOT EXISTS " + self.stopsTable + " (" + self.stopTagKey + " STRING PRIMARY KEY, " + self.latitudeKey + " FLOAT, " + self.longitudeKey + " FLOAT, " + self.stopTitleKey + " STRING);"
-        print "CREATE TABLE IF NOT EXISTS " + self.stopsRoutesMap + " (" + self.routeKey + " STRING, " + self.stopTagKey + " STRING, " + self.dirTagKey + " STRING);"
-
-
-
-
-
-    def __init__(self):
-        self.currentRoute = None
+    def __init__(self, routeKeysToTitles, startingOrder):
         self.currentDirection = None
+        self.currentRoute = None
         self.sharedStops = {}
-
-        self.createTables()
+        self.table = schema.getSchemaAsObject()
+        self.routeKeysToTitles = routeKeysToTitles
+        self.startingOrder = startingOrder
+        self.inPath = False
+        self.paths = []
 
     def startElement(self, name, attributes):
+        table = self.table
         if name == "route":
-            self.currentRoute = attributes["tag"]
-            
-            self.insertRoute(attributes["color"], attributes["oppositeColor"])
+            route = attributes["tag"]
+            self.currentRoute = route
+            table.routes.route.value = attributes["tag"]
+            routetitle, order = self.routeKeysToTitles[route]
+            table.routes.routetitle.value = routetitle
+            table.routes.color.value = int(attributes["color"], 16)
+            table.routes.oppositecolor.value = int(attributes["oppositeColor"], 16)
+            table.routes.listorder.value = self.startingOrder + order
+            table.routes.agencyid.value = schema.BusAgencyId
+
         elif name == "stop":
             tag = attributes["tag"]
             if not self.currentDirection:
                 if tag not in self.sharedStops:
                     self.sharedStops[tag] = True
-                    self.insertStop(tag, attributes["lat"], attributes["lon"], attributes["title"])
+                    table.stops.tag.value = tag
+                    table.stops.lat.value = attributes["lat"]
+                    table.stops.lon.value = attributes["lon"]
+                    table.stops.title.value = attributes["title"]
+                    table.stops.insert()
+                table.stopmapping.route.value = self.currentRoute
+                table.stopmapping.tag.value = tag
+                table.stopmapping.dirTag.value = None
+                table.stopmapping.insert()
             else:
-                self.insertStopInDirection(tag)
+                pass
+                #table.directionsStops.dirTag.value = self.currentDirection
+                #table.directionsStops.tag.value = tag
+                #table.directionsStops.insert()
+                
         elif name == "direction": #band attributes["useForUI"] == "true":
-            self.currentDirection = attributes["tag"]
+            dirTag = attributes["tag"]
+            self.currentDirection = dirTag
+            if self.currentRoute:
+                table.directions.dirTag.value = dirTag
+                table.directions.dirTitleKey.value = attributes["title"]
+                table.directions.dirRouteKey.value = self.currentRoute
+                table.directions.dirNameKey.value = attributes["name"]
+                table.directions.useAsUI.value = schema.getIntFromBool(attributes["useForUI"])
+                table.directions.insert()
+        elif name == "path":
+            self.inPath = True
+            self.currentPathPoints = []
+        elif name == "point":
+            lat = float(attributes["lat"])
+            lon = float(attributes["lon"])
             
-            
+            self.currentPathPoints.append((lat, lon))
 
     def endElement(self, name):
-        if name == "route":
-            self.currentRoute = None
-        elif name == "direction":
+        if name == "direction":
             self.currentDirection = None
+        elif name == "route":
+            self.currentRoute = None
+            if len(self.paths) > 0:
+                self.table.routes.pathblob.value = schema.Box(self.paths).get_blob_string()
+            self.paths = []
+            self.table.routes.insert()
+        elif name == "path":
+            self.inPath = False
+            self.paths.append(self.currentPathPoints)
+                
 
 if __name__ == "__main__":
-    if len(sys.argv) < 2:
-        print "arg required: routeConfig.xml"
+    if len(sys.argv) < 4:
+        print "arg required: routeConfig.xml routeList.xml order"
         exit(-1)
+
+    routeTitleParser = xml.sax.make_parser()
+    routeHandler = routetitleshandler.RouteTitlesHandler()
+    routeTitleParser.setContentHandler(routeHandler)
+    routeTitleParser.parse(sys.argv[2])
         
-    #print "BEGIN TRANSACTION;"
+    print "BEGIN TRANSACTION;"
     parser = xml.sax.make_parser()
-    handler = ToSql()
+    handler = ToSql(routeHandler.mapping, int(sys.argv[3]))
     parser.setContentHandler(handler)
     parser.parse(sys.argv[1])
-    #print "END TRANSACTION;"
+    print "END TRANSACTION;"

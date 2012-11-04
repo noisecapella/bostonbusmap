@@ -10,6 +10,7 @@ import com.schneeloch.torontotransit.R;
 import boston.Bus.Map.data.Alert;
 import boston.Bus.Map.ui.TextViewBinder;
 import android.app.ListActivity;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.text.Html;

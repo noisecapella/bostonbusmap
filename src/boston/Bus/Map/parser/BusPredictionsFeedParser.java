@@ -2,6 +2,7 @@ package boston.Bus.Map.parser;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Map;
 
 
 import javax.xml.parsers.ParserConfigurationException;
@@ -9,10 +10,11 @@ import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
 
+import com.google.common.collect.Maps;
+
 
 import android.util.Xml.Encoding;
 import boston.Bus.Map.data.Directions;
-import boston.Bus.Map.data.MyHashMap;
 import boston.Bus.Map.data.Prediction;
 import boston.Bus.Map.data.RouteConfig;
 import boston.Bus.Map.data.RoutePool;
@@ -37,7 +39,7 @@ public class BusPredictionsFeedParser extends DefaultHandler
 	private RouteConfig currentRoute;
 	private final Directions directions;
 	
-	private final MyHashMap<String, Integer> tagCache = new MyHashMap<String, Integer>();
+	private final Map<String, Integer> tagCache = Maps.newHashMap();
 	
 	public BusPredictionsFeedParser(RoutePool stopMapping, Directions directions) {
 		this.stopMapping = stopMapping;

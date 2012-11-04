@@ -25,8 +25,12 @@ import java.net.SocketException;
 import java.net.SocketTimeoutException;
 import java.util.ArrayList;
 
+import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentMap;
 
 import javax.xml.parsers.FactoryConfigurationError;
 import javax.xml.parsers.ParserConfigurationException;
@@ -37,13 +41,16 @@ import org.xml.sax.SAXException;
 
 
 import boston.Bus.Map.data.BusLocation;
+import boston.Bus.Map.data.Direction;
+import boston.Bus.Map.data.IntersectionLocation;
 import boston.Bus.Map.data.Location;
 import boston.Bus.Map.data.Locations;
-import boston.Bus.Map.data.MyHashMap;
 import boston.Bus.Map.data.Path;
 import boston.Bus.Map.data.RouteConfig;
+import boston.Bus.Map.data.RouteTitles;
+import boston.Bus.Map.data.Selection;
 import boston.Bus.Map.data.StopLocation;
-import boston.Bus.Map.database.DatabaseHelper;
+import boston.Bus.Map.data.UpdateArguments;
 import boston.Bus.Map.transit.TransitSystem;
 import boston.Bus.Map.ui.BusOverlay;
 import boston.Bus.Map.ui.LocationOverlay;
@@ -57,9 +64,14 @@ import com.google.android.maps.GeoPoint;
 import com.google.android.maps.MapView;
 import com.google.android.maps.OverlayItem;
 import com.google.android.maps.Projection;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.OperationApplicationException;
 import android.graphics.Color;
 import android.graphics.ColorFilter;
 import android.graphics.Paint;
@@ -69,6 +81,7 @@ import android.graphics.drawable.Drawable;
 
 import android.os.AsyncTask;
 import android.os.Handler;
+import android.os.RemoteException;
 import android.util.Log;
 import android.view.View;
 import android.view.WindowManager.BadTokenException;
@@ -80,21 +93,16 @@ import android.widget.Toast;
  * Handles the heavy work of downloading and parsing the XML in a separate thread from the UI.
  *
  */
-public class UpdateAsyncTask extends AsyncTask<Object, Object, Locations>
+public abstract class UpdateAsyncTask extends AsyncTask<Object, Object, ImmutableList<Location>>
 {
-	private final MapView mapView;
 	private final boolean doShowUnpredictable;
-	private final boolean doRefresh;
 	/**
 	 * For now this is always false. I need to figure out how to download a 1 megabyte file gracefully
 	 */
 	private final boolean doInit;
 	private final int maxOverlays;
 	private final boolean drawCircle;
-	private final DatabaseHelper helper;
 	
-	private ProgressBar progress;
-	private ProgressDialog progressDialog;
 	private String progressDialogTitle;
 	private String progressDialogMessage;
 	private int progressDialogMax;
@@ -102,89 +110,89 @@ public class UpdateAsyncTask extends AsyncTask<Object, Object, Locations>
 	private boolean progressDialogIsShowing;
 	private boolean progressIsShowing;
 	
-	private boolean silenceUpdates;
+	protected final UpdateArguments arguments;
+	protected final UpdateHandler handler;
 	
-	private final boolean inferBusRoutes;
+	protected final Selection selection;
 	
-	private BusOverlay busOverlay;
-	private RouteOverlay routeOverlay;
-	private LocationOverlay locationOverlay;
+	private final Integer toSelect;
 	
-	private final String routeToUpdate;
-	private final int selectedBusPredictions;
-	private final boolean showRouteLine;
-
-	private final TransitSystem transitSystem;
-	private Context context;
-	private final int idToSelect;
+	/**
+	 * The last read center of the map.
+	 */
+	protected final GeoPoint currentMapCenter;
 	
-	public UpdateAsyncTask(ProgressBar progress, MapView mapView, LocationOverlay locationOverlay,
-			boolean doShowUnpredictable, boolean doRefresh, int maxOverlays,
-			boolean drawCircle, boolean inferBusRoutes, BusOverlay busOverlay, RouteOverlay routeOverlay, 
-			DatabaseHelper helper, String routeToUpdate,
-			int selectedBusPredictions, boolean doInit, boolean showRouteLine,
-		TransitSystem transitSystem, ProgressDialog progressDialog, int idToSelect)
+	public UpdateAsyncTask(UpdateArguments arguments, boolean doShowUnpredictable,
+			int maxOverlays, boolean drawCircle,
+			boolean doInit, Selection selection, UpdateHandler handler, Integer toSelect)
 	{
 		super();
 		
+		this.arguments = arguments;
 		//NOTE: these should only be used in one of the UI threads
-		this.mapView = mapView;
-		this.context = mapView.getContext();
 		this.doShowUnpredictable = doShowUnpredictable;
-		this.doRefresh = doRefresh;
 		this.maxOverlays = maxOverlays;
 		this.drawCircle = drawCircle;
-		this.inferBusRoutes = inferBusRoutes;
-		this.busOverlay = busOverlay;
-		this.routeOverlay = routeOverlay;
-		this.locationOverlay = locationOverlay;
-		this.helper = helper;
-		this.progress = progress;
-		this.routeToUpdate = routeToUpdate;
-		this.selectedBusPredictions = selectedBusPredictions;
 		this.doInit = doInit;
-		this.showRouteLine = showRouteLine;
-		//this.uiHandler = new Handler();
-		this.transitSystem = transitSystem;
-		this.progressDialog = progressDialog;
-		this.idToSelect = idToSelect;
+		this.selection = selection;
+		this.handler = handler;
+		
+		currentMapCenter = arguments.getMapView().getMapCenter();
+		
+		this.toSelect = toSelect;
 	}
 	
 	/**
 	 * A type safe wrapper around execute
 	 * @param busLocations
 	 */
-	public void runUpdate(Locations locations, double centerLatitude, double centerLongitude, Context context)
+	public void runUpdate()
 	{
-		execute(locations, centerLatitude, centerLongitude, context);
+		execute();
 	}
 
 	@Override
-	protected Locations doInBackground(Object... args) {
+	protected ImmutableList<Location> doInBackground(Object... args) {
 		//number of bus pictures to draw. Too many will make things slow
-		return updateBusLocations((Locations)args[0], (Double)args[1], (Double)args[2], (Context)args[3]);
+		return updateBusLocations();
 	}
 
 	@Override
-	protected void onProgressUpdate(Object... strings)
-	{
-		if (silenceUpdates == false)
+	protected void onProgressUpdate(Object... values) {
+		try
 		{
-			if (progressDialog == null || progress == null)
-			{
-				return;
-			}
+			progressUpdate(values);
+		}
+		catch (Throwable t) {
+			LogUtil.e(t);
+		}
+	}
+	
+	protected void progressUpdate(Object... objects)
+	{
+		if (objects.length == 0) {
+			return;
+		}
+		final ProgressDialog progressDialog = arguments.getProgressDialog();
+		final ProgressBar progress = arguments.getProgress();
+		if (progressDialog == null || progress == null)
+		{
+			return;
+		}
 
-			Object string = strings[0];
-			if (string instanceof Integer)
+		Object obj = objects[0];
+		if (areUpdatesSilenced() == false)
+		{
+
+			if (obj instanceof Integer)
 			{
-				int value = (Integer)string;
+				int value = (Integer)obj;
 				progressDialog.setProgress(value);
 				progressDialogProgress = value;
 			}
-			else if (string instanceof ProgressMessage)
+			else if (obj instanceof ProgressMessage)
 			{
-				ProgressMessage message = (ProgressMessage)string;
+				ProgressMessage message = (ProgressMessage)obj;
 
 				switch (message.type)
 				{
@@ -228,173 +236,62 @@ public class UpdateAsyncTask extends AsyncTask<Object, Object, Locations>
 					progressIsShowing = true;
 					break;
 				case ProgressMessage.TOAST:
-					Log.v("BostonBusMap", "Toast made: " + string);
-					Toast.makeText(context, message.message, Toast.LENGTH_LONG).show();
+					Log.v("BostonBusMap", "Toast made: " + obj);
+					Toast.makeText(arguments.getContext(), message.message, Toast.LENGTH_LONG).show();
 					break;
 				}
 			}
 		}
 	}
 
-	public Locations updateBusLocations(Locations busLocations, double centerLatitude, double centerLongitude, Context context)
-	{
-		if (doRefresh == false)
+	/**
+	 * Do the time consuming stuff we need to do in the background thread
+	 * 
+	 * Returns true for success, false for failure. Errors should handled in function
+	 * to provide a helpful error message
+	 * @throws OperationApplicationException 
+	 * @throws RemoteException 
+	 */
+	protected abstract boolean doUpdate() throws RemoteException, OperationApplicationException;
+	
+	protected abstract boolean areUpdatesSilenced();
+	
+	protected ImmutableList<Location> updateBusLocations()	{
+		final Locations busLocations = arguments.getBusLocations();
+
+		try
 		{
-			//if doRefresh is false, we just want to resort the overlays for a new center. Don't bother updating the text
-			silenceUpdates = true;
-		}
-		
-		busLocations.select(routeToUpdate, selectedBusPredictions);
-
-		
-		if (doRefresh)
-		{
-			try
-			{
-				publish(new ProgressMessage(ProgressMessage.PROGRESS_SPINNER_ON, null, null));
-				
-				String[] allRoutes = transitSystem.getRoutes();
-				if (doInit)
-				{
-					//publishProgress("Did not find route info in database, checking if there's free space to download it...");
-				}
-				if (busLocations.checkFreeSpace(helper, allRoutes) == false)
-				{
-					publish(new ProgressMessage(ProgressMessage.TOAST, null, 
-							"There is not enough free space to download the route info. About 2MB free is required"));
-					return null;
-				}
-				
-				if (doInit)
-				{
-					//publishProgress("Did not find route info in database, downloading it now...");
-				}
-				busLocations.initializeAllRoutes(this, context, allRoutes);
-				
-				busLocations.refresh(inferBusRoutes, routeToUpdate, selectedBusPredictions,
-						centerLatitude, centerLongitude, this, showRouteLine);
-			}
-			catch (IOException e)
-			{
-				//this probably means that there is no Internet available, or there's something wrong with the feed
-				publish(new ProgressMessage(ProgressMessage.TOAST, null, "Feed is inaccessible; try again later"));
-
-				LogUtil.e(e);
-				
+			if (doUpdate() == false) {
 				return null;
-
-			} catch (SAXException e) {
-				publish(new ProgressMessage(ProgressMessage.TOAST, null,
-						"XML parsing exception; cannot update. Maybe there was a hiccup in the feed?"));
-
-				LogUtil.e(e);
-				
-				return null;
-			} catch (NumberFormatException e) {
-				publish(new ProgressMessage(ProgressMessage.TOAST, null, "XML number parsing exception; cannot update. Maybe there was a hiccup in the feed?"));
-
-				LogUtil.e(e);
-				
-				return null;
-			} catch (ParserConfigurationException e) {
-				publish(new ProgressMessage(ProgressMessage.TOAST, null, "XML parser configuration exception; cannot update"));
-
-				LogUtil.e(e);
-				
-				return null;
-			} catch (FactoryConfigurationError e) {
-				publish(new ProgressMessage(ProgressMessage.TOAST, null, "XML parser factory configuration exception; cannot update"));
-
-				LogUtil.e(e);
-				
-				return null;
-			}
-			catch (RuntimeException e)
-			{
-				if (e.getCause() instanceof FeedException)
-				{
-					publish(new ProgressMessage(ProgressMessage.TOAST, null, "The feed is reporting an error"));
-
-					LogUtil.e(e);
-					
-					return null;
-				}
-				else
-				{
-					throw e;
-				}
-			}
-			catch (Exception e)
-			{
-				publish(new ProgressMessage(ProgressMessage.TOAST, null, "Unknown exception occurred"));
-
-				LogUtil.e(e);
-				
-				return null;
-			}
-			catch (AssertionError e)
-			{
-				Throwable cause = e.getCause();
-				if (cause != null)
-				{
-					if (cause instanceof SocketTimeoutException)
-					{
-						publish(new ProgressMessage(ProgressMessage.TOAST, null, "Connection timed out"));
-
-						LogUtil.e(e);
-						
-						return null;
-					}
-					else if (cause instanceof SocketException)
-					{
-						publish(new ProgressMessage(ProgressMessage.TOAST, null, "Connection error occurred"));
-
-						LogUtil.e(e);
-						
-						return null;
-					}
-					else
-					{
-						publish(new ProgressMessage(ProgressMessage.TOAST, null, "Unknown exception occurred"));
-
-						LogUtil.e(e);
-						
-						return null;
-					}
-				}
-				else
-				{
-					publish(new ProgressMessage(ProgressMessage.TOAST, null, "Unknown exception occurred"));
-
-					LogUtil.e(e);
-					
-					return null;
-				}
-			}
-			catch (Error e)
-			{
-				publish(new ProgressMessage(ProgressMessage.TOAST, null, "Unknown exception occurred"));
-
-				LogUtil.e(e);
-				
-				return null;
-			}
-			finally
-			{
-				//we should always set the icon to invisible afterwards just in case
-				publish(new ProgressMessage(ProgressMessage.PROGRESS_OFF, null, null));
 			}
 		}
+		catch (Throwable e) {
+			LogUtil.e(e);
+			publish(new ProgressMessage(ProgressMessage.TOAST, null, "Unknown error occurred"));
+			return null;
+		}
 
-		return busLocations;
+		try {
+			GeoPoint geoPoint = currentMapCenter;
+			double centerLatitude = geoPoint.getLatitudeE6() * Constants.InvE6;
+			double centerLongitude = geoPoint.getLongitudeE6() * Constants.InvE6;
+
+			return busLocations.getLocations(maxOverlays, centerLatitude, centerLongitude, doShowUnpredictable, selection);
+		} catch (IOException e) {
+			publish(new ProgressMessage(ProgressMessage.TOAST, null, "Error getting route data from database"));
+
+			LogUtil.e(e);
+			
+			return null;
+		}
     }
 	
 	@Override
-	protected void onPostExecute(final Locations busLocationsObject)
+	protected void onPostExecute(final ImmutableList<Location> locations)
 	{
 		try
 		{
-			postExecute(busLocationsObject);
+			postExecute(locations);
 		}
 		catch (Throwable t)
 		{
@@ -402,129 +299,114 @@ public class UpdateAsyncTask extends AsyncTask<Object, Object, Locations>
 		}
 	}
 	
-	private void postExecute(final Locations busLocationsObject)
+	protected void postExecute(final ImmutableList<Location> locationsNearCenter)
 	{
-		if (busLocationsObject == null)
+		if (locationsNearCenter == null)
 		{
 			//we probably posted an error message already; just return
 			return;
 		}
 		
-		GeoPoint center = mapView.getMapCenter();
-		final double inve6 = Constants.InvE6;
-		final double e6 = Constants.E6;
-		final double latitude = center.getLatitudeE6() * inve6;
-		final double longitude = center.getLongitudeE6() * inve6;
-		
-		
-		final ArrayList<Location> busLocations = new ArrayList<Location>();
-		
-		try
-		{
-			//get bus locations sorted by closest to lat + lon
-			busLocations.addAll(busLocationsObject.getLocations(maxOverlays, latitude, longitude, doShowUnpredictable));
-		}
-		catch (IOException e)
-		{
-			publish(new ProgressMessage(ProgressMessage.TOAST, null, "Error getting route data from database"));
-			return;
-		}
-
-		//if doRefresh is false, we should skip this, it prevents the icons from updating locations
-		if (busLocations.size() == 0 && doRefresh)
-		{
-			//no data? oh well
-			//sometimes the feed provides an empty XML message; completely valid but without any vehicle elements
-			publish(new ProgressMessage(ProgressMessage.TOAST, null, "Finished update, no data provided"));
-
-			//an error probably occurred; keep buses where they were before, and don't overwrite message in textbox
-			return;
-		}
-		
+		final BusOverlay busOverlay = arguments.getOverlayGroup().getBusOverlay();
 		//get currently selected location id, or -1 if nothing is selected
-		final int selectedBusId;
-		if (idToSelect != 0)
-		{
-			selectedBusId = idToSelect;
-		}
-		else if (busOverlay != null)
-		{
-			selectedBusId = busOverlay.getSelectedBusId();
-		}
-		else
-		{
-			selectedBusId = BusOverlay.NOT_SELECTED;
-		}
 		
 		busOverlay.setDrawHighlightCircle(drawCircle);
 		
-		routeOverlay.setDrawLine(showRouteLine);
+		final RouteOverlay routeOverlay = arguments.getOverlayGroup().getRouteOverlay();
 		//routeOverlay.setDrawCoarseLine(showCoarseRouteLine);
 		
 		//get a list of lat/lon pairs which describe the route
-        Path[] paths;
-		try {
-			paths = busLocationsObject.getSelectedPaths();
-		} catch (IOException e) {
-			LogUtil.e(e);
-			paths = RouteConfig.nullPaths;
-		}
+		Locations locationsObj = arguments.getBusLocations();
 		
 		RouteConfig selectedRouteConfig;
-		if (selectedBusPredictions == Main.BUS_PREDICTIONS_STAR || 
-				selectedBusPredictions == Main.BUS_PREDICTIONS_ALL)
+		int mode = selection.getMode();
+		if (mode == Selection.BUS_PREDICTIONS_STAR || 
+				mode == Selection.BUS_PREDICTIONS_ALL)
 		{
+	        Path[] paths = locationsObj.getPaths(selection.getRoute());
 			//we want this to be null. Else, the snippet drawing code would only show data for a particular route
-			try {
-				//get the currently drawn route's color
-				RouteConfig route = busLocationsObject.getSelectedRoute();
-				String routeName = route != null ? route.getRouteName() : "";
-				routeOverlay.setPathsAndColor(paths, Color.BLUE, routeName);
-
-			} catch (IOException e) {
-				LogUtil.e(e);
-				routeOverlay.setPathsAndColor(paths, Color.BLUE, null);
+			routeOverlay.setPathsAndColor(paths, Color.BLUE, selection.getRoute());
+			selectedRouteConfig = null;
+		}
+		else if (mode == Selection.BUS_PREDICTIONS_INTERSECT) {
+			routeOverlay.clearPaths();
+			String intersectionName = selection.getIntersection();
+			IntersectionLocation intersection = locationsObj.getIntersection(intersectionName);
+			if (intersection != null) {
+				for (String route : intersection.getNearbyRoutes()) {
+					Path[] paths = locationsObj.getPaths(route);
+					routeOverlay.addPathsAndColor(paths, Color.BLUE, route);
+				}
 			}
+			else
+			{
+		        Path[] paths = locationsObj.getPaths(selection.getRoute());
+				routeOverlay.setPathsAndColor(paths, Color.BLUE, selection.getRoute());
+			}
+			
 			selectedRouteConfig = null;
 		}
 		else
 		{
-			try {
-				selectedRouteConfig = busLocationsObject.getSelectedRoute();
-			} catch (IOException e) {
+			Path[] paths;
+			try
+			{
+				paths = locationsObj.getPaths(selection.getRoute());
+				String route = selection.getRoute();
+				selectedRouteConfig = locationsObj.getRoute(route);
+			}
+			catch (IOException e) {
 				LogUtil.e(e);
 				selectedRouteConfig = null;
+				paths = RouteConfig.nullPaths;
 			}
 			
-			if (selectedRouteConfig != null)
-			{
-				routeOverlay.setPathsAndColor(paths, selectedRouteConfig.getColor(), selectedRouteConfig.getRouteName());
-			}
+			int color = selectedRouteConfig == null ? Color.BLUE : selectedRouteConfig.getColor();
+			routeOverlay.setPathsAndColor(paths, color, selection.getRoute());
 		}
 		
 
 		
 		//we need to run populate even if there are 0 busLocations. See this link:
 		//http://groups.google.com/group/android-beginners/browse_thread/thread/6d75c084681f943e?pli=1
+		final int selectedBusId = busOverlay != null ? busOverlay.getSelectedBusId() : BusOverlay.NOT_SELECTED;
 		busOverlay.clear();
+		//busOverlay.doPopulate();
+
+		busOverlay.setLocations(locationsObj);
 		
-		busOverlay.doPopulate();
-		busOverlay.setLocations(busLocationsObject);
-		
-		MyHashMap<String, String> routeKeysToTitles = transitSystem.getRouteKeysToTitles();
+		RouteTitles routeKeysToTitles = arguments.getTransitSystem().getRouteKeysToTitles();
 		
 		//point hash to index in busLocations
-		MyHashMap<Long, Integer> points = new MyHashMap<Long, Integer>();
+		Map<Long, Integer> points = Maps.newHashMap();
 		
-		ArrayList<GeoPoint> geoPointsToAdd = new ArrayList<GeoPoint>(busLocations.size());
 		//draw the buses on the map
-		int newSelectedBusId = selectedBusId;
-		for (int i = 0; i < busLocations.size(); i++)
+		int newSelectedBusId;
+		if (toSelect != null) {
+			newSelectedBusId = toSelect;
+		}
+		else
 		{
-			Location busLocation = busLocations.get(i);
+			newSelectedBusId = selectedBusId;
+		}
+		List<Location> busesToDisplay = Lists.newArrayList();
+		
+		// first add intersection points. Not enough of these to affect performance
+		if (mode == Selection.BUS_PREDICTIONS_INTERSECT) {
+			String intersectionName = selection.getIntersection();
+			IntersectionLocation location = locationsObj.getIntersection(intersectionName);
+			if (location != null) {
+				busesToDisplay.add(location);
+			}
+		}
+		
+		// merge stops or buses to single items if necessary
+		for (int i = 0; i < locationsNearCenter.size(); i++)
+		{
+			Location busLocation = locationsNearCenter.get(i);
 			
-			final int latInt = (int)(busLocation.getLatitudeAsDegrees() * e6);
-			final int lonInt = (int)(busLocation.getLongitudeAsDegrees() * e6);
+			final int latInt = (int)(busLocation.getLatitudeAsDegrees() * Constants.E6);
+			final int lonInt = (int)(busLocation.getLongitudeAsDegrees() * Constants.E6);
 					
 			//make a hash to easily compare this location's position against others
 			//get around sign extension issues by making them all positive numbers
@@ -532,10 +414,11 @@ public class UpdateAsyncTask extends AsyncTask<Object, Object, Locations>
 			final int lonIntHash = (lonInt < 0 ? -lonInt : lonInt);
 			long hash = (long)((long)latIntHash << 32) | (long)lonIntHash;
 			Integer index = points.get(hash);
+			final Context context = arguments.getContext();
 			if (null != index)
 			{
 				//two stops in one space. Just use the one overlay, and combine textboxes in an elegant manner
-				Location parent = busLocations.get(index);
+				Location parent = locationsNearCenter.get(index);
 				parent.addToSnippetAndTitle(selectedRouteConfig, busLocation, routeKeysToTitles, context);
 				
 				if (busLocation.getId() == selectedBusId)
@@ -552,24 +435,26 @@ public class UpdateAsyncTask extends AsyncTask<Object, Object, Locations>
 				points.put(hash, i);
 		
 				//the title is displayed when someone taps on the icon
-				busOverlay.addLocation(busLocation);
-				GeoPoint point = new GeoPoint(latInt, lonInt);
-				geoPointsToAdd.add(point);
+				busesToDisplay.add(busLocation);
 			}
 		}
-		busOverlay.addOverlaysFromLocations(geoPointsToAdd);
-		
+		// we need to do this here because addLocation creates PredictionViews, which needs
+		// to happen after makeSnippetAndTitle and addToSnippetAndTitle
+		busOverlay.addAllLocations(busesToDisplay);
 		busOverlay.setSelectedBusId(newSelectedBusId);
-		busOverlay.refreshBalloons();
+		//busOverlay.refreshBalloons();
 		
-		mapView.getOverlays().clear();
-		mapView.getOverlays().add(routeOverlay);
-		mapView.getOverlays().add(locationOverlay);
-		mapView.getOverlays().add(busOverlay);
+		final MapView mapView = arguments.getMapView();
+		arguments.getOverlayGroup().refreshMapView(mapView);
 		
 		
 		//make sure we redraw map
 		mapView.invalidate();
+		
+		GeoPoint newCenter = mapView.getMapCenter();
+		if (!newCenter.equals(currentMapCenter)) {
+			handler.triggerUpdate();
+		}
 	}
 	
 	/**
@@ -590,8 +475,8 @@ public class UpdateAsyncTask extends AsyncTask<Object, Object, Locations>
 	
 	public void nullifyProgress()
 	{
-		progress = null;
-		progressDialog = null;
+		arguments.setProgress(null);
+		arguments.setProgressDialog(null);
 	}
 	
 	/**
@@ -601,8 +486,8 @@ public class UpdateAsyncTask extends AsyncTask<Object, Object, Locations>
 	 * @param progressDialog
 	 */
 	public void setProgress(ProgressBar progress, ProgressDialog progressDialog) {
-		this.progress = progress;
-		this.progressDialog = progressDialog;
+		arguments.setProgress(progress);
+		arguments.setProgressDialog(progressDialog);
 		
 		progress.setVisibility(progressIsShowing ? View.VISIBLE : View.INVISIBLE);
 		progressDialog.setTitle(progressDialogTitle);

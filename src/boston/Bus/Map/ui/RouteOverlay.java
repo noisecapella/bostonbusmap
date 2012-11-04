@@ -27,23 +27,26 @@ import com.google.android.maps.Projection;
 
 public class RouteOverlay extends Overlay
 {
+	/**
+	 * TODO: what's the advantage of a linked list if we aren't doing any inserts?
+	 */
 	private LinkedList<Path> paths = new LinkedList<Path>();
 	private final Projection projection;
-	private boolean showRouteLine;
+	private boolean showRouteLine = true;
 	
-	private final Paint paint;
+	private final Paint defaultPaint;
 	private String currentRoute;
 	
 	public RouteOverlay(Projection projection)
 	{
 		this.projection = projection;
 		
-		paint = new Paint();
-		paint.setColor(Color.argb(0x99, 0x00, 0x00, 0xff));
-		paint.setStrokeWidth(5);
-		paint.setAntiAlias(true);
-		paint.setStrokeMiter(3);
-		paint.setStyle(Style.STROKE);
+		defaultPaint = new Paint();
+		defaultPaint.setColor(Color.argb(0x99, 0x00, 0x00, 0xff));
+		defaultPaint.setStrokeWidth(5);
+		defaultPaint.setAntiAlias(true);
+		defaultPaint.setStrokeMiter(3);
+		defaultPaint.setStyle(Style.STROKE);
 	}
 	
 	public RouteOverlay(RouteOverlay routeOverlay, Projection projection)
@@ -114,8 +117,8 @@ public class RouteOverlay extends Overlay
 	 */
 	public void setPathsAndColor(Path[] paths, int color, String newRoute)
 	{
-		paint.setColor(color);
-		paint.setAlpha(0x99);
+		defaultPaint.setColor(color);
+		defaultPaint.setAlpha(0x99);
 		
 		if (newRoute != null && currentRoute != null && currentRoute.equals(newRoute) && this.paths.size() == paths.length)
 		{
@@ -124,6 +127,22 @@ public class RouteOverlay extends Overlay
 		else
 		{
 			this.paths.clear();
+			addPaths(new CopyOnWriteArrayList<Path>(paths));
+		}
+		currentRoute = newRoute;
+	}
+	
+	public void addPathsAndColor(Path[] paths, int color, String newRoute)
+	{
+		defaultPaint.setColor(color);
+		defaultPaint.setAlpha(0x99);
+		
+		if (newRoute != null && currentRoute != null && currentRoute.equals(newRoute) && this.paths.size() == paths.length)
+		{
+			//don't delete and add paths if we already have them
+		}
+		else
+		{
 			addPaths(new CopyOnWriteArrayList<Path>(paths));
 		}
 		currentRoute = newRoute;
@@ -218,10 +237,18 @@ public class RouteOverlay extends Overlay
 			}
 		}
 		
-		canvas.drawPath(drawingPath, paint);
+		canvas.drawPath(drawingPath, defaultPaint);
 	}
 
 	public void setDrawLine(boolean showRouteLine) {
 		this.showRouteLine = showRouteLine;
+	}
+
+	public boolean isShowLine() {	
+		return showRouteLine;
+	}
+
+	public void clearPaths() {
+		this.paths.clear();
 	}
 }
