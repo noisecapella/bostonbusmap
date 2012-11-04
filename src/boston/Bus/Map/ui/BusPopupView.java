@@ -66,6 +66,7 @@ public class BusPopupView extends BalloonOverlayView<BusOverlayItem>
 	private TextView alertsTextView;
 	private TextView deleteTextView;
 	private TextView editTextView;
+	private TextView nearbyRoutesTextView;
 	private final Locations locations;
 	private final RouteTitles routeKeysToTitles;
 	private Location location;
@@ -106,12 +107,16 @@ public class BusPopupView extends BalloonOverlayView<BusOverlayItem>
 		reportProblem.setText(reportProblemText);
 		
 		deleteTextView = (TextView)layoutView.findViewById(R.id.balloon_item_delete);
-		Spanned deleteText = Html.fromHtml("\n<a href='com.bostonbusmap://reportproblem'>Delete place</a>\n");
+		Spanned deleteText = Html.fromHtml("\n<a href='com.bostonbusmap://deleteplace'>Delete place</a>\n");
 		deleteTextView.setText(deleteText);
 		
 		editTextView = (TextView)layoutView.findViewById(R.id.balloon_item_edit);
-		Spanned editText = Html.fromHtml("\n<a href='com.bostonbusmap://reportproblem'>Edit place name</a>\n");
+		Spanned editText = Html.fromHtml("\n<a href='com.bostonbusmap://editplace'>Edit place name</a>\n");
 		editTextView.setText(editText);
+		
+		nearbyRoutesTextView = (TextView)layoutView.findViewById(R.id.balloon_item_nearby_routes);
+		Spanned nearbyRoutesText = Html.fromHtml("\n<a href='com.bostonbusmap://nearbyroutes'>Show nearby routes</a>\n");
+		nearbyRoutesTextView.setText(nearbyRoutesText);
 		
 		alertsTextView = (TextView) layoutView.findViewById(R.id.balloon_item_alerts);
 		alertsTextView.setVisibility(View.GONE);
