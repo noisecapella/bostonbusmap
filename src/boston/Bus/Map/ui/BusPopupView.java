@@ -27,6 +27,7 @@ import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
+import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -53,6 +54,7 @@ import boston.Bus.Map.util.StringUtil;
 
 import com.google.android.maps.OverlayItem;
 import com.google.common.base.Joiner;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.readystatesoftware.mapviewballoons.BalloonOverlayView;
@@ -252,6 +254,36 @@ public class BusPopupView extends BalloonOverlayView<BusOverlayItem>
 			}
 		});
 		
+		nearbyRoutesTextView.setOnClickListener(new OnClickListener() {
+			
+			@Override
+			public void onClick(View v) {
+				if (location != null && location instanceof IntersectionLocation) {
+					IntersectionLocation intersectionLocation = (IntersectionLocation)location;
+					
+					AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+					builder.setTitle("Routes nearby " + intersectionLocation.getName());
+					
+					ListView listView = new ListView(getContext());
+					listView.setClickable(false);
+					builder.setView(listView);
+					
+					String[] routes = intersectionLocation.getNearbyRouteTitles().toArray(new String[0]);
+					
+					builder.setItems(routes, new DialogInterface.OnClickListener() {
+						
+						@Override
+						public void onClick(DialogInterface dialog, int which) {
+							// do nothing
+						}
+					});
+					
+					builder.create().show();
+				}
+				
+			}
+		});
+		
 		editTextView.setOnClickListener(new OnClickListener() {
 			
 			@Override
@@ -427,11 +459,11 @@ public class BusPopupView extends BalloonOverlayView<BusOverlayItem>
 		//TODO: figure out a more elegant way to make the layout use these items even if they're invisible
 		if (location.hasFavorite())
 		{
-			favorite.setBackgroundResource(location.isFavorite() ? boston.Bus.Map.R.drawable.full_star : R.drawable.empty_star);
+			favorite.setBackgroundResource(location.isFavorite() ? R.drawable.full_star : R.drawable.empty_star);
 		}
 		else
 		{
-			favorite.setBackgroundResource(boston.Bus.Map.R.drawable.null_star);
+			favorite.setBackgroundResource(R.drawable.null_star);
 		}
 		
 		if (location.hasMoreInfo())
@@ -451,14 +483,12 @@ public class BusPopupView extends BalloonOverlayView<BusOverlayItem>
 			reportProblem.setVisibility(View.GONE);
 		}
 		
-		if (location.isIntersection()) {
-			deleteTextView.setVisibility(View.VISIBLE);
-			editTextView.setVisibility(View.VISIBLE);
-		}
-		else
-		{
-			deleteTextView.setVisibility(View.GONE);
-			editTextView.setVisibility(View.GONE);
+		TextView[] intersectionViews = new TextView[] {
+				deleteTextView, editTextView, nearbyRoutesTextView
+		};
+		int intersectionVisibility = location.isIntersection() ? View.VISIBLE : View.GONE;
+		for (TextView view : intersectionViews) {
+			view.setVisibility(intersectionVisibility);
 		}
 	}
 	

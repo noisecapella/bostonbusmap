@@ -27,6 +27,7 @@ public class IntersectionLocation implements Location {
 	private final PredictionView predictionView;
 	
 	private final ImmutableSet<String> nearbyRoutes;
+	private final ImmutableSet<String> nearbyRouteTitles;
 	
 	private final Drawable drawable;
 	
@@ -42,7 +43,7 @@ public class IntersectionLocation implements Location {
 		for (String tag : nearbyRoutes) {
 			titles.add(routeTitles.getTitle(tag));
 		}
-		//String routeTitleString = "<b>Nearby routes: " + Joiner.on(", ").join(titles);
+		nearbyRouteTitles = ImmutableSet.copyOf(titles);
 
 		predictionView = new SimplePredictionView("", name, new Alert[0]);
 		this.drawable = builder.drawable;
@@ -168,6 +169,10 @@ public class IntersectionLocation implements Location {
 	
 	public ImmutableSet<String> getNearbyRoutes() {
 		return nearbyRoutes;
+	}
+	
+	public ImmutableSet<String> getNearbyRouteTitles() {
+		return nearbyRouteTitles;
 	}
 
 	public String getName() {
