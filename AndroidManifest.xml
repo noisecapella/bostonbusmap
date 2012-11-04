@@ -37,13 +37,13 @@
                android:value="boston.Bus.Map.main.SearchResults" />
 		
 	<uses-library android:name="android.test.runner"></uses-library>
-	<provider android:name=".provider.TransitContentProvider" 
+	<provider android:name="boston.Bus.Map.provider.TransitContentProvider" 
 	    android:authorities="com.bostonbusmap.torontotransitprovider"
 	    android:exported="false"></provider>
-	<provider android:name=".provider.DatabaseContentProvider" 
+	<provider android:name="boston.Bus.Map.provider.DatabaseContentProvider" 
 	    android:authorities="com.bostonbusmap.torontodatabaseprovider"
 	    android:exported="false"></provider>
-	<provider android:name=".provider.FavoritesContentProvider" 
+	<provider android:name="boston.Bus.Map.provider.FavoritesContentProvider" 
 	    android:authorities="com.bostonbusmap.torontofavoritesprovider"
 	    android:exported="false"></provider>
 </application>
