@@ -27,6 +27,7 @@ import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
+import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -117,7 +118,7 @@ public class BusPopupView extends BalloonOverlayView<BusOverlayItem>
 		editTextView.setText(editText);
 		
 		nearbyRoutesTextView = (TextView)layoutView.findViewById(R.id.balloon_item_nearby_routes);
-		Spanned nearbyRoutesText = Html.fromHtml("\n<a href='com.bostonbusmap://nearbyroutes'>Show nearby routes</a>\n");
+		Spanned nearbyRoutesText = Html.fromHtml("\n<a href='com.bostonbusmap://nearbyroutes'>Nearby<br/>Routes</a>\n");
 		nearbyRoutesTextView.setText(nearbyRoutesText);
 		
 		alertsTextView = (TextView) layoutView.findViewById(R.id.balloon_item_alerts);
@@ -270,11 +271,12 @@ public class BusPopupView extends BalloonOverlayView<BusOverlayItem>
 					
 					String[] routes = intersectionLocation.getNearbyRouteTitles().toArray(new String[0]);
 					
-					builder.setItems(routes, new DialogInterface.OnClickListener() {
+					builder.setAdapter(new NonClickableListAdapter(getContext(), routes), new DialogInterface.OnClickListener() {
 						
 						@Override
 						public void onClick(DialogInterface dialog, int which) {
 							// do nothing
+							
 						}
 					});
 					
