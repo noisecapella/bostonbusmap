@@ -57,7 +57,7 @@ public class StopPredictionViewImpl extends StopPredictionView {
 		}
 		
 		snippetTitle = makeSnippetTitle(stopTitles);
-		SortedSet<String> routeTitles = Sets.newTreeSet();
+		SortedSet<String> routeTitles = Sets.newTreeSet(new RouteTitleComparator());
 		for (String tag : routeTags) {
 			String title = routeKeysToTitles.getTitle(tag);
 			routeTitles.add(title);
