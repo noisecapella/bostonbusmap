@@ -24,6 +24,7 @@ import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
@@ -269,14 +270,20 @@ public class BusPopupView extends BalloonOverlayView<BusOverlayItem>
 					listView.setClickable(false);
 					builder.setView(listView);
 					
-					String[] routes = intersectionLocation.getNearbyRouteTitles().toArray(new String[0]);
-					
-					builder.setAdapter(new NonClickableListAdapter(getContext(), routes), new DialogInterface.OnClickListener() {
+					final String[] routeTitles = intersectionLocation.getNearbyRouteTitles().toArray(new String[0]);
+					ArrayAdapter<String> arrayAdapter = new ArrayAdapter<String>(getContext(), android.R.layout.select_dialog_item, routeTitles);
+					builder.setAdapter(arrayAdapter, new DialogInterface.OnClickListener() {
 						
 						@Override
 						public void onClick(DialogInterface dialog, int which) {
-							// do nothing
-							
+							if (which >= 0 && which < routeTitles.length) {
+								String routeTitle = routeTitles[which];
+								String routeKey = routeKeysToTitles.getKey(routeTitle);
+								int newMode = Selection.BUS_PREDICTIONS_ONE;
+								Selection newSelection = locations.getSelection().withDifferentModeAndRoute(newMode, routeKey);
+								locations.setSelection(newSelection);
+								handler.triggerUpdate();
+							}
 						}
 					});
 					
