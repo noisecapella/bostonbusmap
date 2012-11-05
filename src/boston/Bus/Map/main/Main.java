@@ -378,7 +378,7 @@ public class Main extends MapActivity
         	
         	locationEnabled = prefs.getBoolean(getString(R.string.alwaysShowLocationCheckbox), true);
             int selectedRouteIndex = prefs.getInt(selectedRouteIndexKey, 0);
-            int mode = prefs.getInt(selectedBusPredictionsKey, Selection.VEHICLE_LOCATIONS_ONE);
+            int mode = prefs.getInt(selectedBusPredictionsKey, Selection.BUS_PREDICTIONS_ONE);
         	String route = dropdownRouteKeysToTitles.getTagUsingIndex(selectedRouteIndex);
         	String intersection = prefs.getString(selectedIntersectionKey, null);
             selection = new Selection(mode, route, intersection);
