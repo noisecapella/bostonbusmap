@@ -43,7 +43,7 @@ public class RouteTitleComparator implements Comparator<String> {
 		int len = string.length();
 		for (int i = 0; i < len; i++) {
 			char c = string.charAt(i);
-			if (c < '0' && c > '9') {
+			if (c < '0' || c > '9') {
 				if (i == 0) {
 					return "";
 				}
