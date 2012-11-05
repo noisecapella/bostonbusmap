@@ -76,16 +76,19 @@ public class BusPopupView extends BalloonOverlayView<BusOverlayItem>
 	private Location location;
 	private Spanned noAlertsText;
 	private Alert[] alertsList;
-	private UpdateHandler handler;
+	private final UpdateHandler handler;
+	private final Main main;
 	
-	public BusPopupView(final Context context, UpdateHandler handler, int balloonBottomOffset, Locations locations,
+	public BusPopupView(final Main main, UpdateHandler handler, int balloonBottomOffset, Locations locations,
 			RouteTitles routeKeysToTitles)
 	{
-		super(context, balloonBottomOffset);
+		super(main, balloonBottomOffset);
 		
 		this.locations = locations;
 		this.routeKeysToTitles = routeKeysToTitles;
 		this.handler = handler;
+		
+		this.main = main;
 		
 	}
 
@@ -279,10 +282,9 @@ public class BusPopupView extends BalloonOverlayView<BusOverlayItem>
 							if (which >= 0 && which < routeTitles.length) {
 								String routeTitle = routeTitles[which];
 								String routeKey = routeKeysToTitles.getKey(routeTitle);
-								int newMode = Selection.BUS_PREDICTIONS_ONE;
-								Selection newSelection = locations.getSelection().withDifferentModeAndRoute(newMode, routeKey);
+								Selection newSelection = locations.getSelection().withDifferentRoute(routeKey);
 								locations.setSelection(newSelection);
-								handler.triggerUpdate();
+								main.setMode(Selection.BUS_PREDICTIONS_ONE, true, true);
 							}
 						}
 					});
