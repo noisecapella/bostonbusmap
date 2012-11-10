@@ -116,6 +116,13 @@ schema = {"directions" : {"columns":[
             {"tag" : "route", "type" : "String"},
             {"tag" : "alertindex", "type" : "int"}],
                       "primaryKeys" : ["alertindex"],
+                      "indexes" : []},
+          "bounds" : {"columns":[
+            {"tag" : "route", "type" : "String"},
+            {"tag" : "weekdays", "type" : "int"},
+            {"tag" : "start", "type" : "int"},
+            {"tag" : "stop", "type" : "int"}],
+                      "primaryKeys" : [],
                       "indexes" : []}
           }
 

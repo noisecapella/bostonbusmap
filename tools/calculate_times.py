@@ -2,7 +2,19 @@ import argparse
 import csv
 import time
 
+import schema
+
+def make_weekdays(arr):
+    """Inputs array of seven days, starting with Monday, where value is 1 or 0. Returns integer of equivalent bits"""
+    ret = 0
+    for i in xrange(len(arr)):
+        if arr[i]:
+            ret |= 2**i
+
+    return ret
+
 def parse_time(s):
+    """Returns seconds from beginning of day. May go into tomorrow slightly"""
     hour, minute, second = s.split(":")
     hour = int(hour)
     minute = int(minute)
@@ -14,7 +26,7 @@ def parse_time(s):
     else:
         day = 0
 
-    return time.struct_time((0, 0, day, hour, minute, second, 0, 0, 0))
+    return second + 60*minute + 60*60*hour + 24*60*60*day
 
 def main():
     parser = argparse.ArgumentParser(description='Figure out what times a particular piece of the transit system is running.')
@@ -104,9 +116,16 @@ def main():
             else:
                 trip_intervals[key] = (departure, arrival)
 
+        obj = schema.getSchemaAsObject()
         for key, intervals in trip_intervals.iteritems():
-            print repr(key) + ", " + repr(intervals)
-
+            #print repr(key) + ", " + repr(intervals)
+            route, days = key
+            begin, end = intervals
+            obj.bounds.route.value = route
+            obj.bounds.weekdays.value = make_weekdays(days)
+            obj.bounds.start.value = begin
+            obj.bounds.stop.value = end
+            obj.bounds.insert()
 if __name__ == "__main__":
     main()
 
