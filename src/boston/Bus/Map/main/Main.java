@@ -390,7 +390,7 @@ public class Main extends MapActivity
 
         if (busLocations == null)
         {
-        	Drawable intersectionDrawable = getResources().getDrawable(R.drawable.busstop_intersect);
+        	Drawable intersectionDrawable = getResources().getDrawable(R.drawable.busstop_intersect_statelist);
         	busLocations = new Locations(this, transitSystem, selection, intersectionDrawable);
         }
 
