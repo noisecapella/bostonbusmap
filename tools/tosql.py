@@ -91,9 +91,9 @@ class ToSql(xml.sax.handler.ContentHandler):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Parse routeconfig.xml into SQL statements")
-    parser.addArgument("routeconfig", type=str)
-    parser.addArgument("routeList", type=str)
-    parser.addArgument("order", type=int)
+    parser.add_argument("routeconfig", type=str)
+    parser.add_argument("routeList", type=str)
+    parser.add_argument("order", type=int)
     args = parser.parse_args()
 
     routeTitleParser = xml.sax.make_parser()
