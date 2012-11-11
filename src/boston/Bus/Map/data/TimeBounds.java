@@ -7,9 +7,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
-import org.joda.time.DateMidnight;
-import org.joda.time.JodaTimePermission;
-
 import android.os.Parcel;
 import android.os.Parcelable;
 import boston.Bus.Map.transit.TransitSystem;
