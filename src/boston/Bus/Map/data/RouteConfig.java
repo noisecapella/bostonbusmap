@@ -271,4 +271,8 @@ public class RouteConfig
 		Calendar calendar = Calendar.getInstance(TransitSystem.getTimeZone());
 		return timeBounds.isRouteRunning(calendar);
 	}
+
+	public TimeBounds getTimeBounds() {
+		return timeBounds;
+	}
 }
