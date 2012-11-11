@@ -15,6 +15,7 @@ import boston.Bus.Map.R;
 
 import boston.Bus.Map.data.Prediction;
 import boston.Bus.Map.data.RouteTitles;
+import boston.Bus.Map.data.TimeBounds;
 import boston.Bus.Map.data.TransitSourceTitles;
 import boston.Bus.Map.ui.TextViewBinder;
 import boston.Bus.Map.util.StringUtil;
@@ -51,6 +52,7 @@ public class MoreInfo extends ListActivity {
 	public static final String routeTextKey = "routeText";
 	public static final String stopIsBetaKey = "stopIsBeta";
 	
+	public static final String boundKey = "bounds";
 	
 	private Prediction[] predictions;
 	private TextView title1;
@@ -62,6 +64,7 @@ public class MoreInfo extends ListActivity {
 	 */
 	private boolean dataIsInitialized;
 	private String[] routeTitles;
+	private TimeBounds[] bounds;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -74,12 +77,23 @@ public class MoreInfo extends ListActivity {
 		
 		
 		
-		Parcelable[] parcelables = (Parcelable[])extras.getParcelableArray(predictionsKey);
-		predictions = new Prediction[parcelables.length];
-		for (int i = 0; i < predictions.length; i++)
 		{
-			predictions[i] = (Prediction)parcelables[i];
+			Parcelable[] parcelables = (Parcelable[])extras.getParcelableArray(predictionsKey);
+			predictions = new Prediction[parcelables.length];
+			for (int i = 0; i < predictions.length; i++)
+			{
+				predictions[i] = (Prediction)parcelables[i];
+			}
 		}
+		
+		{
+			Parcelable[] boundParcelables = (Parcelable[])extras.getParcelableArray(boundKey);
+			bounds = new TimeBounds[boundParcelables.length];
+			for (int i = 0; i < bounds.length; i++) {
+				bounds[i] = (TimeBounds)boundParcelables[i];
+			}
+		}
+		
 		
 		boolean stopIsBeta = extras.getBoolean(stopIsBetaKey);
 		
@@ -154,6 +168,10 @@ public class MoreInfo extends ListActivity {
 		if (stopIsBeta)
 		{
 			titleText2.append("</b><br /><font color='red'>Commuter rail predictions are experimental</font><b>");
+		}
+		
+		for (TimeBounds bound : bounds) {
+			titleText2.append("<br />" + bound.makeSnippet());
 		}
 		
 		title1.setText(Html.fromHtml("<b>" + titleText1 + "</b>"));

@@ -511,7 +511,7 @@ public class DatabaseContentProvider extends ContentProvider {
 							Schema.Bounds.weekdaysColumn, Schema.Bounds.startColumn,
 							Schema.Bounds.stopColumn};
 					cursor = resolver.query(ROUTES_AND_BOUNDS_URI, projectionIn,
-							Schema.Routes.routeColumn + "=?",
+							Schema.Routes.routeColumnOnTable + "=?",
 							new String[]{routeToUpdate}, null);
 					if (cursor.getCount() == 0)
 					{

@@ -66,7 +66,7 @@ public class RouteConfig
 		this.listorder = builder.listorder;
 		this.transitSourceId = builder.transitSourceId;
 		
-		this.timeBounds = builder.timeBounds.build();
+		this.timeBounds = builder.timeBounds.build(route);
 	}
 	
 	private RouteConfig(Builder builder)

@@ -1,15 +1,28 @@
 package boston.Bus.Map.data;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
 import java.util.Map;
 
+import org.joda.time.DateMidnight;
+import org.joda.time.JodaTimePermission;
+
+import android.os.Parcel;
+import android.os.Parcelable;
+import boston.Bus.Map.transit.TransitSystem;
+
+import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
-public class TimeBounds {
+public class TimeBounds implements Parcelable {
 	private final ImmutableMap<Integer, TimeSpan> bounds;
+	private final String routeTitle;
 	
 	private static final int MONDAY = 0x1;
 	private static final int TUESDAY = 0x2;
@@ -19,8 +32,11 @@ public class TimeBounds {
 	private static final int SATURDAY = 0x20;
 	private static final int SUNDAY = 0x40;
 	
-	private TimeBounds(Builder builder) {
+	private static final int WEEKDAYS = MONDAY | TUESDAY | WEDNESDAY | THURSDAY | FRIDAY;
+	
+	private TimeBounds(String routeTitle, Builder builder) {
 		this.bounds = ImmutableMap.copyOf(builder.bounds);
+		this.routeTitle = routeTitle;
 	}
 	
 	public static class Builder
@@ -31,8 +47,8 @@ public class TimeBounds {
 			bounds.put(weekdaysBits, new TimeSpan(start, end));
 		}
 
-		public TimeBounds build() {
-			return new TimeBounds(this);
+		public TimeBounds build(String route) {
+			return new TimeBounds(route, this);
 		}
 	}
 	
@@ -168,5 +184,93 @@ public class TimeBounds {
 
 	public static boston.Bus.Map.data.TimeBounds.Builder builder() {
 		return new boston.Bus.Map.data.TimeBounds.Builder();
+	}
+
+	@Override
+	public int describeContents() {
+		return 0;
+	}
+
+	@Override
+	public void writeToParcel(Parcel dest, int flags) {
+		dest.writeString(routeTitle);
+		dest.writeInt(bounds.size());
+		for (Integer weekdays : bounds.keySet()) {
+			TimeSpan span = bounds.get(weekdays);
+			dest.writeInt(weekdays);
+			dest.writeInt(span.begin);
+			dest.writeInt(span.end);
+		}
+	}
+	
+	public static final Parcelable.Creator<TimeBounds> CREATOR = new Creator<TimeBounds>() {
+
+		@Override
+		public TimeBounds createFromParcel(Parcel source) {
+			Builder builder = new Builder();
+
+			String route = source.readString();
+			int size = source.readInt();
+			for (int i = 0; i < size; i++) {
+				int weekdays = source.readInt();
+				int start = source.readInt();
+				int end = source.readInt();
+				builder.add(weekdays, start, end);
+			}
+			return builder.build(route);
+		}
+
+		@Override
+		public TimeBounds[] newArray(int size) {
+			return new TimeBounds[size];
+		}
+	};
+
+	public String makeSnippet() {
+		StringBuilder ret = new StringBuilder("Schedule for route ").append(routeTitle).append(": <br/>");
+		
+		for (Integer weekdaysObj : bounds.keySet()) {
+			TimeSpan span = bounds.get(weekdaysObj);
+			int weekdays = weekdaysObj;
+			
+			List<String> dayStrings = Lists.newArrayList();
+			if ((weekdays & WEEKDAYS) == WEEKDAYS) {
+				dayStrings.add("weekdays");
+			}
+			else { 
+				if ((weekdays & MONDAY) != 0) {
+					dayStrings.add("Monday");
+				}
+				if ((weekdays & TUESDAY) != 0) {
+					dayStrings.add("Tuesday");
+				}
+				if ((weekdays & WEDNESDAY) != 0) {
+					dayStrings.add("Wednesday");
+				}
+				if ((weekdays & THURSDAY) != 0) {
+					dayStrings.add("Thursday");
+				}
+				if ((weekdays & FRIDAY) != 0) {
+					dayStrings.add("Friday");
+				}
+			}
+			
+			if ((weekdays & SATURDAY) != 0) {
+				dayStrings.add("Saturday");
+			}
+			if ((weekdays & SUNDAY) != 0) {
+				dayStrings.add("Sunday");
+			}
+			
+			ret.append(Joiner.on(", ").join(dayStrings)).append("<br />");
+			ret.append(makeTimeString(span.begin)).append(" until ").append(makeTimeString(span.end)).append("<br />");
+		}
+		return ret.toString();
+	}
+
+	private String makeTimeString(int secondsFromMidnight) {
+		Calendar calendar = Calendar.getInstance();
+		DateFormat format = TransitSystem.getDefaultTimeFormat();
+		return format.format(calendar);
 	}
 }
