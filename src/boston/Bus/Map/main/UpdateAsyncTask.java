@@ -414,11 +414,12 @@ public abstract class UpdateAsyncTask extends AsyncTask<Object, Object, Immutabl
 			long hash = (long)((long)latIntHash << 32) | (long)lonIntHash;
 			Integer index = points.get(hash);
 			final Context context = arguments.getContext();
+			Locations locations = arguments.getBusLocations();
 			if (null != index)
 			{
 				//two stops in one space. Just use the one overlay, and combine textboxes in an elegant manner
 				Location parent = locationsNearCenter.get(index);
-				parent.addToSnippetAndTitle(selectedRouteConfig, busLocation, routeKeysToTitles, context);
+				parent.addToSnippetAndTitle(selectedRouteConfig, busLocation, routeKeysToTitles, locations, context);
 				
 				if (busLocation.getId() == selectedBusId)
 				{
@@ -428,7 +429,7 @@ public abstract class UpdateAsyncTask extends AsyncTask<Object, Object, Immutabl
 			}
 			else
 			{
-				busLocation.makeSnippetAndTitle(selectedRouteConfig, routeKeysToTitles, context);
+				busLocation.makeSnippetAndTitle(selectedRouteConfig, routeKeysToTitles, locations, context);
 			
 			
 				points.put(hash, i);

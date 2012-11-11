@@ -1,11 +1,13 @@
 package boston.Bus.Map.data;
 
+import java.io.IOException;
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 import java.util.SortedSet;
 
 import android.content.Context;
+import boston.Bus.Map.util.LogUtil;
 
 import com.google.common.base.Joiner;
 import com.google.common.collect.Collections2;
@@ -40,7 +42,8 @@ public class StopPredictionViewImpl extends StopPredictionView {
 	 */
 	public StopPredictionViewImpl(Set<String> routeTags, Collection<StopLocation> stops,
 			SortedSet<Prediction> predictions, RouteConfig ifOnlyOneRoute,
-			RouteTitles routeKeysToTitles, Context context, Set<Alert> alerts) {
+			RouteTitles routeKeysToTitles, Context context, Set<Alert> alerts,
+			Locations locations) {
 		Set<String> stopTitles = Sets.newTreeSet();
 		SortedSet<String> stopIds = Sets.newTreeSet();
 		for (StopLocation stop : stops) {
@@ -70,10 +73,33 @@ public class StopPredictionViewImpl extends StopPredictionView {
 		if (isBeta) {
 			ret.append("<font color='red' size='1'>Commuter rail predictions are experimental</font><br />");
 		}
+
+		try
+		{
+			SortedSet<String> routeTitlesNotRunning = Sets.newTreeSet();
+			for (String routeTag : routeTags) {
+				RouteConfig route = locations.getRoute(routeTag);
+				if (route.isRouteRunning() == false) {
+					routeTitlesNotRunning.add(routeKeysToTitles.getTitle(routeTag));
+				}
+			}
+			if (routeTitlesNotRunning.size() == 1) {
+				String routeTitle = routeTitlesNotRunning.first();
+				ret.append("<font color='red' size='1'>Route " + routeTitle + " is not currently running</font><br />");
+			}
+			else if (routeTitlesNotRunning.size() > 1) {
+				String routeTitle = Joiner.on(", ").join(routeTitlesNotRunning);
+				ret.append("<font color='red' size='1'>Routes " + routeTitle + " are not currently running</font><br />");
+			}
+		}
+		catch (IOException e) {
+			LogUtil.e(e);
+		}
+
 		makeSnippet(ifOnlyOneRoute, predictions, context, ret);
 		
 		snippet = ret.toString();
-		
+
 		
 		this.stops = Joiner.on(", ").join(stopIds);
 		
