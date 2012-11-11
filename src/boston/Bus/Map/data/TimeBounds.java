@@ -266,8 +266,26 @@ public class TimeBounds implements Parcelable {
 	}
 
 	private String makeTimeString(int secondsFromMidnight) {
-		Calendar calendar = Calendar.getInstance();
+		int seconds = secondsFromMidnight % 60;
+		int totalMinutes = secondsFromMidnight / 60;
+		int minutes = totalMinutes % 60;
+		int totalHours = totalMinutes / 60;
+		int hours = totalHours % 24;
+		
 		DateFormat format = TransitSystem.getDefaultTimeFormat();
-		return format.format(calendar);
+		Calendar calendar = Calendar.getInstance();
+		calendar.set(Calendar.HOUR_OF_DAY, hours);
+		calendar.set(Calendar.MINUTE, minutes);
+		calendar.set(Calendar.SECOND, seconds);
+		
+		
+		String ret = format.format(calendar.getTime()); 
+		if (totalHours >= 24) {
+			return ret + " tomorrow morning";
+		}
+		else
+		{
+			return ret;
+		}
 	}
 }
