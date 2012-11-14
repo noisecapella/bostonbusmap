@@ -171,6 +171,7 @@ public class TransitSystem {
 
 
 	private static final TimeZone laTimeZone = TimeZone.getTimeZone("America/Los_Angeles");
+	public static final boolean defaultAllRoutesBlue = true;
 	private static DateFormat defaultTimeFormat;
 	private static DateFormat defaultDateFormat;
 		

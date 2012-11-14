@@ -55,6 +55,7 @@ public class UpdateHandler extends Handler {
 	private boolean isFirstRefresh;
 	
 	private final UpdateArguments guiArguments;
+	private boolean allRoutesBlue = TransitSystem.defaultAllRoutesBlue;
 	
 	public UpdateHandler(UpdateArguments guiArguments)
 	{
@@ -121,7 +122,7 @@ public class UpdateHandler extends Handler {
 			Selection selection = guiArguments.getBusLocations().getSelection();
 			minorUpdate = new AdjustUIAsyncTask(guiArguments, getShowUnpredictable(),
 					maxOverlays,
-					getHideHighlightCircle() == false,
+					hideHighlightCircle == false, allRoutesBlue,
 					false, selection, this, toSelect);
 			
 
@@ -172,7 +173,7 @@ public class UpdateHandler extends Handler {
 		
 		Selection selection = guiArguments.getBusLocations().getSelection();
 		final RefreshAsyncTask updateAsyncTask = new RefreshAsyncTask(guiArguments, getShowUnpredictable(), maxOverlays,
-				getHideHighlightCircle() == false,
+				hideHighlightCircle == false, allRoutesBlue, 
 				isFirstTime, selection, this);
 		guiArguments.setMajorHandler(updateAsyncTask);
 		updateAsyncTask.runUpdate();
@@ -207,11 +208,6 @@ public class UpdateHandler extends Handler {
 	public void setUpdateConstantlyInterval(int updateConstantlyInterval)
 	{
 		this.updateConstantlyInterval = updateConstantlyInterval;
-	}
-	
-	public boolean getHideHighlightCircle()
-	{
-		return hideHighlightCircle;
 	}
 	
 	public void setHideHighlightCircle(boolean b)
@@ -296,5 +292,10 @@ public class UpdateHandler extends Handler {
 			//probably not in the middle of something but just in case
 			minorUpdate.nullifyProgress();
 		}
+	}
+
+
+	public void setAllRoutesBlue(boolean b) {
+		allRoutesBlue = b;
 	}
 }

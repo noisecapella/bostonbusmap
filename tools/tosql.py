@@ -4,6 +4,7 @@ import sys
 
 import schema
 import routetitleshandler
+import argparse
 
 def escaped(s):
     return s.replace("'", "''")
@@ -89,18 +90,20 @@ class ToSql(xml.sax.handler.ContentHandler):
                 
 
 if __name__ == "__main__":
-    if len(sys.argv) < 4:
-        print "arg required: routeConfig.xml routeList.xml order"
-        exit(-1)
+    parser = argparse.ArgumentParser(description="Parse routeconfig.xml into SQL statements")
+    parser.add_argument("routeconfig", type=str)
+    parser.add_argument("routeList", type=str)
+    parser.add_argument("order", type=int)
+    args = parser.parse_args()
 
     routeTitleParser = xml.sax.make_parser()
     routeHandler = routetitleshandler.RouteTitlesHandler()
     routeTitleParser.setContentHandler(routeHandler)
-    routeTitleParser.parse(sys.argv[2])
+    routeTitleParser.parse(args.routeList)
         
     print "BEGIN TRANSACTION;"
     parser = xml.sax.make_parser()
-    handler = ToSql(routeHandler.mapping, int(sys.argv[3]))
+    handler = ToSql(routeHandler.mapping, args.order)
     parser.setContentHandler(handler)
-    parser.parse(sys.argv[1])
+    parser.parse(args.routeconfig)
     print "END TRANSACTION;"

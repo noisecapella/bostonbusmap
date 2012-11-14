@@ -213,7 +213,7 @@ public class BusLocation implements Location {
 
 	@Override
 	public void addToSnippetAndTitle(RouteConfig routeConfig,
-			Location location, RouteTitles routeKeysToTitles, Context context) {
+			Location location, RouteTitles routeKeysToTitles, Locations locations, Context context) {
 		BusLocation busLocation = (BusLocation) location;
 
 		PredictionView oldPredictionView = predictionView;
@@ -239,7 +239,7 @@ public class BusLocation implements Location {
 
 	@Override
 	public void makeSnippetAndTitle(RouteConfig routeConfig,
-			RouteTitles routeKeysToTitles, Context context) {
+			RouteTitles routeKeysToTitles, Locations locations, Context context) {
 		String snippet = makeSnippet(routeConfig);
 		String snippetTitle = makeTitle();
 		if (routeConfig.getRouteName().equals(routeName))

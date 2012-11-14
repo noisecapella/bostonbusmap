@@ -5,6 +5,7 @@
 <CheckBoxPreference android:title="@string/showRoutePath" android:key="@string/showRouteLineCheckbox" android:summary="@string/showRoutePathSummary"></CheckBoxPreference>
 <CheckBoxPreference android:title="@string/alwaysShowLocation" android:key="@string/alwaysShowLocationCheckbox" android:summary="@string/alwaysShowLocationSummary"></CheckBoxPreference>
 
+<CheckBoxPreference android:title="@string/allRoutesBlueTitle" android:key="@string/allRoutesBlue" android:summary="@string/allRoutesBlueSummary"></CheckBoxPreference>
 <!-- 
 <CheckBoxPreference android:key="@string/showCoarseRouteLineCheckbox" 
 android:summary="Unchecking this may make things slow"

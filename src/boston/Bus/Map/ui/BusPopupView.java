@@ -46,6 +46,7 @@ import boston.Bus.Map.data.RouteTitles;
 import boston.Bus.Map.data.Selection;
 import boston.Bus.Map.data.StopLocation;
 import boston.Bus.Map.data.StopPredictionView;
+import boston.Bus.Map.data.TimeBounds;
 import boston.Bus.Map.main.AlertInfo;
 import boston.Bus.Map.main.Main;
 import boston.Bus.Map.main.MoreInfo;
@@ -169,6 +170,21 @@ public class BusPopupView extends BalloonOverlayView<BusOverlayItem>
 					if (predictionArray != null)
 					{
 						intent.putExtra(MoreInfo.predictionsKey, predictionArray);
+					}
+
+					try
+					{
+						TimeBounds[] bounds = new TimeBounds[predictionView.getRouteTitles().length];
+						int i = 0;
+						for (String routeTitle : predictionView.getRouteTitles()) {
+							String routeKey = routeKeysToTitles.getKey(routeTitle);
+							bounds[i] = locations.getRoute(routeKey).getTimeBounds();
+							i++;
+						}
+						intent.putExtra(MoreInfo.boundKey, bounds);
+					}
+					catch (IOException e) {
+						throw new RuntimeException(e);
 					}
 					
 					String[] combinedTitles = predictionView.getTitles();
