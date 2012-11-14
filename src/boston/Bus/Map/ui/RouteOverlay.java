@@ -122,6 +122,7 @@ public class RouteOverlay extends Overlay
 				Paint paint = new Paint();
 				applyDefaultSettings(paint);
 				paint.setColor(color);
+				paint.setAlpha(0x99);
 
 				paintCache.put(color, paint);
 			}
@@ -191,9 +192,9 @@ public class RouteOverlay extends Overlay
 		Paint currentPaint = defaultPaint;
 		for (Path path : paths)
 		{
-			int pathColor = allRoutesBlue ? defaultPaint.getColor() : path.getColor();
-			if (pathColor != currentPaint.getColor()) {
-				Paint paint = paintCache.get(path.getColor());
+			int pathColor = allRoutesBlue ? DEFAULTCOLOR : path.getColor();
+			if (pathColor != (currentPaint.getColor() & 0xffffff)) {
+				Paint paint = paintCache.get(pathColor);
 				if (paint == null) {
 					Log.e("BostonBusMap", "ERROR: paint not in cache");
 					paint = defaultPaint;
