@@ -119,7 +119,7 @@ public class MoreInfo extends ListActivity {
 				if (position == 0)
 				{
 					refreshAdapter(null);
-					refreshText(null);
+					refreshText(extras, null);
 				}
 				else
 				{
