@@ -99,22 +99,26 @@ def main():
         arrival_index = trip_indexes["arrival_time"]
         departure_index = trip_indexes["departure_time"]
         for row in reader:
+            if arrival_index >= len(row) or departure_index >= len(row) or trip_index >= len(row):
+                continue
             arrival = parse_time(row[arrival_index])
             departure = parse_time(row[departure_index])
 
             trip = row[trip_index]
             route, service = trip_to_route[trip]
-            key = (route, calendar[service])
-            if key in trip_intervals:
-                old_departure, old_arrival = trip_intervals[key]
-                new_departure = None
-                new_arrival = None
-                if departure < old_departure:
-                    trip_intervals[key] = (departure, trip_intervals[key][1])
-                if arrival > old_arrival:
-                    trip_intervals[key] = (trip_intervals[key][0], arrival)
-            else:
-                trip_intervals[key] = (departure, arrival)
+            if service in calendar:
+                key = (route, calendar[service])
+
+                if key in trip_intervals:
+                    old_departure, old_arrival = trip_intervals[key]
+                    new_departure = None
+                    new_arrival = None
+                    if departure < old_departure:
+                        trip_intervals[key] = (departure, trip_intervals[key][1])
+                    if arrival > old_arrival:
+                        trip_intervals[key] = (trip_intervals[key][0], arrival)
+                else:
+                    trip_intervals[key] = (departure, arrival)
 
         obj = schema.getSchemaAsObject()
         for key, intervals in trip_intervals.iteritems():
