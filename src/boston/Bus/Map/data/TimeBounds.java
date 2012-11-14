@@ -44,8 +44,8 @@ public class TimeBounds implements Parcelable {
 			bounds.put(weekdaysBits, new TimeSpan(start, end));
 		}
 
-		public TimeBounds build(String route) {
-			return new TimeBounds(route, this);
+		public TimeBounds build(String routeTitle) {
+			return new TimeBounds(routeTitle, this);
 		}
 	}
 	
