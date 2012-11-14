@@ -49,12 +49,7 @@ public class RouteOverlay extends Overlay
 		this.projection = projection;
 		
 		defaultPaint = new Paint();
-		defaultPaint.setColor(DEFAULTCOLOR);
-		defaultPaint.setAlpha(0x99);
-		defaultPaint.setStrokeWidth(5);
-		defaultPaint.setAntiAlias(true);
-		defaultPaint.setStrokeMiter(3);
-		defaultPaint.setStyle(Style.STROKE);
+		applyDefaultSettings(defaultPaint);
 	}
 	
 	public RouteOverlay(RouteOverlay routeOverlay, Projection projection)
@@ -124,15 +119,24 @@ public class RouteOverlay extends Overlay
 		for (Path path : paths) {
 			int color = path.getColor();
 			if (paintCache.containsKey(color) == false) {
-				Paint paint = new Paint(defaultPaint);
+				Paint paint = new Paint();
+				applyDefaultSettings(paint);
 				paint.setColor(color);
-				paint.setAlpha(0x99);
 
 				paintCache.put(color, paint);
 			}
 		}		
 	}
 	
+	private void applyDefaultSettings(Paint paint) {
+		paint.setColor(DEFAULTCOLOR);
+		paint.setAlpha(0x99);
+		paint.setStrokeWidth(5);
+		paint.setAntiAlias(true);
+		paint.setStrokeMiter(3);
+		paint.setStyle(Style.STROKE);
+	}
+
 	/**
 	 * 
 	 * @param paths
@@ -187,16 +191,9 @@ public class RouteOverlay extends Overlay
 		Paint currentPaint = defaultPaint;
 		for (Path path : paths)
 		{
-			if (path.getColor() != currentPaint.getColor()) {
-				Paint paint;
-				if (allRoutesBlue)
-				{
-					paint = defaultPaint;
-				}
-				else
-				{
-					paint = paintCache.get(path.getColor());
-				}
+			int pathColor = allRoutesBlue ? defaultPaint.getColor() : path.getColor();
+			if (pathColor != currentPaint.getColor()) {
+				Paint paint = paintCache.get(path.getColor());
 				if (paint == null) {
 					Log.e("BostonBusMap", "ERROR: paint not in cache");
 					paint = defaultPaint;
