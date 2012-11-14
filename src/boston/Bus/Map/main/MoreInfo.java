@@ -232,14 +232,14 @@ public class MoreInfo extends ListActivity {
 				}
 			}
 		}
-		if (bounds != null) {
+/*		if (bounds != null) {
 			for (TimeBounds bound : bounds) {
 				if (bound != null && (routeTitle == null || bound.getRouteTitle().equals(routeTitle))) {
 					ImmutableMap<String, Spanned> map = ImmutableMap.of(MoreInfo.textKey, Html.fromHtml(bound.makeSnippet()));
 					data.add(map);
 				}
 			}
-		}
+		}*/
 		SimpleAdapter adapter = new SimpleAdapter(this, data, R.layout.moreinfo_row,
 				new String[]{textKey},
 				new int[] {R.id.moreinfo_text});
