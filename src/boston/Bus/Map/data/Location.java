@@ -43,7 +43,7 @@ public interface Location {
 	 * @param selectedRoute show only this route, if not null
 	 * @param context used for formatting the time
 	 */
-	void makeSnippetAndTitle(RouteConfig selectedRoute, RouteTitles routeKeysToTitles, Context context);
+	void makeSnippetAndTitle(RouteConfig selectedRoute, RouteTitles routeKeysToTitles, Locations locations, Context context);
 
 	/**
 	 * In case two locations share the same space, combine the textbox text in a nice way
@@ -51,7 +51,7 @@ public interface Location {
 	 * @param location whose textbox info you're adding to this class
 	 * @param context used for formatting the time
 	 */
-	void addToSnippetAndTitle(RouteConfig routeConfig, Location location, RouteTitles routeKeysToTitles, Context context);
+	void addToSnippetAndTitle(RouteConfig routeConfig, Location location, RouteTitles routeKeysToTitles, Locations locations, Context context);
 
 	/**
 	 * Does this location match the given id?

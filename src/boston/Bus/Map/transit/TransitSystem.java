@@ -171,6 +171,7 @@ public class TransitSystem {
 
 
 	private static final TimeZone torontoTimeZone = TimeZone.getTimeZone("America/Toronto");
+	public static final boolean defaultAllRoutesBlue = false;
 	private static DateFormat defaultTimeFormat;
 	private static DateFormat defaultDateFormat;
 		

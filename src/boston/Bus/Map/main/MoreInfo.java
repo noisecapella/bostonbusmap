@@ -14,6 +14,7 @@ import com.google.common.collect.Lists;
 
 import boston.Bus.Map.data.Prediction;
 import boston.Bus.Map.data.RouteTitles;
+import boston.Bus.Map.data.TimeBounds;
 import boston.Bus.Map.data.TransitSourceTitles;
 import boston.Bus.Map.ui.TextViewBinder;
 import boston.Bus.Map.util.StringUtil;
@@ -50,6 +51,7 @@ public class MoreInfo extends ListActivity {
 	public static final String routeTextKey = "routeText";
 	public static final String stopIsBetaKey = "stopIsBeta";
 	
+	public static final String boundKey = "bounds";
 	
 	private Prediction[] predictions;
 	private TextView title1;
@@ -61,6 +63,7 @@ public class MoreInfo extends ListActivity {
 	 */
 	private boolean dataIsInitialized;
 	private String[] routeTitles;
+	private TimeBounds[] bounds;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -69,18 +72,27 @@ public class MoreInfo extends ListActivity {
 		setContentView(R.layout.moreinfo);
 		
 		
-		Bundle extras = getIntent().getExtras();
+		final Bundle extras = getIntent().getExtras();
 		
 		
 		
-		Parcelable[] parcelables = (Parcelable[])extras.getParcelableArray(predictionsKey);
-		predictions = new Prediction[parcelables.length];
-		for (int i = 0; i < predictions.length; i++)
 		{
-			predictions[i] = (Prediction)parcelables[i];
+			Parcelable[] parcelables = (Parcelable[])extras.getParcelableArray(predictionsKey);
+			predictions = new Prediction[parcelables.length];
+			for (int i = 0; i < predictions.length; i++)
+			{
+				predictions[i] = (Prediction)parcelables[i];
+			}
 		}
 		
-		boolean stopIsBeta = extras.getBoolean(stopIsBetaKey);
+		{
+			Parcelable[] boundParcelables = (Parcelable[])extras.getParcelableArray(boundKey);
+			bounds = new TimeBounds[boundParcelables.length];
+			for (int i = 0; i < bounds.length; i++) {
+				bounds[i] = (TimeBounds)boundParcelables[i];
+			}
+		}
+		
 		
 		title1 = (TextView)findViewById(R.id.moreinfo_title1);
 		title2 = (TextView)findViewById(R.id.moreinfo_title2);
@@ -106,6 +118,7 @@ public class MoreInfo extends ListActivity {
 				if (position == 0)
 				{
 					refreshAdapter(null);
+					refreshText(extras, null);
 				}
 				else
 				{
@@ -117,6 +130,7 @@ public class MoreInfo extends ListActivity {
 					else
 					{
 						refreshAdapter(routeTitles[index]);
+						refreshText(extras, routeTitles[index]);
 					}
 				}
 			}
@@ -126,6 +140,12 @@ public class MoreInfo extends ListActivity {
 				//leave the state the way it is
 			}
 		});
+
+		refreshText(extras, null);
+	}
+
+	private void refreshText(Bundle extras, String routeTitle) {
+		boolean stopIsBeta = extras.getBoolean(stopIsBetaKey);
 		
 		String[] stopTitles = extras.getStringArray(titleKey);
 		
@@ -157,6 +177,7 @@ public class MoreInfo extends ListActivity {
 		
 		title1.setText(Html.fromHtml("<b>" + titleText1 + "</b>"));
 		title2.setText(Html.fromHtml("<b>" + titleText2 + "</b>"));
+		
 	}
 
 	private void refreshRouteAdapter()
@@ -210,6 +231,14 @@ public class MoreInfo extends ListActivity {
 				}
 			}
 		}
+/*		if (bounds != null) {
+			for (TimeBounds bound : bounds) {
+				if (bound != null && (routeTitle == null || bound.getRouteTitle().equals(routeTitle))) {
+					ImmutableMap<String, Spanned> map = ImmutableMap.of(MoreInfo.textKey, Html.fromHtml(bound.makeSnippet()));
+					data.add(map);
+				}
+			}
+		}*/
 		SimpleAdapter adapter = new SimpleAdapter(this, data, R.layout.moreinfo_row,
 				new String[]{textKey},
 				new int[] {R.id.moreinfo_text});

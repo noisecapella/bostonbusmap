@@ -126,6 +126,8 @@ import schema
 import xml.sax
 import xml.sax.handler
 import routetitleshandler
+import argparse
+
 
 def createDirectionHash(direction, branch):
     return direction + branch
@@ -243,14 +245,15 @@ def write_sql(data, routeTitles, startOrder):
         
 
 if __name__ == "__main__":
-    if len(sys.argv) < 3:
-        print "arg required: routeList startOrder"
-        exit(-1)
+    parser = argparse.ArgumentParser(description='Parse commuterrail data into SQL')
+    parser.add_argument("routeList", type=str)
+    parser.add_argument("order", type=int)
+    args = parser.parse_args()
 
     routeTitleParser = xml.sax.make_parser()
     routeHandler = routetitleshandler.RouteTitlesHandler()
     routeTitleParser.setContentHandler(routeHandler)
-    routeTitleParser.parse(sys.argv[1])
+    routeTitleParser.parse(args.routeList)
 
     routeTitles = routeHandler.mapping
     
@@ -259,7 +262,7 @@ if __name__ == "__main__":
     data = mbtaData
 
     print "BEGIN TRANSACTION;"
-    write_sql(data, routeHandler.mapping, int(sys.argv[2]))
+    write_sql(data, routeHandler.mapping, args.order)
     
     print "END TRANSACTION;"
 

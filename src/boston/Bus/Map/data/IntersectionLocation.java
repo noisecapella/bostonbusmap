@@ -132,13 +132,13 @@ public class IntersectionLocation implements Location {
 
 	@Override
 	public void makeSnippetAndTitle(RouteConfig selectedRoute,
-			RouteTitles routeKeysToTitles, Context context) {
+			RouteTitles routeKeysToTitles, Locations locations, Context context) {
 		// do nothing
 	}
 
 	@Override
 	public void addToSnippetAndTitle(RouteConfig routeConfig,
-			Location location, RouteTitles routeKeysToTitles, Context context) {
+			Location location, RouteTitles routeKeysToTitles, Locations locations, Context context) {
 		// do nothing
 	}
 

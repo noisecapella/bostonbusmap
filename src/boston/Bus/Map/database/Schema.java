@@ -55,6 +55,53 @@ public class Schema {
             helper.execute();
         }
     }
+    public static class Bounds {
+        public static final String table = "bounds"; 
+        public static final String[] columns = new String[] {
+            "route", "weekdays", "start", "stop"
+        };
+
+        public static final int routeIndex = 1;
+        public static final String routeColumn = "route";
+        public static final String routeColumnOnTable = "bounds.route";
+        public static final int weekdaysIndex = 2;
+        public static final String weekdaysColumn = "weekdays";
+        public static final String weekdaysColumnOnTable = "bounds.weekdays";
+        public static final int startIndex = 3;
+        public static final String startColumn = "start";
+        public static final String startColumnOnTable = "bounds.start";
+        public static final int stopIndex = 4;
+        public static final String stopColumn = "stop";
+        public static final String stopColumnOnTable = "bounds.stop";
+
+        public static final String dropSql = "DROP TABLE IF EXISTS bounds";
+        public static final String createSql = "CREATE TABLE IF NOT EXISTS bounds (route STRING, weekdays INTEGER, start INTEGER, stop INTEGER)";
+        public static class Bean {
+            public final String route;
+            public final int weekdays;
+            public final int start;
+            public final int stop;
+            public Bean(String route, int weekdays, int start, int stop) {
+                this.route = route;
+                this.weekdays = weekdays;
+                this.start = start;
+                this.stop = stop;
+            }
+        }
+        public static void executeInsertHelper(InsertHelper helper, Collection<Bean> beans) {
+            for (Bean bean : beans) {
+                executeInsertHelper(helper, bean.route, bean.weekdays, bean.start, bean.stop);
+            }
+        }
+        public static void executeInsertHelper(InsertHelper helper, String route, int weekdays, int start, int stop) {
+            helper.prepareForReplace();
+            helper.bind(routeIndex, route);
+            helper.bind(weekdaysIndex, weekdays);
+            helper.bind(startIndex, start);
+            helper.bind(stopIndex, stop);
+            helper.execute();
+        }
+    }
     public static class Directions {
         public static final String table = "directions"; 
         public static final String[] columns = new String[] {
