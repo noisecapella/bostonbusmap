@@ -176,12 +176,6 @@ public class MoreInfo extends ListActivity {
 			titleText2.append("</b><br /><font color='red'>Commuter rail predictions are experimental</font><b>");
 		}
 		
-		for (TimeBounds bound : bounds) {
-			if (routeTitle == null || bound.getRouteTitle().equals(routeTitle)) {
-				titleText2.append("<br />" + bound.makeSnippet());
-			}
-		}
-		
 		title1.setText(Html.fromHtml("<b>" + titleText1 + "</b>"));
 		title2.setText(Html.fromHtml("<b>" + titleText2 + "</b>"));
 		
@@ -235,6 +229,14 @@ public class MoreInfo extends ListActivity {
 						ImmutableMap<String, Spanned> map = prediction.makeSnippetMap(this);
 						data.add(map);
 					}
+				}
+			}
+		}
+		if (bounds != null) {
+			for (TimeBounds bound : bounds) {
+				if (bound != null && (routeTitle == null || bound.getRouteTitle().equals(routeTitle))) {
+					ImmutableMap<String, Spanned> map = ImmutableMap.of(MoreInfo.textKey, Html.fromHtml(bound.makeSnippet()));
+					data.add(map);
 				}
 			}
 		}
