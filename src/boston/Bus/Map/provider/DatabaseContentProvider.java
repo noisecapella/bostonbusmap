@@ -536,10 +536,12 @@ public class DatabaseContentProvider extends ContentProvider {
 							routeConfigBuilder = new RouteConfig.Builder(routeToUpdate, routeTitle, 
 									color, oppositeColor, source, listorder, transitSourceId, pathsBlobBox);
 						}
-						int weekdays = cursor.getInt(6);
-						int start = cursor.getInt(7);
-						int stop = cursor.getInt(8);
-						routeConfigBuilder.addTimeBound(weekdays, start, stop);
+						if (!cursor.isNull(6)) {
+							int weekdays = cursor.getInt(6);
+							int start = cursor.getInt(7);
+							int stop = cursor.getInt(8);
+							routeConfigBuilder.addTimeBound(weekdays, start, stop);
+						}
 						cursor.moveToNext();
 					}
 				}
@@ -1693,7 +1695,7 @@ public class DatabaseContentProvider extends ContentProvider {
 			builder.setTables(Schema.Alerts.table);
 			break;
 		case ROUTES_AND_BOUNDS:
-			builder.setTables(Schema.Routes.table + " JOIN " + Schema.Bounds.table + " ON " + Schema.Routes.routeColumnOnTable + " = " + Schema.Bounds.routeColumnOnTable);
+			builder.setTables(Schema.Routes.table + " LEFT OUTER JOIN " + Schema.Bounds.table + " ON " + Schema.Routes.routeColumnOnTable + " = " + Schema.Bounds.routeColumnOnTable);
 			break;
 		default:
 			throw new IllegalArgumentException("Unknown URI " + uri);
