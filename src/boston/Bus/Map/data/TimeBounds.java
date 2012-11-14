@@ -31,6 +31,10 @@ public class TimeBounds implements Parcelable {
 	
 	private static final int WEEKDAYS = MONDAY | TUESDAY | WEDNESDAY | THURSDAY | FRIDAY;
 	
+	private static final int[] boundsOrder = new int[] {
+		WEEKDAYS, MONDAY, TUESDAY, WEDNESDAY, THURSDAY, FRIDAY, SATURDAY, SUNDAY
+	};
+
 	private TimeBounds(String routeTitle, Builder builder) {
 		this.bounds = ImmutableMap.copyOf(builder.bounds);
 		this.routeTitle = routeTitle;
@@ -222,45 +226,50 @@ public class TimeBounds implements Parcelable {
 			return new TimeBounds[size];
 		}
 	};
+	
+	private void appendTimeBound(int weekdays, StringBuilder ret) {
+		TimeSpan span = bounds.get(weekdays);
+		List<String> dayStrings = Lists.newArrayList();
+		if ((weekdays & WEEKDAYS) == WEEKDAYS) {
+			dayStrings.add("Weekdays");
+		}
+		else { 
+			if ((weekdays & MONDAY) != 0) {
+				dayStrings.add("Monday");
+			}
+			if ((weekdays & TUESDAY) != 0) {
+				dayStrings.add("Tuesday");
+			}
+			if ((weekdays & WEDNESDAY) != 0) {
+				dayStrings.add("Wednesday");
+			}
+			if ((weekdays & THURSDAY) != 0) {
+				dayStrings.add("Thursday");
+			}
+			if ((weekdays & FRIDAY) != 0) {
+				dayStrings.add("Friday");
+			}
+		}
+		
+		if ((weekdays & SATURDAY) != 0) {
+			dayStrings.add("Saturday");
+		}
+		if ((weekdays & SUNDAY) != 0) {
+			dayStrings.add("Sunday");
+		}
+		
+		ret.append(Joiner.on(", ").join(dayStrings)).append(" - ");
+		ret.append(makeTimeString(span.begin)).append(" until ").append(makeTimeString(span.end)).append("<br />");
 
+	}
+	
 	public String makeSnippet() {
 		StringBuilder ret = new StringBuilder("Schedule for route ").append(routeTitle).append(": <br/>");
 		
-		for (Integer weekdaysObj : bounds.keySet()) {
-			TimeSpan span = bounds.get(weekdaysObj);
-			int weekdays = weekdaysObj;
-			
-			List<String> dayStrings = Lists.newArrayList();
-			if ((weekdays & WEEKDAYS) == WEEKDAYS) {
-				dayStrings.add("Weekdays");
+		for (int weekdays : boundsOrder) {
+			if (bounds.containsKey(weekdays)) {
+				appendTimeBound(weekdays, ret);
 			}
-			else { 
-				if ((weekdays & MONDAY) != 0) {
-					dayStrings.add("Monday");
-				}
-				if ((weekdays & TUESDAY) != 0) {
-					dayStrings.add("Tuesday");
-				}
-				if ((weekdays & WEDNESDAY) != 0) {
-					dayStrings.add("Wednesday");
-				}
-				if ((weekdays & THURSDAY) != 0) {
-					dayStrings.add("Thursday");
-				}
-				if ((weekdays & FRIDAY) != 0) {
-					dayStrings.add("Friday");
-				}
-			}
-			
-			if ((weekdays & SATURDAY) != 0) {
-				dayStrings.add("Saturday");
-			}
-			if ((weekdays & SUNDAY) != 0) {
-				dayStrings.add("Sunday");
-			}
-			
-			ret.append(Joiner.on(", ").join(dayStrings)).append(" - ");
-			ret.append(makeTimeString(span.begin)).append(" until ").append(makeTimeString(span.end)).append("<br />");
 		}
 		return ret.toString();
 	}
