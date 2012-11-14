@@ -315,7 +315,7 @@ public abstract class UpdateAsyncTask extends AsyncTask<Object, Object, Immutabl
 		busOverlay.setDrawHighlightCircle(drawCircle);
 		
 		final RouteOverlay routeOverlay = arguments.getOverlayGroup().getRouteOverlay();
-		routeOverlay.setAllRoutesBlue(drawCircle);
+		routeOverlay.setAllRoutesBlue(allRoutesBlue);
 		//routeOverlay.setDrawCoarseLine(showCoarseRouteLine);
 		
 		//get a list of lat/lon pairs which describe the route
