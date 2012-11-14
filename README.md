@@ -17,6 +17,8 @@ Please email bostonbusmap@gmail.com if you have any problem, and please report a
 #Build
 You'll need to `git clone git@github.com:bostonbusmap/android-mapviewballoons.git`. This project references that code to draw the mapview balloons.
 
+You'll also need to download [the MBTA's GTFS data](http://www.mbta.com/rider_tools/developers/default.asp?id=21895), and unzip it into tools/gtfs.
+
 Then, `cd` into the `tools` directory, then run `autogenerate.sh` to create and populate the database file, which gets copied to `res/raw/databasegz`. `routeconfig.xml` and `routeLists` come from data collected from nextbus.com for a particular transit agency. For the MBTA, see their developer website for how to get their subway and commuter rail info.
 
 Otherwise this is a standard Android project. You might need to change the paths a little bit but you shouldn't need to install anything unexpected.

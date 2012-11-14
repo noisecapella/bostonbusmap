@@ -181,7 +181,7 @@ public class StopLocation implements Location
 		// TODO: support mixing multiple alerts
 		ImmutableSet<Alert> alerts = ImmutableSet.of();
 		
-		predictions.addToSnippetAndTitle(routeConfig, stopLocation, routeKeysToTitles, context, title, routes, alerts, locations);
+		predictions.addToSnippetAndTitle(routeConfig, stopLocation, routeKeysToTitles, context, stopLocation.routes, alerts, locations);
 	}
 	
 	public String getStopTag()

@@ -72,7 +72,7 @@ public class Predictions
 	
 	public void addToSnippetAndTitle(RouteConfig routeConfig, StopLocation stopLocation, 
 			RouteTitles routeKeysToTitles,
-			Context context, String title, RouteSet routes, Set<Alert> alerts, Locations locations)
+			Context context, RouteSet routes, Set<Alert> alerts, Locations locations)
 	{
 		synchronized (modificationLock) {
 			allStops.add(stopLocation);
