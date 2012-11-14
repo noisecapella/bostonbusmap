@@ -20,6 +20,7 @@ import android.util.Log;
 import android.widget.PopupWindow;
 import boston.Bus.Map.data.Path;
 import boston.Bus.Map.main.Main;
+import boston.Bus.Map.transit.TransitSystem;
 import boston.Bus.Map.util.Constants;
 
 
@@ -35,6 +36,7 @@ public class RouteOverlay extends Overlay
 	private List<Path> paths = Lists.newLinkedList();
 	private final Projection projection;
 	private boolean showRouteLine = true;
+	private boolean allRoutesBlue = TransitSystem.defaultAllRoutesBlue;
 	
 	private final Paint defaultPaint;
 	private final Map<Integer, Paint> paintCache = Maps.newHashMap();
@@ -186,7 +188,15 @@ public class RouteOverlay extends Overlay
 		for (Path path : paths)
 		{
 			if (path.getColor() != currentPaint.getColor()) {
-				Paint paint = paintCache.get(path.getColor());
+				Paint paint;
+				if (allRoutesBlue)
+				{
+					paint = defaultPaint;
+				}
+				else
+				{
+					paint = paintCache.get(path.getColor());
+				}
 				if (paint == null) {
 					Log.e("BostonBusMap", "ERROR: paint not in cache");
 					paint = defaultPaint;
@@ -277,5 +287,9 @@ public class RouteOverlay extends Overlay
 
 	public void clearPaths() {
 		this.paths.clear();
+	}
+
+	public void setAllRoutesBlue(boolean allRoutesBlue) {
+		this.allRoutesBlue = allRoutesBlue;
 	}
 }

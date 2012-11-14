@@ -102,6 +102,7 @@ public abstract class UpdateAsyncTask extends AsyncTask<Object, Object, Immutabl
 	private final boolean doInit;
 	private final int maxOverlays;
 	private final boolean drawCircle;
+	private final boolean allRoutesBlue;
 	
 	private String progressDialogTitle;
 	private String progressDialogMessage;
@@ -123,7 +124,7 @@ public abstract class UpdateAsyncTask extends AsyncTask<Object, Object, Immutabl
 	protected final GeoPoint currentMapCenter;
 	
 	public UpdateAsyncTask(UpdateArguments arguments, boolean doShowUnpredictable,
-			int maxOverlays, boolean drawCircle,
+			int maxOverlays, boolean drawCircle, boolean allRoutesBlue,
 			boolean doInit, Selection selection, UpdateHandler handler, Integer toSelect)
 	{
 		super();
@@ -133,6 +134,7 @@ public abstract class UpdateAsyncTask extends AsyncTask<Object, Object, Immutabl
 		this.doShowUnpredictable = doShowUnpredictable;
 		this.maxOverlays = maxOverlays;
 		this.drawCircle = drawCircle;
+		this.allRoutesBlue = allRoutesBlue;
 		this.doInit = doInit;
 		this.selection = selection;
 		this.handler = handler;
@@ -313,6 +315,7 @@ public abstract class UpdateAsyncTask extends AsyncTask<Object, Object, Immutabl
 		busOverlay.setDrawHighlightCircle(drawCircle);
 		
 		final RouteOverlay routeOverlay = arguments.getOverlayGroup().getRouteOverlay();
+		routeOverlay.setAllRoutesBlue(drawCircle);
 		//routeOverlay.setDrawCoarseLine(showCoarseRouteLine);
 		
 		//get a list of lat/lon pairs which describe the route

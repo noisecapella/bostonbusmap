@@ -178,6 +178,7 @@ public class TransitSystem {
 
 
 	private static final TimeZone bostonTimeZone = TimeZone.getTimeZone("America/New_York");
+	public static final boolean defaultAllRoutesBlue = false;
 	private static DateFormat defaultTimeFormat;
 	private static DateFormat defaultDateFormat;
 		
