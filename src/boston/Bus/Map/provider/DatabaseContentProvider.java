@@ -38,6 +38,7 @@ import boston.Bus.Map.data.RouteConfig;
 import boston.Bus.Map.data.RouteTitles;
 import boston.Bus.Map.data.StopLocation;
 import boston.Bus.Map.data.SubwayStopLocation;
+import boston.Bus.Map.data.TimeBounds;
 import boston.Bus.Map.data.TransitSourceTitles;
 import boston.Bus.Map.data.UpdateArguments;
 import boston.Bus.Map.database.Schema;
@@ -139,7 +140,10 @@ public class DatabaseContentProvider extends ContentProvider {
 	public static final Uri STOPS_AND_ROUTES_WITH_DISTANCE_URI = Uri.parse("content://" + AUTHORITY + "/stops_and_routes_with_distance");
 	private static final int STOPS_AND_ROUTES_WITH_DISTANCE = 17;
 
-
+	private static final String ROUTES_AND_BOUNDS_TYPE = "vnd.android.cursor.dir/vnd.bostonbusmap/route_and_bound";
+	public static final Uri ROUTES_AND_BOUNDS_URI = Uri.parse("content://" + AUTHORITY + "/routes_and_bounds");
+	private static final int ROUTES_AND_BOUNDS = 18;
+	
 	private final static String DATABASE_VERSION_KEY = "DB_VERSION";
 	
 	private static final String distanceKey = "distance";
@@ -174,8 +178,9 @@ public class DatabaseContentProvider extends ContentProvider {
 	public final static int VERBOSE_DBV2_4 = 28;
 
 	public final static int FIRST_COPYING_DB = 37;
+	public final static int ADDING_BOUNDS = 38;
 	
-	public final static int CURRENT_DB_VERSION = FIRST_COPYING_DB;
+	public final static int CURRENT_DB_VERSION = ADDING_BOUNDS;
 
 	public static final int ALWAYS_POPULATE = 3;
 	public static final int POPULATE_IF_UPGRADE = 2;
@@ -494,7 +499,7 @@ public class DatabaseContentProvider extends ContentProvider {
 				TransitSystem transitSystem) throws IOException {
 
 			//get the route-specific information, like the path outline and the color
-			RouteConfig.Builder routeConfigBuilder;
+			RouteConfig.Builder routeConfigBuilder = null;
 			{
 				Cursor cursor = null;
 				try
@@ -502,9 +507,11 @@ public class DatabaseContentProvider extends ContentProvider {
 					String[] projectionIn = new String[]{Schema.Routes.colorColumn,
 							Schema.Routes.oppositecolorColumn, Schema.Routes.pathblobColumn, 
 							Schema.Routes.routetitleColumn, Schema.Routes.listorderColumn, 
-							Schema.Routes.agencyidColumn};
-					cursor = resolver.query(ROUTES_URI, projectionIn,
-							Schema.Routes.routeColumn + "=?",
+							Schema.Routes.agencyidColumn, 
+							Schema.Bounds.weekdaysColumn, Schema.Bounds.startColumn,
+							Schema.Bounds.stopColumn};
+					cursor = resolver.query(ROUTES_AND_BOUNDS_URI, projectionIn,
+							Schema.Routes.routeColumnOnTable + "=?",
 							new String[]{routeToUpdate}, null);
 					if (cursor.getCount() == 0)
 					{
@@ -513,19 +520,28 @@ public class DatabaseContentProvider extends ContentProvider {
 
 					cursor.moveToFirst();
 
-					TransitSource source = transitSystem.getTransitSource(routeToUpdate);
+					while (cursor.isAfterLast() == false) {
+						if (routeConfigBuilder == null) {
+							TransitSource source = transitSystem.getTransitSource(routeToUpdate);
 
-					int color = cursor.getInt(0);
-					int oppositeColor = cursor.getInt(1);
-					byte[] pathsBlob = cursor.getBlob(2);
-					String routeTitle = cursor.getString(3);
-					int listorder = cursor.getInt(4);
-					int transitSourceId = cursor.getInt(5);
-					
-					Box pathsBlobBox = new Box(pathsBlob, CURRENT_DB_VERSION);
+							int color = cursor.getInt(0);
+							int oppositeColor = cursor.getInt(1);
+							byte[] pathsBlob = cursor.getBlob(2);
+							String routeTitle = cursor.getString(3);
+							int listorder = cursor.getInt(4);
+							int transitSourceId = cursor.getInt(5);
 
-					routeConfigBuilder = new RouteConfig.Builder(routeToUpdate, routeTitle, 
-							color, oppositeColor, source, listorder, transitSourceId, pathsBlobBox);
+							Box pathsBlobBox = new Box(pathsBlob, CURRENT_DB_VERSION);
+
+							routeConfigBuilder = new RouteConfig.Builder(routeToUpdate, routeTitle, 
+									color, oppositeColor, source, listorder, transitSourceId, pathsBlobBox);
+						}
+						int weekdays = cursor.getInt(6);
+						int start = cursor.getInt(7);
+						int stop = cursor.getInt(8);
+						routeConfigBuilder.addTimeBound(weekdays, start, stop);
+						cursor.moveToNext();
+					}
 				}
 				finally
 				{
@@ -1406,6 +1422,7 @@ public class DatabaseContentProvider extends ContentProvider {
 		uriMatcher.addURI(AUTHORITY, "subway_stops", SUBWAY_STOPS);
 		uriMatcher.addURI(AUTHORITY, "locations", LOCATIONS);
 		uriMatcher.addURI(AUTHORITY, "alerts", ALERTS);
+		uriMatcher.addURI(AUTHORITY, "routes_and_bounds", ROUTES_AND_BOUNDS);
 	}
 
 	@Override
@@ -1476,6 +1493,8 @@ public class DatabaseContentProvider extends ContentProvider {
 			return LOCATIONS_TYPE;
 		case ALERTS:
 			return ALERTS_TYPE;
+		case ROUTES_AND_BOUNDS:
+			return ROUTES_AND_BOUNDS_TYPE;
 		default:
 			throw new IllegalArgumentException("Unknown URI " + uri);
 		}
@@ -1672,6 +1691,9 @@ public class DatabaseContentProvider extends ContentProvider {
 			break;
 		case ALERTS:
 			builder.setTables(Schema.Alerts.table);
+			break;
+		case ROUTES_AND_BOUNDS:
+			builder.setTables(Schema.Routes.table + " JOIN " + Schema.Bounds.table + " ON " + Schema.Routes.routeColumnOnTable + " = " + Schema.Bounds.routeColumnOnTable);
 			break;
 		default:
 			throw new IllegalArgumentException("Unknown URI " + uri);

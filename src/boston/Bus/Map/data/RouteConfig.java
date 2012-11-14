@@ -2,9 +2,11 @@ package boston.Bus.Map.data;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.TimeZone;
 
 import com.google.common.collect.Collections2;
 import com.google.common.collect.ImmutableList;
@@ -16,6 +18,7 @@ import com.google.common.collect.Maps;
 import boston.Bus.Map.data.StopLocation.Builder;
 import boston.Bus.Map.math.Geometry;
 import boston.Bus.Map.transit.TransitSource;
+import boston.Bus.Map.transit.TransitSystem;
 import boston.Bus.Map.util.Box;
 import boston.Bus.Map.util.IBox;
 import boston.Bus.Map.util.IBox;
@@ -37,6 +40,8 @@ public class RouteConfig
 	
 	public static final Path[] nullPaths = new Path[0];
 	private ImmutableSet<Alert> alerts = ImmutableSet.of();
+	
+	private final TimeBounds timeBounds;
 	
 	private boolean obtainedAlerts;
 
@@ -60,6 +65,8 @@ public class RouteConfig
 		
 		this.listorder = builder.listorder;
 		this.transitSourceId = builder.transitSourceId;
+		
+		this.timeBounds = builder.timeBounds.build(routeTitle);
 	}
 	
 	private RouteConfig(Builder builder)
@@ -78,6 +85,7 @@ public class RouteConfig
 		private final List<Path> paths = Lists.newArrayList();
 		private final int listorder;
 		private final int transitSourceId;
+		private final TimeBounds.Builder timeBounds = TimeBounds.builder();
 		
 		public Builder(String route, String routeTitle, int color, int oppositeColor,
 				TransitSource transitSource, int listorder, int transitSourceId) {
@@ -110,6 +118,10 @@ public class RouteConfig
 			paths.add(path);
 		}
 
+		public void addTimeBound(int weekdaysBits, int start, int end) {
+			timeBounds.add(weekdaysBits, start, end);
+		}
+		
 		public String getRouteName() {
 			return route;
 		}
@@ -253,5 +265,14 @@ public class RouteConfig
 	
 	public int getListOrder() {
 		return listorder;
+	}
+	
+	public boolean isRouteRunning() {
+		Calendar calendar = Calendar.getInstance(TransitSystem.getTimeZone());
+		return timeBounds.isRouteRunning(calendar);
+	}
+
+	public TimeBounds getTimeBounds() {
+		return timeBounds;
 	}
 }

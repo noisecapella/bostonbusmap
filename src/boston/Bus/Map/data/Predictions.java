@@ -49,7 +49,7 @@ public class Predictions
 	
 	public void makeSnippetAndTitle(RouteConfig routeConfig,
 			RouteTitles routeKeysToTitles, Context context,
-			RouteSet routes, StopLocation stop, Set<Alert> alerts)
+			RouteSet routes, StopLocation stop, Set<Alert> alerts, Locations locations)
 	{
 		synchronized (modificationLock) {
 			this.routes.clear();
@@ -63,7 +63,7 @@ public class Predictions
 			
 			predictionView = new StopPredictionViewImpl(this.routes, allStops,
 					predictions,
-					routeConfig, routeKeysToTitles, context, alerts);
+					routeConfig, routeKeysToTitles, context, alerts, locations);
 		}
 	}
 	
@@ -72,7 +72,7 @@ public class Predictions
 	
 	public void addToSnippetAndTitle(RouteConfig routeConfig, StopLocation stopLocation, 
 			RouteTitles routeKeysToTitles,
-			Context context, String title, RouteSet routes, Set<Alert> alerts)
+			Context context, String title, RouteSet routes, Set<Alert> alerts, Locations locations)
 	{
 		synchronized (modificationLock) {
 			allStops.add(stopLocation);
@@ -99,10 +99,12 @@ public class Predictions
 				newAlerts = dupAlerts;
 			}
 			
+			
+			
 			predictionView = new StopPredictionViewImpl(this.routes, allStops,
 					allPredictions,
 					routeConfig,
-					routeKeysToTitles, context, newAlerts);
+					routeKeysToTitles, context, newAlerts, locations);
 		}
 
 	}

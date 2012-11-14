@@ -148,7 +148,7 @@ public class StopLocation implements Location
 	
 	@Override
 	public void makeSnippetAndTitle(RouteConfig routeConfig, RouteTitles routeKeysToTitles, 
-			Context context)
+			Locations locations, Context context)
 	{
 		if (predictions == null)
 		{
@@ -164,12 +164,12 @@ public class StopLocation implements Location
 			alerts = ImmutableSet.of();
 		}
 		
-		predictions.makeSnippetAndTitle(routeConfig, routeKeysToTitles, context, routes, this, alerts);
+		predictions.makeSnippetAndTitle(routeConfig, routeKeysToTitles, context, routes, this, alerts, locations);
 	}
 	
 	@Override
 	public void addToSnippetAndTitle(RouteConfig routeConfig, Location location, RouteTitles routeKeysToTitles,
-			Context context)
+			Locations locations, Context context)
 	{
 		if (predictions == null)
 		{
@@ -181,7 +181,7 @@ public class StopLocation implements Location
 		// TODO: support mixing multiple alerts
 		ImmutableSet<Alert> alerts = ImmutableSet.of();
 		
-		predictions.addToSnippetAndTitle(routeConfig, stopLocation, routeKeysToTitles, context, title, routes, alerts);
+		predictions.addToSnippetAndTitle(routeConfig, stopLocation, routeKeysToTitles, context, title, routes, alerts, locations);
 	}
 	
 	public String getStopTag()

@@ -329,6 +329,7 @@ import sys
 import xml.sax.handler
 import xml.sax
 import routetitleshandler
+import argparse
 
 purple = 0x940088
 
@@ -471,15 +472,15 @@ def write_sql(data, routeTitles, startOrder):
             
 
 if __name__ == "__main__":
-    if len(sys.argv) < 3:
-        print "arg required: routeList startOrder"
-        exit(-1)
-
+    parser = argparse.ArgumentParser(description='Parse commuterrail data into SQL')
+    parser.add_argument("routeList", type=str)
+    parser.add_argument("order", type=int)
+    args = parser.parse_args()
         
     routeTitleParser = xml.sax.make_parser()
     routeHandler = routetitleshandler.RouteTitlesHandler()
     routeTitleParser.setContentHandler(routeHandler)
-    routeTitleParser.parse(sys.argv[1])
+    routeTitleParser.parse(args.routeList)
         
     routeTitles = routeHandler.mapping
     inverseTitles = {}
@@ -492,5 +493,5 @@ if __name__ == "__main__":
 
     print "BEGIN TRANSACTION;"
 
-    write_sql(data, routeTitles, int(sys.argv[2]))
+    write_sql(data, routeTitles, args.order)
     print "END TRANSACTION;"
