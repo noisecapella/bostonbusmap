@@ -42,7 +42,7 @@ public class RouteOverlay extends Overlay
 	private final Map<Integer, Paint> paintCache = Maps.newHashMap();
 	private String currentRoute;
 	
-	private static final int DEFAULTCOLOR = 0x990000;
+	private static final int DEFAULTCOLOR = 0x000099;
 	
 	public RouteOverlay(Projection projection)
 	{
