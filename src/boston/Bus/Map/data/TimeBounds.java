@@ -232,7 +232,7 @@ public class TimeBounds implements Parcelable {
 			
 			List<String> dayStrings = Lists.newArrayList();
 			if ((weekdays & WEEKDAYS) == WEEKDAYS) {
-				dayStrings.add("weekdays");
+				dayStrings.add("Weekdays");
 			}
 			else { 
 				if ((weekdays & MONDAY) != 0) {
@@ -259,7 +259,7 @@ public class TimeBounds implements Parcelable {
 				dayStrings.add("Sunday");
 			}
 			
-			ret.append(Joiner.on(", ").join(dayStrings)).append("<br />");
+			ret.append(Joiner.on(", ").join(dayStrings)).append(" - ");
 			ret.append(makeTimeString(span.begin)).append(" until ").append(makeTimeString(span.end)).append("<br />");
 		}
 		return ret.toString();
@@ -280,12 +280,10 @@ public class TimeBounds implements Parcelable {
 		
 		
 		String ret = format.format(calendar.getTime()); 
-		if (totalHours >= 24) {
-			return ret + " tomorrow morning";
-		}
-		else
-		{
-			return ret;
-		}
+		return ret;
+	}
+	
+	public String getRouteTitle() {
+		return routeTitle;
 	}
 }

@@ -73,7 +73,7 @@ public class MoreInfo extends ListActivity {
 		setContentView(R.layout.moreinfo);
 		
 		
-		Bundle extras = getIntent().getExtras();
+		final Bundle extras = getIntent().getExtras();
 		
 		
 		
@@ -94,8 +94,6 @@ public class MoreInfo extends ListActivity {
 			}
 		}
 		
-		
-		boolean stopIsBeta = extras.getBoolean(stopIsBetaKey);
 		
 		title1 = (TextView)findViewById(R.id.moreinfo_title1);
 		title2 = (TextView)findViewById(R.id.moreinfo_title2);
@@ -121,6 +119,7 @@ public class MoreInfo extends ListActivity {
 				if (position == 0)
 				{
 					refreshAdapter(null);
+					refreshText(null);
 				}
 				else
 				{
@@ -132,6 +131,7 @@ public class MoreInfo extends ListActivity {
 					else
 					{
 						refreshAdapter(routeTitles[index]);
+						refreshText(extras, routeTitles[index]);
 					}
 				}
 			}
@@ -141,6 +141,12 @@ public class MoreInfo extends ListActivity {
 				//leave the state the way it is
 			}
 		});
+
+		refreshText(extras, null);
+	}
+
+	private void refreshText(Bundle extras, String routeTitle) {
+		boolean stopIsBeta = extras.getBoolean(stopIsBetaKey);
 		
 		String[] stopTitles = extras.getStringArray(titleKey);
 		
@@ -171,11 +177,14 @@ public class MoreInfo extends ListActivity {
 		}
 		
 		for (TimeBounds bound : bounds) {
-			titleText2.append("<br />" + bound.makeSnippet());
+			if (routeTitle == null || bound.getRouteTitle().equals(routeTitle)) {
+				titleText2.append("<br />" + bound.makeSnippet());
+			}
 		}
 		
 		title1.setText(Html.fromHtml("<b>" + titleText1 + "</b>"));
 		title2.setText(Html.fromHtml("<b>" + titleText2 + "</b>"));
+		
 	}
 
 	private void refreshRouteAdapter()
