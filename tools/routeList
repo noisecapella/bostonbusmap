@@ -71,14 +71,14 @@
 <route tag="76" title="76-Royal York South"/>
 <route tag="77" title="77-Swansea"/>
 <route tag="78" title="78-St Andrews"/>
-<route tag="79" title="79-SCARLETT Rd"/>
+<route tag="79" title="79-Scarlett Rd"/>
 <route tag="80" title="80-Queensway"/>
 <route tag="81" title="81-Thorncliffe Park"/>
 <route tag="82" title="82-Rosedale"/>
 <route tag="83" title="83-Jones"/>
 <route tag="84" title="84-Sheppard West"/>
 <route tag="85" title="85-Sheppard East"/>
-<route tag="86" title="86-SCARBOROUGH"/>
+<route tag="86" title="86-Scarborough"/>
 <route tag="87" title="87-Cosburn"/>
 <route tag="88" title="88-South Leaside"/>
 <route tag="89" title="89-Weston"/>
@@ -136,7 +136,7 @@
 <route tag="168" title="168-Symington"/>
 <route tag="169" title="169-Huntingwood"/>
 <route tag="171" title="171-Mount Dennis"/>
-<route tag="190" title="190-SCARBOROUGH Centre Rocket"/>
+<route tag="190" title="190-Scarborough Centre Rocket"/>
 <route tag="191" title="191-Highway 27 Rocket"/>
 <route tag="192" title="192-Airport Rocket"/>
 <route tag="196" title="196-York University Rocket"/>

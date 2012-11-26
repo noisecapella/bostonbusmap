@@ -179,8 +179,9 @@ public class DatabaseContentProvider extends ContentProvider {
 
 	public final static int FIRST_COPYING_DB = 37;
 	public final static int ADDING_BOUNDS = 38;
+	public final static int ADDING_BOUNDS_2 = 39;
 	
-	public final static int CURRENT_DB_VERSION = ADDING_BOUNDS;
+	public final static int CURRENT_DB_VERSION = ADDING_BOUNDS_2;
 
 	public static final int ALWAYS_POPULATE = 3;
 	public static final int POPULATE_IF_UPGRADE = 2;
