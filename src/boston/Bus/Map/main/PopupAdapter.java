@@ -1,9 +1,7 @@
-package boston.Bus.Map.ui;
+package boston.Bus.Map.main;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.ConcurrentMap;
 
@@ -11,29 +9,22 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.OperationApplicationException;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
-
 import android.os.RemoteException;
 import android.text.Html;
 import android.text.Spanned;
 import android.util.Log;
-import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
+import android.view.View.OnClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
-import android.widget.FrameLayout;
 import android.widget.ImageView;
-import android.widget.ListAdapter;
 import android.widget.ListView;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
-import android.widget.FrameLayout.LayoutParams;
 import boston.Bus.Map.R;
 import boston.Bus.Map.data.Alert;
 import boston.Bus.Map.data.BusLocation;
@@ -47,24 +38,16 @@ import boston.Bus.Map.data.Selection;
 import boston.Bus.Map.data.StopLocation;
 import boston.Bus.Map.data.StopPredictionView;
 import boston.Bus.Map.data.TimeBounds;
-import boston.Bus.Map.main.AlertInfo;
-import boston.Bus.Map.main.Main;
-import boston.Bus.Map.main.MoreInfo;
-import boston.Bus.Map.main.UpdateHandler;
 import boston.Bus.Map.transit.TransitSystem;
+import boston.Bus.Map.ui.MapManager;
 import boston.Bus.Map.util.LogUtil;
-import boston.Bus.Map.util.StringUtil;
 
-import com.google.android.maps.OverlayItem;
+import com.google.android.gms.maps.GoogleMap.InfoWindowAdapter;
+import com.google.android.gms.maps.model.Marker;
 import com.google.common.base.Joiner;
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
-import com.readystatesoftware.mapviewballoons.BalloonOverlayView;
 
-
-public class BusPopupView extends BalloonOverlayView<BusOverlayItem>
-{
+public class PopupAdapter implements InfoWindowAdapter {
 	private ImageView favorite;
 	private TextView moreInfo;
 	private TextView reportProblem;
@@ -79,26 +62,31 @@ public class BusPopupView extends BalloonOverlayView<BusOverlayItem>
 	private Alert[] alertsList;
 	private final UpdateHandler handler;
 	private final Main main;
-	
-	public BusPopupView(final Main main, UpdateHandler handler, int balloonBottomOffset, Locations locations,
-			RouteTitles routeKeysToTitles)
-	{
-		super(main, balloonBottomOffset);
-		
+	private TextView title;
+	private TextView snippet;
+	private MapManager manager;
+
+	public PopupAdapter(final Main main, UpdateHandler handler, Locations locations,
+			RouteTitles routeKeysToTitles, MapManager manager) {
 		this.locations = locations;
 		this.routeKeysToTitles = routeKeysToTitles;
 		this.handler = handler;
 		
 		this.main = main;
-		
+		this.manager = manager;
+	}
+	
+	@Override
+	public View getInfoContents(Marker marker) {
+		return null;
 	}
 
 	@Override
-	protected void setupView(final Context context, ViewGroup parent) {
-		// NOTE: constructor has not been called yet
-		LayoutInflater inflater = (LayoutInflater) context
+	public View getInfoWindow(Marker marker) {
+		
+		LayoutInflater inflater = (LayoutInflater) main
 				.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-		View layoutView = inflater.inflate(R.layout.balloon_overlay, parent);
+		View layoutView = inflater.inflate(R.layout.balloon_overlay, null);
 		layoutView.setBackgroundResource(R.drawable.tooltip);
 		title = (TextView) layoutView.findViewById(R.id.balloon_item_title);
 		snippet = (TextView) layoutView.findViewById(R.id.balloon_item_snippet);
@@ -141,7 +129,7 @@ public class BusPopupView extends BalloonOverlayView<BusOverlayItem>
 
 					int result;
 					try {
-						result = BusPopupView.this.locations.toggleFavorite(stopLocation);
+						result = PopupAdapter.this.locations.toggleFavorite(stopLocation);
 						favorite.setBackgroundResource(result);
 					} catch (RemoteException e) {
 						LogUtil.e(e);
@@ -154,7 +142,7 @@ public class BusPopupView extends BalloonOverlayView<BusOverlayItem>
 			
 			@Override
 			public void onClick(View v) {
-				if (BusPopupView.this.routeKeysToTitles == null)
+				if (PopupAdapter.this.routeKeysToTitles == null)
 				{
 					//ignore for now, we can't print route information without it
 				}
@@ -162,7 +150,7 @@ public class BusPopupView extends BalloonOverlayView<BusOverlayItem>
 				if (location instanceof StopLocation)
 				{
 					StopLocation stopLocation = (StopLocation)location;
-					Intent intent = new Intent(context, MoreInfo.class);
+					Intent intent = new Intent(getContext(), MoreInfo.class);
 
 					StopPredictionView predictionView = (StopPredictionView)stopLocation.getPredictionView();
 					Prediction[] predictionArray = predictionView.getPredictions();
@@ -197,7 +185,7 @@ public class BusPopupView extends BalloonOverlayView<BusOverlayItem>
 
 					intent.putExtra(MoreInfo.stopIsBetaKey, stopLocation.isBeta());
 					
-					context.startActivity(intent);
+					getContext().startActivity(intent);
 				}
 			}
 		}
@@ -215,10 +203,10 @@ public class BusPopupView extends BalloonOverlayView<BusOverlayItem>
 				intent.putExtra(android.content.Intent.EXTRA_SUBJECT, TransitSystem.emailSubject);
 
 				
-				String otherText = createEmailBody(context);
+				String otherText = createEmailBody(getContext());
 
 				intent.putExtra(android.content.Intent.EXTRA_TEXT, otherText);
-				context.startActivity(Intent.createChooser(intent, "Send email..."));
+				getContext().startActivity(Intent.createChooser(intent, "Send email..."));
 			}
 		});
 		
@@ -228,12 +216,12 @@ public class BusPopupView extends BalloonOverlayView<BusOverlayItem>
 			public void onClick(View v) {
 				final Alert[] alerts = alertsList;
 				
-				Intent intent = new Intent(context, AlertInfo.class);
+				Intent intent = new Intent(getContext(), AlertInfo.class);
 				if (alerts != null)
 				{
 					intent.putExtra(AlertInfo.alertsKey, alerts);
 					
-					context.startActivity(intent);
+					getContext().startActivity(intent);
 				}
 				else
 				{
@@ -356,8 +344,18 @@ public class BusPopupView extends BalloonOverlayView<BusOverlayItem>
 				}
 			}
 		});
+		
+		String id = marker.getId();
+		Location location = manager.getLocationFromMarkerId(id);
+		if (location != null) {
+			populateView(location, layoutView);
+		}
+		return layoutView;
 	}
-	
+	protected Context getContext() {
+		return main;
+	}
+
 	protected void createInfoForDeveloper(Context context, StringBuilder otherText, int mode, String routeTitle)
 	{
 		otherText.append("There was a problem with ");
@@ -519,13 +517,15 @@ public class BusPopupView extends BalloonOverlayView<BusOverlayItem>
 		}
 	}
 	
-	@Override
-	public void setData(BusOverlayItem item) {
-		super.setData(item);
-		
+	public void populateView(Location location, View view) {
 		//NOTE: originally this was going to be an actual link, but we can't click it on the popup except through its onclick listener
-		setState(item.getCurrentLocation());
-		Alert[] alerts = item.getAlerts();
+		
+		setState(location);
+		PredictionView predictionView = location.getPredictionView();
+		snippet.setText(predictionView.getSnippet());
+		title.setText(predictionView.getSnippetTitle());
+		
+		Alert[] alerts = predictionView.getAlerts();
 		alertsList = alerts;
 		
 		if (alerts != null && alerts.length != 0)
@@ -560,5 +560,6 @@ public class BusPopupView extends BalloonOverlayView<BusOverlayItem>
 		
 		updateUIFromState(location);
 	}
+
 
 }

@@ -6,10 +6,6 @@ import boston.Bus.Map.data.Locations;
 import boston.Bus.Map.data.RouteTitles;
 import boston.Bus.Map.data.Selection;
 import boston.Bus.Map.data.UpdateArguments;
-import boston.Bus.Map.ui.BusOverlay;
-import boston.Bus.Map.ui.LocationOverlay;
-import boston.Bus.Map.ui.OverlayGroup;
-import boston.Bus.Map.ui.RouteOverlay;
 
 import com.google.android.maps.MapView;
 import com.google.android.maps.Projection;
@@ -64,19 +60,4 @@ public class CurrentState {
 	public boolean getLocationEnabled() {
 		return locationEnabled;
 	}
-
-	/**
-	 * Might be unnecessary to clone, but there shouldn't be a big performance penalty
-	 * @param context
-	 * @param mapView
-	 * @param dropdownRouteKeysToTitles
-	 * @param handler
-	 * @return
-	 */
-	public OverlayGroup cloneOverlays(Main context, MapView mapView,
-			RouteTitles dropdownRouteKeysToTitles,
-			UpdateHandler handler) {
-		return updateArguments.getOverlayGroup().cloneOverlays(context, mapView, dropdownRouteKeysToTitles, handler);
-	}
-	
 }

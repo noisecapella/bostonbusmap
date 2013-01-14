@@ -56,20 +56,10 @@ android:id="@+id/linearLayoutMain" android:gravity="right">
 		</TableRow>
 		</TableLayout>
 </RelativeLayout>
-
-	<com.google.android.maps.MapView
-		android:id="@+id/mapview" android:layout_width="fill_parent"
-		android:layout_height="fill_parent" android:clickable="true"
-		android:layout_alignParentBottom="true"
-		android:layout_below="@+id/linearLayoutMain"
-		
-		android:apiKey="04_mZq9Q_5sL2pltlDIYof4iIQimS_U5YPnRafg"
-		 />
-	<!-- debug key: 0UeumldxhB0bPpe6UgModFrG5tLPAwclzgqJhRg -->
-	<!-- release key: 04_mZq9Q_5sL2pltlDIYof4iIQimS_U5YPnRafg -->
-
-
-<!-- 
-		android:text="asjdwijfoiewjfoiewjfoiewjfoiewjfoiewjfoiewj" -->
-
+<fragment
+    class="com.google.android.gms.maps.SupportMapFragment"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:id="@+id/map"
+    />
 </RelativeLayout>

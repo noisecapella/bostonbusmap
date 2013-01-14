@@ -52,14 +52,14 @@ import boston.Bus.Map.data.Selection;
 import boston.Bus.Map.data.StopLocation;
 import boston.Bus.Map.data.UpdateArguments;
 import boston.Bus.Map.transit.TransitSystem;
-import boston.Bus.Map.ui.BusOverlay;
-import boston.Bus.Map.ui.LocationOverlay;
+import boston.Bus.Map.ui.MapManager;
 import boston.Bus.Map.ui.ProgressMessage;
-import boston.Bus.Map.ui.RouteOverlay;
 import boston.Bus.Map.util.Constants;
 import boston.Bus.Map.util.FeedException;
 import boston.Bus.Map.util.LogUtil;
 
+import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.model.LatLng;
 import com.google.android.maps.GeoPoint;
 import com.google.android.maps.MapView;
 import com.google.android.maps.OverlayItem;
@@ -121,7 +121,7 @@ public abstract class UpdateAsyncTask extends AsyncTask<Object, Object, Immutabl
 	/**
 	 * The last read center of the map.
 	 */
-	protected final GeoPoint currentMapCenter;
+	protected final LatLng currentMapCenter;
 	
 	public UpdateAsyncTask(UpdateArguments arguments, boolean doShowUnpredictable,
 			int maxOverlays, boolean drawCircle, boolean allRoutesBlue,
@@ -139,7 +139,7 @@ public abstract class UpdateAsyncTask extends AsyncTask<Object, Object, Immutabl
 		this.selection = selection;
 		this.handler = handler;
 		
-		currentMapCenter = arguments.getMapView().getMapCenter();
+		currentMapCenter = arguments.getMapView().getCameraPosition().target;
 		
 		this.toSelect = toSelect;
 	}
@@ -274,9 +274,9 @@ public abstract class UpdateAsyncTask extends AsyncTask<Object, Object, Immutabl
 		}
 
 		try {
-			GeoPoint geoPoint = currentMapCenter;
-			double centerLatitude = geoPoint.getLatitudeE6() * Constants.InvE6;
-			double centerLongitude = geoPoint.getLongitudeE6() * Constants.InvE6;
+			LatLng geoPoint = currentMapCenter;
+			double centerLatitude = geoPoint.latitude;
+			double centerLongitude = geoPoint.longitude;
 
 			return busLocations.getLocations(maxOverlays, centerLatitude, centerLongitude, doShowUnpredictable, selection);
 		} catch (IOException e) {
@@ -309,13 +309,12 @@ public abstract class UpdateAsyncTask extends AsyncTask<Object, Object, Immutabl
 			return;
 		}
 		
-		final BusOverlay busOverlay = arguments.getOverlayGroup().getBusOverlay();
 		//get currently selected location id, or -1 if nothing is selected
 		
-		busOverlay.setDrawHighlightCircle(drawCircle);
+		MapManager manager = arguments.getOverlayGroup();
+		manager.setDrawHighlightCircle(drawCircle);
 		
-		final RouteOverlay routeOverlay = arguments.getOverlayGroup().getRouteOverlay();
-		routeOverlay.setAllRoutesBlue(allRoutesBlue);
+		manager.setAllRoutesBlue(allRoutesBlue);
 		//routeOverlay.setDrawCoarseLine(showCoarseRouteLine);
 		
 		//get a list of lat/lon pairs which describe the route
@@ -328,23 +327,23 @@ public abstract class UpdateAsyncTask extends AsyncTask<Object, Object, Immutabl
 		{
 	        Path[] paths = locationsObj.getPaths(selection.getRoute());
 			//we want this to be null. Else, the snippet drawing code would only show data for a particular route
-			routeOverlay.setPathsAndColor(paths, selection.getRoute());
+			manager.setPathsAndColor(paths, selection.getRoute());
 			selectedRouteConfig = null;
 		}
 		else if (mode == Selection.BUS_PREDICTIONS_INTERSECT) {
-			routeOverlay.clearPaths();
+			manager.clearPaths();
 			String intersectionName = selection.getIntersection();
 			IntersectionLocation intersection = locationsObj.getIntersection(intersectionName);
 			if (intersection != null) {
 				for (String route : intersection.getNearbyRoutes()) {
 					Path[] paths = locationsObj.getPaths(route);
-					routeOverlay.addPathsAndColor(paths, route);
+					manager.addPathsAndColor(paths, route);
 				}
 			}
 			else
 			{
 		        Path[] paths = locationsObj.getPaths(selection.getRoute());
-				routeOverlay.setPathsAndColor(paths, selection.getRoute());
+				manager.setPathsAndColor(paths, selection.getRoute());
 			}
 			
 			selectedRouteConfig = null;
@@ -364,18 +363,18 @@ public abstract class UpdateAsyncTask extends AsyncTask<Object, Object, Immutabl
 				paths = RouteConfig.nullPaths;
 			}
 			
-			routeOverlay.setPathsAndColor(paths, selection.getRoute());
+			manager.setPathsAndColor(paths, selection.getRoute());
 		}
 		
 
 		
 		//we need to run populate even if there are 0 busLocations. See this link:
 		//http://groups.google.com/group/android-beginners/browse_thread/thread/6d75c084681f943e?pli=1
-		final int selectedBusId = busOverlay != null ? busOverlay.getSelectedBusId() : BusOverlay.NOT_SELECTED;
-		busOverlay.clear();
+		final int selectedBusId = manager != null ? manager.getSelectedBusId() : manager.NOT_SELECTED;
+		manager.clearMarkers();
 		//busOverlay.doPopulate();
 
-		busOverlay.setLocations(locationsObj);
+		manager.setLocations(locationsObj);
 		
 		RouteTitles routeKeysToTitles = arguments.getTransitSystem().getRouteKeysToTitles();
 		
@@ -443,16 +442,9 @@ public abstract class UpdateAsyncTask extends AsyncTask<Object, Object, Immutabl
 		}
 		// we need to do this here because addLocation creates PredictionViews, which needs
 		// to happen after makeSnippetAndTitle and addToSnippetAndTitle
-		busOverlay.addAllLocations(busesToDisplay);
-		busOverlay.setSelectedBusId(newSelectedBusId);
+		manager.addAllLocations(busesToDisplay);
+		manager.setSelectedBusId(newSelectedBusId);
 		//busOverlay.refreshBalloons();
-		
-		final MapView mapView = arguments.getMapView();
-		arguments.getOverlayGroup().refreshMapView(mapView);
-		
-		
-		//make sure we redraw map
-		mapView.invalidate();
 		
 		GeoPoint newCenter = mapView.getMapCenter();
 		if (!newCenter.equals(currentMapCenter)) {

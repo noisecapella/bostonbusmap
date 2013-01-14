@@ -12,6 +12,7 @@ import javax.xml.parsers.ParserConfigurationException;
 
 import org.xml.sax.SAXException;
 
+import com.google.android.gms.maps.model.LatLng;
 import com.google.common.collect.ImmutableBiMap;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -68,15 +69,9 @@ public class TransitSystem {
 	public static double getCenterLon() {
 		return bostonLongitude;
 	}
-
-	public static int getCenterLatAsInt()
-	{
-		return (int)(bostonLatitude * Constants.E6);
-	}
 	
-	public static int getCenterLonAsInt()
-	{
-		return (int)(bostonLongitude * Constants.E6);
+	public static LatLng getCenter() {
+		return new LatLng(bostonLatitude, bostonLongitude);
 	}
 
 	public static String getWebSite() {

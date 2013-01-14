@@ -1,15 +1,12 @@
 package boston.Bus.Map.data;
 
+import com.google.android.gms.maps.GoogleMap;
+
 import boston.Bus.Map.main.Main;
 import boston.Bus.Map.main.RefreshAsyncTask;
 import boston.Bus.Map.main.UpdateAsyncTask;
 import boston.Bus.Map.transit.TransitSystem;
-import boston.Bus.Map.ui.BusOverlay;
-import boston.Bus.Map.ui.LocationOverlay;
-import boston.Bus.Map.ui.OverlayGroup;
-import boston.Bus.Map.ui.RouteOverlay;
-
-import com.google.android.maps.MapView;
+import boston.Bus.Map.ui.MapManager;
 
 import android.app.ProgressDialog;
 import android.content.Context;
@@ -18,24 +15,24 @@ import android.widget.ProgressBar;
 public class UpdateArguments {
 	private ProgressBar progress;
 	private ProgressDialog progressDialog;
-	private MapView mapView;
+	private GoogleMap mapView;
 	private Context context;
-	private OverlayGroup overlayGroup;
 	private RefreshAsyncTask majorHandler;
 	private Locations busLocations;
 	private TransitSystem transitSystem;
+	private MapManager manager;
 	
 	public UpdateArguments(ProgressBar progress,
-			ProgressDialog progressDialog, MapView mapView, Context context,
-			OverlayGroup overlayGroup, RefreshAsyncTask majorHandler,
-			Locations busLocations,
+			ProgressDialog progressDialog, GoogleMap mapView, Context context,
+			RefreshAsyncTask majorHandler,
+			Locations busLocations, MapManager manager,
 			TransitSystem transitSystem) {
 		this.progress = progress;
 		this.progressDialog = progressDialog;
 		this.mapView = mapView;
 		this.context = context;
-		this.overlayGroup = overlayGroup;
 		this.majorHandler = majorHandler;
+		this.manager = manager;
 		this.busLocations = busLocations;
 		this.transitSystem = transitSystem;
 	}
@@ -56,7 +53,7 @@ public class UpdateArguments {
 		this.progressDialog = progressDialog;
 	}
 	
-	public MapView getMapView() {
+	public GoogleMap getMapView() {
 		return mapView;
 	}
 
@@ -80,11 +77,11 @@ public class UpdateArguments {
 		return transitSystem;
 	}
 
-	public OverlayGroup getOverlayGroup() {
-		return overlayGroup;
+	public UpdateArguments cloneMe() {
+		return new UpdateArguments(progress, progressDialog, mapView, context, majorHandler, busLocations, manager, transitSystem);
 	}
 
-	public UpdateArguments cloneMe() {
-		return new UpdateArguments(progress, progressDialog, mapView, context, overlayGroup, majorHandler, busLocations, transitSystem);
+	public MapManager getOverlayGroup() {
+		return manager;
 	}
 }
