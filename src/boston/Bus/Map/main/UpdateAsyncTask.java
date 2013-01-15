@@ -446,7 +446,7 @@ public abstract class UpdateAsyncTask extends AsyncTask<Object, Object, Immutabl
 		manager.setSelectedBusId(newSelectedBusId);
 		//busOverlay.refreshBalloons();
 		
-		GeoPoint newCenter = mapView.getMapCenter();
+		LatLng newCenter = manager.getMap().getCameraPosition().target;
 		if (!newCenter.equals(currentMapCenter)) {
 			handler.triggerUpdate();
 		}

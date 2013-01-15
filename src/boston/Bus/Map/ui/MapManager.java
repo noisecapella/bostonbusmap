@@ -24,6 +24,7 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
+import com.google.android.maps.GeoPoint;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
@@ -44,6 +45,7 @@ public class MapManager implements OnMapClickListener, OnMarkerClickListener {
 	
 	private final Set<String> routes = Sets.newHashSet();
 	private final Context context;
+	private boolean drawLine;
 	
 	public MapManager(Context context, GoogleMap map) {
 		this.context = context;
@@ -168,7 +170,8 @@ public class MapManager implements OnMapClickListener, OnMarkerClickListener {
 			LatLng latlng = new LatLng(location.getLatitudeAsDegrees(), location.getLongitudeAsDegrees());
 			MarkerOptions options = new MarkerOptions()
 			.icon(BitmapDescriptorFactory.fromBitmap(bitmap))
-			.position(latlng);
+			.position(latlng)
+			.visible(drawLine);
 			
 			Marker marker = map.addMarker(options);
 			markerIdToLocation.put(marker.getId(), location);
@@ -177,5 +180,32 @@ public class MapManager implements OnMapClickListener, OnMarkerClickListener {
 
 	public Location getLocationFromMarkerId(String id) {
 		return markerIdToLocation.get(id);
+	}
+
+	public void setSelectedBusId(int newSelectedBusId) {
+		for (Marker marker : markers.values()) {
+			Location location = markerIdToLocation.get(marker.getId());
+			if (location != null && location.getId() == newSelectedBusId) {
+				marker.showInfoWindow();
+				return;
+			}
+		}
+	}
+
+	public GoogleMap getMap() {
+		return map;
+	}
+
+	public boolean isShowLine() {
+		return drawLine;
+	}
+
+	public void setDrawLine(boolean drawLine) {
+		if (drawLine != this.drawLine) {
+			for (Polyline polyline : polylines) {
+				polyline.setVisible(drawLine);
+			}
+		}
+		this.drawLine = drawLine;
 	}
 }

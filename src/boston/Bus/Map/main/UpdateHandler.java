@@ -7,11 +7,9 @@ import boston.Bus.Map.data.Locations;
 import boston.Bus.Map.data.Selection;
 import boston.Bus.Map.data.UpdateArguments;
 import boston.Bus.Map.transit.TransitSystem;
-import boston.Bus.Map.ui.BusOverlay;
-import boston.Bus.Map.ui.LocationOverlay;
-import boston.Bus.Map.ui.RouteOverlay;
 import boston.Bus.Map.util.Constants;
 
+import com.google.android.gms.maps.model.LatLng;
 import com.google.android.maps.GeoPoint;
 import com.google.android.maps.MapView;
 
@@ -108,10 +106,6 @@ public class UpdateHandler extends Handler {
 				
 			}
 
-			GeoPoint geoPoint = guiArguments.getMapView().getMapCenter();
-			double centerLatitude = geoPoint.getLatitudeE6() * Constants.InvE6;
-			double centerLongitude = geoPoint.getLongitudeE6() * Constants.InvE6;
-			
 			//remove duplicate messages
 			removeMessages(MINOR);
 			

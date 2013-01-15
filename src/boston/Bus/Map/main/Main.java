@@ -204,7 +204,7 @@ public class Main extends AbstractMapActivity
         
         SupportMapFragment fragment = (SupportMapFragment)getSupportFragmentManager().findFragmentById(R.id.map);
         final GoogleMap map = fragment.getMap();
-        MapManager manager = new MapManager(map);
+        MapManager manager = new MapManager(this, map);
         
         
         toggleButton = (Spinner)findViewById(R.id.predictionsOrLocations);
@@ -393,7 +393,8 @@ public class Main extends AbstractMapActivity
         
         populateHandlerSettings();
         
-        PopupAdapter popupAdapter = new PopupAdapter(this, handler, busLocations, dropdownRouteKeysToTitles);
+        PopupAdapter popupAdapter = new PopupAdapter(this,
+        		handler, busLocations, dropdownRouteKeysToTitles, manager);
         map.setInfoWindowAdapter(popupAdapter);
 
         if (lastNonConfigurationInstance != null)
@@ -793,6 +794,7 @@ public class Main extends AbstractMapActivity
     	handler.setHideHighlightCircle(prefs.getBoolean(getString(R.string.hideCircleCheckbox), false));
     	boolean allRoutesBlue = prefs.getBoolean(getString(R.string.allRoutesBlue), TransitSystem.defaultAllRoutesBlue);
     	handler.setAllRoutesBlue(allRoutesBlue);
+        arguments.getOverlayGroup().setDrawLine(prefs.getBoolean(getString(R.string.showRouteLineCheckbox), false));
     	boolean showCoarseRouteLineCheckboxValue = prefs.getBoolean(getString(R.string.showCoarseRouteLineCheckbox), true); 
     	//handler.setInitAllRouteInfo(prefs.getBoolean(getString(R.string.initAllRouteInfoCheckbox2), true));
     	handler.setInitAllRouteInfo(true);
