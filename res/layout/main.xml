@@ -58,8 +58,10 @@ android:id="@+id/linearLayoutMain" android:gravity="right">
 </RelativeLayout>
 <fragment
     class="com.google.android.gms.maps.SupportMapFragment"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
+    android:layout_alignParentBottom="true"
+    android:layout_height="fill_parent"
+    android:layout_width="fill_parent"
+    android:layout_below="@+id/linearLayoutMain"
     android:id="@+id/map"
     />
 </RelativeLayout>

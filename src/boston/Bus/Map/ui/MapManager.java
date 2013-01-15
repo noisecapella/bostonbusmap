@@ -154,14 +154,20 @@ public class MapManager implements OnMapClickListener, OnMarkerClickListener {
 		}
 	}
 	
+	/** temporary, for testing*/
+	private Bitmap tempBitmap;
+	
 	private Bitmap getBitmap(Drawable drawable) {
-		int w = drawable.getIntrinsicWidth();
-		int h = drawable.getIntrinsicHeight();
-		Bitmap bitmap = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888);
-		Canvas canvas = new Canvas(bitmap);
-		drawable.setBounds(0, 0, w, h);
-		drawable.draw(canvas);
-		return bitmap;
+		if (tempBitmap == null) {
+			int w = drawable.getIntrinsicWidth();
+			int h = drawable.getIntrinsicHeight();
+			Bitmap bitmap = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888);
+			Canvas canvas = new Canvas(bitmap);
+			drawable.setBounds(0, 0, w, h);
+			drawable.draw(canvas);
+			tempBitmap = bitmap;
+		}
+		return tempBitmap;
 	}
 
 	public void addAllLocations(List<Location> locations) {
