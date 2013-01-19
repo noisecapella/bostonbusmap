@@ -529,8 +529,8 @@ public class PopupAdapter implements InfoWindowAdapter {
 		
 		setState(location);
 		PredictionView predictionView = location.getPredictionView();
-		snippet.setText(predictionView.getSnippet());
-		title.setText(predictionView.getSnippetTitle());
+		snippet.setText(Html.fromHtml(predictionView.getSnippet()));
+		title.setText(Html.fromHtml(predictionView.getSnippetTitle()));
 		
 		Alert[] alerts = predictionView.getAlerts();
 		alertsList = alerts;

@@ -165,6 +165,7 @@ public class MapManager implements OnMapClickListener, OnMarkerClickListener {
 			.snippet("SNIPPET");
 			
 			Marker marker = map.addMarker(options);
+			markers.put(marker.getId(), marker);
 			markerIdToLocation.put(marker.getId(), location);
 		}
 	}
