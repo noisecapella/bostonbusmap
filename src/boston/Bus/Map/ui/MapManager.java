@@ -25,6 +25,8 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.android.maps.GeoPoint;
+import com.google.common.collect.BiMap;
+import com.google.common.collect.HashBiMap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
@@ -33,13 +35,13 @@ public class MapManager implements OnMapClickListener, OnMarkerClickListener {
 	private final GoogleMap map;
 	public static final int NOT_SELECTED = -1;
 
-	private final Map<String, Marker> markers = Maps.newHashMap();
 	private final List<Polyline> polylines = Lists.newArrayList();
 	
-	private final Map<String, Location> markerIdToLocation = Maps.newHashMap();
+	private final Map<String, Marker> markers = Maps.newHashMap();
+	private final BiMap<String, Integer> markerIdToLocationId = HashBiMap.create();
+	private final Map<Integer, Location> locationIdToLocation = Maps.newHashMap();
 	private String selectedMarkerId;
 
-	private Locations locations;
 	private OnMapClickListener nextTapListener;
 	private boolean allRoutesBlue;
 	
@@ -55,19 +57,6 @@ public class MapManager implements OnMapClickListener, OnMarkerClickListener {
 		map.setOnMarkerClickListener(this);
 	}
 	
-	public void clearMarkers() {
-		for (Marker marker : markers.values()) {
-			marker.remove();
-		}
-		
-		markers.clear();
-		markerIdToLocation.clear();
-	}
-	
-	public void setLocations(Locations locations) {
-		this.locations = locations;
-	}
-
 	@Override
 	public boolean onMarkerClick(Marker marker) {
 		selectedMarkerId = marker.getId();
@@ -143,41 +132,21 @@ public class MapManager implements OnMapClickListener, OnMarkerClickListener {
 		}
 		else
 		{
-			Location location = markerIdToLocation.get(selectedMarkerId);
-			if (location == null) {
+			Integer locationId = markerIdToLocationId.get(selectedMarkerId);
+			if (locationId == null) {
 				return NOT_SELECTED;
 			}
 			else
 			{
-				return location.getId();
+				return locationId;
 			}
 		}
 	}
 	
-	public void addAllLocations(List<Location> locations) {
-		for (Location location : locations) {
-			int id = location.getDrawable(context, false, false);
-			LatLng latlng = new LatLng(location.getLatitudeAsDegrees(), location.getLongitudeAsDegrees());
-			MarkerOptions options = new MarkerOptions()
-			.icon(BitmapDescriptorFactory.fromResource(id))
-			.position(latlng)
-			.title("TITLE")
-			.snippet("SNIPPET");
-			
-			Marker marker = map.addMarker(options);
-			markers.put(marker.getId(), marker);
-			markerIdToLocation.put(marker.getId(), location);
-		}
-	}
-
-	public Location getLocationFromMarkerId(String id) {
-		return markerIdToLocation.get(id);
-	}
-
 	public void setSelectedBusId(int newSelectedBusId) {
 		for (Marker marker : markers.values()) {
-			Location location = markerIdToLocation.get(marker.getId());
-			if (location != null && location.getId() == newSelectedBusId) {
+			Integer locationId = markerIdToLocationId.get(marker.getId());
+			if (locationId != null && locationId == newSelectedBusId) {
 				marker.showInfoWindow();
 				return;
 			}
@@ -199,5 +168,51 @@ public class MapManager implements OnMapClickListener, OnMarkerClickListener {
 			}
 		}
 		this.drawLine = drawLine;
+	}
+
+	public void updateNewLocations(List<Location> locations) {
+		Set<Integer> toRemove = Sets.newHashSet();
+		toRemove.addAll(locationIdToLocation.keySet());
+		for (Location location : locations) {
+			toRemove.remove(location.getId());
+			Location oldLocation = locationIdToLocation.get(location.getId());
+			if (oldLocation != null) {
+				// replace with new location, leave marker
+				locationIdToLocation.put(location.getId(), location);
+			}
+			else
+			{
+				int id = location.getDrawable(context, false, false);
+				LatLng latlng = new LatLng(location.getLatitudeAsDegrees(), location.getLongitudeAsDegrees());
+				MarkerOptions options = new MarkerOptions()
+				.icon(BitmapDescriptorFactory.fromResource(id))
+				.position(latlng);
+
+				Marker marker = map.addMarker(options);
+				markers.put(marker.getId(), marker);
+				markerIdToLocationId.put(marker.getId(), location.getId());
+				locationIdToLocation.put(location.getId(), location);
+			}
+		}
+		
+		for (Integer removeId : toRemove) {
+			String markerId = markerIdToLocationId.inverse().get(removeId);
+			locationIdToLocation.remove(removeId);
+			markerIdToLocationId.remove(markerId);
+			Marker marker = markers.get(markerId);
+			markers.remove(markerId);
+			marker.remove();
+		}
+	}
+
+	public Location getLocationFromMarkerId(String id) {
+		Integer locationId = markerIdToLocationId.get(id);
+		if (locationId == null) {
+			return null;
+		}
+		else
+		{
+			return locationIdToLocation.get(locationId);
+		}
 	}
 }

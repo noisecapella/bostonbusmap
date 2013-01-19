@@ -371,11 +371,8 @@ public abstract class UpdateAsyncTask extends AsyncTask<Object, Object, Immutabl
 		//we need to run populate even if there are 0 busLocations. See this link:
 		//http://groups.google.com/group/android-beginners/browse_thread/thread/6d75c084681f943e?pli=1
 		final int selectedBusId = manager != null ? manager.getSelectedBusId() : manager.NOT_SELECTED;
-		manager.clearMarkers();
 		//busOverlay.doPopulate();
 
-		manager.setLocations(locationsObj);
-		
 		RouteTitles routeKeysToTitles = arguments.getTransitSystem().getRouteKeysToTitles();
 		
 		//point hash to index in busLocations
@@ -442,7 +439,7 @@ public abstract class UpdateAsyncTask extends AsyncTask<Object, Object, Immutabl
 		}
 		// we need to do this here because addLocation creates PredictionViews, which needs
 		// to happen after makeSnippetAndTitle and addToSnippetAndTitle
-		manager.addAllLocations(busesToDisplay);
+		manager.updateNewLocations(busesToDisplay);
 		manager.setSelectedBusId(newSelectedBusId);
 		//busOverlay.refreshBalloons();
 		
