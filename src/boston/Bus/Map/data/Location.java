@@ -21,7 +21,7 @@ public interface Location {
 
 	int getHeading();
 
-	Drawable getDrawable(Context context, boolean shadow, boolean isSelected);
+	int getDrawable(Context context, boolean shadow, boolean isSelected);
 
 	float getLatitudeAsDegrees();
 	

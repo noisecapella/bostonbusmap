@@ -18,7 +18,9 @@ import android.text.Spanned;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.View.MeasureSpec;
 import android.view.View.OnClickListener;
+import android.view.ViewGroup.LayoutParams;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -46,6 +48,7 @@ import com.google.android.gms.maps.GoogleMap.InfoWindowAdapter;
 import com.google.android.gms.maps.model.Marker;
 import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
+import com.readystatesoftware.mapviewballoons.LimitLinearLayout;
 
 public class PopupAdapter implements InfoWindowAdapter {
 	private ImageView favorite;
@@ -84,9 +87,13 @@ public class PopupAdapter implements InfoWindowAdapter {
 	@Override
 	public View getInfoWindow(Marker marker) {
 		
+		LimitLinearLayout parent = new LimitLinearLayout(getContext());
+		
 		LayoutInflater inflater = (LayoutInflater) main
 				.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-		View layoutView = inflater.inflate(R.layout.balloon_overlay, null);
+		View layoutView = inflater.inflate(R.layout.balloon_overlay, parent);
+		layoutView.setLayoutParams(new LayoutParams(LayoutParams.WRAP_CONTENT,
+				LayoutParams.WRAP_CONTENT));
 		layoutView.setBackgroundResource(R.drawable.tooltip);
 		title = (TextView) layoutView.findViewById(R.id.balloon_item_title);
 		snippet = (TextView) layoutView.findViewById(R.id.balloon_item_snippet);
@@ -350,7 +357,7 @@ public class PopupAdapter implements InfoWindowAdapter {
 		if (location != null) {
 			populateView(location, layoutView);
 		}
-		return layoutView;
+		return parent;
 	}
 	protected Context getContext() {
 		return main;

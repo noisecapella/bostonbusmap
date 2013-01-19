@@ -21,6 +21,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 
+import boston.Bus.Map.R;
 import boston.Bus.Map.annotations.KeepSorted;
 import boston.Bus.Map.math.Geometry;
 import boston.Bus.Map.transit.TransitSource;
@@ -106,9 +107,10 @@ public class StopLocation implements Location
 	}
 
 	@Override
-	public Drawable getDrawable(Context context, boolean shadow,
+	public int getDrawable(Context context, boolean shadow,
 			boolean isSelected) {
-		return recentlyUpdated ? drawables.getStopUpdated() : drawables.getStop();
+		return R.drawable.busstop;
+		//return recentlyUpdated ? drawables.getStopUpdated() : drawables.getStop();
 	}
 
 	public void clearRecentlyUpdated()

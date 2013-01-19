@@ -125,8 +125,8 @@ public class MapManager implements OnMapClickListener, OnMarkerClickListener {
 			int color = allRoutesBlue ? Color.BLUE : path.getColor();
 			options.color(color);
 			for (int i = 0; i < path.getPointsSize(); i++) {
-				double lat = path.getPointLat(i*2);
-				double lon = path.getPointLon(i*2 + 1);
+				double lat = path.getPointLat(i);
+				double lon = path.getPointLon(i);
 				
 				options.add(new LatLng(lat, lon));
 			}
@@ -154,30 +154,15 @@ public class MapManager implements OnMapClickListener, OnMarkerClickListener {
 		}
 	}
 	
-	/** temporary, for testing*/
-	private Bitmap tempBitmap;
-	
-	private Bitmap getBitmap(Drawable drawable) {
-		if (tempBitmap == null) {
-			int w = drawable.getIntrinsicWidth();
-			int h = drawable.getIntrinsicHeight();
-			Bitmap bitmap = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888);
-			Canvas canvas = new Canvas(bitmap);
-			drawable.setBounds(0, 0, w, h);
-			drawable.draw(canvas);
-			tempBitmap = bitmap;
-		}
-		return tempBitmap;
-	}
-
 	public void addAllLocations(List<Location> locations) {
 		for (Location location : locations) {
-			Bitmap bitmap = getBitmap(location.getDrawable(context, false, false));
+			int id = location.getDrawable(context, false, false);
 			LatLng latlng = new LatLng(location.getLatitudeAsDegrees(), location.getLongitudeAsDegrees());
 			MarkerOptions options = new MarkerOptions()
-			.icon(BitmapDescriptorFactory.fromBitmap(bitmap))
+			.icon(BitmapDescriptorFactory.fromResource(id))
 			.position(latlng)
-			.visible(drawLine);
+			.title("TITLE")
+			.snippet("SNIPPET");
 			
 			Marker marker = map.addMarker(options);
 			markerIdToLocation.put(marker.getId(), location);

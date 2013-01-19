@@ -8,6 +8,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
 
+import boston.Bus.Map.R;
 import boston.Bus.Map.math.Geometry;
 import android.content.Context;
 import android.graphics.drawable.Drawable;
@@ -98,9 +99,9 @@ public class IntersectionLocation implements Location {
 	}
 
 	@Override
-	public Drawable getDrawable(Context context, boolean shadow,
+	public int getDrawable(Context context, boolean shadow,
 			boolean isSelected) {
-		return drawable;
+		return R.drawable.busstop;
 	}
 
 	@Override

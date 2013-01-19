@@ -8,6 +8,7 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 
 
+import boston.Bus.Map.R;
 import boston.Bus.Map.math.Geometry;
 import boston.Bus.Map.transit.TransitSystem;
 import boston.Bus.Map.ui.BusDrawable;
@@ -352,8 +353,10 @@ public class BusLocation implements Location {
 		return busId;
 	}
 	
-	public Drawable getDrawable(Context context, boolean shadow,
+	public int getDrawable(Context context, boolean shadow,
 			boolean isSelected) {
+		return R.drawable.bus;
+		/*
 		Drawable drawable = drawables.getVehicle();
 		if (shadow == false && hasHeading()) {
 			// to make life easier we won't draw shadows except for the bus
@@ -364,7 +367,7 @@ public class BusLocation implements Location {
 			// arguments are null
 			drawable = new BusDrawable(drawables.getVehicle(), getHeading(), drawables.getArrow(), arrowTopDiff);
 		}
-		return drawable;
+		return drawable;*/
 	}
 
 	@Override
