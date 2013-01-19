@@ -1,5 +1,6 @@
 package boston.Bus.Map.ui;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -109,16 +110,15 @@ public class MapManager implements OnMapClickListener, OnMarkerClickListener {
 
 	public void addPathsAndColor(Path[] paths, String route) {
 		for (Path path : paths) {
-			PolylineOptions options = new PolylineOptions();
-			
 			int color = allRoutesBlue ? Color.BLUE : path.getColor();
-			options.color(color);
+			LatLng[] latlngs = new LatLng[path.getPointsSize()];
 			for (int i = 0; i < path.getPointsSize(); i++) {
 				double lat = path.getPointLat(i);
 				double lon = path.getPointLon(i);
 				
-				options.add(new LatLng(lat, lon));
+				latlngs[i] = new LatLng(lat, lon);
 			}
+			PolylineOptions options = new PolylineOptions().width(1f).color(color).add(latlngs);
 			
 			Polyline polyline = map.addPolyline(options);
 			polylines.add(polyline);
