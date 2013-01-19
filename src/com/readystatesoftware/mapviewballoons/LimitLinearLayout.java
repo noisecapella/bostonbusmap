@@ -19,6 +19,8 @@ import android.util.AttributeSet;
 import android.widget.LinearLayout;
 
 /**
+ * A linearlayout which is constrained to 480dp width
+ * 
  * Most of android-mapviewballoons is obsoleted by the new Maps API
  * but I'm still using this class because it fits what I want to do with 
  * the balloons
