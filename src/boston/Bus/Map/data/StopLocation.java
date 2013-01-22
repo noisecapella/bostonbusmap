@@ -360,4 +360,10 @@ public class StopLocation implements Location
 	public boolean hasRoute(String route) {
 		return routes.hasRoute(route);
 	}
+
+	@Override
+	public boolean needsUpdating() {
+		// TODO: if marker turns green, this should return true
+		return false;
+	}
 }

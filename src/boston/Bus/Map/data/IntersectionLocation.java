@@ -184,4 +184,9 @@ public class IntersectionLocation implements Location {
 	public boolean isIntersection() {
 		return true;
 	}
+
+	@Override
+	public boolean needsUpdating() {
+		return false;
+	}
 }

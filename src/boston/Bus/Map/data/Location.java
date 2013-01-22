@@ -69,4 +69,10 @@ public interface Location {
 	boolean hasReportProblem();
 
 	boolean isIntersection();
+	
+	/**
+	 * Should marker be refreshed?
+	 * @return
+	 */
+	boolean needsUpdating();
 }

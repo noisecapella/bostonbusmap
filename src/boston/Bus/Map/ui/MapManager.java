@@ -144,12 +144,17 @@ public class MapManager implements OnMapClickListener, OnMarkerClickListener {
 	}
 	
 	public void setSelectedBusId(int newSelectedBusId) {
-		for (Marker marker : markers.values()) {
-			Integer locationId = markerIdToLocationId.get(marker.getId());
-			if (locationId != null && locationId == newSelectedBusId) {
+		String markerId = markerIdToLocationId.inverse().get(newSelectedBusId);
+		if (markerId != null) {
+			selectedMarkerId = markerId;
+			Marker marker = markers.get(markerId);
+			if (marker != null) {
 				marker.showInfoWindow();
-				return;
 			}
+		}
+		else
+		{
+			selectedMarkerId = null;
 		}
 	}
 
@@ -176,7 +181,7 @@ public class MapManager implements OnMapClickListener, OnMarkerClickListener {
 		for (Location location : locations) {
 			toRemove.remove(location.getId());
 			Location oldLocation = locationIdToLocation.get(location.getId());
-			if (oldLocation != null) {
+			if (oldLocation != null && oldLocation.needsUpdating() == false) {
 				// replace with new location, leave marker
 				locationIdToLocation.put(location.getId(), location);
 			}
@@ -188,10 +193,21 @@ public class MapManager implements OnMapClickListener, OnMarkerClickListener {
 				.icon(BitmapDescriptorFactory.fromResource(id))
 				.position(latlng);
 
+				String oldMarkerId = markerIdToLocationId.inverse().get(location.getId());
+				if (oldMarkerId != null) {
+					markerIdToLocationId.remove(oldMarkerId);
+					Marker oldMarker = markers.get(oldMarkerId);
+					markers.remove(oldMarkerId);
+					oldMarker.remove();
+					
+				}
+				
 				Marker marker = map.addMarker(options);
 				markers.put(marker.getId(), marker);
 				markerIdToLocationId.put(marker.getId(), location.getId());
 				locationIdToLocation.put(location.getId(), location);
+				
+				
 			}
 		}
 		
