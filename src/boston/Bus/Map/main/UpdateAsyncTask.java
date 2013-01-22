@@ -439,8 +439,7 @@ public abstract class UpdateAsyncTask extends AsyncTask<Object, Object, Immutabl
 		}
 		// we need to do this here because addLocation creates PredictionViews, which needs
 		// to happen after makeSnippetAndTitle and addToSnippetAndTitle
-		manager.updateNewLocations(busesToDisplay);
-		manager.setSelectedBusId(newSelectedBusId);
+		manager.updateNewLocations(busesToDisplay, newSelectedBusId);
 		//busOverlay.refreshBalloons();
 		
 		LatLng newCenter = manager.getMap().getCameraPosition().target;

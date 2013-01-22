@@ -16,6 +16,7 @@ import boston.Bus.Map.data.Locations;
 import boston.Bus.Map.data.Path;
 
 import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.GoogleMap.OnInfoWindowClickListener;
 import com.google.android.gms.maps.GoogleMap.OnMapClickListener;
 import com.google.android.gms.maps.GoogleMap.OnMarkerClickListener;
 import com.google.android.gms.maps.model.BitmapDescriptor;
@@ -32,7 +33,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 
-public class MapManager implements OnMapClickListener, OnMarkerClickListener {
+public class MapManager implements OnMapClickListener, OnMarkerClickListener, OnInfoWindowClickListener {
 	private final GoogleMap map;
 	public static final int NOT_SELECTED = -1;
 
@@ -41,7 +42,7 @@ public class MapManager implements OnMapClickListener, OnMarkerClickListener {
 	private final Map<String, Marker> markers = Maps.newHashMap();
 	private final BiMap<String, Integer> markerIdToLocationId = HashBiMap.create();
 	private final Map<Integer, Location> locationIdToLocation = Maps.newHashMap();
-	private String selectedMarkerId;
+	private int selectedLocationId = NOT_SELECTED;
 
 	private OnMapClickListener nextTapListener;
 	private boolean allRoutesBlue;
@@ -56,17 +57,27 @@ public class MapManager implements OnMapClickListener, OnMarkerClickListener {
 		
 		map.setOnMapClickListener(this);
 		map.setOnMarkerClickListener(this);
+		map.setOnInfoWindowClickListener(this);
 	}
 	
 	@Override
 	public boolean onMarkerClick(Marker marker) {
-		selectedMarkerId = marker.getId();
+		String markerId = marker.getId();
+		Integer id = markerIdToLocationId.get(markerId);
+		if (id == null) {
+			selectedLocationId = NOT_SELECTED;
+		}
+		else
+		{
+			selectedLocationId = id;
+		}
+		
 		return false;
 	}
 
 	@Override
 	public void onMapClick(LatLng latlng) {
-		selectedMarkerId = null;
+		selectedLocationId = NOT_SELECTED;
 
 		if (nextTapListener != null) {
     		nextTapListener.onMapClick(latlng);
@@ -127,34 +138,18 @@ public class MapManager implements OnMapClickListener, OnMarkerClickListener {
 	}
 
 	public int getSelectedBusId() {
-		if (selectedMarkerId == null) {
-			return NOT_SELECTED;
-		}
-		else
-		{
-			Integer locationId = markerIdToLocationId.get(selectedMarkerId);
-			if (locationId == null) {
-				return NOT_SELECTED;
-			}
-			else
-			{
-				return locationId;
-			}
-		}
+		return selectedLocationId;
 	}
 	
 	public void setSelectedBusId(int newSelectedBusId) {
+		selectedLocationId = newSelectedBusId;
+		
 		String markerId = markerIdToLocationId.inverse().get(newSelectedBusId);
 		if (markerId != null) {
-			selectedMarkerId = markerId;
 			Marker marker = markers.get(markerId);
 			if (marker != null) {
 				marker.showInfoWindow();
 			}
-		}
-		else
-		{
-			selectedMarkerId = null;
 		}
 	}
 
@@ -175,7 +170,8 @@ public class MapManager implements OnMapClickListener, OnMarkerClickListener {
 		this.drawLine = drawLine;
 	}
 
-	public void updateNewLocations(List<Location> locations) {
+	public void updateNewLocations(List<Location> locations, int newSelection) {
+		boolean selectionMade = false;
 		Set<Integer> toRemove = Sets.newHashSet();
 		toRemove.addAll(locationIdToLocation.keySet());
 		for (Location location : locations) {
@@ -207,7 +203,11 @@ public class MapManager implements OnMapClickListener, OnMarkerClickListener {
 				markerIdToLocationId.put(marker.getId(), location.getId());
 				locationIdToLocation.put(location.getId(), location);
 				
-				
+				if (selectedLocationId == location.getId() && selectedLocationId == newSelection) {
+					// no need to call setSelectedBusId
+					marker.showInfoWindow();
+					selectionMade = true;
+				}
 			}
 		}
 		
@@ -219,6 +219,10 @@ public class MapManager implements OnMapClickListener, OnMarkerClickListener {
 			markers.remove(markerId);
 			marker.remove();
 		}
+		
+		if (selectionMade == false) {
+			setSelectedBusId(newSelection);
+		}
 	}
 
 	public Location getLocationFromMarkerId(String id) {
@@ -229,6 +233,18 @@ public class MapManager implements OnMapClickListener, OnMarkerClickListener {
 		else
 		{
 			return locationIdToLocation.get(locationId);
+		}
+	}
+
+	@Override
+	public void onInfoWindowClick(Marker marker) {
+		String markerId = marker.getId();
+		Integer locationId = markerIdToLocationId.get(markerId);
+		if (locationId != null) {
+			Location location = locationIdToLocation.get(locationId);
+			if (location != null) {
+				// TODO: this
+			}
 		}
 	}
 }

@@ -149,6 +149,7 @@ public class Main extends AbstractMapActivity
 	private static final String selectedIntersectionKey = "selectedIntersection";
 	//private static final String gpsAlwaysOn = "gpsAlwaysOn";
 	private static final String markUpdatedStops = "markUpdatedStops";
+	private static final String selectedKey = "selected";
 	
 	private static final String introScreenKey = "introScreen";
 	private EditText searchView;
@@ -406,6 +407,8 @@ public class Main extends AbstractMapActivity
             int centerLat = prefs.getInt(centerLatKey, Integer.MAX_VALUE);
             int centerLon = prefs.getInt(centerLonKey, Integer.MAX_VALUE);
             int zoomLevel = prefs.getInt(zoomLevelKey, Integer.MAX_VALUE);
+            int selected = prefs.getInt(selectedKey, MapManager.NOT_SELECTED);
+            manager.setSelectedBusId(selected);
             setMode(selection.getMode(), true, false);
             
         	updateSearchText(selection);
@@ -535,6 +538,7 @@ public class Main extends AbstractMapActivity
     		editor.putInt(centerLatKey, (int)(point.latitude * Constants.E6));
     		editor.putInt(centerLonKey, (int)(point.longitude * Constants.E6));
     		editor.putInt(zoomLevelKey, (int)arguments.getMapView().getCameraPosition().zoom);
+    		editor.putInt(selectedKey, (int)arguments.getOverlayGroup().getSelectedBusId());
     		editor.commit();
     	}
     	
