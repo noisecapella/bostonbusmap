@@ -118,7 +118,7 @@ public class MapManager implements OnMapClickListener, OnMarkerClickListener {
 				
 				latlngs[i] = new LatLng(lat, lon);
 			}
-			PolylineOptions options = new PolylineOptions().width(1f).color(color).add(latlngs);
+			PolylineOptions options = new PolylineOptions().width(3f).color(color).add(latlngs);
 			
 			Polyline polyline = map.addPolyline(options);
 			polylines.add(polyline);

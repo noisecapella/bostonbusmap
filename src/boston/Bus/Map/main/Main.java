@@ -52,7 +52,6 @@ import boston.Bus.Map.data.UpdateArguments;
 import boston.Bus.Map.provider.TransitContentProvider;
 import boston.Bus.Map.transit.TransitSystem;
 
-import boston.Bus.Map.ui.BusDrawable;
 import boston.Bus.Map.ui.MapManager;
 import boston.Bus.Map.ui.ModeAdapter;
 import boston.Bus.Map.ui.ViewingMode;

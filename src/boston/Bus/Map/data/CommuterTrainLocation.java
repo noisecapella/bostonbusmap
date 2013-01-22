@@ -9,11 +9,10 @@ public class CommuterTrainLocation extends BusLocation {
 			String heading, boolean predictable, String dirTag,
 			String inferBusRoute, TransitDrawables drawables,
 			String routeName, Directions directions, String routeTitle,
-			boolean disappearAfterRefresh,
-			int arrowTopDiff) {
+			boolean disappearAfterRefresh) {
 		super(latitude, longitude, id, lastFeedUpdateInMillis, lastUpdateInMillis,
 				heading, predictable, dirTag, inferBusRoute, drawables, routeName,
-				directions, routeTitle, disappearAfterRefresh, arrowTopDiff);
+				directions, routeTitle, disappearAfterRefresh);
 		// TODO Auto-generated constructor stub
 	}
 

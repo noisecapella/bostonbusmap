@@ -11,7 +11,7 @@ import com.google.common.collect.Lists;
 import boston.Bus.Map.R;
 import boston.Bus.Map.math.Geometry;
 import boston.Bus.Map.transit.TransitSystem;
-import boston.Bus.Map.ui.BusDrawable;
+import boston.Bus.Map.ui.BusDrawables;
 import android.content.Context;
 import android.graphics.drawable.Drawable;
 
@@ -90,11 +90,6 @@ public class BusLocation implements Location {
 	private final Directions directions;
 
 	private final TransitDrawables drawables;
-	/**
-	 * Distance in pixels between top of bus image and where we want to draw the
-	 * arrow
-	 */
-	private final int arrowTopDiff;
 
 	private final String routeTitle;
 
@@ -111,7 +106,7 @@ public class BusLocation implements Location {
 			long lastFeedUpdateInMillis, long lastUpdateInMillis, String heading, boolean predictable,
 			String dirTag, String inferBusRoute, TransitDrawables drawables,
 			String routeName, Directions directions, String routeTitle,
-			boolean disappearAfterRefresh, int arrowTopDiff) {
+			boolean disappearAfterRefresh) {
 		this.latitude = (float) (latitude * Geometry.degreesToRadians);
 		this.longitude = (float) (longitude * Geometry.degreesToRadians);
 		this.latitudeAsDegrees = latitude;
@@ -128,7 +123,6 @@ public class BusLocation implements Location {
 		this.directions = directions;
 		this.routeTitle = routeTitle;
 		this.disappearAfterRefresh = disappearAfterRefresh;
-		this.arrowTopDiff = arrowTopDiff;
 	}
 
 	public boolean hasHeading() {
@@ -355,19 +349,7 @@ public class BusLocation implements Location {
 	
 	public int getDrawable(Context context, boolean shadow,
 			boolean isSelected) {
-		return R.drawable.bus;
-		/*
-		Drawable drawable = drawables.getVehicle();
-		if (shadow == false && hasHeading()) {
-			// to make life easier we won't draw shadows except for the bus
-			// the tooltip has some weird error where the shadow draws a little
-			// left and up from where it should draw
-
-			// the constructor should ignore the arrow and tooltip if these
-			// arguments are null
-			drawable = new BusDrawable(drawables.getVehicle(), getHeading(), drawables.getArrow(), arrowTopDiff);
-		}
-		return drawable;*/
+		return BusDrawables.getIdFromAngle(getHeading());
 	}
 
 	@Override

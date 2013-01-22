@@ -3,8 +3,6 @@ package boston.Bus.Map.data;
 import android.graphics.drawable.Drawable;
 
 public class TransitDrawables {
-	private final Drawable vehicle;
-	private final Drawable arrow;
 	private final Drawable stop;
 	private final Drawable stopUpdated;
 	
@@ -12,16 +10,6 @@ public class TransitDrawables {
 			Drawable arrow) {
 		this.stop = stop;
 		this.stopUpdated = stopUpdated;
-		this.vehicle = vehicle;
-		this.arrow = arrow;
-	}
-
-	public Drawable getVehicle() {
-		return vehicle;
-	}
-
-	public Drawable getArrow() {
-		return arrow;
 	}
 
 	public Drawable getStop() {
@@ -30,9 +18,5 @@ public class TransitDrawables {
 
 	public Drawable getStopUpdated() {
 		return stopUpdated;
-	}
-
-	public Drawable getIntersection() {
-		return vehicle;
 	}
 }

@@ -184,8 +184,6 @@ public class SubwayPredictionsFeedParser
 				{
 					StopLocation nextStop = getNextStop(routeConfig, stopLocation, direction);
 
-					final int arrowTopDiff = drawables.getVehicle().getIntrinsicHeight() / 5;
-
 					//first, see if there's a subway car which pretty much matches an old BusLocation
 					BusLocation busLocation = null;
 					String tripId = lineArray[TRIP_ID_INDEX].trim();
@@ -197,7 +195,7 @@ public class SubwayPredictionsFeedParser
 					}
 
 					busLocation = new SubwayTrainLocation(stopLocation.getLatitudeAsDegrees(), stopLocation.getLongitudeAsDegrees(),
-							tripId, lastFeedUpdateTime, currentMillis, null, true, direction, null, drawables, route, directions, routeTitle + " at " + stopLocation.getTitle(), true, arrowTopDiff);
+							tripId, lastFeedUpdateTime, currentMillis, null, true, direction, null, drawables, route, directions, routeTitle + " at " + stopLocation.getTitle(), true);
 					busMapping.put(tripId, busLocation);
 
 					toRemove.remove(tripId);

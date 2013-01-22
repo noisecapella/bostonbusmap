@@ -194,10 +194,6 @@ public class CommuterRailPredictionsFeedParser
 				
 				if (lat != 0 && lon != 0 && vehicleId != null)
 				{
-					//StopLocation nextStop = getNextStop(routeConfig, stopLocation, direction);
-
-					final int arrowTopDiff = drawables.getVehicle().getIntrinsicHeight() / 5;
-
 					//first, see if there's a subway car which pretty much matches an old BusLocation
 					BusLocation busLocation = null;
 
@@ -215,7 +211,7 @@ public class CommuterRailPredictionsFeedParser
 					
 					busLocation = new CommuterTrainLocation(lat, lon,
 							vehicleId, nowEpochTime, currentMillis, heading, true, direction, null, drawables, 
-							route, directions, routeTitle, true, arrowTopDiff);
+							route, directions, routeTitle, true);
 					busMapping.put(vehicleId, busLocation);
 
 					toRemove.remove(vehicleId);
