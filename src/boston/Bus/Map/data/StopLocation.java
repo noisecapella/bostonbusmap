@@ -1,6 +1,7 @@
 package boston.Bus.Map.data;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -23,6 +24,11 @@ import com.google.common.collect.Sets;
 
 import boston.Bus.Map.R;
 import boston.Bus.Map.annotations.KeepSorted;
+import boston.Bus.Map.commands.Command;
+import boston.Bus.Map.commands.FavoritesCommand;
+import boston.Bus.Map.commands.MoreInfoCommand;
+import boston.Bus.Map.commands.ReportProblemCommand;
+import boston.Bus.Map.commands.ShowAlertsCommand;
 import boston.Bus.Map.math.Geometry;
 import boston.Bus.Map.transit.TransitSource;
 import boston.Bus.Map.transit.TransitSystem;
@@ -365,5 +371,27 @@ public class StopLocation implements Location
 	public boolean needsUpdating() {
 		// TODO: if marker turns green, this should return true
 		return false;
+	}
+
+	@Override
+	public List<Command> getCommands() {
+		PredictionView predictionView = getPredictionView();
+		Alert[] alerts = predictionView.getAlerts();
+		if (alerts.length > 0) {
+			return Arrays.asList(
+					new FavoritesCommand(this),
+					new MoreInfoCommand(this),
+					new ShowAlertsCommand(alerts),
+					new ReportProblemCommand(this)
+				);
+		}
+		else
+		{
+			return Arrays.asList(
+					new FavoritesCommand(this),
+					new MoreInfoCommand(this),
+					new ReportProblemCommand(this));
+					
+		}
 	}
 }

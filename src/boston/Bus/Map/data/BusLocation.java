@@ -1,6 +1,8 @@
 package boston.Bus.Map.data;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import com.google.common.collect.ImmutableList;
@@ -9,6 +11,9 @@ import com.google.common.collect.Lists;
 
 
 import boston.Bus.Map.R;
+import boston.Bus.Map.commands.Command;
+import boston.Bus.Map.commands.ReportProblemCommand;
+import boston.Bus.Map.commands.ShowAlertsCommand;
 import boston.Bus.Map.math.Geometry;
 import boston.Bus.Map.transit.TransitSystem;
 import boston.Bus.Map.ui.BusDrawables;
@@ -431,5 +436,21 @@ public class BusLocation implements Location {
 	@Override
 	public boolean needsUpdating() {
 		return true;
+	}
+
+	@Override
+	public List<Command> getCommands() {
+		PredictionView predictionView = getPredictionView();
+		Alert[] alerts = predictionView.getAlerts();
+		List<Command> ret;
+		if (alerts.length > 0) {
+			ret = Arrays.asList((Command)new ReportProblemCommand(this),
+				new ShowAlertsCommand(alerts));
+		}
+		else
+		{
+			ret = Arrays.asList((Command)new ReportProblemCommand(this));
+		}
+		return ret;
 	}
 }

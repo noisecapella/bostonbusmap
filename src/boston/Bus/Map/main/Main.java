@@ -203,9 +203,8 @@ public class Main extends AbstractMapActivity
         //get widgets
         
         SupportMapFragment fragment = (SupportMapFragment)getSupportFragmentManager().findFragmentById(R.id.map);
+        fragment.setRetainInstance(true);
         final GoogleMap map = fragment.getMap();
-        MapManager manager = new MapManager(this, map);
-        
         
         toggleButton = (Spinner)findViewById(R.id.predictionsOrLocations);
         chooseAPlaceButton = (Button)findViewById(R.id.chooseAPlaceButton);
@@ -386,10 +385,15 @@ public class Main extends AbstractMapActivity
         	busLocations = new Locations(this, transitSystem, selection, intersectionDrawable);
         }
 
+        MapManager manager = new MapManager(this, map, 
+        		busLocations, dropdownRouteKeysToTitles);
+        
+        
         arguments = new UpdateArguments(progress, progressDialog,
         		map, this,
         		majorHandler, busLocations, manager, transitSystem);
         handler = new UpdateHandler(arguments);
+        manager.setHandler(handler);
         
         populateHandlerSettings();
         

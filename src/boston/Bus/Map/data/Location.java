@@ -2,6 +2,9 @@ package boston.Bus.Map.data;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
+
+import boston.Bus.Map.commands.Command;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -75,4 +78,6 @@ public interface Location {
 	 * @return
 	 */
 	boolean needsUpdating();
+
+	List<Command> getCommands();
 }

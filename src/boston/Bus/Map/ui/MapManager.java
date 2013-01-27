@@ -5,15 +5,24 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
+import android.content.DialogInterface.OnClickListener;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
+import android.widget.Toast;
+import boston.Bus.Map.commands.Command;
 import boston.Bus.Map.data.Location;
 import boston.Bus.Map.data.Locations;
 import boston.Bus.Map.data.Path;
+import boston.Bus.Map.data.RouteTitles;
+import boston.Bus.Map.main.Main;
+import boston.Bus.Map.main.UpdateHandler;
+import boston.Bus.Map.util.LogUtil;
 
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.GoogleMap.OnInfoWindowClickListener;
@@ -48,12 +57,26 @@ public class MapManager implements OnMapClickListener, OnMarkerClickListener, On
 	private boolean allRoutesBlue;
 	
 	private final Set<String> routes = Sets.newHashSet();
-	private final Context context;
+	private final Main main;
+	
+	/**
+	 * This should be set in constructor but we need to instantiate this object
+	 * before it exists, so you should use setHandler once you have access
+	 * to an UpdateHandler instead
+	 */
+	private UpdateHandler handler;
+	private final Locations locations;
+	private final RouteTitles routeTitles;
 	private boolean drawLine;
 	
-	public MapManager(Context context, GoogleMap map) {
-		this.context = context;
+	private boolean firstRun;
+	
+	public MapManager(Main main, GoogleMap map,
+			Locations locations, RouteTitles routeTitles) {
+		this.main = main;
 		this.map = map;
+		this.locations = locations;
+		this.routeTitles = routeTitles;
 		
 		map.setOnMapClickListener(this);
 		map.setOnMarkerClickListener(this);
@@ -171,6 +194,12 @@ public class MapManager implements OnMapClickListener, OnMarkerClickListener, On
 	}
 
 	public void updateNewLocations(List<Location> locations, int newSelection) {
+		if (firstRun) {
+			// map may contain old markers and route lines if it was retained
+			map.clear();
+			firstRun = false;
+		}
+		
 		boolean selectionMade = false;
 		Set<Integer> toRemove = Sets.newHashSet();
 		toRemove.addAll(locationIdToLocation.keySet());
@@ -183,7 +212,7 @@ public class MapManager implements OnMapClickListener, OnMarkerClickListener, On
 			}
 			else
 			{
-				int id = location.getDrawable(context, false, false);
+				int id = location.getDrawable(main, false, false);
 				LatLng latlng = new LatLng(location.getLatitudeAsDegrees(), location.getLongitudeAsDegrees());
 				MarkerOptions options = new MarkerOptions()
 				.icon(BitmapDescriptorFactory.fromResource(id))
@@ -236,6 +265,10 @@ public class MapManager implements OnMapClickListener, OnMarkerClickListener, On
 		}
 	}
 
+	public void setHandler(UpdateHandler handler) {
+		this.handler = handler;
+	}
+	
 	@Override
 	public void onInfoWindowClick(Marker marker) {
 		String markerId = marker.getId();
@@ -243,7 +276,24 @@ public class MapManager implements OnMapClickListener, OnMarkerClickListener, On
 		if (locationId != null) {
 			Location location = locationIdToLocation.get(locationId);
 			if (location != null) {
-				// TODO: this
+				AlertDialog.Builder builder = new AlertDialog.Builder(main);
+				
+				final List<Command> commands = location.getCommands();
+				String[] array = new String[commands.size()];
+				builder.setItems(array, new OnClickListener() {
+					
+					@Override
+					public void onClick(DialogInterface dialog, int which) {
+						try {
+							commands.get(which).execute(main, handler,
+									locations, routeTitles);
+						} catch (Exception e) {
+							Toast.makeText(main, "Unknown error occurred", Toast.LENGTH_LONG).show();
+							LogUtil.e(e);
+						}
+						// TODO: confirm that info window view is updated here
+					}
+				});
 			}
 		}
 	}

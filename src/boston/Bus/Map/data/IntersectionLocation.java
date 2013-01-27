@@ -1,5 +1,7 @@
 package boston.Bus.Map.data;
 
+import java.util.Arrays;
+import java.util.List;
 import java.util.Set;
 import java.util.SortedSet;
 
@@ -9,6 +11,10 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
 
 import boston.Bus.Map.R;
+import boston.Bus.Map.commands.Command;
+import boston.Bus.Map.commands.DeletePlaceCommand;
+import boston.Bus.Map.commands.EditPlaceCommand;
+import boston.Bus.Map.commands.NearbyRoutesCommand;
 import boston.Bus.Map.math.Geometry;
 import android.content.Context;
 import android.graphics.drawable.Drawable;
@@ -188,5 +194,12 @@ public class IntersectionLocation implements Location {
 	@Override
 	public boolean needsUpdating() {
 		return false;
+	}
+
+	@Override
+	public List<Command> getCommands() {
+		return Arrays.asList(new DeletePlaceCommand(this),
+				new EditPlaceCommand(this), 
+				new NearbyRoutesCommand(this));
 	}
 }
