@@ -327,63 +327,19 @@ public class Main extends AbstractMapActivity
         RefreshAsyncTask majorHandler = null;
         
         Selection selection;
-        Object lastNonConfigurationInstance = getLastNonConfigurationInstance();
-        Locations busLocations = null;
-        if (lastNonConfigurationInstance != null)
-        {
-        	CurrentState currentState = (CurrentState)lastNonConfigurationInstance;
-        	currentState.restoreWidgets();
-        	
-        	if (currentState.getLocationEnabled())
-        	{
-        		locationEnabled = true;
-        		map.setMyLocationEnabled(true);
-        	}
-        	
-        	final UpdateArguments otherArguments = currentState.getUpdateArguments();
-        	
-        	if (otherArguments != null) {
-        		busLocations = otherArguments.getBusLocations();
-            	selection = busLocations.getSelection();
-        	}
-        	else
-        	{
-        		selection = new Selection(Selection.VEHICLE_LOCATIONS_ALL, null, null);
-        	}
-
-        	lastUpdateTime = currentState.getLastUpdateTime();
-        	previousUpdateConstantlyInterval = currentState.getUpdateConstantlyInterval();
-        	progress.setVisibility(currentState.getProgressState() ? View.VISIBLE : View.INVISIBLE);
-        	
-        	
-        	if (otherArguments != null) {
-            	majorHandler = otherArguments.getMajorHandler();
-        	}
-        	//continue posting status updates on new textView
-        	if (majorHandler != null)
-        	{
-        		majorHandler.setProgress(progress, progressDialog);
-        	}
-        }
-        else
-        {
-        	locationEnabled = prefs.getBoolean(getString(R.string.alwaysShowLocationCheckbox), true);
-            int selectedRouteIndex = prefs.getInt(selectedRouteIndexKey, 0);
-            int mode = prefs.getInt(selectedBusPredictionsKey, Selection.BUS_PREDICTIONS_ONE);
-        	String route = dropdownRouteKeysToTitles.getTagUsingIndex(selectedRouteIndex);
-        	String intersection = prefs.getString(selectedIntersectionKey, null);
-            selection = new Selection(mode, route, intersection);
-        }
+        locationEnabled = prefs.getBoolean(getString(R.string.alwaysShowLocationCheckbox), true);
+        int selectedRouteIndex = prefs.getInt(selectedRouteIndexKey, 0);
+        int mode = prefs.getInt(selectedBusPredictionsKey, Selection.BUS_PREDICTIONS_ONE);
+        String route = dropdownRouteKeysToTitles.getTagUsingIndex(selectedRouteIndex);
+        String intersection = prefs.getString(selectedIntersectionKey, null);
+        selection = new Selection(mode, route, intersection);
 
         //final boolean showIntroScreen = prefs.getBoolean(introScreenKey, true);
     	//only show this screen once
     	//prefs.edit().putBoolean(introScreenKey, false).commit();
 
-        if (busLocations == null)
-        {
-        	Drawable intersectionDrawable = getResources().getDrawable(R.drawable.busstop_intersect_statelist);
-        	busLocations = new Locations(this, transitSystem, selection, intersectionDrawable);
-        }
+       	Drawable intersectionDrawable = getResources().getDrawable(R.drawable.busstop_intersect_statelist);
+       	Locations busLocations = new Locations(this, transitSystem, selection, intersectionDrawable);
 
         MapManager manager = new MapManager(this, map, 
         		busLocations, dropdownRouteKeysToTitles);
@@ -401,35 +357,27 @@ public class Main extends AbstractMapActivity
         		handler, busLocations, dropdownRouteKeysToTitles, manager);
         map.setInfoWindowAdapter(popupAdapter);
 
-        if (lastNonConfigurationInstance != null)
+        int centerLat = prefs.getInt(centerLatKey, Integer.MAX_VALUE);
+        int centerLon = prefs.getInt(centerLonKey, Integer.MAX_VALUE);
+        int zoomLevel = prefs.getInt(zoomLevelKey, Integer.MAX_VALUE);
+        int selected = prefs.getInt(selectedKey, MapManager.NOT_SELECTED);
+        manager.setSelectedBusId(selected);
+        setMode(selection.getMode(), true, false);
+
+        updateSearchText(selection);
+
+        if (centerLat != Integer.MAX_VALUE && centerLon != Integer.MAX_VALUE && zoomLevel != Integer.MAX_VALUE)
         {
-        	updateSearchText(selection);
-        	setMode(selection.getMode(), true, false);
+        	LatLng latLng = new LatLng(centerLat * Constants.InvE6, centerLon * Constants.InvE6);
+        	map.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, zoomLevel));
         }
         else
         {
-            int centerLat = prefs.getInt(centerLatKey, Integer.MAX_VALUE);
-            int centerLon = prefs.getInt(centerLonKey, Integer.MAX_VALUE);
-            int zoomLevel = prefs.getInt(zoomLevelKey, Integer.MAX_VALUE);
-            int selected = prefs.getInt(selectedKey, MapManager.NOT_SELECTED);
-            manager.setSelectedBusId(selected);
-            setMode(selection.getMode(), true, false);
-            
-        	updateSearchText(selection);
-
-            if (centerLat != Integer.MAX_VALUE && centerLon != Integer.MAX_VALUE && zoomLevel != Integer.MAX_VALUE)
-            {
-            	LatLng latLng = new LatLng(centerLat * Constants.InvE6, centerLon * Constants.InvE6);
-            	map.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, zoomLevel));
-            }
-            else
-            {
-            	//move maps widget to center of transit network
-            	LatLng latLng = TransitSystem.getCenter();
-            	map.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 14));
-            }
-        	//make the textView blank
+        	//move maps widget to center of transit network
+        	LatLng latLng = TransitSystem.getCenter();
+        	map.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 14));
         }
+        //make the textView blank
         
         handler.setLastUpdateTime(lastUpdateTime);
 

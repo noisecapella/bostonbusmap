@@ -69,7 +69,7 @@ public class MapManager implements OnMapClickListener, OnMarkerClickListener, On
 	private final RouteTitles routeTitles;
 	private boolean drawLine;
 	
-	private boolean firstRun;
+	private boolean firstRun = true;
 	
 	public MapManager(Main main, GoogleMap map,
 			Locations locations, RouteTitles routeTitles) {
