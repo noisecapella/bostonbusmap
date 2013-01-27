@@ -25,11 +25,13 @@ import boston.Bus.Map.main.UpdateHandler;
 import boston.Bus.Map.util.LogUtil;
 
 import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.GoogleMap.OnCameraChangeListener;
 import com.google.android.gms.maps.GoogleMap.OnInfoWindowClickListener;
 import com.google.android.gms.maps.GoogleMap.OnMapClickListener;
 import com.google.android.gms.maps.GoogleMap.OnMarkerClickListener;
 import com.google.android.gms.maps.model.BitmapDescriptor;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
+import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
@@ -42,7 +44,8 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 
-public class MapManager implements OnMapClickListener, OnMarkerClickListener, OnInfoWindowClickListener {
+public class MapManager implements OnMapClickListener, OnMarkerClickListener, OnInfoWindowClickListener,
+		OnCameraChangeListener {
 	private final GoogleMap map;
 	public static final int NOT_SELECTED = -1;
 
@@ -81,6 +84,7 @@ public class MapManager implements OnMapClickListener, OnMarkerClickListener, On
 		map.setOnMapClickListener(this);
 		map.setOnMarkerClickListener(this);
 		map.setOnInfoWindowClickListener(this);
+		map.setOnCameraChangeListener(this);
 	}
 	
 	@Override
@@ -271,6 +275,11 @@ public class MapManager implements OnMapClickListener, OnMarkerClickListener, On
 	
 	@Override
 	public void onInfoWindowClick(final Marker marker) {
+		if (handler == null) {
+			// handler not yet set, wait until we call setHandler
+			return;
+		}
+		
 		String markerId = marker.getId();
 		Integer locationId = markerIdToLocationId.get(markerId);
 		if (locationId != null) {
@@ -299,6 +308,13 @@ public class MapManager implements OnMapClickListener, OnMarkerClickListener, On
 				});
 				builder.show();
 			}
+		}
+	}
+
+	@Override
+	public void onCameraChange(CameraPosition position) {
+		if (handler != null) {
+			handler.triggerUpdate();
 		}
 	}
 }
