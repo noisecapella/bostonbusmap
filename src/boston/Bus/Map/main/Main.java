@@ -550,27 +550,6 @@ public class Main extends AbstractMapActivity
     		}
     		break;
     	
-    	case R.id.centerOnLocationMenuItem:
-    		
-    		if (arguments != null)
-    		{
-    			if (arguments.getMapView().isMyLocationEnabled() == false) {
-    				arguments.getMapView().setMyLocationEnabled(true);
-    				locationEnabled = true;
-    				
-    				Toast.makeText(this, getString(R.string.findingCurrentLocation), Toast.LENGTH_SHORT).show();
-    			}
-    			Location location = arguments.getMapView().getMyLocation();
-    			if (location != null) {
-    				CameraUpdate newLatLng = CameraUpdateFactory.newLatLng(new LatLng(location.getLatitude(), location.getLongitude()));
-					arguments.getMapView().animateCamera(newLatLng);
-    			}
-    		}
-    		
-    		break;
- 
-    	
-    	
     	case R.id.chooseRoute:
     		routeChooserDialog.show();
     		

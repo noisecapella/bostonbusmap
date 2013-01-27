@@ -280,6 +280,9 @@ public class MapManager implements OnMapClickListener, OnMarkerClickListener, On
 				
 				final List<Command> commands = location.getCommands();
 				String[] array = new String[commands.size()];
+				for (int i = 0; i < commands.size(); i++) {
+					array[i] = commands.get(i).getDescription();
+				}
 				builder.setItems(array, new OnClickListener() {
 					
 					@Override
@@ -294,6 +297,7 @@ public class MapManager implements OnMapClickListener, OnMarkerClickListener, On
 						// TODO: confirm that info window view is updated here
 					}
 				});
+				builder.show();
 			}
 		}
 	}
