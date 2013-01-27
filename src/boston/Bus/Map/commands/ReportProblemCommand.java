@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ConcurrentMap;
 
+import com.google.android.gms.maps.model.Marker;
 import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
 
@@ -38,7 +39,7 @@ public class ReportProblemCommand implements Command {
 	
 	@Override
 	public void execute(Main main, UpdateHandler handler, Locations locations,
-			RouteTitles routeTitles) throws Exception {
+			RouteTitles routeTitles, Marker marker) throws Exception {
 		Intent intent = new Intent(android.content.Intent.ACTION_SEND);
 		intent.setType("plain/text");
 		

@@ -1,5 +1,7 @@
 package boston.Bus.Map.commands;
 
+import com.google.android.gms.maps.model.Marker;
+
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.view.View;
@@ -24,7 +26,7 @@ public class DeletePlaceCommand implements Command {
 
 	@Override
 	public void execute(Main main, final UpdateHandler handler, final Locations locations,
-			RouteTitles routeTitles) throws Exception {
+			RouteTitles routeTitles, Marker marker) throws Exception {
 		AlertDialog.Builder builder = new AlertDialog.Builder(main);
 		builder.setTitle("Delete Place");
 		builder.setMessage("Are you sure?");

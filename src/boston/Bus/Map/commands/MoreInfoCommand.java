@@ -1,5 +1,7 @@
 package boston.Bus.Map.commands;
 
+import com.google.android.gms.maps.model.Marker;
+
 import android.content.Context;
 import android.content.Intent;
 import boston.Bus.Map.data.Locations;
@@ -27,7 +29,7 @@ public class MoreInfoCommand implements Command {
 
 	@Override
 	public void execute(Main main, UpdateHandler handler, Locations locations,
-			RouteTitles routeTitles) throws Exception {
+			RouteTitles routeTitles, Marker marker) throws Exception {
 		if (routeTitles == null)
 		{
 			//ignore for now, we can't print route information without it

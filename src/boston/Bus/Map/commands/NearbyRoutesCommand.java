@@ -1,5 +1,7 @@
 package boston.Bus.Map.commands;
 
+import com.google.android.gms.maps.model.Marker;
+
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -28,7 +30,7 @@ public class NearbyRoutesCommand implements Command {
 
 	@Override
 	public void execute(final Main main, final UpdateHandler handler, final Locations locations,
-			final RouteTitles routeKeysToTitles) throws Exception {
+			final RouteTitles routeKeysToTitles, Marker marker) throws Exception {
 		IntersectionLocation intersectionLocation = (IntersectionLocation)location;
 
 		AlertDialog.Builder builder = new AlertDialog.Builder(main);

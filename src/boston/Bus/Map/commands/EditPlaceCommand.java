@@ -1,5 +1,7 @@
 package boston.Bus.Map.commands;
 
+import com.google.android.gms.maps.model.Marker;
+
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.view.View;
@@ -25,7 +27,7 @@ public class EditPlaceCommand implements Command {
 
 	@Override
 	public void execute(final Main main, final UpdateHandler handler, final Locations locations,
-			RouteTitles routeTitles) throws Exception {
+			RouteTitles routeTitles, Marker marker) throws Exception {
 		AlertDialog.Builder builder = new AlertDialog.Builder(main);
 		builder.setTitle("Edit place name");
 

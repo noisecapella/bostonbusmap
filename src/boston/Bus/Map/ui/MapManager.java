@@ -270,7 +270,7 @@ public class MapManager implements OnMapClickListener, OnMarkerClickListener, On
 	}
 	
 	@Override
-	public void onInfoWindowClick(Marker marker) {
+	public void onInfoWindowClick(final Marker marker) {
 		String markerId = marker.getId();
 		Integer locationId = markerIdToLocationId.get(markerId);
 		if (locationId != null) {
@@ -289,7 +289,7 @@ public class MapManager implements OnMapClickListener, OnMarkerClickListener, On
 					public void onClick(DialogInterface dialog, int which) {
 						try {
 							commands.get(which).execute(main, handler,
-									locations, routeTitles);
+									locations, routeTitles, marker);
 						} catch (Exception e) {
 							Toast.makeText(main, "Unknown error occurred", Toast.LENGTH_LONG).show();
 							LogUtil.e(e);

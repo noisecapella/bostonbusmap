@@ -1,5 +1,7 @@
 package boston.Bus.Map.commands;
 
+import com.google.android.gms.maps.model.Marker;
+
 import android.content.Intent;
 import android.util.Log;
 import android.view.View;
@@ -32,7 +34,7 @@ public class ShowAlertsCommand implements Command {
 
 	@Override
 	public void execute(Main main, UpdateHandler handler, Locations locations,
-			RouteTitles routeTitles) throws Exception {
+			RouteTitles routeTitles, Marker marker) throws Exception {
 		Intent intent = new Intent(main, AlertInfo.class);
 		if (alerts != null)
 		{

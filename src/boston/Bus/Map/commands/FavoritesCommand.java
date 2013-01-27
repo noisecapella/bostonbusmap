@@ -2,6 +2,8 @@ package boston.Bus.Map.commands;
 
 import java.io.IOException;
 
+import com.google.android.gms.maps.model.Marker;
+
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -49,10 +51,8 @@ public class FavoritesCommand implements Command {
 
 	@Override
 	public void execute(Main main, UpdateHandler handler, Locations locations,
-			RouteTitles routeTitles) throws Exception {
+			RouteTitles routeTitles, Marker marker) throws Exception {
 		locations.toggleFavorite(stopLocation);
-		// favorite.setBackgroundResource(result);
-		// TODO: confirm that this line is unnecessary
-		
+		marker.showInfoWindow();
 	}
 }
