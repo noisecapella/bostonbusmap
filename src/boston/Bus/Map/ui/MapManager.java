@@ -156,7 +156,11 @@ public class MapManager implements OnMapClickListener, OnMarkerClickListener, On
 				
 				latlngs[i] = new LatLng(lat, lon);
 			}
-			PolylineOptions options = new PolylineOptions().width(3f).color(color).add(latlngs);
+			PolylineOptions options = new PolylineOptions()
+				.width(3f)
+				.color(color)
+				.visible(drawLine)
+				.add(latlngs);
 			
 			Polyline polyline = map.addPolyline(options);
 			polylines.add(polyline);
@@ -168,16 +172,20 @@ public class MapManager implements OnMapClickListener, OnMarkerClickListener, On
 		return selectedLocationId;
 	}
 	
-	public void setSelectedBusId(int newSelectedBusId) {
+	public boolean setSelectedBusId(int newSelectedBusId) {
 		selectedLocationId = newSelectedBusId;
 		
+		boolean success = false;
 		String markerId = markerIdToLocationId.inverse().get(newSelectedBusId);
 		if (markerId != null) {
 			Marker marker = markers.get(markerId);
 			if (marker != null) {
 				marker.showInfoWindow();
+				success = true;
 			}
 		}
+		
+		return success;
 	}
 
 	public GoogleMap getMap() {
@@ -254,7 +262,11 @@ public class MapManager implements OnMapClickListener, OnMarkerClickListener, On
 		}
 		
 		if (selectionMade == false) {
-			setSelectedBusId(newSelection);
+			boolean success = setSelectedBusId(newSelection);
+			if (!success) {
+				// set to NOT_SELECTED to avoid confusion
+				setSelectedBusId(NOT_SELECTED);
+			}
 		}
 	}
 
