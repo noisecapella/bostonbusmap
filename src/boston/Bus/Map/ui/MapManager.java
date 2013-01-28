@@ -44,6 +44,11 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 
+/**
+ * Wraps GoogleMap and manages markers and polylines
+ * @author schneg
+ *
+ */
 public class MapManager implements OnMapClickListener, OnMarkerClickListener, OnInfoWindowClickListener,
 		OnCameraChangeListener {
 	private final GoogleMap map;
@@ -95,6 +100,18 @@ public class MapManager implements OnMapClickListener, OnMarkerClickListener, On
 		else
 		{
 			selectedLocationId = id;
+			
+			Location location = locationIdToLocation.get(id);
+			if (location != null) {
+				if (location.hasPopup()) {
+					return false;
+				}
+				else
+				{
+					infoWindowClicked(marker);
+					return true;
+				}
+			}
 		}
 		
 		return false;
@@ -315,9 +332,8 @@ public class MapManager implements OnMapClickListener, OnMarkerClickListener, On
 	public void setHandler(UpdateHandler handler) {
 		this.handler = handler;
 	}
-	
-	@Override
-	public void onInfoWindowClick(final Marker marker) {
+
+	private void infoWindowClicked(final Marker marker) {
 		if (handler == null) {
 			// handler not yet set, wait until we call setHandler
 			return;
@@ -352,6 +368,12 @@ public class MapManager implements OnMapClickListener, OnMarkerClickListener, On
 				builder.show();
 			}
 		}
+
+	}
+	
+	@Override
+	public void onInfoWindowClick(final Marker marker) {
+		infoWindowClicked(marker);
 	}
 
 	@Override

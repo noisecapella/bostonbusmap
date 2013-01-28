@@ -396,4 +396,9 @@ public class StopLocation implements Location
 					
 		}
 	}
+
+	@Override
+	public boolean hasPopup() {
+		return true;
+	}
 }

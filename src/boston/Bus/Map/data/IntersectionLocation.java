@@ -225,4 +225,9 @@ public class IntersectionLocation implements Location {
 				new EditPlaceCommand(this), 
 				new NearbyRoutesCommand(this));
 	}
+	
+	@Override
+	public boolean hasPopup() {
+		return false;
+	}
 }
