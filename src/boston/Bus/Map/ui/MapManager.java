@@ -97,7 +97,9 @@ public class MapManager implements OnMapClickListener, OnMarkerClickListener, On
 			selectedLocationId = id;
 		}
 		
-		return false;
+		marker.showInfoWindow();
+		
+		return true;
 	}
 
 	@Override

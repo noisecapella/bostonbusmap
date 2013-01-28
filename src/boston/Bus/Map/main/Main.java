@@ -52,6 +52,7 @@ import boston.Bus.Map.data.UpdateArguments;
 import boston.Bus.Map.provider.TransitContentProvider;
 import boston.Bus.Map.transit.TransitSystem;
 
+import boston.Bus.Map.ui.Camera;
 import boston.Bus.Map.ui.MapManager;
 import boston.Bus.Map.ui.ModeAdapter;
 import boston.Bus.Map.ui.ViewingMode;
@@ -784,14 +785,6 @@ public class Main extends AbstractMapActivity
 		}
 	}
 
-	private void animateCamera(GoogleMap map, boston.Bus.Map.data.Location location) {
-		LatLng latlng = new LatLng(location.getLatitudeAsDegrees(), location.getLongitudeAsDegrees());
-
-		map.moveCamera(CameraUpdateFactory.newLatLng(latlng));
-		map.animateCamera(CameraUpdateFactory.scrollBy(0, -100));
-
-	}
-	
 	public void setNewIntersection(String name) {
 		if (arguments != null) {
 			Locations locations = arguments.getBusLocations();
@@ -799,7 +792,7 @@ public class Main extends AbstractMapActivity
 			IntersectionLocation newLocation = locations.getIntersection(name);
 			if (newLocation != null) {
 				GoogleMap map = arguments.getMapView();
-				animateCamera(map, newLocation);
+				Camera.animateCamera(map, newLocation);
 				handler.triggerUpdateThenSelect(newLocation.getId());
 				
 			}
@@ -843,7 +836,7 @@ public class Main extends AbstractMapActivity
 		
 		setMode(Selection.BUS_PREDICTIONS_ONE, true, true);
 		
-		animateCamera(arguments.getMapView(), stopLocation);
+		Camera.animateCamera(arguments.getMapView(), stopLocation);
 	}
 
 }
