@@ -57,7 +57,7 @@ public class MapManager implements OnMapClickListener, OnMarkerClickListener, On
 	private OnMapClickListener nextTapListener;
 	private boolean allRoutesBlue;
 	
-	private final Map<String, List<Polyline>> polylines = Maps.newHashMap();
+	private final Map<String, PolylineGroup> polylines = Maps.newHashMap();
 	private final Main main;
 	
 	/**
@@ -121,9 +121,11 @@ public class MapManager implements OnMapClickListener, OnMarkerClickListener, On
 
 	public void setAllRoutesBlue(boolean allRoutesBlue) {
 		if (allRoutesBlue != this.allRoutesBlue) {
-			for (List<Polyline> polylineGroup : polylines.values()) {
-				for (Polyline polyline : polylineGroup) {
-					polyline.setColor(Color.BLUE);
+			for (PolylineGroup polylineGroup : polylines.values()) {
+				for (int i = 0; i < polylineGroup.size(); i++) {
+					Polyline polyline = polylineGroup.getPolyline(i);
+					Path path = polylineGroup.getPath(i);
+					polyline.setColor(getColor(path));
 				}
 			}
 		}
@@ -133,14 +135,14 @@ public class MapManager implements OnMapClickListener, OnMarkerClickListener, On
 	public void setPathsAndColor(Path[] paths, String route) {
 		for (String otherRoute : polylines.keySet()) {
 			if (!otherRoute.equals(route)) {
-				List<Polyline> polylineGroup = polylines.get(otherRoute);
-				for (Polyline polyline : polylineGroup) {
-					polyline.remove();
+				PolylineGroup polylineGroup = polylines.get(otherRoute);
+				for (int i = 0; i < polylineGroup.size(); i++) {
+					polylineGroup.getPolyline(i).remove();
 				}
 			}
 		}
 		
-		List<Polyline> thisPolylineGroup = polylines.get(route);
+		PolylineGroup thisPolylineGroup = polylines.get(route);
 		polylines.clear();
 		if (thisPolylineGroup != null) {
 			polylines.put(route, thisPolylineGroup);
@@ -151,16 +153,34 @@ public class MapManager implements OnMapClickListener, OnMarkerClickListener, On
 		}
 	}
 
+	private int getColor(Path path) {
+		if (allRoutesBlue) {
+			return 0x99000099;
+		}
+		else
+		{
+			int pathColor = path.getColor();
+			pathColor &= 0xffffff; //remove alpha component
+			pathColor |= 0x99000000; //add alpha component
+			return pathColor;
+		}
+	}
+	
 	public void addPathsAndColor(Path[] paths, String route) {
-		List<Polyline> polylineGroup = Lists.newArrayList();
-		for (Path path : paths) {
-			int color = allRoutesBlue ? Color.BLUE : path.getColor();
+		if (polylines.get(route) != null) {
+			return;
+		}
+		
+		Polyline[] polylineArray = new Polyline[paths.length];
+		for (int i = 0; i < paths.length; i++) {
+			Path path = paths[i];
+			int color = getColor(path);
 			LatLng[] latlngs = new LatLng[path.getPointsSize()];
-			for (int i = 0; i < path.getPointsSize(); i++) {
-				double lat = path.getPointLat(i);
-				double lon = path.getPointLon(i);
+			for (int j = 0; j < path.getPointsSize(); j++) {
+				double lat = path.getPointLat(j);
+				double lon = path.getPointLon(j);
 				
-				latlngs[i] = new LatLng(lat, lon);
+				latlngs[j] = new LatLng(lat, lon);
 			}
 			PolylineOptions options = new PolylineOptions()
 				.width(3f)
@@ -169,8 +189,9 @@ public class MapManager implements OnMapClickListener, OnMarkerClickListener, On
 				.add(latlngs);
 			
 			Polyline polyline = map.addPolyline(options);
-			polylineGroup.add(polyline);
+			polylineArray[i] = polyline;
 		}
+		PolylineGroup polylineGroup = new PolylineGroup(polylineArray, paths);
 		polylines.put(route, polylineGroup);
 	}
 
@@ -204,9 +225,9 @@ public class MapManager implements OnMapClickListener, OnMarkerClickListener, On
 
 	public void setDrawLine(boolean drawLine) {
 		if (drawLine != this.drawLine) {
-			for (List<Polyline> polylineGroup : polylines.values()) {
-				for (Polyline polyline : polylineGroup) {
-					polyline.setVisible(drawLine);
+			for (PolylineGroup polylineGroup : polylines.values()) {
+				for (int i = 0; i < polylineGroup.size(); i++) {
+					polylineGroup.getPolyline(i).setVisible(drawLine);
 				}
 			}
 		}
@@ -217,6 +238,8 @@ public class MapManager implements OnMapClickListener, OnMarkerClickListener, On
 		if (firstRun) {
 			// map may contain old markers and route lines if it was retained
 			map.clear();
+			polylines.clear();
+			
 			firstRun = false;
 		}
 		
