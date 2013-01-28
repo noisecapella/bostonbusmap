@@ -81,6 +81,4 @@ public interface Location {
 	boolean needsUpdating();
 
 	List<Command> getCommands();
-
-	boolean hasPopup();
 }

@@ -457,9 +457,4 @@ public class BusLocation implements Location {
 		}
 		return ret;
 	}
-
-	@Override
-	public boolean hasPopup() {
-		return true;
-	}
 }
