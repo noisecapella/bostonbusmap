@@ -37,7 +37,6 @@ public class DeletePlaceCommand implements Command {
 				if (location != null && location instanceof IntersectionLocation) {
 					IntersectionLocation intersection = (IntersectionLocation)location;
 					locations.removeIntersection(intersection.getName());
-					locations.setSelection(locations.getSelection().withDifferentIntersection(null));
 				}
 				handler.triggerUpdate();
 				dialog.dismiss();

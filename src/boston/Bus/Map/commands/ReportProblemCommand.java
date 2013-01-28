@@ -65,9 +65,6 @@ public class ReportProblemCommand implements Command {
 		case Selection.BUS_PREDICTIONS_STAR:
 			otherText.append("bus predictions for favorited routes. ");
 			break;
-		case Selection.BUS_PREDICTIONS_INTERSECT:
-			otherText.append("bus predictions intersecting certain locations. ");
-			break;
 		case Selection.BUS_PREDICTIONS_ALL:
 			otherText.append("bus predictions for all routes. ");
 			break;
@@ -155,7 +152,7 @@ public class ReportProblemCommand implements Command {
 	{
 		Selection selection = locations.getSelection();
 		if (selection == null) {
-			selection = new Selection(-1, null, null);
+			selection = new Selection(-1, null);
 		}
 
 		String routeTitle = selection.getRoute();

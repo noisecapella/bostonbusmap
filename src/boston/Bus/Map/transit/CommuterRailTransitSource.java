@@ -129,7 +129,6 @@ public class CommuterRailTransitSource implements TransitSource {
 		case Selection.BUS_PREDICTIONS_ALL:
 		case Selection.VEHICLE_LOCATIONS_ALL:
 		case Selection.BUS_PREDICTIONS_STAR:
-		case Selection.BUS_PREDICTIONS_INTERSECT:
 		{
 			List<Location> locations = locationsObj.getLocations(maxStops, centerLatitude, centerLongitude, false, selection);
 			
@@ -221,7 +220,7 @@ public class CommuterRailTransitSource implements TransitSource {
 		}
 		else
 		{
-			if (mode == Selection.BUS_PREDICTIONS_STAR || mode == Selection.BUS_PREDICTIONS_INTERSECT)
+			if (mode == Selection.BUS_PREDICTIONS_STAR)
 			{
 				//ok, let's look at the locations and see what we can get
 				for (Location location : locations)

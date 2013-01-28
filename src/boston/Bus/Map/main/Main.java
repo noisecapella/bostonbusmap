@@ -325,8 +325,8 @@ public class Main extends AbstractMapActivity
         int selectedRouteIndex = prefs.getInt(selectedRouteIndexKey, 0);
         int mode = prefs.getInt(selectedBusPredictionsKey, Selection.BUS_PREDICTIONS_ONE);
         String route = dropdownRouteKeysToTitles.getTagUsingIndex(selectedRouteIndex);
-        String intersection = prefs.getString(selectedIntersectionKey, null);
-        selection = new Selection(mode, route, intersection);
+
+        selection = new Selection(mode, route);
 
         //final boolean showIntroScreen = prefs.getBoolean(introScreenKey, true);
     	//only show this screen once
@@ -393,22 +393,6 @@ public class Main extends AbstractMapActivity
 	private void updateSearchText(Selection selection) {
 		if (searchView != null)
 		{
-			if (selection.getMode() == Selection.BUS_PREDICTIONS_INTERSECT) {
-				String intersection = selection.getIntersection();
-				if (arguments.getBusLocations().containsIntersection(intersection)) {
-					if (intersection.toLowerCase().startsWith("place ")) {
-						searchView.setText(intersection);
-					}
-					else
-					{
-						searchView.setText("Place " + intersection);
-					}
-				}
-				else
-				{
-					searchView.setText("No place selected, click '...'");
-				}
-			}
 			String route = selection.getRoute();
 			String routeTitle = dropdownRouteKeysToTitles.getTitle(route);
 			searchView.setText("Route " + routeTitle);
@@ -479,7 +463,6 @@ public class Main extends AbstractMapActivity
 
     		Selection selection = arguments.getBusLocations().getSelection();
     		editor.putInt(selectedBusPredictionsKey, selection.getMode());
-    		editor.putString(selectedIntersectionKey, selection.getIntersection());
     		editor.putInt(selectedRouteIndexKey, arguments.getBusLocations().getRouteAsIndex(selection.getRoute()));
     		editor.putInt(centerLatKey, (int)(point.latitude * Constants.E6));
     		editor.putInt(centerLonKey, (int)(point.longitude * Constants.E6));
@@ -794,10 +777,6 @@ public class Main extends AbstractMapActivity
 			chooseAFavoriteButton.setVisibility(View.VISIBLE);
 			chooseAPlaceButton.setVisibility(View.GONE);
 		}
-		else if (mode == Selection.BUS_PREDICTIONS_INTERSECT) {
-			chooseAFavoriteButton.setVisibility(View.GONE);
-			chooseAPlaceButton.setVisibility(View.VISIBLE);
-		}
 		else
 		{
 			chooseAFavoriteButton.setVisibility(View.GONE);
@@ -808,7 +787,7 @@ public class Main extends AbstractMapActivity
 	private void animateCamera(GoogleMap map, boston.Bus.Map.data.Location location) {
 		LatLng latlng = new LatLng(location.getLatitudeAsDegrees(), location.getLongitudeAsDegrees());
 
-		map.animateCamera(CameraUpdateFactory.newLatLng(latlng));
+		map.moveCamera(CameraUpdateFactory.newLatLng(latlng));
 		map.animateCamera(CameraUpdateFactory.scrollBy(0, -100));
 
 	}
@@ -816,11 +795,6 @@ public class Main extends AbstractMapActivity
 	public void setNewIntersection(String name) {
 		if (arguments != null) {
 			Locations locations = arguments.getBusLocations();
-			Selection oldSelection = locations.getSelection();
-			Selection newSelection = oldSelection.withDifferentIntersection(name);
-			locations.setSelection(newSelection);
-			
-			setMode(Selection.BUS_PREDICTIONS_INTERSECT, true, false);
 			
 			IntersectionLocation newLocation = locations.getIntersection(name);
 			if (newLocation != null) {

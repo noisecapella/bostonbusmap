@@ -215,7 +215,6 @@ public final class Locations
 		{
 		case Selection.BUS_PREDICTIONS_STAR:
 		case Selection.VEHICLE_LOCATIONS_ALL:
-		case Selection.BUS_PREDICTIONS_INTERSECT:
 			//get data from many transit sources
 			transitSystem.refreshData(routeConfig, selection, maxStops, centerLatitude,
 					centerLongitude, busMapping, routeMapping, directions, this);
@@ -334,17 +333,7 @@ public final class Locations
 				newLocations.add(stopLocation);
 			}
 		}
-		else if (mode == Selection.BUS_PREDICTIONS_INTERSECT) {
-			String intersectionName = selection.getIntersection();
-			IntersectionLocation intersection = routeMapping.getIntersection(intersectionName);
-			if (intersection != null) {
-				//TODO: do this all in the database
-				Collection<StopLocation> centerStops = routeMapping.getClosestStopsAndFilterRoutes(centerLatitude,
-						centerLongitude, maxLocations, intersection.getNearbyRoutes());
-				newLocations.addAll(centerStops);
-			}
-		}
-		
+
 		if (maxLocations > newLocations.size())
 		{
 			maxLocations = newLocations.size();
@@ -444,7 +433,7 @@ public final class Locations
 			if (routeConfig != null)
 			{
 				StopLocation stopLocation = routeConfig.getStop(stopTag);
-				Selection newSelection = new Selection(Selection.BUS_PREDICTIONS_ONE, route, mutableSelection.getIntersection());
+				Selection newSelection = new Selection(Selection.BUS_PREDICTIONS_ONE, route);
 				mutableSelection = newSelection;
 				return stopLocation;
 			}

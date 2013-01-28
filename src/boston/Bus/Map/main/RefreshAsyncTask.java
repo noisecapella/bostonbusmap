@@ -161,15 +161,9 @@ public class RefreshAsyncTask extends UpdateAsyncTask
 		if (locationsNearCenter != null && locationsNearCenter.size() == 0)
 		{
 			int mode = selection.getMode();
-			if (mode == Selection.BUS_PREDICTIONS_INTERSECT && StringUtil.isEmpty(selection.getIntersection())) {
-				publish(new ProgressMessage(ProgressMessage.TOAST, null, "No place selected. Click '...' to choose a place"));
-			}
-			else
-			{
-				//no data? oh well
-				//sometimes the feed provides an empty XML message; completely valid but without any vehicle elements
-				publish(new ProgressMessage(ProgressMessage.TOAST, null, "Finished update, no data provided"));
-			}
+			//no data? oh well
+			//sometimes the feed provides an empty XML message; completely valid but without any vehicle elements
+			publish(new ProgressMessage(ProgressMessage.TOAST, null, "Finished update, no data provided"));
 
 			//an error probably occurred; keep buses where they were before, and don't overwrite message in textbox
 			return;

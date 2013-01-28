@@ -47,7 +47,6 @@ public class EditPlaceCommand implements Command {
 				else
 				{
 					locations.editIntersection(oldName, newName);
-					locations.setSelection(locations.getSelection().withDifferentIntersection(newName));
 					handler.triggerUpdate();
 				}
 				dialog.dismiss();
