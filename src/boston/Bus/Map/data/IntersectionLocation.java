@@ -27,6 +27,8 @@ import android.graphics.drawable.Drawable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.View.MeasureSpec;
+import android.view.ViewGroup.LayoutParams;
 import android.widget.TextView;
 
 public class IntersectionLocation implements Location {
@@ -121,10 +123,13 @@ public class IntersectionLocation implements Location {
 		View view = LayoutInflater.from(context).inflate(R.layout.intersection_icon, root);
 		TextView textView = (TextView)view.findViewById(R.id.intersection_text);
 		textView.setText(getName());
-		Bitmap ret = Bitmap.createBitmap(view.getWidth(), view.getHeight(), Bitmap.Config.ARGB_8888);
+		
+		root.measure(300, 300); // values which are bigger than what we'll probably see 
+		root.layout(0, 0, root.getMeasuredWidth(), root.getMeasuredHeight());
+		
+		Bitmap ret = Bitmap.createBitmap(root.getWidth(), root.getHeight(), Bitmap.Config.ARGB_8888);
 		Canvas canvas = new Canvas(ret);
-		canvas.drawColor(Color.WHITE);
-		view.draw(canvas);
+		root.draw(canvas);
 		return BitmapDescriptorFactory.fromBitmap(ret);
 	}
 
