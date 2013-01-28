@@ -188,14 +188,6 @@ public class Main extends MapActivity
 	private UpdateArguments arguments;
 	
 	
-	public static final int UPDATE_INTERVAL_INVALID = 9999;
-	public static final int UPDATE_INTERVAL_SHORT = 15;
-	public static final int UPDATE_INTERVAL_MEDIUM = 50;
-	public static final int UPDATE_INTERVAL_LONG = 100;
-	public static final int UPDATE_INTERVAL_NONE = 0;
-	
-	
-	
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -323,7 +315,7 @@ public class Main extends MapActivity
 		
         //get the busLocations variable if it already exists. We need to do that step here since handler
         long lastUpdateTime = 0;
-        int previousUpdateConstantlyInterval = UPDATE_INTERVAL_NONE;
+        int previousUpdateConstantlyInterval = UpdateHandler.UPDATE_INTERVAL_NONE;
 
         RefreshAsyncTask majorHandler = null;
         
@@ -400,7 +392,7 @@ public class Main extends MapActivity
         handler = new UpdateHandler(arguments);
         overlayGroup.getBusOverlay().setUpdateable(handler);
         
-        populateHandlerSettings();
+        handler.populateHandlerSettings();
         
         if (lastNonConfigurationInstance != null)
         {
@@ -441,8 +433,8 @@ public class Main extends MapActivity
 
         //show all icons if there are any
     	handler.triggerUpdate();
-        if (handler.getUpdateConstantlyInterval() != UPDATE_INTERVAL_NONE &&
-        		previousUpdateConstantlyInterval == UPDATE_INTERVAL_NONE)
+        if (handler.getUpdateConstantlyInterval() != UpdateHandler.UPDATE_INTERVAL_NONE &&
+        		previousUpdateConstantlyInterval == UpdateHandler.UPDATE_INTERVAL_NONE)
         {
         	handler.instantRefresh();
         }
@@ -825,7 +817,6 @@ public class Main extends MapActivity
 		}
 		
 		//check the result
-		populateHandlerSettings();
 		handler.resume();
 		
 	}
@@ -865,35 +856,10 @@ public class Main extends MapActivity
 		}
 	}
 
-	
-    private void populateHandlerSettings() {
-    	SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
-    	
-    	int updateInterval = getUpdateInterval(prefs);
-    	handler.setUpdateConstantlyInterval(updateInterval);
-    	handler.setShowUnpredictable(prefs.getBoolean(getString(R.string.showUnpredictableBusesCheckbox), false));
-    	handler.setHideHighlightCircle(prefs.getBoolean(getString(R.string.hideCircleCheckbox), false));
-    	boolean allRoutesBlue = prefs.getBoolean(getString(R.string.allRoutesBlue), TransitSystem.defaultAllRoutesBlue);
-    	handler.setAllRoutesBlue(allRoutesBlue);
-    	arguments.getOverlayGroup().getRouteOverlay().setDrawLine(prefs.getBoolean(getString(R.string.showRouteLineCheckbox), false));
-    	boolean showCoarseRouteLineCheckboxValue = prefs.getBoolean(getString(R.string.showCoarseRouteLineCheckbox), true); 
-    	
-    	boolean alwaysUpdateLocationValue = prefs.getBoolean(getString(R.string.alwaysShowLocationCheckbox), true);
-    	
-    	String intervalString = Integer.valueOf(updateInterval).toString();
-    	//since the default value for this flag is true, make sure we let the preferences know of this
-    	prefs.edit().
-    		putBoolean(getString(R.string.alwaysShowLocationCheckbox), alwaysUpdateLocationValue).
-    		putString(getString(R.string.updateContinuouslyInterval), intervalString).
-    		putBoolean(getString(R.string.showCoarseRouteLineCheckbox), showCoarseRouteLineCheckboxValue).
-    		putBoolean(getString(R.string.allRoutesBlue), allRoutesBlue)
-    		.commit();
-    }
-
 	@Override
 	public Object onRetainNonConfigurationInstance() {
 		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
-		int updateConstantlyInterval = getUpdateInterval(prefs);
+		int updateConstantlyInterval = handler.getUpdateInterval(prefs);
 		
 		boolean progressVisibility = false;
 		if (arguments != null && arguments.getProgress() != null) {
@@ -904,19 +870,6 @@ public class Main extends MapActivity
 	}
 
 	
-	private int getUpdateInterval(SharedPreferences prefs) {
-		String intervalString = prefs.getString(getString(R.string.updateContinuouslyInterval), "");
-		int interval;
-		if (intervalString.length() == 0) {
-			interval = prefs.getBoolean(getString(R.string.runInBackgroundCheckbox), true) ? UPDATE_INTERVAL_SHORT : UPDATE_INTERVAL_NONE;
-		}
-		else
-		{
-			interval = Integer.parseInt(intervalString);
-		}
-		return interval;
-	}
-
 	@Override
 	public boolean onKeyUp(int keyCode, KeyEvent event) {
 		if (keyCode == KeyEvent.KEYCODE_BACK)

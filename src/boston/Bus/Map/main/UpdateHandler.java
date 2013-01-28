@@ -2,6 +2,7 @@ package boston.Bus.Map.main;
 
 import org.apache.http.impl.conn.tsccm.RouteSpecificPool;
 
+import boston.Bus.Map.R;
 import boston.Bus.Map.data.Direction;
 import boston.Bus.Map.data.Locations;
 import boston.Bus.Map.data.Selection;
@@ -17,9 +18,11 @@ import com.google.android.maps.MapView;
 
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.graphics.drawable.Drawable;
 import android.os.Handler;
 import android.os.Message;
+import android.preference.PreferenceManager;
 import android.util.Log;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -54,13 +57,60 @@ public class UpdateHandler extends Handler {
 	
 	private final UpdateArguments guiArguments;
 	private boolean allRoutesBlue = TransitSystem.defaultAllRoutesBlue;
+
+	public static final int UPDATE_INTERVAL_INVALID = 9999;
+	public static final int UPDATE_INTERVAL_SHORT = 15;
+	public static final int UPDATE_INTERVAL_MEDIUM = 50;
+	public static final int UPDATE_INTERVAL_LONG = 100;
+	public static final int UPDATE_INTERVAL_NONE = 0;
 	
+
 	public UpdateHandler(UpdateArguments guiArguments)
 	{
 		this.guiArguments = guiArguments;
 		lastUpdateTime = TransitSystem.currentTimeMillis();
 	}
 	
+	public int getUpdateInterval(SharedPreferences prefs) {
+		Context context = guiArguments.getContext();
+		String intervalString = prefs.getString(context.getString(R.string.updateContinuouslyInterval), "");
+		int interval;
+		if (intervalString.length() == 0) {
+			interval = prefs.getBoolean(context.getString(R.string.runInBackgroundCheckbox), true) ? UPDATE_INTERVAL_SHORT : UPDATE_INTERVAL_NONE;
+		}
+		else
+		{
+			interval = Integer.parseInt(intervalString);
+		}
+		return interval;
+	}
+
+	
+    public void populateHandlerSettings() {
+    	Context context = guiArguments.getContext();
+    	SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
+    	
+    	int updateInterval = getUpdateInterval(prefs);
+    	setUpdateConstantlyInterval(updateInterval);
+    	setShowUnpredictable(prefs.getBoolean(context.getString(R.string.showUnpredictableBusesCheckbox), false));
+    	setHideHighlightCircle(prefs.getBoolean(context.getString(R.string.hideCircleCheckbox), false));
+    	boolean allRoutesBlue = prefs.getBoolean(context.getString(R.string.allRoutesBlue), TransitSystem.defaultAllRoutesBlue);
+    	setAllRoutesBlue(allRoutesBlue);
+        guiArguments.getOverlayGroup().getRouteOverlay().setDrawLine(prefs.getBoolean(context.getString(R.string.showRouteLineCheckbox), false));
+    	boolean showCoarseRouteLineCheckboxValue = prefs.getBoolean(context.getString(R.string.showCoarseRouteLineCheckbox), true); 
+    	
+    	boolean alwaysUpdateLocationValue = prefs.getBoolean(context.getString(R.string.alwaysShowLocationCheckbox), true);
+    	
+    	String intervalString = Integer.valueOf(updateInterval).toString();
+    	//since the default value for this flag is true, make sure we let the preferences know of this
+    	prefs.edit().
+    		putBoolean(context.getString(R.string.alwaysShowLocationCheckbox), alwaysUpdateLocationValue).
+    		putString(context.getString(R.string.updateContinuouslyInterval), intervalString).
+    		putBoolean(context.getString(R.string.showCoarseRouteLineCheckbox), showCoarseRouteLineCheckboxValue).
+    		putBoolean(context.getString(R.string.allRoutesBlue), allRoutesBlue)
+    		.commit();
+    }
+
 	
 	@Override
 	public void handleMessage(Message msg) {
@@ -179,7 +229,7 @@ public class UpdateHandler extends Handler {
 	public boolean instantRefresh() {
 		//removeAllMessages();
 		
-		if(getUpdateConstantlyInterval() != Main.UPDATE_INTERVAL_NONE)
+		if(getUpdateConstantlyInterval() != UPDATE_INTERVAL_NONE)
 		{
 			//if the runInBackground checkbox is clicked, start the handler updating
 			removeMessages(MAJOR);
@@ -250,7 +300,8 @@ public class UpdateHandler extends Handler {
 
 	public void resume() {
 		//removeAllMessages();
-		if(getUpdateConstantlyInterval() != Main.UPDATE_INTERVAL_NONE)
+		populateHandlerSettings();
+		if(getUpdateConstantlyInterval() != UPDATE_INTERVAL_NONE)
 		{
 			//if the runInBackground checkbox is clicked, start the handler updating
 		    instantRefresh();
