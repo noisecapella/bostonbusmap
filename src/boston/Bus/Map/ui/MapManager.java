@@ -49,8 +49,6 @@ public class MapManager implements OnMapClickListener, OnMarkerClickListener, On
 	private final GoogleMap map;
 	public static final int NOT_SELECTED = -1;
 
-	private final List<Polyline> polylines = Lists.newArrayList();
-	
 	private final Map<String, Marker> markers = Maps.newHashMap();
 	private final BiMap<String, Integer> markerIdToLocationId = HashBiMap.create();
 	private final Map<Integer, Location> locationIdToLocation = Maps.newHashMap();
@@ -59,7 +57,7 @@ public class MapManager implements OnMapClickListener, OnMarkerClickListener, On
 	private OnMapClickListener nextTapListener;
 	private boolean allRoutesBlue;
 	
-	private final Set<String> routes = Sets.newHashSet();
+	private final Map<String, List<Polyline>> polylines = Maps.newHashMap();
 	private final Main main;
 	
 	/**
@@ -123,30 +121,38 @@ public class MapManager implements OnMapClickListener, OnMarkerClickListener, On
 
 	public void setAllRoutesBlue(boolean allRoutesBlue) {
 		if (allRoutesBlue != this.allRoutesBlue) {
-			for (Polyline polyline : polylines) {
-				polyline.setColor(Color.BLUE);
+			for (List<Polyline> polylineGroup : polylines.values()) {
+				for (Polyline polyline : polylineGroup) {
+					polyline.setColor(Color.BLUE);
+				}
 			}
 		}
 		this.allRoutesBlue = allRoutesBlue;
 	}
 
 	public void setPathsAndColor(Path[] paths, String route) {
-		if (routes.size() == 1 && routes.contains(route)) {
-			return;
+		for (String otherRoute : polylines.keySet()) {
+			if (!otherRoute.equals(route)) {
+				List<Polyline> polylineGroup = polylines.get(otherRoute);
+				for (Polyline polyline : polylineGroup) {
+					polyline.remove();
+				}
+			}
 		}
-		clearPaths();
-		addPathsAndColor(paths, route);
-	}
-
-	public void clearPaths() {
-		for (Polyline polyline : polylines) {
-			polyline.remove();
-		}
+		
+		List<Polyline> thisPolylineGroup = polylines.get(route);
 		polylines.clear();
-		routes.clear();
+		if (thisPolylineGroup != null) {
+			polylines.put(route, thisPolylineGroup);
+		}
+		else
+		{
+			addPathsAndColor(paths, route);
+		}
 	}
 
 	public void addPathsAndColor(Path[] paths, String route) {
+		List<Polyline> polylineGroup = Lists.newArrayList();
 		for (Path path : paths) {
 			int color = allRoutesBlue ? Color.BLUE : path.getColor();
 			LatLng[] latlngs = new LatLng[path.getPointsSize()];
@@ -163,9 +169,9 @@ public class MapManager implements OnMapClickListener, OnMarkerClickListener, On
 				.add(latlngs);
 			
 			Polyline polyline = map.addPolyline(options);
-			polylines.add(polyline);
+			polylineGroup.add(polyline);
 		}
-		routes.add(route);
+		polylines.put(route, polylineGroup);
 	}
 
 	public int getSelectedBusId() {
@@ -198,8 +204,10 @@ public class MapManager implements OnMapClickListener, OnMarkerClickListener, On
 
 	public void setDrawLine(boolean drawLine) {
 		if (drawLine != this.drawLine) {
-			for (Polyline polyline : polylines) {
-				polyline.setVisible(drawLine);
+			for (List<Polyline> polylineGroup : polylines.values()) {
+				for (Polyline polyline : polylineGroup) {
+					polyline.setVisible(drawLine);
+				}
 			}
 		}
 		this.drawLine = drawLine;

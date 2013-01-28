@@ -50,8 +50,6 @@ public class UpdateHandler extends Handler {
 	private boolean showUnpredictable;
 	private AdjustUIAsyncTask minorUpdate;
 	
-	private boolean isFirstRefresh;
-	
 	private final UpdateArguments guiArguments;
 	private boolean allRoutesBlue = TransitSystem.defaultAllRoutesBlue;
 	
@@ -75,13 +73,11 @@ public class UpdateHandler extends Handler {
 			if (currentTime - lastUpdateTime > interval)
 			{
 				//if not too soon, do the update
-				runUpdateTask(isFirstRefresh);
-				isFirstRefresh = false;
+				runUpdateTask();
 			}
 			else if (currentTime - lastUpdateTime > fetchDelay && msg.arg1 == IMMEDIATE_REFRESH)
 			{
-				runUpdateTask(isFirstRefresh);
-				isFirstRefresh = false;
+				runUpdateTask();
 			}
 
 			//make updateBuses execute every 10 seconds (or whatever fetchDelay is)
@@ -117,7 +113,7 @@ public class UpdateHandler extends Handler {
 			minorUpdate = new AdjustUIAsyncTask(guiArguments, getShowUnpredictable(),
 					maxOverlays,
 					hideHighlightCircle == false, allRoutesBlue,
-					false, selection, this, toSelect);
+					selection, this, toSelect);
 			
 
 			minorUpdate.runUpdate();
@@ -150,7 +146,7 @@ public class UpdateHandler extends Handler {
 	/**
 	 * executes the update
 	 */
-	private void runUpdateTask(boolean isFirstTime) {
+	private void runUpdateTask() {
 		//make sure we don't update too often
 		lastUpdateTime = TransitSystem.currentTimeMillis();
 
@@ -168,7 +164,7 @@ public class UpdateHandler extends Handler {
 		Selection selection = guiArguments.getBusLocations().getSelection();
 		final RefreshAsyncTask updateAsyncTask = new RefreshAsyncTask(guiArguments, getShowUnpredictable(), maxOverlays,
 				hideHighlightCircle == false, allRoutesBlue, 
-				isFirstTime, selection, this);
+				selection, this);
 		guiArguments.setMajorHandler(updateAsyncTask);
 		updateAsyncTask.runUpdate();
 		
@@ -189,8 +185,7 @@ public class UpdateHandler extends Handler {
 			return false;
 		}
 
-		runUpdateTask(isFirstRefresh);
-		isFirstRefresh = false;
+		runUpdateTask();
 		return true;
 
 	}
@@ -227,16 +222,6 @@ public class UpdateHandler extends Handler {
 	public boolean getShowUnpredictable()
 	{
 		return showUnpredictable;
-	}
-	
-	public void setInitAllRouteInfo(boolean b)
-	{
-		isFirstRefresh = b;
-	}
-	
-	public boolean getInitAllRouteInfo()
-	{
-		return isFirstRefresh;
 	}
 	
 	public void triggerUpdate(int millis) {

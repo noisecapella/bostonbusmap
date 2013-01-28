@@ -96,10 +96,6 @@ import android.widget.Toast;
 public abstract class UpdateAsyncTask extends AsyncTask<Object, Object, ImmutableList<Location>>
 {
 	private final boolean doShowUnpredictable;
-	/**
-	 * For now this is always false. I need to figure out how to download a 1 megabyte file gracefully
-	 */
-	private final boolean doInit;
 	private final int maxOverlays;
 	private final boolean drawCircle;
 	private final boolean allRoutesBlue;
@@ -125,7 +121,7 @@ public abstract class UpdateAsyncTask extends AsyncTask<Object, Object, Immutabl
 	
 	public UpdateAsyncTask(UpdateArguments arguments, boolean doShowUnpredictable,
 			int maxOverlays, boolean drawCircle, boolean allRoutesBlue,
-			boolean doInit, Selection selection, UpdateHandler handler, Integer toSelect)
+			Selection selection, UpdateHandler handler, Integer toSelect)
 	{
 		super();
 		
@@ -135,7 +131,6 @@ public abstract class UpdateAsyncTask extends AsyncTask<Object, Object, Immutabl
 		this.maxOverlays = maxOverlays;
 		this.drawCircle = drawCircle;
 		this.allRoutesBlue = allRoutesBlue;
-		this.doInit = doInit;
 		this.selection = selection;
 		this.handler = handler;
 		
@@ -331,7 +326,7 @@ public abstract class UpdateAsyncTask extends AsyncTask<Object, Object, Immutabl
 			selectedRouteConfig = null;
 		}
 		else if (mode == Selection.BUS_PREDICTIONS_INTERSECT) {
-			manager.clearPaths();
+			//manager.clearPaths();
 			String intersectionName = selection.getIntersection();
 			IntersectionLocation intersection = locationsObj.getIntersection(intersectionName);
 			if (intersection != null) {
