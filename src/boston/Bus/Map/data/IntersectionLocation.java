@@ -64,7 +64,7 @@ public class IntersectionLocation implements Location {
 		}
 		nearbyRouteTitles = ImmutableSet.copyOf(titles);
 
-		predictionView = new SimplePredictionView("", name, new Alert[0]);
+		predictionView = new SimplePredictionView("", "", new Alert[0]);
 		this.drawable = builder.drawable;
 	}
 	
