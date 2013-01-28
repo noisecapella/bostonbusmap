@@ -5,6 +5,8 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
+import com.google.android.gms.maps.model.BitmapDescriptor;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
@@ -352,9 +354,11 @@ public class BusLocation implements Location {
 		return busId;
 	}
 	
-	public int getDrawable(Context context, boolean shadow,
+	@Override
+	public BitmapDescriptor getDrawable(Context context,
 			boolean isSelected) {
-		return BusDrawables.getIdFromAngle(getHeading());
+		int res = BusDrawables.getIdFromAngle(getHeading());
+		return BitmapDescriptorFactory.fromResource(res);
 	}
 
 	@Override

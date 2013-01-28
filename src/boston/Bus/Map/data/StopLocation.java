@@ -11,6 +11,8 @@ import java.util.SortedSet;
 import java.util.TreeMap;
 import java.util.concurrent.CopyOnWriteArraySet;
 
+import com.google.android.gms.maps.model.BitmapDescriptor;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.common.base.Function;
 import com.google.common.base.Objects;
 import com.google.common.base.Predicate;
@@ -113,10 +115,10 @@ public class StopLocation implements Location
 	}
 
 	@Override
-	public int getDrawable(Context context, boolean shadow,
+	public BitmapDescriptor getDrawable(Context context,
 			boolean isSelected) {
-		return R.drawable.busstop;
-		//return recentlyUpdated ? drawables.getStopUpdated() : drawables.getStop();
+		// TODO: green on recently updated?
+		return BitmapDescriptorFactory.fromResource(R.drawable.busstop);
 	}
 
 	public void clearRecentlyUpdated()

@@ -15,6 +15,7 @@ import android.content.pm.PackageManager.NameNotFoundException;
 import android.os.RemoteException;
 import android.text.Html;
 import android.text.Spanned;
+import android.util.AttributeSet;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -51,6 +52,7 @@ import com.google.common.collect.Lists;
 import com.readystatesoftware.mapviewballoons.LimitLinearLayout;
 
 public class PopupAdapter implements InfoWindowAdapter {
+	private static final int MAX_WIDTH = 480;
 	private ImageView favorite;
 	private TextView moreInfo;
 	private TextView reportProblem;
@@ -87,7 +89,7 @@ public class PopupAdapter implements InfoWindowAdapter {
 	@Override
 	public View getInfoWindow(Marker marker) {
 		
-		LimitLinearLayout parent = new LimitLinearLayout(getContext());
+		LimitLinearLayout parent = new LimitLinearLayout(getContext(), MAX_WIDTH);
 		
 		LayoutInflater inflater = (LayoutInflater) main
 				.getSystemService(Context.LAYOUT_INFLATER_SERVICE);

@@ -6,6 +6,7 @@ import java.util.List;
 
 import boston.Bus.Map.commands.Command;
 
+import com.google.android.gms.maps.model.BitmapDescriptor;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 
@@ -24,7 +25,7 @@ public interface Location {
 
 	int getHeading();
 
-	int getDrawable(Context context, boolean shadow, boolean isSelected);
+	BitmapDescriptor getDrawable(Context context, boolean isSelected);
 
 	float getLatitudeAsDegrees();
 	

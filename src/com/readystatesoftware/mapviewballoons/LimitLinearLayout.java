@@ -30,23 +30,21 @@ import android.widget.LinearLayout;
  */
 public class LimitLinearLayout extends LinearLayout {
 
-    private static final int MAX_WIDTH_DP = 480;
+    private final int maxWidth;
     
     final float SCALE = getContext().getResources().getDisplayMetrics().density;
 
-    public LimitLinearLayout(Context context) {
+    public LimitLinearLayout(Context context, int maxWidth) {
         super(context);
-    }
-
-    public LimitLinearLayout(Context context, AttributeSet attrs) {
-        super(context, attrs);
+        
+        this.maxWidth = maxWidth;
     }
 
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
         int mode = MeasureSpec.getMode(widthMeasureSpec);
         int measuredWidth = MeasureSpec.getSize(widthMeasureSpec);
-        int adjustedMaxWidth = (int)(MAX_WIDTH_DP * SCALE + 0.5f);
+        int adjustedMaxWidth = (int)(maxWidth * SCALE + 0.5f);
         int adjustedWidth = Math.min(measuredWidth, adjustedMaxWidth);
         int adjustedWidthMeasureSpec = MeasureSpec.makeMeasureSpec(adjustedWidth, mode);
         super.onMeasure(adjustedWidthMeasureSpec, heightMeasureSpec);

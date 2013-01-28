@@ -255,10 +255,10 @@ public class MapManager implements OnMapClickListener, OnMarkerClickListener, On
 			}
 			else
 			{
-				int id = location.getDrawable(main, false, false);
+				BitmapDescriptor icon = location.getDrawable(main, false);
 				LatLng latlng = new LatLng(location.getLatitudeAsDegrees(), location.getLongitudeAsDegrees());
 				MarkerOptions options = new MarkerOptions()
-				.icon(BitmapDescriptorFactory.fromResource(id))
+				.icon(icon)
 				.position(latlng);
 
 				String oldMarkerId = markerIdToLocationId.inverse().get(location.getId());
