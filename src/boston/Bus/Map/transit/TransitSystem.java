@@ -1,6 +1,8 @@
 package boston.Bus.Map.transit;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -21,6 +23,7 @@ import android.content.ContentResolver;
 import android.content.Context;
 import android.graphics.drawable.Drawable;
 import android.util.Log;
+import boston.Bus.Map.data.Alert;
 import boston.Bus.Map.data.AlertsMapping;
 import boston.Bus.Map.data.BusLocation;
 import boston.Bus.Map.data.Directions;
@@ -35,8 +38,10 @@ import boston.Bus.Map.data.TransitDrawables;
 import boston.Bus.Map.data.TransitSourceTitles;
 import boston.Bus.Map.database.Schema;
 import boston.Bus.Map.main.Main;
+import boston.Bus.Map.parser.AlertParser;
 import boston.Bus.Map.provider.DatabaseContentProvider.DatabaseAgent;
 import boston.Bus.Map.util.Constants;
+import boston.Bus.Map.util.DownloadHelper;
 /**
  * Any transit-system specific stuff should go here, if possible
  * @author schneg
@@ -46,7 +51,7 @@ public class TransitSystem {
 	private static final double bostonLatitude = 42.3583333;
 	private static final double bostonLongitude = -71.0602778;
 	
-	private static final String website = "http://www.terribleinformation.org/george/bostonbusmap";
+	private static final String website = "http://www.georgeschneeloch.com/bostonbusmap/";
 	
 	//these four variables cover a very wide area just in case
 	public static final double lowerLeftLat = 41.582579601430346;
@@ -57,9 +62,17 @@ public class TransitSystem {
 	public static final String[] emails = new String[]{"bostonbusmap@gmail.com", "t-trackertrial@mbta.com"};
 	public static final String emailSubject = "BostonBusMap error report";
 
+	public static final int allRoutesAlertNumber = 99;
+	
 	private RouteTitles routeTitles;
 	
 	private AlertsMapping alertsMapping;
+	
+	/**
+	 * This should be null if not yet checked, an empty array if no alerts,
+	 * or some array of alerts
+	 */
+	private Alert[] alerts;
 	
 	public static double getCenterLat() {
 		return bostonLatitude;
@@ -169,6 +182,19 @@ public class TransitSystem {
 			double centerLongitude, ConcurrentHashMap<String, BusLocation> busMapping,
 			RoutePool routePool,
 			Directions directions, Locations locations) throws IOException, ParserConfigurationException, SAXException {
+		if (alerts == null) {
+			String alertUrl = AlertsMapping.getUrlForAllRoutes();
+			DownloadHelper downloadHelper = new DownloadHelper(alertUrl);
+			downloadHelper.connect();
+
+			InputStream stream = downloadHelper.getResponseData();
+			InputStreamReader data = new InputStreamReader(stream);
+
+			AlertParser parser = new AlertParser();
+			parser.runParse(data);
+			alerts = parser.getAlerts().toArray(new Alert[0]);
+		}
+		
 		for (TransitSource source : transitSources)
 		{
 			source.refreshData(routeConfig, selection, maxStops, centerLatitude,
@@ -243,4 +269,12 @@ public class TransitSystem {
 		return alertsMapping;
 	}
 
+	
+	public void setAlerts(Alert[] alerts) {
+		this.alerts = alerts;
+	}
+	
+	public Alert[] getAlerts() {
+		return alerts;
+	}
 }

@@ -3,6 +3,8 @@ package boston.Bus.Map.data;
 import java.util.ArrayList;
 import java.util.Collection;
 
+import boston.Bus.Map.transit.TransitSystem;
+
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 
@@ -43,7 +45,9 @@ public interface Location {
 	 * @param selectedRoute show only this route, if not null
 	 * @param context used for formatting the time
 	 */
-	void makeSnippetAndTitle(RouteConfig selectedRoute, RouteTitles routeKeysToTitles, Locations locations, Context context);
+	void makeSnippetAndTitle(RouteConfig selectedRoute, 
+			RouteTitles routeKeysToTitles, Locations locations,
+			Context context, TransitSystem transitSystem);
 
 	/**
 	 * In case two locations share the same space, combine the textbox text in a nice way
