@@ -38,6 +38,7 @@ import boston.Bus.Map.data.Prediction;
 import boston.Bus.Map.data.PredictionView;
 import boston.Bus.Map.data.RouteTitles;
 import boston.Bus.Map.data.Selection;
+import boston.Bus.Map.data.SimplePredictionView;
 import boston.Bus.Map.data.StopLocation;
 import boston.Bus.Map.data.StopPredictionView;
 import boston.Bus.Map.data.TimeBounds;
@@ -62,7 +63,6 @@ public class PopupAdapter implements InfoWindowAdapter {
 	private TextView nearbyRoutesTextView;
 	private final Locations locations;
 	private final RouteTitles routeKeysToTitles;
-	private Location location;
 	private Spanned noAlertsText;
 	private Alert[] alertsList;
 	private final UpdateHandler handler;
@@ -70,6 +70,11 @@ public class PopupAdapter implements InfoWindowAdapter {
 	private TextView title;
 	private TextView snippet;
 	private MapManager manager;
+
+	/**
+	 * The view we create for the popup which may get reused
+	 */
+	private LimitLinearLayout popupView;
 
 	public PopupAdapter(final Main main, UpdateHandler handler, Locations locations,
 			RouteTitles routeKeysToTitles, MapManager manager) {
@@ -88,53 +93,56 @@ public class PopupAdapter implements InfoWindowAdapter {
 
 	@Override
 	public View getInfoWindow(Marker marker) {
-		
-		LimitLinearLayout parent = new LimitLinearLayout(getContext(), MAX_WIDTH);
-		
-		LayoutInflater inflater = (LayoutInflater) main
-				.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-		View layoutView = inflater.inflate(R.layout.balloon_overlay, parent);
-		layoutView.setLayoutParams(new LayoutParams(LayoutParams.WRAP_CONTENT,
-				LayoutParams.WRAP_CONTENT));
-		layoutView.setBackgroundResource(R.drawable.tooltip);
-		title = (TextView) layoutView.findViewById(R.id.balloon_item_title);
-		snippet = (TextView) layoutView.findViewById(R.id.balloon_item_snippet);
+		if (popupView == null) {
+			LimitLinearLayout parent = new LimitLinearLayout(getContext(), MAX_WIDTH);
 
-		favorite = (ImageView) layoutView.findViewById(R.id.balloon_item_favorite);
-		favorite.setBackgroundResource(R.drawable.empty_star);
+			LayoutInflater inflater = (LayoutInflater) main
+					.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+			View layoutView = inflater.inflate(R.layout.balloon_overlay, parent);
+			layoutView.setLayoutParams(new LayoutParams(LayoutParams.WRAP_CONTENT,
+					LayoutParams.WRAP_CONTENT));
+			layoutView.setBackgroundResource(R.drawable.tooltip);
+			title = (TextView) layoutView.findViewById(R.id.balloon_item_title);
+			snippet = (TextView) layoutView.findViewById(R.id.balloon_item_snippet);
 
-		moreInfo = (TextView) layoutView.findViewById(R.id.balloon_item_moreinfo);
-		Spanned moreInfoText = Html.fromHtml("\n<a href='com.bostonbusmap://moreinfo'>More info</a>\n");
-		moreInfo.setText(moreInfoText);
+			favorite = (ImageView) layoutView.findViewById(R.id.balloon_item_favorite);
+			favorite.setBackgroundResource(R.drawable.empty_star);
+
+			moreInfo = (TextView) layoutView.findViewById(R.id.balloon_item_moreinfo);
+			Spanned moreInfoText = Html.fromHtml("\n<a href='com.bostonbusmap://moreinfo'>More info</a>\n");
+			moreInfo.setText(moreInfoText);
+
+			reportProblem = (TextView) layoutView.findViewById(R.id.balloon_item_report);
+			Spanned reportProblemText = Html.fromHtml("\n<a href='com.bostonbusmap://reportproblem'>Report<br/>Problem</a>\n");
+			reportProblem.setText(reportProblemText);
+
+			deleteTextView = (TextView)layoutView.findViewById(R.id.balloon_item_delete);
+			Spanned deleteText = Html.fromHtml("\n<a href='com.bostonbusmap://deleteplace'>Delete</a>\n");
+			deleteTextView.setText(deleteText);
+
+			editTextView = (TextView)layoutView.findViewById(R.id.balloon_item_edit);
+			Spanned editText = Html.fromHtml("\n<a href='com.bostonbusmap://editplace'>Edit name</a>\n");
+			editTextView.setText(editText);
+
+
+			nearbyRoutesTextView = (TextView)layoutView.findViewById(R.id.balloon_item_nearby_routes);
+			Spanned nearbyRoutesText = Html.fromHtml("\n<a href='com.bostonbusmap://nearbyroutes'>Nearby<br/>Routes</a>\n");
+			nearbyRoutesTextView.setText(nearbyRoutesText);
+
+			alertsTextView = (TextView) layoutView.findViewById(R.id.balloon_item_alerts);
+			alertsTextView.setVisibility(View.GONE);
+			alertsTextView.setText(R.string.noalerts);
+			noAlertsText = Html.fromHtml("<font color='grey'>No alerts</font>");
+			
+			popupView = parent;
+		}
 		
-		reportProblem = (TextView) layoutView.findViewById(R.id.balloon_item_report);
-		Spanned reportProblemText = Html.fromHtml("\n<a href='com.bostonbusmap://reportproblem'>Report<br/>Problem</a>\n");
-		reportProblem.setText(reportProblemText);
-		
-		deleteTextView = (TextView)layoutView.findViewById(R.id.balloon_item_delete);
-		Spanned deleteText = Html.fromHtml("\n<a href='com.bostonbusmap://deleteplace'>Delete</a>\n");
-		deleteTextView.setText(deleteText);
-		
-		editTextView = (TextView)layoutView.findViewById(R.id.balloon_item_edit);
-		Spanned editText = Html.fromHtml("\n<a href='com.bostonbusmap://editplace'>Edit name</a>\n");
-		editTextView.setText(editText);
-		
-		nearbyRoutesTextView = (TextView)layoutView.findViewById(R.id.balloon_item_nearby_routes);
-		Spanned nearbyRoutesText = Html.fromHtml("\n<a href='com.bostonbusmap://nearbyroutes'>Nearby<br/>Routes</a>\n");
-		nearbyRoutesTextView.setText(nearbyRoutesText);
-		
-		alertsTextView = (TextView) layoutView.findViewById(R.id.balloon_item_alerts);
-		alertsTextView.setVisibility(View.GONE);
-		alertsTextView.setText(R.string.noalerts);
-		noAlertsText = Html.fromHtml("<font color='grey'>No alerts</font>");
-		
+		View layoutView = popupView.getChildAt(0);
 		
 		String id = marker.getId();
 		Location location = manager.getLocationFromMarkerId(id);
-		if (location != null) {
-			populateView(location, layoutView);
-		}
-		return parent;
+		populateView(location, layoutView);
+		return popupView;
 	}
 	protected Context getContext() {
 		return main;
@@ -143,7 +151,7 @@ public class PopupAdapter implements InfoWindowAdapter {
 
 	private void updateUIFromState(Location location) {
 		//TODO: figure out a more elegant way to make the layout use these items even if they're invisible
-		if (location.hasFavorite())
+		if (location != null && location.hasFavorite())
 		{
 			favorite.setBackgroundResource(location.isFavorite() ? R.drawable.full_star : R.drawable.empty_star);
 		}
@@ -152,7 +160,7 @@ public class PopupAdapter implements InfoWindowAdapter {
 			favorite.setBackgroundResource(R.drawable.null_star);
 		}
 		
-		if (location.hasMoreInfo())
+		if (location != null && location.hasMoreInfo())
 		{
 			moreInfo.setVisibility(View.VISIBLE);
 		}
@@ -161,7 +169,7 @@ public class PopupAdapter implements InfoWindowAdapter {
 			moreInfo.setVisibility(View.GONE);
 		}
 		
-		if (location.hasReportProblem()) {
+		if (location != null && location.hasReportProblem()) {
 			reportProblem.setVisibility(View.VISIBLE);
 		}
 		else
@@ -172,17 +180,31 @@ public class PopupAdapter implements InfoWindowAdapter {
 		TextView[] intersectionViews = new TextView[] {
 				deleteTextView, editTextView, nearbyRoutesTextView
 		};
-		int intersectionVisibility = location.isIntersection() ? View.VISIBLE : View.GONE;
+		int intersectionVisibility;
+		if (location != null && location.isIntersection()) {
+			intersectionVisibility = View.VISIBLE;
+		}
+		else
+		{
+			intersectionVisibility = View.GONE;
+		}
 		for (TextView view : intersectionViews) {
 			view.setVisibility(intersectionVisibility);
 		}
 	}
 	
-	public void populateView(Location location, View view) {
+	private void populateView(Location location, View view) {
 		//NOTE: originally this was going to be an actual link, but we can't click it on the popup except through its onclick listener
 		
-		setState(location);
-		PredictionView predictionView = location.getPredictionView();
+		updateUIFromState(location);
+		PredictionView predictionView;
+		if (location != null) {
+			predictionView = location.getPredictionView();
+		}
+		else
+		{
+			predictionView = new SimplePredictionView("", "", new Alert[0]);
+		}
 		snippet.setText(Html.fromHtml(predictionView.getSnippet()));
 		title.setText(Html.fromHtml(predictionView.getSnippetTitle()));
 		
@@ -215,12 +237,4 @@ public class PopupAdapter implements InfoWindowAdapter {
 		}
 	}
 	
-	public void setState(Location location)
-	{
-		this.location = location;
-		
-		updateUIFromState(location);
-	}
-
-
 }
