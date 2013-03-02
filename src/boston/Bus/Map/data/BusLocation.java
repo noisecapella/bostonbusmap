@@ -239,7 +239,8 @@ public class BusLocation implements Location {
 
 	@Override
 	public void makeSnippetAndTitle(RouteConfig routeConfig,
-			RouteTitles routeKeysToTitles, Locations locations, Context context) {
+			RouteTitles routeKeysToTitles, Locations locations, Context context,
+			TransitSystem transitSystem) {
 		String snippet = makeSnippet(routeConfig);
 		String snippetTitle = makeTitle();
 		if (routeConfig.getRouteName().equals(routeName))
