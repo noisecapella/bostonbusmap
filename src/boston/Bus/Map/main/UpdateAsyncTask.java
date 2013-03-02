@@ -406,9 +406,7 @@ public abstract class UpdateAsyncTask extends AsyncTask<Object, Object, Immutabl
 			}
 			else
 			{
-				busLocation.makeSnippetAndTitle(selectedRouteConfig,
-						routeKeysToTitles, locations,
-						context, arguments.getTransitSystem());
+				busLocation.makeSnippetAndTitle(selectedRouteConfig, routeKeysToTitles, locations, context);
 			
 			
 				points.put(hash, i);

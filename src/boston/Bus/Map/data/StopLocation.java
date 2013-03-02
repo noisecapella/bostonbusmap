@@ -1,7 +1,6 @@
 package boston.Bus.Map.data;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -148,10 +147,8 @@ public class StopLocation implements Location
 	}
 	
 	@Override
-	public void makeSnippetAndTitle(RouteConfig routeConfig,
-			RouteTitles routeKeysToTitles, 
-			Locations locations, Context context,
-			TransitSystem transitSystem)
+	public void makeSnippetAndTitle(RouteConfig routeConfig, RouteTitles routeKeysToTitles, 
+			Locations locations, Context context)
 	{
 		if (predictions == null)
 		{
@@ -159,15 +156,6 @@ public class StopLocation implements Location
 		}
 		
 		Set<Alert> alerts;
-		if (transitSystem.getAlerts() != null && 
-				transitSystem.getAlerts().length > 0) {
-			alerts = Sets.newHashSet();
-			alerts.addAll(Arrays.asList(transitSystem.getAlerts()));
-			if (routeConfig != null) {
-				alerts.addAll(routeConfig.getAlerts());
-			}
-		}
-		
 		if (routeConfig != null) {
 			alerts = routeConfig.getAlerts();
 		}
