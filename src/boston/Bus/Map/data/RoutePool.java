@@ -350,4 +350,8 @@ public class RoutePool extends Pool<String, RouteConfig> {
 	public Collection<String> getIntersectionNames() {
 		return intersections.keySet();
 	}
+
+	public Collection<IntersectionLocation> getIntersections() {
+		return intersections.values();
+	}
 }

@@ -335,6 +335,12 @@ public final class Locations
 			}
 		}
 		
+		if (mode == Selection.BUS_PREDICTIONS_ALL ||
+				mode == Selection.BUS_PREDICTIONS_ONE ||
+				mode == Selection.BUS_PREDICTIONS_STAR) {
+			newLocations.addAll(routeMapping.getIntersections());
+		}
+		
 		if (maxLocations > newLocations.size())
 		{
 			maxLocations = newLocations.size();
