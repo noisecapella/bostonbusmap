@@ -369,9 +369,6 @@ public class BusPopupView extends BalloonOverlayView<BusOverlayItem>
 		case Selection.BUS_PREDICTIONS_STAR:
 			otherText.append("bus predictions for favorited routes. ");
 			break;
-		case Selection.BUS_PREDICTIONS_INTERSECT:
-			otherText.append("bus predictions intersecting certain locations. ");
-			break;
 		case Selection.BUS_PREDICTIONS_ALL:
 			otherText.append("bus predictions for all routes. ");
 			break;

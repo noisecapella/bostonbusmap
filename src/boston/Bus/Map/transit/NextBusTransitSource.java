@@ -126,7 +126,6 @@ public abstract class NextBusTransitSource implements TransitSource
 		case  Selection.BUS_PREDICTIONS_ONE:
 		case  Selection.BUS_PREDICTIONS_STAR:
 		case  Selection.BUS_PREDICTIONS_ALL:
-		case  Selection.BUS_PREDICTIONS_INTERSECT:
 		{
 
 			routePool.clearRecentlyUpdated();
@@ -137,17 +136,6 @@ public abstract class NextBusTransitSource implements TransitSource
 			ImmutableSet<String> routes;
 			if (mode == Selection.BUS_PREDICTIONS_ONE) {
 				routes = ImmutableSet.of(routeConfig.getRouteName());
-			}
-			else if (mode == Selection.BUS_PREDICTIONS_INTERSECT) {
-				String intersection = selection.getIntersection();
-				IntersectionLocation intersectionLocation = routePool.getIntersection(intersection);
-				if (intersectionLocation != null) {
-					routes = intersectionLocation.getNearbyRoutes();
-				}
-				else
-				{
-					routes = ImmutableSet.of();
-				}
 			}
 			else
 			{
@@ -185,8 +173,7 @@ public abstract class NextBusTransitSource implements TransitSource
 
 		if (mode == Selection.BUS_PREDICTIONS_ONE || 
 				mode == Selection.BUS_PREDICTIONS_ALL ||
-				mode == Selection.BUS_PREDICTIONS_STAR ||
-				mode == Selection.BUS_PREDICTIONS_INTERSECT)
+				mode == Selection.BUS_PREDICTIONS_STAR)
 		{
 			//bus prediction
 

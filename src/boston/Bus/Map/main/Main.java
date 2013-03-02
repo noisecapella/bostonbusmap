@@ -467,22 +467,6 @@ public class Main extends MapActivity
 	private void updateSearchText(Selection selection) {
 		if (searchView != null)
 		{
-			if (selection.getMode() == Selection.BUS_PREDICTIONS_INTERSECT) {
-				String intersection = selection.getIntersection();
-				if (arguments.getBusLocations().containsIntersection(intersection)) {
-					if (intersection.toLowerCase().startsWith("place ")) {
-						searchView.setText(intersection);
-					}
-					else
-					{
-						searchView.setText("Place " + intersection);
-					}
-				}
-				else
-				{
-					searchView.setText("No place selected, click '...'");
-				}
-			}
 			String route = selection.getRoute();
 			String routeTitle = dropdownRouteKeysToTitles.getTitle(route);
 			searchView.setText("Route " + routeTitle);
@@ -1058,10 +1042,6 @@ public class Main extends MapActivity
 			chooseAFavoriteButton.setVisibility(View.VISIBLE);
 			chooseAPlaceButton.setVisibility(View.GONE);
 		}
-		else if (mode == Selection.BUS_PREDICTIONS_INTERSECT) {
-			chooseAFavoriteButton.setVisibility(View.GONE);
-			chooseAPlaceButton.setVisibility(View.VISIBLE);
-		}
 		else
 		{
 			chooseAFavoriteButton.setVisibility(View.GONE);
@@ -1076,7 +1056,7 @@ public class Main extends MapActivity
 			Selection newSelection = oldSelection.withDifferentIntersection(name);
 			locations.setSelection(newSelection);
 			
-			setMode(Selection.BUS_PREDICTIONS_INTERSECT, true, false);
+			setMode(Selection.BUS_PREDICTIONS_ALL, true, false);
 			
 			IntersectionLocation newLocation = locations.getIntersection(name);
 			if (newLocation != null) {
