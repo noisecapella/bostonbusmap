@@ -2,8 +2,6 @@ package boston.Bus.Map.data;
 
 import java.util.Map;
 
-import boston.Bus.Map.transit.TransitSystem;
-
 import com.google.common.collect.ImmutableBiMap;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
@@ -20,10 +18,6 @@ public class AlertsMapping {
 		routeDescriptionToAlertKey = map;
 	}
 
-	public static String getUrlForAllRoutes() {
-		return alertUrlPrefix + TransitSystem.allRoutesAlertNumber;
-	}
-	
 	public String getUrlForRoute(String routeName) {
 		return alertUrlPrefix + routeDescriptionToAlertKey.get(routeName);
 	}
