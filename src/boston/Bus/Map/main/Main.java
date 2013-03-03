@@ -269,13 +269,13 @@ public class Main extends MapActivity
         
         	Drawable busStop = resources.getDrawable(R.drawable.busstop_statelist);
         
-        	TransitDrawables busDrawables = new TransitDrawables(busStop,
+        	TransitDrawables busDrawables = new TransitDrawables(this, busStop,
         			busStopUpdated, busPicture,
         			arrow, busPicture.getIntrinsicHeight() / 5, intersection);
-        	TransitDrawables subwayDrawables = new TransitDrawables(busStop,
+        	TransitDrawables subwayDrawables = new TransitDrawables(this, busStop,
         			busStopUpdated, rail,
         			arrow, rail.getIntrinsicHeight() / 5, intersection);
-        	TransitDrawables commuterRailDrawables = new TransitDrawables(busStop,
+        	TransitDrawables commuterRailDrawables = new TransitDrawables(this, busStop,
         			busStopUpdated, rail, arrow, rail.getIntrinsicHeight() / 5, 
         			intersection);
         	

@@ -6,6 +6,7 @@ import java.util.WeakHashMap;
 
 import com.google.common.collect.Maps;
 
+import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Rect;
@@ -19,6 +20,7 @@ import android.util.SparseArray;
  *
  */
 public class TransitDrawables {
+	private final Context context;
 	private final Drawable intersection;
 	private final Drawable arrow;
 	private final int arrowTopDiff;
@@ -28,7 +30,7 @@ public class TransitDrawables {
 	
 	private final SparseArray<Drawable> vehicles = new SparseArray<Drawable>();
 	
-	public TransitDrawables(Drawable stop, Drawable stopUpdated, Drawable vehicle,
+	public TransitDrawables(Context context, Drawable stop, Drawable stopUpdated, Drawable vehicle,
 			Drawable arrow, int arrowTop, Drawable intersection) {
 		this.stop = stop;
 		this.stopUpdated = stopUpdated;
@@ -36,6 +38,7 @@ public class TransitDrawables {
 		this.arrow = arrow;
 		this.arrowTopDiff = arrowTop;
 		this.intersection = intersection;
+		this.context = context;
 	}
 
 	public Drawable getVehicle(int heading) {
@@ -85,7 +88,7 @@ public class TransitDrawables {
 
 		}
 		
-		return new BitmapDrawable(bitmap);
+		return new BitmapDrawable(context.getResources(), bitmap);
 	}
 
 	public Drawable getStop() {
