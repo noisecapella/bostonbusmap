@@ -64,6 +64,7 @@ public class TransitDrawables {
 					vehicle.getIntrinsicHeight(), Bitmap.Config.ARGB_8888);
 			Canvas canvas = new Canvas(bitmap);
 			//first draw the bus
+			vehicle.setState(state);
 			vehicle.setBounds(0, 0, canvas.getWidth(), canvas.getHeight());
 			vehicle.draw(canvas);
 
