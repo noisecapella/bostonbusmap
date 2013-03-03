@@ -185,6 +185,7 @@ public class Main extends MapActivity
 	private ImageButton searchButton;
 
 	private UpdateArguments arguments;
+	private ImageButton myLocationButton;
 	
 	
 	public static final int UPDATE_INTERVAL_INVALID = 9999;
@@ -212,6 +213,9 @@ public class Main extends MapActivity
         searchView = (EditText)findViewById(R.id.searchTextView);
         final ProgressBar progress = (ProgressBar)findViewById(R.id.progress);
         searchButton = (ImageButton)findViewById(R.id.searchButton);
+        
+        myLocationButton = (ImageButton)findViewById(R.id.myLocationButton);
+        myLocationButton.getBackground().setAlpha(0xbb);
         
     	SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
 
@@ -251,6 +255,27 @@ public class Main extends MapActivity
 			@Override
 			public void onClick(View v) {
 				showChooseStopDialog();
+			}
+		});
+        
+        myLocationButton.setOnClickListener(new OnClickListener() {
+			
+			@Override
+			public void onClick(View v) {
+	    		if (arguments != null)
+	    		{
+	    			final LocationOverlay myLocationOverlay = arguments.getOverlayGroup().getMyLocationOverlay();
+	    			if (myLocationOverlay.isMyLocationEnabled() == false)
+	    			{
+	    				myLocationOverlay.enableMyLocation();
+	    				
+	    				locationEnabled = true;
+	    				
+	    				Toast.makeText(Main.this, getString(R.string.findingCurrentLocation), Toast.LENGTH_SHORT).show();
+	    			}
+	   				myLocationOverlay.updateMapViewPosition();
+	    		}
+				
 			}
 		});
         
@@ -451,6 +476,7 @@ public class Main extends MapActivity
         {
         	handler.instantRefresh();
         }
+
         
     	//enable plus/minus zoom buttons in map
         mapView.setBuiltInZoomControls(true);
@@ -614,24 +640,6 @@ public class Main extends MapActivity
     		}
     		break;
     	
-    	case R.id.centerOnLocationMenuItem:
-    		
-    		if (arguments != null)
-    		{
-    			final LocationOverlay myLocationOverlay = arguments.getOverlayGroup().getMyLocationOverlay();
-    			if (myLocationOverlay.isMyLocationEnabled() == false)
-    			{
-    				myLocationOverlay.enableMyLocation();
-    				
-    				locationEnabled = true;
-    				
-    				Toast.makeText(this, getString(R.string.findingCurrentLocation), Toast.LENGTH_SHORT).show();
-    			}
-   				myLocationOverlay.updateMapViewPosition();
-    		}
-    		
-    		break;
- 
     	
     	
     	case R.id.chooseRoute:

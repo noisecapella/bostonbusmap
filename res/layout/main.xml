@@ -65,6 +65,17 @@ android:id="@+id/linearLayoutMain" android:gravity="right">
 		
 		android:apiKey="04_mZq9Q_5sL2pltlDIYof4iIQimS_U5YPnRafg"
 		 />
+		<RelativeLayout 
+	    android:layout_height="fill_parent"
+	    android:layout_width="fill_parent" 
+	    android:id="@+id/mapviewOverlay"
+	    android:layout_alignParentBottom="true"
+	    android:layout_below="@+id/linearLayoutMain">
+	<ImageButton android:layout_width="wrap_content" android:layout_height="wrap_content"
+	    android:src="@android:drawable/ic_menu_mylocation"
+	    android:id="@+id/myLocationButton"
+	    />
+	    </RelativeLayout>
 	<!-- debug key: 0UeumldxhB0bPpe6UgModFrG5tLPAwclzgqJhRg -->
 	<!-- release key: 04_mZq9Q_5sL2pltlDIYof4iIQimS_U5YPnRafg -->
 
