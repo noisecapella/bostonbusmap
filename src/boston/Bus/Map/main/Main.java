@@ -266,12 +266,19 @@ public class Main extends MapActivity
         	Drawable arrow = resources.getDrawable(R.drawable.arrow);
         	Drawable tooltip = resources.getDrawable(R.drawable.tooltip);
         	Drawable rail = resources.getDrawable(R.drawable.rail_statelist);
+        	Drawable intersection = resources.getDrawable(R.drawable.busstop_intersect_statelist);
         
         	Drawable busStop = resources.getDrawable(R.drawable.busstop_statelist);
         
-        	TransitDrawables busDrawables = new TransitDrawables(busStop, busStopUpdated, busPicture, arrow);
-        	TransitDrawables subwayDrawables = new TransitDrawables(busStop, busStopUpdated, rail, arrow);
-        	TransitDrawables commuterRailDrawables = new TransitDrawables(busStop, busStopUpdated, rail, arrow);
+        	TransitDrawables busDrawables = new TransitDrawables(busStop,
+        			busStopUpdated, busPicture,
+        			arrow, busPicture.getIntrinsicHeight() / 5, intersection);
+        	TransitDrawables subwayDrawables = new TransitDrawables(busStop,
+        			busStopUpdated, rail,
+        			arrow, rail.getIntrinsicHeight() / 5, intersection);
+        	TransitDrawables commuterRailDrawables = new TransitDrawables(busStop,
+        			busStopUpdated, rail, arrow, rail.getIntrinsicHeight() / 5, 
+        			intersection);
         	
         	transitSystem.setDefaultTransitSource(busDrawables, subwayDrawables, commuterRailDrawables, this);
         }
@@ -390,8 +397,7 @@ public class Main extends MapActivity
 
         if (busLocations == null)
         {
-        	Drawable intersectionDrawable = getResources().getDrawable(R.drawable.busstop_intersect_statelist);
-        	busLocations = new Locations(this, transitSystem, selection, intersectionDrawable);
+        	busLocations = new Locations(this, transitSystem, selection);
         }
 
         arguments = new UpdateArguments(progress, progressDialog,
@@ -736,8 +742,7 @@ public class Main extends MapActivity
 										{
 											float latitudeAsDegrees = (float) (point.getLatitudeE6() * Constants.InvE6); 
 											float longitudeAsDegrees = (float) (point.getLongitudeE6() * Constants.InvE6); 
-											Drawable drawable = getResources().getDrawable(R.drawable.busstop_intersect);
-											IntersectionLocation.Builder builder = new IntersectionLocation.Builder(newName, latitudeAsDegrees, longitudeAsDegrees, drawable);
+											IntersectionLocation.Builder builder = new IntersectionLocation.Builder(newName, latitudeAsDegrees, longitudeAsDegrees);
 											Locations locations = arguments.getBusLocations();
 											
 											locations.addIntersection(builder);

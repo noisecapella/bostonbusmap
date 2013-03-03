@@ -3,6 +3,8 @@ package boston.Bus.Map.data;
 import java.util.ArrayList;
 import java.util.Collection;
 
+import boston.Bus.Map.transit.TransitSystem;
+
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 
@@ -21,7 +23,7 @@ public interface Location {
 
 	int getHeading();
 
-	Drawable getDrawable(Context context, boolean shadow, boolean isSelected);
+	Drawable getDrawable(TransitSystem transitSystem);
 
 	float getLatitudeAsDegrees();
 	

@@ -297,7 +297,7 @@ public class SubwayTransitSource implements TransitSource {
 			String stopTag, String stopTitle, int platformOrder, String branch,
 			String route) {
 		SubwayStopLocation stop = new SubwayStopLocation.SubwayBuilder(
-				latitude, longitude, drawables, stopTag, stopTitle, platformOrder, branch).build();
+				latitude, longitude, stopTag, stopTitle, platformOrder, branch).build();
 		stop.addRoute(route);
 		return stop;
 	}

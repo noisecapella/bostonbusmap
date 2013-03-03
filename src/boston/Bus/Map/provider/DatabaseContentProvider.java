@@ -1232,7 +1232,7 @@ public class DatabaseContentProvider extends ContentProvider {
 				ContentResolver resolver,
 				ConcurrentMap<String, IntersectionLocation> intersections,
 				TransitSystem transitSystem, ConcurrentMap<String, StopLocation> sharedStops,
-				Drawable intersectionDrawable, float miles, boolean filterByDistance) {
+				float miles, boolean filterByDistance) {
 			
 			Map<String, IntersectionLocation.Builder> ret = Maps.newHashMap();
 			
@@ -1248,7 +1248,7 @@ public class DatabaseContentProvider extends ContentProvider {
 					float lat = cursor.getFloat(1);
 					float lon = cursor.getFloat(2);
 					IntersectionLocation.Builder builder = 
-							new IntersectionLocation.Builder(title, lat, lon, intersectionDrawable);
+							new IntersectionLocation.Builder(title, lat, lon);
 					ret.put(title, builder);
 					
 					cursor.moveToNext();

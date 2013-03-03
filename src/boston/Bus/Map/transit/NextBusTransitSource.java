@@ -313,7 +313,7 @@ public abstract class NextBusTransitSource implements TransitSource
 	public StopLocation createStop(float lat, float lon, String stopTag,
 			String title, int platformOrder, String branch, String route)
 	{
-		StopLocation stop = new StopLocation.Builder(lat, lon, drawables, stopTag, title).build();
+		StopLocation stop = new StopLocation.Builder(lat, lon, stopTag, title).build();
 		stop.addRoute(route);
 		return stop;
 	}
