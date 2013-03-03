@@ -11,7 +11,6 @@ import com.google.common.collect.Lists;
 import boston.Bus.Map.math.Geometry;
 import boston.Bus.Map.transit.TransitSource;
 import boston.Bus.Map.transit.TransitSystem;
-import boston.Bus.Map.ui.BusDrawable;
 import android.content.Context;
 import android.graphics.drawable.Drawable;
 
