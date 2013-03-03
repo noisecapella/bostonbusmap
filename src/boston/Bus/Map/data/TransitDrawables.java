@@ -73,8 +73,8 @@ public class TransitDrawables {
 			{
 				//put the arrow in the bus window
 
-				int arrowLeft = -(arrow.getIntrinsicWidth() / 4);
-				int arrowTop = -vehicle.getIntrinsicHeight() + arrowTopDiff;
+				int arrowLeft = vehicle.getIntrinsicWidth()/2 - (arrow.getIntrinsicWidth() * 6 / 10 / 2);
+				int arrowTop = arrowTopDiff;
 
 				//NOTE: use integer division when possible. This code is frequently executed
 				int arrowWidth = (arrow.getIntrinsicWidth() * 6) / 10;  
