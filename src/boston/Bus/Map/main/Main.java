@@ -53,7 +53,6 @@ import boston.Bus.Map.provider.TransitContentProvider;
 import boston.Bus.Map.transit.TransitSystem;
 import boston.Bus.Map.ui.BusOverlay;
 
-import boston.Bus.Map.ui.BusDrawable;
 import boston.Bus.Map.ui.LocationOverlay;
 import boston.Bus.Map.ui.ModeAdapter;
 import boston.Bus.Map.ui.OverlayGroup;
