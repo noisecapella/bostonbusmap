@@ -241,7 +241,7 @@ public class CommuterRailTransitSource implements TransitSource {
 							}
 						}
 					}
-					else
+					else if (location instanceof BusLocation)
 					{
 						//bus location
 						BusLocation busLocation = (BusLocation)location;
