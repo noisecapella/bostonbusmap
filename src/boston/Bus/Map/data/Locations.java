@@ -82,20 +82,16 @@ public final class Locations
 	
 	private double lastUpdateTime = 0;
 	
-	private final Drawable intersectionDrawable;
-	
-
 	private Selection mutableSelection;
 	private final TransitSystem transitSystem;
 
 	public Locations(Context context, 
-			TransitSystem transitSystem, Selection selection, Drawable intersectionDrawable)
+			TransitSystem transitSystem, Selection selection)
 	{
 		this.transitSystem = transitSystem;
-		routeMapping = new RoutePool(context, transitSystem, intersectionDrawable);
+		routeMapping = new RoutePool(context, transitSystem);
 		directions = new Directions(context);
 		mutableSelection = selection;
-		this.intersectionDrawable = intersectionDrawable;
 	}
 	
 	public String getRouteTitle(String key)
@@ -222,7 +218,7 @@ public final class Locations
 			break;
 		case Selection.BUS_PREDICTIONS_ALL:
 		{
-			TransitSource transitSource = transitSystem.getTransitSource(null);
+			TransitSource transitSource = transitSystem.getDefaultTransitSource();
 			transitSource.refreshData(routeConfig, selection, maxStops,
 					centerLatitude, centerLongitude, busMapping,
 					routeMapping, directions, this);
@@ -499,10 +495,6 @@ public final class Locations
 		return transitSystem.getAlertsMapping();
 	}
 	
-	public Drawable getIntersectionDrawable() {
-		return intersectionDrawable;
-	}
-
 	public void removeIntersection(String name) {
 		routeMapping.removeIntersection(name);
 	}
@@ -521,5 +513,9 @@ public final class Locations
 
 	public Collection<String> getIntersectionNames() {
 		return routeMapping.getIntersectionNames();
+	}
+	
+	public TransitSystem getTransitSystem() {
+		return routeMapping.getTransitSystem();
 	}
 }

@@ -241,7 +241,7 @@ public class CommuterRailTransitSource implements TransitSource {
 							}
 						}
 					}
-					else
+					else if (location instanceof BusLocation)
 					{
 						//bus location
 						BusLocation busLocation = (BusLocation)location;
@@ -346,7 +346,7 @@ public class CommuterRailTransitSource implements TransitSource {
 			String stopTag, String stopTitle, int platformOrder, String branch,
 			String route) {
 		CommuterRailStopLocation stop = new CommuterRailStopLocation.CommuterRailBuilder(
-				latitude, longitude, drawables, stopTag, stopTitle, platformOrder, branch).build();
+				latitude, longitude, stopTag, stopTitle, platformOrder, branch).build();
 		stop.addRoute(route);
 		return stop;
 	}

@@ -9,6 +9,7 @@ import com.google.common.collect.Lists;
 
 
 import boston.Bus.Map.math.Geometry;
+import boston.Bus.Map.transit.TransitSource;
 import boston.Bus.Map.transit.TransitSystem;
 import boston.Bus.Map.ui.BusDrawable;
 import android.content.Context;
@@ -88,13 +89,6 @@ public class BusLocation implements Location {
 
 	private final Directions directions;
 
-	private final TransitDrawables drawables;
-	/**
-	 * Distance in pixels between top of bus image and where we want to draw the
-	 * arrow
-	 */
-	private final int arrowTopDiff;
-
 	private final String routeTitle;
 
 	private final boolean disappearAfterRefresh;
@@ -108,9 +102,9 @@ public class BusLocation implements Location {
 
 	public BusLocation(float latitude, float longitude, String id,
 			long lastFeedUpdateInMillis, long lastUpdateInMillis, String heading, boolean predictable,
-			String dirTag, String inferBusRoute, TransitDrawables drawables,
+			String dirTag, String inferBusRoute,
 			String routeName, Directions directions, String routeTitle,
-			boolean disappearAfterRefresh, int arrowTopDiff) {
+			boolean disappearAfterRefresh) {
 		this.latitude = (float) (latitude * Geometry.degreesToRadians);
 		this.longitude = (float) (longitude * Geometry.degreesToRadians);
 		this.latitudeAsDegrees = latitude;
@@ -122,12 +116,10 @@ public class BusLocation implements Location {
 		this.predictable = predictable;
 		this.dirTag = dirTag;
 		this.inferBusRoute = inferBusRoute;
-		this.drawables = drawables;
 		this.routeName = routeName;
 		this.directions = directions;
 		this.routeTitle = routeTitle;
 		this.disappearAfterRefresh = disappearAfterRefresh;
-		this.arrowTopDiff = arrowTopDiff;
 	}
 
 	public boolean hasHeading() {
@@ -352,21 +344,13 @@ public class BusLocation implements Location {
 		return busId;
 	}
 	
-	public Drawable getDrawable(Context context, boolean shadow,
-			boolean isSelected) {
-		Drawable drawable = drawables.getVehicle();
-		if (shadow == false && hasHeading()) {
-			// to make life easier we won't draw shadows except for the bus
-			// the tooltip has some weird error where the shadow draws a little
-			// left and up from where it should draw
-
-			// the constructor should ignore the arrow and tooltip if these
-			// arguments are null
-			drawable = new BusDrawable(drawables.getVehicle(), getHeading(), drawables.getArrow(), arrowTopDiff);
-		}
-		return drawable;
+	@Override
+	public Drawable getDrawable(TransitSystem transitSystem) {
+		TransitSource transitSource = transitSystem.getTransitSource(routeName);
+		int headingValue = hasHeading() ? getHeading() : NO_HEADING;
+		return transitSource.getDrawables().getVehicle(headingValue);
 	}
-
+	
 	@Override
 	public float getLatitudeAsDegrees() {
 		// TODO Auto-generated method stub

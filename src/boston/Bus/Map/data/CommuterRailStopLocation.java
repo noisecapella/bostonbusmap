@@ -12,9 +12,9 @@ public class CommuterRailStopLocation extends SubwayStopLocation {
 
 	public static class CommuterRailBuilder extends SubwayBuilder {
 		public CommuterRailBuilder(float latitudeAsDegrees,
-				float longitudeAsDegrees, TransitDrawables drawables, String tag,
+				float longitudeAsDegrees, String tag,
 				String title, int platformOrder, String branch) {
-			super (latitudeAsDegrees, longitudeAsDegrees, drawables, tag,
+			super (latitudeAsDegrees, longitudeAsDegrees, tag,
 					title, platformOrder, branch);
 		}
 		

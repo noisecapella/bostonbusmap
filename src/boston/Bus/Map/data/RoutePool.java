@@ -52,18 +52,15 @@ public class RoutePool extends Pool<String, RouteConfig> {
 	
 	private final TransitSystem transitSystem;
 	
-	private final Drawable intersectionDrawable;
-
 	private float maximumDistanceFromIntersection;
 
 	private boolean filterStopsFromIntersection;
 	
-	public RoutePool(Context context, TransitSystem transitSystem, Drawable intersectionDrawable) {
+	public RoutePool(Context context, TransitSystem transitSystem) {
 		super(50);
 
 		this.context = context;
 		this.transitSystem = transitSystem;
-		this.intersectionDrawable = intersectionDrawable;
 		//TODO: define these as settings
 		maximumDistanceFromIntersection = 1.0f;
 		filterStopsFromIntersection = true;
@@ -167,7 +164,7 @@ public class RoutePool extends Pool<String, RouteConfig> {
 	
 	private void populateIntersections() {
 		DatabaseAgent.populateIntersections(context.getContentResolver(), intersections,
-				transitSystem, sharedStops, intersectionDrawable, maximumDistanceFromIntersection, filterStopsFromIntersection);
+				transitSystem, sharedStops, maximumDistanceFromIntersection, filterStopsFromIntersection);
 	}
 
 	protected void clearAll() {
@@ -353,5 +350,9 @@ public class RoutePool extends Pool<String, RouteConfig> {
 
 	public Collection<IntersectionLocation> getIntersections() {
 		return intersections.values();
+	}
+	
+	public TransitSystem getTransitSystem() {
+		return transitSystem;
 	}
 }

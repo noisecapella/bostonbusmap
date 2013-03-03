@@ -114,7 +114,7 @@ public class CommuterRailRouteConfigParser
 			{
 				stopLocation =
 						new CommuterRailStopLocation.CommuterRailBuilder(
-								lat, lon, source.getDrawables(), stopTag, stopTitle, 
+								lat, lon, stopTag, stopTitle, 
 								platformOrder, branch).build();
 				route.addStop(stopTag, stopLocation);
 			}
