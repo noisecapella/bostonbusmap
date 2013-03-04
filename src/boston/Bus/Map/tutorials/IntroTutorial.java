@@ -6,6 +6,7 @@ import android.app.Activity;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.LayerDrawable;
 import android.graphics.drawable.ShapeDrawable;
+import android.view.View;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.TextView;
@@ -15,6 +16,25 @@ import com.google.common.collect.Lists;
 
 public class IntroTutorial {
 
+	private static void addHighlight(View view) {
+		Drawable viewDrawable = view.getBackground();
+		if (!(viewDrawable instanceof LayerDrawable)) {
+			Drawable redBackground = view.getResources().getDrawable(R.drawable.red_background);
+			Drawable[] layers = new Drawable[]{redBackground, viewDrawable};
+			LayerDrawable layerDrawable = new LayerDrawable(layers);
+			
+			view.setBackgroundDrawable(layerDrawable);
+		}
+
+	}
+	
+	private static void removeHighlight(View view) {
+		Drawable viewDrawable = view.getBackground();
+		if (viewDrawable instanceof LayerDrawable) {
+			view.setBackgroundDrawable(((LayerDrawable) viewDrawable).getDrawable(1));
+		}
+	}
+	
 	public static List<TutorialStep> populate() {
 		List<TutorialStep> steps = Lists.newArrayList();
 
@@ -64,23 +84,13 @@ public class IntroTutorial {
 			@Override
 			public void setup(Activity parent) {
 				ImageButton button = (ImageButton) parent.findViewById(R.id.myLocationButton);
-				Drawable buttonDrawable = button.getBackground();
-				if (!(buttonDrawable instanceof LayerDrawable)) {
-					Drawable redBackground = parent.getResources().getDrawable(R.drawable.red_background);
-					Drawable[] layers = new Drawable[]{redBackground, buttonDrawable};
-					LayerDrawable layerDrawable = new LayerDrawable(layers);
-					
-					button.setBackgroundDrawable(layerDrawable);
-				}
+				addHighlight(button);
 			}
 			
 			@Override
 			public void teardown(Activity parent) {
 				ImageButton button = (ImageButton) parent.findViewById(R.id.myLocationButton);
-				Drawable buttonDrawable = button.getBackground();
-				if (buttonDrawable instanceof LayerDrawable) {
-					button.setBackgroundDrawable(((LayerDrawable) buttonDrawable).getDrawable(1));
-				}
+				removeHighlight(button);
 			}
 			
 		});
@@ -92,12 +102,14 @@ public class IntroTutorial {
 			
 			@Override
 			public void setup(Activity parent) {
-				
+				View view = parent.findViewById(R.id.searchTextView);
+				addHighlight(view);
 			}
 			
 			@Override
 			public void teardown(Activity parent) {
-				
+				View view = parent.findViewById(R.id.searchTextView);
+				removeHighlight(view);
 			}
 			
 		});
@@ -110,12 +122,14 @@ public class IntroTutorial {
 			
 			@Override
 			public void setup(Activity parent) {
-				
+				View view = parent.findViewById(R.id.predictionsOrLocations);
+				addHighlight(view);
 			}
 			
 			@Override
 			public void teardown(Activity parent) {
-				
+				View view = parent.findViewById(R.id.predictionsOrLocations);
+				removeHighlight(view);
 			}
 			
 		});
