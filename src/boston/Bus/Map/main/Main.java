@@ -159,7 +159,7 @@ public class Main extends MapActivity
 	
 	private static final String introScreenKey = "introScreen";
 	
-	public static final String dontShowTutorialKey = "dontShowTutorial";
+	public static final String tutorialStepKey = "tutorialStep";
 	
 	private EditText searchView;
 	
@@ -511,12 +511,6 @@ public class Main extends MapActivity
         	}
         });*/
         
-        if (prefs.getBoolean(dontShowTutorialKey, false) == false) {
-        	prefs.edit().putBoolean(dontShowTutorialKey, true).commit();
-        	
-        	Tutorial tutorial = new Tutorial(IntroTutorial.populate());
-        	tutorial.start(this);
-        }
     }
 		
 	/**
@@ -850,6 +844,8 @@ public class Main extends MapActivity
 		populateHandlerSettings();
 		handler.resume();
 		
+    	Tutorial tutorial = new Tutorial(IntroTutorial.populate());
+    	tutorial.start(this);
 	}
 
 	@Override

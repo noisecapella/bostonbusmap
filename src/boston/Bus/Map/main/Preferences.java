@@ -86,7 +86,7 @@ public class Preferences extends PreferenceActivity
 				alert.show();
 			}
 			else if ("showTutorial".equals(preferenceKey)) {
-				getPreferenceManager().getSharedPreferences().edit().putBoolean(Main.dontShowTutorialKey, false).commit();
+				getPreferenceManager().getSharedPreferences().edit().putInt(Main.tutorialStepKey, 0).commit();
 				// then the screen will go back to Main, which will 
 				// show the tutorial since the key is set to false
 				finish();
