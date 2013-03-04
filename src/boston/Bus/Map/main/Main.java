@@ -51,6 +51,9 @@ import boston.Bus.Map.data.TransitDrawables;
 import boston.Bus.Map.data.UpdateArguments;
 import boston.Bus.Map.provider.TransitContentProvider;
 import boston.Bus.Map.transit.TransitSystem;
+import boston.Bus.Map.tutorials.IntroTutorial;
+import boston.Bus.Map.tutorials.Tutorial;
+import boston.Bus.Map.tutorials.TutorialStep;
 import boston.Bus.Map.ui.BusOverlay;
 
 import boston.Bus.Map.ui.LocationOverlay;
@@ -129,6 +132,7 @@ import android.widget.Gallery;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
+import android.widget.RelativeLayout;
 import android.widget.SimpleAdapter;
 import android.widget.Spinner;
 import android.widget.SpinnerAdapter;
@@ -154,6 +158,9 @@ public class Main extends MapActivity
 	private static final String markUpdatedStops = "markUpdatedStops";
 	
 	private static final String introScreenKey = "introScreen";
+	
+	public static final String tutorialStepKey = "tutorialStep";
+	
 	private EditText searchView;
 	
 	/**
@@ -185,6 +192,10 @@ public class Main extends MapActivity
 	private ImageButton searchButton;
 
 	private UpdateArguments arguments;
+	private ImageButton myLocationButton;
+	private Button skipTutorialButton;
+	private RelativeLayout tutorialLayout;
+	private Button nextTutorialButton;
 	
 	
 	public static final int UPDATE_INTERVAL_INVALID = 9999;
@@ -212,6 +223,12 @@ public class Main extends MapActivity
         searchView = (EditText)findViewById(R.id.searchTextView);
         final ProgressBar progress = (ProgressBar)findViewById(R.id.progress);
         searchButton = (ImageButton)findViewById(R.id.searchButton);
+        
+        myLocationButton = (ImageButton)findViewById(R.id.myLocationButton);
+        myLocationButton.getBackground().setAlpha(0xbb);
+        tutorialLayout = (RelativeLayout)findViewById(R.id.mapViewTutorial);
+        skipTutorialButton = (Button)findViewById(R.id.mapViewTutorialSkipButton);
+        nextTutorialButton = (Button)findViewById(R.id.mapViewTutorialNextButton);
         
     	SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
 
@@ -251,6 +268,35 @@ public class Main extends MapActivity
 			@Override
 			public void onClick(View v) {
 				showChooseStopDialog();
+			}
+		});
+        
+        myLocationButton.setOnClickListener(new OnClickListener() {
+			
+			@Override
+			public void onClick(View v) {
+	    		if (arguments != null)
+	    		{
+	    			final LocationOverlay myLocationOverlay = arguments.getOverlayGroup().getMyLocationOverlay();
+	    			if (myLocationOverlay.isMyLocationEnabled() == false)
+	    			{
+	    				myLocationOverlay.enableMyLocation();
+	    				
+	    				locationEnabled = true;
+	    				
+	    				Toast.makeText(Main.this, getString(R.string.findingCurrentLocation), Toast.LENGTH_SHORT).show();
+	    			}
+	   				myLocationOverlay.updateMapViewPosition();
+	    		}
+				
+			}
+		});
+        
+        skipTutorialButton.setOnClickListener(new OnClickListener() {
+			
+			@Override
+			public void onClick(View v) {
+				
 			}
 		});
         
@@ -361,7 +407,7 @@ public class Main extends MapActivity
         	}
         	else
         	{
-        		selection = new Selection(Selection.VEHICLE_LOCATIONS_ALL, null, null);
+        		selection = new Selection(Selection.VEHICLE_LOCATIONS_ALL, null);
         	}
 
         	lastUpdateTime = currentState.getLastUpdateTime();
@@ -386,8 +432,7 @@ public class Main extends MapActivity
             int selectedRouteIndex = prefs.getInt(selectedRouteIndexKey, 0);
             int mode = prefs.getInt(selectedBusPredictionsKey, Selection.BUS_PREDICTIONS_ONE);
         	String route = dropdownRouteKeysToTitles.getTagUsingIndex(selectedRouteIndex);
-        	String intersection = prefs.getString(selectedIntersectionKey, null);
-            selection = new Selection(mode, route, intersection);
+            selection = new Selection(mode, route);
         }
 
         //final boolean showIntroScreen = prefs.getBoolean(introScreenKey, true);
@@ -451,6 +496,7 @@ public class Main extends MapActivity
         {
         	handler.instantRefresh();
         }
+
         
     	//enable plus/minus zoom buttons in map
         mapView.setBuiltInZoomControls(true);
@@ -464,6 +510,7 @@ public class Main extends MapActivity
         		
         	}
         });*/
+        
     }
 		
 	/**
@@ -543,7 +590,6 @@ public class Main extends MapActivity
 
     		Selection selection = arguments.getBusLocations().getSelection();
     		editor.putInt(selectedBusPredictionsKey, selection.getMode());
-    		editor.putString(selectedIntersectionKey, selection.getIntersection());
     		editor.putInt(selectedRouteIndexKey, arguments.getBusLocations().getRouteAsIndex(selection.getRoute()));
     		editor.putInt(centerLatKey, point.getLatitudeE6());
     		editor.putInt(centerLonKey, point.getLongitudeE6());
@@ -614,24 +660,6 @@ public class Main extends MapActivity
     		}
     		break;
     	
-    	case R.id.centerOnLocationMenuItem:
-    		
-    		if (arguments != null)
-    		{
-    			final LocationOverlay myLocationOverlay = arguments.getOverlayGroup().getMyLocationOverlay();
-    			if (myLocationOverlay.isMyLocationEnabled() == false)
-    			{
-    				myLocationOverlay.enableMyLocation();
-    				
-    				locationEnabled = true;
-    				
-    				Toast.makeText(this, getString(R.string.findingCurrentLocation), Toast.LENGTH_SHORT).show();
-    			}
-   				myLocationOverlay.updateMapViewPosition();
-    		}
-    		
-    		break;
- 
     	
     	
     	case R.id.chooseRoute:
@@ -816,6 +844,8 @@ public class Main extends MapActivity
 		populateHandlerSettings();
 		handler.resume();
 		
+    	Tutorial tutorial = new Tutorial(IntroTutorial.populate());
+    	tutorial.start(this);
 	}
 
 	@Override
@@ -1056,9 +1086,6 @@ public class Main extends MapActivity
 	public void setNewIntersection(String name) {
 		if (arguments != null) {
 			Locations locations = arguments.getBusLocations();
-			Selection oldSelection = locations.getSelection();
-			Selection newSelection = oldSelection.withDifferentIntersection(name);
-			locations.setSelection(newSelection);
 			
 			setMode(Selection.BUS_PREDICTIONS_ALL, true, false);
 			

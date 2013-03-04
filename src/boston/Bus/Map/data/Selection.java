@@ -35,12 +35,10 @@ public class Selection {
 	
 	private final int mode;
 	private final String route;
-	private final String intersection;
 	
-	public Selection(int mode, String route, String intersection) {
+	public Selection(int mode, String route) {
 		this.mode = mode;
 		this.route = route;
-		this.intersection = intersection;
 	}
 	
 	public int getMode() {
@@ -51,24 +49,16 @@ public class Selection {
 		return route;
 	}
 	
-	public String getIntersection() {
-		return intersection;
-	}
-
 	public Selection withDifferentRoute(String newRoute) {
-		return new Selection(mode, newRoute, intersection);
+		return new Selection(mode, newRoute);
 	}
 	
 	public Selection withDifferentMode(int newMode) {
-		return new Selection(newMode, route, intersection);
+		return new Selection(newMode, route);
 	}
 	
 	public Selection withDifferentModeAndRoute(int newMode, String newRoute) {
-		return new Selection(newMode, newRoute, intersection);
+		return new Selection(newMode, newRoute);
 	}
 	
-	public Selection withDifferentIntersection(String newIntersection) {
-		return new Selection(mode, route, newIntersection);
-	}
-
 }

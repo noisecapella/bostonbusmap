@@ -1,7 +1,10 @@
 
-<resources>
+<resources xmlns:android="http://schemas.android.com/apk/res/android">
 	<style name="Theme.NoBackground" parent="android:style/Theme.NoTitleBar">
 		<item name="android:windowBackground">@null</item>
+	</style>
+	<style name="tutorialBackground">
+	    <item name="android:background">#00cccccc</item>
 	</style>
 </resources>
 
