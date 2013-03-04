@@ -51,6 +51,9 @@ import boston.Bus.Map.data.TransitDrawables;
 import boston.Bus.Map.data.UpdateArguments;
 import boston.Bus.Map.provider.TransitContentProvider;
 import boston.Bus.Map.transit.TransitSystem;
+import boston.Bus.Map.tutorials.IntroTutorial;
+import boston.Bus.Map.tutorials.Tutorial;
+import boston.Bus.Map.tutorials.TutorialStep;
 import boston.Bus.Map.ui.BusOverlay;
 
 import boston.Bus.Map.ui.LocationOverlay;
@@ -156,7 +159,7 @@ public class Main extends MapActivity
 	
 	private static final String introScreenKey = "introScreen";
 	
-	private static final String dontShowTutorialKey = "dontShowTutorial";
+	public static final String dontShowTutorialKey = "dontShowTutorial";
 	
 	private EditText searchView;
 	
@@ -508,9 +511,11 @@ public class Main extends MapActivity
         	}
         });*/
         
-    	View tutorialView = findViewById(R.id.mapViewTutorial);
         if (prefs.getBoolean(dontShowTutorialKey, false) == false) {
-        	tutorialView.setVisibility(View.VISIBLE);
+        	prefs.edit().putBoolean(dontShowTutorialKey, true).commit();
+        	
+        	Tutorial tutorial = new Tutorial(IntroTutorial.populate());
+        	tutorial.start(this);
         }
     }
 		

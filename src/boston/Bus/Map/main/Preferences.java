@@ -85,6 +85,12 @@ public class Preferences extends PreferenceActivity
 				AlertDialog alert = builder.create();
 				alert.show();
 			}
+			else if ("showTutorial".equals(preferenceKey)) {
+				getPreferenceManager().getSharedPreferences().edit().putBoolean(Main.dontShowTutorialKey, false).commit();
+				// then the screen will go back to Main, which will 
+				// show the tutorial since the key is set to false
+				finish();
+			}
 		}
 		
 		return super.onPreferenceTreeClick(preferenceScreen, preference);
