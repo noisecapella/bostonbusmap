@@ -35,7 +35,7 @@ public class Tutorial {
 		prefs.edit().putInt(Main.tutorialStepKey, step).commit();
 	}
 	
-	public void start(final Activity parent) {
+	public void start(final Main parent) {
 		final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(parent);
 		final View tutorialView = parent.findViewById(R.id.mapViewTutorial);
 		if (getStep(prefs) < 0) {
@@ -80,7 +80,7 @@ public class Tutorial {
 		updateCurrent(parent, textView, prefs, nextButton, skipButton);
 	}
 
-	protected void updateCurrent(Activity parent, TextView textView,
+	protected void updateCurrent(Main parent, TextView textView,
 			SharedPreferences prefs, Button nextButton, Button skipButton) {
 		int currentStep = getStep(prefs);
 		int resource = tutorialSteps.get(currentStep).getTextResource();
