@@ -86,7 +86,7 @@ android:id="@+id/linearLayoutMain" android:gravity="right">
 	    android:gravity="center">
 
 	<RelativeLayout
-	    android:layout_width="480dp"
+	    android:layout_width="300dp"
 	    android:layout_height="wrap_content"
 	    android:padding="20dp"
 	    android:background="@drawable/tooltip"
@@ -96,10 +96,9 @@ android:id="@+id/linearLayoutMain" android:gravity="right">
 	<TextView
 	    android:id="@+id/mapViewTutorialText"
 	    android:layout_width="fill_parent"
-	    android:layout_height="200dp"
+	    android:layout_height="wrap_content"
 	    android:text="Hello, world!"
 	    android:textColor="@android:color/black" 
-	    android:textSize="16sp"
 	    />
 
 	<Button android:layout_height="wrap_content"
