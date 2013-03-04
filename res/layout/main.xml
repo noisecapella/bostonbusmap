@@ -98,7 +98,9 @@ android:id="@+id/linearLayoutMain" android:gravity="right">
 	    android:layout_width="fill_parent"
 	    android:layout_height="200dp"
 	    android:text="Hello, world!"
-	    android:textColor="@android:color/black" />
+	    android:textColor="@android:color/black" 
+	    android:textSize="16sp"
+	    />
 
 	<Button android:layout_height="wrap_content"
 	    android:layout_width="wrap_content"
