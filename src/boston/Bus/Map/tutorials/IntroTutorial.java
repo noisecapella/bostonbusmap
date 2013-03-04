@@ -2,7 +2,7 @@ package boston.Bus.Map.tutorials;
 
 import java.util.List;
 
-import android.app.Activity;
+
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.LayerDrawable;
 import android.graphics.drawable.ShapeDrawable;
@@ -11,6 +11,7 @@ import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.TextView;
 import boston.Bus.Map.R;
+import boston.Bus.Map.main.Main;
 
 import com.google.common.collect.Lists;
 
@@ -46,12 +47,12 @@ public class IntroTutorial {
 			}
 			
 			@Override
-			public void setup(Activity parent) {
+			public void setup(Main parent) {
 				
 			}
 			
 			@Override
-			public void teardown(Activity parent) {
+			public void teardown(Main parent) {
 				
 			}
 			
@@ -64,12 +65,12 @@ public class IntroTutorial {
 			}
 			
 			@Override
-			public void setup(Activity parent) {
+			public void setup(Main parent) {
 				
 			}
 			
 			@Override
-			public void teardown(Activity parent) {
+			public void teardown(Main parent) {
 				
 			}
 			
@@ -82,13 +83,13 @@ public class IntroTutorial {
 			}
 			
 			@Override
-			public void setup(Activity parent) {
+			public void setup(Main parent) {
 				ImageButton button = (ImageButton) parent.findViewById(R.id.myLocationButton);
 				addHighlight(button);
 			}
 			
 			@Override
-			public void teardown(Activity parent) {
+			public void teardown(Main parent) {
 				ImageButton button = (ImageButton) parent.findViewById(R.id.myLocationButton);
 				removeHighlight(button);
 			}
@@ -101,13 +102,13 @@ public class IntroTutorial {
 			}
 			
 			@Override
-			public void setup(Activity parent) {
+			public void setup(Main parent) {
 				View view = parent.findViewById(R.id.searchTextView);
 				addHighlight(view);
 			}
 			
 			@Override
-			public void teardown(Activity parent) {
+			public void teardown(Main parent) {
 				View view = parent.findViewById(R.id.searchTextView);
 				removeHighlight(view);
 			}
@@ -121,13 +122,13 @@ public class IntroTutorial {
 			}
 			
 			@Override
-			public void setup(Activity parent) {
+			public void setup(Main parent) {
 				View view = parent.findViewById(R.id.predictionsOrLocations);
 				addHighlight(view);
 			}
 			
 			@Override
-			public void teardown(Activity parent) {
+			public void teardown(Main parent) {
 				View view = parent.findViewById(R.id.predictionsOrLocations);
 				removeHighlight(view);
 			}
@@ -141,12 +142,12 @@ public class IntroTutorial {
 			}
 			
 			@Override
-			public void setup(Activity parent) {
-				
+			public void setup(Main parent) {
+				parent.setNewStop("77", "2311");
 			}
 			
 			@Override
-			public void teardown(Activity parent) {
+			public void teardown(Main parent) {
 				
 			}
 			
@@ -159,12 +160,11 @@ public class IntroTutorial {
 			}
 			
 			@Override
-			public void setup(Activity parent) {
-				
+			public void setup(Main parent) {
 			}
 			
 			@Override
-			public void teardown(Activity parent) {
+			public void teardown(Main parent) {
 				
 			}
 			
@@ -177,12 +177,12 @@ public class IntroTutorial {
 			}
 			
 			@Override
-			public void setup(Activity parent) {
+			public void setup(Main parent) {
 				
 			}
 			
 			@Override
-			public void teardown(Activity parent) {
+			public void teardown(Main parent) {
 				
 			}
 			
@@ -195,12 +195,12 @@ public class IntroTutorial {
 			}
 			
 			@Override
-			public void setup(Activity parent) {
+			public void setup(Main parent) {
 				
 			}
 			
 			@Override
-			public void teardown(Activity parent) {
+			public void teardown(Main parent) {
 				
 			}
 			
