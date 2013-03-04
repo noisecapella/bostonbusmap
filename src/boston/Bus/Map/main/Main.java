@@ -386,7 +386,7 @@ public class Main extends MapActivity
         	}
         	else
         	{
-        		selection = new Selection(Selection.VEHICLE_LOCATIONS_ALL, null, null);
+        		selection = new Selection(Selection.VEHICLE_LOCATIONS_ALL, null);
         	}
 
         	lastUpdateTime = currentState.getLastUpdateTime();
@@ -411,8 +411,7 @@ public class Main extends MapActivity
             int selectedRouteIndex = prefs.getInt(selectedRouteIndexKey, 0);
             int mode = prefs.getInt(selectedBusPredictionsKey, Selection.BUS_PREDICTIONS_ONE);
         	String route = dropdownRouteKeysToTitles.getTagUsingIndex(selectedRouteIndex);
-        	String intersection = prefs.getString(selectedIntersectionKey, null);
-            selection = new Selection(mode, route, intersection);
+            selection = new Selection(mode, route);
         }
 
         //final boolean showIntroScreen = prefs.getBoolean(introScreenKey, true);
@@ -569,7 +568,6 @@ public class Main extends MapActivity
 
     		Selection selection = arguments.getBusLocations().getSelection();
     		editor.putInt(selectedBusPredictionsKey, selection.getMode());
-    		editor.putString(selectedIntersectionKey, selection.getIntersection());
     		editor.putInt(selectedRouteIndexKey, arguments.getBusLocations().getRouteAsIndex(selection.getRoute()));
     		editor.putInt(centerLatKey, point.getLatitudeE6());
     		editor.putInt(centerLonKey, point.getLongitudeE6());
@@ -1064,9 +1062,6 @@ public class Main extends MapActivity
 	public void setNewIntersection(String name) {
 		if (arguments != null) {
 			Locations locations = arguments.getBusLocations();
-			Selection oldSelection = locations.getSelection();
-			Selection newSelection = oldSelection.withDifferentIntersection(name);
-			locations.setSelection(newSelection);
 			
 			setMode(Selection.BUS_PREDICTIONS_ALL, true, false);
 			

@@ -436,7 +436,7 @@ public final class Locations
 			if (routeConfig != null)
 			{
 				StopLocation stopLocation = routeConfig.getStop(stopTag);
-				Selection newSelection = new Selection(Selection.BUS_PREDICTIONS_ONE, route, mutableSelection.getIntersection());
+				Selection newSelection = new Selection(Selection.BUS_PREDICTIONS_ONE, route);
 				mutableSelection = newSelection;
 				return stopLocation;
 			}
