@@ -77,5 +77,5 @@ Are any enabled (like GPS) in your system settings?</string>
 <string name="tutorialStep6">You can tap a vehicle or transit stop to see more information about it. By default this information is updated roughly every 15 seconds; you can adjust this in the settings if you wish.</string>
 <string name="tutorialStep7">You can mark stops as favorites by clicking the star in the upper right of the popup box. When in favorites mode you see only stops which are marked as a favorite. Note that many routes will have a stop very close to another stop, which may be confusing. These will appear as two separate icons.</string>
 <string name="tutorialStep8">You can define places by clicking \'Places\' in the menu. Places allow you to quickly jump between different parts of the map.</string>
-<string name="tutorialStep9">Please send me an email if you have any questions: bostonbusmap@gmail.com</string>
+<string name="tutorialStep9">Please send me an email if you have any questions! bostonbusmap@gmail.com</string>
 </resources>
