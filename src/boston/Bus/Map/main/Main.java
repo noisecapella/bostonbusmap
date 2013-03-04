@@ -129,6 +129,7 @@ import android.widget.Gallery;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
+import android.widget.RelativeLayout;
 import android.widget.SimpleAdapter;
 import android.widget.Spinner;
 import android.widget.SpinnerAdapter;
@@ -154,6 +155,9 @@ public class Main extends MapActivity
 	private static final String markUpdatedStops = "markUpdatedStops";
 	
 	private static final String introScreenKey = "introScreen";
+	
+	private static final String dontShowTutorialKey = "dontShowTutorial";
+	
 	private EditText searchView;
 	
 	/**
@@ -186,6 +190,9 @@ public class Main extends MapActivity
 
 	private UpdateArguments arguments;
 	private ImageButton myLocationButton;
+	private Button skipTutorialButton;
+	private RelativeLayout tutorialLayout;
+	private Button nextTutorialButton;
 	
 	
 	public static final int UPDATE_INTERVAL_INVALID = 9999;
@@ -216,6 +223,9 @@ public class Main extends MapActivity
         
         myLocationButton = (ImageButton)findViewById(R.id.myLocationButton);
         myLocationButton.getBackground().setAlpha(0xbb);
+        tutorialLayout = (RelativeLayout)findViewById(R.id.mapViewTutorial);
+        skipTutorialButton = (Button)findViewById(R.id.mapViewTutorialSkipButton);
+        nextTutorialButton = (Button)findViewById(R.id.mapViewTutorialNextButton);
         
     	SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
 
@@ -275,6 +285,14 @@ public class Main extends MapActivity
 	    			}
 	   				myLocationOverlay.updateMapViewPosition();
 	    		}
+				
+			}
+		});
+        
+        skipTutorialButton.setOnClickListener(new OnClickListener() {
+			
+			@Override
+			public void onClick(View v) {
 				
 			}
 		});
@@ -489,6 +507,11 @@ public class Main extends MapActivity
         		
         	}
         });*/
+        
+    	View tutorialView = findViewById(R.id.mapViewTutorial);
+        if (prefs.getBoolean(dontShowTutorialKey, false) == false) {
+        	tutorialView.setVisibility(View.VISIBLE);
+        }
     }
 		
 	/**

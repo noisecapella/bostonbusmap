@@ -68,7 +68,7 @@ android:id="@+id/linearLayoutMain" android:gravity="right">
 		<RelativeLayout 
 	    android:layout_height="fill_parent"
 	    android:layout_width="fill_parent" 
-	    android:id="@+id/mapviewOverlay"
+	    android:id="@+id/mapViewOverlayButtons"
 	    android:layout_alignParentBottom="true"
 	    android:layout_below="@+id/linearLayoutMain">
 	<ImageButton android:layout_width="wrap_content" android:layout_height="wrap_content"
@@ -76,6 +76,45 @@ android:id="@+id/linearLayoutMain" android:gravity="right">
 	    android:id="@+id/myLocationButton"
 	    />
 	    </RelativeLayout>
+	    		<RelativeLayout 
+	    android:layout_height="fill_parent"
+	    android:layout_width="fill_parent" 
+	    android:id="@+id/mapViewTutorial"
+	    android:visibility="gone"
+	    android:layout_alignParentBottom="true"
+	    android:layout_below="@+id/linearLayoutMain"
+	    android:gravity="center">
+
+	<RelativeLayout
+	    android:layout_width="200dp"
+	    android:layout_height="wrap_content"
+	    android:background="#ffffffff"
+	    android:padding="20dp" >
+
+	<TextView
+	    android:id="@+id/mapViewTutorialText"
+	    android:layout_width="fill_parent"
+	    android:layout_height="200dp"
+	    android:text="Hello, world!"
+	    android:textColor="@android:color/black" />
+
+	<Button android:layout_height="wrap_content"
+	    android:layout_width="wrap_content"
+	    android:text="Next" 
+		android:id="@+id/mapViewTutorialNextButton"
+	    android:layout_alignParentRight="true" 
+	    android:layout_below="@+id/mapViewTutorialText"/>
+		<Button android:layout_height="wrap_content"
+	    android:layout_width="wrap_content"
+	    android:layout_alignParentLeft="true"
+	    android:text="Skip" 
+	    android:layout_below="@+id/mapViewTutorialText"
+	    android:id="@+id/mapViewTutorialSkipButton"
+	    />
+		</RelativeLayout>
+	
+		</RelativeLayout>
+		
 	<!-- debug key: 0UeumldxhB0bPpe6UgModFrG5tLPAwclzgqJhRg -->
 	<!-- release key: 04_mZq9Q_5sL2pltlDIYof4iIQimS_U5YPnRafg -->
 
