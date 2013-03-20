@@ -106,12 +106,9 @@ public class VehicleLocationsFeedParser extends DefaultHandler
 			
 			String inferBusRoute = null;
 
-			final Drawable bus = drawables.getVehicle();
-			final int arrowTopDiff = bus.getIntrinsicHeight() / 5;
-			
 			BusLocation newBusLocation = new BusLocation(lat, lon, id, lastFeedUpdate, lastUpdateTime, 
-					heading, predictable, dirTag, inferBusRoute, drawables, route, directions, routeKeysToTitles.getTitle(route),
-					false, arrowTopDiff);
+					heading, predictable, dirTag, inferBusRoute, route, directions, routeKeysToTitles.getTitle(route),
+					false);
 
 			if (busMapping.containsKey(id))
 			{

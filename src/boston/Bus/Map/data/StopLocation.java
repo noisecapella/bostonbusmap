@@ -34,7 +34,6 @@ public class StopLocation implements Location
 	private final float longitude;
 	private final float latitudeAsDegrees;
 	private final float longitudeAsDegrees;
-	private final TransitDrawables drawables;
 	
 	private final String tag;
 	
@@ -60,7 +59,6 @@ public class StopLocation implements Location
 		this.longitudeAsDegrees = builder.longitudeAsDegrees;
 		this.latitude = (float) (latitudeAsDegrees * Geometry.degreesToRadians);
 		this.longitude = (float) (longitudeAsDegrees * Geometry.degreesToRadians);
-		this.drawables = builder.drawables;
 		this.tag = builder.tag;
 		this.title = builder.title;
 	}
@@ -68,15 +66,13 @@ public class StopLocation implements Location
 	public static class Builder {
 		private final float latitudeAsDegrees;
 		private final float longitudeAsDegrees;
-		private final TransitDrawables drawables;
 		private final String tag;
 		private final String title;
 
 		public Builder(float latitudeAsDegrees, float longitudeAsDegrees,
-			TransitDrawables drawables, String tag, String title) {
+			String tag, String title) {
 			this.latitudeAsDegrees = latitudeAsDegrees;
 			this.longitudeAsDegrees = longitudeAsDegrees;
-			this.drawables = drawables;
 			this.tag = tag;
 			this.title = title;
 		}
@@ -106,8 +102,10 @@ public class StopLocation implements Location
 	}
 
 	@Override
-	public Drawable getDrawable(Context context, boolean shadow,
-			boolean isSelected) {
+	public Drawable getDrawable(TransitSystem transitSystem) {
+		// stops all look the same, and they can support multiple transit sources
+		// so we'll just use the default transit source's drawables 
+		TransitDrawables drawables = transitSystem.getDefaultTransitSource().getDrawables();
 		return recentlyUpdated ? drawables.getStopUpdated() : drawables.getStop();
 	}
 
