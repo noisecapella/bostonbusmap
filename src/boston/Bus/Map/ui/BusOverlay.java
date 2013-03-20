@@ -29,6 +29,7 @@ import boston.Bus.Map.data.PredictionView;
 import boston.Bus.Map.data.Locations;
 import boston.Bus.Map.data.RouteTitles;
 import boston.Bus.Map.data.StopLocation;
+import boston.Bus.Map.data.TransitDrawables;
 
 import boston.Bus.Map.data.Location;
 import boston.Bus.Map.main.Main;
@@ -405,17 +406,14 @@ public class BusOverlay extends BalloonItemizedOverlay<BusOverlayItem> {
 
 	private void updateAllBoundCenterBottom(int selectedIndex, boolean shadow) {
 		// update boundCenterBottom for newly selected item
-		int count = 0;
 		for (BusOverlayItem item : overlays)
 		{
 			Location newLocation = item.getCurrentLocation();
 
-			boolean isSelected = count == selectedIndex;
-			Drawable drawable = newLocation.getDrawable(context, shadow, isSelected);
+			Drawable drawable = newLocation.getDrawable(locationsObj.getTransitSystem());
 			item.setMarker(drawable);
 
 			boundCenterBottom(drawable);
-			count++;
 		}
 		
 	}

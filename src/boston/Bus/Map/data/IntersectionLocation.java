@@ -9,6 +9,7 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
 
 import boston.Bus.Map.math.Geometry;
+import boston.Bus.Map.transit.TransitSystem;
 import android.content.Context;
 import android.graphics.drawable.Drawable;
 
@@ -29,8 +30,6 @@ public class IntersectionLocation implements Location {
 	private final ImmutableSet<String> nearbyRoutes;
 	private final ImmutableSet<String> nearbyRouteTitles;
 	
-	private final Drawable drawable;
-	
 	private IntersectionLocation(Builder builder, TransitSourceTitles routeTitles) {
 		this.name = builder.name;
 		this.latitudeAsDegrees = builder.latitudeAsDegrees;
@@ -46,7 +45,6 @@ public class IntersectionLocation implements Location {
 		nearbyRouteTitles = ImmutableSet.copyOf(titles);
 
 		predictionView = new SimplePredictionView("", name, new Alert[0]);
-		this.drawable = builder.drawable;
 	}
 	
 	public static class Builder {
@@ -54,15 +52,12 @@ public class IntersectionLocation implements Location {
 		private final float latitudeAsDegrees;
 		private final float longitudeAsDegrees;
 		private final ImmutableSet.Builder<String> nearbyRoutes;
-		private final Drawable drawable;
 		
-		public Builder(String name, float latitudeAsDegrees, float longitudeAsDegrees,
-				Drawable drawable) {
+		public Builder(String name, float latitudeAsDegrees, float longitudeAsDegrees) {
 			this.name = name;
 			this.latitudeAsDegrees = latitudeAsDegrees;
 			this.longitudeAsDegrees = longitudeAsDegrees;
 			this.nearbyRoutes = ImmutableSet.builder();
-			this.drawable = drawable;
 		}
 		
 		public void addRoute(String route) {
@@ -98,9 +93,8 @@ public class IntersectionLocation implements Location {
 	}
 
 	@Override
-	public Drawable getDrawable(Context context, boolean shadow,
-			boolean isSelected) {
-		return drawable;
+	public Drawable getDrawable(TransitSystem transitSystem) {
+		return transitSystem.getDefaultTransitSource().getDrawables().getIntersection();
 	}
 
 	@Override

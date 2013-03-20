@@ -257,7 +257,6 @@ public class BusPopupView extends BalloonOverlayView<BusOverlayItem>
 						if (location != null && location instanceof IntersectionLocation) {
 							IntersectionLocation intersection = (IntersectionLocation)location;
 							locations.removeIntersection(intersection.getName());
-							locations.setSelection(locations.getSelection().withDifferentIntersection(null));
 						}
 						handler.triggerUpdate();
 						dialog.dismiss();
@@ -337,7 +336,6 @@ public class BusPopupView extends BalloonOverlayView<BusOverlayItem>
 							else
 							{
 								locations.editIntersection(oldName, newName);
-								locations.setSelection(locations.getSelection().withDifferentIntersection(newName));
 								handler.triggerUpdate();
 							}
 							dialog.dismiss();
@@ -368,9 +366,6 @@ public class BusPopupView extends BalloonOverlayView<BusOverlayItem>
 			break;
 		case Selection.BUS_PREDICTIONS_STAR:
 			otherText.append("bus predictions for favorited routes. ");
-			break;
-		case Selection.BUS_PREDICTIONS_INTERSECT:
-			otherText.append("bus predictions intersecting certain locations. ");
 			break;
 		case Selection.BUS_PREDICTIONS_ALL:
 			otherText.append("bus predictions for all routes. ");
@@ -458,7 +453,7 @@ public class BusPopupView extends BalloonOverlayView<BusOverlayItem>
 	{
 		Selection selection = locations.getSelection();
 		if (selection == null) {
-			selection = new Selection(-1, null, null);
+			selection = new Selection(-1, null);
 		}
 
 		String routeTitle = selection.getRoute();

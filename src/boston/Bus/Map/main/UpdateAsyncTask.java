@@ -331,24 +331,6 @@ public abstract class UpdateAsyncTask extends AsyncTask<Object, Object, Immutabl
 			routeOverlay.setPathsAndColor(paths, selection.getRoute());
 			selectedRouteConfig = null;
 		}
-		else if (mode == Selection.BUS_PREDICTIONS_INTERSECT) {
-			routeOverlay.clearPaths();
-			String intersectionName = selection.getIntersection();
-			IntersectionLocation intersection = locationsObj.getIntersection(intersectionName);
-			if (intersection != null) {
-				for (String route : intersection.getNearbyRoutes()) {
-					Path[] paths = locationsObj.getPaths(route);
-					routeOverlay.addPathsAndColor(paths, route);
-				}
-			}
-			else
-			{
-		        Path[] paths = locationsObj.getPaths(selection.getRoute());
-				routeOverlay.setPathsAndColor(paths, selection.getRoute());
-			}
-			
-			selectedRouteConfig = null;
-		}
 		else
 		{
 			Path[] paths;
@@ -394,14 +376,6 @@ public abstract class UpdateAsyncTask extends AsyncTask<Object, Object, Immutabl
 		List<Location> busesToDisplay = Lists.newArrayList();
 		
 		// first add intersection points. Not enough of these to affect performance
-		if (mode == Selection.BUS_PREDICTIONS_INTERSECT) {
-			String intersectionName = selection.getIntersection();
-			IntersectionLocation location = locationsObj.getIntersection(intersectionName);
-			if (location != null) {
-				busesToDisplay.add(location);
-			}
-		}
-		
 		// merge stops or buses to single items if necessary
 		for (int i = 0; i < locationsNearCenter.size(); i++)
 		{

@@ -132,6 +132,10 @@ public class TransitSystem {
 		}
 	}
 	
+	public TransitSource getDefaultTransitSource() {
+		return defaultTransitSource;
+	}
+	
 	public TransitSource getTransitSource(String routeToUpdate) {
 		if (null == routeToUpdate)
 		{
