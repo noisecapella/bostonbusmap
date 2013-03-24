@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" ?> 
-<body copyright="All data copyright MBTA 2012.">
+<body copyright="All data copyright MBTA 2013.">
 <route tag="CR-1" title="Greenbush" />
 <route tag="CR-2" title="Kingston/Plymouth" />
 <route tag="CR-3" title="Middleborough/Lakeville" />
@@ -103,7 +103,6 @@
 <route tag="87" title="87"/>
 <route tag="88" title="88"/>
 <route tag="89" title="89"/>
-<route tag="8993" title="89/93"/>
 <route tag="90" title="90"/>
 <route tag="91" title="91"/>
 <route tag="92" title="92"/>
@@ -137,9 +136,9 @@
 <route tag="137" title="137"/>
 <route tag="170" title="170"/>
 <route tag="171" title="171"/>
-<route tag="191" title="191"/>
-<route tag="192" title="192"/>
-<route tag="193" title="193"/>
+<route tag="191" title="15"/>
+<route tag="192" title="39"/>
+<route tag="193" title="57"/>
 <route tag="201" title="201"/>
 <route tag="202" title="202"/>
 <route tag="210" title="210"/>
@@ -172,7 +171,6 @@
 <route tag="411" title="411"/>
 <route tag="424" title="424"/>
 <route tag="426" title="426"/>
-<route tag="426439" title="426/439"/>
 <route tag="428" title="428"/>
 <route tag="429" title="429"/>
 <route tag="430" title="430"/>
@@ -206,4 +204,5 @@
 <route tag="9701" title="9701"/>
 <route tag="9702" title="9702"/>
 <route tag="9703" title="9703"/>
+<route tag="194" title="89/93"/>
 </body>
