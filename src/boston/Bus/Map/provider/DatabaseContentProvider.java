@@ -180,7 +180,7 @@ public class DatabaseContentProvider extends ContentProvider {
 	public final static int FIRST_COPYING_DB = 37;
 	public final static int ADDING_BOUNDS = 38;
 	public final static int ADDING_BOUNDS_1 = 39;
-	public final static int ADDING_BOUNDS_2 = 40;
+	public final static int ADDING_BOUNDS_2 = 41;
 	
 	public final static int CURRENT_DB_VERSION = ADDING_BOUNDS_2;
 
