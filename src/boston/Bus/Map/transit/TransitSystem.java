@@ -47,12 +47,6 @@ public class TransitSystem implements ITransitSystem {
 	private static final double bostonLongitude = -71.0602778;
 	
 	private static final String website = "http://www.georgeschneeloch.com/bostonbusmap";
-	
-	//these four variables cover a very wide area just in case
-	public static final double lowerLeftLat = 41.582579601430346;
-	public static final double lowerLeftLon = -72.0428466796875;
-	public static final double upperRightLat = 42.74701217318067;
-	public static final double upperRightLon = -69.774169921875;
 
 	public static final String[] emails = new String[]{"bostonbusmap@gmail.com", "t-trackertrial@mbta.com"};
 	public static final String emailSubject = "BostonBusMap error report";
