@@ -55,7 +55,7 @@ public class UpdateHandler extends Handler {
 	private boolean isFirstRefresh;
 	
 	private final UpdateArguments guiArguments;
-	private boolean allRoutesBlue = TransitSystem.defaultAllRoutesBlue;
+	private boolean allRoutesBlue = TransitSystem.isDefaultAllRoutesBlue();
 	
 	public UpdateHandler(UpdateArguments guiArguments)
 	{
