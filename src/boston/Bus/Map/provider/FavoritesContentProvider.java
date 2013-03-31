@@ -24,6 +24,10 @@ public class FavoritesContentProvider extends ContentProvider
 	private static final String LOCATIONS_TYPE = "vnd.android.cursor.dir/vnd.bostonbusmap.location";
 	public static final Uri LOCATIONS_URI = Uri.parse("content://" + AUTHORITY + "/locations");
 	private static final int LOCATIONS = 14;
+
+	public static final int ADD_LOCATIONS = 101;
+	
+	public static final int CURRENT_DB_VERSION = ADD_LOCATIONS;
 	
 	private final UriMatcher uriMatcher;
 
@@ -46,11 +50,12 @@ public class FavoritesContentProvider extends ContentProvider
 		@Override
 		public void onCreate(SQLiteDatabase db) {
 			db.execSQL(Schema.Favorites.createSql);
+			db.execSQL(Schema.Locations.createSql);
 		}
 
 		@Override
 		public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-			if (newVersion < DatabaseContentProvider.CURRENT_DB_VERSION) {
+			if (newVersion < FavoritesContentProvider.CURRENT_DB_VERSION) {
 				db.execSQL(Schema.Stops.dropSql);
 				db.execSQL(Schema.Stopmapping.dropSql);
 				db.execSQL(Schema.Routes.dropSql);
