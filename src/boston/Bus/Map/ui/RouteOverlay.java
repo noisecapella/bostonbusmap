@@ -36,7 +36,7 @@ public class RouteOverlay extends Overlay
 	private List<Path> paths = Lists.newLinkedList();
 	private final Projection projection;
 	private boolean showRouteLine = true;
-	private boolean allRoutesBlue = TransitSystem.defaultAllRoutesBlue;
+	private boolean allRoutesBlue = TransitSystem.isDefaultAllRoutesBlue();
 	
 	private final Paint defaultPaint;
 	private final Map<Integer, Paint> paintCache = Maps.newHashMap();

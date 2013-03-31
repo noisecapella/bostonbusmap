@@ -42,20 +42,14 @@ import boston.Bus.Map.util.Constants;
  * @author schneg
  *
  */
-public class TransitSystem {
+public class TransitSystem implements ITransitSystem {
 	private static final double bostonLatitude = 42.3583333;
 	private static final double bostonLongitude = -71.0602778;
 	
-	private static final String website = "http://www.terribleinformation.org/george/bostonbusmap";
-	
-	//these four variables cover a very wide area just in case
-	public static final double lowerLeftLat = 41.582579601430346;
-	public static final double lowerLeftLon = -72.0428466796875;
-	public static final double upperRightLat = 42.74701217318067;
-	public static final double upperRightLon = -69.774169921875;
+	private static final String website = "http://www.georgeschneeloch.com/bostonbusmap";
 
-	public static final String[] emails = new String[]{"bostonbusmap@gmail.com", "t-trackertrial@mbta.com"};
-	public static final String emailSubject = "BostonBusMap error report";
+	private static final String[] emails = new String[]{"bostonbusmap@gmail.com", "t-trackertrial@mbta.com"};
+	private static final String emailSubject = "BostonBusMap error report";
 
 	private RouteTitles routeTitles;
 	
@@ -102,6 +96,7 @@ public class TransitSystem {
 	 * @param commuterRailDrawables
 	 * @param alertsData
 	 */
+	@Override
 	public void setDefaultTransitSource(TransitDrawables busDrawables, TransitDrawables subwayDrawables, 
 			TransitDrawables commuterRailDrawables, Context context)
 	{
@@ -139,10 +134,12 @@ public class TransitSystem {
 		}
 	}
 	
+	@Override
 	public TransitSource getDefaultTransitSource() {
 		return defaultTransitSource;
 	}
 	
+	@Override
 	public TransitSource getTransitSource(String routeToUpdate) {
 		if (null == routeToUpdate)
 		{
@@ -164,10 +161,12 @@ public class TransitSystem {
 		}
 	}
 
+	@Override
 	public RouteTitles getRouteKeysToTitles() {
 		return routeTitles;
 	}
 
+	@Override
 	public void refreshData(RouteConfig routeConfig,
 			Selection selection, int maxStops, double centerLatitude,
 			double centerLongitude, ConcurrentHashMap<String, BusLocation> busMapping,
@@ -182,7 +181,7 @@ public class TransitSystem {
 
 
 	private static final TimeZone bostonTimeZone = TimeZone.getTimeZone("America/New_York");
-	public static final boolean defaultAllRoutesBlue = false;
+	private static final boolean defaultAllRoutesBlue = false;
 	private static DateFormat defaultTimeFormat;
 	private static DateFormat defaultDateFormat;
 		
@@ -222,6 +221,7 @@ public class TransitSystem {
 	 * @param lowercaseQuery
 	 * @return null if nothing found, otherwise the route key 
 	 */
+	@Override
 	public String searchForRoute(String indexingQuery, String lowercaseQuery)
 	{
 		for (TransitSource source : transitSources)
@@ -235,6 +235,7 @@ public class TransitSystem {
 		return null;
 	}
 
+	@Override
 	public StopLocation createStop(float latitude, float longitude,
 			String stopTag, String stopTitle, int platformOrder, String branch,
 			String route) {
@@ -243,8 +244,25 @@ public class TransitSystem {
 		return source.createStop(latitude, longitude, stopTag, stopTitle, platformOrder, branch, route);
 	}
 
+	@Override
 	public AlertsMapping getAlertsMapping() {
 		return alertsMapping;
+	}
+
+	public static String[] getEmails() {
+		return emails;
+	}
+	
+	public static String getEmailSubject() {
+		return emailSubject;
+	}
+
+	public static boolean isDefaultAllRoutesBlue() {
+		return defaultAllRoutesBlue;
+	}
+
+	public static boolean hasReportProblem() {
+		return true;
 	}
 
 }
