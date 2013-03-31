@@ -211,8 +211,8 @@ public class BusPopupView extends BalloonOverlayView<BusOverlayItem>
 				Intent intent = new Intent(android.content.Intent.ACTION_SEND);
 				intent.setType("plain/text");
 				
-				intent.putExtra(android.content.Intent.EXTRA_EMAIL, TransitSystem.emails);
-				intent.putExtra(android.content.Intent.EXTRA_SUBJECT, TransitSystem.emailSubject);
+				intent.putExtra(android.content.Intent.EXTRA_EMAIL, TransitSystem.getEmails());
+				intent.putExtra(android.content.Intent.EXTRA_SUBJECT, TransitSystem.getEmailSubject());
 
 				
 				String otherText = createEmailBody(context);

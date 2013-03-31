@@ -48,8 +48,8 @@ public class TransitSystem implements ITransitSystem {
 	
 	private static final String website = "http://www.georgeschneeloch.com/bostonbusmap";
 
-	public static final String[] emails = new String[]{"bostonbusmap@gmail.com", "t-trackertrial@mbta.com"};
-	public static final String emailSubject = "BostonBusMap error report";
+	private static final String[] emails = new String[]{"bostonbusmap@gmail.com", "t-trackertrial@mbta.com"};
+	private static final String emailSubject = "BostonBusMap error report";
 
 	private RouteTitles routeTitles;
 	
@@ -181,7 +181,7 @@ public class TransitSystem implements ITransitSystem {
 
 
 	private static final TimeZone bostonTimeZone = TimeZone.getTimeZone("America/New_York");
-	public static final boolean defaultAllRoutesBlue = false;
+	private static final boolean defaultAllRoutesBlue = false;
 	private static DateFormat defaultTimeFormat;
 	private static DateFormat defaultDateFormat;
 		
@@ -247,6 +247,18 @@ public class TransitSystem implements ITransitSystem {
 	@Override
 	public AlertsMapping getAlertsMapping() {
 		return alertsMapping;
+	}
+
+	public static String[] getEmails() {
+		return emails;
+	}
+	
+	public static String getEmailSubject() {
+		return emailSubject;
+	}
+
+	public static boolean isDefaultAllRoutesBlue() {
+		return defaultAllRoutesBlue;
 	}
 
 }
