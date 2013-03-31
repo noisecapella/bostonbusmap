@@ -21,6 +21,10 @@ public class FavoritesContentProvider extends ContentProvider
 	public static final Uri FAVORITES_URI = Uri.parse("content://" + AUTHORITY + "/favorites");
 	private static final int FAVORITES = 1;
 
+	private static final String LOCATIONS_TYPE = "vnd.android.cursor.dir/vnd.bostonbusmap.location";
+	public static final Uri LOCATIONS_URI = Uri.parse("content://" + AUTHORITY + "/locations");
+	private static final int LOCATIONS = 14;
+	
 	private final UriMatcher uriMatcher;
 
 	private FavoritesDatabaseHelper helper;
@@ -28,6 +32,7 @@ public class FavoritesContentProvider extends ContentProvider
 	public FavoritesContentProvider() {
 		uriMatcher = new UriMatcher(UriMatcher.NO_MATCH);
 		uriMatcher.addURI(AUTHORITY, "favorites", FAVORITES);
+		uriMatcher.addURI(AUTHORITY, "locations", LOCATIONS);
 	}
 	
 	private static class FavoritesDatabaseHelper extends SQLiteOpenHelper
@@ -67,6 +72,9 @@ public class FavoritesContentProvider extends ContentProvider
 		case FAVORITES:
 			count = db.delete(Schema.Favorites.table, selection, selectionArgs);
 			break;
+		case LOCATIONS:
+			count = db.delete(Schema.Locations.table, selection, selectionArgs);
+			break;
 		default:
 			throw new IllegalArgumentException("Unknown uri: " + uri);
 		}
@@ -78,6 +86,8 @@ public class FavoritesContentProvider extends ContentProvider
 		switch (uriMatcher.match(uri)) {
 		case FAVORITES:
 			return FAVORITES_TYPE;
+		case LOCATIONS:
+			return LOCATIONS_TYPE;
 
 		}
 		throw new IllegalArgumentException("Unknown uri: " + uri);
@@ -87,6 +97,7 @@ public class FavoritesContentProvider extends ContentProvider
 		int count;
 		switch (uriMatcher.match(uri)) {
 		case FAVORITES:
+		case LOCATIONS:
 			break;
 		default:
 			throw new IllegalArgumentException("Unknown uri: " + uri);
@@ -94,6 +105,15 @@ public class FavoritesContentProvider extends ContentProvider
 		
 		SQLiteDatabase db = helper.getWritableDatabase();
 		switch (uriMatcher.match(uri)) {
+		case LOCATIONS:
+		{
+			long rowId = db.replace(Schema.Locations.table, null, values);
+			if (rowId >= 0) {
+				getContext().getContentResolver().notifyChange(uri, null);
+				return LOCATIONS_URI;
+			}
+		}
+		break;
 		case FAVORITES:
 		{
 			long rowId = db.replace(Schema.Favorites.table, null, values);
@@ -117,6 +137,9 @@ public class FavoritesContentProvider extends ContentProvider
 		SQLiteQueryBuilder builder = new SQLiteQueryBuilder();
 		
 		switch (uriMatcher.match(uri)) {
+		case LOCATIONS:
+			builder.setTables(Schema.Locations.table);
+			break;
 		case FAVORITES:
 			builder.setTables(Schema.Favorites.table);
 			break;
@@ -137,6 +160,9 @@ public class FavoritesContentProvider extends ContentProvider
 		switch (uriMatcher.match(uri)) {
 		case FAVORITES:
 			count = db.update(Schema.Favorites.table, values, selection, selectionArgs);
+			break;
+		case LOCATIONS:
+			count = db.update(Schema.Locations.table, values, selection, selectionArgs);
 			break;
 		default:
 			throw new IllegalArgumentException("Unknown URI " + uri);

@@ -128,10 +128,6 @@ public class DatabaseContentProvider extends ContentProvider {
 	public static final Uri SUBWAY_STOPS_URI = Uri.parse("content://" + AUTHORITY + "/subway_stops");
 	private static final int SUBWAY_STOPS = 13;
 	
-	private static final String LOCATIONS_TYPE = "vnd.android.cursor.dir/vnd.bostonbusmap.location";
-	public static final Uri LOCATIONS_URI = Uri.parse("content://" + AUTHORITY + "/locations");
-	private static final int LOCATIONS = 14;
-	
 	private static final String ALERTS_TYPE = "vnd.android.cursor.dir/vnd.bostonbusmap.alert";
 	public static final Uri ALERTS_URI = Uri.parse("content://" + AUTHORITY + "/alerts");
 	private static final int ALERTS = 15;
@@ -1239,7 +1235,7 @@ public class DatabaseContentProvider extends ContentProvider {
 			
 			String[] projectionIn = new String[]{Schema.Locations.nameColumn,
 					Schema.Locations.latColumn, Schema.Locations.lonColumn};
-			Cursor cursor = resolver.query(LOCATIONS_URI, projectionIn, null, null, null);
+			Cursor cursor = resolver.query(FavoritesContentProvider.LOCATIONS_URI, projectionIn, null, null, null);
 			try
 			{
 				cursor.moveToFirst();
@@ -1315,7 +1311,7 @@ public class DatabaseContentProvider extends ContentProvider {
 			values.put(Schema.Locations.lonColumn, location.getLongitudeAsDegrees());
 			try
 			{
-				resolver.insert(LOCATIONS_URI, values);
+				resolver.insert(FavoritesContentProvider.LOCATIONS_URI, values);
 				return true;
 			}
 			catch (SQLException e) {
@@ -1383,7 +1379,7 @@ public class DatabaseContentProvider extends ContentProvider {
 
 		public static void removeIntersection(ContentResolver contentResolver,
 				String name) {
-			int result = contentResolver.delete(LOCATIONS_URI, Schema.Locations.nameColumn + "= ?", new String[] {name});
+			int result = contentResolver.delete(FavoritesContentProvider.LOCATIONS_URI, Schema.Locations.nameColumn + "= ?", new String[] {name});
 			if (result == 0) {
 				Log.e("BostonBusMap", "Failed to delete intersection " + name);
 			}
@@ -1398,7 +1394,7 @@ public class DatabaseContentProvider extends ContentProvider {
 			
 			ContentValues values = new ContentValues();
 			values.put(Schema.Locations.nameColumn, newName);
-			int result = contentResolver.update(LOCATIONS_URI, values, Schema.Locations.nameColumn + "= ?", new String[]{oldName});
+			int result = contentResolver.update(FavoritesContentProvider.LOCATIONS_URI, values, Schema.Locations.nameColumn + "= ?", new String[]{oldName});
 			if (result == 0) {
 				Log.e("BostonBusMap", "Failed to update intersection");
 			}
@@ -1423,7 +1419,6 @@ public class DatabaseContentProvider extends ContentProvider {
 		uriMatcher.addURI(AUTHORITY, "stops_with_distance/*/*/#", STOPS_WITH_DISTANCE);
 		uriMatcher.addURI(AUTHORITY, "stops_and_routes_with_distance/*/*/#", STOPS_AND_ROUTES_WITH_DISTANCE);
 		uriMatcher.addURI(AUTHORITY, "subway_stops", SUBWAY_STOPS);
-		uriMatcher.addURI(AUTHORITY, "locations", LOCATIONS);
 		uriMatcher.addURI(AUTHORITY, "alerts", ALERTS);
 		uriMatcher.addURI(AUTHORITY, "routes_and_bounds", ROUTES_AND_BOUNDS);
 	}
@@ -1450,9 +1445,6 @@ public class DatabaseContentProvider extends ContentProvider {
 			break;
 		case SUBWAY_STOPS:
 			count = db.delete(Schema.Subway.table, selection, selectionArgs);
-			break;
-		case LOCATIONS:
-			count = db.delete(Schema.Locations.table, selection, selectionArgs);
 			break;
 		case ALERTS:
 			count = db.delete(Schema.Alerts.table, selection, selectionArgs);
@@ -1492,8 +1484,6 @@ public class DatabaseContentProvider extends ContentProvider {
 			return STOPS_AND_ROUTES_WITH_DISTANCE_TYPE;
 		case SUBWAY_STOPS:
 			return SUBWAY_STOPS_TYPE;
-		case LOCATIONS:
-			return LOCATIONS_TYPE;
 		case ALERTS:
 			return ALERTS_TYPE;
 		case ROUTES_AND_BOUNDS:
@@ -1513,7 +1503,6 @@ public class DatabaseContentProvider extends ContentProvider {
 		case STOPS_ROUTES:
 		case DIRECTIONS:
 		case DIRECTIONS_STOPS:
-		case LOCATIONS:
 		case ALERTS:
 			break;
 		default:
@@ -1523,15 +1512,6 @@ public class DatabaseContentProvider extends ContentProvider {
 		SQLiteDatabase db = helper.getWritableDatabase();
 		switch (match) {
 			
-		case LOCATIONS:
-		{
-			long rowId = db.replace(Schema.Locations.table, null, values);
-			if (rowId >= 0) {
-				getContext().getContentResolver().notifyChange(uri, null);
-				return LOCATIONS_URI;
-			}
-		}
-		break;
 		case STOPS:
 		{
 			long rowId = db.replace(Schema.Stops.table, null, values);
@@ -1689,9 +1669,6 @@ public class DatabaseContentProvider extends ContentProvider {
 			builder.setProjectionMap(projectionMap);
 		}
 			break;
-		case LOCATIONS:
-			builder.setTables(Schema.Locations.table);
-			break;
 		case ALERTS:
 			builder.setTables(Schema.Alerts.table);
 			break;
@@ -1734,9 +1711,6 @@ public class DatabaseContentProvider extends ContentProvider {
 			break;
 		case SUBWAY_STOPS:
 			count = db.update(Schema.Subway.table, values, selection, selectionArgs);
-			break;
-		case LOCATIONS:
-			count = db.update(Schema.Locations.table, values, selection, selectionArgs);
 			break;
 		case ALERTS:
 			count = db.update(Schema.Alerts.table, values, selection, selectionArgs);
