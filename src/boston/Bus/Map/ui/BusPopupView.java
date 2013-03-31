@@ -497,7 +497,7 @@ public class BusPopupView extends BalloonOverlayView<BusOverlayItem>
 			moreInfo.setVisibility(View.GONE);
 		}
 		
-		if (location.hasReportProblem()) {
+		if (location.hasReportProblem() && TransitSystem.hasReportProblem()) {
 			reportProblem.setVisibility(View.VISIBLE);
 		}
 		else

@@ -261,4 +261,8 @@ public class TransitSystem implements ITransitSystem {
 		return defaultAllRoutesBlue;
 	}
 
+	public static boolean hasReportProblem() {
+		return true;
+	}
+
 }
