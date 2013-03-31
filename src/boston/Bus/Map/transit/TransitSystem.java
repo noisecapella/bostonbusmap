@@ -253,7 +253,7 @@ public class TransitSystem implements ITransitSystem {
 	}
 
 	public static boolean hasReportProblem() {
-		return true;
+		return false;
 	}
 
 }
