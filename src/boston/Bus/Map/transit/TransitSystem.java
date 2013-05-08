@@ -113,10 +113,10 @@ public class TransitSystem implements ITransitSystem {
 			defaultTransitSource = new BusTransitSource(this, busDrawables, busTransitRoutes, routeTitles);
 			
 			ImmutableMap.Builder<String, TransitSource> mapBuilder = ImmutableMap.builder();
-			SubwayTransitSource subwayTransitSource = new SubwayTransitSource(subwayDrawables, subwayTransitRoutes);
-			mapBuilder.put(SubwayTransitSource.RedLine, subwayTransitSource);
-			mapBuilder.put(SubwayTransitSource.OrangeLine, subwayTransitSource);
-			mapBuilder.put(SubwayTransitSource.BlueLine, subwayTransitSource);
+			HeavyRailTransitSource subwayTransitSource = new HeavyRailTransitSource(subwayDrawables, subwayTransitRoutes);
+			for (String route : subwayTransitSource.getRouteTitles().routeTags()) {
+				mapBuilder.put(route, subwayTransitSource);
+			}
 			
 			CommuterRailTransitSource commuterRailTransitSource = new CommuterRailTransitSource(commuterRailDrawables, commuterRailTransitRoutes);
 			for (String route : commuterRailTransitSource.getRouteTitles().routeTags())

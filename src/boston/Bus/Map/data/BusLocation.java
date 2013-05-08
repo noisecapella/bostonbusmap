@@ -81,16 +81,9 @@ public class BusLocation implements Location {
 	 */
 	private final String dirTag;
 
-	/**
-	 * Inferred bus route
-	 */
-	private final String inferBusRoute;
-
 	private final Directions directions;
 
 	private final String routeTitle;
-
-	private final boolean disappearAfterRefresh;
 
 	private SimplePredictionView predictionView = SimplePredictionView.empty();
 	
@@ -101,9 +94,8 @@ public class BusLocation implements Location {
 
 	public BusLocation(float latitude, float longitude, String id,
 			long lastFeedUpdateInMillis, long lastUpdateInMillis, String heading, boolean predictable,
-			String dirTag, String inferBusRoute,
-			String routeName, Directions directions, String routeTitle,
-			boolean disappearAfterRefresh) {
+			String dirTag,
+			String routeName, Directions directions, String routeTitle) {
 		this.latitude = (float) (latitude * Geometry.degreesToRadians);
 		this.longitude = (float) (longitude * Geometry.degreesToRadians);
 		this.latitudeAsDegrees = latitude;
@@ -114,11 +106,9 @@ public class BusLocation implements Location {
 		this.heading = heading;
 		this.predictable = predictable;
 		this.dirTag = dirTag;
-		this.inferBusRoute = inferBusRoute;
 		this.routeName = routeName;
 		this.directions = directions;
 		this.routeTitle = routeTitle;
-		this.disappearAfterRefresh = disappearAfterRefresh;
 	}
 
 	public boolean hasHeading() {
@@ -267,10 +257,6 @@ public class BusLocation implements Location {
 		} else {
 			// TODO: how should we say this?
 			// title += "\nUnpredictable";
-
-			if (routeName == null && inferBusRoute != null) {
-				snippet += "<br />Estimated route number: " + inferBusRoute;
-			}
 		}
 
 		return snippet;
@@ -377,7 +363,7 @@ public class BusLocation implements Location {
 	}
 
 	public boolean isDisappearAfterRefresh() {
-		return disappearAfterRefresh;
+		return false;
 	}
 
 	public void movedTo(float latitudeAsDegrees, float longitudeAsDegrees) {

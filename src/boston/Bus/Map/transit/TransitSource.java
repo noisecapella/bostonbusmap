@@ -50,8 +50,15 @@ public interface TransitSource {
 	 * @return
 	 */
 	int getLoadOrder();
-	
+
+	/**
+	 * Returns corresponding value in Schema.Routes.enumagency*
+	 */
 	int getTransitSourceId();
 
+	/**
+	 * Do we need to look at the Schema.Subway table to get branch
+	 * and platform information?
+	 */
 	boolean requiresSubwayTable();
 }

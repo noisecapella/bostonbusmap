@@ -35,7 +35,6 @@ public class CommuterRailPredictionsFeedParser
 {
 	private final RouteConfig routeConfig;
 	private final Directions directions;
-	private final TransitDrawables drawables;
 
 	private final SimpleDateFormat format;
 	private final Map<String, Integer> indexes = Maps.newHashMap();
@@ -44,12 +43,11 @@ public class CommuterRailPredictionsFeedParser
 	private final ConcurrentHashMap<String, BusLocation> busMapping;
 	private final RouteTitles routeKeysToTitles;
 
-	public CommuterRailPredictionsFeedParser(RouteConfig routeConfig, Directions directions, TransitDrawables drawables, 
+	public CommuterRailPredictionsFeedParser(RouteConfig routeConfig, Directions directions,
 			ConcurrentHashMap<String, BusLocation> busMapping, RouteTitles routeKeysToTitles)
 	{
 		this.routeConfig = routeConfig;
 		this.directions = directions;
-		this.drawables = drawables;
 		this.busMapping = busMapping;
 		this.routeKeysToTitles = routeKeysToTitles;
 
@@ -210,8 +208,8 @@ public class CommuterRailPredictionsFeedParser
 					}
 					
 					busLocation = new CommuterTrainLocation(lat, lon,
-							vehicleId, nowEpochTime, currentMillis, heading, true, direction, null, 
-							route, directions, routeTitle, true);
+							vehicleId, nowEpochTime, currentMillis, heading, true, direction,
+							route, directions, routeTitle);
 					busMapping.put(vehicleId, busLocation);
 
 					toRemove.remove(vehicleId);
