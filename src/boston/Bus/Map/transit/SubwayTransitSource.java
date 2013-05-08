@@ -68,29 +68,6 @@ public class SubwayTransitSource implements TransitSource {
 	
 	
 	@Override
-	public void populateStops(Context context, RoutePool routeMapping, String routeToUpdate,
-			Directions directions, UpdateAsyncTask task, boolean silent)
-			throws ClientProtocolException, IOException,
-			ParserConfigurationException, SAXException, RemoteException, OperationApplicationException {
-		/*
-		//this will probably never be executed
-		final String urlString = getRouteConfigUrl();
-
-		DownloadHelper downloadHelper = new DownloadHelper(urlString);
-		
-		downloadHelper.connect();
-		//just initialize the route and then end for this round
-		
-		SubwayRouteConfigFeedParser parser = new SubwayRouteConfigFeedParser(directions, this);
-
-		parser.runParse(downloadHelper.getResponseData()); 
-
-		parser.writeToDatabase(routeMapping, task, silent);*/
-		// this space intentially left blank
-
-	}
-
-	@Override
 	public void refreshData(RouteConfig routeConfig,
 			Selection selection, int maxStops, double centerLatitude,
 			double centerLongitude, ConcurrentHashMap<String, BusLocation> busMapping,
@@ -257,27 +234,6 @@ public class SubwayTransitSource implements TransitSource {
 		return BlueColor;
 	}
 
-	@Override
-	public void initializeAllRoutes(UpdateAsyncTask task, Context context,
-			Directions directions,
-			RoutePool routeMapping) throws IOException,
-			ParserConfigurationException, SAXException, RemoteException, OperationApplicationException {
-		//download subway data
-		/*
-		task.publish(new ProgressMessage(ProgressMessage.PROGRESS_DIALOG_ON, "Downloading subway info", null));
-		final String subwayUrl = getRouteConfigUrl();
-		URL url = new URL(subwayUrl);
-		InputStream in = Locations.downloadStream(url, task);
-		
-		SubwayRouteConfigFeedParser subwayParser = new SubwayRouteConfigFeedParser(directions, this);
-		
-		subwayParser.runParse(in);
-		
-		subwayParser.writeToDatabase(routeMapping, task, false);*/
-		//this space intentially left blank
-
-		
-	}
 
 
 	@Override
