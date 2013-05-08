@@ -28,10 +28,6 @@ import boston.Bus.Map.main.UpdateAsyncTask;
 
 public interface TransitSource {
 
-	void populateStops(Context context, RoutePool routeMapping, String routeToUpdate,
-			Directions directions, UpdateAsyncTask task, boolean silent)
-		throws ClientProtocolException, IOException, ParserConfigurationException, SAXException, RemoteException, OperationApplicationException ;
-
 	void refreshData(RouteConfig routeConfig, Selection selection,
 			int maxStops, double centerLatitude, double centerLongitude,
 			ConcurrentHashMap<String, BusLocation> busMapping,
@@ -40,10 +36,6 @@ public interface TransitSource {
 
 	boolean hasPaths();
 
-	public void initializeAllRoutes(UpdateAsyncTask task, Context context,
-			Directions directions, RoutePool routeMapping) throws IOException,
-			ParserConfigurationException, SAXException, RemoteException, OperationApplicationException;
-	
 	String searchForRoute(String indexingQuery, String lowercaseQuery);
 
 	TransitDrawables getDrawables();

@@ -93,25 +93,6 @@ public abstract class NextBusTransitSource implements TransitSource
 		this.allRouteTitles = allRouteTitles;
 	}
 
-	@Override
-	public void populateStops(Context context, RoutePool routeMapping, String routeToUpdate,
-			Directions directions, UpdateAsyncTask task, boolean silent) 
-	throws ClientProtocolException, IOException, ParserConfigurationException, SAXException, RemoteException, OperationApplicationException 
-	{
-		final String urlString = getRouteConfigUrl(routeToUpdate);
-
-		DownloadHelper downloadHelper = new DownloadHelper(urlString);
-
-		downloadHelper.connect();
-		//just initialize the route and then end for this round
-
-		RouteConfigFeedParser parser = new RouteConfigFeedParser(context,
-				this, allRouteTitles);
-		parser.runParse(downloadHelper.getResponseData());
-		parser.writeToDatabase(context);
-
-	}
-
 
 	@Override
 	public void refreshData(RouteConfig routeConfig, Selection selection, int maxStops,
@@ -301,13 +282,6 @@ public abstract class NextBusTransitSource implements TransitSource
 		return true;
 	}
 
-
-	@Override
-	public void initializeAllRoutes(UpdateAsyncTask task, Context context, Directions directions,
-			RoutePool routeMapping)
-	throws IOException, ParserConfigurationException, SAXException, RemoteException, OperationApplicationException {
-		// this intentially left blank
-	}
 
 	@Override
 	public StopLocation createStop(float lat, float lon, String stopTag,

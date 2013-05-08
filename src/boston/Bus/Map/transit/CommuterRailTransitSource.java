@@ -72,30 +72,6 @@ public class CommuterRailTransitSource implements TransitSource {
 	}
 
 	@Override
-	public void populateStops(Context context, RoutePool routeMapping, String routeToUpdate,
-			Directions directions,
-			UpdateAsyncTask task, boolean silent) throws ClientProtocolException, IOException,
-			ParserConfigurationException, SAXException, RemoteException, OperationApplicationException
-	{
-		/*
-		//this will probably never be executed
-		//final String urlString = getRouteConfigUrl();
-
-		//DownloadHelper downloadHelper = new DownloadHelper(urlString);
-		
-		//downloadHelper.connect();
-		//just initialize the route and then end for this round
-		
-		CommuterRailRouteConfigParser parser = new CommuterRailRouteConfigParser(directions, this);
-
-		//parser.runParse(downloadHelper.getResponseData()); 
-		parser.runParse(new StringReader(commuterRailData));
-
-		parser.writeToDatabase(routeMapping, task, silent);*/
-		//this space intentially left blank
-	}
-
-	@Override
 	public void refreshData(RouteConfig routeConfig,
 			Selection selection, int maxStops, double centerLatitude,
 			double centerLongitude,
@@ -291,25 +267,6 @@ public class CommuterRailTransitSource implements TransitSource {
 	@Override
 	public boolean hasPaths() {
 		return false;
-	}
-
-	@Override
-	public void initializeAllRoutes(UpdateAsyncTask task, Context context,
-			Directions directions, RoutePool routeMapping) throws IOException,
-			ParserConfigurationException, SAXException, RemoteException, OperationApplicationException {
-/*		task.publish(new ProgressMessage(ProgressMessage.PROGRESS_DIALOG_ON, "Downloading commuter info", null));
-		//final String subwayUrl = getRouteConfigUrl();
-		//URL url = new URL(subwayUrl);
-		//InputStream in = Locations.downloadStream(url, task);
-		
-		CommuterRailRouteConfigParser subwayParser = new CommuterRailRouteConfigParser(directions, this);
-		
-		subwayParser.runParse(new StringReader(commuterRailData));
-		
-		subwayParser.writeToDatabase(routeMapping, task, false);*/
-		//this space intentially left blank
-		
-		
 	}
 
 	@Override
