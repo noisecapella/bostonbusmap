@@ -101,14 +101,15 @@ public class HeavyRailPredictionsFeedParser {
 	/**
 	 * Parse JSON received from subway real time feed into vehicle locations
 	 * and predictions
-	 * @param root
+	 * @param tripList
 	 * @return
 	 */
 	private List<PredictionStopLocationPair> parseTree(JsonObject root) {
 
 		List<PredictionStopLocationPair> pairs = Lists.newArrayList();
-		int currentTime = root.get("CurrentTime").getAsInt();
-		JsonArray trips = root.get("Trips").getAsJsonArray();
+		JsonObject tripList = root.get("TripList").getAsJsonObject();
+		int currentTime = tripList.get("CurrentTime").getAsInt();
+		JsonArray trips = tripList.get("Trips").getAsJsonArray();
 		String routeName = routeConfig.getRouteName();
 		String routeTitle = routeConfig.getRouteTitle();
 		long currentMillis = TransitSystem.currentTimeMillis();
