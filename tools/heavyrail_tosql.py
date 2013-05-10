@@ -27,7 +27,7 @@ def write_sql(startorder, route, trips, stops, routes, stop_times, shapes):
     route_rows = [route_row for route_row in routes
                   if (route_row["route_long_name"] == supported_route_description or
                       route_row["route_short_name"] == supported_route_description)]
-    route_ids = set([route["route_id"] for route in route_rows])
+    route_ids = set([route_row["route_id"] for route_row in route_rows])
 
     trip_rows = [trip_row for trip_row in trips
                  if trip_row["route_id"] in route_ids]
@@ -44,10 +44,8 @@ def write_sql(startorder, route, trips, stops, routes, stop_times, shapes):
         path = [(float(row["shape_pt_lat"]), float(row["shape_pt_lon"])) for row in group_rows]
         paths.append(path)
 
-    print "BEFORE"
     stop_times_rows = [stop_times_row for stop_times_row in stop_times
                        if stop_times_row["trip_id"] in trip_ids]
-    print "AFTER"
     stop_times_ids = set([stop_times_row["stop_id"] for stop_times_row in stop_times_rows])
 
     stop_rows = [stop_row for stop_row in stops
