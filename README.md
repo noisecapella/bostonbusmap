@@ -28,8 +28,8 @@ Note that you may need a separate Google Maps API key to test with
 
 There are a few important git branches corresponding to different apps for different cities:
 
-* master - where all code gets merged
-* mbta - This is the same as master except with updated MBTA-specific transit data.
-* la - This is master with MBTA-specific commuter rail and subway code removed, and with Los Angeles NextBus data added. This also changes the namespace and some of the graphics to fit the Los Angelbus app.
-* toronto - Same as `la`
-* umich - This was branched off an early build of BostonBusMap. It focuses on the University of Michigan's bus system for Ann Arbor.
+* `master` - where all code gets merged
+* `mbta` - This is the same as master except with updated MBTA-specific transit data.
+* `la` - This is master with MBTA-specific commuter rail and subway code removed, and with Los Angeles NextBus data added. This also changes the namespace and some of the graphics to fit the Los Angelbus app.
+* `toronto` - Similar to `la` branch
+* `umich` - This was branched off an early build of BostonBusMap. It focuses on the University of Michigan's bus system for Ann Arbor.
