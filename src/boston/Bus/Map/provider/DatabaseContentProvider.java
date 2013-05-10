@@ -178,8 +178,9 @@ public class DatabaseContentProvider extends ContentProvider {
 	public final static int ADDING_BOUNDS_1 = 39;
 	public final static int ADDING_BOUNDS_2 = 42;
 	public final static int FIX_LOCATIONS = 43;
+	public final static int NEW_SUBWAY = 44;
 	
-	public final static int CURRENT_DB_VERSION = FIX_LOCATIONS;
+	public final static int CURRENT_DB_VERSION = NEW_SUBWAY;
 
 	public static final int ALWAYS_POPULATE = 3;
 	public static final int POPULATE_IF_UPGRADE = 2;
