@@ -12,7 +12,7 @@ Please email bostonbusmap@gmail.com if you have any problem, and please report a
 - choose a favorite stop by pressing the menu button and clicking "Favorite stops"
 - center on your current location by clicking the menu button and choosing "My Location". The speed and accuracy of location information depends on your phone location settings. You can tweak those in Home -> Settings -> Location & Security
 - draw the path along a route by clicking the menu button, going to Settings and selecting "Show route path"
-- this app should work for all touchscreen devices that are Android 1.5 and up (which means pretty much all Android phones and tablets). Please let me know if something doesn't work
+- this app should work for all touchscreen devices that are Android 1.6 and up (which means pretty much all Android phones and tablets). Please let me know if something doesn't work
 
 #Build
 You'll need to `git clone git@github.com:bostonbusmap/android-mapviewballoons.git`. This project references that code to draw the mapview balloons.
