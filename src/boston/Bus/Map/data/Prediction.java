@@ -66,7 +66,7 @@ public class Prediction implements Comparable<Prediction>, Parcelable
 		builder.append("Route <b>").append(routeTitle).append("</b>");
 		if (vehicleId != null)
 		{
-			builder.append(", Bus <b>").append(vehicleId).append("</b>");
+			builder.append(", Vehicle <b>").append(vehicleId).append("</b>");
 		}
 
 		if (direction != null)
