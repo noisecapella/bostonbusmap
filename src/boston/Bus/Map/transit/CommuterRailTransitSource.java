@@ -50,6 +50,7 @@ import boston.Bus.Map.parser.CommuterRailPredictionsFeedParser;
 import boston.Bus.Map.parser.CommuterRailRouteConfigParser;
 import boston.Bus.Map.ui.ProgressMessage;
 import boston.Bus.Map.util.DownloadHelper;
+import boston.Bus.Map.util.LogUtil;
 import boston.Bus.Map.util.SearchHelper;
 
 public class CommuterRailTransitSource implements TransitSource {
@@ -143,19 +144,23 @@ public class CommuterRailTransitSource implements TransitSource {
 
 			if (railRouteConfig.obtainedAlerts() == false)
 			{
+				try {
+					String url = outputRow.alertUrl;
+					DownloadHelper downloadHelper = new DownloadHelper(url);
+					downloadHelper.connect();
 
-				String url = outputRow.alertUrl;
-				DownloadHelper downloadHelper = new DownloadHelper(url);
-				downloadHelper.connect();
+					InputStream stream = downloadHelper.getResponseData();
+					InputStreamReader data = new InputStreamReader(stream);
 
-				InputStream stream = downloadHelper.getResponseData();
-				InputStreamReader data = new InputStreamReader(stream);
-
-				AlertParser parser = new AlertParser();
-				parser.runParse(data);
-				railRouteConfig.setAlerts(parser.getAlerts());
-				data.close();
-
+					AlertParser parser = new AlertParser();
+					parser.runParse(data);
+					railRouteConfig.setAlerts(parser.getAlerts());
+					data.close();
+				}
+				catch (Exception e) {
+					// silence this error since alerts aren't critical to the app
+					LogUtil.e(e);
+				}
 			}
 		}
 		
