@@ -41,6 +41,7 @@ import boston.Bus.Map.parser.SubwayPredictionsFeedParser;
 import boston.Bus.Map.parser.SubwayRouteConfigFeedParser;
 import boston.Bus.Map.ui.ProgressMessage;
 import boston.Bus.Map.util.DownloadHelper;
+import boston.Bus.Map.util.LogUtil;
 import boston.Bus.Map.util.SearchHelper;
 
 public class SubwayTransitSource implements TransitSource {
@@ -156,16 +157,23 @@ public class SubwayTransitSource implements TransitSource {
 			RouteConfig railRouteConfig = routePool.get(route);
 			if (railRouteConfig.obtainedAlerts() == false)
 			{
-				DownloadHelper downloadHelper = new DownloadHelper(alertUrl);
-				downloadHelper.connect();
+				try
+				{
+					DownloadHelper downloadHelper = new DownloadHelper(alertUrl);
+					downloadHelper.connect();
 
-				InputStream stream = downloadHelper.getResponseData();
-				InputStreamReader data = new InputStreamReader(stream);
+					InputStream stream = downloadHelper.getResponseData();
+					InputStreamReader data = new InputStreamReader(stream);
 
-				AlertParser parser = new AlertParser();
-				parser.runParse(data);
-				railRouteConfig.setAlerts(parser.getAlerts());
-				data.close();
+					AlertParser parser = new AlertParser();
+					parser.runParse(data);
+					railRouteConfig.setAlerts(parser.getAlerts());
+					data.close();
+				}
+				catch (Exception e) {
+					// swallow exception since alerts aren't critical to the app
+					LogUtil.e(e);
+				}
 
 			}
 			
