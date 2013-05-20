@@ -28,6 +28,7 @@ import boston.Bus.Map.database.Schema;
 import boston.Bus.Map.parser.AlertParser;
 import boston.Bus.Map.parser.HeavyRailPredictionsFeedParser;
 import boston.Bus.Map.util.DownloadHelper;
+import boston.Bus.Map.util.LogUtil;
 import boston.Bus.Map.util.SearchHelper;
 
 public class HeavyRailTransitSource implements TransitSource {
@@ -114,18 +115,24 @@ public class HeavyRailTransitSource implements TransitSource {
 
 			if (railRouteConfig.obtainedAlerts() == false)
 			{
+				try
+				{
+					String url = outputRow.alertUrl;
+					DownloadHelper downloadHelper = new DownloadHelper(url);
+					downloadHelper.connect();
 
-				String url = outputRow.alertUrl;
-				DownloadHelper downloadHelper = new DownloadHelper(url);
-				downloadHelper.connect();
+					InputStream stream = downloadHelper.getResponseData();
+					InputStreamReader data = new InputStreamReader(stream);
 
-				InputStream stream = downloadHelper.getResponseData();
-				InputStreamReader data = new InputStreamReader(stream);
-
-				AlertParser parser = new AlertParser();
-				parser.runParse(data);
-				railRouteConfig.setAlerts(parser.getAlerts());
-				data.close();
+					AlertParser parser = new AlertParser();
+					parser.runParse(data);
+					railRouteConfig.setAlerts(parser.getAlerts());
+					data.close();
+				}
+				catch (Exception e) {
+					// this isn't a fatal exception, ignore
+					LogUtil.e(e);
+				}
 
 			}
 		}
