@@ -16,7 +16,6 @@ public class SubwayTrainLocation extends BusLocation {
 	
 	@Override
 	protected String getBusNumberMessage() {
-		return "";
+		return "Train number: " + busId + "<br />\n";
 	}
-
 }
