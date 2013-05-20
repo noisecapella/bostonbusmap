@@ -108,11 +108,10 @@ public class HeavyRailPredictionsFeedParser {
 
 		List<PredictionStopLocationPair> pairs = Lists.newArrayList();
 		JsonObject tripList = root.get("TripList").getAsJsonObject();
-		int currentTime = tripList.get("CurrentTime").getAsInt();
+		int vehicleUpdateTime = tripList.get("CurrentTime").getAsInt();
 		JsonArray trips = tripList.get("Trips").getAsJsonArray();
 		String routeName = routeConfig.getRouteName();
 		String routeTitle = routeConfig.getRouteTitle();
-		long currentMillis = TransitSystem.currentTimeMillis();
 		
 		for (JsonElement tripElement : trips) {
 			JsonObject trip = tripElement.getAsJsonObject();
@@ -140,8 +139,9 @@ public class HeavyRailPredictionsFeedParser {
 				long nowEpochTime = positionTimestamp * 1000;
 				int nowOffset = TransitSystem.getTimeZone().getOffset(nowEpochTime);
 				nowEpochTime += nowOffset;
+				vehicleUpdateTime += nowOffset;
 				BusLocation vehicleLocation = new SubwayTrainLocation(lat, lon,
-						vehicleId, nowEpochTime, currentMillis,
+						vehicleId, nowEpochTime, vehicleUpdateTime,
 						Integer.valueOf(heading).toString(), true, dirTag, 
 						routeName, directions, routeTitle);
 				busMapping.put(vehicleId, vehicleLocation);
