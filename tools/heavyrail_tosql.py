@@ -39,7 +39,7 @@ def write_sql(startorder, route, trips, stops, routes, stop_times, shapes):
 
     # this stores a list of list of lat, lon pairs
     paths = []
-    shape_rows = list(sorted(shape_rows, key=lambda shape: (shape["shape_id"], shape["shape_pt_sequence"])))
+    shape_rows = list(sorted(shape_rows, key=lambda shape: shape["shape_id"]))
     for shape_id, group_rows in itertools.groupby(shape_rows, lambda shape: shape["shape_id"]):
         path = [(float(row["shape_pt_lat"]), float(row["shape_pt_lon"])) for row in group_rows]
         paths.append(path)
