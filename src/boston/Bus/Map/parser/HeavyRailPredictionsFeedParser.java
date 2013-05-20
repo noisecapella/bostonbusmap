@@ -108,7 +108,7 @@ public class HeavyRailPredictionsFeedParser {
 
 		List<PredictionStopLocationPair> pairs = Lists.newArrayList();
 		JsonObject tripList = root.get("TripList").getAsJsonObject();
-		int vehicleUpdateTime = tripList.get("CurrentTime").getAsInt();
+		long vehicleUpdateTime = tripList.get("CurrentTime").getAsInt();
 		JsonArray trips = tripList.get("Trips").getAsJsonArray();
 		String routeName = routeConfig.getRouteName();
 		String routeTitle = routeConfig.getRouteTitle();
@@ -133,7 +133,7 @@ public class HeavyRailPredictionsFeedParser {
 				vehicleId = position.get("Train").getAsString();
 				float lat = position.get("Lat").getAsFloat();
 				float lon = position.get("Long").getAsFloat();
-				int positionTimestamp = position.get("Timestamp").getAsInt();
+				long positionTimestamp = position.get("Timestamp").getAsInt();
 				int heading = position.get("Heading").getAsInt();
 				
 				long nowEpochTime = positionTimestamp * 1000;
