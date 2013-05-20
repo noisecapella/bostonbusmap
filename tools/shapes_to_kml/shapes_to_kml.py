@@ -5,6 +5,7 @@ import os.path
 import csv
 import itertools
 import simplekml
+from collections import defaultdict
 
 def read_rows(path):
     ret = {}
@@ -31,7 +32,7 @@ def extract_paths(route, routes, trips, shapes):
 
     shape_rows = [shape_row for shape_row in shapes
                   if shape_row["shape_id"] in shape_ids]
-    shape_rows = sorted(shape_rows, key=lambda shape_row: (shape_row["shape_id"], shape_row["shape_pt_sequence"]))
+    shape_rows = sorted(shape_rows, key=lambda shape_row: shape_row["shape_id"])
 
     shapes_by_id = itertools.groupby(shape_rows, lambda shape_row: shape_row["shape_id"])
     
