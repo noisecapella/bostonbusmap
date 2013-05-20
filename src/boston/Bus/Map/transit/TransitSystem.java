@@ -185,14 +185,21 @@ public class TransitSystem implements ITransitSystem {
 	private static DateFormat defaultTimeFormat;
 	private static DateFormat defaultDateFormat;
 		
+	/**
+	 * TODO: Time handling in this app should be cleaned up to be all
+	 * UTC, but I don't want to risk breaking something that works 
+	 * @return
+	 */
 	public static TimeZone getTimeZone()
 	{
 		return bostonTimeZone;
 	}
 
 	/**
-	 * Return current time in GMT
+	 * TODO: Time handling in this app should be cleaned up to be all
+	 * UTC, but I don't want to risk breaking something that works 
 	 * @return
+	 * Return current time in GMT
 	 */
 	public static long currentTimeMillis()
 	{
