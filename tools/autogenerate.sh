@@ -9,7 +9,7 @@ python create_tables.py > sql.dump
 echo "Parsing commuter rail data..."
 python commuterrail_tosql.py commuterRailRouteList 0 >> sql.dump
 echo "Parsing subway data..."
-python subway_tosql.py subwayRouteList 12 >> sql.dump
+python heavyrail_tosql.py ../../gtfs 12 >> sql.dump
 echo "Parsing bus data..."
 python tosql.py routeconfig.xml routeList 15 >> sql.dump
 echo "Parsing alert data..."

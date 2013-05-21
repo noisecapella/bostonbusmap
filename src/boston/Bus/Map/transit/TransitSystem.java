@@ -113,10 +113,10 @@ public class TransitSystem implements ITransitSystem {
 			defaultTransitSource = new BusTransitSource(this, busDrawables, busTransitRoutes, routeTitles);
 			
 			ImmutableMap.Builder<String, TransitSource> mapBuilder = ImmutableMap.builder();
-			SubwayTransitSource subwayTransitSource = new SubwayTransitSource(subwayDrawables, subwayTransitRoutes);
-			mapBuilder.put(SubwayTransitSource.RedLine, subwayTransitSource);
-			mapBuilder.put(SubwayTransitSource.OrangeLine, subwayTransitSource);
-			mapBuilder.put(SubwayTransitSource.BlueLine, subwayTransitSource);
+			HeavyRailTransitSource subwayTransitSource = new HeavyRailTransitSource(subwayDrawables, subwayTransitRoutes);
+			for (String route : subwayTransitSource.getRouteTitles().routeTags()) {
+				mapBuilder.put(route, subwayTransitSource);
+			}
 			
 			CommuterRailTransitSource commuterRailTransitSource = new CommuterRailTransitSource(commuterRailDrawables, commuterRailTransitRoutes);
 			for (String route : commuterRailTransitSource.getRouteTitles().routeTags())
@@ -185,14 +185,21 @@ public class TransitSystem implements ITransitSystem {
 	private static DateFormat defaultTimeFormat;
 	private static DateFormat defaultDateFormat;
 		
+	/**
+	 * TODO: Time handling in this app should be cleaned up to be all
+	 * UTC, but I don't want to risk breaking something that works 
+	 * @return
+	 */
 	public static TimeZone getTimeZone()
 	{
 		return bostonTimeZone;
 	}
 
 	/**
-	 * Return current time in GMT
+	 * TODO: Time handling in this app should be cleaned up to be all
+	 * UTC, but I don't want to risk breaking something that works 
 	 * @return
+	 * Return current time in GMT
 	 */
 	public static long currentTimeMillis()
 	{

@@ -104,11 +104,8 @@ public class VehicleLocationsFeedParser extends DefaultHandler
 			
 			long lastFeedUpdate = TransitSystem.currentTimeMillis() - (seconds * 1000);
 			
-			String inferBusRoute = null;
-
 			BusLocation newBusLocation = new BusLocation(lat, lon, id, lastFeedUpdate, lastUpdateTime, 
-					heading, predictable, dirTag, inferBusRoute, route, directions, routeKeysToTitles.getTitle(route),
-					false);
+					heading, predictable, dirTag, route, directions, routeKeysToTitles.getTitle(route));
 
 			if (busMapping.containsKey(id))
 			{
