@@ -1737,8 +1737,8 @@ public class DatabaseContentProvider extends ContentProvider {
 					" = " + Schema.Trip_ids.trip_idColumnOnTable +
 					" JOIN " + Schema.Arrivals.table + " ON " + Schema.Arrivals.idColumnOnTable +
 					" = " + Schema.Stop_times.arrival_idColumnOnTable + " JOIN " +
-					Schema.Trip_stops.table + " ON " + Schema.Trip_stops.idColumnOnTable + 
-					" ON " + Schema.Stop_times.stop_list_idColumnOnTable);
+					Schema.Trip_stops.table + " ON " + Schema.Trip_stops.idColumnOnTable +
+					" = " + Schema.Stop_times.stop_list_idColumnOnTable);
 			break;
 		default:
 			throw new IllegalArgumentException("Unknown URI " + uri);
