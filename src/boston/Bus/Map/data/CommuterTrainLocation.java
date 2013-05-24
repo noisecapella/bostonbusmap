@@ -17,11 +17,6 @@ public class CommuterTrainLocation extends BusLocation {
 	private static final String experimentalString = "<font color='red' size='1'>Commuter rail predictions are experimental</font>";
 	
 	@Override
-	protected String getBetaWarning() {
-		return experimentalString + "<br />";
-	}
-	
-	@Override
 	protected String getBusNumberMessage() {
 		return "Train number: " + busId + "<br />\n";
 	}

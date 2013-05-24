@@ -110,7 +110,7 @@ public class TransitSystem implements ITransitSystem {
 			TransitSourceTitles subwayTransitRoutes = routeTitles.getMappingForSource(Schema.Routes.enumagencyidSubway);
 			TransitSourceTitles commuterRailTransitRoutes = routeTitles.getMappingForSource(Schema.Routes.enumagencyidCommuterRail);
 			
-			defaultTransitSource = new BusTransitSource(this, busDrawables, busTransitRoutes, routeTitles);
+			defaultTransitSource = new GtfsRealtimeTransitSource(this, busDrawables, busTransitRoutes, routeTitles, context);
 			
 			ImmutableMap.Builder<String, TransitSource> mapBuilder = ImmutableMap.builder();
 			HeavyRailTransitSource subwayTransitSource = new HeavyRailTransitSource(subwayDrawables, subwayTransitRoutes);
