@@ -11,7 +11,6 @@ import boston.Bus.Map.util.Box;
 public class TripInfo {
 	private final String tripId;
 	private final String routeId;
-	private final int secondsOffset;
 	private final int[] arrivalSeconds;
 	private final int[] sequences;
 	private final String[] stopIds;
@@ -20,7 +19,6 @@ public class TripInfo {
 			byte[] arrivalsBlob, byte[] stopListBlob) throws IOException {
 		this.tripId = tripId;
 		this.routeId = routeId;
-		this.secondsOffset = secondsOffset;
 		
 		Box arrivals = new Box(arrivalsBlob, DatabaseContentProvider.CURRENT_DB_VERSION);
 		short arrivalsLen = arrivals.readShort();
@@ -38,8 +36,28 @@ public class TripInfo {
 			
 			stopIds[i] = stopId;
 			sequences[i] = sequence;
-			int arrivalSecond = arrivalMinutes * 60;
+			int arrivalSecond = arrivalMinutes * 60 + secondsOffset;
 			arrivalSeconds[i] = arrivalSecond;
 		}
+	}
+
+	public String getRouteId() {
+		return routeId;
+	}
+	
+	public String getTripId() {
+		return tripId;
+	}
+
+	public int[] getArrivalSeconds() {
+		return arrivalSeconds;
+	}
+
+	public int[] getSequences() {
+		return sequences;
+	}
+
+	public String[] getStopIds() {
+		return stopIds;
 	}
 }

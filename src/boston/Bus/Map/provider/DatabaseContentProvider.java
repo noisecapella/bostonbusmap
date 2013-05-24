@@ -496,7 +496,7 @@ public class DatabaseContentProvider extends ContentProvider {
 			}
 		}
 
-		public static List<TripInfo> getTripInfo(ContentResolver resolver,
+		public static Map<String, TripInfo> getTripInfo(ContentResolver resolver,
 				Collection<String> trips) throws IOException {
 			Cursor cursor = null;
 			try
@@ -516,12 +516,12 @@ public class DatabaseContentProvider extends ContentProvider {
 				cursor = resolver.query(GTFS_TRIP_URI, projection, selection,
 						null, null);
 				if (cursor.getCount() == 0) {
-					return Collections.emptyList();
+					return Collections.emptyMap();
 				}
 				
 				cursor.moveToFirst();
 				
-				ImmutableList.Builder<TripInfo> tripInfoList = ImmutableList.builder();
+				ImmutableMap.Builder<String, TripInfo> tripInfoMap = ImmutableMap.builder();
 				while (cursor.isAfterLast() == false) {
 					String tripId = cursor.getString(0);
 					String routeId = cursor.getString(1);
@@ -531,10 +531,10 @@ public class DatabaseContentProvider extends ContentProvider {
 					
 					TripInfo tripInfo = new TripInfo(tripId, routeId, offset,
 							arrivalsBlob, tripStopsBlob);
-					tripInfoList.add(tripInfo);
+					tripInfoMap.put(tripId, tripInfo);
 					cursor.moveToNext();
 				}
-				return tripInfoList.build();
+				return tripInfoMap.build();
 			}
 			finally
 			{
