@@ -20,24 +20,33 @@ import boston.Bus.Map.data.Directions;
 import boston.Bus.Map.data.Locations;
 import boston.Bus.Map.data.RouteConfig;
 import boston.Bus.Map.data.RoutePool;
+import boston.Bus.Map.data.RouteTitles;
 import boston.Bus.Map.data.Selection;
 import boston.Bus.Map.data.StopLocation;
 import boston.Bus.Map.data.TransitDrawables;
 import boston.Bus.Map.data.TransitSourceTitles;
+import boston.Bus.Map.database.Schema;
 import boston.Bus.Map.main.UpdateAsyncTask;
 import boston.Bus.Map.util.DownloadHelper;
+import boston.Bus.Map.util.SearchHelper;
 
 public class GtfsRealtimeTransitSource implements TransitSource {
+	private final TransitSystem transitSystem;
+	private final TransitDrawables drawables;
 
-	@Override
-	public void populateStops(Context context, RoutePool routeMapping,
-			String routeToUpdate, Directions directions, UpdateAsyncTask task,
-			boolean silent) throws ClientProtocolException, IOException,
-			ParserConfigurationException, SAXException, RemoteException,
-			OperationApplicationException {
-		// pass
+	private final TransitSourceTitles routeTitles;
+	private final RouteTitles allRouteTitles;
+
+	public GtfsRealtimeTransitSource(TransitSystem transitSystem, 
+			TransitDrawables drawables, TransitSourceTitles routeTitles,
+			RouteTitles allRouteTitles) {
+		this.transitSystem = transitSystem;
+		this.drawables = drawables;
+		this.routeTitles = routeTitles;
+		this.allRouteTitles = allRouteTitles;
+		
 	}
-
+	
 	@Override
 	public void refreshData(RouteConfig routeConfig, Selection selection,
 			int maxStops, double centerLatitude, double centerLongitude,
@@ -88,53 +97,42 @@ public class GtfsRealtimeTransitSource implements TransitSource {
 
 	@Override
 	public boolean hasPaths() {
-		// TODO Auto-generated method stub
-		return false;
-	}
-
-	@Override
-	public void initializeAllRoutes(UpdateAsyncTask task, Context context,
-			Directions directions, RoutePool routeMapping) throws IOException,
-			ParserConfigurationException, SAXException, RemoteException,
-			OperationApplicationException {
-		// TODO Auto-generated method stub
-
+		return true;
 	}
 
 	@Override
 	public String searchForRoute(String indexingQuery, String lowercaseQuery) {
-		// TODO Auto-generated method stub
-		return null;
+		return SearchHelper.naiveSearch(indexingQuery, lowercaseQuery, transitSystem.getRouteKeysToTitles());
 	}
 
 	@Override
 	public TransitDrawables getDrawables() {
-		// TODO Auto-generated method stub
-		return null;
+		return drawables;
 	}
 
 	@Override
-	public StopLocation createStop(float latitude, float longitude,
-			String stopTag, String stopTitle, int platformOrder, String branch,
+	public StopLocation createStop(float lat, float lon,
+			String stopTag, String title, int platformOrder, String branch,
 			String route) {
-		// TODO Auto-generated method stub
-		return null;
+		StopLocation stop = new StopLocation.Builder(lat, lon, stopTag, title).build();
+		stop.addRoute(route);
+		return stop;
+		
 	}
 
 	@Override
 	public TransitSourceTitles getRouteTitles() {
-		// TODO Auto-generated method stub
-		return null;
+		return routeTitles;
 	}
 
 	@Override
 	public int getLoadOrder() {
-		return 0;
+		return 1;
 	}
 
 	@Override
 	public int getTransitSourceId() {
-		return 5;
+		return Schema.Routes.enumagencyidBus;
 	}
 
 	@Override
