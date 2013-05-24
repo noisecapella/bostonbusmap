@@ -6,15 +6,6 @@ CommuterRailAgencyId = 1
 SubwayAgencyId = 2
 BusAgencyId = 3
 
-exampleSql =     """
-CREATE TABLE android_metadata (locale TEXT);
-CREATE TABLE directions (dirTag STRING PRIMARY KEY, dirNameKey STRING, dirTitleKey STRING, dirRouteKey STRING, useAsUI INTEGER);
-CREATE TABLE directionsStops(dirTag STRING, tag STRING);
-CREATE TABLE favorites (tag STRING PRIMARY KEY);
-CREATE TABLE routes (route STRING PRIMARY KEY, color INTEGER, oppositecolor INTEGER, pathblob BLOB, routetitle STRING);
-CREATE TABLE stopmapping (route STRING, tag STRING, dirTag STRING, PRIMARY KEY (route, tag));
-CREATE TABLE stops (tag STRING PRIMARY KEY, lat FLOAT, lon FLOAT, title STRING);
-CREATE TABLE subway (tag STRING PRIMARY KEY, platformorder INTEGER, branch STRING);"""
 
 def rawhex(b):
     if b > 0xff or b < 0:
@@ -123,7 +114,31 @@ schema = {"directions" : {"columns":[
             {"tag" : "start", "type" : "int"},
             {"tag" : "stop", "type" : "int"}],
                       "primaryKeys" : [],
-                      "indexes" : []}
+                      "indexes" : []},
+          "trip_ids" : {"columns": [
+              {"tag" : "id", "type" : "int"},
+              {"tag" : "trip_id", "type" : "String"},
+              {"tag" : "route_id", "type" : "String"}],
+                        "primaryKeys" : ["id"],
+                        "indexes" : []},
+          "stop_times" : {"columns": [
+              {"tag" : "trip_id", "type" : "int"},
+              {"tag" : "arrival_id", "type" : "int"},
+              {"tag" : "stop_list_id", "type" : "int"},
+              {"tag" : "offset", "type" : "int"}],
+                          "primaryKeys" : [],
+                          "indexes" : []},
+          "arrivals" : {"columns": [
+              {"tag" : "id", "type" : "int"},
+              {"tag" : "blob", "type" : "byte[]"}],
+                        "primaryKeys" : ["id"],
+                        "indexes" : []},
+          "trip_stops" : {"columns": [
+              {"tag" : "id", "type" : "int"},
+              {"tag" : "blob", "type" : "byte[]"}],
+                          "primaryKeys" : ["id"],
+                          "indexes" : []}
+          
           }
 
 class Tables:
