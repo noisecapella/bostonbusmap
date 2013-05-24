@@ -55,6 +55,41 @@ public class Schema {
             helper.execute();
         }
     }
+    public static class Arrivals {
+        public static final String table = "arrivals"; 
+        public static final String[] columns = new String[] {
+            "id", "blob"
+        };
+
+        public static final int idIndex = 1;
+        public static final String idColumn = "id";
+        public static final String idColumnOnTable = "arrivals.id";
+        public static final int blobIndex = 2;
+        public static final String blobColumn = "blob";
+        public static final String blobColumnOnTable = "arrivals.blob";
+
+        public static final String dropSql = "DROP TABLE IF EXISTS arrivals";
+        public static final String createSql = "CREATE TABLE IF NOT EXISTS arrivals (id INTEGER PRIMARY KEY, blob BLOB)";
+        public static class Bean {
+            public final int id;
+            public final byte[] blob;
+            public Bean(int id, byte[] blob) {
+                this.id = id;
+                this.blob = blob;
+            }
+        }
+        public static void executeInsertHelper(InsertHelper helper, Collection<Bean> beans) {
+            for (Bean bean : beans) {
+                executeInsertHelper(helper, bean.id, bean.blob);
+            }
+        }
+        public static void executeInsertHelper(InsertHelper helper, int id, byte[] blob) {
+            helper.prepareForReplace();
+            helper.bind(idIndex, id);
+            helper.bind(blobIndex, blob);
+            helper.execute();
+        }
+    }
     public static class Bounds {
         public static final String table = "bounds"; 
         public static final String[] columns = new String[] {
@@ -329,6 +364,53 @@ public class Schema {
             helper.execute();
         }
     }
+    public static class Stop_times {
+        public static final String table = "stop_times"; 
+        public static final String[] columns = new String[] {
+            "trip_id", "arrival_id", "stop_list_id", "offset"
+        };
+
+        public static final int trip_idIndex = 1;
+        public static final String trip_idColumn = "trip_id";
+        public static final String trip_idColumnOnTable = "stop_times.trip_id";
+        public static final int arrival_idIndex = 2;
+        public static final String arrival_idColumn = "arrival_id";
+        public static final String arrival_idColumnOnTable = "stop_times.arrival_id";
+        public static final int stop_list_idIndex = 3;
+        public static final String stop_list_idColumn = "stop_list_id";
+        public static final String stop_list_idColumnOnTable = "stop_times.stop_list_id";
+        public static final int offsetIndex = 4;
+        public static final String offsetColumn = "offset";
+        public static final String offsetColumnOnTable = "stop_times.offset";
+
+        public static final String dropSql = "DROP TABLE IF EXISTS stop_times";
+        public static final String createSql = "CREATE TABLE IF NOT EXISTS stop_times (trip_id INTEGER, arrival_id INTEGER, stop_list_id INTEGER, offset INTEGER)";
+        public static class Bean {
+            public final int trip_id;
+            public final int arrival_id;
+            public final int stop_list_id;
+            public final int offset;
+            public Bean(int trip_id, int arrival_id, int stop_list_id, int offset) {
+                this.trip_id = trip_id;
+                this.arrival_id = arrival_id;
+                this.stop_list_id = stop_list_id;
+                this.offset = offset;
+            }
+        }
+        public static void executeInsertHelper(InsertHelper helper, Collection<Bean> beans) {
+            for (Bean bean : beans) {
+                executeInsertHelper(helper, bean.trip_id, bean.arrival_id, bean.stop_list_id, bean.offset);
+            }
+        }
+        public static void executeInsertHelper(InsertHelper helper, int trip_id, int arrival_id, int stop_list_id, int offset) {
+            helper.prepareForReplace();
+            helper.bind(trip_idIndex, trip_id);
+            helper.bind(arrival_idIndex, arrival_id);
+            helper.bind(stop_list_idIndex, stop_list_id);
+            helper.bind(offsetIndex, offset);
+            helper.execute();
+        }
+    }
     public static class Stopmapping {
         public static final String table = "stopmapping"; 
         public static final String[] columns = new String[] {
@@ -455,6 +537,82 @@ public class Schema {
             helper.bind(tagIndex, tag);
             helper.bind(platformorderIndex, platformorder);
             helper.bind(branchIndex, branch);
+            helper.execute();
+        }
+    }
+    public static class Trip_ids {
+        public static final String table = "trip_ids"; 
+        public static final String[] columns = new String[] {
+            "id", "trip_id", "route_id"
+        };
+
+        public static final int idIndex = 1;
+        public static final String idColumn = "id";
+        public static final String idColumnOnTable = "trip_ids.id";
+        public static final int trip_idIndex = 2;
+        public static final String trip_idColumn = "trip_id";
+        public static final String trip_idColumnOnTable = "trip_ids.trip_id";
+        public static final int route_idIndex = 3;
+        public static final String route_idColumn = "route_id";
+        public static final String route_idColumnOnTable = "trip_ids.route_id";
+
+        public static final String dropSql = "DROP TABLE IF EXISTS trip_ids";
+        public static final String createSql = "CREATE TABLE IF NOT EXISTS trip_ids (id INTEGER PRIMARY KEY, trip_id STRING, route_id STRING)";
+        public static class Bean {
+            public final int id;
+            public final String trip_id;
+            public final String route_id;
+            public Bean(int id, String trip_id, String route_id) {
+                this.id = id;
+                this.trip_id = trip_id;
+                this.route_id = route_id;
+            }
+        }
+        public static void executeInsertHelper(InsertHelper helper, Collection<Bean> beans) {
+            for (Bean bean : beans) {
+                executeInsertHelper(helper, bean.id, bean.trip_id, bean.route_id);
+            }
+        }
+        public static void executeInsertHelper(InsertHelper helper, int id, String trip_id, String route_id) {
+            helper.prepareForReplace();
+            helper.bind(idIndex, id);
+            helper.bind(trip_idIndex, trip_id);
+            helper.bind(route_idIndex, route_id);
+            helper.execute();
+        }
+    }
+    public static class Trip_stops {
+        public static final String table = "trip_stops"; 
+        public static final String[] columns = new String[] {
+            "id", "blob"
+        };
+
+        public static final int idIndex = 1;
+        public static final String idColumn = "id";
+        public static final String idColumnOnTable = "trip_stops.id";
+        public static final int blobIndex = 2;
+        public static final String blobColumn = "blob";
+        public static final String blobColumnOnTable = "trip_stops.blob";
+
+        public static final String dropSql = "DROP TABLE IF EXISTS trip_stops";
+        public static final String createSql = "CREATE TABLE IF NOT EXISTS trip_stops (id INTEGER PRIMARY KEY, blob BLOB)";
+        public static class Bean {
+            public final int id;
+            public final byte[] blob;
+            public Bean(int id, byte[] blob) {
+                this.id = id;
+                this.blob = blob;
+            }
+        }
+        public static void executeInsertHelper(InsertHelper helper, Collection<Bean> beans) {
+            for (Bean bean : beans) {
+                executeInsertHelper(helper, bean.id, bean.blob);
+            }
+        }
+        public static void executeInsertHelper(InsertHelper helper, int id, byte[] blob) {
+            helper.prepareForReplace();
+            helper.bind(idIndex, id);
+            helper.bind(blobIndex, blob);
             helper.execute();
         }
     }

@@ -40,6 +40,7 @@ import boston.Bus.Map.data.StopLocation;
 import boston.Bus.Map.data.SubwayStopLocation;
 import boston.Bus.Map.data.TimeBounds;
 import boston.Bus.Map.data.TransitSourceTitles;
+import boston.Bus.Map.data.TripInfo;
 import boston.Bus.Map.data.UpdateArguments;
 import boston.Bus.Map.database.Schema;
 import boston.Bus.Map.database.Schema.Stopmapping;
@@ -140,6 +141,10 @@ public class DatabaseContentProvider extends ContentProvider {
 	public static final Uri ROUTES_AND_BOUNDS_URI = Uri.parse("content://" + AUTHORITY + "/routes_and_bounds");
 	private static final int ROUTES_AND_BOUNDS = 18;
 	
+	private static final String GTFS_TRIP_TYPE = "vnd.android.cursor.dir/vnd.bostonbusmap/gtfs_trip";
+	public static final Uri GTFS_TRIP_URI = Uri.parse("content://" + AUTHORITY + "/gtfs_trips");
+	private static final int GTFS_TRIPS = 19;
+	
 	private final static String DATABASE_VERSION_KEY = "DB_VERSION";
 	
 	private static final String distanceKey = "distance";
@@ -175,8 +180,9 @@ public class DatabaseContentProvider extends ContentProvider {
 
 	public final static int FIRST_COPYING_DB = 37;
 	public final static int ADDING_BOUNDS = 38;
+	public final static int GTFS = 40;
 	
-	public final static int CURRENT_DB_VERSION = ADDING_BOUNDS;
+	public final static int CURRENT_DB_VERSION = GTFS;
 
 	public static final int ALWAYS_POPULATE = 3;
 	public static final int POPULATE_IF_UPGRADE = 2;
@@ -490,6 +496,54 @@ public class DatabaseContentProvider extends ContentProvider {
 			}
 		}
 
+		public static List<TripInfo> getTripInfo(ContentResolver resolver,
+				Collection<String> trips) throws IOException {
+			Cursor cursor = null;
+			try
+			{
+				// this is an injection risk, but there might be more than
+				// 1000 parameters in this query which SQLite doesn't support
+				// through parameters (I think)
+				String tripIdString = "'" + Joiner.on("', '").join(trips) + "'";
+				String selection = Schema.Trip_ids.trip_idColumnOnTable + " IN (" + tripIdString + ")";
+				String[] projection = new String[] {
+					Schema.Trip_ids.trip_idColumnOnTable,
+					Schema.Trip_ids.route_idColumnOnTable,
+					Schema.Arrivals.blobColumnOnTable,
+					Schema.Trip_stops.blobColumnOnTable,
+					Schema.Stop_times.offsetColumnOnTable
+				};
+				cursor = resolver.query(GTFS_TRIP_URI, projection, selection,
+						null, null);
+				if (cursor.getCount() == 0) {
+					return Collections.emptyList();
+				}
+				
+				cursor.moveToFirst();
+				
+				ImmutableList.Builder<TripInfo> tripInfoList = ImmutableList.builder();
+				while (cursor.isAfterLast() == false) {
+					String tripId = cursor.getString(0);
+					String routeId = cursor.getString(1);
+					byte[] arrivalsBlob = cursor.getBlob(2);
+					byte[] tripStopsBlob = cursor.getBlob(3);
+					int offset = cursor.getInt(4);
+					
+					TripInfo tripInfo = new TripInfo(tripId, routeId, offset,
+							arrivalsBlob, tripStopsBlob);
+					tripInfoList.add(tripInfo);
+					cursor.moveToNext();
+				}
+				return tripInfoList.build();
+			}
+			finally
+			{
+				if (cursor != null) {
+					cursor.close();
+				}
+			}
+		}
+		
 		public static RouteConfig getRoute(ContentResolver resolver, String routeToUpdate, 
 				ConcurrentMap<String, StopLocation> sharedStops,
 				TransitSystem transitSystem) throws IOException {
@@ -1420,6 +1474,7 @@ public class DatabaseContentProvider extends ContentProvider {
 		uriMatcher.addURI(AUTHORITY, "subway_stops", SUBWAY_STOPS);
 		uriMatcher.addURI(AUTHORITY, "alerts", ALERTS);
 		uriMatcher.addURI(AUTHORITY, "routes_and_bounds", ROUTES_AND_BOUNDS);
+		uriMatcher.addURI(AUTHORITY, "gtfs_trips", GTFS_TRIPS);
 	}
 
 	@Override
@@ -1487,6 +1542,8 @@ public class DatabaseContentProvider extends ContentProvider {
 			return ALERTS_TYPE;
 		case ROUTES_AND_BOUNDS:
 			return ROUTES_AND_BOUNDS_TYPE;
+		case GTFS_TRIPS:
+			return GTFS_TRIP_TYPE;
 		default:
 			throw new IllegalArgumentException("Unknown URI " + uri);
 		}
@@ -1673,6 +1730,15 @@ public class DatabaseContentProvider extends ContentProvider {
 			break;
 		case ROUTES_AND_BOUNDS:
 			builder.setTables(Schema.Routes.table + " LEFT OUTER JOIN " + Schema.Bounds.table + " ON " + Schema.Routes.routeColumnOnTable + " = " + Schema.Bounds.routeColumnOnTable);
+			break;
+		case GTFS_TRIPS:
+			builder.setTables(Schema.Trip_ids.table + " JOIN " +
+					Schema.Stop_times.table + " ON " + Schema.Stop_times.trip_idColumnOnTable +
+					" = " + Schema.Trip_ids.trip_idColumnOnTable +
+					" JOIN " + Schema.Arrivals.table + " ON " + Schema.Arrivals.idColumnOnTable +
+					" = " + Schema.Stop_times.arrival_idColumnOnTable + " JOIN " +
+					Schema.Trip_stops.table + " ON " + Schema.Trip_stops.idColumnOnTable + 
+					" ON " + Schema.Stop_times.stop_list_idColumnOnTable);
 			break;
 		default:
 			throw new IllegalArgumentException("Unknown URI " + uri);
