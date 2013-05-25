@@ -511,7 +511,8 @@ public class DatabaseContentProvider extends ContentProvider {
 					Schema.Trip_ids.route_idColumnOnTable,
 					Schema.Arrivals.blobColumnOnTable,
 					Schema.Trip_stops.blobColumnOnTable,
-					Schema.Stop_times.offsetColumnOnTable
+					Schema.Stop_times.offsetColumnOnTable,
+					Schema.Trip_ids.dir_tagColumnOnTable
 				};
 				cursor = resolver.query(GTFS_TRIP_URI, projection, selection,
 						null, null);
@@ -528,9 +529,10 @@ public class DatabaseContentProvider extends ContentProvider {
 					byte[] arrivalsBlob = cursor.getBlob(2);
 					byte[] tripStopsBlob = cursor.getBlob(3);
 					int offset = cursor.getInt(4);
+					String dirTag = cursor.getString(5);
 					
 					TripInfo tripInfo = new TripInfo(tripId, routeId, offset,
-							arrivalsBlob, tripStopsBlob);
+							arrivalsBlob, tripStopsBlob, dirTag);
 					tripInfoMap.put(tripId, tripInfo);
 					cursor.moveToNext();
 				}
@@ -1732,13 +1734,14 @@ public class DatabaseContentProvider extends ContentProvider {
 			builder.setTables(Schema.Routes.table + " LEFT OUTER JOIN " + Schema.Bounds.table + " ON " + Schema.Routes.routeColumnOnTable + " = " + Schema.Bounds.routeColumnOnTable);
 			break;
 		case GTFS_TRIPS:
-			builder.setTables(Schema.Trip_ids.table + " JOIN " +
+			final String query = Schema.Trip_ids.table + " JOIN " +
 					Schema.Stop_times.table + " ON " + Schema.Stop_times.trip_idColumnOnTable +
-					" = " + Schema.Trip_ids.trip_idColumnOnTable +
+					" = " + Schema.Trip_ids.idColumnOnTable +
 					" JOIN " + Schema.Arrivals.table + " ON " + Schema.Arrivals.idColumnOnTable +
 					" = " + Schema.Stop_times.arrival_idColumnOnTable + " JOIN " +
 					Schema.Trip_stops.table + " ON " + Schema.Trip_stops.idColumnOnTable +
-					" = " + Schema.Stop_times.stop_list_idColumnOnTable);
+					" = " + Schema.Stop_times.stop_list_idColumnOnTable;
+			builder.setTables(query);
 			break;
 		default:
 			throw new IllegalArgumentException("Unknown URI " + uri);

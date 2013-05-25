@@ -2,6 +2,7 @@ package boston.Bus.Map.transit;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Calendar;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -133,13 +134,21 @@ public class GtfsRealtimeTransitSource implements TransitSource {
 		Map<String, TripInfo> tripInfos = DatabaseAgent.getTripInfo(resolver,
 				tripIdsInUpdate);
 		
+		Calendar calendar = Calendar.getInstance();
+		long now = calendar.getTimeInMillis();
+		calendar.set(Calendar.HOUR_OF_DAY, 0);
+		calendar.set(Calendar.MINUTE, 0);
+		calendar.set(Calendar.SECOND, 0);
+		calendar.set(Calendar.MILLISECOND, 0);
+		long secondsSinceMidnight = (now - calendar.getTimeInMillis())/1000;
+		
 		switch (mode) {
 		case Selection.BUS_PREDICTIONS_ALL:
 		case Selection.BUS_PREDICTIONS_ONE:
 		case Selection.BUS_PREDICTIONS_STAR:
 			for (FeedEntity entity : message.getEntityList()) {
 				TripUpdate tripUpdate = entity.getTripUpdate();
-				
+
 				Map<Integer, Integer> delayMap = Maps.newHashMap();
 				for (StopTimeUpdate update : entity.getTripUpdate().getStopTimeUpdateList()) {
 					// TODO: if update.hasArrival() is false, the prediction is unreliable
@@ -151,31 +160,41 @@ public class GtfsRealtimeTransitSource implements TransitSource {
 				}
 				String tripId = tripUpdate.getTrip().getTripId();
 				TripInfo tripInfo = tripInfos.get(tripId);
-				String routeId = tripInfo.getRouteId();
-				// This might cause a huge memory grab, be aware
-				RouteConfig route = locationsObj.getRoute(routeId);
-				
-				int delay = 0;
-				int[] sequences = tripInfo.getSequences();
-				String[] stopIds = tripInfo.getStopIds();
-				int[] arrivalSeconds = tripInfo.getArrivalSeconds();
-				for (int i = 0; i < sequences.length; i++) {
-					int sequence = sequences[i];
-					String stopId = stopIds[i];
-					int arrivalSecond = arrivalSeconds[i];
+				if (tripInfo != null) {
+					String routeId = tripInfo.getRouteId();
+					// This might cause a huge memory grab, be aware
+					RouteConfig route = locationsObj.getRoute(routeId);
 
-					StopLocation stop = route.getStop(stopId);
-					stop.clearPredictions(route);
-					if (delayMap.containsKey(sequence)) {
-						delay = delayMap.get(sequence);
+					int delay = 0;
+					int[] sequences = tripInfo.getSequences();
+					String[] stopIds = tripInfo.getStopIds();
+					int[] arrivalSeconds = tripInfo.getArrivalSeconds();
+					String dirTag = tripInfo.getDirTag();
+					for (int i = 0; i < sequences.length; i++) {
+						int sequence = sequences[i];
+						String stopId = stopIds[i];
+						int arrivalSecond = arrivalSeconds[i];
+
+						StopLocation stop = route.getStop(stopId);
+						if (stop != null) {
+							stop.clearPredictions(routeConfig);
+							if (delayMap.containsKey(sequence)) {
+								delay = delayMap.get(sequence);
+							}
+
+							int seconds = arrivalSecond + delay;
+							if (seconds > 24*60*60) {
+								// gtfs time wraps into tomorrow, ie 25:01:23 is around 1 am
+								seconds -= 24*60*60;
+							}
+							long diffSeconds = seconds - secondsSinceMidnight;
+							int minutes = (int)(diffSeconds / 60);
+							stop.addPrediction(minutes, -1,
+									"Unknown", dirTag, route,
+									directions, false,
+									false, 0);
+						}
 					}
-					 
-					int seconds = arrivalSecond + delay;
-					int minutes = seconds / 60;
-					stop.addPrediction(minutes, -1,
-							null, "TODO_DIR", route,
-							directions, false,
-							false, 0);
 				}
 			}
 			

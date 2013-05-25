@@ -543,7 +543,7 @@ public class Schema {
     public static class Trip_ids {
         public static final String table = "trip_ids"; 
         public static final String[] columns = new String[] {
-            "id", "trip_id", "route_id"
+            "id", "trip_id", "route_id", "dir_tag"
         };
 
         public static final int idIndex = 1;
@@ -555,29 +555,35 @@ public class Schema {
         public static final int route_idIndex = 3;
         public static final String route_idColumn = "route_id";
         public static final String route_idColumnOnTable = "trip_ids.route_id";
+        public static final int dir_tagIndex = 4;
+        public static final String dir_tagColumn = "dir_tag";
+        public static final String dir_tagColumnOnTable = "trip_ids.dir_tag";
 
         public static final String dropSql = "DROP TABLE IF EXISTS trip_ids";
-        public static final String createSql = "CREATE TABLE IF NOT EXISTS trip_ids (id INTEGER PRIMARY KEY, trip_id STRING, route_id STRING)";
+        public static final String createSql = "CREATE TABLE IF NOT EXISTS trip_ids (id INTEGER PRIMARY KEY, trip_id STRING, route_id STRING, dir_tag STRING)";
         public static class Bean {
             public final int id;
             public final String trip_id;
             public final String route_id;
-            public Bean(int id, String trip_id, String route_id) {
+            public final String dir_tag;
+            public Bean(int id, String trip_id, String route_id, String dir_tag) {
                 this.id = id;
                 this.trip_id = trip_id;
                 this.route_id = route_id;
+                this.dir_tag = dir_tag;
             }
         }
         public static void executeInsertHelper(InsertHelper helper, Collection<Bean> beans) {
             for (Bean bean : beans) {
-                executeInsertHelper(helper, bean.id, bean.trip_id, bean.route_id);
+                executeInsertHelper(helper, bean.id, bean.trip_id, bean.route_id, bean.dir_tag);
             }
         }
-        public static void executeInsertHelper(InsertHelper helper, int id, String trip_id, String route_id) {
+        public static void executeInsertHelper(InsertHelper helper, int id, String trip_id, String route_id, String dir_tag) {
             helper.prepareForReplace();
             helper.bind(idIndex, id);
             helper.bind(trip_idIndex, trip_id);
             helper.bind(route_idIndex, route_id);
+            helper.bind(dir_tagIndex, dir_tag);
             helper.execute();
         }
     }

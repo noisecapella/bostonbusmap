@@ -110,14 +110,20 @@ public class Prediction implements Comparable<Prediction>, Parcelable
 	@Override
 	public int compareTo(Prediction another)
 	{
-		return ComparisonChain.start().compare(arrivalTimeMillis, another.arrivalTimeMillis)
-				.compare(vehicleId, another.vehicleId)
-				.compare(direction, another.direction)
-				.compare(routeName, another.routeName)
-				.compareFalseFirst(affectedByLayover, another.affectedByLayover)
-				.compareFalseFirst(isDelayed, another.isDelayed)
-				.compare(lateness, another.lateness)
-				.result();
+		try
+		{
+			return ComparisonChain.start().compare(arrivalTimeMillis, another.arrivalTimeMillis)
+					.compare(vehicleId, another.vehicleId)
+					.compare(direction, another.direction)
+					.compare(routeName, another.routeName)
+					.compareFalseFirst(affectedByLayover, another.affectedByLayover)
+					.compareFalseFirst(isDelayed, another.isDelayed)
+					.compare(lateness, another.lateness)
+					.result();
+		}
+		catch (RuntimeException e) {
+			throw e;
+		}
 	}
 
 	@Override

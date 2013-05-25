@@ -14,11 +14,13 @@ public class TripInfo {
 	private final int[] arrivalSeconds;
 	private final int[] sequences;
 	private final String[] stopIds;
+	private final String dirTag;
 	
 	public TripInfo(String tripId, String routeId, int secondsOffset,
-			byte[] arrivalsBlob, byte[] stopListBlob) throws IOException {
+			byte[] arrivalsBlob, byte[] stopListBlob, String dirTag) throws IOException {
 		this.tripId = tripId;
 		this.routeId = routeId;
+		this.dirTag = dirTag;
 		
 		Box arrivals = new Box(arrivalsBlob, DatabaseContentProvider.CURRENT_DB_VERSION);
 		short arrivalsLen = arrivals.readShort();
@@ -59,5 +61,9 @@ public class TripInfo {
 
 	public String[] getStopIds() {
 		return stopIds;
+	}
+	
+	public String getDirTag() {
+		return dirTag;
 	}
 }

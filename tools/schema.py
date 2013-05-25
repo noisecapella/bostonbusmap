@@ -118,7 +118,8 @@ schema = {"directions" : {"columns":[
           "trip_ids" : {"columns": [
               {"tag" : "id", "type" : "int"},
               {"tag" : "trip_id", "type" : "String"},
-              {"tag" : "route_id", "type" : "String"}],
+              {"tag" : "route_id", "type" : "String"},
+              {"tag" : "dir_tag", "type" : "String"}],
                         "primaryKeys" : ["id"],
                         "indexes" : []},
           "stop_times" : {"columns": [
