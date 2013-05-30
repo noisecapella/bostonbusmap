@@ -49,6 +49,8 @@ def write_sql(startorder, trips_tups, stops_tups, routes_tups, stop_times_tups, 
         "CR-Haverhill": 11,
         "CR-Newburyport": 12}
 
+    stops_inserted = set()
+
     route_rows = [route_row for route_row in routes
                   if int(route_row[routes_header["route_type"]]) == schema.CommuterRailAgencyId]
     for route_row in route_rows:
@@ -98,16 +100,20 @@ def write_sql(startorder, trips_tups, stops_tups, routes_tups, stop_times_tups, 
         obj.routes.insert()
 
         for stop_row in stop_rows:
-            obj.stops.tag.value = stop_row[stops_header["stop_id"]]
-            obj.stops.title.value = stop_row[stops_header["stop_name"]]
-            obj.stops.lat.value = float(stop_row[stops_header["stop_lat"]])
-            obj.stops.lon.value = float(stop_row[stops_header["stop_lon"]])
-            obj.stops.insert()
+            stop_id = stop_row[stops_header["stop_id"]]
+            if stop_id not in stops_inserted:
+                stops_inserted.add(stop_id)
 
-            obj.subway.platformorder.value = -1
-            obj.subway.branch.value = "Unknown"
-            obj.subway.tag.value = stop_row[stops_header["stop_id"]]
-            obj.subway.insert()
+                obj.stops.tag.value = stop_id
+                obj.stops.title.value = stop_row[stops_header["stop_name"]]
+                obj.stops.lat.value = float(stop_row[stops_header["stop_lat"]])
+                obj.stops.lon.value = float(stop_row[stops_header["stop_lon"]])
+                obj.stops.insert()
+
+                obj.subway.platformorder.value = -1
+                obj.subway.branch.value = "Unknown"
+                obj.subway.tag.value = stop_row[stops_header["stop_id"]]
+                obj.subway.insert()
 
             obj.stopmapping.route.value = route_id
             obj.stopmapping.tag.value = stop_row[stops_header["stop_id"]]
