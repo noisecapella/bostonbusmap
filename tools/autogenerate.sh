@@ -12,8 +12,6 @@ echo "Parsing subway data..."
 python heavyrail_tosql.py ../../gtfs 12 >> sql.dump
 echo "Parsing bus data..."
 python tosql.py routeconfig.xml routeList 15 >> sql.dump
-echo "Parsing alert data..."
-python alerts_tosql.py routeList subwayRouteList commuterRailRouteList >> sql.dump
 echo "Calculating bound times..."
 python calculate_times.py gtfs/stop_times.txt gtfs/trips.txt gtfs/calendar.txt >> sql.dump
 echo "Dumping into sqlite..."
