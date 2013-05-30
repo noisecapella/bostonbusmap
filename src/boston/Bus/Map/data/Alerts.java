@@ -35,15 +35,20 @@ public class Alerts {
 			this.alertsByRoute.put(route, alert);
 		}
 		
-		public void addAlertForStop(String route, Alert alert) {
-			this.alertsByStop.put(route, alert);
+		public void addAlertForStop(String stopId, Alert alert) {
+			this.alertsByStop.put(stopId, alert);
 		}
 		
+		public void addSystemWideAlert(Alert alert) {
+			systemWideAlerts.add(alert);
+		}
+
 		public Alerts build() {
 			return new Alerts(alertsByRoute.build(),
 					alertsByStop.build(),
 					systemWideAlerts.build());
 		}
+
 	}
 
 	public static Builder builder() {

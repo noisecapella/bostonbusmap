@@ -25,7 +25,6 @@ import boston.Bus.Map.data.SubwayStopLocation;
 import boston.Bus.Map.data.TransitDrawables;
 import boston.Bus.Map.data.TransitSourceTitles;
 import boston.Bus.Map.database.Schema;
-import boston.Bus.Map.parser.AlertParser;
 import boston.Bus.Map.parser.HeavyRailPredictionsFeedParser;
 import boston.Bus.Map.util.DownloadHelper;
 import boston.Bus.Map.util.LogUtil;

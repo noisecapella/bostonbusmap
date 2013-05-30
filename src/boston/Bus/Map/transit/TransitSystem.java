@@ -187,6 +187,9 @@ public class TransitSystem implements ITransitSystem {
 
 	private static final TimeZone bostonTimeZone = TimeZone.getTimeZone("America/New_York");
 	private static final boolean defaultAllRoutesBlue = false;
+
+	public static final String ALERTS_URL = "http://developer.mbta.com/lib/gtrtfs/Alerts/Alerts.pb";
+	
 	private static DateFormat defaultTimeFormat;
 	private static DateFormat defaultDateFormat;
 		
