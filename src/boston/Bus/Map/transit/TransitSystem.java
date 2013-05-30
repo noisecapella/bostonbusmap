@@ -21,9 +21,10 @@ import android.content.ContentResolver;
 import android.content.Context;
 import android.graphics.drawable.Drawable;
 import android.util.Log;
-import boston.Bus.Map.data.AlertsMapping;
+import boston.Bus.Map.data.Alerts;
 import boston.Bus.Map.data.BusLocation;
 import boston.Bus.Map.data.Directions;
+import boston.Bus.Map.data.IsGuardedBy;
 import boston.Bus.Map.data.Location;
 import boston.Bus.Map.data.Locations;
 import boston.Bus.Map.data.RouteConfig;
@@ -53,7 +54,10 @@ public class TransitSystem implements ITransitSystem {
 
 	private RouteTitles routeTitles;
 	
-	private AlertsMapping alertsMapping;
+	/**
+	 * This will be null when alerts haven't been read yet
+	 */
+	private Alerts alerts;
 	
 	public static double getCenterLat() {
 		return bostonLatitude;
@@ -104,7 +108,6 @@ public class TransitSystem implements ITransitSystem {
 		{
 			ContentResolver resolver = context.getContentResolver();
 			routeTitles = DatabaseAgent.getRouteTitles(resolver);
-			alertsMapping = DatabaseAgent.getAlerts(resolver);
 
 			TransitSourceTitles busTransitRoutes = routeTitles.getMappingForSource(Schema.Routes.enumagencyidBus);
 			TransitSourceTitles subwayTransitRoutes = routeTitles.getMappingForSource(Schema.Routes.enumagencyidSubway);
@@ -113,12 +116,14 @@ public class TransitSystem implements ITransitSystem {
 			defaultTransitSource = new BusTransitSource(this, busDrawables, busTransitRoutes, routeTitles);
 			
 			ImmutableMap.Builder<String, TransitSource> mapBuilder = ImmutableMap.builder();
-			HeavyRailTransitSource subwayTransitSource = new HeavyRailTransitSource(subwayDrawables, subwayTransitRoutes);
+			HeavyRailTransitSource subwayTransitSource = new HeavyRailTransitSource(subwayDrawables,
+					subwayTransitRoutes, this);
 			for (String route : subwayTransitSource.getRouteTitles().routeTags()) {
 				mapBuilder.put(route, subwayTransitSource);
 			}
 			
-			CommuterRailTransitSource commuterRailTransitSource = new CommuterRailTransitSource(commuterRailDrawables, commuterRailTransitRoutes);
+			CommuterRailTransitSource commuterRailTransitSource = new CommuterRailTransitSource(commuterRailDrawables,
+					commuterRailTransitRoutes, this);
 			for (String route : commuterRailTransitSource.getRouteTitles().routeTags())
 			{
 				mapBuilder.put(route, commuterRailTransitSource);
@@ -182,6 +187,9 @@ public class TransitSystem implements ITransitSystem {
 
 	private static final TimeZone bostonTimeZone = TimeZone.getTimeZone("America/New_York");
 	private static final boolean defaultAllRoutesBlue = false;
+
+	public static final String ALERTS_URL = "http://developer.mbta.com/lib/gtrtfs/Alerts/Alerts.pb";
+	
 	private static DateFormat defaultTimeFormat;
 	private static DateFormat defaultDateFormat;
 		
@@ -251,9 +259,13 @@ public class TransitSystem implements ITransitSystem {
 		return source.createStop(latitude, longitude, stopTag, stopTitle, platformOrder, branch, route);
 	}
 
+	public void setAlerts(Alerts alerts) {
+		this.alerts = alerts;
+	}
+	
 	@Override
-	public AlertsMapping getAlertsMapping() {
-		return alertsMapping;
+	public Alerts getAlerts() {
+		return alerts;
 	}
 
 	public static String[] getEmails() {

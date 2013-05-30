@@ -8,7 +8,7 @@ import javax.xml.parsers.ParserConfigurationException;
 import org.xml.sax.SAXException;
 
 import android.content.Context;
-import boston.Bus.Map.data.AlertsMapping;
+import boston.Bus.Map.data.Alerts;
 import boston.Bus.Map.data.BusLocation;
 import boston.Bus.Map.data.Directions;
 import boston.Bus.Map.data.Locations;
@@ -45,6 +45,5 @@ public interface ITransitSystem {
 			String stopTag, String stopTitle, int platformOrder, String branch,
 			String route);
 
-	public abstract AlertsMapping getAlertsMapping();
-
+	Alerts getAlerts();
 }

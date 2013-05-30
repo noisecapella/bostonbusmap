@@ -9,11 +9,13 @@ import org.apache.http.client.ClientProtocolException;
 import org.xml.sax.SAXException;
 
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
 
 import android.content.Context;
 import android.content.OperationApplicationException;
 import android.os.RemoteException;
-import boston.Bus.Map.data.AlertsMapping;
+import boston.Bus.Map.data.Alert;
+import boston.Bus.Map.data.Alerts;
 import boston.Bus.Map.data.BusLocation;
 import boston.Bus.Map.data.Directions;
 import boston.Bus.Map.data.Locations;
@@ -61,4 +63,6 @@ public interface TransitSource {
 	 * and platform information?
 	 */
 	boolean requiresSubwayTable();
+
+	Alerts getAlerts();
 }

@@ -9,6 +9,7 @@ import java.util.Map;
 import java.util.TimeZone;
 
 import com.google.common.collect.Collections2;
+import com.google.common.collect.ImmutableCollection;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
@@ -39,11 +40,8 @@ public class RouteConfig
 	private final TransitSource transitSource;
 	
 	public static final Path[] nullPaths = new Path[0];
-	private ImmutableSet<Alert> alerts = ImmutableSet.of();
 	
 	private final TimeBounds timeBounds;
-	
-	private boolean obtainedAlerts;
 
 	private RouteConfig(Builder builder, ImmutableMap<String, StopLocation> stops) throws IOException {
 		this.route = builder.route;
@@ -225,21 +223,6 @@ public class RouteConfig
 		this.paths = paths;
 	}
 
-	public void setAlerts(ImmutableSet<Alert> alerts)
-	{
-		this.alerts = alerts;
-		obtainedAlerts = true;
-	}
-	
-	public ImmutableSet<Alert> getAlerts()
-	{
-		return alerts;
-	}
-
-	public boolean obtainedAlerts() {
-		return obtainedAlerts;
-	}
-
 	/**
 	 * Find what stop has the same location as the given stop
 	 * @param stop
@@ -274,5 +257,9 @@ public class RouteConfig
 
 	public TimeBounds getTimeBounds() {
 		return timeBounds;
+	}
+
+	public Alerts getAlerts() {
+		return transitSource.getAlerts();
 	}
 }

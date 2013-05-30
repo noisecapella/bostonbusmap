@@ -13,6 +13,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
 import com.google.common.base.Function;
 import com.google.common.base.Objects;
 import com.google.common.base.Predicate;
+import com.google.common.collect.ImmutableCollection;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
@@ -43,6 +44,7 @@ public class StopLocation implements Location
 	
 	private boolean isFavorite;
 	private boolean recentlyUpdated;
+
 	
 	/**
 	 * A set of routes the stop belongs to
@@ -153,14 +155,9 @@ public class StopLocation implements Location
 			predictions = new Predictions();
 		}
 		
-		Set<Alert> alerts;
-		if (routeConfig != null) {
-			alerts = routeConfig.getAlerts();
-		}
-		else
-		{
-			alerts = ImmutableSet.of();
-		}
+		TransitSystem transitSystem = locations.getTransitSystem();
+		Alerts alertsObj = transitSystem.getAlerts();
+		ImmutableCollection<Alert> alerts = alertsObj.getAlertsByRouteSetAndStop(routes, tag);
 		
 		predictions.makeSnippetAndTitle(routeConfig, routeKeysToTitles, context, routes, this, alerts, locations);
 	}

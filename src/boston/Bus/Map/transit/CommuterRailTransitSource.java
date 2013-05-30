@@ -18,6 +18,7 @@ import org.xml.sax.SAXException;
 
 import com.google.common.collect.ImmutableBiMap;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.ImmutableTable;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Table;
@@ -28,7 +29,8 @@ import android.content.OperationApplicationException;
 import android.graphics.drawable.Drawable;
 import android.os.RemoteException;
 import android.util.Log;
-import boston.Bus.Map.data.AlertsMapping;
+import boston.Bus.Map.data.Alert;
+import boston.Bus.Map.data.Alerts;
 import boston.Bus.Map.data.BusLocation;
 import boston.Bus.Map.data.CommuterRailStopLocation;
 import boston.Bus.Map.data.Directions;
@@ -45,7 +47,6 @@ import boston.Bus.Map.data.TransitSourceTitles;
 import boston.Bus.Map.database.Schema;
 import boston.Bus.Map.main.Main;
 import boston.Bus.Map.main.UpdateAsyncTask;
-import boston.Bus.Map.parser.AlertParser;
 import boston.Bus.Map.parser.CommuterRailPredictionsFeedParser;
 import boston.Bus.Map.ui.ProgressMessage;
 import boston.Bus.Map.util.DownloadHelper;
@@ -60,13 +61,17 @@ public class CommuterRailTransitSource implements TransitSource {
 	
 	private final TransitDrawables drawables;
 	private final TransitSourceTitles routeTitles;
+	private final TransitSystem transitSystem;
 	
 	public static final int COLOR = 0x940088;
 	
-	public CommuterRailTransitSource(TransitDrawables drawables, TransitSourceTitles routeTitles)
+	public CommuterRailTransitSource(TransitDrawables drawables, 
+			TransitSourceTitles routeTitles,
+			TransitSystem transitSystem)
 	{
 		this.drawables = drawables;
 		this.routeTitles = routeTitles;
+		this.transitSystem = transitSystem;
 	}
 
 	@Override
@@ -86,7 +91,6 @@ public class CommuterRailTransitSource implements TransitSource {
 		}
 		
 		
-		AlertsMapping alertsMapping = locationsObj.getAlertsMapping();
 		List<RefreshData> outputData = Lists.newArrayList();
 		switch (selectedBusPredictions)
 		{
@@ -97,7 +101,7 @@ public class CommuterRailTransitSource implements TransitSource {
 			List<Location> locations = locationsObj.getLocations(maxStops, centerLatitude, centerLongitude, false, selection);
 
 			//ok, do predictions now
-			getPredictionsUrl(locations, maxStops, routeConfig.getRouteName(), outputData, selectedBusPredictions, alertsMapping);
+			getPredictionsUrl(locations, maxStops, routeConfig.getRouteName(), outputData, selectedBusPredictions);
 			break;
 		}
 		case Selection.BUS_PREDICTIONS_ALL:
@@ -106,7 +110,7 @@ public class CommuterRailTransitSource implements TransitSource {
 		{
 			List<Location> locations = locationsObj.getLocations(maxStops, centerLatitude, centerLongitude, false, selection);
 			
-			getPredictionsUrl(locations, maxStops, null, outputData, selectedBusPredictions, alertsMapping);
+			getPredictionsUrl(locations, maxStops, null, outputData, selectedBusPredictions);
 
 		}
 		break;
@@ -135,50 +139,20 @@ public class CommuterRailTransitSource implements TransitSource {
 			parser.runParse(data);
 			data.close();
 		}
-		
-		for (RefreshData outputRow : outputData)
-		{
-			String route = outputRow.route;
-			RouteConfig railRouteConfig = routePool.get(route);
-
-			if (railRouteConfig.obtainedAlerts() == false)
-			{
-				try {
-					String url = outputRow.alertUrl;
-					DownloadHelper downloadHelper = new DownloadHelper(url);
-					downloadHelper.connect();
-
-					InputStream stream = downloadHelper.getResponseData();
-					InputStreamReader data = new InputStreamReader(stream);
-
-					AlertParser parser = new AlertParser();
-					parser.runParse(data);
-					railRouteConfig.setAlerts(parser.getAlerts());
-					data.close();
-				}
-				catch (Exception e) {
-					// silence this error since alerts aren't critical to the app
-					LogUtil.e(e);
-				}
-			}
-		}
-		
 	}
 
 	private static class RefreshData {
 		private final String url;
-		private final String alertUrl;
 		private final String route;
 		
-		public RefreshData(String url, String alertUrl, String route) {
+		public RefreshData(String url, String route) {
 			this.url = url;
-			this.alertUrl = alertUrl;
 			this.route = route;
 		}
 	}
 	
 	private void getPredictionsUrl(List<Location> locations, int maxStops,
-			String routeName, List<RefreshData> outputData, int mode, AlertsMapping alertsMapping)
+			String routeName, List<RefreshData> outputData, int mode)
 	{
 		//http://developer.mbta.com/lib/RTCR/RailLine_1.csv
 		
@@ -190,9 +164,8 @@ public class CommuterRailTransitSource implements TransitSource {
 			{
 				String index = routeName.substring(routeTagPrefix.length()); //snip off beginning "CR-"
 				String url = dataUrlPrefix + index + predictionsUrlSuffix;
-				String alertUrl = alertsMapping.getUrlForRoute(routeName);
 				
-				outputData.add(new RefreshData(url, alertUrl, routeName));
+				outputData.add(new RefreshData(url, routeName));
 				return;
 			}
 		}
@@ -214,8 +187,7 @@ public class CommuterRailTransitSource implements TransitSource {
 							{
 								String index = route.substring(routeTagPrefix.length());
 								String url = dataUrlPrefix + index + predictionsUrlSuffix;
-								String alertUrl = alertsMapping.getUrlForRoute(route);
-								outputData.add(new RefreshData(url, alertUrl, route));
+								outputData.add(new RefreshData(url, route));
 							}
 						}
 					}
@@ -229,8 +201,7 @@ public class CommuterRailTransitSource implements TransitSource {
 						{
 							String index = route.substring(3);
 							String url = dataUrlPrefix + index + predictionsUrlSuffix;
-							String alertUrl = alertsMapping.getUrlForRoute(route);
-							outputData.add(new RefreshData(url, alertUrl, route));
+							outputData.add(new RefreshData(url, route));
 						}
 					}
 				}
@@ -243,9 +214,8 @@ public class CommuterRailTransitSource implements TransitSource {
 				{
 					String url = dataUrlPrefix + i + predictionsUrlSuffix;
 					String routeKey = routeTagPrefix + i;
-					String alertUrl = alertsMapping.getUrlForRoute(routeKey);
 					
-					outputData.add(new RefreshData(url, alertUrl, routeKey));
+					outputData.add(new RefreshData(url, routeKey));
 				}
 			}
 		}
@@ -328,5 +298,10 @@ public class CommuterRailTransitSource implements TransitSource {
 	@Override
 	public boolean requiresSubwayTable() {
 		return true;
+	}
+
+	@Override
+	public Alerts getAlerts() {
+		return transitSystem.getAlerts();
 	}
 }
