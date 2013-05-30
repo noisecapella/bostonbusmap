@@ -60,7 +60,7 @@ public class UpdateHandler extends Handler {
 	public UpdateHandler(UpdateArguments guiArguments)
 	{
 		this.guiArguments = guiArguments;
-		lastUpdateTime = TransitSystem.currentTimeMillis();
+		lastUpdateTime = System.currentTimeMillis();
 	}
 	
 	
@@ -70,7 +70,7 @@ public class UpdateHandler extends Handler {
 		{
 		case MAJOR:
 			//remove duplicates
-			long currentTime = TransitSystem.currentTimeMillis();
+			long currentTime = System.currentTimeMillis();
 			
 			int interval = getUpdateConstantlyInterval() * 1000;
 			
@@ -158,7 +158,7 @@ public class UpdateHandler extends Handler {
 	 */
 	private void runUpdateTask(boolean isFirstTime) {
 		//make sure we don't update too often
-		lastUpdateTime = TransitSystem.currentTimeMillis();
+		lastUpdateTime = System.currentTimeMillis();
 
 		//don't do two updates at once
 		if (guiArguments.getMajorHandler() != null)
@@ -190,7 +190,7 @@ public class UpdateHandler extends Handler {
 			sendEmptyMessageDelayed(MAJOR, getUpdateConstantlyInterval() * 1000);
 		}
 		
-		if (TransitSystem.currentTimeMillis() - lastUpdateTime < fetchDelay)
+		if (System.currentTimeMillis() - lastUpdateTime < fetchDelay)
 		{
 			return false;
 		}

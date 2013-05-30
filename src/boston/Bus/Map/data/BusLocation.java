@@ -240,7 +240,7 @@ public class BusLocation implements Location {
 		String snippet = getBetaWarning();
 		snippet += getBusNumberMessage();
 
-		int secondsAgo = (int) (TransitSystem.currentTimeMillis() - lastFeedUpdateInMillis) / 1000; 
+		int secondsAgo = (int) (System.currentTimeMillis() - lastFeedUpdateInMillis) / 1000; 
 		snippet += "Last update: " + secondsAgo	+ " seconds ago";
 		String direction = getDirection();
 		if (direction.length() != 0 && predictable == false) {
