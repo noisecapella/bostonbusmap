@@ -78,13 +78,21 @@ def write_sql(startorder, trips_tups, stops_tups, routes_tups, stop_times_tups, 
             stop_id = stop_row[stops_header["stop_id"]]
             stops_to_lat_lon[stop_id] = (lat, lon)
 
-        # a list of lat, lon pairs
-        paths = []
-        for trip_id in trip_ids:
+        longest_sequences = {}
+        for trip_id in trip_ids: 
             stop_times_rows = [stop_times_row for stop_times_row in all_stop_times_rows
                                if stop_times_row[stop_times_header["trip_id"]] == trip_id]
             stop_times_rows = sorted(stop_times_rows, key=lambda stop_times_row: stop_times_row[stop_times_header["stop_sequence"]])
-            paths.append([stops_to_lat_lon[stop_times_row[stop_times_header["stop_id"]]] for stop_times_row in stop_times_rows])
+            endpoints = (stop_times_rows[0][stop_times_header["stop_id"]], stop_times_rows[-1][stop_times_header["stop_id"]])
+            if endpoints not in longest_sequences or len(longest_sequences[endpoints]) < len(stop_times_rows):
+                longest_sequences[endpoints] = [row[stop_times_header["stop_id"]] for row in stop_times_rows]
+
+
+        # a list of lat, lon pairs
+        paths = []
+        for endpoints, sequence in longest_sequences.items():
+            stops_path = [stops_to_lat_lon[stop] for stop in sequence]
+            paths.append(stops_path)
 
         pathblob = schema.Box(paths).get_blob_string()
 
