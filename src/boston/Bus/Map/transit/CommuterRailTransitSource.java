@@ -9,6 +9,7 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import javax.xml.parsers.ParserConfigurationException;
@@ -54,24 +55,39 @@ import boston.Bus.Map.util.LogUtil;
 import boston.Bus.Map.util.SearchHelper;
 
 public class CommuterRailTransitSource implements TransitSource {
-	public static final String stopTagPrefix = "CRK-";
-	private static final String predictionsUrlSuffix = ".csv";
-	public static final String routeTagPrefix = "CR-";
-	private static final String dataUrlPrefix = "http://developer.mbta.com/lib/RTCR/RailLine_";
-	
 	private final TransitDrawables drawables;
 	private final TransitSourceTitles routeTitles;
 	private final TransitSystem transitSystem;
 	
 	public static final int COLOR = 0x940088;
 	
-	public CommuterRailTransitSource(TransitDrawables drawables, 
+	private final ImmutableMap<String, String> routesToUrls;
+	
+	public CommuterRailTransitSource(TransitDrawables drawables,
 			TransitSourceTitles routeTitles,
 			TransitSystem transitSystem)
 	{
 		this.drawables = drawables;
 		this.routeTitles = routeTitles;
 		this.transitSystem = transitSystem;
+		
+		final String predictionsUrlSuffix = ".json";
+		final String dataUrlPrefix = "http://developer.mbta.com/lib/RTCR/RailLine_";
+		
+		ImmutableMap.Builder<String, String> urlBuilder = ImmutableMap.builder();
+		urlBuilder.put("CR-Greenbush", dataUrlPrefix + 1 + predictionsUrlSuffix);
+		urlBuilder.put("CR-Kingston", dataUrlPrefix + 2 + predictionsUrlSuffix);
+		urlBuilder.put("CR-Middleborough", dataUrlPrefix + 3 + predictionsUrlSuffix);
+		urlBuilder.put("CR-Fairmount", dataUrlPrefix + 4 + predictionsUrlSuffix);
+		urlBuilder.put("CR-Providence", dataUrlPrefix + 5 + predictionsUrlSuffix);
+		urlBuilder.put("CR-Franklin", dataUrlPrefix + 6 + predictionsUrlSuffix);
+		urlBuilder.put("CR-Needham", dataUrlPrefix + 7 + predictionsUrlSuffix);
+		urlBuilder.put("CR-Worcester", dataUrlPrefix + 8 + predictionsUrlSuffix);
+		urlBuilder.put("CR-Fitchburg", dataUrlPrefix + 9 + predictionsUrlSuffix);
+		urlBuilder.put("CR-Lowell", dataUrlPrefix + 10 + predictionsUrlSuffix);
+		urlBuilder.put("CR-Haverhill", dataUrlPrefix + 11 + predictionsUrlSuffix);
+		urlBuilder.put("CR-Newburyport", dataUrlPrefix + 12 + predictionsUrlSuffix);
+		routesToUrls = urlBuilder.build();
 	}
 
 	@Override
@@ -162,8 +178,8 @@ public class CommuterRailTransitSource implements TransitSource {
 			//we know we're updating only one route
 			if (isCommuterRail(routeName))
 			{
-				String index = routeName.substring(routeTagPrefix.length()); //snip off beginning "CR-"
-				String url = dataUrlPrefix + index + predictionsUrlSuffix;
+				
+				String url = routesToUrls.get(routeName);
 				
 				outputData.add(new RefreshData(url, routeName));
 				return;
@@ -185,8 +201,7 @@ public class CommuterRailTransitSource implements TransitSource {
 						{
 							if (isCommuterRail(route) && containsRoute(route, outputData) == false)
 							{
-								String index = route.substring(routeTagPrefix.length());
-								String url = dataUrlPrefix + index + predictionsUrlSuffix;
+								String url = routesToUrls.get(route);
 								outputData.add(new RefreshData(url, route));
 							}
 						}
@@ -199,8 +214,7 @@ public class CommuterRailTransitSource implements TransitSource {
 
 						if (isCommuterRail(route) && containsRoute(route, outputData) == false)
 						{
-							String index = route.substring(3);
-							String url = dataUrlPrefix + index + predictionsUrlSuffix;
+							String url = routesToUrls.get(route);
 							outputData.add(new RefreshData(url, route));
 						}
 					}
@@ -209,13 +223,12 @@ public class CommuterRailTransitSource implements TransitSource {
 			else
 			{
 				//add all 12 of them
-				
-				for (int i = 1; i <= 12; i++)
+
+				for (String route : routesToUrls.keySet())
 				{
-					String url = dataUrlPrefix + i + predictionsUrlSuffix;
-					String routeKey = routeTagPrefix + i;
+					String url = routesToUrls.get(route);
 					
-					outputData.add(new RefreshData(url, routeKey));
+					outputData.add(new RefreshData(url, route));
 				}
 			}
 		}
