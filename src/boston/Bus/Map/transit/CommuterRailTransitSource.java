@@ -47,7 +47,6 @@ import boston.Bus.Map.main.Main;
 import boston.Bus.Map.main.UpdateAsyncTask;
 import boston.Bus.Map.parser.AlertParser;
 import boston.Bus.Map.parser.CommuterRailPredictionsFeedParser;
-import boston.Bus.Map.parser.CommuterRailRouteConfigParser;
 import boston.Bus.Map.ui.ProgressMessage;
 import boston.Bus.Map.util.DownloadHelper;
 import boston.Bus.Map.util.LogUtil;
