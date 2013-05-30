@@ -8,7 +8,6 @@ import org.xml.sax.SAXException;
 
 import com.google.common.collect.ImmutableMap;
 
-import boston.Bus.Map.data.AlertsMapping;
 import boston.Bus.Map.data.RouteConfig;
 import boston.Bus.Map.data.RouteTitles;
 import boston.Bus.Map.data.TransitDrawables;
@@ -43,30 +42,4 @@ public class BusTransitSource extends NextBusTransitSource {
 		
 		return super.searchForRoute(indexingQuery, lowercaseQuery);
 	}
-
-	@Override
-	protected void parseAlert(RouteConfig routeConfig, AlertsMapping alertKeys) throws ClientProtocolException, IOException, SAXException {
-
-		String routeName = routeConfig.getRouteName();
-		if (alertKeys.hasRoute(routeName) == false)
-		{
-			//can't do anything here
-			return;
-		}
-		
-		String alertUrl = alertKeys.getUrlForRoute(routeName);
-		DownloadHelper downloadHelper = new DownloadHelper(alertUrl);
-		downloadHelper.connect();
-
-		InputStream stream = downloadHelper.getResponseData();
-		InputStreamReader data = new InputStreamReader(stream);
-
-		AlertParser parser = new AlertParser();
-		parser.runParse(data);
-		routeConfig.setAlerts(parser.getAlerts());
-		data.close();
-
-		
-	}
-
 }

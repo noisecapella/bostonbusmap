@@ -1,5 +1,8 @@
 package boston.Bus.Map.data;
 
+import com.google.common.collect.ImmutableCollection;
+import com.google.common.collect.ImmutableList;
+
 public abstract class StopPredictionView extends PredictionView {
 	public abstract String[] getTitles();
 
@@ -41,8 +44,8 @@ public abstract class StopPredictionView extends PredictionView {
 		}
 
 		@Override
-		public Alert[] getAlerts() {
-			return nullAlerts;
+		public ImmutableCollection<Alert> getAlerts() {
+			return ImmutableList.of();
 		}
 	};
 

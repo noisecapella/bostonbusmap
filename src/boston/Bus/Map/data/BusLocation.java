@@ -3,6 +3,7 @@ package boston.Bus.Map.data;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.google.common.collect.ImmutableCollection;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
@@ -87,7 +88,7 @@ public class BusLocation implements Location {
 
 	private SimplePredictionView predictionView = SimplePredictionView.empty();
 	
-	private Alert[] snippetAlerts = new Alert[0];
+	private ImmutableCollection<Alert> snippetAlerts = ImmutableList.of();
 	
 	private static final int LOCATIONTYPE = 1;
 	public static final int NO_HEADING = -1;
@@ -223,14 +224,9 @@ public class BusLocation implements Location {
 			RouteTitles routeKeysToTitles, Locations locations, Context context) {
 		String snippet = makeSnippet(routeConfig);
 		String snippetTitle = makeTitle();
-		if (routeConfig.getRouteName().equals(routeName))
-		{
-			snippetAlerts = routeConfig.getAlerts().toArray(new Alert[0]);
-		}
-		else
-		{
-			snippetAlerts = new Alert[0];
-		}
+		TransitSystem transitSystem = locations.getTransitSystem();
+		Alerts alerts = transitSystem.getAlerts();
+		snippetAlerts = alerts.getAlertsByRoute(routeName);
 		
 		predictionView = new SimplePredictionView(snippet, snippetTitle, snippetAlerts);
 	}
