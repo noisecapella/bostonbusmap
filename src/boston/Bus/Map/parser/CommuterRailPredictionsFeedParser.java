@@ -126,6 +126,7 @@ public class CommuterRailPredictionsFeedParser
 			String trip = message.get("Trip").getAsString();
 			String timestampString = message.get("TimeStamp").getAsString();
 			long timestamp = Long.parseLong(timestampString);
+			long timestampMillis = timestamp * 1000;
 
 			String latenessString = message.get("Lateness").getAsString();
 			int lateness;
@@ -146,7 +147,7 @@ public class CommuterRailPredictionsFeedParser
 					float lon = QuickParseUtil.parseFloat(longitudeString);
 
 					CommuterTrainLocation location = new CommuterTrainLocation(lat,
-							lon, trip, timestamp, timestamp,
+							lon, trip, timestampMillis, timestampMillis,
 							headingString, true, dirTag, routeName, directions,
 							routeTitle);
 					busMapping.put(trip, location);
