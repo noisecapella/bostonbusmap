@@ -184,7 +184,7 @@ public abstract class NextBusTransitSource implements TransitSource
 				for (String id : busMapping.keySet())
 				{
 					BusLocation busLocation = busMapping.get(id);
-					if (busLocation.getLastUpdateInMillis() + 180000 < TransitSystem.currentTimeMillis())
+					if (busLocation.getLastUpdateInMillis() + 180000 < System.currentTimeMillis())
 					{
 						//put this old dog to sleep
 						busesToBeDeleted.add(id);

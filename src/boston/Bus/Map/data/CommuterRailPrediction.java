@@ -109,7 +109,7 @@ lateness. Used at the trip’s origin.
 
 			DateFormat dateFormat = TransitSystem.getDefaultTimeFormat();
 
-			Date scheduledArrival = new Date(arrivalTimeMillis - TransitSystem.getTimeZone().getOffset(arrivalTimeMillis));
+			Date scheduledArrival = new Date(arrivalTimeMillis);
 
 			if (dateFormat != null)
 			{

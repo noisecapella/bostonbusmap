@@ -128,15 +128,11 @@ public class CommuterRailPredictionsFeedParser
 
 				String timeStr = getItem("Scheduled", array);
 				long scheduledArrivalEpochTime = Long.parseLong(timeStr) * 1000;
-				int offset = TransitSystem.getTimeZone().getOffset(scheduledArrivalEpochTime);
-				scheduledArrivalEpochTime += offset;
 
 				String nowStr = getItem("TimeStamp", array);
 				long nowEpochTime = Long.parseLong(nowStr) * 1000;
-				int nowOffset = TransitSystem.getTimeZone().getOffset(nowEpochTime);
-				nowEpochTime += nowOffset;
 				
-				long currentMillis = TransitSystem.currentTimeMillis();
+				long currentMillis = System.currentTimeMillis();
 				long diff = scheduledArrivalEpochTime - currentMillis;
 				int minutes = (int)(diff / 1000 / 60);
 

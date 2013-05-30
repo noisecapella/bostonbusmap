@@ -137,9 +137,6 @@ public class HeavyRailPredictionsFeedParser {
 				int heading = position.get("Heading").getAsInt();
 				
 				long nowEpochTime = positionTimestamp * 1000;
-				int nowOffset = TransitSystem.getTimeZone().getOffset(nowEpochTime);
-				nowEpochTime += nowOffset;
-				vehicleUpdateTime += nowOffset;
 				BusLocation vehicleLocation = new SubwayTrainLocation(lat, lon,
 						vehicleId, nowEpochTime, vehicleUpdateTime,
 						Integer.valueOf(heading).toString(), true, dirTag, 
