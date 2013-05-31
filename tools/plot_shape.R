@@ -17,7 +17,11 @@ main <- function() {
 
   print(sprintf("All trips: %d", length(unlist(trips$trip_id))))
   trips.by.route <- trips[trips$route_id == args$route,c('trip_id', 'shape_id')]
-  print(sprintf("Trips: %d", length(unlist(trips.by.route$trip_id))))
+  trip.length <- length(unlist(trips.by.route$trip_id))
+  print(sprintf("Trips: %d", trip.length))
+  if (trip.length == 0) {
+    stop("No trips found. Maybe try adding a '0' before the route if it's a single digit?")
+  }
   shapes.by.trip <- merge(trips.by.route, shapes, by="shape_id")
   print(sprintf("Shapes: %d", length(unlist(shapes.by.trip$shape_id))))
 
