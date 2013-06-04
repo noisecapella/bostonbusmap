@@ -12,29 +12,14 @@ import os.path
 import schema
 import itertools
 from collections import defaultdict
+from gtfs_map import GtfsMap
 
-def make_index_map(array):
-    ret = {}
-    for i, item in enumerate(array):
-        ret[item] = i
-    return ret
-
-
-def read_rows(path):
-    ret = {}
-
-    with open(path) as f:
-        reader = csv.reader(f)
-
-        header = make_index_map(next(reader))
-        return header, [row for row in reader]
-
-def write_sql(startorder, route, trips_tups, stops_tups, routes_tups, stop_times_tups, shapes_tups):
-    trips_header, trips = trips_tups
-    stops_header, stops = stops_tups
-    routes_header, routes = routes_tups
-    stop_times_header, stop_times = stop_times_tups
-    shapes_header, shapes = shapes_tups
+def write_sql(startorder, route, gtfs_map):
+    trips_header, trips = gtfs_map.trips_header, gtfs_map.trips
+    stops_header, stops = gtfs_map.stops_header, gtfs_map.stops
+    routes_header, routes = gtfs_map.routes_header, gtfs_map.routes
+    stop_times_header, stop_times = gtfs_map.stop_times_header, gtfs_map.stop_times
+    shapes_header, shapes = gtfs_map.shapes_header, gtfs_map.shapes
     
 
     supported_route_description = route + " Line"
@@ -111,24 +96,11 @@ def main():
     count = 0
     startorder = args.order
 
-    trip_path = os.path.join(args.gtfs_path, "trips.txt")
-    trips = read_rows(trip_path)
-
-    stop_path = os.path.join(args.gtfs_path, "stops.txt")
-    stops = read_rows(stop_path)
-
-    route_path = os.path.join(args.gtfs_path, "routes.txt")
-    routes = read_rows(route_path)
-
-    stop_times_path = os.path.join(args.gtfs_path, "stop_times.txt")
-    stop_times = read_rows(stop_times_path)
-
-    shapes_path = os.path.join(args.gtfs_path, "shapes.txt")
-    shapes = read_rows(shapes_path)
+    gtfs_map = GtfsMap(args.gtfs_path)
 
     for route in ["Red", "Orange", "Blue"]:
 
-        write_sql(startorder + count, route, trips, stops, routes, stop_times, shapes)
+        write_sql(startorder + count, route, gtfs_map)
         count += 1
     print("END TRANSACTION;")
 
