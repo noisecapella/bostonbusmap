@@ -1,22 +1,16 @@
-library(argparse)
 library(plyr)
-library(maps)
+library(ggmap)
 library(mapproj)
 
-plot.shape <- function() {
-  parser <- ArgumentParser()
-  parser$add_argument("gtfs.dir")
-  parser$add_argument("route")
-  args <- parser$parse_args()
-
-  shapes.file <- file.path(args$gtfs.dir, "shapes.txt")
-  trips.file <- file.path(args$gtfs.dir, "trips.txt")
+plot.shape <- function(gtfs.dir, route) {
+  shapes.file <- file.path(gtfs.dir, "shapes.txt")
+  trips.file <- file.path(gtfs.dir, "trips.txt")
 
   shapes <- read.csv(shapes.file, header=TRUE)
   trips <- read.csv(trips.file, header=TRUE)
 
   print(sprintf("All trips: %d", length(unlist(trips$trip_id))))
-  trips.by.route <- trips[trips$route_id == args$route,c('trip_id', 'shape_id')]
+  trips.by.route <- trips[trips$route_id == route,c('trip_id', 'shape_id')]
   trip.length <- length(unlist(trips.by.route$trip_id))
   print(sprintf("Trips: %d", trip.length))
   if (trip.length == 0) {
@@ -36,30 +30,23 @@ graph.shape <- function(shapes.by.trip) {
   if (is.null(shape.ids)) {
     stop("shape.ids is null")
   }
-  all.lat <- shapes.by.trip$shape_pt_lat
-  all.lon <- shapes.by.trip$shape_pt_lon
-
-  png("out.png", width=6000, height=6000)
-  ylim <- range(all.lat)
-  xlim <- range(all.lon)
-
-  map('county', col='grey', fill=TRUE, proj="gilbert", orientation=c(90, 0, 225), xlim=xlim, ylim=ylim)
-
-  title('shapes')
   if (length(shape.ids) < 1) {
     stop("No shape to plot")
   }
-  draw.line <- function(shape.id) {
-    shapes <- shapes.by.trip[shapes.by.trip$shape_id == shape.id, ]
-    
-    shape.lon <- shapes$shape_pt_lon
-    shape.lat <- shapes$shape_pt_lat
-    
-    coord <- mapproject(shape.lon, shape.lat, proj="gilbert", orientation=c(90, 0, 225))
-    lines(coord, col="red", xlim=xlim, ylim=ylim)
-  }
+  all.lat <- shapes.by.trip$shape_pt_lat
+  all.lon <- shapes.by.trip$shape_pt_lon
 
-  lapply(shape.ids, draw.line)
+  ylim <- range(all.lat)
+  xlim <- range(all.lon)
+
+  #map('county', col='grey', fill=TRUE, proj="gilbert", orientation=c(90, 0, 225), xlim=xlim, ylim=ylim)
+  box <- c(xlim[1], ylim[1], xlim[2], ylim[2])
+  map <- get_map(location=box)
+  ggmap(map) + geom_path(aes(y=shape_pt_lat, x=shape_pt_lon, group=shape_id),
+                         data=shapes.by.trip, colour="red", size=1)
+
+  ggsave(file="out.png")
+
   return()
   # group shapes by shape_id so you have a bunch of rows shape_id, lat, lon
   # plot lines on maps

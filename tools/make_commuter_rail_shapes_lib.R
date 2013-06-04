@@ -1,13 +1,8 @@
 library(hash)
-library(argparse)
 library(rjson)
 
-calculate.shapes <- function() {
-  parser <- ArgumentParser()
-  parser$add_argument("cr.dir")
-  args <- parser$parse_args()
-
-  cr.files <- dir(args$cr.dir, pattern="^RailLine")
+calculate.shapes <- function(cr.dir) {
+  cr.files <- dir(cr.dir, pattern="^RailLine")
   cr.paths <- mapply(function(file) { file.path(args$cr.dir, file) },
                      cr.files)
   cr.details <- file.info(cr.paths)
@@ -51,10 +46,3 @@ calculate.shapes <- function() {
   return(h)
 }
 
-main <- function() {
-  shapes <- calculate.shapes()
-  json.data <- toJSON(as.list(shapes))
-  write(json.data, file="shapes_out.json")
-}
-
-main()

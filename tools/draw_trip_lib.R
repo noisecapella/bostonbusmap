@@ -1,22 +1,15 @@
-library(argparse)
 library(rjson)
 library(hash)
 library(plyr)
 source('plot_shape_lib.R')
 
-draw.trip <- function() {
-  parser <- ArgumentParser()
-  parser$add_argument("shapes.json")
-  parser$add_argument("gtfs.dir")
-  parser$add_argument("route")
-  args <- parser$parse_args()
+draw.trip <- function(shapes.json, gtfs.dir, route) {
+  shapes <- hash(fromJSON(file=shapes.json))
 
-  shapes <- hash(fromJSON(file=args$shapes.json))
-
-  trips.file <- file.path(args$gtfs.dir, "trips.txt")
+  trips.file <- file.path(gtfs.dir, "trips.txt")
 
   trips <- read.csv(trips.file, header=TRUE)
-  trip.ids.for.route <- as.vector(trips[trips$route_id == args$route,c('trip_id')])
+  trip.ids.for.route <- as.vector(trips[trips$route_id == route,c('trip_id')])
 #  trip.ids.for.route <- trip.ids.for.route[[2]]
   
   each.trip <- function(trip.id) {
