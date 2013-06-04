@@ -17,6 +17,7 @@ draw.trip <- function() {
 
   trips <- read.csv(trips.file, header=TRUE)
   trip.ids.for.route <- as.vector(trips[trips$route_id == args$route,c('trip_id')])
+#  trip.ids.for.route <- trip.ids.for.route[[2]]
   
   each.trip <- function(trip.id) {
     trip.tag <- tail(strsplit(trip.id, "-")[[1]], 1)

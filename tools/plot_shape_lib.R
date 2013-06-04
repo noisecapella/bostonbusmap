@@ -22,7 +22,10 @@ plot.shape <- function() {
   if (trip.length == 0) {
     stop("No trips found. Maybe try adding a '0' before the route if it's a single digit?")
   }
-  shapes.by.trip <- merge(trips.by.route, shapes, by="shape_id")
+#  shapes.by.trip <- merge(trips.by.route, shapes, by="shape_id")
+  trip.shapes <- unique(unlist(trips.by.route[,c('shape_id')]))
+  shapes.by.trip <- shapes[shapes$shape_id %in% trip.shapes, ]
+
   print(sprintf("Shapes: %d", length(unlist(shapes.by.trip$shape_id))))
 
   graph.shape(shapes.by.trip)
@@ -36,7 +39,7 @@ graph.shape <- function(shapes.by.trip) {
   all.lat <- shapes.by.trip$shape_pt_lat
   all.lon <- shapes.by.trip$shape_pt_lon
 
-  png("out.png")
+  png("out.png", width=6000, height=6000)
   ylim <- range(all.lat)
   xlim <- range(all.lon)
 
@@ -47,14 +50,13 @@ graph.shape <- function(shapes.by.trip) {
     stop("No shape to plot")
   }
   draw.line <- function(shape.id) {
-    shapes <- shapes.by.trip[shapes.by.trip$shape_id == shape.id,]
+    shapes <- shapes.by.trip[shapes.by.trip$shape_id == shape.id, ]
     
     shape.lon <- shapes$shape_pt_lon
     shape.lat <- shapes$shape_pt_lat
     
     coord <- mapproject(shape.lon, shape.lat, proj="gilbert", orientation=c(90, 0, 225))
     lines(coord, col="red", xlim=xlim, ylim=ylim)
-    
   }
 
   lapply(shape.ids, draw.line)
