@@ -25,6 +25,20 @@ plot.shape <- function(gtfs.dir, route) {
   graph.shape(shapes.by.trip)
 }
 
+widen.box <- function(box, factor=5) {
+  diff.lon <- box[['right']] - box[['left']]
+  diff.lat <- box[['top']] - box[['bottom']]
+  margin.lon <- diff.lon * factor
+  margin.lat <- diff.lat * factor
+  print(margin.lon)
+  print(margin.lat)
+  return(c(left=(box[['left']] - margin.lon/2),
+           top=(box[['top']] + margin.lat/2),
+           right=(box[['right']] + margin.lon/2),
+           bottom=(box[['bottom']] - margin.lat/2)))
+  
+}
+
 graph.shape <- function(shapes.by.trip) {
   shape.ids <- unique(unlist(shapes.by.trip$shape_id))
   if (is.null(shape.ids)) {
@@ -40,7 +54,9 @@ graph.shape <- function(shapes.by.trip) {
   xlim <- range(all.lon)
 
   #map('county', col='grey', fill=TRUE, proj="gilbert", orientation=c(90, 0, 225), xlim=xlim, ylim=ylim)
-  box <- c(xlim[1], ylim[1], xlim[2], ylim[2])
+  box <- c(left=xlim[1], top=ylim[2], right=xlim[2], bottom=ylim[1])
+  box <- widen.box(box)
+  print(box)
   map <- get_map(location=box)
   ggmap(map) + geom_path(aes(y=shape_pt_lat, x=shape_pt_lon, group=shape_id),
                          data=shapes.by.trip, colour="red", size=1)
