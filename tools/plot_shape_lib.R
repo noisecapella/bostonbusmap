@@ -25,7 +25,7 @@ plot.shape <- function(gtfs.dir, route) {
   graph.shape(shapes.by.trip)
 }
 
-widen.box <- function(box, factor=5) {
+widen.box <- function(box, factor=1.5) {
   diff.lon <- box[['right']] - box[['left']]
   diff.lat <- box[['top']] - box[['bottom']]
   margin.lon <- diff.lon * factor
@@ -59,7 +59,7 @@ graph.shape <- function(shapes.by.trip) {
   print(box)
   map <- get_map(location=box)
   ggmap(map) + geom_path(aes(y=shape_pt_lat, x=shape_pt_lon, group=shape_id),
-                         data=shapes.by.trip, colour="red", size=1)
+                         data=shapes.by.trip, colour="red")
 
   ggsave(file="out.png")
 

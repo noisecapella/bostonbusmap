@@ -7,12 +7,6 @@ from gtfs_map import GtfsMap
 
 purple = 0x940088
 
-def make_index_map(array):
-    ret = {}
-    for i, item in enumerate(array):
-        ret[item] = i
-    return ret
-
 
 def createDirectionHash(a, b):
     return a + "|" + b

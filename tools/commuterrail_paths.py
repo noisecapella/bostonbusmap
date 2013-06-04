@@ -40,7 +40,7 @@ def calculate_path(route, gtfs_map):
     for endpoints, sequence in longest_sequences.items():
         stops_path = [stops_to_lat_lon[stop] for stop in sequence]
         paths.append(stops_path)
-
+    return paths
 
 def main():
     parser = argparse.ArgumentParser(description='Write CSV of paths')
@@ -58,7 +58,7 @@ def main():
     print "id,lat,lon"
     for i, path in enumerate(paths):
         for lat, lon in path:
-            print "%f,%f,%f" % (i, lat, lon)
+            print "%d,%f,%f" % (i, lat, lon)
 
 if __name__ == "__main__":
     main()
