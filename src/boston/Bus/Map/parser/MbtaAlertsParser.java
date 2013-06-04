@@ -15,11 +15,17 @@ import com.google.transit.realtime.GtfsRealtime.TranslatedString.Translation;
 
 import boston.Bus.Map.data.Alert;
 import boston.Bus.Map.data.Alerts;
+import boston.Bus.Map.data.RouteTitles;
 import boston.Bus.Map.transit.TransitSystem;
 import boston.Bus.Map.util.DownloadHelper;
 
 public class MbtaAlertsParser {
-
+	private final RouteTitles routeTitles;
+	
+	public MbtaAlertsParser(RouteTitles routeTitles) {
+		this.routeTitles = routeTitles;
+	}
+	
 	public Alerts obtainAlerts() throws IOException {
 		Alerts.Builder builder = Alerts.builder();
 		
@@ -72,7 +78,8 @@ public class MbtaAlertsParser {
 				builder.addSystemWideAlert(systemWideAlert);
 			}
 			for (String route : routes) {
-				Alert routeAlert = new Alert(now, "Route " + route, description, "");
+				String routeTitle = routeTitles.getTitle(route);
+				Alert routeAlert = new Alert(now, "Route " + routeTitle, description, "");
 				builder.addAlertForRoute(route, routeAlert);
 			}
 			for (String stop : stops) {
