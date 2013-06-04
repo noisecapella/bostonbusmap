@@ -1,11 +1,9 @@
 import schema
-import sys
-import xml.sax.handler
-import xml.sax
-import routetitleshandler
 import argparse
 import os
-import csv
+
+from commuterrail_paths import calculate_path
+from gtfs_map import GtfsMap
 
 purple = 0x940088
 
@@ -15,24 +13,16 @@ def make_index_map(array):
         ret[item] = i
     return ret
 
-def read_rows(path):
-    ret = {}
-
-    with open(path) as f:
-        reader = csv.reader(f)
-
-        header = make_index_map(next(reader))
-        return header, [row for row in reader]
 
 def createDirectionHash(a, b):
     return a + "|" + b
 
-def write_sql(startorder, trips_tups, stops_tups, routes_tups, stop_times_tups, shapes_tups):
-    trips_header, trips = trips_tups
-    stops_header, stops = stops_tups
-    routes_header, routes = routes_tups
-    stop_times_header, stop_times = stop_times_tups
-    shapes_header, shapes = shapes_tups
+def write_sql(startorder, gtfs_map):
+    trips_header, trips = gtfs_map.trips_header, gtfs_map.trips
+    stops_header, stops = gtfs_map.stops_header, gtfs_map.stops
+    routes_header, routes = gtfs_map.routes_header, gtfs_map.routes
+    stop_times_header, stop_times = gtfs_map.stop_times_header, gtfs_map.stop_times
+    shapes_header, shapes = gtfs_map.shapes_header, gtfs_map.shapes
 
     # this is a workaround
     route_order = {
@@ -71,28 +61,8 @@ def write_sql(startorder, trips_tups, stops_tups, routes_tups, stop_times_tups, 
         all_stop_times_ids = set([stop_times_row[stop_times_header["stop_id"]] for stop_times_row in all_stop_times_rows])
         stop_rows = [stop_row for stop_row in stops
                      if stop_row[stops_header["stop_id"]] in all_stop_times_ids]
-        stops_to_lat_lon = {}
-        for stop_row in stop_rows:
-            lat = float(stop_row[stops_header["stop_lat"]])
-            lon = float(stop_row[stops_header["stop_lon"]])
-            stop_id = stop_row[stops_header["stop_id"]]
-            stops_to_lat_lon[stop_id] = (lat, lon)
 
-        longest_sequences = {}
-        for trip_id in trip_ids: 
-            stop_times_rows = [stop_times_row for stop_times_row in all_stop_times_rows
-                               if stop_times_row[stop_times_header["trip_id"]] == trip_id]
-            stop_times_rows = sorted(stop_times_rows, key=lambda stop_times_row: stop_times_row[stop_times_header["stop_sequence"]])
-            endpoints = (stop_times_rows[0][stop_times_header["stop_id"]], stop_times_rows[-1][stop_times_header["stop_id"]])
-            if endpoints not in longest_sequences or len(longest_sequences[endpoints]) < len(stop_times_rows):
-                longest_sequences[endpoints] = [row[stop_times_header["stop_id"]] for row in stop_times_rows]
-
-
-        # a list of lat, lon pairs
-        paths = []
-        for endpoints, sequence in longest_sequences.items():
-            stops_path = [stops_to_lat_lon[stop] for stop in sequence]
-            paths.append(stops_path)
+        paths = calculate_path(trip_ids, gtfs_map)
 
         pathblob = schema.Box(paths).get_blob_string()
 
@@ -141,25 +111,10 @@ def main():
         
     print("BEGIN TRANSACTION;")
     startorder = args.order
-    
-    trip_path = os.path.join(args.gtfs_path, "trips.txt")
-    trips = read_rows(trip_path)
 
-    stop_path = os.path.join(args.gtfs_path, "stops.txt")
-    stops = read_rows(stop_path)
+    gtfs_map = GtfsMap(args.gtfs_path)
 
-    route_path = os.path.join(args.gtfs_path, "routes.txt")
-    routes = read_rows(route_path)
-
-    stop_times_path = os.path.join(args.gtfs_path, "stop_times.txt")
-    stop_times = read_rows(stop_times_path)
-
-    shapes_path = os.path.join(args.gtfs_path, "shapes.txt")
-    shapes = read_rows(shapes_path)
-
-
-
-    write_sql(startorder, trips, stops, routes, stop_times, shapes)
+    write_sql(startorder, gtfs_map)
     print("END TRANSACTION;")
 
 if __name__ == "__main__":
