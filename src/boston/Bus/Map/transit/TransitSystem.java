@@ -5,6 +5,7 @@ import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.TimeZone;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -278,7 +279,6 @@ public class TransitSystem implements ITransitSystem {
 				return source;
 			}
 		}
-		return null;
+		return defaultTransitSource;
 	}
-
 }
