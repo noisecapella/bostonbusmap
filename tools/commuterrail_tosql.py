@@ -56,7 +56,7 @@ def write_sql(startorder, gtfs_map):
         stop_rows = [stop_row for stop_row in stops
                      if stop_row[stops_header["stop_id"]] in all_stop_times_ids]
 
-        paths = calculate_path(trip_ids, gtfs_map)
+        paths = calculate_path(route_id, gtfs_map)
 
         pathblob = schema.Box(paths).get_blob_string()
 
