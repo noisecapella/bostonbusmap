@@ -53,7 +53,8 @@ def calculate_path(route, gtfs_map):
             for missing_tup in tup_set:
                 if missing_tup in sequence_map:
                     if next_tup in sequence_map[missing_tup]:
-                        if abs(prev_tup[1] - next_tup[1]) == 2:
+                        #if abs(prev_tup[1] - next_tup[1]) == 2:
+                        if True:
                             #print "Connection: %s %s %s" % (prev_tup, missing_tup, next_tup)
                             return missing_tup
 
