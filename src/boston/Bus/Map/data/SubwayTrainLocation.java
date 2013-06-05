@@ -1,5 +1,7 @@
 package boston.Bus.Map.data;
 
+import com.google.common.collect.ImmutableCollection;
+
 import boston.Bus.Map.database.Schema;
 import android.graphics.drawable.Drawable;
 

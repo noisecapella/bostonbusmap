@@ -159,7 +159,7 @@ public class StopLocation implements Location
 		TransitSystem transitSystem = locations.getTransitSystem();
 		Alerts alertsObj = transitSystem.getAlerts();
 		ImmutableCollection<Alert> alerts = alertsObj.getAlertsByRouteSetAndStop(
-				routes, tag, getTransitSourceType());
+				routes.getRoutes(), tag, getTransitSourceType());
 		
 		predictions.makeSnippetAndTitle(routeConfig, routeKeysToTitles, context, routes, this, alerts, locations);
 	}
@@ -174,11 +174,15 @@ public class StopLocation implements Location
 		}
 		
 		StopLocation stopLocation = (StopLocation)location;
+		TransitSystem transitSystem = locations.getTransitSystem();
+		Alerts alertsObj = transitSystem.getAlerts();
 		
-		// TODO: support mixing multiple alerts
-		ImmutableSet<Alert> alerts = ImmutableSet.of();
+		ImmutableCollection<Alert> newAlerts = alertsObj.getAlertsByRouteSetAndStop(
+				stopLocation.getRoutes(), stopLocation.getStopTag(), 
+				stopLocation.getTransitSourceType());
 		
-		predictions.addToSnippetAndTitle(routeConfig, stopLocation, routeKeysToTitles, context, stopLocation.routes, alerts, locations);
+		predictions.addToSnippetAndTitle(routeConfig, stopLocation,
+				routeKeysToTitles, context, stopLocation.routes, newAlerts, locations);
 	}
 	
 	public String getStopTag()
