@@ -1,14 +1,24 @@
 package boston.Bus.Map.data;
 
+import com.google.common.collect.ImmutableCollection;
+import com.google.common.collect.ImmutableList;
+
 public class SimplePredictionView extends PredictionView {
 	private final String snippet;
 	private final String snippetTitle;
-	private final Alert[] alerts;
+	private final ImmutableCollection<Alert> alerts;
 	
-	public SimplePredictionView(String snippet, String snippetTitle, Alert[] alerts) {
+	private static final SimplePredictionView EMPTY;
+	
+	public SimplePredictionView(String snippet, String snippetTitle, ImmutableCollection<Alert> alerts) {
 		this.snippet = snippet;
 		this.snippetTitle = snippetTitle;
 		this.alerts = alerts;
+	}
+	
+	static {
+		ImmutableCollection<Alert> nullAlerts = ImmutableList.of();
+		EMPTY = new SimplePredictionView("", "", nullAlerts);
 	}
 	
 	@Override
@@ -22,12 +32,10 @@ public class SimplePredictionView extends PredictionView {
 	}
 
 	@Override
-	public Alert[] getAlerts() {
+	public ImmutableCollection<Alert> getAlerts() {
 		return alerts;
 	}
 
-	private static final SimplePredictionView EMPTY = new SimplePredictionView("", "", new Alert[0]); 
-	
 	public static SimplePredictionView empty() {
 		return EMPTY;
 	}

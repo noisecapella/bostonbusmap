@@ -12,7 +12,7 @@ import org.xml.sax.SAXException;
 
 import com.google.common.collect.Lists;
 
-import boston.Bus.Map.data.AlertsMapping;
+import boston.Bus.Map.data.Alerts;
 import boston.Bus.Map.data.BusLocation;
 import boston.Bus.Map.data.Directions;
 import boston.Bus.Map.data.Location;
@@ -25,7 +25,6 @@ import boston.Bus.Map.data.SubwayStopLocation;
 import boston.Bus.Map.data.TransitDrawables;
 import boston.Bus.Map.data.TransitSourceTitles;
 import boston.Bus.Map.database.Schema;
-import boston.Bus.Map.parser.AlertParser;
 import boston.Bus.Map.parser.HeavyRailPredictionsFeedParser;
 import boston.Bus.Map.util.DownloadHelper;
 import boston.Bus.Map.util.LogUtil;
@@ -39,10 +38,14 @@ public class HeavyRailTransitSource implements TransitSource {
 	
 	private final TransitDrawables drawables;
 	private final TransitSourceTitles routeTitles;
+	private final TransitSystem transitSystem;
 
-	public HeavyRailTransitSource(TransitDrawables drawables, TransitSourceTitles routeTitles) {
+	public HeavyRailTransitSource(TransitDrawables drawables,
+			TransitSourceTitles routeTitles,
+			TransitSystem transitSystem) {
 		this.drawables = drawables;
 		this.routeTitles = routeTitles;
+		this.transitSystem = transitSystem;
 	}
 	
 	@Override
@@ -58,7 +61,6 @@ public class HeavyRailTransitSource implements TransitSource {
 			return;
 		}
 		
-		AlertsMapping alertsMapping = locationsObj.getAlertsMapping();
 		List<RefreshData> outputData = Lists.newArrayList();
 		switch (selectedBusPredictions)
 		{
@@ -69,7 +71,7 @@ public class HeavyRailTransitSource implements TransitSource {
 			List<Location> locations = locationsObj.getLocations(maxStops, centerLatitude, centerLongitude, false, selection);
 
 			//ok, do predictions now
-			getPredictionsUrl(locations, maxStops, routeConfig.getRouteName(), outputData, selectedBusPredictions, alertsMapping);
+			getPredictionsUrl(locations, maxStops, routeConfig.getRouteName(), outputData, selectedBusPredictions);
 			break;
 		}
 		case Selection.BUS_PREDICTIONS_ALL:
@@ -78,7 +80,7 @@ public class HeavyRailTransitSource implements TransitSource {
 		{
 			List<Location> locations = locationsObj.getLocations(maxStops, centerLatitude, centerLongitude, false, selection);
 			
-			getPredictionsUrl(locations, maxStops, null, outputData, selectedBusPredictions, alertsMapping);
+			getPredictionsUrl(locations, maxStops, null, outputData, selectedBusPredictions);
 
 		}
 		break;
@@ -113,40 +115,16 @@ public class HeavyRailTransitSource implements TransitSource {
 			String route = outputRow.route;
 			RouteConfig railRouteConfig = routePool.get(route);
 
-			if (railRouteConfig.obtainedAlerts() == false)
-			{
-				try
-				{
-					String url = outputRow.alertUrl;
-					DownloadHelper downloadHelper = new DownloadHelper(url);
-					downloadHelper.connect();
-
-					InputStream stream = downloadHelper.getResponseData();
-					InputStreamReader data = new InputStreamReader(stream);
-
-					AlertParser parser = new AlertParser();
-					parser.runParse(data);
-					railRouteConfig.setAlerts(parser.getAlerts());
-					data.close();
-				}
-				catch (Exception e) {
-					// this isn't a fatal exception, ignore
-					LogUtil.e(e);
-				}
-
-			}
 		}
 		
 	}
 
 	private static class RefreshData {
 		private final String url;
-		private final String alertUrl;
 		private final String route;
 		
-		public RefreshData(String url, String alertUrl, String route) {
+		public RefreshData(String url, String route) {
 			this.url = url;
-			this.alertUrl = alertUrl;
 			this.route = route;
 		}
 	}
@@ -172,7 +150,7 @@ public class HeavyRailTransitSource implements TransitSource {
 	}
 
 	private void getPredictionsUrl(List<Location> locations, int maxStops,
-			String routeName, List<RefreshData> outputData, int mode, AlertsMapping alertsMapping)
+			String routeName, List<RefreshData> outputData, int mode)
 	{
 		//http://developer.mbta.com/lib/RTCR/RailLine_1.csv
 		
@@ -184,9 +162,8 @@ public class HeavyRailTransitSource implements TransitSource {
 			{
 				// this is kind of a hack, but it happens to work for subway routes
 				String url = dataUrlPrefix + routeName + predictionsUrlSuffix;
-				String alertUrl = alertsMapping.getUrlForRoute(routeName);
 				
-				outputData.add(new RefreshData(url, alertUrl, routeName));
+				outputData.add(new RefreshData(url, routeName));
 				return;
 			}
 		}
@@ -208,8 +185,7 @@ public class HeavyRailTransitSource implements TransitSource {
 							{
 								// this is kind of a hack, but it happens to work for subway routes
 								String url = dataUrlPrefix + route + predictionsUrlSuffix;
-								String alertUrl = alertsMapping.getUrlForRoute(route);
-								outputData.add(new RefreshData(url, alertUrl, route));
+								outputData.add(new RefreshData(url, route));
 							}
 						}
 					}
@@ -223,8 +199,7 @@ public class HeavyRailTransitSource implements TransitSource {
 						{
 							// this is kind of a hack, but it happens to work for subway routes
 							String url = dataUrlPrefix + route + predictionsUrlSuffix;
-							String alertUrl = alertsMapping.getUrlForRoute(route);
-							outputData.add(new RefreshData(url, alertUrl, route));
+							outputData.add(new RefreshData(url, route));
 						}
 					}
 				}
@@ -236,9 +211,8 @@ public class HeavyRailTransitSource implements TransitSource {
 				for (String routeKey : routeTitles.routeTags())
 				{
 					String url = dataUrlPrefix + routeKey + predictionsUrlSuffix;
-					String alertUrl = alertsMapping.getUrlForRoute(routeKey);
 					
-					outputData.add(new RefreshData(url, alertUrl, routeKey));
+					outputData.add(new RefreshData(url, routeKey));
 				}
 			}
 		}
@@ -289,4 +263,13 @@ public class HeavyRailTransitSource implements TransitSource {
 		return true;
 	}
 
+	@Override
+	public Alerts getAlerts() {
+		return transitSystem.getAlerts();
+	}
+
+	@Override
+	public String getDescription() {
+		return "Subway";
+	}
 }

@@ -1,5 +1,6 @@
 package boston.Bus.Map.data;
 
+import boston.Bus.Map.database.Schema;
 import android.graphics.drawable.Drawable;
 
 public class CommuterTrainLocation extends BusLocation {
@@ -17,11 +18,6 @@ public class CommuterTrainLocation extends BusLocation {
 	private static final String experimentalString = "<font color='red' size='1'>Commuter rail predictions are experimental</font>";
 	
 	@Override
-	protected String getBetaWarning() {
-		return experimentalString + "<br />";
-	}
-	
-	@Override
 	protected String getBusNumberMessage() {
 		return "Train number: " + busId + "<br />\n";
 	}
@@ -29,5 +25,10 @@ public class CommuterTrainLocation extends BusLocation {
 	@Override
 	public boolean isDisappearAfterRefresh() {
 		return true;
+	}
+	
+	@Override
+	public int getTransitSourceType() {
+		return Schema.Routes.enumagencyidCommuterRail;
 	}
 }

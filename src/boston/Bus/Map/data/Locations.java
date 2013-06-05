@@ -58,6 +58,7 @@ import boston.Bus.Map.data.IntersectionLocation.Builder;
 import boston.Bus.Map.main.GetDirectionsAsyncTask;
 import boston.Bus.Map.main.Main;
 import boston.Bus.Map.main.UpdateAsyncTask;
+import boston.Bus.Map.parser.MbtaAlertsParser;
 import boston.Bus.Map.transit.TransitSource;
 import boston.Bus.Map.transit.TransitSystem;
 import boston.Bus.Map.ui.ProgressMessage;
@@ -134,6 +135,13 @@ public final class Locations
 		//see if route overlays need to be downloaded
 		String routeToUpdate = selection.getRoute();
 		RouteConfig routeConfig = routeMapping.get(routeToUpdate);
+		if (transitSystem.getAlerts() == null) {
+			// there is a small chance that this might get executed twice
+			// if the code which limits refreshes didn't work properly
+			MbtaAlertsParser alertsParser = new MbtaAlertsParser(transitSystem);
+			Alerts alerts = alertsParser.obtainAlerts();
+			transitSystem.setAlerts(alerts);
+		}
 		
 		int mode = selection.getMode();
 		switch (mode)
@@ -403,10 +411,6 @@ public final class Locations
 
 	public RouteTitles getRouteTitles() {
 		return transitSystem.getRouteKeysToTitles();
-	}
-	
-	public AlertsMapping getAlertsMapping() {
-		return transitSystem.getAlertsMapping();
 	}
 	
 	public void removeIntersection(String name) {

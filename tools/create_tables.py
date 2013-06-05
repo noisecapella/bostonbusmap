@@ -7,7 +7,7 @@ def create_tables():
     for tableName in (each[0] for each in inspect.getmembers(obj)):
         if tableName[:2] != "__":
             table = getattr(obj, tableName)
-            ret += table.create() + ";"
+            ret += table.create() + ";\n"
             
             for index in table.index():
                 ret += index + ";" + "\n"

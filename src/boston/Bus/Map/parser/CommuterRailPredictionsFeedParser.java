@@ -10,12 +10,19 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+
+import skylight1.opengl.files.QuickParseUtil;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 
 import boston.Bus.Map.data.BusLocation;
 import boston.Bus.Map.data.CommuterRailPrediction;
@@ -36,12 +43,10 @@ public class CommuterRailPredictionsFeedParser
 	private final RouteConfig routeConfig;
 	private final Directions directions;
 
-	private final SimpleDateFormat format;
-	private final Map<String, Integer> indexes = Maps.newHashMap();
-
-	
 	private final ConcurrentHashMap<String, BusLocation> busMapping;
 	private final RouteTitles routeKeysToTitles;
+
+	private final Set<String> vehiclesToRemove;
 
 	public CommuterRailPredictionsFeedParser(RouteConfig routeConfig, Directions directions,
 			ConcurrentHashMap<String, BusLocation> busMapping, RouteTitles routeKeysToTitles)
@@ -51,8 +56,7 @@ public class CommuterRailPredictionsFeedParser
 		this.busMapping = busMapping;
 		this.routeKeysToTitles = routeKeysToTitles;
 
-		format = new SimpleDateFormat("M/d/y K:m:s");
-		format.setTimeZone(TransitSystem.getTimeZone());
+		vehiclesToRemove = Sets.newHashSet(busMapping.keySet());
 	}
 
 	private void clearPredictions(String route) throws IOException
@@ -75,195 +79,106 @@ public class CommuterRailPredictionsFeedParser
 			this.stopLocation = stopLocation;
 		}
 	}
-	
+
 	public void runParse(Reader data) throws IOException
 	{
-		BufferedReader reader = new BufferedReader(data, 2048);
+		BufferedReader bufferedReader = new BufferedReader(data, 2048);
 
-		String firstLine = reader.readLine();
-		if (firstLine == null)
-		{
-			//bizarre; at least that line should exist
-			return;
-		}
+		JsonElement root = new JsonParser().parse(bufferedReader);
+		List<PredictionStopLocationPair> pairs = parseTree(root.getAsJsonObject());
 		
-		String[] definitions = firstLine.split(",");
-		
-		for (int i = 0; i < definitions.length; i++)
-		{
-			indexes.put(definitions[i], i);
-		}
-		
-		//store everything here, then write out all out at once
-		List<PredictionStopLocationPair> pairs = Lists.newArrayList();
-
-		//start off with all the buses to be removed, and if they're still around remove them from toRemove
-		HashSet<String> toRemove = Sets.newHashSet();
-		for (String id : busMapping.keySet())
-		{
-			BusLocation busLocation = busMapping.get(id);
-			if (busLocation.isDisappearAfterRefresh())
-			{
-				toRemove.add(id);
-			}
-		}
-
 		String route = routeConfig.getRouteName();
-		try
-		{
-			String line;
-			while ((line = reader.readLine()) != null)
-			{
-				String[] array = line.split(",");
-			
-
-				String stopKey = getItem("Stop", array);
-
-				StopLocation stopLocation = routeConfig.getStop(CommuterRailTransitSource.stopTagPrefix + stopKey);
-
-				if (stopLocation == null)
-				{
-					continue;
-				}
-
-				String timeStr = getItem("Scheduled", array);
-				long scheduledArrivalEpochTime = Long.parseLong(timeStr) * 1000;
-				int offset = TransitSystem.getTimeZone().getOffset(scheduledArrivalEpochTime);
-				scheduledArrivalEpochTime += offset;
-
-				String nowStr = getItem("TimeStamp", array);
-				long nowEpochTime = Long.parseLong(nowStr) * 1000;
-				int nowOffset = TransitSystem.getTimeZone().getOffset(nowEpochTime);
-				nowEpochTime += nowOffset;
-				
-				long currentMillis = TransitSystem.currentTimeMillis();
-				long diff = scheduledArrivalEpochTime - currentMillis;
-				int minutes = (int)(diff / 1000 / 60);
-
-				if (diff < 0 && minutes == 0)
-				{
-					//just to make sure we don't count this
-					minutes = -1;
-				}
-
-				String direction = getItem("Destination", array);
-				directions.add(direction, new Direction(direction, "", routeConfig.getRouteName(), true));
-
-				String informationType = getItem("Flag", array);
-
-				int flagEnum = CommuterRailPrediction.toFlagEnum(informationType);
-				
-				int lateness = Prediction.NULL_LATENESS;
-				String latenessStr = getItem("Lateness", array);
-				if (latenessStr.length() != 0)
-				{
-					try
-					{
-						lateness = Integer.parseInt(latenessStr);
-					}
-					catch (NumberFormatException e)
-					{
-						//oh well
-					}
-					
-				}
-				 
-				String vehicleId = getItem("Trip", array);
-				
-				Prediction prediction = new CommuterRailPrediction(minutes, vehicleId, directions.getTitleAndName(direction),
-						routeConfig.getRouteName(), routeConfig.getRouteTitle(), 
-						false, false, lateness, flagEnum);
-				pairs.add(new PredictionStopLocationPair(prediction, stopLocation));
-
-				float lat = 0;
-				float lon = 0;
-				String latString = getItem("Latitude", array);
-				String lonString = getItem("Longitude", array);
-				
-				try
-				{
-					lat = Float.parseFloat(latString);
-					lon = Float.parseFloat(lonString);
-				}
-				catch (NumberFormatException e)
-				{
-					//oh well
-				}
-				
-				if (lat != 0 && lon != 0 && vehicleId != null)
-				{
-					//first, see if there's a subway car which pretty much matches an old BusLocation
-					BusLocation busLocation = null;
-
-					String heading = getItem("Heading", array);
-					if (heading != null && heading.length() == 0)
-					{
-						heading = null;
-					}
-					
-					String routeTitle = routeKeysToTitles.getTitle(route);
-					if (routeTitle == null)
-					{
-						routeTitle = route;
-					}
-					
-					busLocation = new CommuterTrainLocation(lat, lon,
-							vehicleId, nowEpochTime, currentMillis, heading, true, direction,
-							route, directions, routeTitle);
-					busMapping.put(vehicleId, busLocation);
-
-					toRemove.remove(vehicleId);
-
-
-					//set arrow to point to correct direction
-
-					/*if (nextStop != null)
-					{
-						//Log.v("BostonBusMap", "at " + stopLocation.getTitle() + " moving to " + nextStop.getTitle());
-						busLocation.movedTo(nextStop.getLatitudeAsDegrees(), nextStop.getLongitudeAsDegrees());
-					}
-					else
-					{
-						//Log.v("BostonBusMap", "at " + stopLocation.getTitle() + ", nothing to move to");
-					}*/
-				}
-			}
-
-		}
-		catch (ClassCastException e)
-		{
-			//probably updating the wrong url?
-			LogUtil.e(e);
-		}
-
 		clearPredictions(route);
 
 		for (PredictionStopLocationPair pair : pairs) {
 			pair.stopLocation.addPrediction(pair.prediction);
 		}
-
-		for (String id : toRemove)
-		{
-			busMapping.remove(id);
+		
+		for (String vehicleId : vehiclesToRemove) {
+			busMapping.remove(vehicleId);
 		}
 	}
 
+	private List<PredictionStopLocationPair> parseTree(JsonObject root) {
+		List<PredictionStopLocationPair> pairs = Lists.newArrayList();
+		
+		String routeName = routeConfig.getRouteName();
+		String routeTitle = routeKeysToTitles.getTitle(routeName);
+		long nowMillis = System.currentTimeMillis();
+		long nowSeconds = nowMillis / 1000;
+		
+		JsonArray messages = root.get("Messages").getAsJsonArray();
+		for (JsonElement element : messages) {
+			JsonObject message = element.getAsJsonObject();
+			String dirTag = message.get("Destination").getAsString();
+			Direction direction = directions.getDirection(dirTag);
+			if (direction == null) {
+				direction = new Direction(dirTag, "", routeName,
+						true);
+				directions.add(dirTag, direction);
+			}
+			
+			// add vehicle if exists
+			
+			String vehicle = message.get("Vehicle").getAsString();
+			
+			// not related to GTFS trip
+			String trip = message.get("Trip").getAsString();
+			String timestampString = message.get("TimeStamp").getAsString();
+			long timestamp = Long.parseLong(timestampString);
+			long timestampMillis = timestamp * 1000;
 
-	private String getItem(String key, String[] array)
-	{
-		Integer intKey = indexes.get(key);
-		if (null != intKey)
-		{
-			int i = intKey.intValue();
-			if (i >= 0 && i < array.length)
+			String latenessString = message.get("Lateness").getAsString();
+			int lateness;
+			if (latenessString.length() != 0) {
+				lateness = QuickParseUtil.parseInteger(latenessString);
+			}
+			else
 			{
-				return array[i];
+				lateness = 0;
+			}
+			if (vehicle.length() != 0) {
+				String latitudeString = message.get("Latitude").getAsString();
+				String longitudeString = message.get("Longitude").getAsString();
+				String headingString = message.get("Heading").getAsString();
+				
+				if (longitudeString.length() != 0 && latitudeString.length() != 0) {
+					float lat = QuickParseUtil.parseFloat(latitudeString);
+					float lon = QuickParseUtil.parseFloat(longitudeString);
+
+					CommuterTrainLocation location = new CommuterTrainLocation(lat,
+							lon, trip, timestampMillis, timestampMillis,
+							headingString, true, dirTag, routeName, directions,
+							routeTitle);
+					busMapping.put(trip, location);
+					vehiclesToRemove.remove(trip);
+				}
+			}
+			
+			// handle predictions
+			String stopId = message.get("Stop").getAsString();
+			String scheduledString = message.get("Scheduled").getAsString();
+			long scheduled = Long.parseLong(scheduledString);
+			if (stopId.length() != 0 && scheduledString.length() != 0) {
+				StopLocation stop = routeConfig.getStop(stopId);
+				if (stop != null) {
+					int seconds = (int)(scheduled - nowSeconds);
+					int minutes = seconds / 60;
+					Prediction prediction = new Prediction(minutes,
+							trip, dirTag, routeName,
+							routeTitle, false,
+							lateness > 5*60, lateness);
+					PredictionStopLocationPair pair = new PredictionStopLocationPair(prediction,
+							stop);
+					pairs.add(pair);
+				}
+				else
+				{
+					LogUtil.w("Commuter rail stop missing: " + stopId);
+				}
 			}
 		}
-		return "";
-	}
-
-	public Map<? extends String, ? extends BusLocation> getBusMapping() {
-		return busMapping;
+		
+		return pairs;
 	}
 }

@@ -82,29 +82,6 @@ public class Alert implements Parcelable, Comparable<Alert>
 			String newDescription = description.replace("\n", "<br/>");
 			builder.append(newDescription).append("<br />");
 		}
-		if (date != null)
-		{
-			DateFormat timeFormat = TransitSystem.getDefaultTimeFormat();
-			DateFormat dateFormat = TransitSystem.getDefaultDateFormat();
-			if (timeFormat != null && dateFormat != null)
-			{
-				String formattedTime = timeFormat.format(date) + " " + dateFormat.format(date);
-				builder.append("<b>Reported at ").append(formattedTime);
-
-				Calendar calendar = Calendar.getInstance();
-				calendar.setTime(date);
-				
-				if (sameDay(calendar, now))
-				{
-					builder.append(" (today)");
-				}
-				else if (sameDay(calendar, yesterday))
-				{
-					builder.append(" (yesterday)");
-				}
-				builder.append("</b><br />");
-			}
-		}
 		
 		return builder.toString();
 	}

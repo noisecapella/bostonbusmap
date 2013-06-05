@@ -4,6 +4,7 @@ import java.util.Set;
 import java.util.SortedSet;
 
 import com.google.common.base.Joiner;
+import com.google.common.collect.ImmutableCollection;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
@@ -44,7 +45,8 @@ public class IntersectionLocation implements Location {
 		}
 		nearbyRouteTitles = ImmutableSet.copyOf(titles);
 
-		predictionView = new SimplePredictionView("", name, new Alert[0]);
+		ImmutableCollection<Alert> nullAlerts = ImmutableList.of();
+		predictionView = new SimplePredictionView("", name, nullAlerts);
 	}
 	
 	public static class Builder {
@@ -176,5 +178,10 @@ public class IntersectionLocation implements Location {
 	@Override
 	public boolean isIntersection() {
 		return true;
+	}
+	
+	@Override
+	public int getTransitSourceType() {
+		return -1;
 	}
 }

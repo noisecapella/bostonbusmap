@@ -41,6 +41,7 @@ import com.google.android.maps.ItemizedOverlay;
 import com.google.android.maps.MapView;
 import com.google.android.maps.OverlayItem;
 import com.google.android.maps.Projection;
+import com.google.common.collect.ImmutableCollection;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.readystatesoftware.mapviewballoons.BalloonItemizedOverlay;
@@ -349,7 +350,7 @@ public class BusOverlay extends BalloonItemizedOverlay<BusOverlayItem> {
 			PredictionView predictionView = location.getPredictionView();
 			String titleText = predictionView.getSnippetTitle();
 			String snippetText = predictionView.getSnippet();
-			Alert[] alerts = predictionView.getAlerts();
+			ImmutableCollection<Alert> alerts = predictionView.getAlerts();
 			int latitudeE6 = (int)(Constants.E6 * location.getLatitudeAsDegrees());
 			int longitudeE6 = (int)(Constants.E6 * location.getLongitudeAsDegrees());
 

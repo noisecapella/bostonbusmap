@@ -26,7 +26,7 @@ import com.google.common.io.ByteStreams;
 import android.content.Context;
 import android.content.OperationApplicationException;
 import android.os.RemoteException;
-import boston.Bus.Map.data.AlertsMapping;
+import boston.Bus.Map.data.Alerts;
 import boston.Bus.Map.data.BusLocation;
 import boston.Bus.Map.data.Directions;
 import boston.Bus.Map.data.IntersectionLocation;
@@ -184,7 +184,7 @@ public abstract class NextBusTransitSource implements TransitSource
 				for (String id : busMapping.keySet())
 				{
 					BusLocation busLocation = busMapping.get(id);
-					if (busLocation.getLastUpdateInMillis() + 180000 < TransitSystem.currentTimeMillis())
+					if (busLocation.getLastUpdateInMillis() + 180000 < System.currentTimeMillis())
 					{
 						//put this old dog to sleep
 						busesToBeDeleted.add(id);
@@ -197,27 +197,7 @@ public abstract class NextBusTransitSource implements TransitSource
 				}
 			}
 		}
-		
-		//alerts
-		TransitSource transitSource = transitSystem.getTransitSource(routeConfig.getRouteName());
-		if (transitSource instanceof NextBusTransitSource)
-		{
-			if (routeConfig.obtainedAlerts() == false)
-			{
-				try
-				{
-					parseAlert(routeConfig, transitSystem.getAlertsMapping());
-				}
-				catch (Exception e)
-				{
-					LogUtil.e(e);
-					//I'm silencing these since alerts aren't necessary to use the rest of the app
-				}
-			}
-		}
 	}
-
-	protected abstract void parseAlert(RouteConfig routeConfig, AlertsMapping alertMapping) throws ClientProtocolException, IOException, SAXException;
 
 	protected String getPredictionsUrl(List<Location> locations, int maxStops, Collection<String> routes)
 	{
@@ -321,5 +301,15 @@ public abstract class NextBusTransitSource implements TransitSource
 	@Override
 	public boolean requiresSubwayTable() {
 		return false;
+	}
+	
+	@Override
+	public Alerts getAlerts() {
+		return transitSystem.getAlerts();
+	}
+	
+	@Override
+	public String getDescription() {
+		return "Bus";
 	}
 }
