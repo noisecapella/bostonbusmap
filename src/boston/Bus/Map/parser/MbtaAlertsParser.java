@@ -124,7 +124,7 @@ public class MbtaAlertsParser {
 			for (String commuterRailTripId : commuterRailTripIds) {
 				Alert commuterRailAlert = new Alert(now, "Commuter Rail Trip " + commuterRailTripId,
 						description, "");
-				builder.addAlertForCommuterRailTrip(commuterRailTripId);
+				builder.addAlertForCommuterRailTrip(commuterRailTripId, commuterRailAlert);
 			}
 			for (Integer routeType : sources) {
 				TransitSource source = transitSystem.getTransitSourceByRouteType(routeType);
