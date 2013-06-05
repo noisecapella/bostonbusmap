@@ -138,7 +138,7 @@ public final class Locations
 		if (transitSystem.getAlerts() == null) {
 			// there is a small chance that this might get executed twice
 			// if the code which limits refreshes didn't work properly
-			MbtaAlertsParser alertsParser = new MbtaAlertsParser(transitSystem.getRouteKeysToTitles());
+			MbtaAlertsParser alertsParser = new MbtaAlertsParser(transitSystem);
 			Alerts alerts = alertsParser.obtainAlerts();
 			transitSystem.setAlerts(alerts);
 		}

@@ -268,4 +268,8 @@ public class HeavyRailTransitSource implements TransitSource {
 		return transitSystem.getAlerts();
 	}
 
+	@Override
+	public String getDescription() {
+		return "Subway";
+	}
 }

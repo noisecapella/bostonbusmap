@@ -23,6 +23,7 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 
 import boston.Bus.Map.annotations.KeepSorted;
+import boston.Bus.Map.database.Schema;
 import boston.Bus.Map.math.Geometry;
 import boston.Bus.Map.transit.TransitSource;
 import boston.Bus.Map.transit.TransitSystem;
@@ -157,7 +158,8 @@ public class StopLocation implements Location
 		
 		TransitSystem transitSystem = locations.getTransitSystem();
 		Alerts alertsObj = transitSystem.getAlerts();
-		ImmutableCollection<Alert> alerts = alertsObj.getAlertsByRouteSetAndStop(routes, tag);
+		ImmutableCollection<Alert> alerts = alertsObj.getAlertsByRouteSetAndStop(
+				routes, tag, getTransitSourceType());
 		
 		predictions.makeSnippetAndTitle(routeConfig, routeKeysToTitles, context, routes, this, alerts, locations);
 	}
@@ -352,5 +354,10 @@ public class StopLocation implements Location
 
 	public boolean hasRoute(String route) {
 		return routes.hasRoute(route);
+	}
+	
+	@Override
+	public int getTransitSourceType() {
+		return Schema.Routes.enumagencyidBus;
 	}
 }

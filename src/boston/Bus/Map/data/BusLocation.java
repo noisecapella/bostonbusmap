@@ -9,6 +9,7 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 
 
+import boston.Bus.Map.database.Schema;
 import boston.Bus.Map.math.Geometry;
 import boston.Bus.Map.transit.TransitSource;
 import boston.Bus.Map.transit.TransitSystem;
@@ -226,7 +227,7 @@ public class BusLocation implements Location {
 		String snippetTitle = makeTitle();
 		TransitSystem transitSystem = locations.getTransitSystem();
 		Alerts alerts = transitSystem.getAlerts();
-		snippetAlerts = alerts.getAlertsByRoute(routeName);
+		snippetAlerts = alerts.getAlertsByRoute(routeName, getTransitSourceType());
 		
 		predictionView = new SimplePredictionView(snippet, snippetTitle, snippetAlerts);
 	}
@@ -406,5 +407,10 @@ public class BusLocation implements Location {
 	@Override
 	public boolean isIntersection() {
 		return false;
+	}
+	
+	@Override
+	public int getTransitSourceType() {
+		return Schema.Routes.enumagencyidBus;
 	}
 }

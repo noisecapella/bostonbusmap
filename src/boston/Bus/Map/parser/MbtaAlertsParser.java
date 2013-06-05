@@ -16,14 +16,17 @@ import com.google.transit.realtime.GtfsRealtime.TranslatedString.Translation;
 import boston.Bus.Map.data.Alert;
 import boston.Bus.Map.data.Alerts;
 import boston.Bus.Map.data.RouteTitles;
+import boston.Bus.Map.transit.TransitSource;
 import boston.Bus.Map.transit.TransitSystem;
 import boston.Bus.Map.util.DownloadHelper;
 
 public class MbtaAlertsParser {
+	private final TransitSystem transitSystem;
 	private final RouteTitles routeTitles;
 	
-	public MbtaAlertsParser(RouteTitles routeTitles) {
-		this.routeTitles = routeTitles;
+	public MbtaAlertsParser(TransitSystem transitSystem) {
+		this.transitSystem = transitSystem;
+		this.routeTitles = transitSystem.getRouteKeysToTitles();
 	}
 	
 	public Alerts obtainAlerts() throws IOException {
@@ -48,6 +51,7 @@ public class MbtaAlertsParser {
 			// a stop on one route vs the same stop on another
 			List<String> stops = Lists.newArrayList();
 			List<String> routes = Lists.newArrayList();
+			List<Integer> sources = Lists.newArrayList();
 			boolean isSystemWide = false;
 			for (EntitySelector selector : alert.getInformedEntityList()) {
 				if (selector.hasStopId()) {
@@ -57,6 +61,10 @@ public class MbtaAlertsParser {
 				else if (selector.hasRouteId()) {
 					String routeId = selector.getRouteId();
 					routes.add(routeId);
+				}
+				else if (selector.hasRouteType()) {
+					int routeType = selector.getRouteType();
+					sources.add(routeType);
 				}
 				else
 				{
@@ -76,6 +84,15 @@ public class MbtaAlertsParser {
 				Alert systemWideAlert = new Alert(now, "Systemwide",
 						description, "");
 				builder.addSystemWideAlert(systemWideAlert);
+			}
+			for (Integer routeType : sources) {
+				TransitSource source = transitSystem.getTransitSourceByRouteType(routeType);
+				if (source != null) {
+					String sourceDescription = source.getDescription();
+					Alert routeTypeAlert = new Alert(now, "All " + sourceDescription,
+							description, "");
+					builder.addAlertForRouteType(routeType, routeTypeAlert);
+				}
 			}
 			for (String route : routes) {
 				String routeTitle = routeTitles.getTitle(route);

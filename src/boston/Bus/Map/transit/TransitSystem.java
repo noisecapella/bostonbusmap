@@ -272,4 +272,13 @@ public class TransitSystem implements ITransitSystem {
 		return true;
 	}
 
+	public TransitSource getTransitSourceByRouteType(int routeType) {
+		for (TransitSource source : transitSources) {
+			if (routeType == source.getTransitSourceId()) {
+				return source;
+			}
+		}
+		return null;
+	}
+
 }

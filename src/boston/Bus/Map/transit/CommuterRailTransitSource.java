@@ -317,4 +317,9 @@ public class CommuterRailTransitSource implements TransitSource {
 	public Alerts getAlerts() {
 		return transitSystem.getAlerts();
 	}
+	
+	@Override
+	public String getDescription() {
+		return "Commuter Rail";
+	}
 }

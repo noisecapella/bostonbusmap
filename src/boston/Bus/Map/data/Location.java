@@ -71,4 +71,10 @@ public interface Location {
 	boolean hasReportProblem();
 
 	boolean isIntersection();
+	
+	/**
+	 * TODO: one day this might support stops on multiple transit sources
+	 * @return
+	 */
+	int getTransitSourceType();
 }

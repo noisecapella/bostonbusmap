@@ -1,5 +1,7 @@
 package boston.Bus.Map.data;
 
+import java.util.Collection;
+
 import com.google.common.collect.ImmutableCollection;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -10,29 +12,38 @@ import com.google.common.collect.ImmutableTable;
 public class Alerts {
 	private final ImmutableMultimap<String, Alert> alertsByRoute;
 	private final ImmutableMultimap<String, Alert> alertsByStop;
+	private final ImmutableMultimap<Integer, Alert> alertsByRouteType;
 	private final ImmutableList<Alert> systemWideAlerts;
 	
 	private Alerts(ImmutableMultimap<String, Alert> alertsByRoute, 
 			ImmutableMultimap<String, Alert> alertsByStop,
+			ImmutableMultimap<Integer, Alert> alertsByRouteType,
 			ImmutableList<Alert> systemWideAlerts) {
 		this.alertsByRoute = alertsByRoute;
 		this.alertsByStop = alertsByStop;
+		this.alertsByRouteType = alertsByRouteType;
 		this.systemWideAlerts = systemWideAlerts;
 	}
 	
 	public static class Builder {
 		private final ImmutableMultimap.Builder<String, Alert> alertsByRoute;
 		private final ImmutableMultimap.Builder<String, Alert> alertsByStop;
+		private final ImmutableMultimap.Builder<Integer, Alert> alertsByRouteType;
 		private final ImmutableList.Builder<Alert> systemWideAlerts;
 		
 		public Builder() {
 			this.alertsByRoute = ImmutableMultimap.builder();
 			this.alertsByStop = ImmutableMultimap.builder();
+			this.alertsByRouteType = ImmutableMultimap.builder();
 			this.systemWideAlerts = ImmutableList.builder();
 		}
 		
 		public void addAlertForRoute(String route, Alert alert) {
 			this.alertsByRoute.put(route, alert);
+		}
+		
+		public void addAlertForRouteType(int routeType, Alert alert) {
+			this.alertsByRouteType.put(routeType, alert);
 		}
 		
 		public void addAlertForStop(String stopId, Alert alert) {
@@ -46,6 +57,7 @@ public class Alerts {
 		public Alerts build() {
 			return new Alerts(alertsByRoute.build(),
 					alertsByStop.build(),
+					alertsByRouteType.build(),
 					systemWideAlerts.build());
 		}
 
@@ -92,25 +104,21 @@ public class Alerts {
 		}
 	}
 
-	public ImmutableCollection<Alert> getAlertsByRoute(String routeName) {
-		ImmutableCollection<Alert> routeAlerts = alertsByRoute.get(routeName);
-
-		if (systemWideAlerts.isEmpty()) {
-			return routeAlerts;
-		}
-		else
-		{
-			ImmutableList.Builder<Alert> combined = ImmutableList.builder();
-			combined.addAll(systemWideAlerts);
-			combined.addAll(routeAlerts);
-			return combined.build();
-		}
+	public ImmutableCollection<Alert> getAlertsByRoute(String routeName,
+			int routeType) {
+		ImmutableCollection.Builder<Alert> ret = ImmutableList.builder();
+		ret.addAll(systemWideAlerts);
+		ret.addAll(alertsByRouteType.get(routeType));
+		ret.addAll(alertsByRoute.get(routeName));
+		return ret.build();
 	}
 
 	public ImmutableCollection<Alert> getAlertsByRouteSetAndStop(
-			RouteSet routes, String tag) {
+			RouteSet routes, String tag, int routeType) {
 		ImmutableCollection.Builder<Alert> ret = ImmutableList.builder();
 		ret.addAll(systemWideAlerts);
+		ImmutableCollection<Alert> routeTypeAlerts = alertsByRouteType.get(routeType);
+		ret.addAll(routeTypeAlerts);
 		for (String route : routes.getRoutes()) {
 			ImmutableCollection<Alert> routeAlerts = alertsByRoute.get(route);
 			ret.addAll(routeAlerts);

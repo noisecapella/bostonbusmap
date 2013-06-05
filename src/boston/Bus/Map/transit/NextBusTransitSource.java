@@ -307,4 +307,9 @@ public abstract class NextBusTransitSource implements TransitSource
 	public Alerts getAlerts() {
 		return transitSystem.getAlerts();
 	}
+	
+	@Override
+	public String getDescription() {
+		return "Bus";
+	}
 }

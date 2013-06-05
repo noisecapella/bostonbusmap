@@ -65,4 +65,6 @@ public interface TransitSource {
 	boolean requiresSubwayTable();
 
 	Alerts getAlerts();
+
+	String getDescription();
 }
