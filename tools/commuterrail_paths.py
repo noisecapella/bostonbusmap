@@ -18,18 +18,33 @@ def calculate_path(route, gtfs_map, stationorder_csv):
         reader = csv.DictReader(f)
 
         prev_direction_id = None
+        prev_branch = None
+        last_trunk_row = None
         for row in reader:
             if route in row["route_long_name"]:
                 direction_id = int(row["direction_id"])
                 lat = float(row["stop_lat"])
                 lon = float(row["stop_lon"])
+                branch = row["Branch"]
 
                 if prev_direction_id is not None and prev_direction_id != direction_id:
                     paths.append(path)
                     path = []
+                elif prev_branch != branch:
+                    if prev_branch == "Trunk":
+                        # continue as normal onto branch
+                        pass
+                    elif prev_branch is not None:
+                        # finish this branch and start a new one from end of trunk
+                        paths.append(path)
+                        path = [(float(last_trunk_row["stop_lat"]),
+                                 float(last_trunk_row["stop_lon"]))]
+                        
                 path.append((lat, lon))
                 prev_direction_id = direction_id
-                    
+                prev_branch = branch
+                if branch == "Trunk":
+                    last_trunk_row = row
 
     return paths
 
