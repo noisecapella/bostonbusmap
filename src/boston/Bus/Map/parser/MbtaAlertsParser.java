@@ -59,14 +59,37 @@ public class MbtaAlertsParser {
 			ImmutableList.Builder<String> stopsBuilder = ImmutableList.builder();
 			List<String> routes = Lists.newArrayList();
 			List<Integer> sources = Lists.newArrayList();
+			List<String> commuterRailTripIds = Lists.newArrayList();
 			boolean isSystemWide = false;
 			for (EntitySelector selector : alert.getInformedEntityList()) {
+				// this should be a logical AND inside an EntitySelector
+				// and logical OR between EntitySelectors. This is a little
+				// looser than that, but shouldn't cause any harm
+				
+				if (selector.hasTrip() && selector.getTrip().hasTripId()) {
+					// this is a hack since it relies on the commuter rail
+					// GTFS trip id having a similar id as the train number
+					// which isn't true for subway or bus
+					
+					String tripId = selector.getTrip().getTripId();
+					if (tripId.startsWith("CR-")) {
+						String[] pieces = tripId.split("-");
+						commuterRailTripIds.add(pieces[pieces.length - 1]);
+					}
+				}
+				
 				if (selector.hasStopId()) {
 					String stopId = selector.getStopId();
 					stopsBuilder.add(stopId);
 				}
 				else if (selector.hasRouteId()) {
 					String routeId = selector.getRouteId();
+					
+					// HACK to convert GTFS route ids to Nextbus route ids
+					if (routeId.startsWith("0")) {
+						routeId = routeId.substring(1);
+					}
+					
 					routes.add(routeId);
 				}
 				else if (selector.hasRouteType()) {
@@ -97,6 +120,11 @@ public class MbtaAlertsParser {
 				Alert systemWideAlert = new Alert(now, "Systemwide",
 						description, "");
 				builder.addSystemWideAlert(systemWideAlert);
+			}
+			for (String commuterRailTripId : commuterRailTripIds) {
+				Alert commuterRailAlert = new Alert(now, "Commuter Rail Trip " + commuterRailTripId,
+						description, "");
+				builder.addAlertForCommuterRailTrip(commuterRailTripId);
 			}
 			for (Integer routeType : sources) {
 				TransitSource source = transitSystem.getTransitSourceByRouteType(routeType);

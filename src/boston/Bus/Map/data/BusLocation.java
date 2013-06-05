@@ -44,7 +44,7 @@ public class BusLocation implements Location {
 	 */
 	public final String busId;
 
-	private final String routeName;
+	protected final String routeName;
 
 	/**
 	 * Time of last refresh of this bus object
@@ -227,7 +227,7 @@ public class BusLocation implements Location {
 		String snippetTitle = makeTitle();
 		TransitSystem transitSystem = locations.getTransitSystem();
 		Alerts alerts = transitSystem.getAlerts();
-		snippetAlerts = alerts.getAlertsByRoute(routeName, getTransitSourceType());
+		snippetAlerts = getAlerts(alerts);
 		
 		predictionView = new SimplePredictionView(snippet, snippetTitle, snippetAlerts);
 	}
@@ -412,5 +412,9 @@ public class BusLocation implements Location {
 	@Override
 	public int getTransitSourceType() {
 		return Schema.Routes.enumagencyidBus;
+	}
+	
+	protected ImmutableCollection<Alert> getAlerts(Alerts alerts) {
+		return alerts.getAlertsByRoute(routeName, getTransitSourceType());
 	}
 }
