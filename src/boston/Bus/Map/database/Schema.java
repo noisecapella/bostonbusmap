@@ -250,8 +250,8 @@ public class Schema {
         public static final String agencyidColumn = "agencyid";
         public static final String agencyidColumnOnTable = "routes.agencyid";
 
-        public static final int enumagencyidCommuterRail = 1;
-        public static final int enumagencyidSubway = 2;
+        public static final int enumagencyidSubway = 1;
+        public static final int enumagencyidCommuterRail = 2;
         public static final int enumagencyidBus = 3;
         public static final int routetitleIndex = 7;
         public static final String routetitleColumn = "routetitle";
