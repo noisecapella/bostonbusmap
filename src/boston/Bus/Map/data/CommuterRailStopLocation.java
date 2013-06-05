@@ -27,11 +27,6 @@ public class CommuterRailStopLocation extends SubwayStopLocation {
 	}
 	
 	@Override
-	public boolean isBeta() {
-		return true;
-	}
-	
-	@Override
 	public int getTransitSourceType() {
 		return Schema.Routes.enumagencyidCommuterRail;
 	}
