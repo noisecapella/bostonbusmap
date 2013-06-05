@@ -11,7 +11,7 @@ purple = 0x940088
 def createDirectionHash(a, b):
     return a + "|" + b
 
-def write_sql(startorder, gtfs_map):
+def write_sql(startorder, gtfs_map, stationorder_csv):
     trips_header, trips = gtfs_map.trips_header, gtfs_map.trips
     stops_header, stops = gtfs_map.stops_header, gtfs_map.stops
     routes_header, routes = gtfs_map.routes_header, gtfs_map.routes
@@ -56,7 +56,7 @@ def write_sql(startorder, gtfs_map):
         stop_rows = [stop_row for stop_row in stops
                      if stop_row[stops_header["stop_id"]] in all_stop_times_ids]
 
-        paths = calculate_path(route_id, gtfs_map)
+        paths = calculate_path(route_id, gtfs_map, stationorder_csv)
 
         pathblob = schema.Box(paths).get_blob_string()
 
@@ -97,6 +97,7 @@ def main():
     parser = argparse.ArgumentParser(description='Parse commuterrail data into SQL')
     parser.add_argument("gtfs_path", type=str)
     parser.add_argument("order", type=int)
+    parser.add_argument("stationorder_csv", type=str)
     args = parser.parse_args()
 
     if not os.path.isdir(args.gtfs_path):
@@ -108,7 +109,7 @@ def main():
 
     gtfs_map = GtfsMap(args.gtfs_path)
 
-    write_sql(startorder, gtfs_map)
+    write_sql(startorder, gtfs_map, args.stationorder_csv)
     print("END TRANSACTION;")
 
 if __name__ == "__main__":
