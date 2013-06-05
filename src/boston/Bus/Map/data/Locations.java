@@ -139,7 +139,7 @@ public final class Locations
 			// there is a small chance that this might get executed twice
 			// if the code which limits refreshes didn't work properly
 			MbtaAlertsParser alertsParser = new MbtaAlertsParser(transitSystem);
-			Alerts alerts = alertsParser.obtainAlerts();
+			Alerts alerts = alertsParser.obtainAlerts(context);
 			transitSystem.setAlerts(alerts);
 		}
 		

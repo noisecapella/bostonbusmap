@@ -4,8 +4,12 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentMap;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import com.google.transit.realtime.GtfsRealtime;
 import com.google.transit.realtime.GtfsRealtime.EntitySelector;
 import com.google.transit.realtime.GtfsRealtime.FeedEntity;
@@ -13,9 +17,13 @@ import com.google.transit.realtime.GtfsRealtime.FeedMessage;
 import com.google.transit.realtime.GtfsRealtime.TranslatedString;
 import com.google.transit.realtime.GtfsRealtime.TranslatedString.Translation;
 
+import android.content.ContentResolver;
+import android.content.Context;
 import boston.Bus.Map.data.Alert;
 import boston.Bus.Map.data.Alerts;
 import boston.Bus.Map.data.RouteTitles;
+import boston.Bus.Map.data.StopLocation;
+import boston.Bus.Map.provider.DatabaseContentProvider.DatabaseAgent;
 import boston.Bus.Map.transit.TransitSource;
 import boston.Bus.Map.transit.TransitSystem;
 import boston.Bus.Map.util.DownloadHelper;
@@ -29,7 +37,7 @@ public class MbtaAlertsParser {
 		this.routeTitles = transitSystem.getRouteKeysToTitles();
 	}
 	
-	public Alerts obtainAlerts() throws IOException {
+	public Alerts obtainAlerts(Context context) throws IOException {
 		Alerts.Builder builder = Alerts.builder();
 		
 		Date now = new Date();
@@ -46,17 +54,16 @@ public class MbtaAlertsParser {
 			
 			
 			//TODO: we don't handle trip-specific alerts yet
-			//TODO: we don't handle route_type at all
 			//TODO: currently it doesn't discriminate alerts for 
 			// a stop on one route vs the same stop on another
-			List<String> stops = Lists.newArrayList();
+			ImmutableList.Builder<String> stopsBuilder = ImmutableList.builder();
 			List<String> routes = Lists.newArrayList();
 			List<Integer> sources = Lists.newArrayList();
 			boolean isSystemWide = false;
 			for (EntitySelector selector : alert.getInformedEntityList()) {
 				if (selector.hasStopId()) {
 					String stopId = selector.getStopId();
-					stops.add(stopId);
+					stopsBuilder.add(stopId);
 				}
 				else if (selector.hasRouteId()) {
 					String routeId = selector.getRouteId();
@@ -71,12 +78,18 @@ public class MbtaAlertsParser {
 					isSystemWide = true;
 				}
 			}
+			ImmutableList<String> stops = stopsBuilder.build();
 			
 			String description = "";
-			TranslatedString headerText = alert.getHeaderText();
-			if (headerText.getTranslationCount() > 0) {
-				Translation translation = headerText.getTranslation(0);
-				description = translation.getText();
+			if (alert.hasDescriptionText() &&
+				alert.getDescriptionText().getTranslationCount() > 0) {
+					Translation translation = alert.getDescriptionText().getTranslation(0);
+					description = translation.getText();
+			}
+			else if (alert.hasHeaderText() &&
+					alert.getHeaderText().getTranslationCount() > 0) {
+					Translation translation = alert.getHeaderText().getTranslation(0);
+					description = translation.getText();
 			}
 			
 			// now construct alert and add for each stop, route, and systemwide
@@ -99,8 +112,18 @@ public class MbtaAlertsParser {
 				Alert routeAlert = new Alert(now, "Route " + routeTitle, description, "");
 				builder.addAlertForRoute(route, routeAlert);
 			}
+			ContentResolver resolver = context.getContentResolver();
+			
+			ConcurrentMap<String, StopLocation> stopMapping = Maps.newConcurrentMap();
+			DatabaseAgent.getStops(resolver, stops,
+					transitSystem, stopMapping);
 			for (String stop : stops) {
-				Alert stopAlert = new Alert(now, "Stop " + stop, description, "");
+				String stopTitle = stop;
+				StopLocation stopLocation = stopMapping.get(stop);
+				if (stopLocation != null) {
+					stopTitle = stopLocation.getTitle();
+				}
+				Alert stopAlert = new Alert(now, "Stop " + stopTitle, description, "");
 				builder.addAlertForStop(stop, stopAlert);
 			}
 		}
