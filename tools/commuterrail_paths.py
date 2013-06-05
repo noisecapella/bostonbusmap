@@ -27,18 +27,31 @@ def calculate_path(route, gtfs_map):
         stop_id = stop_row[stops_header["stop_id"]]
         stops_to_lat_lon[stop_id] = (lat, lon)
 
-    longest_sequences = {}
+    sequences = {}
     for trip_id in trip_ids: 
         stop_times_rows = [stop_times_row for stop_times_row in all_stop_times_rows
                            if stop_times_row[stop_times_header["trip_id"]] == trip_id]
-        stop_times_rows = sorted(stop_times_rows, key=lambda stop_times_row: stop_times_row[stop_times_header["stop_sequence"]])
-        endpoints = (stop_times_rows[0][stop_times_header["stop_id"]], stop_times_rows[-1][stop_times_header["stop_id"]])
-        if endpoints not in longest_sequences or len(longest_sequences[endpoints]) < len(stop_times_rows):
-            longest_sequences[endpoints] = [row[stop_times_header["stop_id"]] for row in stop_times_rows]
+        stop_times_rows = sorted(stop_times_rows, key=lambda stop_times_row: int(stop_times_row[stop_times_header["stop_sequence"]]))
+        
+        sequences[trip_id] = [(row[stop_times_header["stop_id"]], int(row[stop_times_header["stop_sequence"]])) for row in stop_times_rows]
+
     # a list of lat, lon pairs
     paths = []
-    for endpoints, sequence in longest_sequences.items():
-        stops_path = [stops_to_lat_lon[stop] for stop in sequence]
+    for trip_id, sequence in sequences.items():
+        #stops_path = [stops_to_lat_lon[stop] for stop in sequence]
+        stops_path = []
+        prev_sequence_num = None
+        # break up sequence into contiguous pieces. If two stops are not
+        # contiguous we should not draw a line connecting the stops
+        for stop, sequence_num in sequence:
+            if prev_sequence_num is not None and prev_sequence_num != sequence_num - 1:
+                #print "Break: %s, %s, %d, %d" % (trip_id, stop, prev_sequence_num, sequence_num)
+                if len(stops_path) > 1:
+                    paths.append(stops_path)
+                stops_path = []
+            stops_path.append(stops_to_lat_lon[stop])
+            prev_sequence_num = sequence_num
+                
         paths.append(stops_path)
     return paths
 
