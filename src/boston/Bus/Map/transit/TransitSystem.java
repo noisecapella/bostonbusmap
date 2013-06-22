@@ -23,8 +23,10 @@ import android.content.Context;
 import android.graphics.drawable.Drawable;
 import android.util.Log;
 import boston.Bus.Map.data.Alerts;
+import boston.Bus.Map.data.AlertsFuture;
 import boston.Bus.Map.data.BusLocation;
 import boston.Bus.Map.data.Directions;
+import boston.Bus.Map.data.IAlerts;
 import boston.Bus.Map.data.IsGuardedBy;
 import boston.Bus.Map.data.Location;
 import boston.Bus.Map.data.Locations;
@@ -58,7 +60,7 @@ public class TransitSystem implements ITransitSystem {
 	/**
 	 * This will be null when alerts haven't been read yet
 	 */
-	private Alerts alerts;
+	private AlertsFuture alertsFuture;
 	
 	public static double getCenterLat() {
 		return bostonLatitude;
@@ -248,13 +250,25 @@ public class TransitSystem implements ITransitSystem {
 		return source.createStop(latitude, longitude, stopTag, stopTitle, platformOrder, branch, route);
 	}
 
-	public void setAlerts(Alerts alerts) {
-		this.alerts = alerts;
+	public void setAlertsFuture(AlertsFuture alertsFuture) {
+		this.alertsFuture = alertsFuture;
+	}
+	
+	public boolean hasAlertsFuture() {
+		return this.alertsFuture != null;
 	}
 	
 	@Override
-	public Alerts getAlerts() {
-		return alerts;
+	public IAlerts getAlerts() {
+		if (alertsFuture != null) {
+			return alertsFuture.getAlerts();
+		}
+		else
+		{
+			// this shouldn't happen but maybe some code might change
+			// to cause alerts to be read before they're set
+			return AlertsFuture.EMPTY;
+		}
 	}
 
 	public static String[] getEmails() {

@@ -21,6 +21,7 @@ import android.content.ContentResolver;
 import android.content.Context;
 import boston.Bus.Map.data.Alert;
 import boston.Bus.Map.data.Alerts;
+import boston.Bus.Map.data.IAlerts;
 import boston.Bus.Map.data.RouteTitles;
 import boston.Bus.Map.data.StopLocation;
 import boston.Bus.Map.provider.DatabaseContentProvider.DatabaseAgent;
@@ -37,7 +38,7 @@ public class MbtaAlertsParser {
 		this.routeTitles = transitSystem.getRouteKeysToTitles();
 	}
 	
-	public Alerts obtainAlerts(Context context) throws IOException {
+	public IAlerts obtainAlerts(Context context) throws IOException {
 		Alerts.Builder builder = Alerts.builder();
 		
 		Date now = new Date();

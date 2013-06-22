@@ -157,7 +157,7 @@ public class StopLocation implements Location
 		}
 		
 		TransitSystem transitSystem = locations.getTransitSystem();
-		Alerts alertsObj = transitSystem.getAlerts();
+		IAlerts alertsObj = transitSystem.getAlerts();
 		ImmutableCollection<Alert> alerts = alertsObj.getAlertsByRouteSetAndStop(
 				routes.getRoutes(), tag, getTransitSourceType());
 		
@@ -175,7 +175,7 @@ public class StopLocation implements Location
 		
 		StopLocation stopLocation = (StopLocation)location;
 		TransitSystem transitSystem = locations.getTransitSystem();
-		Alerts alertsObj = transitSystem.getAlerts();
+		IAlerts alertsObj = transitSystem.getAlerts();
 		
 		ImmutableCollection<Alert> newAlerts = alertsObj.getAlertsByRouteSetAndStop(
 				stopLocation.getRoutes(), stopLocation.getStopTag(), 

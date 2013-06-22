@@ -26,9 +26,9 @@ import com.google.common.io.ByteStreams;
 import android.content.Context;
 import android.content.OperationApplicationException;
 import android.os.RemoteException;
-import boston.Bus.Map.data.Alerts;
 import boston.Bus.Map.data.BusLocation;
 import boston.Bus.Map.data.Directions;
+import boston.Bus.Map.data.IAlerts;
 import boston.Bus.Map.data.IntersectionLocation;
 import boston.Bus.Map.data.Location;
 import boston.Bus.Map.data.Locations;
@@ -304,7 +304,7 @@ public abstract class NextBusTransitSource implements TransitSource
 	}
 	
 	@Override
-	public Alerts getAlerts() {
+	public IAlerts getAlerts() {
 		return transitSystem.getAlerts();
 	}
 	

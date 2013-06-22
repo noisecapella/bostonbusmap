@@ -33,7 +33,7 @@ public class CommuterTrainLocation extends BusLocation {
 	}
 	
 	@Override
-	protected ImmutableCollection<Alert> getAlerts(Alerts alerts) {
+	protected ImmutableCollection<Alert> getAlerts(IAlerts alerts) {
 		return alerts.getAlertsByCommuterRailTripId(busId, routeName);
 	}	
 }

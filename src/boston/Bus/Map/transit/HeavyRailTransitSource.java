@@ -12,9 +12,9 @@ import org.xml.sax.SAXException;
 
 import com.google.common.collect.Lists;
 
-import boston.Bus.Map.data.Alerts;
 import boston.Bus.Map.data.BusLocation;
 import boston.Bus.Map.data.Directions;
+import boston.Bus.Map.data.IAlerts;
 import boston.Bus.Map.data.Location;
 import boston.Bus.Map.data.Locations;
 import boston.Bus.Map.data.RouteConfig;
@@ -264,7 +264,7 @@ public class HeavyRailTransitSource implements TransitSource {
 	}
 
 	@Override
-	public Alerts getAlerts() {
+	public IAlerts getAlerts() {
 		return transitSystem.getAlerts();
 	}
 

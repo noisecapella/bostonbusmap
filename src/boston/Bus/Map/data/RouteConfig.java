@@ -259,7 +259,7 @@ public class RouteConfig
 		return timeBounds;
 	}
 
-	public Alerts getAlerts() {
+	public IAlerts getAlerts() {
 		return transitSource.getAlerts();
 	}
 }

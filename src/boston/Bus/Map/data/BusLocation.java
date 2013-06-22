@@ -226,7 +226,7 @@ public class BusLocation implements Location {
 		String snippet = makeSnippet(routeConfig);
 		String snippetTitle = makeTitle();
 		TransitSystem transitSystem = locations.getTransitSystem();
-		Alerts alerts = transitSystem.getAlerts();
+		IAlerts alerts = transitSystem.getAlerts();
 		snippetAlerts = getAlerts(alerts);
 		
 		predictionView = new SimplePredictionView(snippet, snippetTitle, snippetAlerts);
@@ -414,7 +414,7 @@ public class BusLocation implements Location {
 		return Schema.Routes.enumagencyidBus;
 	}
 	
-	protected ImmutableCollection<Alert> getAlerts(Alerts alerts) {
+	protected ImmutableCollection<Alert> getAlerts(IAlerts alerts) {
 		return alerts.getAlertsByRoute(routeName, getTransitSourceType());
 	}
 }
