@@ -135,7 +135,7 @@ public final class Locations
 		//see if route overlays need to be downloaded
 		String routeToUpdate = selection.getRoute();
 		RouteConfig routeConfig = routeMapping.get(routeToUpdate);
-		if (transitSystem.hasAlertsFuture()) {
+		if (transitSystem.hasAlertsFuture() == false) {
 			// this runs the alerts code in the background,
 			// providing empty alerts until the data is ready
 			
