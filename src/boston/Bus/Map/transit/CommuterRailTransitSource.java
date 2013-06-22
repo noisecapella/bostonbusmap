@@ -31,10 +31,10 @@ import android.graphics.drawable.Drawable;
 import android.os.RemoteException;
 import android.util.Log;
 import boston.Bus.Map.data.Alert;
-import boston.Bus.Map.data.Alerts;
 import boston.Bus.Map.data.BusLocation;
 import boston.Bus.Map.data.CommuterRailStopLocation;
 import boston.Bus.Map.data.Directions;
+import boston.Bus.Map.data.IAlerts;
 import boston.Bus.Map.data.Location;
 import boston.Bus.Map.data.Locations;
 import boston.Bus.Map.data.RouteConfig;
@@ -314,7 +314,7 @@ public class CommuterRailTransitSource implements TransitSource {
 	}
 
 	@Override
-	public Alerts getAlerts() {
+	public IAlerts getAlerts() {
 		return transitSystem.getAlerts();
 	}
 	

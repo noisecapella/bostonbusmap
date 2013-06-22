@@ -135,12 +135,12 @@ public final class Locations
 		//see if route overlays need to be downloaded
 		String routeToUpdate = selection.getRoute();
 		RouteConfig routeConfig = routeMapping.get(routeToUpdate);
-		if (transitSystem.getAlerts() == null) {
-			// there is a small chance that this might get executed twice
-			// if the code which limits refreshes didn't work properly
-			MbtaAlertsParser alertsParser = new MbtaAlertsParser(transitSystem);
-			Alerts alerts = alertsParser.obtainAlerts(context);
-			transitSystem.setAlerts(alerts);
+		if (transitSystem.hasAlertsFuture()) {
+			// this runs the alerts code in the background,
+			// providing empty alerts until the data is ready
+			
+			AlertsFuture alertsFuture = new AlertsFuture(transitSystem, context);
+			transitSystem.setAlertsFuture(alertsFuture);
 		}
 		
 		int mode = selection.getMode();

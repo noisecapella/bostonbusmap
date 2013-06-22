@@ -15,9 +15,9 @@ import android.content.Context;
 import android.content.OperationApplicationException;
 import android.os.RemoteException;
 import boston.Bus.Map.data.Alert;
-import boston.Bus.Map.data.Alerts;
 import boston.Bus.Map.data.BusLocation;
 import boston.Bus.Map.data.Directions;
+import boston.Bus.Map.data.IAlerts;
 import boston.Bus.Map.data.Locations;
 import boston.Bus.Map.data.RouteConfig;
 import boston.Bus.Map.data.RoutePool;
@@ -64,7 +64,7 @@ public interface TransitSource {
 	 */
 	boolean requiresSubwayTable();
 
-	Alerts getAlerts();
+	IAlerts getAlerts();
 
 	String getDescription();
 }

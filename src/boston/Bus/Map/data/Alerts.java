@@ -11,7 +11,7 @@ import com.google.common.collect.ImmutableMultimap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.ImmutableTable;
 
-public class Alerts {
+public class Alerts implements IAlerts {
 	private final ImmutableMultimap<String, Alert> alertsByRoute;
 	private final ImmutableMultimap<String, Alert> alertsByStop;
 	private final ImmutableMultimap<Integer, Alert> alertsByRouteType;
@@ -66,7 +66,7 @@ public class Alerts {
 			alertsByCommuterRailTripId.put(commuterRailTripId, alert);
 		}
 
-		public Alerts build() {
+		public IAlerts build() {
 			return new Alerts(alertsByRoute.build(),
 					alertsByStop.build(),
 					alertsByRouteType.build(),
@@ -80,6 +80,10 @@ public class Alerts {
 		return new Builder();
 	}
 
+	/* (non-Javadoc)
+	 * @see boston.Bus.Map.data.IAlerts#getAlertsByCommuterRailTripId(java.lang.String, java.lang.String)
+	 */
+	@Override
 	public ImmutableCollection<Alert> getAlertsByCommuterRailTripId(String tripId,
 			String routeId) {
 		ImmutableCollection.Builder<Alert> ret = ImmutableList.builder();
@@ -90,6 +94,10 @@ public class Alerts {
 		return ret.build();
 	}
 	
+	/* (non-Javadoc)
+	 * @see boston.Bus.Map.data.IAlerts#getAlertsByRoute(java.lang.String, int)
+	 */
+	@Override
 	public ImmutableCollection<Alert> getAlertsByRoute(String routeName,
 			int routeType) {
 		ImmutableCollection.Builder<Alert> ret = ImmutableList.builder();
@@ -99,6 +107,10 @@ public class Alerts {
 		return ret.build();
 	}
 
+	/* (non-Javadoc)
+	 * @see boston.Bus.Map.data.IAlerts#getAlertsByRouteSetAndStop(java.util.Collection, java.lang.String, int)
+	 */
+	@Override
 	public ImmutableCollection<Alert> getAlertsByRouteSetAndStop(
 			Collection<String> routes, String tag, int routeType) {
 		ImmutableCollection.Builder<Alert> ret = ImmutableList.builder();
