@@ -39,6 +39,7 @@ import boston.Bus.Map.data.TransitDrawables;
 import boston.Bus.Map.data.TransitSourceTitles;
 import boston.Bus.Map.database.Schema;
 import boston.Bus.Map.main.Main;
+import boston.Bus.Map.parser.MbtaAlertsParser;
 import boston.Bus.Map.provider.DatabaseContentProvider.DatabaseAgent;
 import boston.Bus.Map.util.Constants;
 /**
@@ -298,7 +299,7 @@ public class TransitSystem implements ITransitSystem {
 			// this runs the alerts code in the background,
 			// providing empty alerts until the data is ready
 			
-			alertsFuture = new AlertsFuture(this, context);
+			alertsFuture = new AlertsFuture(context, new MbtaAlertsParser(this));
 			
 		}
 	}

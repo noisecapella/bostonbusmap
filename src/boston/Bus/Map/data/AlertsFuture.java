@@ -14,6 +14,7 @@ import android.content.Context;
 import android.os.AsyncTask;
 import android.os.Handler;
 import boston.Bus.Map.annotations.KeepSorted;
+import boston.Bus.Map.parser.IAlertsParser;
 import boston.Bus.Map.parser.MbtaAlertsParser;
 import boston.Bus.Map.transit.TransitSystem;
 import boston.Bus.Map.util.LogUtil;
@@ -33,11 +34,10 @@ public class AlertsFuture
 	
 	private final Object lock = new Object();
 
-	public AlertsFuture(final TransitSystem transitSystem, final Context context) {
+	public AlertsFuture(final Context context, final IAlertsParser parser) {
 		Thread thread = new Thread() {
 			@Override
 			public void run() {
-				MbtaAlertsParser parser = new MbtaAlertsParser(transitSystem);
 				try
 				{
 					IAlerts alerts = parser.obtainAlerts(context);

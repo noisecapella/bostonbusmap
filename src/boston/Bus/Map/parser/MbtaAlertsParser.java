@@ -29,7 +29,7 @@ import boston.Bus.Map.transit.TransitSource;
 import boston.Bus.Map.transit.TransitSystem;
 import boston.Bus.Map.util.DownloadHelper;
 
-public class MbtaAlertsParser {
+public class MbtaAlertsParser implements IAlertsParser {
 	private final TransitSystem transitSystem;
 	private final RouteTitles routeTitles;
 	
@@ -38,6 +38,7 @@ public class MbtaAlertsParser {
 		this.routeTitles = transitSystem.getRouteKeysToTitles();
 	}
 	
+	@Override
 	public IAlerts obtainAlerts(Context context) throws IOException {
 		Alerts.Builder builder = Alerts.builder();
 		
