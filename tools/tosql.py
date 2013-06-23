@@ -48,7 +48,6 @@ class ToSql(xml.sax.handler.ContentHandler):
                     table.stops.insert()
                 table.stopmapping.route.value = self.currentRoute
                 table.stopmapping.tag.value = tag
-                table.stopmapping.dirTag.value = None
                 table.stopmapping.insert()
             else:
                 pass

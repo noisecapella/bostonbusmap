@@ -72,7 +72,6 @@ def write_sql(startorder, route, gtfs_map):
 
         obj.stopmapping.route.value = route
         obj.stopmapping.tag.value = stop_row[stops_header["stop_id"]]
-        obj.stopmapping.dirTag.value = None
         obj.stopmapping.insert()
 
         

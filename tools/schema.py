@@ -90,9 +90,8 @@ schema = {"directions" : {"columns":[
                       "primaryKeys" : ["route"],
                           "indexes" : []},
           "stopmapping" : {"columns":[
-            {"tag": "route", "type": "String"},
-            {"tag": "tag", "type": "String"},
-            {"tag": "dirTag", "type": "String", "canbenull" : "true"}],
+              {"tag": "route", "type": "String"},
+              {"tag": "tag", "type": "String"}],
                            "primaryKeys" : ["route", "tag"],
                            "indexes" : ["route", "tag"]},
           "stops" : {"columns":[

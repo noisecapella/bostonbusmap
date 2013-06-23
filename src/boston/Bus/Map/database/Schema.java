@@ -297,7 +297,7 @@ public class Schema {
     public static class Stopmapping {
         public static final String table = "stopmapping"; 
         public static final String[] columns = new String[] {
-            "route", "tag", "dirTag"
+            "route", "tag"
         };
 
         public static final int routeIndex = 1;
@@ -306,32 +306,26 @@ public class Schema {
         public static final int tagIndex = 2;
         public static final String tagColumn = "tag";
         public static final String tagColumnOnTable = "stopmapping.tag";
-        public static final int dirTagIndex = 3;
-        public static final String dirTagColumn = "dirTag";
-        public static final String dirTagColumnOnTable = "stopmapping.dirTag";
 
         public static final String dropSql = "DROP TABLE IF EXISTS stopmapping";
-        public static final String createSql = "CREATE TABLE IF NOT EXISTS stopmapping (route STRING, tag STRING, dirTag STRING, PRIMARY KEY (route, tag))";
+        public static final String createSql = "CREATE TABLE IF NOT EXISTS stopmapping (route STRING, tag STRING, PRIMARY KEY (route, tag))";
         public static class Bean {
             public final String route;
             public final String tag;
-            public final String dirTag;
-            public Bean(String route, String tag, String dirTag) {
+            public Bean(String route, String tag) {
                 this.route = route;
                 this.tag = tag;
-                this.dirTag = dirTag;
             }
         }
         public static void executeInsertHelper(InsertHelper helper, Collection<Bean> beans) {
             for (Bean bean : beans) {
-                executeInsertHelper(helper, bean.route, bean.tag, bean.dirTag);
+                executeInsertHelper(helper, bean.route, bean.tag);
             }
         }
-        public static void executeInsertHelper(InsertHelper helper, String route, String tag, String dirTag) {
+        public static void executeInsertHelper(InsertHelper helper, String route, String tag) {
             helper.prepareForReplace();
             helper.bind(routeIndex, route);
             helper.bind(tagIndex, tag);
-            helper.bind(dirTagIndex, dirTag);
             helper.execute();
         }
     }

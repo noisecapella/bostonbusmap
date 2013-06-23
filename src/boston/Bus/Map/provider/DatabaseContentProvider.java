@@ -398,7 +398,7 @@ public class DatabaseContentProvider extends ContentProvider {
 					}
 
 					//show that there's a relationship between the stop and this route
-					Schema.Stopmapping.executeInsertHelper(stopRoutesToInsert, route, stopTag, "");
+					Schema.Stopmapping.executeInsertHelper(stopRoutesToInsert, route, stopTag);
 				}
 			}
 			finally
@@ -532,7 +532,7 @@ public class DatabaseContentProvider extends ContentProvider {
 			{
 				// get all stops, joining in stops again to get every route for every stop
 				String[] projectionIn = new String[] {Schema.Stops.tagColumnOnTable, Schema.Stops.latColumn, Schema.Stops.lonColumn, 
-						Schema.Stops.titleColumn, "sm2." + Schema.Stopmapping.dirTagColumn, "sm2." + Schema.Stopmapping.routeColumn};
+						Schema.Stops.titleColumn, "sm2." + Schema.Stopmapping.routeColumn};
 				String select = "sm1." + Schema.Stopmapping.routeColumn + "=?";
 				String[] selectArray = new String[]{routeToUpdate};
 
@@ -545,7 +545,7 @@ public class DatabaseContentProvider extends ContentProvider {
 					while (cursor.isAfterLast() == false)
 					{
 						String stopTag = cursor.getString(0);
-						String route = cursor.getString(5);
+						String route = cursor.getString(4);
 
 						//we need to ensure this stop is in the sharedstops and the route
 						StopLocation stop = sharedStops.get(stopTag);
@@ -928,7 +928,7 @@ public class DatabaseContentProvider extends ContentProvider {
 
 			//get stop with name stopTag, joining with the subway table
 			String[] projectionIn = new String[] {Schema.Stops.tagColumnOnTable, Schema.Stops.latColumn, Schema.Stops.lonColumn, 
-					Schema.Stops.titleColumn, Schema.Stopmapping.routeColumnOnTable, Schema.Stopmapping.dirTagColumnOnTable};
+					Schema.Stops.titleColumn, Schema.Stopmapping.routeColumnOnTable};
 
 			//if size == 1, where clause is tag = ?. if size > 1, where clause is "IN (tag1, tag2, tag3...)"
 			StringBuilder select;
@@ -987,7 +987,7 @@ public class DatabaseContentProvider extends ContentProvider {
 
 			//get stop with name stopTag, joining with the subway table
 			String[] projectionIn = new String[] {Schema.Stops.tagColumnOnTable, Schema.Stops.latColumn, Schema.Stops.lonColumn, 
-					Schema.Stops.titleColumn, Schema.Stopmapping.routeColumnOnTable, Schema.Stopmapping.dirTagColumnOnTable};
+					Schema.Stops.titleColumn, Schema.Stopmapping.routeColumnOnTable};
 
 			//if size == 1, where clause is tag = ?. if size > 1, where clause is "IN (tag1, tag2, tag3...)"
 			StringBuilder select;
@@ -1056,49 +1056,6 @@ public class DatabaseContentProvider extends ContentProvider {
 
 					stopCursor.moveToNext();
 				}
-			}
-			finally
-			{
-				if (stopCursor != null) {
-					stopCursor.close();
-				}
-			}
-		}
-
-		public static ArrayList<StopLocation> getStopsByDirtag(ContentResolver resolver, 
-				String dirTag, TransitSystem transitSystem) {
-			ArrayList<StopLocation> ret = new ArrayList<StopLocation>();
-			String[] projectionIn = new String[] {Schema.Stops.tagColumnOnTable, Schema.Stops.latColumn, Schema.Stops.lonColumn, 
-					Schema.Stops.titleColumn, Schema.Stopmapping.routeColumnOnTable, Schema.Stopmapping.dirTagColumnOnTable};
-
-			//if size == 1, where clause is tag = ?. if size > 1, where clause is "IN (tag1, tag2, tag3...)"
-			StringBuilder select;
-			String[] selectArray;
-
-			select = new StringBuilder(Schema.Stopmapping.dirTagColumnOnTable + "=?");
-			selectArray = new String[]{dirTag};
-
-			Cursor stopCursor = null;
-			try
-			{
-				stopCursor = resolver.query(STOPS_LOOKUP_3_URI, projectionIn, select.toString(), selectArray, null);
-
-				stopCursor.moveToFirst();
-				while (stopCursor.isAfterLast() == false)
-				{
-					String stopTag = stopCursor.getString(0);
-
-					String route = stopCursor.getString(4);
-
-					float lat = stopCursor.getFloat(1);
-					float lon = stopCursor.getFloat(2);
-					String title = stopCursor.getString(3);
-
-					StopLocation stop = transitSystem.createStop(lat, lon, stopTag, title, route);
-					ret.add(stop);
-					stopCursor.moveToNext();
-				}
-				return ret;
 			}
 			finally
 			{
