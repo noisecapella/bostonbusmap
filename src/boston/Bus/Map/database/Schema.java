@@ -382,45 +382,4 @@ public class Schema {
             helper.execute();
         }
     }
-    public static class Subway {
-        public static final String table = "subway"; 
-        public static final String[] columns = new String[] {
-            "tag", "platformorder", "branch"
-        };
-
-        public static final int tagIndex = 1;
-        public static final String tagColumn = "tag";
-        public static final String tagColumnOnTable = "subway.tag";
-        public static final int platformorderIndex = 2;
-        public static final String platformorderColumn = "platformorder";
-        public static final String platformorderColumnOnTable = "subway.platformorder";
-        public static final int branchIndex = 3;
-        public static final String branchColumn = "branch";
-        public static final String branchColumnOnTable = "subway.branch";
-
-        public static final String dropSql = "DROP TABLE IF EXISTS subway";
-        public static final String createSql = "CREATE TABLE IF NOT EXISTS subway (tag STRING PRIMARY KEY, platformorder INTEGER, branch STRING)";
-        public static class Bean {
-            public final String tag;
-            public final int platformorder;
-            public final String branch;
-            public Bean(String tag, int platformorder, String branch) {
-                this.tag = tag;
-                this.platformorder = platformorder;
-                this.branch = branch;
-            }
-        }
-        public static void executeInsertHelper(InsertHelper helper, Collection<Bean> beans) {
-            for (Bean bean : beans) {
-                executeInsertHelper(helper, bean.tag, bean.platformorder, bean.branch);
-            }
-        }
-        public static void executeInsertHelper(InsertHelper helper, String tag, int platformorder, String branch) {
-            helper.prepareForReplace();
-            helper.bind(tagIndex, tag);
-            helper.bind(platformorderIndex, platformorder);
-            helper.bind(branchIndex, branch);
-            helper.execute();
-        }
-    }
 }

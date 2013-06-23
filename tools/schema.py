@@ -102,12 +102,6 @@ schema = {"directions" : {"columns":[
             {"tag": "title", "type": "String"}], 
                      "primaryKeys" : ["tag"],
                      "indexes" : []},
-          "subway" : {"columns":[
-            {"tag": "tag", "type": "String"},
-            {"tag": "platformorder", "type": "int"},
-            {"tag": "branch", "type": "String"}],
-                      "primaryKeys" : ["tag"],
-                      "indexes" : []},
           "locations" : {"columns":[
             {"tag" : "lat", "type" : "float"},
             {"tag" : "lon", "type" : "float"},

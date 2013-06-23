@@ -42,7 +42,7 @@ public interface ITransitSystem {
 			String lowercaseQuery);
 
 	public abstract StopLocation createStop(float latitude, float longitude,
-			String stopTag, String stopTitle, int platformOrder, String branch,
+			String stopTag, String stopTitle,
 			String route);
 
 	IAlerts getAlerts();

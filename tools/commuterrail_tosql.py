@@ -82,11 +82,6 @@ def write_sql(startorder, gtfs_map, stationorder_csv):
                 obj.stops.lon.value = float(stop_row[stops_header["stop_lon"]])
                 obj.stops.insert()
 
-                obj.subway.platformorder.value = -1
-                obj.subway.branch.value = "Unknown"
-                obj.subway.tag.value = stop_row[stops_header["stop_id"]]
-                obj.subway.insert()
-
             obj.stopmapping.route.value = route_id
             obj.stopmapping.tag.value = stop_row[stops_header["stop_id"]]
             obj.stopmapping.dirTag.value = None

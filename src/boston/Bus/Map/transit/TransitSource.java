@@ -43,7 +43,7 @@ public interface TransitSource {
 	TransitDrawables getDrawables();
 
 	StopLocation createStop(float latitude, float longitude, String stopTag,
-			String stopTitle, int platformOrder, String branch, String route);
+			String stopTitle, String route);
 	
 	TransitSourceTitles getRouteTitles();
 	

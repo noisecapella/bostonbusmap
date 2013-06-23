@@ -265,7 +265,7 @@ public abstract class NextBusTransitSource implements TransitSource
 
 	@Override
 	public StopLocation createStop(float lat, float lon, String stopTag,
-			String title, int platformOrder, String branch, String route)
+			String title, String route)
 	{
 		StopLocation stop = new StopLocation.Builder(lat, lon, stopTag, title).build();
 		stop.addRoute(route);
