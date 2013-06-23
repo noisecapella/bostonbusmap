@@ -93,12 +93,12 @@ schema = {"directions" : {"columns":[
               {"tag": "route", "type": "String"},
               {"tag": "tag", "type": "String"}],
                            "primaryKeys" : ["route", "tag"],
-                           "indexes" : ["route", "tag"]},
+                           "indexes" : [("route",),
+                                        ("tag",)]},
           "stops" : {"columns":[
-            {"tag": "tag", "type": "String"},
-            {"tag": "lat", "type": "float"},
-            {"tag": "lon", "type": "float"},
-            {"tag": "title", "type": "String"}], 
+              {"tag": "tag", "type": "String"},
+              {"tag" : "groupid", "type":"int"},
+              {"tag": "title", "type": "String"}], 
                      "primaryKeys" : ["tag"],
                      "indexes" : []},
           "locations" : {"columns":[
@@ -107,6 +107,12 @@ schema = {"directions" : {"columns":[
             {"tag" : "name", "type" : "String"}],
                          "primaryKeys" : ["name"],
                          "indexes" : []},
+          "stopgroup" : {"columns":[
+              {"tag" : "lat", "type" : "float"},
+              {"tag" : "lon", "type" : "float"},
+              {"tag" : "groupid", "type" : "int"}],
+                         "primaryKeys" : ["groupid"],
+                         "indexes" : [("lat", "lon")]},
           "bounds" : {"columns":[
             {"tag" : "route", "type" : "String"},
             {"tag" : "weekdays", "type" : "int"},
@@ -123,7 +129,9 @@ schema = {"directions" : {"columns":[
               {"tag" : "isDelayed", "type" : "int"},
               {"tag" : "lateness", "type" : "int"}],
                            "primaryKeys" : [],
-                           "indexes" : ["stopid", "route"]},
+                           "indexes" : [("stopid",),
+                                        ("route",),
+                                        ("arrivalTimeInMillis",)]},
           "vehicles" : {"columns":[
               {"tag" : "lat", "type" : "float"},
               {"tag" : "lon", "type" : "float"},
@@ -133,7 +141,7 @@ schema = {"directions" : {"columns":[
               {"tag" : "lastFeedUpdateInMillis", "type" : "long"},
               {"tag" : "dirTag", "type" : "String"}],
                         "primaryKeys" : ["vehicleid"],
-                        "indexes" : ["route"]}
+                        "indexes" : [("route",)]}
           }
 
 class Tables:
@@ -149,8 +157,8 @@ class Table:
         if not self.indexes:
             return
         else:
-            for index in self.indexes:
-                yield "CREATE INDEX IF NOT EXISTS idx" + self.tablename + index + " ON " + self.tablename + " (" + index + ")";
+            for index_group in self.indexes:
+                yield "CREATE INDEX IF NOT EXISTS idx" + self.tablename + "_".join(index_group) + " ON " + self.tablename + " (" + ", ".join(index_group) + ")";
         
     def create(self):
         createParams = ", ".join(getattr(self, column["tag"]).sqlForColumn(self.primaryKeys) for column in self.arguments)

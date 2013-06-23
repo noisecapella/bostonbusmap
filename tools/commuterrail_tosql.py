@@ -11,12 +11,14 @@ purple = 0x940088
 def createDirectionHash(a, b):
     return a + "|" + b
 
-def write_sql(startorder, gtfs_map, stationorder_csv):
+def write_sql(startorder, gtfs_map, stationorder_csv, latlonmap):
     trips_header, trips = gtfs_map.trips_header, gtfs_map.trips
     stops_header, stops = gtfs_map.stops_header, gtfs_map.stops
     routes_header, routes = gtfs_map.routes_header, gtfs_map.routes
     stop_times_header, stop_times = gtfs_map.stop_times_header, gtfs_map.stop_times
     shapes_header, shapes = gtfs_map.shapes_header, gtfs_map.shapes
+
+    print("BEGIN TRANSACTION;")
 
     # this is a workaround
     route_order = {
@@ -76,16 +78,27 @@ def write_sql(startorder, gtfs_map, stationorder_csv):
             if stop_id not in stops_inserted:
                 stops_inserted.add(stop_id)
 
+                tup = (float(stop_row[stops_header["stop_lat"]]),
+                       float(stop_row[stops_header["stop_lon"]]))
+                
+                if tup not in latlonmap:
+                    groupid = len(latlonmap)
+                    obj.stopgroup.lat.value = tup[0]
+                    obj.stopgroup.lon.value = tup[1]
+                    obj.stopgroup.groupid.value = groupid
+                    obj.stopgroup.insert()
+                    latlonmap[tup] = groupid
+                    
                 obj.stops.tag.value = stop_id
                 obj.stops.title.value = stop_row[stops_header["stop_name"]]
-                obj.stops.lat.value = float(stop_row[stops_header["stop_lat"]])
-                obj.stops.lon.value = float(stop_row[stops_header["stop_lon"]])
+                obj.stops.groupid.value = latlonmap[tup]
                 obj.stops.insert()
 
             obj.stopmapping.route.value = route_id
             obj.stopmapping.tag.value = stop_row[stops_header["stop_id"]]
             obj.stopmapping.insert()
-            
+    print("END TRANSACTION;")
+
 
 def main():
     parser = argparse.ArgumentParser(description='Parse commuterrail data into SQL')
@@ -103,8 +116,8 @@ def main():
 
     gtfs_map = GtfsMap(args.gtfs_path)
 
-    write_sql(startorder, gtfs_map, args.stationorder_csv)
-    print("END TRANSACTION;")
+    latlonmap = {}
+    write_sql(startorder, gtfs_map, args.stationorder_csv, latlonmap)
 
 if __name__ == "__main__":
     main()

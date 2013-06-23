@@ -13,10 +13,11 @@ def hexToDec(s):
     return str(int(s, 16))
 
 class ToSql(xml.sax.handler.ContentHandler):
-    def __init__(self, routeKeysToTitles, startingOrder):
+    def __init__(self, routeKeysToTitles, startingOrder, sharedLatLon):
         self.currentDirection = None
         self.currentRoute = None
         self.sharedStops = {}
+        self.sharedLatLon = sharedLatLon
         self.table = schema.getSchemaAsObject()
         self.routeKeysToTitles = routeKeysToTitles
         self.startingOrder = startingOrder
@@ -41,9 +42,17 @@ class ToSql(xml.sax.handler.ContentHandler):
             if not self.currentDirection:
                 if tag not in self.sharedStops:
                     self.sharedStops[tag] = True
+                    tup = attributes["lat"], attributes["lon"]
+                    if tup not in self.sharedLatLon:
+                        table.stopgroup.lat.value = attributes["lat"]
+                        table.stopgroup.lon.value = attributes["lon"]
+                        groupid = len(self.sharedLatLon)
+                        table.stopgroup.groupid.value = groupid
+                        table.stopgroup.insert()
+                        self.sharedLatLon[tup] = groupid
+
                     table.stops.tag.value = tag
-                    table.stops.lat.value = attributes["lat"]
-                    table.stops.lon.value = attributes["lon"]
+                    table.stops.groupid.value = self.sharedLatLon[tup]
                     table.stops.title.value = attributes["title"]
                     table.stops.insert()
                 table.stopmapping.route.value = self.currentRoute
@@ -87,22 +96,17 @@ class ToSql(xml.sax.handler.ContentHandler):
             self.inPath = False
             self.paths.append(self.currentPathPoints)
                 
-
-if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Parse routeconfig.xml into SQL statements")
-    parser.add_argument("routeconfig", type=str)
-    parser.add_argument("routeList", type=str)
-    parser.add_argument("order", type=int)
-    args = parser.parse_args()
-
+def write_sql(routeList, routeconfig, starting_route_index, sharedLatLon):
     routeTitleParser = xml.sax.make_parser()
     routeHandler = routetitleshandler.RouteTitlesHandler()
     routeTitleParser.setContentHandler(routeHandler)
-    routeTitleParser.parse(args.routeList)
+    routeTitleParser.parse(routeList)
         
     print "BEGIN TRANSACTION;"
     parser = xml.sax.make_parser()
-    handler = ToSql(routeHandler.mapping, args.order)
+    handler = ToSql(routeHandler.mapping, starting_route_index, sharedLatLon)
     parser.setContentHandler(handler)
-    parser.parse(args.routeconfig)
+    parser.parse(routeconfig)
     print "END TRANSACTION;"
+
+

@@ -14,7 +14,7 @@ import itertools
 from collections import defaultdict
 from gtfs_map import GtfsMap
 
-def write_sql(startorder, route, gtfs_map):
+def write_route_sql(startorder, route, gtfs_map, latlonmap):
     trips_header, trips = gtfs_map.trips_header, gtfs_map.trips
     stops_header, stops = gtfs_map.stops_header, gtfs_map.stops
     routes_header, routes = gtfs_map.routes_header, gtfs_map.routes
@@ -64,10 +64,19 @@ def write_sql(startorder, route, gtfs_map):
     obj.routes.insert()
 
     for stop_row in stop_rows:
+        tup = (float(stop_row[stops_header["stop_lat"]]),
+               float(stop_row[stops_header["stop_lon"]]))
+
+        if tup not in latlonmap:
+            groupid = len(latlonmap)
+            obj.stopgroup.lat.value = tup[0]
+            obj.stopgroup.lon.value = tup[1]
+            obj.stopgroup.groupid.value = groupid
+            obj.stopgroup.insert()
+            latlonmap[tup] = groupid
         obj.stops.tag.value = stop_row[stops_header["stop_id"]]
         obj.stops.title.value = stop_row[stops_header["stop_name"]]
-        obj.stops.lat.value = float(stop_row[stops_header["stop_lat"]])
-        obj.stops.lon.value = float(stop_row[stops_header["stop_lon"]])
+        obj.stops.groupid.value = latlonmap[tup]
         obj.stops.insert()
 
         obj.stopmapping.route.value = route
@@ -75,6 +84,17 @@ def write_sql(startorder, route, gtfs_map):
         obj.stopmapping.insert()
 
         
+def write_sql(gtfs_map, startorder, latlonmap):
+    print("BEGIN TRANSACTION;")
+    count = 0
+
+    for route in ["Red", "Orange", "Blue"]:
+
+        write_route_sql(startorder + count, route, gtfs_map, latlonmap)
+        count += 1
+    print("END TRANSACTION;")
+    
+
     
 def main():
     parser = argparse.ArgumentParser(description='Parse subway data')
@@ -82,21 +102,6 @@ def main():
     parser.add_argument('order', type=int)
     args = parser.parse_args()
 
-    if not os.path.isdir(args.gtfs_path):
-        print "%s is not a directory" % args.gtfs_path
-        exit(-1)
-
-    print("BEGIN TRANSACTION;")
-    count = 0
-    startorder = args.order
-
-    gtfs_map = GtfsMap(args.gtfs_path)
-
-    for route in ["Red", "Orange", "Blue"]:
-
-        write_sql(startorder + count, route, gtfs_map)
-        count += 1
-    print("END TRANSACTION;")
 
 
 if __name__ == "__main__":
