@@ -72,10 +72,6 @@ public class Directions {
 		
 	}
 
-	public void writeToDatabase() throws RemoteException, OperationApplicationException {
-		DatabaseAgent.writeDirections(context, directions);
-	}
-
 	/**
 	 * Returns a displayable HTML string of the direction's title and name
 	 * @param dirTag

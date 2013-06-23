@@ -330,84 +330,6 @@ public class DatabaseContentProvider extends ContentProvider {
 			}
 		}
 
-		public static void saveMapping(Context context, 
-				Map<String, RouteConfig> mapping,
-				HashSet<String> sharedStops, UpdateAsyncTask task)
-						throws IOException, RemoteException, OperationApplicationException
-		{
-			int total = mapping.keySet().size();
-			task.publish(new ProgressMessage(ProgressMessage.SET_MAX, total));
-
-			int count = 0;
-			for (String route : mapping.keySet())
-			{
-				RouteConfig routeConfig = mapping.get(route);
-				if (routeConfig != null)
-				{
-					String routeTitle = routeConfig.getRouteTitle();
-					saveMappingKernel(context, route, routeTitle, routeConfig, sharedStops);
-				}
-
-				count++;
-				task.publish(count);
-			}
-		}
-
-		/**
-		 * 
-		 * @param database
-		 * @param route
-		 * @param routeConfig
-		 * @param useInsert insert all rows, don't replace them. I assume this is faster since there's no lookup involved
-		 * @throws IOException 
-		 */
-		private static void saveMappingKernel(Context context, 
-				String route, String routeTitle, RouteConfig routeConfig,
-				HashSet<String> sharedStops) throws IOException
-		{
-			DatabaseHelper databaseHelper = DatabaseHelper.getInstance(context);
-			SQLiteDatabase database = databaseHelper.getWritableDatabase();
-			
-			InsertHelper routeInsertHelper = new InsertHelper(database, Schema.Routes.table);
-			try
-			{
-				Schema.Routes.executeInsertHelper(routeInsertHelper, route, 
-						routeConfig.getColor(), routeConfig.getOppositeColor(),
-						pathsToBlob(routeConfig.getPaths()), routeConfig.getListOrder(),
-						routeConfig.getTransitSourceId(), routeTitle);
-			}
-			finally
-			{
-				routeInsertHelper.close();
-			}
-			//add all stops associated with the route, if they don't already exist
-
-			InsertHelper stopsToInsert = new InsertHelper(database, Schema.Stops.table);
-			InsertHelper stopRoutesToInsert = new InsertHelper(database, Schema.Stopmapping.table);
-			try
-			{
-				for (StopLocation stop : routeConfig.getStops())
-				{
-					String stopTag = stop.getStopTag();
-
-					if (sharedStops.contains(stopTag) == false)
-					{
-						sharedStops.add(stopTag);
-
-						Schema.Stops.executeInsertHelper(stopsToInsert, stopTag, stop.getLatitudeAsDegrees(), stop.getLongitudeAsDegrees(), stop.getTitle());
-					}
-
-					//show that there's a relationship between the stop and this route
-					Schema.Stopmapping.executeInsertHelper(stopRoutesToInsert, route, stopTag);
-				}
-			}
-			finally
-			{
-				stopsToInsert.close();
-				stopRoutesToInsert.close();
-			}
-		}
-
 		public static ImmutableList<String> getAllStopTagsAtLocation(ContentResolver resolver, 
 				String stopTag)
 		{
@@ -415,8 +337,10 @@ public class DatabaseContentProvider extends ContentProvider {
 			try
 			{
 				cursor = resolver.query(STOPS_STOPS_URI, 
-						new String[]{"s2." + Schema.Stops.tagColumn}, "s1." + Schema.Stops.tagColumn + " = ? AND s1." + Schema.Stops.latColumn + " = s2." + Schema.Stops.latColumn +
-						" AND s1." + Schema.Stops.lonColumn + " = s2." + Schema.Stops.lonColumn + "", new String[]{stopTag}, null);
+						new String[]{"s2." + Schema.Stops.tagColumn},
+						"s1." + Schema.Stops.tagColumn + 
+						" = ? AND s1." + Schema.Stops.groupidColumn + 
+						" = s2." + Schema.Stops.groupidColumn, new String[]{stopTag}, null);
 
 				ImmutableList.Builder<String> ret = ImmutableList.builder();
 				cursor.moveToFirst();
@@ -531,7 +455,8 @@ public class DatabaseContentProvider extends ContentProvider {
 
 			{
 				// get all stops, joining in stops again to get every route for every stop
-				String[] projectionIn = new String[] {Schema.Stops.tagColumnOnTable, Schema.Stops.latColumn, Schema.Stops.lonColumn, 
+				String[] projectionIn = new String[] {Schema.Stops.tagColumnOnTable,
+						Schema.Stopgroup.latColumn, Schema.Stopgroup.lonColumn, 
 						Schema.Stops.titleColumn, "sm2." + Schema.Stopmapping.routeColumn};
 				String select = "sm1." + Schema.Stopmapping.routeColumn + "=?";
 				String[] selectArray = new String[]{routeToUpdate};
@@ -658,44 +583,6 @@ public class DatabaseContentProvider extends ContentProvider {
 				if (cursor != null) {
 					cursor.close();
 				}
-			}
-		}
-
-		public static void writeDirections(Context context, ConcurrentHashMap<String, Direction> directions) throws RemoteException, OperationApplicationException {
-			DatabaseHelper helper = DatabaseHelper.getInstance(context);
-
-			SQLiteDatabase database = helper.getWritableDatabase();
-			InsertHelper directionHelper = new InsertHelper(database, Schema.Directions.table);
-			InsertHelper directionStopHelper = new InsertHelper(database, Schema.DirectionsStops.table);
-			try
-			{
-				database.beginTransaction();
-				for (String dirTag : directions.keySet())
-				{
-					Direction direction = directions.get(dirTag);
-					String name = direction.getName();
-					String title = direction.getTitle();
-					String route = direction.getRoute();
-					boolean useAsUI = direction.isUseForUI();
-
-					Schema.Directions.executeInsertHelper(directionHelper, dirTag, name, title, route, Schema.toInteger(useAsUI));
-
-					for (String stopTag : direction.getStopTags()) {
-						Schema.DirectionsStops.executeInsertHelper(directionStopHelper, dirTag, stopTag);
-					}
-
-				}
-				database.setTransactionSuccessful();
-			}
-			finally
-			{
-				if (directionHelper != null) {
-					directionHelper.close();
-				}
-				if (directionStopHelper != null) {
-					directionStopHelper.close();
-				}
-				database.endTransaction();
 			}
 		}
 
@@ -927,7 +814,8 @@ public class DatabaseContentProvider extends ContentProvider {
 			//TODO: we should have a factory somewhere to abstract details away regarding subway vs bus
 
 			//get stop with name stopTag, joining with the subway table
-			String[] projectionIn = new String[] {Schema.Stops.tagColumnOnTable, Schema.Stops.latColumn, Schema.Stops.lonColumn, 
+			String[] projectionIn = new String[] {Schema.Stops.tagColumnOnTable,
+					Schema.Stopgroup.latColumn, Schema.Stopgroup.lonColumn, 
 					Schema.Stops.titleColumn, Schema.Stopmapping.routeColumnOnTable};
 
 			//if size == 1, where clause is tag = ?. if size > 1, where clause is "IN (tag1, tag2, tag3...)"
@@ -983,10 +871,9 @@ public class DatabaseContentProvider extends ContentProvider {
 				return;
 			}
 
-			//TODO: we should have a factory somewhere to abstract details away regarding subway vs bus
-
 			//get stop with name stopTag, joining with the subway table
-			String[] projectionIn = new String[] {Schema.Stops.tagColumnOnTable, Schema.Stops.latColumn, Schema.Stops.lonColumn, 
+			String[] projectionIn = new String[] {Schema.Stops.tagColumnOnTable,
+					Schema.Stopgroup.latColumn, Schema.Stopgroup.lonColumn,
 					Schema.Stops.titleColumn, Schema.Stopmapping.routeColumnOnTable};
 
 			//if size == 1, where clause is tag = ?. if size > 1, where clause is "IN (tag1, tag2, tag3...)"
@@ -1452,6 +1339,7 @@ public class DatabaseContentProvider extends ContentProvider {
 			break;
 		case STOPS_LOOKUP:
 			builder.setTables(Schema.Stops.table +
+						" JOIN " + Schema.Stopgroup.table + " ON (" + Schema.Stops.groupidColumnOnTable + " = " + Schema.Stopgroup.groupidColumnOnTable + ") " +
 						" JOIN " + Schema.Stopmapping.table + " AS sm1 ON (" + Schema.Stops.tagColumnOnTable + " = sm1." + Schema.Stopmapping.tagColumn + ")" +
 						" JOIN " + Schema.Stopmapping.table + " AS sm2 ON (" + Schema.Stops.tagColumnOnTable + " = sm2." + Schema.Stopmapping.tagColumn + ")"
 						);
@@ -1469,8 +1357,12 @@ public class DatabaseContentProvider extends ContentProvider {
 			
 			break;
 		case STOPS_LOOKUP_3:
-			builder.setTables(Schema.Stops.table + " JOIN " + Schema.Stopmapping.table + " ON (" + Schema.Stops.tagColumnOnTable + " = " +
-					Schema.Stopmapping.tagColumnOnTable + ") ");
+			builder.setTables(Schema.Stops.table +
+					" JOIN " + Schema.Stopmapping.table + " ON (" +
+					Schema.Stops.tagColumnOnTable + " = " +
+					Schema.Stopmapping.tagColumnOnTable + ") " +
+					" JOIN " + Schema.Stopgroup.table + " ON (" +
+					Schema.Stops.groupidColumnOnTable + " = " + Schema.Stopgroup.groupidColumnOnTable + ") ");
 			break;
 		case STOPS_WITH_DISTANCE:
 		{
@@ -1478,14 +1370,16 @@ public class DatabaseContentProvider extends ContentProvider {
 			double currentLat = Integer.parseInt(pathSegments.get(1)) * Constants.InvE6;
 			double currentLon = Integer.parseInt(pathSegments.get(2)) * Constants.InvE6;
 			limit = pathSegments.get(3);
-			builder.setTables(Schema.Stops.table);
+			builder.setTables(Schema.Stops.table +
+					" JOIN " + Schema.Stopgroup.table + " ON (" + Schema.Stopgroup.groupidColumnOnTable
+					+ " = " + Schema.Stops.groupidColumnOnTable + ") ");
 
 			HashMap<String, String> projectionMap = new HashMap<String, String>();
 			projectionMap.put(Schema.Stops.tagColumnOnTable, Schema.Stops.tagColumnOnTable);
 
 			double lonFactor = Math.cos(currentLat * Geometry.degreesToRadians);
-			String latDiff = "(" + Schema.Stops.latColumn + " - " + currentLat + ")";
-			String lonDiff = "((" + Schema.Stops.lonColumn + " - " + currentLon + ")*" + lonFactor + ")";
+			String latDiff = "(" + Schema.Stopgroup.latColumn + " - " + currentLat + ")";
+			String lonDiff = "((" + Schema.Stopgroup.lonColumn + " - " + currentLon + ")*" + lonFactor + ")";
 			projectionMap.put(distanceKey, latDiff + "*" + latDiff + " + " + lonDiff + "*" + lonDiff + " AS " + distanceKey);
 			builder.setProjectionMap(projectionMap);
 		}
@@ -1496,15 +1390,18 @@ public class DatabaseContentProvider extends ContentProvider {
 			double currentLat = Integer.parseInt(pathSegments.get(1)) * Constants.InvE6;
 			double currentLon = Integer.parseInt(pathSegments.get(2)) * Constants.InvE6;
 			limit = pathSegments.get(3);
-			builder.setTables(Schema.Stops.table + " JOIN " + Schema.Stopmapping.table +
+			builder.setTables(Schema.Stops.table +
+					" JOIN " + Schema.Stopgroup.table + " ON (" + Schema.Stopgroup.groupidColumnOnTable
+					+ " = " + Schema.Stops.groupidColumnOnTable + ") "
+					+ " JOIN " + Schema.Stopmapping.table +
 					" ON " + Schema.Stops.tagColumnOnTable + " = " + Schema.Stopmapping.tagColumnOnTable);
 
 			HashMap<String, String> projectionMap = new HashMap<String, String>();
 			projectionMap.put(Schema.Stops.tagColumnOnTable, Schema.Stops.tagColumnOnTable);
 
 			double lonFactor = Math.cos(currentLat * Geometry.degreesToRadians);
-			String latDiff = "(" + Schema.Stops.latColumn + " - " + currentLat + ")";
-			String lonDiff = "((" + Schema.Stops.lonColumn + " - " + currentLon + ")*" + lonFactor + ")";
+			String latDiff = "(" + Schema.Stopgroup.latColumn + " - " + currentLat + ")";
+			String lonDiff = "((" + Schema.Stopgroup.lonColumn + " - " + currentLon + ")*" + lonFactor + ")";
 			projectionMap.put(distanceKey, latDiff + "*" + latDiff + " + " + lonDiff + "*" + lonDiff + " AS " + distanceKey);
 			builder.setProjectionMap(projectionMap);
 		}

@@ -140,22 +140,6 @@ public class RoutePool extends Pool<String, RouteConfig> {
 		return DatabaseAgent.getRoute(context.getContentResolver(), routeToUpdate, sharedStops, transitSystem);
 	}
 	
-	public void writeToDatabase(ImmutableMap<String, RouteConfig> map, UpdateAsyncTask task, boolean silent) throws IOException, RemoteException, OperationApplicationException {
-		if (!silent)
-		{
-			task.publish(new ProgressMessage(ProgressMessage.PROGRESS_DIALOG_ON, "Saving to database", null));
-		}
-		
-		HashSet<String> stopTags = Sets.newHashSet();
-		DatabaseAgent.saveMapping(context, map, stopTags, task);
-		
-		clearAll();
-		populateFavorites();
-		//saveFavoritesToDatabase();
-	}
-
-	
-	
 	private void populateFavorites() {
 		DatabaseAgent.populateFavorites(context.getContentResolver(), favoriteStops);
 		fillInFavoritesRoutes();

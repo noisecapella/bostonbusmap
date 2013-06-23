@@ -53,19 +53,6 @@ public class Schema {
                 this.stop = stop;
             }
         }
-        public static void executeInsertHelper(InsertHelper helper, Collection<Bean> beans) {
-            for (Bean bean : beans) {
-                executeInsertHelper(helper, bean.route, bean.weekdays, bean.start, bean.stop);
-            }
-        }
-        public static void executeInsertHelper(InsertHelper helper, String route, int weekdays, int start, int stop) {
-            helper.prepareForReplace();
-            helper.bind(routeIndex, route);
-            helper.bind(weekdaysIndex, weekdays);
-            helper.bind(startIndex, start);
-            helper.bind(stopIndex, stop);
-            helper.execute();
-        }
     }
     public static class Directions {
         public static final String table = "directions"; 
@@ -105,20 +92,6 @@ public class Schema {
                 this.useAsUI = useAsUI;
             }
         }
-        public static void executeInsertHelper(InsertHelper helper, Collection<Bean> beans) {
-            for (Bean bean : beans) {
-                executeInsertHelper(helper, bean.dirTag, bean.dirNameKey, bean.dirTitleKey, bean.dirRouteKey, bean.useAsUI);
-            }
-        }
-        public static void executeInsertHelper(InsertHelper helper, String dirTag, String dirNameKey, String dirTitleKey, String dirRouteKey, int useAsUI) {
-            helper.prepareForReplace();
-            helper.bind(dirTagIndex, dirTag);
-            helper.bind(dirNameKeyIndex, dirNameKey);
-            helper.bind(dirTitleKeyIndex, dirTitleKey);
-            helper.bind(dirRouteKeyIndex, dirRouteKey);
-            helper.bind(useAsUIIndex, useAsUI);
-            helper.execute();
-        }
     }
     public static class DirectionsStops {
         public static final String table = "directionsStops"; 
@@ -142,17 +115,6 @@ public class Schema {
                 this.dirTag = dirTag;
                 this.tag = tag;
             }
-        }
-        public static void executeInsertHelper(InsertHelper helper, Collection<Bean> beans) {
-            for (Bean bean : beans) {
-                executeInsertHelper(helper, bean.dirTag, bean.tag);
-            }
-        }
-        public static void executeInsertHelper(InsertHelper helper, String dirTag, String tag) {
-            helper.prepareForReplace();
-            helper.bind(dirTagIndex, dirTag);
-            helper.bind(tagIndex, tag);
-            helper.execute();
         }
     }
     public static class Favorites {
@@ -220,7 +182,9 @@ public class Schema {
         public static void executeInsertHelper(InsertHelper helper, float lat, float lon, String name) {
             helper.prepareForReplace();
             helper.bind(latIndex, lat);
+            helper.execute();
             helper.bind(lonIndex, lon);
+            helper.execute();
             helper.bind(nameIndex, name);
             helper.execute();
         }
@@ -281,11 +245,17 @@ public class Schema {
         public static void executeInsertHelper(InsertHelper helper, String stopid, String vehicleid, String route, long arrivalTimeInMillis, int affectedByLayover, int isDelayed, int lateness) {
             helper.prepareForReplace();
             helper.bind(stopidIndex, stopid);
+            helper.execute();
             helper.bind(vehicleidIndex, vehicleid);
+            helper.execute();
             helper.bind(routeIndex, route);
+            helper.execute();
             helper.bind(arrivalTimeInMillisIndex, arrivalTimeInMillis);
+            helper.execute();
             helper.bind(affectedByLayoverIndex, affectedByLayover);
+            helper.execute();
             helper.bind(isDelayedIndex, isDelayed);
+            helper.execute();
             helper.bind(latenessIndex, lateness);
             helper.execute();
         }
@@ -342,21 +312,34 @@ public class Schema {
                 this.routetitle = routetitle;
             }
         }
-        public static void executeInsertHelper(InsertHelper helper, Collection<Bean> beans) {
-            for (Bean bean : beans) {
-                executeInsertHelper(helper, bean.route, bean.color, bean.oppositecolor, bean.pathblob, bean.listorder, bean.agencyid, bean.routetitle);
+    }
+    public static class Stopgroup {
+        public static final String table = "stopgroup"; 
+        public static final String[] columns = new String[] {
+            "lat", "lon", "groupid"
+        };
+
+        public static final int latIndex = 1;
+        public static final String latColumn = "lat";
+        public static final String latColumnOnTable = "stopgroup.lat";
+        public static final int lonIndex = 2;
+        public static final String lonColumn = "lon";
+        public static final String lonColumnOnTable = "stopgroup.lon";
+        public static final int groupidIndex = 3;
+        public static final String groupidColumn = "groupid";
+        public static final String groupidColumnOnTable = "stopgroup.groupid";
+
+        public static final String dropSql = "DROP TABLE IF EXISTS stopgroup";
+        public static final String createSql = "CREATE TABLE IF NOT EXISTS stopgroup (lat FLOAT, lon FLOAT, groupid INTEGER PRIMARY KEY)";
+        public static class Bean {
+            public final float lat;
+            public final float lon;
+            public final int groupid;
+            public Bean(float lat, float lon, int groupid) {
+                this.lat = lat;
+                this.lon = lon;
+                this.groupid = groupid;
             }
-        }
-        public static void executeInsertHelper(InsertHelper helper, String route, int color, int oppositecolor, byte[] pathblob, int listorder, int agencyid, String routetitle) {
-            helper.prepareForReplace();
-            helper.bind(routeIndex, route);
-            helper.bind(colorIndex, color);
-            helper.bind(oppositecolorIndex, oppositecolor);
-            helper.bind(pathblobIndex, pathblob);
-            helper.bind(listorderIndex, listorder);
-            helper.bind(agencyidIndex, agencyid);
-            helper.bind(routetitleIndex, routetitle);
-            helper.execute();
         }
     }
     public static class Stopmapping {
@@ -382,63 +365,34 @@ public class Schema {
                 this.tag = tag;
             }
         }
-        public static void executeInsertHelper(InsertHelper helper, Collection<Bean> beans) {
-            for (Bean bean : beans) {
-                executeInsertHelper(helper, bean.route, bean.tag);
-            }
-        }
-        public static void executeInsertHelper(InsertHelper helper, String route, String tag) {
-            helper.prepareForReplace();
-            helper.bind(routeIndex, route);
-            helper.bind(tagIndex, tag);
-            helper.execute();
-        }
     }
     public static class Stops {
         public static final String table = "stops"; 
         public static final String[] columns = new String[] {
-            "tag", "lat", "lon", "title"
+            "tag", "groupid", "title"
         };
 
         public static final int tagIndex = 1;
         public static final String tagColumn = "tag";
         public static final String tagColumnOnTable = "stops.tag";
-        public static final int latIndex = 2;
-        public static final String latColumn = "lat";
-        public static final String latColumnOnTable = "stops.lat";
-        public static final int lonIndex = 3;
-        public static final String lonColumn = "lon";
-        public static final String lonColumnOnTable = "stops.lon";
-        public static final int titleIndex = 4;
+        public static final int groupidIndex = 2;
+        public static final String groupidColumn = "groupid";
+        public static final String groupidColumnOnTable = "stops.groupid";
+        public static final int titleIndex = 3;
         public static final String titleColumn = "title";
         public static final String titleColumnOnTable = "stops.title";
 
         public static final String dropSql = "DROP TABLE IF EXISTS stops";
-        public static final String createSql = "CREATE TABLE IF NOT EXISTS stops (tag STRING PRIMARY KEY, lat FLOAT, lon FLOAT, title STRING)";
+        public static final String createSql = "CREATE TABLE IF NOT EXISTS stops (tag STRING PRIMARY KEY, groupid INTEGER, title STRING)";
         public static class Bean {
             public final String tag;
-            public final float lat;
-            public final float lon;
+            public final int groupid;
             public final String title;
-            public Bean(String tag, float lat, float lon, String title) {
+            public Bean(String tag, int groupid, String title) {
                 this.tag = tag;
-                this.lat = lat;
-                this.lon = lon;
+                this.groupid = groupid;
                 this.title = title;
             }
-        }
-        public static void executeInsertHelper(InsertHelper helper, Collection<Bean> beans) {
-            for (Bean bean : beans) {
-                executeInsertHelper(helper, bean.tag, bean.lat, bean.lon, bean.title);
-            }
-        }
-        public static void executeInsertHelper(InsertHelper helper, String tag, float lat, float lon, String title) {
-            helper.prepareForReplace();
-            helper.bind(tagIndex, tag);
-            helper.bind(latIndex, lat);
-            helper.bind(lonIndex, lon);
-            helper.bind(titleIndex, title);
-            helper.execute();
         }
     }
     public static class Vehicles {
@@ -497,11 +451,17 @@ public class Schema {
         public static void executeInsertHelper(InsertHelper helper, float lat, float lon, String vehicleid, String route, long lastUpdateInMillis, long lastFeedUpdateInMillis, String dirTag) {
             helper.prepareForReplace();
             helper.bind(latIndex, lat);
+            helper.execute();
             helper.bind(lonIndex, lon);
+            helper.execute();
             helper.bind(vehicleidIndex, vehicleid);
+            helper.execute();
             helper.bind(routeIndex, route);
+            helper.execute();
             helper.bind(lastUpdateInMillisIndex, lastUpdateInMillis);
+            helper.execute();
             helper.bind(lastFeedUpdateInMillisIndex, lastFeedUpdateInMillis);
+            helper.execute();
             helper.bind(dirTagIndex, dirTag);
             helper.execute();
         }
