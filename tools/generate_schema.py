@@ -48,19 +48,20 @@ def writeTable(table):
 
     beanParams = ", ".join(("bean." + column["tag"]) for column in columns)
 
-    print indent2 + "public static void executeInsertHelper(InsertHelper helper, Collection<Bean> beans) {"
-    print indent3 + "for (Bean bean : beans) {"
-    print indent4 + "executeInsertHelper(helper, " + beanParams + ");"
-    print indent3 + "}"
-    print indent2 + "}"
-    print indent2 + "public static void executeInsertHelper(InsertHelper helper, " + params + ") {"
+    if not table.readonly:
+        print indent2 + "public static void executeInsertHelper(InsertHelper helper, Collection<Bean> beans) {"
+        print indent3 + "for (Bean bean : beans) {"
+        print indent4 + "executeInsertHelper(helper, " + beanParams + ");"
+        print indent3 + "}"
+        print indent2 + "}"
+        print indent2 + "public static void executeInsertHelper(InsertHelper helper, " + params + ") {"
 
-    print indent3 + "helper.prepareForReplace();"
-    for column in columns:
-        print indent3 + "helper.bind(" + column["tag"] + "Index, " + column["tag"] + ");"
-    print indent3 + "helper.execute();"
-
-    print indent2 + "}"
+        print indent3 + "helper.prepareForReplace();"
+        for column in columns:
+            print indent3 + "helper.bind(" + column["tag"] + "Index, " + column["tag"] + ");"
+            print indent3 + "helper.execute();"
+            
+        print indent2 + "}"
 
     print indent + "}"
 

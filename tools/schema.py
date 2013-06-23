@@ -66,16 +66,19 @@ schema = {"directions" : {"columns":[
             {"tag": "dirRouteKey", "type": "String"},
             {"tag": "useAsUI", "type": "int"}],
                           "primaryKeys" : ["dirTag"],
-                          "indexes" : []},
+                          "indexes" : [],
+                          "readonly" : True},
           "directionsStops" : {"columns":[
             {"tag": "dirTag", "type": "String"},
             {"tag": "tag", "type": "String"}],
                                "primaryKeys" : [],
-                               "indexes" : []},
+                               "indexes" : [],
+                               "readonly" : True},
           "favorites" : {"columns":[ #NOTE: this is a different database
             {"tag" : "tag", "type" : "String"}],
                          "primaryKeys" : ["tag"],
-                         "indexes" : []},
+                         "indexes" : [],
+                         "readonly" : False},
           "routes" : {"columns":[
             {"tag": "route", "type" : "String"},
             {"tag": "color", "type": "int"},
@@ -86,40 +89,46 @@ schema = {"directions" : {"columns":[
              "values" : {CommuterRailAgencyId:"CommuterRail",
                          BusAgencyId : "Bus",
                          SubwayAgencyId : "Subway"}},
-            {"tag": "routetitle", "type": "String"}],
+              {"tag": "routetitle", "type": "String"}],
                       "primaryKeys" : ["route"],
-                          "indexes" : []},
+                      "indexes" : [],
+                      "readonly" : True},
           "stopmapping" : {"columns":[
               {"tag": "route", "type": "String"},
               {"tag": "tag", "type": "String"}],
                            "primaryKeys" : ["route", "tag"],
                            "indexes" : [("route",),
-                                        ("tag",)]},
+                                        ("tag",)],
+                           "readonly" : True},
           "stops" : {"columns":[
               {"tag": "tag", "type": "String"},
               {"tag" : "groupid", "type":"int"},
               {"tag": "title", "type": "String"}], 
                      "primaryKeys" : ["tag"],
-                     "indexes" : []},
+                     "indexes" : [],
+                     "readonly" : True},
           "locations" : {"columns":[
             {"tag" : "lat", "type" : "float"},
             {"tag" : "lon", "type" : "float"},
             {"tag" : "name", "type" : "String"}],
                          "primaryKeys" : ["name"],
-                         "indexes" : []},
+                         "indexes" : [],
+                         "readonly" : False},
           "stopgroup" : {"columns":[
               {"tag" : "lat", "type" : "float"},
               {"tag" : "lon", "type" : "float"},
               {"tag" : "groupid", "type" : "int"}],
                          "primaryKeys" : ["groupid"],
-                         "indexes" : [("lat", "lon")]},
+                         "indexes" : [("lat", "lon")],
+                         "readonly" : True},
           "bounds" : {"columns":[
             {"tag" : "route", "type" : "String"},
             {"tag" : "weekdays", "type" : "int"},
             {"tag" : "start", "type" : "int"},
             {"tag" : "stop", "type" : "int"}],
                       "primaryKeys" : [],
-                      "indexes" : []},
+                      "indexes" : [],
+                      "readonly" : True},
           "predictions" : {"columns":[
               {"tag" : "stopid", "type" : "String"},
               {"tag" : "vehicleid", "type" : "String"},
@@ -131,7 +140,8 @@ schema = {"directions" : {"columns":[
                            "primaryKeys" : [],
                            "indexes" : [("stopid",),
                                         ("route",),
-                                        ("arrivalTimeInMillis",)]},
+                                        ("arrivalTimeInMillis",)],
+                           "readonly" : False},
           "vehicles" : {"columns":[
               {"tag" : "lat", "type" : "float"},
               {"tag" : "lon", "type" : "float"},
@@ -141,17 +151,19 @@ schema = {"directions" : {"columns":[
               {"tag" : "lastFeedUpdateInMillis", "type" : "long"},
               {"tag" : "dirTag", "type" : "String"}],
                         "primaryKeys" : ["vehicleid"],
-                        "indexes" : [("route",)]}
+                        "indexes" : [("route",)],
+                        "readonly" : False}
           }
 
 class Tables:
     pass
 class Table:
-    def __init__(self, tablename, primaryKeys, indexes):
+    def __init__(self, tablename, primaryKeys, indexes, readonly):
         self.tablename = tablename
         self.primaryKeys = primaryKeys
         self.indexes = indexes
         self.arguments = []
+        self.readonly = readonly
 
     def index(self):
         if not self.indexes:
@@ -214,7 +226,7 @@ class Column:
 def getSchemaAsObject():
     ret = Tables()
     for tableName, table in schema.iteritems():
-        newTable = Table(tableName, table["primaryKeys"], table["indexes"])
+        newTable = Table(tableName, table["primaryKeys"], table["indexes"], table["readonly"])
         for column in table["columns"]:
             canbenull = "false"
             valid_values = None
