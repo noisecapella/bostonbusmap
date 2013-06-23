@@ -113,7 +113,27 @@ schema = {"directions" : {"columns":[
             {"tag" : "start", "type" : "int"},
             {"tag" : "stop", "type" : "int"}],
                       "primaryKeys" : [],
-                      "indexes" : []}
+                      "indexes" : []},
+          "predictions" : {"columns":[
+              {"tag" : "stopid", "type" : "String"},
+              {"tag" : "vehicleid", "type" : "String"},
+              {"tag" : "route", "type" : "String"},
+              {"tag" : "arrivalTimeInMillis", "type" : "long"},
+              {"tag" : "affectedByLayover", "type" : "int"},
+              {"tag" : "isDelayed", "type" : "int"},
+              {"tag" : "lateness", "type" : "int"}],
+                           "primaryKeys" : [],
+                           "indexes" : ["stopid", "route"]},
+          "vehicles" : {"columns":[
+              {"tag" : "lat", "type" : "float"},
+              {"tag" : "lon", "type" : "float"},
+              {"tag" : "vehicleid", "type" : "String"},
+              {"tag" : "route", "type" : "String"},
+              {"tag" : "lastUpdateInMillis", "type" : "long"},
+              {"tag" : "lastFeedUpdateInMillis", "type" : "long"},
+              {"tag" : "dirTag", "type" : "String"}],
+                        "primaryKeys" : ["vehicleid"],
+                        "indexes" : ["route"]}
           }
 
 class Tables:

@@ -225,6 +225,71 @@ public class Schema {
             helper.execute();
         }
     }
+    public static class Predictions {
+        public static final String table = "predictions"; 
+        public static final String[] columns = new String[] {
+            "stopid", "vehicleid", "route", "arrivalTimeInMillis", "affectedByLayover", "isDelayed", "lateness"
+        };
+
+        public static final int stopidIndex = 1;
+        public static final String stopidColumn = "stopid";
+        public static final String stopidColumnOnTable = "predictions.stopid";
+        public static final int vehicleidIndex = 2;
+        public static final String vehicleidColumn = "vehicleid";
+        public static final String vehicleidColumnOnTable = "predictions.vehicleid";
+        public static final int routeIndex = 3;
+        public static final String routeColumn = "route";
+        public static final String routeColumnOnTable = "predictions.route";
+        public static final int arrivalTimeInMillisIndex = 4;
+        public static final String arrivalTimeInMillisColumn = "arrivalTimeInMillis";
+        public static final String arrivalTimeInMillisColumnOnTable = "predictions.arrivalTimeInMillis";
+        public static final int affectedByLayoverIndex = 5;
+        public static final String affectedByLayoverColumn = "affectedByLayover";
+        public static final String affectedByLayoverColumnOnTable = "predictions.affectedByLayover";
+        public static final int isDelayedIndex = 6;
+        public static final String isDelayedColumn = "isDelayed";
+        public static final String isDelayedColumnOnTable = "predictions.isDelayed";
+        public static final int latenessIndex = 7;
+        public static final String latenessColumn = "lateness";
+        public static final String latenessColumnOnTable = "predictions.lateness";
+
+        public static final String dropSql = "DROP TABLE IF EXISTS predictions";
+        public static final String createSql = "CREATE TABLE IF NOT EXISTS predictions (stopid STRING, vehicleid STRING, route STRING, arrivalTimeInMillis STRING, affectedByLayover INTEGER, isDelayed INTEGER, lateness INTEGER)";
+        public static class Bean {
+            public final String stopid;
+            public final String vehicleid;
+            public final String route;
+            public final long arrivalTimeInMillis;
+            public final int affectedByLayover;
+            public final int isDelayed;
+            public final int lateness;
+            public Bean(String stopid, String vehicleid, String route, long arrivalTimeInMillis, int affectedByLayover, int isDelayed, int lateness) {
+                this.stopid = stopid;
+                this.vehicleid = vehicleid;
+                this.route = route;
+                this.arrivalTimeInMillis = arrivalTimeInMillis;
+                this.affectedByLayover = affectedByLayover;
+                this.isDelayed = isDelayed;
+                this.lateness = lateness;
+            }
+        }
+        public static void executeInsertHelper(InsertHelper helper, Collection<Bean> beans) {
+            for (Bean bean : beans) {
+                executeInsertHelper(helper, bean.stopid, bean.vehicleid, bean.route, bean.arrivalTimeInMillis, bean.affectedByLayover, bean.isDelayed, bean.lateness);
+            }
+        }
+        public static void executeInsertHelper(InsertHelper helper, String stopid, String vehicleid, String route, long arrivalTimeInMillis, int affectedByLayover, int isDelayed, int lateness) {
+            helper.prepareForReplace();
+            helper.bind(stopidIndex, stopid);
+            helper.bind(vehicleidIndex, vehicleid);
+            helper.bind(routeIndex, route);
+            helper.bind(arrivalTimeInMillisIndex, arrivalTimeInMillis);
+            helper.bind(affectedByLayoverIndex, affectedByLayover);
+            helper.bind(isDelayedIndex, isDelayed);
+            helper.bind(latenessIndex, lateness);
+            helper.execute();
+        }
+    }
     public static class Routes {
         public static final String table = "routes"; 
         public static final String[] columns = new String[] {
@@ -373,6 +438,71 @@ public class Schema {
             helper.bind(latIndex, lat);
             helper.bind(lonIndex, lon);
             helper.bind(titleIndex, title);
+            helper.execute();
+        }
+    }
+    public static class Vehicles {
+        public static final String table = "vehicles"; 
+        public static final String[] columns = new String[] {
+            "lat", "lon", "vehicleid", "route", "lastUpdateInMillis", "lastFeedUpdateInMillis", "dirTag"
+        };
+
+        public static final int latIndex = 1;
+        public static final String latColumn = "lat";
+        public static final String latColumnOnTable = "vehicles.lat";
+        public static final int lonIndex = 2;
+        public static final String lonColumn = "lon";
+        public static final String lonColumnOnTable = "vehicles.lon";
+        public static final int vehicleidIndex = 3;
+        public static final String vehicleidColumn = "vehicleid";
+        public static final String vehicleidColumnOnTable = "vehicles.vehicleid";
+        public static final int routeIndex = 4;
+        public static final String routeColumn = "route";
+        public static final String routeColumnOnTable = "vehicles.route";
+        public static final int lastUpdateInMillisIndex = 5;
+        public static final String lastUpdateInMillisColumn = "lastUpdateInMillis";
+        public static final String lastUpdateInMillisColumnOnTable = "vehicles.lastUpdateInMillis";
+        public static final int lastFeedUpdateInMillisIndex = 6;
+        public static final String lastFeedUpdateInMillisColumn = "lastFeedUpdateInMillis";
+        public static final String lastFeedUpdateInMillisColumnOnTable = "vehicles.lastFeedUpdateInMillis";
+        public static final int dirTagIndex = 7;
+        public static final String dirTagColumn = "dirTag";
+        public static final String dirTagColumnOnTable = "vehicles.dirTag";
+
+        public static final String dropSql = "DROP TABLE IF EXISTS vehicles";
+        public static final String createSql = "CREATE TABLE IF NOT EXISTS vehicles (lat FLOAT, lon FLOAT, vehicleid STRING PRIMARY KEY, route STRING, lastUpdateInMillis STRING, lastFeedUpdateInMillis STRING, dirTag STRING)";
+        public static class Bean {
+            public final float lat;
+            public final float lon;
+            public final String vehicleid;
+            public final String route;
+            public final long lastUpdateInMillis;
+            public final long lastFeedUpdateInMillis;
+            public final String dirTag;
+            public Bean(float lat, float lon, String vehicleid, String route, long lastUpdateInMillis, long lastFeedUpdateInMillis, String dirTag) {
+                this.lat = lat;
+                this.lon = lon;
+                this.vehicleid = vehicleid;
+                this.route = route;
+                this.lastUpdateInMillis = lastUpdateInMillis;
+                this.lastFeedUpdateInMillis = lastFeedUpdateInMillis;
+                this.dirTag = dirTag;
+            }
+        }
+        public static void executeInsertHelper(InsertHelper helper, Collection<Bean> beans) {
+            for (Bean bean : beans) {
+                executeInsertHelper(helper, bean.lat, bean.lon, bean.vehicleid, bean.route, bean.lastUpdateInMillis, bean.lastFeedUpdateInMillis, bean.dirTag);
+            }
+        }
+        public static void executeInsertHelper(InsertHelper helper, float lat, float lon, String vehicleid, String route, long lastUpdateInMillis, long lastFeedUpdateInMillis, String dirTag) {
+            helper.prepareForReplace();
+            helper.bind(latIndex, lat);
+            helper.bind(lonIndex, lon);
+            helper.bind(vehicleidIndex, vehicleid);
+            helper.bind(routeIndex, route);
+            helper.bind(lastUpdateInMillisIndex, lastUpdateInMillis);
+            helper.bind(lastFeedUpdateInMillisIndex, lastFeedUpdateInMillis);
+            helper.bind(dirTagIndex, dirTag);
             helper.execute();
         }
     }
