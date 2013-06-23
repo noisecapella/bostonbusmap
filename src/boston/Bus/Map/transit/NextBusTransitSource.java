@@ -26,9 +26,9 @@ import com.google.common.io.ByteStreams;
 import android.content.Context;
 import android.content.OperationApplicationException;
 import android.os.RemoteException;
-import boston.Bus.Map.data.AlertsMapping;
 import boston.Bus.Map.data.BusLocation;
 import boston.Bus.Map.data.Directions;
+import boston.Bus.Map.data.IAlerts;
 import boston.Bus.Map.data.IntersectionLocation;
 import boston.Bus.Map.data.Location;
 import boston.Bus.Map.data.Locations;
@@ -91,25 +91,6 @@ public abstract class NextBusTransitSource implements TransitSource
 		
 		this.routeTitles = routeTitles;
 		this.allRouteTitles = allRouteTitles;
-	}
-
-	@Override
-	public void populateStops(Context context, RoutePool routeMapping, String routeToUpdate,
-			Directions directions, UpdateAsyncTask task, boolean silent) 
-	throws ClientProtocolException, IOException, ParserConfigurationException, SAXException, RemoteException, OperationApplicationException 
-	{
-		final String urlString = getRouteConfigUrl(routeToUpdate);
-
-		DownloadHelper downloadHelper = new DownloadHelper(urlString);
-
-		downloadHelper.connect();
-		//just initialize the route and then end for this round
-
-		RouteConfigFeedParser parser = new RouteConfigFeedParser(context,
-				this, allRouteTitles);
-		parser.runParse(downloadHelper.getResponseData());
-		parser.writeToDatabase(context);
-
 	}
 
 
@@ -203,7 +184,7 @@ public abstract class NextBusTransitSource implements TransitSource
 				for (String id : busMapping.keySet())
 				{
 					BusLocation busLocation = busMapping.get(id);
-					if (busLocation.getLastUpdateInMillis() + 180000 < TransitSystem.currentTimeMillis())
+					if (busLocation.getLastUpdateInMillis() + 180000 < System.currentTimeMillis())
 					{
 						//put this old dog to sleep
 						busesToBeDeleted.add(id);
@@ -216,27 +197,7 @@ public abstract class NextBusTransitSource implements TransitSource
 				}
 			}
 		}
-		
-		//alerts
-		TransitSource transitSource = transitSystem.getTransitSource(routeConfig.getRouteName());
-		if (transitSource instanceof NextBusTransitSource)
-		{
-			if (routeConfig.obtainedAlerts() == false)
-			{
-				try
-				{
-					parseAlert(routeConfig, transitSystem.getAlertsMapping());
-				}
-				catch (Exception e)
-				{
-					LogUtil.e(e);
-					//I'm silencing these since alerts aren't necessary to use the rest of the app
-				}
-			}
-		}
 	}
-
-	protected abstract void parseAlert(RouteConfig routeConfig, AlertsMapping alertMapping) throws ClientProtocolException, IOException, SAXException;
 
 	protected String getPredictionsUrl(List<Location> locations, int maxStops, Collection<String> routes)
 	{
@@ -303,13 +264,6 @@ public abstract class NextBusTransitSource implements TransitSource
 
 
 	@Override
-	public void initializeAllRoutes(UpdateAsyncTask task, Context context, Directions directions,
-			RoutePool routeMapping)
-	throws IOException, ParserConfigurationException, SAXException, RemoteException, OperationApplicationException {
-		// this intentially left blank
-	}
-
-	@Override
 	public StopLocation createStop(float lat, float lon, String stopTag,
 			String title, int platformOrder, String branch, String route)
 	{
@@ -347,5 +301,15 @@ public abstract class NextBusTransitSource implements TransitSource
 	@Override
 	public boolean requiresSubwayTable() {
 		return false;
+	}
+	
+	@Override
+	public IAlerts getAlerts() {
+		return transitSystem.getAlerts();
+	}
+	
+	@Override
+	public String getDescription() {
+		return "Bus";
 	}
 }

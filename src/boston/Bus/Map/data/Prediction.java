@@ -48,7 +48,7 @@ public class Prediction implements Comparable<Prediction>, Parcelable
 		this.routeName = routeName;
 		this.routeTitle = routeTitle;
 
-		arrivalTimeMillis = TransitSystem.currentTimeMillis() + minutes * 60 * 1000;
+		arrivalTimeMillis = System.currentTimeMillis() + minutes * 60 * 1000;
 		
 		
 		this.affectedByLayover = affectedByLayover;
@@ -66,7 +66,7 @@ public class Prediction implements Comparable<Prediction>, Parcelable
 		builder.append("Route <b>").append(routeTitle).append("</b>");
 		if (vehicleId != null)
 		{
-			builder.append(", Bus <b>").append(vehicleId).append("</b>");
+			builder.append(", Vehicle <b>").append(vehicleId).append("</b>");
 		}
 
 		if (direction != null)
@@ -92,7 +92,7 @@ public class Prediction implements Comparable<Prediction>, Parcelable
 		{
 			DateFormat dateFormat = TransitSystem.getDefaultTimeFormat();
 
-			Date date = new Date(arrivalTimeMillis - TransitSystem.getTimeZone().getOffset(arrivalTimeMillis));
+			Date date = new Date(arrivalTimeMillis);
 			if (dateFormat != null)
 			{
 				//the vast majority of the time this should be true but someone reported an exception where it's not
@@ -154,7 +154,7 @@ public class Prediction implements Comparable<Prediction>, Parcelable
 
 	public static int calcMinutes(long arrivalTimeMillis)
 	{
-		return (int)(arrivalTimeMillis - TransitSystem.currentTimeMillis()) / 1000 / 60;
+		return (int)(arrivalTimeMillis - System.currentTimeMillis()) / 1000 / 60;
 	}
 	
 	public int getMinutes()

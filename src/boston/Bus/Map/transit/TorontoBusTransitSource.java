@@ -6,7 +6,6 @@ import java.io.IOException;
 import org.apache.http.client.ClientProtocolException;
 import org.xml.sax.SAXException;
 
-import boston.Bus.Map.data.AlertsMapping;
 import boston.Bus.Map.data.RouteConfig;
 import boston.Bus.Map.data.RouteTitles;
 import boston.Bus.Map.data.TransitDrawables;
@@ -22,13 +21,6 @@ public class TorontoBusTransitSource extends NextBusTransitSource {
 			TransitDrawables drawables, TransitSourceTitles transitSourceTitles,
 			RouteTitles allRouteTitles) {
 		super(transitSystem, drawables, "ttc", transitSourceTitles, allRouteTitles);
-	}
-
-	@Override
-	protected void parseAlert(RouteConfig routeConfig,
-			AlertsMapping alertMapping) throws ClientProtocolException,
-			IOException, SAXException {
-		// we don't support alerts for toronto right now
 	}
 	
 }

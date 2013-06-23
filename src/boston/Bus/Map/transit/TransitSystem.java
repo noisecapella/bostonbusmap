@@ -5,6 +5,7 @@ import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.TimeZone;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -21,9 +22,12 @@ import android.content.ContentResolver;
 import android.content.Context;
 import android.graphics.drawable.Drawable;
 import android.util.Log;
-import boston.Bus.Map.data.AlertsMapping;
+import boston.Bus.Map.data.Alerts;
+import boston.Bus.Map.data.AlertsFuture;
 import boston.Bus.Map.data.BusLocation;
 import boston.Bus.Map.data.Directions;
+import boston.Bus.Map.data.IAlerts;
+import boston.Bus.Map.data.IsGuardedBy;
 import boston.Bus.Map.data.Location;
 import boston.Bus.Map.data.Locations;
 import boston.Bus.Map.data.RouteConfig;
@@ -53,7 +57,10 @@ public class TransitSystem implements ITransitSystem {
 
 	private RouteTitles routeTitles;
 	
-	private AlertsMapping alertsMapping;
+	/**
+	 * This will be null when alerts haven't been read yet
+	 */
+	private AlertsFuture alertsFuture;
 	
 	public static double getCenterLat() {
 		return torontoLatitude;
@@ -104,7 +111,6 @@ public class TransitSystem implements ITransitSystem {
 		{
 			ContentResolver resolver = context.getContentResolver();
 			routeTitles = DatabaseAgent.getRouteTitles(resolver);
-			alertsMapping = DatabaseAgent.getAlerts(resolver);
 
 			TransitSourceTitles busTransitRoutes = routeTitles.getMappingForSource(Schema.Routes.enumagencyidBus);
 			TransitSourceTitles subwayTransitRoutes = routeTitles.getMappingForSource(Schema.Routes.enumagencyidSubway);
@@ -113,7 +119,7 @@ public class TransitSystem implements ITransitSystem {
 			defaultTransitSource = new TorontoBusTransitSource(this, busDrawables, busTransitRoutes, routeTitles);
 			
 			ImmutableMap.Builder<String, TransitSource> mapBuilder = ImmutableMap.builder();
-			
+
 			transitSourceMap = mapBuilder.build();
 
 			transitSources = ImmutableList.of(defaultTransitSource);
@@ -176,19 +182,14 @@ public class TransitSystem implements ITransitSystem {
 	private static DateFormat defaultTimeFormat;
 	private static DateFormat defaultDateFormat;
 		
+	/**
+	 * TODO: Time handling in this app should be cleaned up to be all
+	 * UTC, but I don't want to risk breaking something that works 
+	 * @return
+	 */
 	public static TimeZone getTimeZone()
 	{
 		return torontoTimeZone;
-	}
-
-	/**
-	 * Return current time in GMT
-	 * @return
-	 */
-	public static long currentTimeMillis()
-	{
-		long now = System.currentTimeMillis();
-		return now + getTimeZone().getOffset(now);
 	}
 
 	public static void setDefaultTimeFormat(Context context)
@@ -236,8 +237,16 @@ public class TransitSystem implements ITransitSystem {
 	}
 
 	@Override
-	public AlertsMapping getAlertsMapping() {
-		return alertsMapping;
+	public IAlerts getAlerts() {
+		if (alertsFuture != null) {
+			return alertsFuture.getAlerts();
+		}
+		else
+		{
+			// this shouldn't happen but maybe some code might change
+			// to cause alerts to be read before they're set
+			return AlertsFuture.EMPTY;
+		}
 	}
 
 	public static String[] getEmails() {
@@ -256,4 +265,21 @@ public class TransitSystem implements ITransitSystem {
 		return false;
 	}
 
+	public TransitSource getTransitSourceByRouteType(int routeType) {
+		for (TransitSource source : transitSources) {
+			if (routeType == source.getTransitSourceId()) {
+				return source;
+			}
+		}
+		return defaultTransitSource;
+	}
+
+	/**
+	 * This downloads alerts in a background thread. If alerts are
+	 * not available when getAlerts() is called, empty alerts are returned
+	 * @param context
+	 */
+	public void startObtainAlerts(Context context) {
+		// alerts not currently implemented for Toronto
+	}
 }

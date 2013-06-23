@@ -57,6 +57,7 @@ import boston.Bus.Map.util.StringUtil;
 
 import com.google.android.maps.OverlayItem;
 import com.google.common.base.Joiner;
+import com.google.common.collect.ImmutableCollection;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
@@ -522,12 +523,18 @@ public class BusPopupView extends BalloonOverlayView<BusOverlayItem>
 		
 		//NOTE: originally this was going to be an actual link, but we can't click it on the popup except through its onclick listener
 		setState(item.getCurrentLocation());
-		Alert[] alerts = item.getAlerts();
-		alertsList = alerts;
-		
-		if (alerts != null && alerts.length != 0)
+		ImmutableCollection<Alert> alerts = item.getAlerts();
+		if (alerts != null) {
+			alertsList = alerts.toArray(new Alert[0]);
+		}
+		else
 		{
-			int count = alerts.length;
+			alertsList = new Alert[0];
+		}
+		
+		if (alertsList.length != 0)
+		{
+			int count = alertsList.length;
 			alertsTextView.setVisibility(View.VISIBLE);
 			
 			String text;

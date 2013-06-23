@@ -43,10 +43,6 @@ public class RefreshAsyncTask extends UpdateAsyncTask
 			Locations busLocations = arguments.getBusLocations();
 			publish(new ProgressMessage(ProgressMessage.PROGRESS_SPINNER_ON, null, null));
 			
-			RouteTitles allRoutes = arguments.getTransitSystem().getRouteKeysToTitles();
-			final Context context = arguments.getContext();
-			busLocations.initializeAllRoutes(this, context, allRoutes);
-			
 			GeoPoint geoPoint = currentMapCenter;
 			double centerLatitude = geoPoint.getLatitudeE6() * Constants.InvE6;
 			double centerLongitude = geoPoint.getLongitudeE6() * Constants.InvE6;

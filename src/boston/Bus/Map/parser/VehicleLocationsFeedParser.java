@@ -102,13 +102,10 @@ public class VehicleLocationsFeedParser extends DefaultHandler
 			boolean predictable = Boolean.parseBoolean(getAttribute(predictableKey, attributes)); 
 			String dirTag = getAttribute(dirTagKey, attributes);
 			
-			long lastFeedUpdate = TransitSystem.currentTimeMillis() - (seconds * 1000);
+			long lastFeedUpdate = System.currentTimeMillis() - (seconds * 1000);
 			
-			String inferBusRoute = null;
-
 			BusLocation newBusLocation = new BusLocation(lat, lon, id, lastFeedUpdate, lastUpdateTime, 
-					heading, predictable, dirTag, inferBusRoute, route, directions, routeKeysToTitles.getTitle(route),
-					false);
+					heading, predictable, dirTag, route, directions, routeKeysToTitles.getTitle(route));
 
 			if (busMapping.containsKey(id))
 			{
@@ -121,7 +118,6 @@ public class VehicleLocationsFeedParser extends DefaultHandler
 		else if (localName.equals(lastTimeKey))
 		{
 			lastUpdateTime = Long.parseLong(attributes.getValue(timeKey));
-			lastUpdateTime += TransitSystem.getTimeZone().getOffset(lastUpdateTime);
 			
 			for (String key : busMapping.keySet())
 			{

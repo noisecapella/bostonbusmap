@@ -20,41 +20,6 @@ public class Schema {
     }
 
 
-    public static class Alerts {
-        public static final String table = "alerts"; 
-        public static final String[] columns = new String[] {
-            "route", "alertindex"
-        };
-
-        public static final int routeIndex = 1;
-        public static final String routeColumn = "route";
-        public static final String routeColumnOnTable = "alerts.route";
-        public static final int alertindexIndex = 2;
-        public static final String alertindexColumn = "alertindex";
-        public static final String alertindexColumnOnTable = "alerts.alertindex";
-
-        public static final String dropSql = "DROP TABLE IF EXISTS alerts";
-        public static final String createSql = "CREATE TABLE IF NOT EXISTS alerts (route STRING, alertindex INTEGER PRIMARY KEY)";
-        public static class Bean {
-            public final String route;
-            public final int alertindex;
-            public Bean(String route, int alertindex) {
-                this.route = route;
-                this.alertindex = alertindex;
-            }
-        }
-        public static void executeInsertHelper(InsertHelper helper, Collection<Bean> beans) {
-            for (Bean bean : beans) {
-                executeInsertHelper(helper, bean.route, bean.alertindex);
-            }
-        }
-        public static void executeInsertHelper(InsertHelper helper, String route, int alertindex) {
-            helper.prepareForReplace();
-            helper.bind(routeIndex, route);
-            helper.bind(alertindexIndex, alertindex);
-            helper.execute();
-        }
-    }
     public static class Bounds {
         public static final String table = "bounds"; 
         public static final String[] columns = new String[] {
@@ -285,8 +250,8 @@ public class Schema {
         public static final String agencyidColumn = "agencyid";
         public static final String agencyidColumnOnTable = "routes.agencyid";
 
-        public static final int enumagencyidCommuterRail = 1;
-        public static final int enumagencyidSubway = 2;
+        public static final int enumagencyidSubway = 1;
+        public static final int enumagencyidCommuterRail = 2;
         public static final int enumagencyidBus = 3;
         public static final int routetitleIndex = 7;
         public static final String routetitleColumn = "routetitle";
