@@ -39,6 +39,7 @@ import boston.Bus.Map.data.TransitDrawables;
 import boston.Bus.Map.data.TransitSourceTitles;
 import boston.Bus.Map.database.Schema;
 import boston.Bus.Map.main.Main;
+import boston.Bus.Map.parser.MbtaAlertsParser;
 import boston.Bus.Map.provider.DatabaseContentProvider.DatabaseAgent;
 import boston.Bus.Map.util.Constants;
 /**
@@ -250,14 +251,6 @@ public class TransitSystem implements ITransitSystem {
 		return source.createStop(latitude, longitude, stopTag, stopTitle, platformOrder, branch, route);
 	}
 
-	public void setAlertsFuture(AlertsFuture alertsFuture) {
-		this.alertsFuture = alertsFuture;
-	}
-	
-	public boolean hasAlertsFuture() {
-		return this.alertsFuture != null;
-	}
-	
 	@Override
 	public IAlerts getAlerts() {
 		if (alertsFuture != null) {
@@ -294,5 +287,20 @@ public class TransitSystem implements ITransitSystem {
 			}
 		}
 		return defaultTransitSource;
+	}
+
+	/**
+	 * This downloads alerts in a background thread. If alerts are
+	 * not available when getAlerts() is called, empty alerts are returned
+	 * @param context
+	 */
+	public void startObtainAlerts(Context context) {
+		if (alertsFuture == null) {
+			// this runs the alerts code in the background,
+			// providing empty alerts until the data is ready
+			
+			alertsFuture = new AlertsFuture(context, new MbtaAlertsParser(this));
+			
+		}
 	}
 }
