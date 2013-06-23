@@ -103,55 +103,6 @@ public final class Locations
 		return transitSystem.getRouteKeysToTitles().getIndexForTag(key);
 	}
 	
-	/**
-	 * Download all stop locations
-	 * 
-	 * @throws ParserConfigurationException
-	 * @throws FactoryConfigurationError
-	 * @throws SAXException
-	 * @throws IOException
-	 * @throws OperationApplicationException 
-	 * @throws RemoteException 
-	 */
-	public void initializeAllRoutes(UpdateAsyncTask task, Context context, RouteTitles routesToCheck)
-		throws ParserConfigurationException, FactoryConfigurationError, SAXException, IOException, RemoteException, OperationApplicationException
-	{
-		ImmutableList<String> routesThatNeedUpdating = routeInfoNeedsUpdating(routesToCheck); 
-		boolean hasNoMissingData = routesThatNeedUpdating == null || routesThatNeedUpdating.size() == 0;
-		
-		if (hasNoMissingData == false)
-		{
-			/*
-			 * TODO: is this a good idea?
-			PowerManager powerManager = (PowerManager) context.getSystemService(Context.POWER_SERVICE);
-			PowerManager.WakeLock wakelock = powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "Initialization wakelock");
-			wakelock.acquire();
-			*/
-			try
-			{
-				SortedMap<Integer, TransitSource> systems = Maps.newTreeMap();
-				for (String route : routesThatNeedUpdating)
-				{
-					TransitSource source = transitSystem.getTransitSource(route);
-					int loadOrder = source.getLoadOrder();
-					if (systems.containsKey(loadOrder) == false) {
-						systems.put(loadOrder, source);
-					}
-				}
-
-				for (TransitSource system : systems.values())
-				{
-					system.initializeAllRoutes(task, context, directions, routeMapping);
-				}
-				routeMapping.fillInFavoritesRoutes();
-			}
-			finally
-			{
-				//wakelock.release();
-			}
-		}
-	}
-	
 	public static InputStream downloadStream(URL url, UpdateAsyncTask task) throws IOException {
 		URLConnection connection = url.openConnection();
 		int totalDownloadSize = connection.getContentLength();
@@ -183,29 +134,7 @@ public final class Locations
 		//see if route overlays need to be downloaded
 		String routeToUpdate = selection.getRoute();
 		RouteConfig routeConfig = routeMapping.get(routeToUpdate);
-		if (routeConfig != null)
-		{
-			if (routeConfig.getStops().size() != 0 && (showRoute == false || routeConfig.getPaths().length != 0 || 
-					routeConfig.hasPaths() == false))
-			{
-				//everything's ok
-			}
-			else
-			{
-				//populate route overlay (just in case we didn't already)
-				//updateAsyncTask.publish(new ProgressMessage(ProgressMessage.PROGRESS_DIALOG_ON, "Downloading data for route " + routeToUpdate, null));
-				populateStops(context, routeToUpdate, updateAsyncTask, true);
-				
-				return;
-			}
-		}
-		else
-		{
-			//populate route overlay (just in case we didn't already)
-			updateAsyncTask.publish(new ProgressMessage(ProgressMessage.PROGRESS_DIALOG_ON, "Downloading data for route " + routeToUpdate, null));
-			populateStops(context, routeToUpdate, updateAsyncTask, false);
-			return;
-		}
+		transitSystem.startObtainAlerts(context);
 		
 		int mode = selection.getMode();
 		switch (mode)
@@ -233,15 +162,6 @@ public final class Locations
 		}
 			break;
 		}
-	}
-
-	private void populateStops(Context context, 
-			String route, UpdateAsyncTask task, boolean silent) 
-		throws IOException, ParserConfigurationException, SAXException, RemoteException, OperationApplicationException
-	{
-		TransitSource transitSource = transitSystem.getTransitSource(route);
-		
-		transitSource.populateStops(context, routeMapping, route, directions, task, silent);
 	}
 
 	/**
@@ -393,11 +313,6 @@ public final class Locations
 	}
 
 	
-	private ImmutableList<String> routeInfoNeedsUpdating(RouteTitles routesToCheck) throws IOException
-	{
-		return routeMapping.routeInfoNeedsUpdating(routesToCheck);
-	}
-
 	public int toggleFavorite(StopLocation location) throws RemoteException
 	{
 		boolean isFavorite = routeMapping.isFavorite(location);
@@ -489,10 +404,6 @@ public final class Locations
 
 	public RouteTitles getRouteTitles() {
 		return transitSystem.getRouteKeysToTitles();
-	}
-	
-	public AlertsMapping getAlertsMapping() {
-		return transitSystem.getAlertsMapping();
 	}
 	
 	public void removeIntersection(String name) {

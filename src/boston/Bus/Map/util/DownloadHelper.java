@@ -27,6 +27,9 @@ import com.google.common.io.ByteStreams;
 /**
  * The Android people really recommend using the apache HTTPClient over the URL class. Not sure why exactly but it should usually be a
  * simple change
+ * 
+ * TODO: this is complicated http://stackoverflow.com/questions/4799151/apache-http-client-or-urlconnection
+ * I should figure this out eventually
  * @author schneg
  *
  */

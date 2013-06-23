@@ -2,9 +2,11 @@ import inspect
 import struct
 import binascii
 
-CommuterRailAgencyId = 1
-SubwayAgencyId = 2
+# these must match route_type in routes.txt in GTFS
+CommuterRailAgencyId = 2
+SubwayAgencyId = 1
 BusAgencyId = 3
+# boat would be 4
 
 exampleSql =     """
 CREATE TABLE android_metadata (locale TEXT);
@@ -112,11 +114,6 @@ schema = {"directions" : {"columns":[
             {"tag" : "name", "type" : "String"}],
                          "primaryKeys" : ["name"],
                          "indexes" : []},
-          "alerts" : {"columns":[
-            {"tag" : "route", "type" : "String"},
-            {"tag" : "alertindex", "type" : "int"}],
-                      "primaryKeys" : ["alertindex"],
-                      "indexes" : []},
           "bounds" : {"columns":[
             {"tag" : "route", "type" : "String"},
             {"tag" : "weekdays", "type" : "int"},

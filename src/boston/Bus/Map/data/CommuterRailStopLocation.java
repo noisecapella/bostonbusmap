@@ -1,5 +1,7 @@
 package boston.Bus.Map.data;
 
+import boston.Bus.Map.database.Schema;
+
 import com.google.common.collect.ImmutableSet;
 
 import android.graphics.drawable.Drawable;
@@ -25,7 +27,7 @@ public class CommuterRailStopLocation extends SubwayStopLocation {
 	}
 	
 	@Override
-	public boolean isBeta() {
-		return true;
+	public int getTransitSourceType() {
+		return Schema.Routes.enumagencyidCommuterRail;
 	}
 }

@@ -11,16 +11,18 @@ import boston.Bus.Map.data.Locations;
 
 import com.google.android.maps.GeoPoint;
 import com.google.android.maps.OverlayItem;
+import com.google.common.collect.ImmutableCollection;
 
 public class BusOverlayItem extends OverlayItem
 {
 	private final Location location;
-	private final Alert[] alerts;
+	private final ImmutableCollection<Alert> alerts;
 	private boolean selected;
 	private static final int[] zeroState = new int[]{};
 	private static final int[] focusState = new int[]{android.R.attr.state_focused};
 		
-	public BusOverlayItem(GeoPoint point, String title, String snippet, Alert[] alerts, Location location)
+	public BusOverlayItem(GeoPoint point, String title, String snippet,
+			ImmutableCollection<Alert> alerts, Location location)
 	{
 		super(point, title, snippet);
 		this.alerts = alerts;
@@ -32,7 +34,7 @@ public class BusOverlayItem extends OverlayItem
 		return location;
 	}
 
-	public Alert[] getAlerts()
+	public ImmutableCollection<Alert> getAlerts()
 	{
 		return alerts;
 	}

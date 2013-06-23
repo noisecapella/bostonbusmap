@@ -13,6 +13,7 @@ import java.util.TreeSet;
 import boston.Bus.Map.annotations.KeepSorted;
 
 import com.google.common.collect.Collections2;
+import com.google.common.collect.ImmutableCollection;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
@@ -49,7 +50,7 @@ public class Predictions
 	
 	public void makeSnippetAndTitle(RouteConfig routeConfig,
 			RouteTitles routeKeysToTitles, Context context,
-			RouteSet routes, StopLocation stop, Set<Alert> alerts, Locations locations)
+			RouteSet routes, StopLocation stop, ImmutableCollection<Alert> alerts, Locations locations)
 	{
 		synchronized (modificationLock) {
 			this.routes.clear();
@@ -72,7 +73,7 @@ public class Predictions
 	
 	public void addToSnippetAndTitle(RouteConfig routeConfig, StopLocation stopLocation, 
 			RouteTitles routeKeysToTitles,
-			Context context, RouteSet routes, Set<Alert> alerts, Locations locations)
+			Context context, RouteSet routes, ImmutableCollection<Alert> alerts, Locations locations)
 	{
 		synchronized (modificationLock) {
 			allStops.add(stopLocation);
@@ -89,22 +90,25 @@ public class Predictions
 			
 			Set<Alert> newAlerts;
 			if (alerts.size() == 0) {
-				newAlerts = Sets.newTreeSet(Arrays.asList(predictionView.getAlerts()));
+				newAlerts = Sets.newTreeSet(predictionView.getAlerts());
 			}
 			else
 			{
 				SortedSet<Alert> dupAlerts = Sets.newTreeSet();
-				dupAlerts.addAll(Arrays.asList(predictionView.getAlerts()));
+				dupAlerts.addAll(predictionView.getAlerts());
 				dupAlerts.addAll(alerts);
 				newAlerts = dupAlerts;
 			}
 			
+			ImmutableSet.Builder<Alert> immutableNewAlerts = ImmutableSet.builder();
+			immutableNewAlerts.addAll(newAlerts);
 			
 			
 			predictionView = new StopPredictionViewImpl(this.routes, allStops,
 					allPredictions,
 					routeConfig,
-					routeKeysToTitles, context, newAlerts, locations);
+					routeKeysToTitles, context, immutableNewAlerts.build(),
+					locations);
 		}
 
 	}

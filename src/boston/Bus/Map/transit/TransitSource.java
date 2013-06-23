@@ -9,13 +9,15 @@ import org.apache.http.client.ClientProtocolException;
 import org.xml.sax.SAXException;
 
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
 
 import android.content.Context;
 import android.content.OperationApplicationException;
 import android.os.RemoteException;
-import boston.Bus.Map.data.AlertsMapping;
+import boston.Bus.Map.data.Alert;
 import boston.Bus.Map.data.BusLocation;
 import boston.Bus.Map.data.Directions;
+import boston.Bus.Map.data.IAlerts;
 import boston.Bus.Map.data.Locations;
 import boston.Bus.Map.data.RouteConfig;
 import boston.Bus.Map.data.RoutePool;
@@ -28,10 +30,6 @@ import boston.Bus.Map.main.UpdateAsyncTask;
 
 public interface TransitSource {
 
-	void populateStops(Context context, RoutePool routeMapping, String routeToUpdate,
-			Directions directions, UpdateAsyncTask task, boolean silent)
-		throws ClientProtocolException, IOException, ParserConfigurationException, SAXException, RemoteException, OperationApplicationException ;
-
 	void refreshData(RouteConfig routeConfig, Selection selection,
 			int maxStops, double centerLatitude, double centerLongitude,
 			ConcurrentHashMap<String, BusLocation> busMapping,
@@ -40,10 +38,6 @@ public interface TransitSource {
 
 	boolean hasPaths();
 
-	public void initializeAllRoutes(UpdateAsyncTask task, Context context,
-			Directions directions, RoutePool routeMapping) throws IOException,
-			ParserConfigurationException, SAXException, RemoteException, OperationApplicationException;
-	
 	String searchForRoute(String indexingQuery, String lowercaseQuery);
 
 	TransitDrawables getDrawables();
@@ -58,8 +52,19 @@ public interface TransitSource {
 	 * @return
 	 */
 	int getLoadOrder();
-	
+
+	/**
+	 * Returns corresponding value in Schema.Routes.enumagency*
+	 */
 	int getTransitSourceId();
 
+	/**
+	 * Do we need to look at the Schema.Subway table to get branch
+	 * and platform information?
+	 */
 	boolean requiresSubwayTable();
+
+	IAlerts getAlerts();
+
+	String getDescription();
 }

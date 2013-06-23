@@ -12,7 +12,7 @@ Please email bostonbusmap@gmail.com if you have any problem, and please report a
 - choose a favorite stop by pressing the menu button and clicking "Favorite stops"
 - center on your current location by clicking the menu button and choosing "My Location". The speed and accuracy of location information depends on your phone location settings. You can tweak those in Home -> Settings -> Location & Security
 - draw the path along a route by clicking the menu button, going to Settings and selecting "Show route path"
-- this app should work for all touchscreen devices that are Android 1.5 and up (which means pretty much all Android phones and tablets). Please let me know if something doesn't work
+- this app should work for all touchscreen devices that are Android 1.6 and up (which means pretty much all Android phones and tablets). Please let me know if something doesn't work
 
 #Build
 You'll need to `git clone git@github.com:bostonbusmap/android-mapviewballoons.git`. This project references that code to draw the mapview balloons.
@@ -23,3 +23,13 @@ Then, `cd` into the `tools` directory, then run `autogenerate.sh` to create and 
 
 Otherwise this is a standard Android project. You might need to change the paths a little bit but you shouldn't need to install anything unexpected.
 Note that you may need a separate Google Maps API key to test with
+
+#Branches
+
+There are a few important git branches corresponding to different apps for different cities:
+
+* `master` - where all code gets merged
+* `mbta` - This is the same as master except with updated MBTA-specific transit data.
+* `la` - This is master with MBTA-specific commuter rail and subway code removed, and with Los Angeles NextBus data added. This also changes the namespace and some of the graphics to fit the Los Angelbus app.
+* `toronto` - Similar to `la` branch
+* `umich` - This was branched off an early build of BostonBusMap. It focuses on the University of Michigan's bus system for Ann Arbor.

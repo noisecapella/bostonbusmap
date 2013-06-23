@@ -11,6 +11,7 @@ import boston.Bus.Map.util.LogUtil;
 
 import com.google.common.base.Joiner;
 import com.google.common.collect.Collections2;
+import com.google.common.collect.ImmutableCollection;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
@@ -27,7 +28,7 @@ public class StopPredictionViewImpl extends StopPredictionView {
 	private final String stops;
 	private final String snippet;
 	private final Prediction[] predictions;
-	private final Alert[] alerts;
+	private final ImmutableCollection<Alert> alerts;
 	
 	/**
 	 * Note that this makes defensive copies of all containers. It doesn't use ImmutableList
@@ -42,7 +43,7 @@ public class StopPredictionViewImpl extends StopPredictionView {
 	 */
 	public StopPredictionViewImpl(Set<String> routeTags, Collection<StopLocation> stops,
 			SortedSet<Prediction> predictions, RouteConfig ifOnlyOneRoute,
-			RouteTitles routeKeysToTitles, Context context, Set<Alert> alerts,
+			RouteTitles routeKeysToTitles, Context context, ImmutableCollection<Alert> alerts,
 			Locations locations) {
 		Set<String> stopTitles = Sets.newTreeSet();
 		SortedSet<String> stopIds = Sets.newTreeSet();
@@ -68,7 +69,7 @@ public class StopPredictionViewImpl extends StopPredictionView {
 		
 		this.routeTitles = routeTitles.toArray(nullStrings);
 		this.titles = stopTitles.toArray(nullStrings);
-		this.alerts = alerts.toArray(nullAlerts);
+		this.alerts = alerts;
 		StringBuilder ret = new StringBuilder();
 		if (isBeta) {
 			ret.append("<font color='red' size='1'>Commuter rail predictions are experimental</font><br />");
@@ -202,7 +203,7 @@ public class StopPredictionViewImpl extends StopPredictionView {
 	}
 	
 	@Override
-	public Alert[] getAlerts() {
+	public ImmutableCollection<Alert> getAlerts() {
 		return alerts;
 	}
 }

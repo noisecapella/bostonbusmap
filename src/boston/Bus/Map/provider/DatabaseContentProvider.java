@@ -29,7 +29,6 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.google.common.io.ByteStreams;
 
-import boston.Bus.Map.data.AlertsMapping;
 import boston.Bus.Map.data.Direction;
 import boston.Bus.Map.data.IntersectionLocation;
 import boston.Bus.Map.data.IntersectionLocation.Builder;
@@ -127,10 +126,6 @@ public class DatabaseContentProvider extends ContentProvider {
 	private static final String SUBWAY_STOPS_TYPE = "vnd.android.cursor.dir/vnd.bostonbusmap.subway_stop";
 	public static final Uri SUBWAY_STOPS_URI = Uri.parse("content://" + AUTHORITY + "/subway_stops");
 	private static final int SUBWAY_STOPS = 13;
-	
-	private static final String ALERTS_TYPE = "vnd.android.cursor.dir/vnd.bostonbusmap.alert";
-	public static final Uri ALERTS_URI = Uri.parse("content://" + AUTHORITY + "/alerts");
-	private static final int ALERTS = 15;
 	
 	private static final String STOPS_AND_ROUTES_WITH_DISTANCE_TYPE = "vnd.android.cursor.dir/vnd.bostonbusmap.stop_and_route_with_distance";
 	public static final Uri STOPS_AND_ROUTES_WITH_DISTANCE_URI = Uri.parse("content://" + AUTHORITY + "/stops_and_routes_with_distance");
@@ -1351,31 +1346,6 @@ public class DatabaseContentProvider extends ContentProvider {
 			}
 		}
 
-		public static AlertsMapping getAlerts(ContentResolver resolver) {
-			// TODO Auto-generated method stub
-			Cursor cursor = resolver.query(ALERTS_URI, new String[]{Schema.Alerts.routeColumn, Schema.Alerts.alertindexColumn}, null, null, null);
-			try
-			{
-				ImmutableMap.Builder<String, Integer> builder = ImmutableMap.builder();
-				
-				cursor.moveToFirst();
-				while (cursor.isAfterLast() == false) {
-					String route = cursor.getString(0);
-					int index = cursor.getInt(1);
-					builder.put(route, index);
-					
-					cursor.moveToNext();
-				}
-				
-				return new AlertsMapping(builder.build());
-			}
-			finally
-			{
-				if (cursor != null) {
-					cursor.close();
-				}
-			}
-		}
 
 		public static void removeIntersection(ContentResolver contentResolver,
 				String name) {
@@ -1419,7 +1389,6 @@ public class DatabaseContentProvider extends ContentProvider {
 		uriMatcher.addURI(AUTHORITY, "stops_with_distance/*/*/#", STOPS_WITH_DISTANCE);
 		uriMatcher.addURI(AUTHORITY, "stops_and_routes_with_distance/*/*/#", STOPS_AND_ROUTES_WITH_DISTANCE);
 		uriMatcher.addURI(AUTHORITY, "subway_stops", SUBWAY_STOPS);
-		uriMatcher.addURI(AUTHORITY, "alerts", ALERTS);
 		uriMatcher.addURI(AUTHORITY, "routes_and_bounds", ROUTES_AND_BOUNDS);
 	}
 
@@ -1445,9 +1414,6 @@ public class DatabaseContentProvider extends ContentProvider {
 			break;
 		case SUBWAY_STOPS:
 			count = db.delete(Schema.Subway.table, selection, selectionArgs);
-			break;
-		case ALERTS:
-			count = db.delete(Schema.Alerts.table, selection, selectionArgs);
 			break;
 		default:
 			throw new IllegalArgumentException("Unknown URI " + uri);
@@ -1484,8 +1450,6 @@ public class DatabaseContentProvider extends ContentProvider {
 			return STOPS_AND_ROUTES_WITH_DISTANCE_TYPE;
 		case SUBWAY_STOPS:
 			return SUBWAY_STOPS_TYPE;
-		case ALERTS:
-			return ALERTS_TYPE;
 		case ROUTES_AND_BOUNDS:
 			return ROUTES_AND_BOUNDS_TYPE;
 		default:
@@ -1503,7 +1467,6 @@ public class DatabaseContentProvider extends ContentProvider {
 		case STOPS_ROUTES:
 		case DIRECTIONS:
 		case DIRECTIONS_STOPS:
-		case ALERTS:
 			break;
 		default:
 			throw new IllegalArgumentException("Unknown URI " + uri);
@@ -1563,15 +1526,6 @@ public class DatabaseContentProvider extends ContentProvider {
 			if (rowId >= 0) {
 				getContext().getContentResolver().notifyChange(uri, null);
 				return SUBWAY_STOPS_URI;
-			}
-		}
-		break;
-		case ALERTS:
-		{
-			long rowId = db.replace(Schema.Alerts.table, null, values);
-			if (rowId >= 0) {
-				getContext().getContentResolver().notifyChange(uri, null);
-				return ALERTS_URI;
 			}
 		}
 		break;
@@ -1669,9 +1623,6 @@ public class DatabaseContentProvider extends ContentProvider {
 			builder.setProjectionMap(projectionMap);
 		}
 			break;
-		case ALERTS:
-			builder.setTables(Schema.Alerts.table);
-			break;
 		case ROUTES_AND_BOUNDS:
 			builder.setTables(Schema.Routes.table + " LEFT OUTER JOIN " + Schema.Bounds.table + " ON " + Schema.Routes.routeColumnOnTable + " = " + Schema.Bounds.routeColumnOnTable);
 			break;
@@ -1711,9 +1662,6 @@ public class DatabaseContentProvider extends ContentProvider {
 			break;
 		case SUBWAY_STOPS:
 			count = db.update(Schema.Subway.table, values, selection, selectionArgs);
-			break;
-		case ALERTS:
-			count = db.update(Schema.Alerts.table, values, selection, selectionArgs);
 			break;
 		default:
 			throw new IllegalArgumentException("Unknown URI " + uri);
