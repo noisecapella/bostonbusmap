@@ -32,8 +32,9 @@ import android.graphics.drawable.Drawable;
 import android.os.RemoteException;
 import android.util.Log;
 import boston.Bus.Map.R;
+import boston.Bus.Map.database.DatabaseAgent;
+import boston.Bus.Map.database.FavoritesAgent;
 import boston.Bus.Map.main.UpdateAsyncTask;
-import boston.Bus.Map.provider.DatabaseContentProvider.DatabaseAgent;
 import boston.Bus.Map.transit.TransitSource;
 import boston.Bus.Map.transit.TransitSystem;
 import boston.Bus.Map.ui.ProgressMessage;
@@ -141,13 +142,13 @@ public class RoutePool extends Pool<String, RouteConfig> {
 	}
 	
 	private void populateFavorites() {
-		DatabaseAgent.populateFavorites(context.getContentResolver(), favoriteStops);
+		FavoritesAgent.populateFavorites(context.getContentResolver(), favoriteStops);
 		fillInFavoritesRoutes();
 
 	}
 	
 	private void populateIntersections() {
-		DatabaseAgent.populateIntersections(context.getContentResolver(), intersections,
+		FavoritesAgent.populateIntersections(context.getContentResolver(), intersections,
 				transitSystem, sharedStops, maximumDistanceFromIntersection, filterStopsFromIntersection);
 	}
 
@@ -156,12 +157,6 @@ public class RoutePool extends Pool<String, RouteConfig> {
 		favoriteStops.clear();
 		sharedStops.clear();
 		intersections.clear();
-	}
-
-
-	public ImmutableList<String> routeInfoNeedsUpdating(RouteTitles supportedRoutes) {
-		//TODO: what if another route gets added later, and we want to download it from the server and add it?
-		return DatabaseAgent.routeInfoNeedsUpdating(context.getContentResolver(), supportedRoutes);
 	}
 
 	public StopLocation[] getFavoriteStops() {
@@ -188,7 +183,7 @@ public class RoutePool extends Pool<String, RouteConfig> {
 	public int setFavorite(StopLocation location, boolean isFavorite) throws RemoteException {
 		Collection<String> stopTags = DatabaseAgent.getAllStopTagsAtLocation(context.getContentResolver(), location.getStopTag());
 
-		DatabaseAgent.saveFavorite(context.getContentResolver(), stopTags, isFavorite);
+		FavoritesAgent.saveFavorite(context.getContentResolver(), stopTags, isFavorite);
 		favoriteStops.clear();
 		populateFavorites();
 		
@@ -209,7 +204,7 @@ public class RoutePool extends Pool<String, RouteConfig> {
 	}
 
 	public boolean addIntersection(IntersectionLocation.Builder build) {
-		boolean success = DatabaseAgent.addIntersection(context.getContentResolver(), build, transitSystem.getRouteKeysToTitles());
+		boolean success = FavoritesAgent.addIntersection(context.getContentResolver(), build, transitSystem.getRouteKeysToTitles());
 		if (success) {
 			populateIntersections();
 		}
@@ -310,13 +305,13 @@ public class RoutePool extends Pool<String, RouteConfig> {
 	}
 	
 	public void removeIntersection(String name) {
-		DatabaseAgent.removeIntersection(context.getContentResolver(), name);
+		FavoritesAgent.removeIntersection(context.getContentResolver(), name);
 		
 		intersections.remove(name);
 	}
 
 	public void editIntersectionName(String oldName, String newName) {
-		DatabaseAgent.editIntersectionName(context.getContentResolver(), oldName, newName);
+		FavoritesAgent.editIntersectionName(context.getContentResolver(), oldName, newName);
 		
 		intersections.remove(oldName);
 		

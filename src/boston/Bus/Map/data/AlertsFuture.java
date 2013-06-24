@@ -15,7 +15,6 @@ import android.os.AsyncTask;
 import android.os.Handler;
 import boston.Bus.Map.annotations.KeepSorted;
 import boston.Bus.Map.parser.IAlertsParser;
-import boston.Bus.Map.parser.MbtaAlertsParser;
 import boston.Bus.Map.transit.TransitSystem;
 import boston.Bus.Map.util.LogUtil;
 

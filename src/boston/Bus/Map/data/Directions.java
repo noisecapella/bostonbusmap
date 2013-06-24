@@ -8,11 +8,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+import boston.Bus.Map.database.DatabaseAgent;
+
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableMap.Builder;
 import com.google.common.collect.Maps;
 
-import boston.Bus.Map.provider.DatabaseContentProvider.DatabaseAgent;
 
 
 import android.content.Context;

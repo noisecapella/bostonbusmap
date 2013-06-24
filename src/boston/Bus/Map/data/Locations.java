@@ -58,7 +58,6 @@ import boston.Bus.Map.data.IntersectionLocation.Builder;
 import boston.Bus.Map.main.GetDirectionsAsyncTask;
 import boston.Bus.Map.main.Main;
 import boston.Bus.Map.main.UpdateAsyncTask;
-import boston.Bus.Map.parser.MbtaAlertsParser;
 import boston.Bus.Map.transit.TransitSource;
 import boston.Bus.Map.transit.TransitSystem;
 import boston.Bus.Map.ui.ProgressMessage;
