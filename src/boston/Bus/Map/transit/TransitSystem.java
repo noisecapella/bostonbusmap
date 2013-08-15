@@ -114,27 +114,13 @@ public class TransitSystem implements ITransitSystem {
 			routeTitles = DatabaseAgent.getRouteTitles(resolver);
 
 			TransitSourceTitles busTransitRoutes = routeTitles.getMappingForSource(Schema.Routes.enumagencyidBus);
-			TransitSourceTitles subwayTransitRoutes = routeTitles.getMappingForSource(Schema.Routes.enumagencyidSubway);
-			TransitSourceTitles commuterRailTransitRoutes = routeTitles.getMappingForSource(Schema.Routes.enumagencyidCommuterRail);
 			
 			defaultTransitSource = new BusTransitSource(this, busDrawables, busTransitRoutes, routeTitles);
 			
 			ImmutableMap.Builder<String, TransitSource> mapBuilder = ImmutableMap.builder();
-			HeavyRailTransitSource subwayTransitSource = new HeavyRailTransitSource(subwayDrawables,
-					subwayTransitRoutes, this);
-			for (String route : subwayTransitSource.getRouteTitles().routeTags()) {
-				mapBuilder.put(route, subwayTransitSource);
-			}
-			
-			CommuterRailTransitSource commuterRailTransitSource = new CommuterRailTransitSource(commuterRailDrawables,
-					commuterRailTransitRoutes, this);
-			for (String route : commuterRailTransitSource.getRouteTitles().routeTags())
-			{
-				mapBuilder.put(route, commuterRailTransitSource);
-			}
 			transitSourceMap = mapBuilder.build();
 
-			transitSources = ImmutableList.of(commuterRailTransitSource, subwayTransitSource, defaultTransitSource);
+			transitSources = ImmutableList.of(defaultTransitSource);
 		
 		}
 		else
