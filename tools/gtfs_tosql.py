@@ -16,10 +16,8 @@ def write_sql(startorder, route, gtfs_map):
     shapes_header, shapes = gtfs_map.shapes_header, gtfs_map.shapes
     
 
-    supported_route_description = route + " Line"
     route_rows = [route_row for route_row in routes
-                  if (route_row[routes_header["route_long_name"]] == supported_route_description or
-                      route_row[routes_header["route_short_name"]] == supported_route_description)]
+                  if (route_row[routes_header["route_id"]] == route)]
     route_ids = set([route_row[routes_header["route_id"]] for route_row in route_rows])
 
     trip_rows = [trip_row for trip_row in trips
