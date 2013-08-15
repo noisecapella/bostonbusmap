@@ -1,5 +1,8 @@
 package boston.Bus.Map.data;
 
+import com.google.common.collect.ImmutableCollection;
+
+import boston.Bus.Map.database.Schema;
 import android.graphics.drawable.Drawable;
 
 public class CommuterTrainLocation extends BusLocation {
@@ -14,8 +17,6 @@ public class CommuterTrainLocation extends BusLocation {
 		// TODO Auto-generated constructor stub
 	}
 
-	private static final String experimentalString = "<font color='red' size='1'>Commuter rail predictions are experimental</font>";
-	
 	@Override
 	protected String getBusNumberMessage() {
 		return "Train number: " + busId + "<br />\n";
@@ -25,4 +26,14 @@ public class CommuterTrainLocation extends BusLocation {
 	public boolean isDisappearAfterRefresh() {
 		return true;
 	}
+	
+	@Override
+	public int getTransitSourceType() {
+		return Schema.Routes.enumagencyidCommuterRail;
+	}
+	
+	@Override
+	protected ImmutableCollection<Alert> getAlerts(IAlerts alerts) {
+		return alerts.getAlertsByCommuterRailTripId(busId, routeName);
+	}	
 }

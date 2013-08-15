@@ -1,0 +1,3310 @@
+header {
+  gtfs_realtime_version: "1.0"
+  timestamp: 1370445330
+}
+entity {
+  id: "1102"
+  alert {
+    active_period {
+      start: 1370680200
+      end: 1370759400
+    }
+    active_period {
+      start: 1370766600
+      end: 1370845800
+    }
+    active_period {
+      start: 1371285000
+      end: 1371364200
+    }
+    active_period {
+      start: 1371371400
+      end: 1371450600
+    }
+    active_period {
+      start: 1371889800
+      end: 1371969000
+    }
+    active_period {
+      start: 1371976200
+      end: 1372055400
+    }
+    active_period {
+      start: 1372494600
+      end: 1372573800
+    }
+    active_period {
+      start: 1372581000
+      end: 1372660200
+    }
+    active_period {
+      start: 1373099400
+      end: 1373178600
+    }
+    active_period {
+      start: 1373185800
+      end: 1373265000
+    }
+    informed_entity {
+      agency_id: "1"
+      route_id: "CR-Fitchburg"
+      route_type: 2
+      stop_id: "Ayer"
+    }
+    informed_entity {
+      agency_id: "1"
+      route_id: "CR-Fitchburg"
+      route_type: 2
+      stop_id: "Fitchburg"
+    }
+    informed_entity {
+      agency_id: "1"
+      route_id: "CR-Fitchburg"
+      route_type: 2
+      stop_id: "Littleton / Rte 495"
+    }
+    informed_entity {
+      agency_id: "1"
+      route_id: "CR-Fitchburg"
+      route_type: 2
+      stop_id: "North Leominster"
+    }
+    informed_entity {
+      agency_id: "1"
+      route_id: "CR-Fitchburg"
+      route_type: 2
+      stop_id: "Shirley"
+    }
+    cause: CONSTRUCTION
+    effect: NO_SERVICE
+    header_text {
+      translation {
+        text: "Fitchburg Line stations between Fitchburg and Littleton closed weekends June 1 through Nov 24, 2013 due to construction"
+        language: "en"
+      }
+    }
+    description_text {
+      translation {
+        text: "Fitchburg Line stations between Fitchburg and Littleton closed weekends June 1 through Nov 24, 2013 due to construction.\r\n\r\nDue to track work the following Fitchburg Line stations will be closed weekends: Fitchburg, North Leominster, Shirley, Ayer, and Littleton/495. No substitute bus service will be provided. Service will run per normal schedule between North Station and South Acton. \r\n\r\nThese closures will be every weekend from June 1 through November 24, 2013 except for Fourth of July weekend (July 6 and 7) and Labor Day weekend (August 31, September 1.) "
+        language: "en"
+      }
+    }
+  }
+}
+entity {
+  id: "1104"
+  alert {
+    active_period {
+      start: 1370680200
+      end: 1370759400
+    }
+    active_period {
+      start: 1370766600
+      end: 1370845800
+    }
+    active_period {
+      start: 1371285000
+      end: 1371364200
+    }
+    active_period {
+      start: 1371371400
+      end: 1371450600
+    }
+    active_period {
+      start: 1371889800
+      end: 1371969000
+    }
+    active_period {
+      start: 1371976200
+      end: 1372055400
+    }
+    active_period {
+      start: 1372494600
+      end: 1372573800
+    }
+    active_period {
+      start: 1372581000
+      end: 1372660200
+    }
+    active_period {
+      start: 1373099400
+      end: 1373178600
+    }
+    active_period {
+      start: 1373185800
+      end: 1373265000
+    }
+    informed_entity {
+      agency_id: "1"
+      route_id: "CR-Newburyport"
+      route_type: 2
+    }
+    cause: UNKNOWN_CAUSE
+    effect: ADDITIONAL_SERVICE
+    header_text {
+      translation {
+        text: "Special Bike Trains on Newburyport/Rockport Line every weekend until Mon Oct 07, 2013 "
+        language: "en"
+      }
+    }
+    description_text {
+      translation {
+        text: "Special Bike Trains on Newburyport/Rockport Line every weekend until Mon Oct 07, 2013.\r\n\r\nA specially equipped Bike Coach, which accommodates 39 bikes and 42 passengers, will be available on weekends and holidays on the following trains: \r\n\r\nOutbound \r\n1105/2105 departing North Station at 10:15 AM \r\n1113/2113 departing North Station at   2:15 PM \r\n\r\nInbound \r\n1112/2112 departing Rockport at 12:00 PM \r\n1120/2120 departing Rockport at   5:10 PM \r\n\r\nThe Bike Coach will also be available on Memorial Day, July 4th, Labor Day and Columbus Day. "
+        language: "en"
+      }
+    }
+  }
+}
+entity {
+  id: "1105"
+  alert {
+    active_period {
+      start: 1370250420
+    }
+    informed_entity {
+      agency_id: "1"
+      route_id: "CR-Newburyport"
+      route_type: 2
+      trip {
+        trip_id: "CR-Newburyport-CR-Weekday-106"
+      }
+      stop_id: "Beverly Farms"
+    }
+    informed_entity {
+      agency_id: "1"
+      route_id: "CR-Newburyport"
+      route_type: 2
+      trip {
+        trip_id: "CR-Newburyport-CR-Weekday-106"
+      }
+      stop_id: "Gloucester"
+    }
+    informed_entity {
+      agency_id: "1"
+      route_id: "CR-Newburyport"
+      route_type: 2
+      trip {
+        trip_id: "CR-Newburyport-CR-Weekday-106"
+      }
+      stop_id: "Hamilton/ Wenham"
+    }
+    informed_entity {
+      agency_id: "1"
+      route_id: "CR-Newburyport"
+      route_type: 2
+      trip {
+        trip_id: "CR-Newburyport-CR-Weekday-106"
+      }
+      stop_id: "Ipswich"
+    }
+    informed_entity {
+      agency_id: "1"
+      route_id: "CR-Newburyport"
+      route_type: 2
+      trip {
+        trip_id: "CR-Newburyport-CR-Weekday-106"
+      }
+      stop_id: "Manchester"
+    }
+    informed_entity {
+      agency_id: "1"
+      route_id: "CR-Newburyport"
+      route_type: 2
+      trip {
+        trip_id: "CR-Newburyport-CR-Weekday-106"
+      }
+      stop_id: "Montserrat"
+    }
+    informed_entity {
+      agency_id: "1"
+      route_id: "CR-Newburyport"
+      route_type: 2
+      trip {
+        trip_id: "CR-Newburyport-CR-Weekday-106"
+      }
+      stop_id: "Newburyport"
+    }
+    informed_entity {
+      agency_id: "1"
+      route_id: "CR-Newburyport"
+      route_type: 2
+      trip {
+        trip_id: "CR-Newburyport-CR-Weekday-106"
+      }
+      stop_id: "North Beverly"
+    }
+    informed_entity {
+      agency_id: "1"
+      route_id: "CR-Newburyport"
+      route_type: 2
+      trip {
+        trip_id: "CR-Newburyport-CR-Weekday-106"
+      }
+      stop_id: "Prides Crossing"
+    }
+    informed_entity {
+      agency_id: "1"
+      route_id: "CR-Newburyport"
+      route_type: 2
+      trip {
+        trip_id: "CR-Newburyport-CR-Weekday-106"
+      }
+      stop_id: "Rockport"
+    }
+    informed_entity {
+      agency_id: "1"
+      route_id: "CR-Newburyport"
+      route_type: 2
+      trip {
+        trip_id: "CR-Newburyport-CR-Weekday-106"
+      }
+      stop_id: "Rowley"
+    }
+    informed_entity {
+      agency_id: "1"
+      route_id: "CR-Newburyport"
+      route_type: 2
+      trip {
+        trip_id: "CR-Newburyport-CR-Weekday-106"
+      }
+      stop_id: "West Gloucester"
+    }
+    informed_entity {
+      agency_id: "1"
+      route_id: "CR-Newburyport"
+      route_type: 2
+      trip {
+        trip_id: "CR-Newburyport-CR-Weekday-108"
+      }
+      stop_id: "Beverly Farms"
+    }
+    informed_entity {
+      agency_id: "1"
+      route_id: "CR-Newburyport"
+      route_type: 2
+      trip {
+        trip_id: "CR-Newburyport-CR-Weekday-108"
+      }
+      stop_id: "Gloucester"
+    }
+    informed_entity {
+      agency_id: "1"
+      route_id: "CR-Newburyport"
+      route_type: 2
+      trip {
+        trip_id: "CR-Newburyport-CR-Weekday-108"
+      }
+      stop_id: "Hamilton/ Wenham"
+    }
+    informed_entity {
+      agency_id: "1"
+      route_id: "CR-Newburyport"
+      route_type: 2
+      trip {
+        trip_id: "CR-Newburyport-CR-Weekday-108"
+      }
+      stop_id: "Ipswich"
+    }
+    informed_entity {
+      agency_id: "1"
+      route_id: "CR-Newburyport"
+      route_type: 2
+      trip {
+        trip_id: "CR-Newburyport-CR-Weekday-108"
+      }
+      stop_id: "Manchester"
+    }
+    informed_entity {
+      agency_id: "1"
+      route_id: "CR-Newburyport"
+      route_type: 2
+      trip {
+        trip_id: "CR-Newburyport-CR-Weekday-108"
+      }
+      stop_id: "Montserrat"
+    }
+    informed_entity {
+      agency_id: "1"
+      route_id: "CR-Newburyport"
+      route_type: 2
+      trip {
+        trip_id: "CR-Newburyport-CR-Weekday-108"
+      }
+      stop_id: "Newburyport"
+    }
+    informed_entity {
+      agency_id: "1"
+      route_id: "CR-Newburyport"
+      route_type: 2
+      trip {
+        trip_id: "CR-Newburyport-CR-Weekday-108"
+      }
+      stop_id: "North Beverly"
+    }
+    informed_entity {
+      agency_id: "1"
+      route_id: "CR-Newburyport"
+      route_type: 2
+      trip {
+        trip_id: "CR-Newburyport-CR-Weekday-108"
+      }
+      stop_id: "Prides Crossing"
+    }
+    informed_entity {
+      agency_id: "1"
+      route_id: "CR-Newburyport"
+      route_type: 2
+      trip {
+        trip_id: "CR-Newburyport-CR-Weekday-108"
+      }
+      stop_id: "Rockport"
+    }
+    informed_entity {
+      agency_id: "1"
+      route_id: "CR-Newburyport"
+      route_type: 2
+      trip {
+        trip_id: "CR-Newburyport-CR-Weekday-108"
+      }
+      stop_id: "Rowley"
+    }
+    informed_entity {
+      agency_id: "1"
+      route_id: "CR-Newburyport"
+      route_type: 2
+      trip {
+        trip_id: "CR-Newburyport-CR-Weekday-108"
+      }
+      stop_id: "West Gloucester"
+    }
+    informed_entity {
+      agency_id: "1"
+      route_id: "CR-Newburyport"
+      route_type: 2
+      trip {
+        trip_id: "CR-Newburyport-CR-Weekday-110"
+      }
+      stop_id: "Beverly Farms"
+    }
+    informed_entity {
+      agency_id: "1"
+      route_id: "CR-Newburyport"
+      route_type: 2
+      trip {
+        trip_id: "CR-Newburyport-CR-Weekday-110"
+      }
+      stop_id: "Gloucester"
+    }
+    informed_entity {
+      agency_id: "1"
+      route_id: "CR-Newburyport"
+      route_type: 2
+      trip {
+        trip_id: "CR-Newburyport-CR-Weekday-110"
+      }
+      stop_id: "Hamilton/ Wenham"
+    }
+    informed_entity {
+      agency_id: "1"
+      route_id: "CR-Newburyport"
+      route_type: 2
+      trip {
+        trip_id: "CR-Newburyport-CR-Weekday-110"
+      }
+      stop_id: "Ipswich"
+    }
+    informed_entity {
+      agency_id: "1"
+      route_id: "CR-Newburyport"
+      route_type: 2
+      trip {
+        trip_id: "CR-Newburyport-CR-Weekday-110"
+      }
+      stop_id: "Manchester"
+    }
+    informed_entity {
+      agency_id: "1"
+      route_id: "CR-Newburyport"
+      route_type: 2
+      trip {
+        trip_id: "CR-Newburyport-CR-Weekday-110"
+      }
+      stop_id: "Montserrat"
+    }
+    informed_entity {
+      agency_id: "1"
+      route_id: "CR-Newburyport"
+      route_type: 2
+      trip {
+        trip_id: "CR-Newburyport-CR-Weekday-110"
+      }
+      stop_id: "Newburyport"
+    }
+    informed_entity {
+      agency_id: "1"
+      route_id: "CR-Newburyport"
+      route_type: 2
+      trip {
+        trip_id: "CR-Newburyport-CR-Weekday-110"
+      }
+      stop_id: "North Beverly"
+    }
+    informed_entity {
+      agency_id: "1"
+      route_id: "CR-Newburyport"
+      route_type: 2
+      trip {
+        trip_id: "CR-Newburyport-CR-Weekday-110"
+      }
+      stop_id: "Prides Crossing"
+    }
+    informed_entity {
+      agency_id: "1"
+      route_id: "CR-Newburyport"
+      route_type: 2
+      trip {
+        trip_id: "CR-Newburyport-CR-Weekday-110"
+      }
+      stop_id: "Rockport"
+    }
+    informed_entity {
+      agency_id: "1"
+      route_id: "CR-Newburyport"
+      route_type: 2
+      trip {
+        trip_id: "CR-Newburyport-CR-Weekday-110"
+      }
+      stop_id: "Rowley"
+    }
+    informed_entity {
+      agency_id: "1"
+      route_id: "CR-Newburyport"
+      route_type: 2
+      trip {
+        trip_id: "CR-Newburyport-CR-Weekday-110"
+      }
+      stop_id: "West Gloucester"
+    }
+    informed_entity {
+      agency_id: "1"
+      route_id: "CR-Newburyport"
+      route_type: 2
+      trip {
+        trip_id: "CR-Newburyport-CR-Weekday-127"
+      }
+      stop_id: "Beverly Farms"
+    }
+    informed_entity {
+      agency_id: "1"
+      route_id: "CR-Newburyport"
+      route_type: 2
+      trip {
+        trip_id: "CR-Newburyport-CR-Weekday-127"
+      }
+      stop_id: "Gloucester"
+    }
+    informed_entity {
+      agency_id: "1"
+      route_id: "CR-Newburyport"
+      route_type: 2
+      trip {
+        trip_id: "CR-Newburyport-CR-Weekday-127"
+      }
+      stop_id: "Hamilton/ Wenham"
+    }
+    informed_entity {
+      agency_id: "1"
+      route_id: "CR-Newburyport"
+      route_type: 2
+      trip {
+        trip_id: "CR-Newburyport-CR-Weekday-127"
+      }
+      stop_id: "Ipswich"
+    }
+    informed_entity {
+      agency_id: "1"
+      route_id: "CR-Newburyport"
+      route_type: 2
+      trip {
+        trip_id: "CR-Newburyport-CR-Weekday-127"
+      }
+      stop_id: "Manchester"
+    }
+    informed_entity {
+      agency_id: "1"
+      route_id: "CR-Newburyport"
+      route_type: 2
+      trip {
+        trip_id: "CR-Newburyport-CR-Weekday-127"
+      }
+      stop_id: "Montserrat"
+    }
+    informed_entity {
+      agency_id: "1"
+      route_id: "CR-Newburyport"
+      route_type: 2
+      trip {
+        trip_id: "CR-Newburyport-CR-Weekday-127"
+      }
+      stop_id: "Newburyport"
+    }
+    informed_entity {
+      agency_id: "1"
+      route_id: "CR-Newburyport"
+      route_type: 2
+      trip {
+        trip_id: "CR-Newburyport-CR-Weekday-127"
+      }
+      stop_id: "North Beverly"
+    }
+    informed_entity {
+      agency_id: "1"
+      route_id: "CR-Newburyport"
+      route_type: 2
+      trip {
+        trip_id: "CR-Newburyport-CR-Weekday-127"
+      }
+      stop_id: "Prides Crossing"
+    }
+    informed_entity {
+      agency_id: "1"
+      route_id: "CR-Newburyport"
+      route_type: 2
+      trip {
+        trip_id: "CR-Newburyport-CR-Weekday-127"
+      }
+      stop_id: "Rockport"
+    }
+    informed_entity {
+      agency_id: "1"
+      route_id: "CR-Newburyport"
+      route_type: 2
+      trip {
+        trip_id: "CR-Newburyport-CR-Weekday-127"
+      }
+      stop_id: "Rowley"
+    }
+    informed_entity {
+      agency_id: "1"
+      route_id: "CR-Newburyport"
+      route_type: 2
+      trip {
+        trip_id: "CR-Newburyport-CR-Weekday-127"
+      }
+      stop_id: "West Gloucester"
+    }
+    informed_entity {
+      agency_id: "1"
+      route_id: "CR-Newburyport"
+      route_type: 2
+      trip {
+        trip_id: "CR-Newburyport-CR-Weekday-129"
+      }
+      stop_id: "Beverly Farms"
+    }
+    informed_entity {
+      agency_id: "1"
+      route_id: "CR-Newburyport"
+      route_type: 2
+      trip {
+        trip_id: "CR-Newburyport-CR-Weekday-129"
+      }
+      stop_id: "Gloucester"
+    }
+    informed_entity {
+      agency_id: "1"
+      route_id: "CR-Newburyport"
+      route_type: 2
+      trip {
+        trip_id: "CR-Newburyport-CR-Weekday-129"
+      }
+      stop_id: "Hamilton/ Wenham"
+    }
+    informed_entity {
+      agency_id: "1"
+      route_id: "CR-Newburyport"
+      route_type: 2
+      trip {
+        trip_id: "CR-Newburyport-CR-Weekday-129"
+      }
+      stop_id: "Ipswich"
+    }
+    informed_entity {
+      agency_id: "1"
+      route_id: "CR-Newburyport"
+      route_type: 2
+      trip {
+        trip_id: "CR-Newburyport-CR-Weekday-129"
+      }
+      stop_id: "Manchester"
+    }
+    informed_entity {
+      agency_id: "1"
+      route_id: "CR-Newburyport"
+      route_type: 2
+      trip {
+        trip_id: "CR-Newburyport-CR-Weekday-129"
+      }
+      stop_id: "Montserrat"
+    }
+    informed_entity {
+      agency_id: "1"
+      route_id: "CR-Newburyport"
+      route_type: 2
+      trip {
+        trip_id: "CR-Newburyport-CR-Weekday-129"
+      }
+      stop_id: "Newburyport"
+    }
+    informed_entity {
+      agency_id: "1"
+      route_id: "CR-Newburyport"
+      route_type: 2
+      trip {
+        trip_id: "CR-Newburyport-CR-Weekday-129"
+      }
+      stop_id: "North Beverly"
+    }
+    informed_entity {
+      agency_id: "1"
+      route_id: "CR-Newburyport"
+      route_type: 2
+      trip {
+        trip_id: "CR-Newburyport-CR-Weekday-129"
+      }
+      stop_id: "Prides Crossing"
+    }
+    informed_entity {
+      agency_id: "1"
+      route_id: "CR-Newburyport"
+      route_type: 2
+      trip {
+        trip_id: "CR-Newburyport-CR-Weekday-129"
+      }
+      stop_id: "Rockport"
+    }
+    informed_entity {
+      agency_id: "1"
+      route_id: "CR-Newburyport"
+      route_type: 2
+      trip {
+        trip_id: "CR-Newburyport-CR-Weekday-129"
+      }
+      stop_id: "Rowley"
+    }
+    informed_entity {
+      agency_id: "1"
+      route_id: "CR-Newburyport"
+      route_type: 2
+      trip {
+        trip_id: "CR-Newburyport-CR-Weekday-129"
+      }
+      stop_id: "West Gloucester"
+    }
+    informed_entity {
+      agency_id: "1"
+      route_id: "CR-Newburyport"
+      route_type: 2
+      trip {
+        trip_id: "CR-Newburyport-CR-Weekday-131"
+      }
+      stop_id: "Beverly Farms"
+    }
+    informed_entity {
+      agency_id: "1"
+      route_id: "CR-Newburyport"
+      route_type: 2
+      trip {
+        trip_id: "CR-Newburyport-CR-Weekday-131"
+      }
+      stop_id: "Gloucester"
+    }
+    informed_entity {
+      agency_id: "1"
+      route_id: "CR-Newburyport"
+      route_type: 2
+      trip {
+        trip_id: "CR-Newburyport-CR-Weekday-131"
+      }
+      stop_id: "Hamilton/ Wenham"
+    }
+    informed_entity {
+      agency_id: "1"
+      route_id: "CR-Newburyport"
+      route_type: 2
+      trip {
+        trip_id: "CR-Newburyport-CR-Weekday-131"
+      }
+      stop_id: "Ipswich"
+    }
+    informed_entity {
+      agency_id: "1"
+      route_id: "CR-Newburyport"
+      route_type: 2
+      trip {
+        trip_id: "CR-Newburyport-CR-Weekday-131"
+      }
+      stop_id: "Manchester"
+    }
+    informed_entity {
+      agency_id: "1"
+      route_id: "CR-Newburyport"
+      route_type: 2
+      trip {
+        trip_id: "CR-Newburyport-CR-Weekday-131"
+      }
+      stop_id: "Montserrat"
+    }
+    informed_entity {
+      agency_id: "1"
+      route_id: "CR-Newburyport"
+      route_type: 2
+      trip {
+        trip_id: "CR-Newburyport-CR-Weekday-131"
+      }
+      stop_id: "Newburyport"
+    }
+    informed_entity {
+      agency_id: "1"
+      route_id: "CR-Newburyport"
+      route_type: 2
+      trip {
+        trip_id: "CR-Newburyport-CR-Weekday-131"
+      }
+      stop_id: "North Beverly"
+    }
+    informed_entity {
+      agency_id: "1"
+      route_id: "CR-Newburyport"
+      route_type: 2
+      trip {
+        trip_id: "CR-Newburyport-CR-Weekday-131"
+      }
+      stop_id: "Prides Crossing"
+    }
+    informed_entity {
+      agency_id: "1"
+      route_id: "CR-Newburyport"
+      route_type: 2
+      trip {
+        trip_id: "CR-Newburyport-CR-Weekday-131"
+      }
+      stop_id: "Rockport"
+    }
+    informed_entity {
+      agency_id: "1"
+      route_id: "CR-Newburyport"
+      route_type: 2
+      trip {
+        trip_id: "CR-Newburyport-CR-Weekday-131"
+      }
+      stop_id: "Rowley"
+    }
+    informed_entity {
+      agency_id: "1"
+      route_id: "CR-Newburyport"
+      route_type: 2
+      trip {
+        trip_id: "CR-Newburyport-CR-Weekday-131"
+      }
+      stop_id: "West Gloucester"
+    }
+    informed_entity {
+      agency_id: "1"
+      route_id: "CR-Newburyport"
+      route_type: 2
+      trip {
+        trip_id: "CR-Newburyport-CR-Weekday-133"
+      }
+      stop_id: "Beverly Farms"
+    }
+    informed_entity {
+      agency_id: "1"
+      route_id: "CR-Newburyport"
+      route_type: 2
+      trip {
+        trip_id: "CR-Newburyport-CR-Weekday-133"
+      }
+      stop_id: "Gloucester"
+    }
+    informed_entity {
+      agency_id: "1"
+      route_id: "CR-Newburyport"
+      route_type: 2
+      trip {
+        trip_id: "CR-Newburyport-CR-Weekday-133"
+      }
+      stop_id: "Hamilton/ Wenham"
+    }
+    informed_entity {
+      agency_id: "1"
+      route_id: "CR-Newburyport"
+      route_type: 2
+      trip {
+        trip_id: "CR-Newburyport-CR-Weekday-133"
+      }
+      stop_id: "Ipswich"
+    }
+    informed_entity {
+      agency_id: "1"
+      route_id: "CR-Newburyport"
+      route_type: 2
+      trip {
+        trip_id: "CR-Newburyport-CR-Weekday-133"
+      }
+      stop_id: "Manchester"
+    }
+    informed_entity {
+      agency_id: "1"
+      route_id: "CR-Newburyport"
+      route_type: 2
+      trip {
+        trip_id: "CR-Newburyport-CR-Weekday-133"
+      }
+      stop_id: "Montserrat"
+    }
+    informed_entity {
+      agency_id: "1"
+      route_id: "CR-Newburyport"
+      route_type: 2
+      trip {
+        trip_id: "CR-Newburyport-CR-Weekday-133"
+      }
+      stop_id: "Newburyport"
+    }
+    informed_entity {
+      agency_id: "1"
+      route_id: "CR-Newburyport"
+      route_type: 2
+      trip {
+        trip_id: "CR-Newburyport-CR-Weekday-133"
+      }
+      stop_id: "North Beverly"
+    }
+    informed_entity {
+      agency_id: "1"
+      route_id: "CR-Newburyport"
+      route_type: 2
+      trip {
+        trip_id: "CR-Newburyport-CR-Weekday-133"
+      }
+      stop_id: "Prides Crossing"
+    }
+    informed_entity {
+      agency_id: "1"
+      route_id: "CR-Newburyport"
+      route_type: 2
+      trip {
+        trip_id: "CR-Newburyport-CR-Weekday-133"
+      }
+      stop_id: "Rockport"
+    }
+    informed_entity {
+      agency_id: "1"
+      route_id: "CR-Newburyport"
+      route_type: 2
+      trip {
+        trip_id: "CR-Newburyport-CR-Weekday-133"
+      }
+      stop_id: "Rowley"
+    }
+    informed_entity {
+      agency_id: "1"
+      route_id: "CR-Newburyport"
+      route_type: 2
+      trip {
+        trip_id: "CR-Newburyport-CR-Weekday-133"
+      }
+      stop_id: "West Gloucester"
+    }
+    informed_entity {
+      agency_id: "1"
+      route_id: "CR-Newburyport"
+      route_type: 2
+      trip {
+        trip_id: "CR-Newburyport-CR-Weekday-152"
+      }
+      stop_id: "Beverly Farms"
+    }
+    informed_entity {
+      agency_id: "1"
+      route_id: "CR-Newburyport"
+      route_type: 2
+      trip {
+        trip_id: "CR-Newburyport-CR-Weekday-152"
+      }
+      stop_id: "Gloucester"
+    }
+    informed_entity {
+      agency_id: "1"
+      route_id: "CR-Newburyport"
+      route_type: 2
+      trip {
+        trip_id: "CR-Newburyport-CR-Weekday-152"
+      }
+      stop_id: "Hamilton/ Wenham"
+    }
+    informed_entity {
+      agency_id: "1"
+      route_id: "CR-Newburyport"
+      route_type: 2
+      trip {
+        trip_id: "CR-Newburyport-CR-Weekday-152"
+      }
+      stop_id: "Ipswich"
+    }
+    informed_entity {
+      agency_id: "1"
+      route_id: "CR-Newburyport"
+      route_type: 2
+      trip {
+        trip_id: "CR-Newburyport-CR-Weekday-152"
+      }
+      stop_id: "Manchester"
+    }
+    informed_entity {
+      agency_id: "1"
+      route_id: "CR-Newburyport"
+      route_type: 2
+      trip {
+        trip_id: "CR-Newburyport-CR-Weekday-152"
+      }
+      stop_id: "Montserrat"
+    }
+    informed_entity {
+      agency_id: "1"
+      route_id: "CR-Newburyport"
+      route_type: 2
+      trip {
+        trip_id: "CR-Newburyport-CR-Weekday-152"
+      }
+      stop_id: "Newburyport"
+    }
+    informed_entity {
+      agency_id: "1"
+      route_id: "CR-Newburyport"
+      route_type: 2
+      trip {
+        trip_id: "CR-Newburyport-CR-Weekday-152"
+      }
+      stop_id: "North Beverly"
+    }
+    informed_entity {
+      agency_id: "1"
+      route_id: "CR-Newburyport"
+      route_type: 2
+      trip {
+        trip_id: "CR-Newburyport-CR-Weekday-152"
+      }
+      stop_id: "Prides Crossing"
+    }
+    informed_entity {
+      agency_id: "1"
+      route_id: "CR-Newburyport"
+      route_type: 2
+      trip {
+        trip_id: "CR-Newburyport-CR-Weekday-152"
+      }
+      stop_id: "Rockport"
+    }
+    informed_entity {
+      agency_id: "1"
+      route_id: "CR-Newburyport"
+      route_type: 2
+      trip {
+        trip_id: "CR-Newburyport-CR-Weekday-152"
+      }
+      stop_id: "Rowley"
+    }
+    informed_entity {
+      agency_id: "1"
+      route_id: "CR-Newburyport"
+      route_type: 2
+      trip {
+        trip_id: "CR-Newburyport-CR-Weekday-152"
+      }
+      stop_id: "West Gloucester"
+    }
+    informed_entity {
+      agency_id: "1"
+      route_id: "CR-Newburyport"
+      route_type: 2
+      trip {
+        trip_id: "CR-Newburyport-CR-Weekday-154"
+      }
+      stop_id: "Beverly Farms"
+    }
+    informed_entity {
+      agency_id: "1"
+      route_id: "CR-Newburyport"
+      route_type: 2
+      trip {
+        trip_id: "CR-Newburyport-CR-Weekday-154"
+      }
+      stop_id: "Gloucester"
+    }
+    informed_entity {
+      agency_id: "1"
+      route_id: "CR-Newburyport"
+      route_type: 2
+      trip {
+        trip_id: "CR-Newburyport-CR-Weekday-154"
+      }
+      stop_id: "Hamilton/ Wenham"
+    }
+    informed_entity {
+      agency_id: "1"
+      route_id: "CR-Newburyport"
+      route_type: 2
+      trip {
+        trip_id: "CR-Newburyport-CR-Weekday-154"
+      }
+      stop_id: "Ipswich"
+    }
+    informed_entity {
+      agency_id: "1"
+      route_id: "CR-Newburyport"
+      route_type: 2
+      trip {
+        trip_id: "CR-Newburyport-CR-Weekday-154"
+      }
+      stop_id: "Manchester"
+    }
+    informed_entity {
+      agency_id: "1"
+      route_id: "CR-Newburyport"
+      route_type: 2
+      trip {
+        trip_id: "CR-Newburyport-CR-Weekday-154"
+      }
+      stop_id: "Montserrat"
+    }
+    informed_entity {
+      agency_id: "1"
+      route_id: "CR-Newburyport"
+      route_type: 2
+      trip {
+        trip_id: "CR-Newburyport-CR-Weekday-154"
+      }
+      stop_id: "Newburyport"
+    }
+    informed_entity {
+      agency_id: "1"
+      route_id: "CR-Newburyport"
+      route_type: 2
+      trip {
+        trip_id: "CR-Newburyport-CR-Weekday-154"
+      }
+      stop_id: "North Beverly"
+    }
+    informed_entity {
+      agency_id: "1"
+      route_id: "CR-Newburyport"
+      route_type: 2
+      trip {
+        trip_id: "CR-Newburyport-CR-Weekday-154"
+      }
+      stop_id: "Prides Crossing"
+    }
+    informed_entity {
+      agency_id: "1"
+      route_id: "CR-Newburyport"
+      route_type: 2
+      trip {
+        trip_id: "CR-Newburyport-CR-Weekday-154"
+      }
+      stop_id: "Rockport"
+    }
+    informed_entity {
+      agency_id: "1"
+      route_id: "CR-Newburyport"
+      route_type: 2
+      trip {
+        trip_id: "CR-Newburyport-CR-Weekday-154"
+      }
+      stop_id: "Rowley"
+    }
+    informed_entity {
+      agency_id: "1"
+      route_id: "CR-Newburyport"
+      route_type: 2
+      trip {
+        trip_id: "CR-Newburyport-CR-Weekday-154"
+      }
+      stop_id: "West Gloucester"
+    }
+    informed_entity {
+      agency_id: "1"
+      route_id: "CR-Newburyport"
+      route_type: 2
+      trip {
+        trip_id: "CR-Newburyport-CR-Weekday-156"
+      }
+      stop_id: "Beverly Farms"
+    }
+    informed_entity {
+      agency_id: "1"
+      route_id: "CR-Newburyport"
+      route_type: 2
+      trip {
+        trip_id: "CR-Newburyport-CR-Weekday-156"
+      }
+      stop_id: "Gloucester"
+    }
+    informed_entity {
+      agency_id: "1"
+      route_id: "CR-Newburyport"
+      route_type: 2
+      trip {
+        trip_id: "CR-Newburyport-CR-Weekday-156"
+      }
+      stop_id: "Hamilton/ Wenham"
+    }
+    informed_entity {
+      agency_id: "1"
+      route_id: "CR-Newburyport"
+      route_type: 2
+      trip {
+        trip_id: "CR-Newburyport-CR-Weekday-156"
+      }
+      stop_id: "Ipswich"
+    }
+    informed_entity {
+      agency_id: "1"
+      route_id: "CR-Newburyport"
+      route_type: 2
+      trip {
+        trip_id: "CR-Newburyport-CR-Weekday-156"
+      }
+      stop_id: "Manchester"
+    }
+    informed_entity {
+      agency_id: "1"
+      route_id: "CR-Newburyport"
+      route_type: 2
+      trip {
+        trip_id: "CR-Newburyport-CR-Weekday-156"
+      }
+      stop_id: "Montserrat"
+    }
+    informed_entity {
+      agency_id: "1"
+      route_id: "CR-Newburyport"
+      route_type: 2
+      trip {
+        trip_id: "CR-Newburyport-CR-Weekday-156"
+      }
+      stop_id: "Newburyport"
+    }
+    informed_entity {
+      agency_id: "1"
+      route_id: "CR-Newburyport"
+      route_type: 2
+      trip {
+        trip_id: "CR-Newburyport-CR-Weekday-156"
+      }
+      stop_id: "North Beverly"
+    }
+    informed_entity {
+      agency_id: "1"
+      route_id: "CR-Newburyport"
+      route_type: 2
+      trip {
+        trip_id: "CR-Newburyport-CR-Weekday-156"
+      }
+      stop_id: "Prides Crossing"
+    }
+    informed_entity {
+      agency_id: "1"
+      route_id: "CR-Newburyport"
+      route_type: 2
+      trip {
+        trip_id: "CR-Newburyport-CR-Weekday-156"
+      }
+      stop_id: "Rockport"
+    }
+    informed_entity {
+      agency_id: "1"
+      route_id: "CR-Newburyport"
+      route_type: 2
+      trip {
+        trip_id: "CR-Newburyport-CR-Weekday-156"
+      }
+      stop_id: "Rowley"
+    }
+    informed_entity {
+      agency_id: "1"
+      route_id: "CR-Newburyport"
+      route_type: 2
+      trip {
+        trip_id: "CR-Newburyport-CR-Weekday-156"
+      }
+      stop_id: "West Gloucester"
+    }
+    informed_entity {
+      agency_id: "1"
+      route_id: "CR-Newburyport"
+      route_type: 2
+      trip {
+        trip_id: "CR-Newburyport-CR-Weekday-158"
+      }
+      stop_id: "Beverly Farms"
+    }
+    informed_entity {
+      agency_id: "1"
+      route_id: "CR-Newburyport"
+      route_type: 2
+      trip {
+        trip_id: "CR-Newburyport-CR-Weekday-158"
+      }
+      stop_id: "Gloucester"
+    }
+    informed_entity {
+      agency_id: "1"
+      route_id: "CR-Newburyport"
+      route_type: 2
+      trip {
+        trip_id: "CR-Newburyport-CR-Weekday-158"
+      }
+      stop_id: "Hamilton/ Wenham"
+    }
+    informed_entity {
+      agency_id: "1"
+      route_id: "CR-Newburyport"
+      route_type: 2
+      trip {
+        trip_id: "CR-Newburyport-CR-Weekday-158"
+      }
+      stop_id: "Ipswich"
+    }
+    informed_entity {
+      agency_id: "1"
+      route_id: "CR-Newburyport"
+      route_type: 2
+      trip {
+        trip_id: "CR-Newburyport-CR-Weekday-158"
+      }
+      stop_id: "Manchester"
+    }
+    informed_entity {
+      agency_id: "1"
+      route_id: "CR-Newburyport"
+      route_type: 2
+      trip {
+        trip_id: "CR-Newburyport-CR-Weekday-158"
+      }
+      stop_id: "Montserrat"
+    }
+    informed_entity {
+      agency_id: "1"
+      route_id: "CR-Newburyport"
+      route_type: 2
+      trip {
+        trip_id: "CR-Newburyport-CR-Weekday-158"
+      }
+      stop_id: "Newburyport"
+    }
+    informed_entity {
+      agency_id: "1"
+      route_id: "CR-Newburyport"
+      route_type: 2
+      trip {
+        trip_id: "CR-Newburyport-CR-Weekday-158"
+      }
+      stop_id: "North Beverly"
+    }
+    informed_entity {
+      agency_id: "1"
+      route_id: "CR-Newburyport"
+      route_type: 2
+      trip {
+        trip_id: "CR-Newburyport-CR-Weekday-158"
+      }
+      stop_id: "Prides Crossing"
+    }
+    informed_entity {
+      agency_id: "1"
+      route_id: "CR-Newburyport"
+      route_type: 2
+      trip {
+        trip_id: "CR-Newburyport-CR-Weekday-158"
+      }
+      stop_id: "Rockport"
+    }
+    informed_entity {
+      agency_id: "1"
+      route_id: "CR-Newburyport"
+      route_type: 2
+      trip {
+        trip_id: "CR-Newburyport-CR-Weekday-158"
+      }
+      stop_id: "Rowley"
+    }
+    informed_entity {
+      agency_id: "1"
+      route_id: "CR-Newburyport"
+      route_type: 2
+      trip {
+        trip_id: "CR-Newburyport-CR-Weekday-158"
+      }
+      stop_id: "West Gloucester"
+    }
+    informed_entity {
+      agency_id: "1"
+      route_id: "CR-Newburyport"
+      route_type: 2
+      trip {
+        trip_id: "CR-Newburyport-CR-Weekday-162"
+      }
+      stop_id: "Beverly Farms"
+    }
+    informed_entity {
+      agency_id: "1"
+      route_id: "CR-Newburyport"
+      route_type: 2
+      trip {
+        trip_id: "CR-Newburyport-CR-Weekday-162"
+      }
+      stop_id: "Gloucester"
+    }
+    informed_entity {
+      agency_id: "1"
+      route_id: "CR-Newburyport"
+      route_type: 2
+      trip {
+        trip_id: "CR-Newburyport-CR-Weekday-162"
+      }
+      stop_id: "Hamilton/ Wenham"
+    }
+    informed_entity {
+      agency_id: "1"
+      route_id: "CR-Newburyport"
+      route_type: 2
+      trip {
+        trip_id: "CR-Newburyport-CR-Weekday-162"
+      }
+      stop_id: "Ipswich"
+    }
+    informed_entity {
+      agency_id: "1"
+      route_id: "CR-Newburyport"
+      route_type: 2
+      trip {
+        trip_id: "CR-Newburyport-CR-Weekday-162"
+      }
+      stop_id: "Manchester"
+    }
+    informed_entity {
+      agency_id: "1"
+      route_id: "CR-Newburyport"
+      route_type: 2
+      trip {
+        trip_id: "CR-Newburyport-CR-Weekday-162"
+      }
+      stop_id: "Montserrat"
+    }
+    informed_entity {
+      agency_id: "1"
+      route_id: "CR-Newburyport"
+      route_type: 2
+      trip {
+        trip_id: "CR-Newburyport-CR-Weekday-162"
+      }
+      stop_id: "Newburyport"
+    }
+    informed_entity {
+      agency_id: "1"
+      route_id: "CR-Newburyport"
+      route_type: 2
+      trip {
+        trip_id: "CR-Newburyport-CR-Weekday-162"
+      }
+      stop_id: "North Beverly"
+    }
+    informed_entity {
+      agency_id: "1"
+      route_id: "CR-Newburyport"
+      route_type: 2
+      trip {
+        trip_id: "CR-Newburyport-CR-Weekday-162"
+      }
+      stop_id: "Prides Crossing"
+    }
+    informed_entity {
+      agency_id: "1"
+      route_id: "CR-Newburyport"
+      route_type: 2
+      trip {
+        trip_id: "CR-Newburyport-CR-Weekday-162"
+      }
+      stop_id: "Rockport"
+    }
+    informed_entity {
+      agency_id: "1"
+      route_id: "CR-Newburyport"
+      route_type: 2
+      trip {
+        trip_id: "CR-Newburyport-CR-Weekday-162"
+      }
+      stop_id: "Rowley"
+    }
+    informed_entity {
+      agency_id: "1"
+      route_id: "CR-Newburyport"
+      route_type: 2
+      trip {
+        trip_id: "CR-Newburyport-CR-Weekday-162"
+      }
+      stop_id: "West Gloucester"
+    }
+    informed_entity {
+      agency_id: "1"
+      route_id: "CR-Newburyport"
+      route_type: 2
+      trip {
+        trip_id: "CR-Newburyport-CR-Weekday-177"
+      }
+      stop_id: "Beverly Farms"
+    }
+    informed_entity {
+      agency_id: "1"
+      route_id: "CR-Newburyport"
+      route_type: 2
+      trip {
+        trip_id: "CR-Newburyport-CR-Weekday-177"
+      }
+      stop_id: "Gloucester"
+    }
+    informed_entity {
+      agency_id: "1"
+      route_id: "CR-Newburyport"
+      route_type: 2
+      trip {
+        trip_id: "CR-Newburyport-CR-Weekday-177"
+      }
+      stop_id: "Hamilton/ Wenham"
+    }
+    informed_entity {
+      agency_id: "1"
+      route_id: "CR-Newburyport"
+      route_type: 2
+      trip {
+        trip_id: "CR-Newburyport-CR-Weekday-177"
+      }
+      stop_id: "Ipswich"
+    }
+    informed_entity {
+      agency_id: "1"
+      route_id: "CR-Newburyport"
+      route_type: 2
+      trip {
+        trip_id: "CR-Newburyport-CR-Weekday-177"
+      }
+      stop_id: "Manchester"
+    }
+    informed_entity {
+      agency_id: "1"
+      route_id: "CR-Newburyport"
+      route_type: 2
+      trip {
+        trip_id: "CR-Newburyport-CR-Weekday-177"
+      }
+      stop_id: "Montserrat"
+    }
+    informed_entity {
+      agency_id: "1"
+      route_id: "CR-Newburyport"
+      route_type: 2
+      trip {
+        trip_id: "CR-Newburyport-CR-Weekday-177"
+      }
+      stop_id: "Newburyport"
+    }
+    informed_entity {
+      agency_id: "1"
+      route_id: "CR-Newburyport"
+      route_type: 2
+      trip {
+        trip_id: "CR-Newburyport-CR-Weekday-177"
+      }
+      stop_id: "North Beverly"
+    }
+    informed_entity {
+      agency_id: "1"
+      route_id: "CR-Newburyport"
+      route_type: 2
+      trip {
+        trip_id: "CR-Newburyport-CR-Weekday-177"
+      }
+      stop_id: "Prides Crossing"
+    }
+    informed_entity {
+      agency_id: "1"
+      route_id: "CR-Newburyport"
+      route_type: 2
+      trip {
+        trip_id: "CR-Newburyport-CR-Weekday-177"
+      }
+      stop_id: "Rockport"
+    }
+    informed_entity {
+      agency_id: "1"
+      route_id: "CR-Newburyport"
+      route_type: 2
+      trip {
+        trip_id: "CR-Newburyport-CR-Weekday-177"
+      }
+      stop_id: "Rowley"
+    }
+    informed_entity {
+      agency_id: "1"
+      route_id: "CR-Newburyport"
+      route_type: 2
+      trip {
+        trip_id: "CR-Newburyport-CR-Weekday-177"
+      }
+      stop_id: "West Gloucester"
+    }
+    informed_entity {
+      agency_id: "1"
+      route_id: "CR-Newburyport"
+      route_type: 2
+      trip {
+        trip_id: "CR-Newburyport-CR-Weekday-181"
+      }
+      stop_id: "Beverly Farms"
+    }
+    informed_entity {
+      agency_id: "1"
+      route_id: "CR-Newburyport"
+      route_type: 2
+      trip {
+        trip_id: "CR-Newburyport-CR-Weekday-181"
+      }
+      stop_id: "Gloucester"
+    }
+    informed_entity {
+      agency_id: "1"
+      route_id: "CR-Newburyport"
+      route_type: 2
+      trip {
+        trip_id: "CR-Newburyport-CR-Weekday-181"
+      }
+      stop_id: "Hamilton/ Wenham"
+    }
+    informed_entity {
+      agency_id: "1"
+      route_id: "CR-Newburyport"
+      route_type: 2
+      trip {
+        trip_id: "CR-Newburyport-CR-Weekday-181"
+      }
+      stop_id: "Ipswich"
+    }
+    informed_entity {
+      agency_id: "1"
+      route_id: "CR-Newburyport"
+      route_type: 2
+      trip {
+        trip_id: "CR-Newburyport-CR-Weekday-181"
+      }
+      stop_id: "Manchester"
+    }
+    informed_entity {
+      agency_id: "1"
+      route_id: "CR-Newburyport"
+      route_type: 2
+      trip {
+        trip_id: "CR-Newburyport-CR-Weekday-181"
+      }
+      stop_id: "Montserrat"
+    }
+    informed_entity {
+      agency_id: "1"
+      route_id: "CR-Newburyport"
+      route_type: 2
+      trip {
+        trip_id: "CR-Newburyport-CR-Weekday-181"
+      }
+      stop_id: "Newburyport"
+    }
+    informed_entity {
+      agency_id: "1"
+      route_id: "CR-Newburyport"
+      route_type: 2
+      trip {
+        trip_id: "CR-Newburyport-CR-Weekday-181"
+      }
+      stop_id: "North Beverly"
+    }
+    informed_entity {
+      agency_id: "1"
+      route_id: "CR-Newburyport"
+      route_type: 2
+      trip {
+        trip_id: "CR-Newburyport-CR-Weekday-181"
+      }
+      stop_id: "Prides Crossing"
+    }
+    informed_entity {
+      agency_id: "1"
+      route_id: "CR-Newburyport"
+      route_type: 2
+      trip {
+        trip_id: "CR-Newburyport-CR-Weekday-181"
+      }
+      stop_id: "Rockport"
+    }
+    informed_entity {
+      agency_id: "1"
+      route_id: "CR-Newburyport"
+      route_type: 2
+      trip {
+        trip_id: "CR-Newburyport-CR-Weekday-181"
+      }
+      stop_id: "Rowley"
+    }
+    informed_entity {
+      agency_id: "1"
+      route_id: "CR-Newburyport"
+      route_type: 2
+      trip {
+        trip_id: "CR-Newburyport-CR-Weekday-181"
+      }
+      stop_id: "West Gloucester"
+    }
+    informed_entity {
+      agency_id: "1"
+      route_id: "CR-Newburyport"
+      route_type: 2
+      trip {
+        trip_id: "CR-Newburyport-CR-Weekday-183"
+      }
+      stop_id: "Beverly Farms"
+    }
+    informed_entity {
+      agency_id: "1"
+      route_id: "CR-Newburyport"
+      route_type: 2
+      trip {
+        trip_id: "CR-Newburyport-CR-Weekday-183"
+      }
+      stop_id: "Gloucester"
+    }
+    informed_entity {
+      agency_id: "1"
+      route_id: "CR-Newburyport"
+      route_type: 2
+      trip {
+        trip_id: "CR-Newburyport-CR-Weekday-183"
+      }
+      stop_id: "Hamilton/ Wenham"
+    }
+    informed_entity {
+      agency_id: "1"
+      route_id: "CR-Newburyport"
+      route_type: 2
+      trip {
+        trip_id: "CR-Newburyport-CR-Weekday-183"
+      }
+      stop_id: "Ipswich"
+    }
+    informed_entity {
+      agency_id: "1"
+      route_id: "CR-Newburyport"
+      route_type: 2
+      trip {
+        trip_id: "CR-Newburyport-CR-Weekday-183"
+      }
+      stop_id: "Manchester"
+    }
+    informed_entity {
+      agency_id: "1"
+      route_id: "CR-Newburyport"
+      route_type: 2
+      trip {
+        trip_id: "CR-Newburyport-CR-Weekday-183"
+      }
+      stop_id: "Montserrat"
+    }
+    informed_entity {
+      agency_id: "1"
+      route_id: "CR-Newburyport"
+      route_type: 2
+      trip {
+        trip_id: "CR-Newburyport-CR-Weekday-183"
+      }
+      stop_id: "Newburyport"
+    }
+    informed_entity {
+      agency_id: "1"
+      route_id: "CR-Newburyport"
+      route_type: 2
+      trip {
+        trip_id: "CR-Newburyport-CR-Weekday-183"
+      }
+      stop_id: "North Beverly"
+    }
+    informed_entity {
+      agency_id: "1"
+      route_id: "CR-Newburyport"
+      route_type: 2
+      trip {
+        trip_id: "CR-Newburyport-CR-Weekday-183"
+      }
+      stop_id: "Prides Crossing"
+    }
+    informed_entity {
+      agency_id: "1"
+      route_id: "CR-Newburyport"
+      route_type: 2
+      trip {
+        trip_id: "CR-Newburyport-CR-Weekday-183"
+      }
+      stop_id: "Rockport"
+    }
+    informed_entity {
+      agency_id: "1"
+      route_id: "CR-Newburyport"
+      route_type: 2
+      trip {
+        trip_id: "CR-Newburyport-CR-Weekday-183"
+      }
+      stop_id: "Rowley"
+    }
+    informed_entity {
+      agency_id: "1"
+      route_id: "CR-Newburyport"
+      route_type: 2
+      trip {
+        trip_id: "CR-Newburyport-CR-Weekday-183"
+      }
+      stop_id: "West Gloucester"
+    }
+    informed_entity {
+      agency_id: "1"
+      route_id: "CR-Newburyport"
+      route_type: 2
+      trip {
+        trip_id: "CR-Newburyport-CR-Weekday-185"
+      }
+      stop_id: "Beverly Farms"
+    }
+    informed_entity {
+      agency_id: "1"
+      route_id: "CR-Newburyport"
+      route_type: 2
+      trip {
+        trip_id: "CR-Newburyport-CR-Weekday-185"
+      }
+      stop_id: "Gloucester"
+    }
+    informed_entity {
+      agency_id: "1"
+      route_id: "CR-Newburyport"
+      route_type: 2
+      trip {
+        trip_id: "CR-Newburyport-CR-Weekday-185"
+      }
+      stop_id: "Hamilton/ Wenham"
+    }
+    informed_entity {
+      agency_id: "1"
+      route_id: "CR-Newburyport"
+      route_type: 2
+      trip {
+        trip_id: "CR-Newburyport-CR-Weekday-185"
+      }
+      stop_id: "Ipswich"
+    }
+    informed_entity {
+      agency_id: "1"
+      route_id: "CR-Newburyport"
+      route_type: 2
+      trip {
+        trip_id: "CR-Newburyport-CR-Weekday-185"
+      }
+      stop_id: "Manchester"
+    }
+    informed_entity {
+      agency_id: "1"
+      route_id: "CR-Newburyport"
+      route_type: 2
+      trip {
+        trip_id: "CR-Newburyport-CR-Weekday-185"
+      }
+      stop_id: "Montserrat"
+    }
+    informed_entity {
+      agency_id: "1"
+      route_id: "CR-Newburyport"
+      route_type: 2
+      trip {
+        trip_id: "CR-Newburyport-CR-Weekday-185"
+      }
+      stop_id: "Newburyport"
+    }
+    informed_entity {
+      agency_id: "1"
+      route_id: "CR-Newburyport"
+      route_type: 2
+      trip {
+        trip_id: "CR-Newburyport-CR-Weekday-185"
+      }
+      stop_id: "North Beverly"
+    }
+    informed_entity {
+      agency_id: "1"
+      route_id: "CR-Newburyport"
+      route_type: 2
+      trip {
+        trip_id: "CR-Newburyport-CR-Weekday-185"
+      }
+      stop_id: "Prides Crossing"
+    }
+    informed_entity {
+      agency_id: "1"
+      route_id: "CR-Newburyport"
+      route_type: 2
+      trip {
+        trip_id: "CR-Newburyport-CR-Weekday-185"
+      }
+      stop_id: "Rockport"
+    }
+    informed_entity {
+      agency_id: "1"
+      route_id: "CR-Newburyport"
+      route_type: 2
+      trip {
+        trip_id: "CR-Newburyport-CR-Weekday-185"
+      }
+      stop_id: "Rowley"
+    }
+    informed_entity {
+      agency_id: "1"
+      route_id: "CR-Newburyport"
+      route_type: 2
+      trip {
+        trip_id: "CR-Newburyport-CR-Weekday-185"
+      }
+      stop_id: "West Gloucester"
+    }
+    cause: UNKNOWN_CAUSE
+    effect: UNKNOWN_EFFECT
+    header_text {
+      translation {
+        text: "Bikes allowed on peak-period Newburyport/Rockport trains between selected stations"
+        language: "en"
+      }
+    }
+    description_text {
+      translation {
+        text: "Bikes allowed on peak-period Newburyport/Rockport trains between selected stations.\r\n\r\nAs a pilot program bikes are allowed on selected peak-period Newburyport/Rockport trains between selected stations. Passengers with bikes must board at the mini-high platform and must exit  the train first or as directed by a train crew member. Preference will always be given to wheelchair passengers; if there is not enough room for wheelchair passengers and passengers with bikes, the passengers with bikes will not be permitted to board the train with their bikes. \r\n\r\nPermitted stops:\r\nNorth Beverly, Hamilton/ Wenham, Ipswich, Rowley, Newburyport; Montserrat, Prides Crossing, Beverly Farms, Manchester, West Gloucester, Gloucester, and Rockport. \r\n\r\nPermitted trips:\r\n152 (5:22 am from Newburyport)\r\n154 (5:50 am from Newburyport)\r\n106 (6:05 am from Rockport)\r\n156 (6:30 am from Newburyport)\r\n108 (6:44 am from Rockport)\r\n158 (7:00 am from Newburyport)\r\n110 (7:25 am from Rockport)\r\n162 (7:55 am from"
+        language: "en"
+      }
+    }
+  }
+}
+entity {
+  id: "1211"
+  alert {
+    active_period {
+      start: 1370826000
+      end: 1370845800
+    }
+    active_period {
+      start: 1370912400
+      end: 1370932200
+    }
+    active_period {
+      start: 1370998800
+      end: 1371018600
+    }
+    active_period {
+      start: 1371085200
+      end: 1371105000
+    }
+    active_period {
+      start: 1371171600
+      end: 1371191400
+    }
+    active_period {
+      start: 1371430800
+      end: 1371450600
+    }
+    active_period {
+      start: 1371517200
+      end: 1371537000
+    }
+    active_period {
+      start: 1371603600
+      end: 1371623400
+    }
+    active_period {
+      start: 1371690000
+      end: 1371709800
+    }
+    active_period {
+      start: 1371776400
+      end: 1371796200
+    }
+    informed_entity {
+      agency_id: "1"
+      route_id: "903_"
+      route_type: 1
+      stop_id: "70030"
+    }
+    informed_entity {
+      agency_id: "1"
+      route_id: "903_"
+      route_type: 1
+      stop_id: "70031"
+    }
+    informed_entity {
+      agency_id: "1"
+      route_id: "903_"
+      route_type: 1
+      stop_id: "70032"
+    }
+    informed_entity {
+      agency_id: "1"
+      route_id: "903_"
+      route_type: 1
+      stop_id: "70033"
+    }
+    informed_entity {
+      agency_id: "1"
+      route_id: "903_"
+      route_type: 1
+      stop_id: "70034"
+    }
+    informed_entity {
+      agency_id: "1"
+      route_id: "903_"
+      route_type: 1
+      stop_id: "70035"
+    }
+    informed_entity {
+      agency_id: "1"
+      route_id: "903_"
+      route_type: 1
+      stop_id: "70036"
+    }
+    informed_entity {
+      agency_id: "1"
+      route_id: "913_"
+      route_type: 1
+      stop_id: "70030"
+    }
+    informed_entity {
+      agency_id: "1"
+      route_id: "913_"
+      route_type: 1
+      stop_id: "70031"
+    }
+    informed_entity {
+      agency_id: "1"
+      route_id: "913_"
+      route_type: 1
+      stop_id: "70032"
+    }
+    informed_entity {
+      agency_id: "1"
+      route_id: "913_"
+      route_type: 1
+      stop_id: "70033"
+    }
+    informed_entity {
+      agency_id: "1"
+      route_id: "913_"
+      route_type: 1
+      stop_id: "70034"
+    }
+    informed_entity {
+      agency_id: "1"
+      route_id: "913_"
+      route_type: 1
+      stop_id: "70035"
+    }
+    informed_entity {
+      agency_id: "1"
+      route_id: "913_"
+      route_type: 1
+      stop_id: "70036"
+    }
+    cause: CONSTRUCTION
+    effect: DETOUR
+    header_text {
+      translation {
+        text: "Buses replacing Orange Line service between Oak Grove & Sullivan Square from 9 PM to end of service every Sunday through Thursday, June 9 - June 20."
+        language: "en"
+      }
+    }
+    description_text {
+      translation {
+        text: "Buses replacing Orange Line service between Oak Grove & Sullivan Square from 9 PM to end of service every Sunday through Thursday, June 9 - June 20.\r\n\r\nAffecting Oak Grove, Malden, Wellington, and Sullivan Square.\r\nJune 9 - June 20, August 4 - August 8, and September 2 - October 10, 2013.\r\n\r\nThe buses will make stops at all stations between Oak Grove and Sullivan Square. All stops will be accessible to persons with disabilities.  \r\n\r\nThis service change is in place while MBTA crews perform work constructing Assembly Station. "
+        language: "en"
+      }
+    }
+  }
+}
+entity {
+  id: "1214"
+  alert {
+    active_period {
+      start: 1370075400
+    }
+    informed_entity {
+      agency_id: "1"
+      route_id: "Boat-F2"
+      route_type: 4
+    }
+    informed_entity {
+      agency_id: "1"
+      route_id: "Boat-F2(H)"
+      route_type: 4
+    }
+    cause: UNKNOWN_CAUSE
+    effect: MODIFIED_SERVICE
+    header_text {
+      translation {
+        text: "Planned schedule change on Quincy Ferry and Quincy/Hull Ferry beginning Sat Jun 01, 2013"
+        language: "en"
+      }
+    }
+    description_text {
+      translation {
+        text: "Planned schedule change on Quincy Ferry and Quincy/Hull Ferry beginning Sat Jun 01, 2013.\r\n\r\nWeekend ferry service will be restored between Logan and Quincy. Time adjustments have also been made to off-peak weekday service.\r\n\r\n"
+        language: "en"
+      }
+    }
+  }
+}
+entity {
+  id: "1217"
+  alert {
+    active_period {
+      start: 1370680200
+      end: 1370845800
+    }
+    informed_entity {
+      agency_id: "1"
+      route_id: "931_"
+      route_type: 1
+      stop_id: "70085"
+    }
+    informed_entity {
+      agency_id: "1"
+      route_id: "931_"
+      route_type: 1
+      stop_id: "70086"
+    }
+    informed_entity {
+      agency_id: "1"
+      route_id: "931_"
+      route_type: 1
+      stop_id: "70095"
+    }
+    informed_entity {
+      agency_id: "1"
+      route_id: "931_"
+      route_type: 1
+      stop_id: "70096"
+    }
+    informed_entity {
+      agency_id: "1"
+      route_id: "931_"
+      route_type: 1
+      stop_id: "70097"
+    }
+    informed_entity {
+      agency_id: "1"
+      route_id: "931_"
+      route_type: 1
+      stop_id: "70098"
+    }
+    informed_entity {
+      agency_id: "1"
+      route_id: "931_"
+      route_type: 1
+      stop_id: "70099"
+    }
+    informed_entity {
+      agency_id: "1"
+      route_id: "931_"
+      route_type: 1
+      stop_id: "70100"
+    }
+    informed_entity {
+      agency_id: "1"
+      route_id: "931_"
+      route_type: 1
+      stop_id: "70101"
+    }
+    informed_entity {
+      agency_id: "1"
+      route_id: "931_"
+      route_type: 1
+      stop_id: "70102"
+    }
+    informed_entity {
+      agency_id: "1"
+      route_id: "933_"
+      route_type: 1
+      stop_id: "70085"
+    }
+    informed_entity {
+      agency_id: "1"
+      route_id: "933_"
+      route_type: 1
+      stop_id: "70086"
+    }
+    informed_entity {
+      agency_id: "1"
+      route_id: "933_"
+      route_type: 1
+      stop_id: "70095"
+    }
+    informed_entity {
+      agency_id: "1"
+      route_id: "933_"
+      route_type: 1
+      stop_id: "70096"
+    }
+    informed_entity {
+      agency_id: "1"
+      route_id: "933_"
+      route_type: 1
+      stop_id: "70097"
+    }
+    informed_entity {
+      agency_id: "1"
+      route_id: "933_"
+      route_type: 1
+      stop_id: "70098"
+    }
+    informed_entity {
+      agency_id: "1"
+      route_id: "933_"
+      route_type: 1
+      stop_id: "70099"
+    }
+    informed_entity {
+      agency_id: "1"
+      route_id: "933_"
+      route_type: 1
+      stop_id: "70100"
+    }
+    informed_entity {
+      agency_id: "1"
+      route_id: "933_"
+      route_type: 1
+      stop_id: "70101"
+    }
+    informed_entity {
+      agency_id: "1"
+      route_id: "933_"
+      route_type: 1
+      stop_id: "70102"
+    }
+    cause: UNKNOWN_CAUSE
+    effect: DETOUR
+    header_text {
+      translation {
+        text: "Shuttle buses replacing Red Line service between JFK-Quincy Center from Sat Jun 08, 2013 through Sun Jun 09, 2013"
+        language: "en"
+      }
+    }
+    description_text {
+      translation {
+        text: "Shuttle buses replacing Red Line service between JFK-Quincy Center from Sat Jun 08, 2013 through Sun Jun 09, 2013.\r\n\r\nAffected stops:\r\nJFK/UMass Station\r\nNorth Quincy Station\r\nWollaston Station\r\nQuincy Center Station\r\n\r\nThe alternate bus service will make stops at all stations between JFK/UMass and Quincy Center Stations. Regular Red Line train service will resume at the start of service on Monday, June 10, 2013."
+        language: "en"
+      }
+    }
+  }
+}
+entity {
+  id: "1222"
+  alert {
+    active_period {
+      start: 1369928640
+      end: 1380609000
+    }
+    informed_entity {
+      agency_id: "1"
+      route_id: "903_"
+      route_type: 1
+      stop_id: "70036"
+    }
+    informed_entity {
+      agency_id: "1"
+      route_id: "913_"
+      route_type: 1
+      stop_id: "70036"
+    }
+    cause: UNKNOWN_CAUSE
+    effect: UNKNOWN_EFFECT
+    header_text {
+      translation {
+        text: "The Orange Line may experience some minor delays in service due to the Oak Grove Platform Rehabilitation Project. "
+        language: "en"
+      }
+    }
+    description_text {
+      translation {
+        text: "The Orange Line may experience some minor delays in service due to the Oak Grove Platform Rehabilitation Project.\r\n\r\nOak Grove Platform Rehabilitation May 2013 - September 2013 \r\nPlease plan your travel arrangements accordingly."
+        language: "en"
+      }
+    }
+  }
+}
+entity {
+  id: "1225"
+  alert {
+    active_period {
+      start: 1369929120
+    }
+    informed_entity {
+      agency_id: "1"
+      stop_id: "70101"
+    }
+    informed_entity {
+      agency_id: "1"
+      stop_id: "70102"
+    }
+    cause: UNKNOWN_CAUSE
+    effect: OTHER_EFFECT
+    header_text {
+      translation {
+        text: "Elevator 871 QUINCY CENTER - Lobby/Busway to Parking Garage out of service until further notice"
+        language: "en"
+      }
+    }
+    description_text {
+      translation {
+        text: "Elevator 871 QUINCY CENTER - Lobby/Busway to Parking Garage out of service until further notice.\r\n\r\nPlease use adjacent Quincy Center Elevator 810."
+        language: "en"
+      }
+    }
+  }
+}
+entity {
+  id: "1229"
+  alert {
+    active_period {
+      start: 1370421000
+      end: 1370586600
+    }
+    informed_entity {
+      agency_id: "1"
+      stop_id: "70097"
+    }
+    informed_entity {
+      agency_id: "1"
+      stop_id: "70098"
+    }
+    cause: UNKNOWN_CAUSE
+    effect: OTHER_EFFECT
+    header_text {
+      translation {
+        text: "Elevator 900 N QUINCY - Red Line Platform to Main Lobby/Buses out of service from Wed Jun 05, 2013 through Thu Jun 06, 2013"
+        language: "en"
+      }
+    }
+    description_text {
+      translation {
+        text: "Elevator 900 N QUINCY - Red Line Platform to Main Lobby/Buses out of service from Wed Jun 05, 2013 through Thu Jun 06, 2013.\r\n\r\nIf exiting, use North Quincy Elevator 899 to the lobby and North Quincy Elevator 897 (lobby to Hancock Street). If boarding, travel across the parking lot to the north lobby."
+        language: "en"
+      }
+    }
+  }
+}
+entity {
+  id: "1231"
+  alert {
+    active_period {
+      start: 1369932600
+    }
+    informed_entity {
+      agency_id: "1"
+      route_id: "946_"
+      route_type: 1
+      stop_id: "70051"
+    }
+    informed_entity {
+      agency_id: "1"
+      route_id: "946_"
+      route_type: 1
+      stop_id: "70052"
+    }
+    informed_entity {
+      agency_id: "1"
+      route_id: "9462"
+      route_type: 1
+      stop_id: "70051"
+    }
+    informed_entity {
+      agency_id: "1"
+      route_id: "9462"
+      route_type: 1
+      stop_id: "70052"
+    }
+    informed_entity {
+      agency_id: "1"
+      route_id: "948_"
+      route_type: 1
+      stop_id: "70051"
+    }
+    informed_entity {
+      agency_id: "1"
+      route_id: "948_"
+      route_type: 1
+      stop_id: "70052"
+    }
+    informed_entity {
+      agency_id: "1"
+      route_id: "9482"
+      route_type: 1
+      stop_id: "70051"
+    }
+    informed_entity {
+      agency_id: "1"
+      route_id: "9482"
+      route_type: 1
+      stop_id: "70052"
+    }
+    cause: CONSTRUCTION
+    effect: DETOUR
+    header_text {
+      translation {
+        text: "Orient Heights closed for construction through mid-October 2013"
+        language: "en"
+      }
+    }
+    description_text {
+      translation {
+        text: "Orient Heights closed for construction through mid-October 2013.\r\n\r\nFor Blue Line service to and from Orient Heights Station: \r\nSubstitute bus service will operate between Suffolk Downs and Orient Heights Stations. Customers desiring service to Orient Heights should exit the Blue Line at Suffolk Downs and board the shuttle bus in the Walley Street busway on the racetrack-side of the station. Customers desiring service from Orient Heights should board the shuttle in the Bennington Street busway to connect to Blue Line service at Suffolk Downs. \r\n\r\nFor Bus Route No. 712/713 (operated by Paul Revere) service to and from the Blue Line: \r\nMonday-Friday: Route No. 712/713 buses will travel between Winthrop and Wood Island Station. Exit the Blue Line at Wood Island to transfer to Route No. 712/713. Use the bus stops at Saratoga Street and St. Edwards Road for service to the Orient Heights area. \r\nSaturday-Sunday: Route No. 712/713 buses will travel between Winthrop and Airport Station. Exit"
+        language: "en"
+      }
+    }
+  }
+}
+entity {
+  id: "1259"
+  alert {
+    active_period {
+      start: 1369997580
+    }
+    informed_entity {
+      agency_id: "1"
+      route_id: "90"
+      route_type: 3
+      stop_id: "2392"
+    }
+    informed_entity {
+      agency_id: "1"
+      route_id: "90"
+      route_type: 3
+      stop_id: "23921"
+    }
+    informed_entity {
+      agency_id: "1"
+      route_id: "90"
+      route_type: 3
+      stop_id: "2393"
+    }
+    informed_entity {
+      agency_id: "1"
+      route_id: "90"
+      route_type: 3
+      stop_id: "2745"
+    }
+    informed_entity {
+      agency_id: "1"
+      route_id: "90"
+      route_type: 3
+      stop_id: "2746"
+    }
+    informed_entity {
+      agency_id: "1"
+      route_id: "90"
+      route_type: 3
+      stop_id: "2749"
+    }
+    informed_entity {
+      agency_id: "1"
+      route_id: "90"
+      route_type: 3
+      stop_id: "2750"
+    }
+    informed_entity {
+      agency_id: "1"
+      route_id: "90"
+      route_type: 3
+      stop_id: "2752"
+    }
+    informed_entity {
+      agency_id: "1"
+      route_id: "90"
+      route_type: 3
+      stop_id: "2753"
+    }
+    informed_entity {
+      agency_id: "1"
+      route_id: "90"
+      route_type: 3
+      stop_id: "2754"
+    }
+    cause: CONSTRUCTION
+    effect: DETOUR
+    header_text {
+      translation {
+        text: "Route 90 diverted around Cross Street due to construction"
+        language: "en"
+      }
+    }
+    description_text {
+      translation {
+        text: "Route 90 diverted around Cross Street due to construction.\r\n\r\nDue to construction on the Cross Street Bridge, Route No. 90 buses will omit Cross Street between McGrath Highway and Pearl Street. Connections can be made on Cross Street at Pearl Street and on McGrath Highway at Cross Street.\r\n\r\nBypassed stops:\r\nCross St @ Otis St (outbound)\r\nCross St @ Pearl St (outbound)\r\nCross St @ Flint St (outbound)\r\nCross St @ Auburn Ave (outbound)\r\nCross St @ Chester Ave (outbound)\r\nCross St @ Alston St (inbound)\r\nCross St @ Fountain Ave (inbound)\r\nCross St @ Oliver St (inbound)\r\nCross St @ Pearl St (inbound)\r\nCross St @ Ellsworth St (inbound)"
+        language: "en"
+      }
+    }
+  }
+}
+entity {
+  id: "1260"
+  alert {
+    active_period {
+      start: 1370248200
+    }
+    informed_entity {
+      agency_id: "1"
+      route_id: "80"
+      route_type: 3
+      stop_id: "2392"
+    }
+    informed_entity {
+      agency_id: "1"
+      route_id: "80"
+      route_type: 3
+      stop_id: "23921"
+    }
+    informed_entity {
+      agency_id: "1"
+      route_id: "80"
+      route_type: 3
+      stop_id: "2393"
+    }
+    informed_entity {
+      agency_id: "1"
+      route_id: "80"
+      route_type: 3
+      stop_id: "2394"
+    }
+    cause: CONSTRUCTION
+    effect: DETOUR
+    header_text {
+      translation {
+        text: "Route 80 diverted around Cross Street due to construction"
+        language: "en"
+      }
+    }
+    description_text {
+      translation {
+        text: "Route 80 diverted around Cross Street due to construction.\r\n\r\nDue to construction on the Cross Street Bridge, Route No. 80 buses will omit Cross Street. Connections can be made on McGrath Highway at Cross Street and on Pearl Street at Wesley Street.\r\n\r\nAffected stops:\r\nCross St @ Alston St (outbound)\r\nCross St @ Fountain Ave (outbound)\r\nCross St @ Oliver St (outbound)\r\nPearl St @ Cross St (outbound)"
+        language: "en"
+      }
+    }
+  }
+}
+entity {
+  id: "1285"
+  alert {
+    active_period {
+      start: 1370421000
+      end: 1370500200
+    }
+    informed_entity {
+      agency_id: "1"
+      stop_id: "10642"
+    }
+    informed_entity {
+      agency_id: "1"
+      stop_id: "70001"
+    }
+    informed_entity {
+      agency_id: "1"
+      stop_id: "875"
+    }
+    informed_entity {
+      agency_id: "1"
+      stop_id: "8750"
+    }
+    informed_entity {
+      agency_id: "1"
+      stop_id: "Forest Hills"
+    }
+    cause: UNKNOWN_CAUSE
+    effect: OTHER_EFFECT
+    header_text {
+      translation {
+        text: "Elevator 843 FOREST HILLS - Lobby to Busway out of service Wed Jun 05, 2013 for the afternoon."
+        language: "en"
+      }
+    }
+    description_text {
+      translation {
+        text: "Elevator 843 FOREST HILLS - Lobby to Busway out of service Wed Jun 05, 2013 for the afternoon.\r\n\r\nIf exiting the station, exit using the Washington Street/Arboretum exit and turn right down the ramp to Hyde Park Avenue. If entering the station from Hyde Park Avenue, turn right to go up the ramp and bear left to the Washington Street/Arboretum entrance."
+        language: "en"
+      }
+    }
+  }
+}
+entity {
+  id: "1310"
+  alert {
+    active_period {
+      start: 1370031412
+    }
+    informed_entity {
+      agency_id: "1"
+      stop_id: "70079"
+    }
+    informed_entity {
+      agency_id: "1"
+      stop_id: "70080"
+    }
+    informed_entity {
+      agency_id: "1"
+      stop_id: "74611"
+    }
+    informed_entity {
+      agency_id: "1"
+      stop_id: "74617"
+    }
+    cause: MAINTENANCE
+    effect: UNKNOWN_EFFECT
+    header_text {
+      translation {
+        text: "Escalator 390 SOUTH STATION - Outbound Platform to 2nd Level Lobby out of service"
+        language: "en"
+      }
+    }
+  }
+}
+entity {
+  id: "1366"
+  alert {
+    active_period {
+      start: 1370287156
+    }
+    informed_entity {
+      agency_id: "1"
+      stop_id: "70065"
+    }
+    informed_entity {
+      agency_id: "1"
+      stop_id: "70066"
+    }
+    informed_entity {
+      agency_id: "1"
+      stop_id: "Porter Square"
+    }
+    cause: UNKNOWN_CAUSE
+    effect: OTHER_EFFECT
+    header_text {
+      translation {
+        text: "Elevator 985 PORTER SQUARE - Lobby to Street out of service until summer 2013"
+        language: "en"
+      }
+    }
+    description_text {
+      translation {
+        text: "Elevator 985 PORTER SQUARE - Lobby to Street out of service until summer 2013.\r\n\r\nPorter Square (985) lobby to Massachusetts Avenue will be out of service for replacement until summer 2013. Customers may utilize adjacent Porter Square Elevator 982 located near the escalators and stairs. Please contact any MBTA station personnel for assistance."
+        language: "en"
+      }
+    }
+  }
+}
+entity {
+  id: "1483"
+  alert {
+    active_period {
+      start: 1370593800
+      end: 1370673000
+    }
+    informed_entity {
+      agency_id: "1"
+      route_id: "09"
+      route_type: 3
+    }
+    informed_entity {
+      agency_id: "1"
+      route_id: "43"
+      route_type: 3
+    }
+    cause: OTHER_CAUSE
+    effect: DETOUR
+    header_text {
+      translation {
+        text: "Routes 9 and 43 diverted on Fri Jun 07, 2013 due to parade"
+        language: "en"
+      }
+    }
+    description_text {
+      translation {
+        text: "Routes 9 and 43 diverted on Fri Jun 07, 2013 due to parade.\r\n\r\nBoston\'s Dyke March\r\nFriday, June 7, 2013\r\n7:00pm-8:00pm\r\nRoutes 9 & 43\r\n\r\nRoute 43\r\nNo service to Beacon St, Park St or Tremont St around The Commons\r\nConnections can be made at Charles St South opposite Park Plaza or 285 Tremont St \r\n\r\nRoute 09\r\nInbound\r\nNo service to Berkeley St from Columbus Ave to St James, Ring Road or Boylston St (Copley Sq Area)\r\nConnections can be made at Berkeley St and Columbus Ave or Back Bay Station (Dartmouth St) \r\nOutbound\r\nNo service to Boylston St or Arlington St between Boylston St and Stuart St\r\nConnections can be made at Arlington St and Isabella St or Back Bay Station (Dartmouth St) \r\n"
+        language: "en"
+      }
+    }
+  }
+}
+entity {
+  id: "1485"
+  alert {
+    active_period {
+      start: 1370680200
+      end: 1370759400
+    }
+    informed_entity {
+      agency_id: "1"
+      route_id: "09"
+      route_type: 3
+    }
+    informed_entity {
+      agency_id: "1"
+      route_id: "10"
+      route_type: 3
+    }
+    informed_entity {
+      agency_id: "1"
+      route_id: "192"
+      route_type: 3
+    }
+    informed_entity {
+      agency_id: "1"
+      route_id: "39"
+      route_type: 3
+    }
+    informed_entity {
+      agency_id: "1"
+      route_id: "43"
+      route_type: 3
+    }
+    informed_entity {
+      agency_id: "1"
+      route_id: "504"
+      route_type: 3
+    }
+    cause: OTHER_CAUSE
+    effect: DETOUR
+    header_text {
+      translation {
+        text: "Routes 9, 10, 39, 43 and 504 diverted on Sat Jun 08, 2013 due to parade"
+        language: "en"
+      }
+    }
+    description_text {
+      translation {
+        text: "Routes 9, 10, 39, 43 and 504 diverted on Sat Jun 08, 2013 due to parade.\r\n\r\nBoston Pride Parade\r\nSaturday, June 8, 2013\r\n10:45am-3:00pm\r\nRoutes 9, 10, 39, 43 & 504\r\n\r\nRoute 9 \r\nInbound\r\nNo service to Berkeley St between Washington St and St James Ave. No service to St James Ave, Huntington Ave, Ring Rd or Boylston St(Copley Sq)\r\nConnections can be made at Back Bay Station or Berkeley St and Washington St\r\nOutbound\r\nNo Service to Boylston St, Arlington St or Herald St between Tremont St and Washington St. \r\nConnections can be made at Back Bay Station (Dartmouth St) or Herald St and Harrison Ave\r\n\r\nRoute 10\r\nInbound\r\nNo service to Washington St between East Newton St and Monsignor Reynolds Way. No service to Monsignor Reynolds Way, West Dedham St or Dartmouth St \r\nConnections can be made at East Newton St (Boston Medical Center) or Back Bay Station\r\nOutbound\r\nNo Service to Boylston St, St James Ave, Dartmouth St or East Dedham St \r\nConnections can be made at Back Bay Station (Dartmouth"
+        language: "en"
+      }
+    }
+  }
+}
+entity {
+  id: "1486"
+  alert {
+    active_period {
+      start: 1370593800
+      end: 1370673000
+    }
+    informed_entity {
+      agency_id: "1"
+      route_id: "01"
+      route_type: 3
+    }
+    informed_entity {
+      agency_id: "1"
+      route_id: "701"
+      route_type: 3
+    }
+    cause: OTHER_CAUSE
+    effect: DETOUR
+    header_text {
+      translation {
+        text: "CT1 and 1 diverted on Fri Jun 07, 2013 due to special event"
+        language: "en"
+      }
+    }
+    description_text {
+      translation {
+        text: "CT1 and 1 diverted on Fri Jun 07, 2013 due to special event.\r\n\r\nMIT Commencement Day\r\nFriday, June 7, 2013\r\n9:30am-11:00am\r\nRoutes 1 & CT1\r\n\r\nRoutes 1 & CT1 \r\nNo service to Mass Ave between Memorial Drive and Vassar St  \r\nOutbound connections can be made at Mass Ave and Beacon St or Mass Ave and Albany St\r\nInbound connections can be made at Mass Ave and Albany St or Mass Ave opposite Newbury St \r\n"
+        language: "en"
+      }
+    }
+  }
+}
+entity {
+  id: "1505"
+  alert {
+    active_period {
+      start: 1370435952
+      end: 1370459730
+    }
+    informed_entity {
+      agency_id: "1"
+      route_id: "52"
+      route_type: 3
+    }
+    cause: UNKNOWN_CAUSE
+    effect: OTHER_EFFECT
+    header_text {
+      translation {
+        text: "Route 52 experiencing moderate delays"
+        language: "en"
+      }
+    }
+  }
+}
+entity {
+  id: "1512"
+  alert {
+    active_period {
+      start: 1370437526
+      end: 1370459730
+    }
+    informed_entity {
+      agency_id: "1"
+      route_id: "59"
+      route_type: 3
+    }
+    cause: OTHER_CAUSE
+    effect: OTHER_EFFECT
+    header_text {
+      translation {
+        text: "Route 59 experiencing moderate delays due to traffic"
+        language: "en"
+      }
+    }
+  }
+}
+entity {
+  id: "1515"
+  alert {
+    active_period {
+      start: 1370438532
+      end: 1370459730
+    }
+    informed_entity {
+      agency_id: "1"
+      route_id: "11"
+      route_type: 3
+      stop_id: "275"
+    }
+    informed_entity {
+      agency_id: "1"
+      route_id: "11"
+      route_type: 3
+      stop_id: "277"
+    }
+    informed_entity {
+      agency_id: "1"
+      route_id: "11"
+      route_type: 3
+      stop_id: "278"
+    }
+    informed_entity {
+      agency_id: "1"
+      route_id: "11"
+      route_type: 3
+      stop_id: "279"
+    }
+    informed_entity {
+      agency_id: "1"
+      route_id: "11"
+      route_type: 3
+      stop_id: "280"
+    }
+    informed_entity {
+      agency_id: "1"
+      route_id: "11"
+      route_type: 3
+      stop_id: "281"
+    }
+    informed_entity {
+      agency_id: "1"
+      route_id: "11"
+      route_type: 3
+      stop_id: "282"
+    }
+    informed_entity {
+      agency_id: "1"
+      route_id: "11"
+      route_type: 3
+      stop_id: "283"
+    }
+    informed_entity {
+      agency_id: "1"
+      route_id: "11"
+      route_type: 3
+      stop_id: "284"
+    }
+    informed_entity {
+      agency_id: "1"
+      route_id: "11"
+      route_type: 3
+      stop_id: "285"
+    }
+    informed_entity {
+      agency_id: "1"
+      route_id: "11"
+      route_type: 3
+      stop_id: "286"
+    }
+    cause: CONSTRUCTION
+    effect: DETOUR
+    header_text {
+      translation {
+        text: "Route 11 diverted due to construction"
+        language: "en"
+      }
+    }
+    description_text {
+      translation {
+        text: "Route 11 diverted due to construction.\r\n\r\nAffected direction: inbound\r\n\r\nAffected stops:\r\n\r\nE 8th St @ M St\r\nE 8th St @ L St\r\nE 8th St @ K St\r\nE 8th St @ I St\r\nE 8th St @ H St\r\nE 8th St @ G St\r\nE 8th St @ Covington St\r\nE 8th St @ Old Harbor St\r\nE 8th St @ Mercer St\r\n\r\nConnections can be made at:\r\n\r\nE 8th @ Columbia Rd\r\nE 8th St @ Dorchester St"
+        language: "en"
+      }
+    }
+  }
+}
+entity {
+  id: "1520"
+  alert {
+    active_period {
+      start: 1370438768
+      end: 1370459730
+    }
+    informed_entity {
+      agency_id: "1"
+      route_id: "505"
+      route_type: 3
+    }
+    cause: OTHER_CAUSE
+    effect: OTHER_EFFECT
+    header_text {
+      translation {
+        text: "Route 505 experiencing minor delays due to traffic"
+        language: "en"
+      }
+    }
+  }
+}
+entity {
+  id: "1526"
+  alert {
+    active_period {
+      start: 1371285000
+      end: 1371450600
+    }
+    informed_entity {
+      agency_id: "1"
+      route_id: "903_"
+      route_type: 1
+      stop_id: "70001"
+    }
+    informed_entity {
+      agency_id: "1"
+      route_id: "903_"
+      route_type: 1
+      stop_id: "70002"
+    }
+    informed_entity {
+      agency_id: "1"
+      route_id: "903_"
+      route_type: 1
+      stop_id: "70003"
+    }
+    informed_entity {
+      agency_id: "1"
+      route_id: "903_"
+      route_type: 1
+      stop_id: "70004"
+    }
+    informed_entity {
+      agency_id: "1"
+      route_id: "903_"
+      route_type: 1
+      stop_id: "70005"
+    }
+    informed_entity {
+      agency_id: "1"
+      route_id: "903_"
+      route_type: 1
+      stop_id: "70006"
+    }
+    informed_entity {
+      agency_id: "1"
+      route_id: "903_"
+      route_type: 1
+      stop_id: "70007"
+    }
+    informed_entity {
+      agency_id: "1"
+      route_id: "903_"
+      route_type: 1
+      stop_id: "70008"
+    }
+    informed_entity {
+      agency_id: "1"
+      route_id: "903_"
+      route_type: 1
+      stop_id: "70009"
+    }
+    informed_entity {
+      agency_id: "1"
+      route_id: "913_"
+      route_type: 1
+      stop_id: "70001"
+    }
+    informed_entity {
+      agency_id: "1"
+      route_id: "913_"
+      route_type: 1
+      stop_id: "70002"
+    }
+    informed_entity {
+      agency_id: "1"
+      route_id: "913_"
+      route_type: 1
+      stop_id: "70003"
+    }
+    informed_entity {
+      agency_id: "1"
+      route_id: "913_"
+      route_type: 1
+      stop_id: "70004"
+    }
+    informed_entity {
+      agency_id: "1"
+      route_id: "913_"
+      route_type: 1
+      stop_id: "70005"
+    }
+    informed_entity {
+      agency_id: "1"
+      route_id: "913_"
+      route_type: 1
+      stop_id: "70006"
+    }
+    informed_entity {
+      agency_id: "1"
+      route_id: "913_"
+      route_type: 1
+      stop_id: "70007"
+    }
+    informed_entity {
+      agency_id: "1"
+      route_id: "913_"
+      route_type: 1
+      stop_id: "70008"
+    }
+    informed_entity {
+      agency_id: "1"
+      route_id: "913_"
+      route_type: 1
+      stop_id: "70009"
+    }
+    cause: MAINTENANCE
+    effect: DETOUR
+    header_text {
+      translation {
+        text: "Ruggles - Forest Hills: shuttle buses replacing Orange Line service from Sat Jun 15, 2013 through Sun Jun 16, 2013"
+        language: "en"
+      }
+    }
+    description_text {
+      translation {
+        text: "Ruggles - Forest Hills: shuttle buses replacing Orange Line service from Sat Jun 15, 2013 through Sun Jun 16, 2013.\r\n\r\nAffected stops:\r\nRoxbury Crossing Station\r\nJackson Square Station\r\nStony Brook Station\r\nGreen St. Station\r\nForest Hills Station"
+        language: "en"
+      }
+    }
+  }
+}
+entity {
+  id: "1532"
+  alert {
+    active_period {
+      start: 1370442704
+      end: 1370459730
+    }
+    informed_entity {
+      agency_id: "1"
+      route_id: "553"
+      route_type: 3
+    }
+    cause: OTHER_CAUSE
+    effect: OTHER_EFFECT
+    header_text {
+      translation {
+        text: "Route 553 experiencing moderate delays due to traffic"
+        language: "en"
+      }
+    }
+  }
+}
+entity {
+  id: "1533"
+  alert {
+    active_period {
+      start: 1370442945
+      end: 1370459730
+    }
+    informed_entity {
+      agency_id: "1"
+      route_id: "08"
+      route_type: 3
+    }
+    cause: OTHER_CAUSE
+    effect: OTHER_EFFECT
+    header_text {
+      translation {
+        text: "Route 8 experiencing minor delays due to traffic"
+        language: "en"
+      }
+    }
+  }
+}
+entity {
+  id: "1534"
+  alert {
+    active_period {
+      start: 1370442974
+      end: 1370459730
+    }
+    informed_entity {
+      agency_id: "1"
+      route_id: "10"
+      route_type: 3
+    }
+    cause: OTHER_CAUSE
+    effect: OTHER_EFFECT
+    header_text {
+      translation {
+        text: "Route 10 experiencing minor delays due to traffic"
+        language: "en"
+      }
+    }
+  }
+}
+entity {
+  id: "1535"
+  alert {
+    active_period {
+      start: 1370443004
+      end: 1370459730
+    }
+    informed_entity {
+      agency_id: "1"
+      route_id: "43"
+      route_type: 3
+    }
+    cause: OTHER_CAUSE
+    effect: OTHER_EFFECT
+    header_text {
+      translation {
+        text: "Route 43 experiencing minor delays due to traffic"
+        language: "en"
+      }
+    }
+  }
+}
+entity {
+  id: "1537"
+  alert {
+    active_period {
+      start: 1370445171
+      end: 1370448600
+    }
+    informed_entity {
+      agency_id: "1"
+      route_id: "CR-Fitchburg"
+      route_type: 2
+      trip {
+        trip_id: "CR-Fitchburg-CR-Weekday-418"
+      }
+      stop_id: "Belmont"
+    }
+    informed_entity {
+      agency_id: "1"
+      route_id: "CR-Fitchburg"
+      route_type: 2
+      trip {
+        trip_id: "CR-Fitchburg-CR-Weekday-418"
+      }
+      stop_id: "Brandeis/ Roberts"
+    }
+    informed_entity {
+      agency_id: "1"
+      route_id: "CR-Fitchburg"
+      route_type: 2
+      trip {
+        trip_id: "CR-Fitchburg-CR-Weekday-418"
+      }
+      stop_id: "Concord"
+    }
+    informed_entity {
+      agency_id: "1"
+      route_id: "CR-Fitchburg"
+      route_type: 2
+      trip {
+        trip_id: "CR-Fitchburg-CR-Weekday-418"
+      }
+      stop_id: "Hastings"
+    }
+    informed_entity {
+      agency_id: "1"
+      route_id: "CR-Fitchburg"
+      route_type: 2
+      trip {
+        trip_id: "CR-Fitchburg-CR-Weekday-418"
+      }
+      stop_id: "Kendal Green"
+    }
+    informed_entity {
+      agency_id: "1"
+      route_id: "CR-Fitchburg"
+      route_type: 2
+      trip {
+        trip_id: "CR-Fitchburg-CR-Weekday-418"
+      }
+      stop_id: "Lincoln"
+    }
+    informed_entity {
+      agency_id: "1"
+      route_id: "CR-Fitchburg"
+      route_type: 2
+      trip {
+        trip_id: "CR-Fitchburg-CR-Weekday-418"
+      }
+      stop_id: "Porter Square"
+    }
+    informed_entity {
+      agency_id: "1"
+      route_id: "CR-Fitchburg"
+      route_type: 2
+      trip {
+        trip_id: "CR-Fitchburg-CR-Weekday-418"
+      }
+      stop_id: "Silver Hill"
+    }
+    informed_entity {
+      agency_id: "1"
+      route_id: "CR-Fitchburg"
+      route_type: 2
+      trip {
+        trip_id: "CR-Fitchburg-CR-Weekday-418"
+      }
+      stop_id: "South Acton"
+    }
+    informed_entity {
+      agency_id: "1"
+      route_id: "CR-Fitchburg"
+      route_type: 2
+      trip {
+        trip_id: "CR-Fitchburg-CR-Weekday-418"
+      }
+      stop_id: "Waltham"
+    }
+    informed_entity {
+      agency_id: "1"
+      route_id: "CR-Fitchburg"
+      route_type: 2
+      trip {
+        trip_id: "CR-Fitchburg-CR-Weekday-418"
+      }
+      stop_id: "Waverley"
+    }
+    informed_entity {
+      agency_id: "1"
+      route_id: "CR-Fitchburg"
+      route_type: 2
+      trip {
+        trip_id: "CR-Fitchburg-CR-Weekday-418"
+      }
+      stop_id: "West Concord"
+    }
+    cause: TECHNICAL_PROBLEM
+    effect: OTHER_EFFECT
+    header_text {
+      translation {
+        text: "Fitchburg/South Acton Line Train 418 (10:27 am from Fitchburg) experiencing delays due to crossing malfunction"
+        language: "en"
+      }
+    }
+    description_text {
+      translation {
+        text: "Fitchburg/South Acton Line Train 418 (10:27 am from Fitchburg) experiencing delays due to crossing malfunction.\r\n\r\nAffected direction: inbound\r\n\r\nAffected stops:\r\nSouth Acton\r\nWest Concord\r\nConcord\r\nLincoln\r\nSilver Hill\r\nHastings\r\nKendal Green\r\nBrandeis/ Roberts\r\nWaltham\r\nWaverley\r\nBelmont\r\nPorter Square"
+        language: "en"
+      }
+    }
+  }
+}
+entity {
+  id: "1538"
+  alert {
+    active_period {
+      start: 1370445172
+    }
+    informed_entity {
+      agency_id: "1"
+      stop_id: "70065"
+    }
+    informed_entity {
+      agency_id: "1"
+      stop_id: "70066"
+    }
+    informed_entity {
+      agency_id: "1"
+      stop_id: "Porter Square"
+    }
+    cause: MAINTENANCE
+    effect: UNKNOWN_EFFECT
+    header_text {
+      translation {
+        text: "Escalator 510 PORTER SQUARE - Mezzanine to Paid Lobby out of service"
+        language: "en"
+      }
+    }
+  }
+}
+entity {
+  id: "1539"
+  alert {
+    active_period {
+      start: 1370445270
+      end: 1370459730
+    }
+    informed_entity {
+      agency_id: "1"
+      route_id: "CR-Fitchburg"
+      route_type: 2
+      stop_id: "Fitchburg"
+    }
+    cause: TECHNICAL_PROBLEM
+    effect: OTHER_EFFECT
+    header_text {
+      translation {
+        text: "Fitchburg/South Acton Line experiencing delays due to crossing malfunction"
+        language: "en"
+      }
+    }
+    description_text {
+      translation {
+        text: "Fitchburg/South Acton Line experiencing delays due to crossing malfunction.\r\n\r\nAffected direction: outbound\r\n\r\nAffected stops:\r\nFitchburg"
+        language: "en"
+      }
+    }
+  }
+}
+

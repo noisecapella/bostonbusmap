@@ -1,5 +1,8 @@
 package boston.Bus.Map.data;
 
+import com.google.common.collect.ImmutableCollection;
+
+import boston.Bus.Map.database.Schema;
 import android.graphics.drawable.Drawable;
 
 public class SubwayTrainLocation extends BusLocation {
@@ -17,5 +20,10 @@ public class SubwayTrainLocation extends BusLocation {
 	@Override
 	protected String getBusNumberMessage() {
 		return "Train number: " + busId + "<br />\n";
+	}
+	
+	@Override
+	public int getTransitSourceType() {
+		return Schema.Routes.enumagencyidSubway;
 	}
 }

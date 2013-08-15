@@ -2,9 +2,11 @@ import inspect
 import struct
 import binascii
 
-CommuterRailAgencyId = 1
-SubwayAgencyId = 2
+# these must match route_type in routes.txt in GTFS
+CommuterRailAgencyId = 2
+SubwayAgencyId = 1
 BusAgencyId = 3
+# boat would be 4
 
 
 def rawhex(b):
@@ -79,9 +81,8 @@ schema = {"directions" : {"columns":[
                       "primaryKeys" : ["route"],
                           "indexes" : []},
           "stopmapping" : {"columns":[
-            {"tag": "route", "type": "String"},
-            {"tag": "tag", "type": "String"},
-            {"tag": "dirTag", "type": "String", "canbenull" : "true"}],
+              {"tag": "route", "type": "String"},
+              {"tag": "tag", "type": "String"}],
                            "primaryKeys" : ["route", "tag"],
                            "indexes" : ["route", "tag"]},
           "stops" : {"columns":[
@@ -91,23 +92,12 @@ schema = {"directions" : {"columns":[
             {"tag": "title", "type": "String"}], 
                      "primaryKeys" : ["tag"],
                      "indexes" : []},
-          "subway" : {"columns":[
-            {"tag": "tag", "type": "String"},
-            {"tag": "platformorder", "type": "int"},
-            {"tag": "branch", "type": "String"}],
-                      "primaryKeys" : ["tag"],
-                      "indexes" : []},
           "locations" : {"columns":[
             {"tag" : "lat", "type" : "float"},
             {"tag" : "lon", "type" : "float"},
             {"tag" : "name", "type" : "String"}],
                          "primaryKeys" : ["name"],
                          "indexes" : []},
-          "alerts" : {"columns":[
-            {"tag" : "route", "type" : "String"},
-            {"tag" : "alertindex", "type" : "int"}],
-                      "primaryKeys" : ["alertindex"],
-                      "indexes" : []},
           "bounds" : {"columns":[
             {"tag" : "route", "type" : "String"},
             {"tag" : "weekdays", "type" : "int"},

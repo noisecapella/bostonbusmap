@@ -8,7 +8,7 @@ python generate_schema.py > ../src/boston/Bus/Map/database/Schema.java
 echo "Create tables..."
 python create_tables.py > sql.dump
 echo "Parsing commuter rail data..."
-python commuterrail_tosql.py commuterRailRouteList 0 >> sql.dump
+python commuterrail_tosql.py ../../gtfs 0 StationOrder.csv >> sql.dump
 echo "Parsing subway data..."
 python heavyrail_tosql.py ../../gtfs 12 >> sql.dump
 echo "Parsing bus data..."

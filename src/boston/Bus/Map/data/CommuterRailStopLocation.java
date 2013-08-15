@@ -1,5 +1,7 @@
 package boston.Bus.Map.data;
 
+import boston.Bus.Map.database.Schema;
+
 import com.google.common.collect.ImmutableSet;
 
 import android.graphics.drawable.Drawable;
@@ -13,9 +15,9 @@ public class CommuterRailStopLocation extends SubwayStopLocation {
 	public static class CommuterRailBuilder extends SubwayBuilder {
 		public CommuterRailBuilder(float latitudeAsDegrees,
 				float longitudeAsDegrees, String tag,
-				String title, int platformOrder, String branch) {
+				String title) {
 			super (latitudeAsDegrees, longitudeAsDegrees, tag,
-					title, platformOrder, branch);
+					title);
 		}
 		
 		@Override
@@ -25,7 +27,7 @@ public class CommuterRailStopLocation extends SubwayStopLocation {
 	}
 	
 	@Override
-	public boolean isBeta() {
-		return true;
+	public int getTransitSourceType() {
+		return Schema.Routes.enumagencyidCommuterRail;
 	}
 }

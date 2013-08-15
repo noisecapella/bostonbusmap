@@ -20,41 +20,6 @@ public class Schema {
     }
 
 
-    public static class Alerts {
-        public static final String table = "alerts"; 
-        public static final String[] columns = new String[] {
-            "route", "alertindex"
-        };
-
-        public static final int routeIndex = 1;
-        public static final String routeColumn = "route";
-        public static final String routeColumnOnTable = "alerts.route";
-        public static final int alertindexIndex = 2;
-        public static final String alertindexColumn = "alertindex";
-        public static final String alertindexColumnOnTable = "alerts.alertindex";
-
-        public static final String dropSql = "DROP TABLE IF EXISTS alerts";
-        public static final String createSql = "CREATE TABLE IF NOT EXISTS alerts (route STRING, alertindex INTEGER PRIMARY KEY)";
-        public static class Bean {
-            public final String route;
-            public final int alertindex;
-            public Bean(String route, int alertindex) {
-                this.route = route;
-                this.alertindex = alertindex;
-            }
-        }
-        public static void executeInsertHelper(InsertHelper helper, Collection<Bean> beans) {
-            for (Bean bean : beans) {
-                executeInsertHelper(helper, bean.route, bean.alertindex);
-            }
-        }
-        public static void executeInsertHelper(InsertHelper helper, String route, int alertindex) {
-            helper.prepareForReplace();
-            helper.bind(routeIndex, route);
-            helper.bind(alertindexIndex, alertindex);
-            helper.execute();
-        }
-    }
     public static class Arrivals {
         public static final String table = "arrivals"; 
         public static final String[] columns = new String[] {
@@ -320,8 +285,8 @@ public class Schema {
         public static final String agencyidColumn = "agencyid";
         public static final String agencyidColumnOnTable = "routes.agencyid";
 
-        public static final int enumagencyidCommuterRail = 1;
-        public static final int enumagencyidSubway = 2;
+        public static final int enumagencyidSubway = 1;
+        public static final int enumagencyidCommuterRail = 2;
         public static final int enumagencyidBus = 3;
         public static final int routetitleIndex = 7;
         public static final String routetitleColumn = "routetitle";
@@ -414,7 +379,7 @@ public class Schema {
     public static class Stopmapping {
         public static final String table = "stopmapping"; 
         public static final String[] columns = new String[] {
-            "route", "tag", "dirTag"
+            "route", "tag"
         };
 
         public static final int routeIndex = 1;
@@ -423,32 +388,26 @@ public class Schema {
         public static final int tagIndex = 2;
         public static final String tagColumn = "tag";
         public static final String tagColumnOnTable = "stopmapping.tag";
-        public static final int dirTagIndex = 3;
-        public static final String dirTagColumn = "dirTag";
-        public static final String dirTagColumnOnTable = "stopmapping.dirTag";
 
         public static final String dropSql = "DROP TABLE IF EXISTS stopmapping";
-        public static final String createSql = "CREATE TABLE IF NOT EXISTS stopmapping (route STRING, tag STRING, dirTag STRING, PRIMARY KEY (route, tag))";
+        public static final String createSql = "CREATE TABLE IF NOT EXISTS stopmapping (route STRING, tag STRING, PRIMARY KEY (route, tag))";
         public static class Bean {
             public final String route;
             public final String tag;
-            public final String dirTag;
-            public Bean(String route, String tag, String dirTag) {
+            public Bean(String route, String tag) {
                 this.route = route;
                 this.tag = tag;
-                this.dirTag = dirTag;
             }
         }
         public static void executeInsertHelper(InsertHelper helper, Collection<Bean> beans) {
             for (Bean bean : beans) {
-                executeInsertHelper(helper, bean.route, bean.tag, bean.dirTag);
+                executeInsertHelper(helper, bean.route, bean.tag);
             }
         }
-        public static void executeInsertHelper(InsertHelper helper, String route, String tag, String dirTag) {
+        public static void executeInsertHelper(InsertHelper helper, String route, String tag) {
             helper.prepareForReplace();
             helper.bind(routeIndex, route);
             helper.bind(tagIndex, tag);
-            helper.bind(dirTagIndex, dirTag);
             helper.execute();
         }
     }
@@ -496,47 +455,6 @@ public class Schema {
             helper.bind(latIndex, lat);
             helper.bind(lonIndex, lon);
             helper.bind(titleIndex, title);
-            helper.execute();
-        }
-    }
-    public static class Subway {
-        public static final String table = "subway"; 
-        public static final String[] columns = new String[] {
-            "tag", "platformorder", "branch"
-        };
-
-        public static final int tagIndex = 1;
-        public static final String tagColumn = "tag";
-        public static final String tagColumnOnTable = "subway.tag";
-        public static final int platformorderIndex = 2;
-        public static final String platformorderColumn = "platformorder";
-        public static final String platformorderColumnOnTable = "subway.platformorder";
-        public static final int branchIndex = 3;
-        public static final String branchColumn = "branch";
-        public static final String branchColumnOnTable = "subway.branch";
-
-        public static final String dropSql = "DROP TABLE IF EXISTS subway";
-        public static final String createSql = "CREATE TABLE IF NOT EXISTS subway (tag STRING PRIMARY KEY, platformorder INTEGER, branch STRING)";
-        public static class Bean {
-            public final String tag;
-            public final int platformorder;
-            public final String branch;
-            public Bean(String tag, int platformorder, String branch) {
-                this.tag = tag;
-                this.platformorder = platformorder;
-                this.branch = branch;
-            }
-        }
-        public static void executeInsertHelper(InsertHelper helper, Collection<Bean> beans) {
-            for (Bean bean : beans) {
-                executeInsertHelper(helper, bean.tag, bean.platformorder, bean.branch);
-            }
-        }
-        public static void executeInsertHelper(InsertHelper helper, String tag, int platformorder, String branch) {
-            helper.prepareForReplace();
-            helper.bind(tagIndex, tag);
-            helper.bind(platformorderIndex, platformorder);
-            helper.bind(branchIndex, branch);
             helper.execute();
         }
     }
