@@ -36,7 +36,6 @@ import javax.xml.parsers.ParserConfigurationException;
 import org.apache.http.impl.conn.tsccm.RouteSpecificPool;
 import org.xml.sax.SAXException;
 
-import boston.Bus.Map.R;
 import boston.Bus.Map.algorithms.GetDirections;
 import boston.Bus.Map.data.Direction;
 import boston.Bus.Map.data.Locations;
@@ -78,6 +77,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableTable;
 import com.google.common.collect.Lists;
+import com.schneeloch.mta.R;
 
 import android.app.Activity;
 import android.app.AlertDialog;

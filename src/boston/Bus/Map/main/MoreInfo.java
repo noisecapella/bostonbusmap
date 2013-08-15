@@ -10,8 +10,7 @@ import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableBiMap;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
-
-import boston.Bus.Map.R;
+import com.schneeloch.mta.R;
 
 import boston.Bus.Map.data.Prediction;
 import boston.Bus.Map.data.RouteTitles;

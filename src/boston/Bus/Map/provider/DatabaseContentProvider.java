@@ -28,6 +28,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.google.common.io.ByteStreams;
+import com.schneeloch.mta.R;
 
 import boston.Bus.Map.data.Direction;
 import boston.Bus.Map.data.IntersectionLocation;
@@ -53,7 +54,6 @@ import boston.Bus.Map.util.Constants;
 import boston.Bus.Map.util.IBox;
 import boston.Bus.Map.util.LogUtil;
 import boston.Bus.Map.util.StringUtil;
-import android.R;
 import android.app.SearchManager;
 import android.content.ContentProvider;
 import android.content.ContentProviderOperation;
@@ -244,7 +244,7 @@ public class DatabaseContentProvider extends ContentProvider {
 			OutputStream outputStream = null;
 			try
 			{
-				in = context.getResources().openRawResource(boston.Bus.Map.R.raw.databasegz);
+				in = context.getResources().openRawResource(R.raw.databasegz);
 
 				stream = new GZIPInputStream(in); 
 

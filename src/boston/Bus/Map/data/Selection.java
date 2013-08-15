@@ -1,7 +1,8 @@
 package boston.Bus.Map.data;
 
+import com.schneeloch.mta.R;
+
 import android.content.SharedPreferences;
-import boston.Bus.Map.R;
 
 /**
  * Maintains selection state. 

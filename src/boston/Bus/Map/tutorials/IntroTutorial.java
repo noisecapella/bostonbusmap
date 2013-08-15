@@ -10,10 +10,10 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.TextView;
-import boston.Bus.Map.R;
 import boston.Bus.Map.main.Main;
 
 import com.google.common.collect.Lists;
+import com.schneeloch.mta.R;
 
 public class IntroTutorial {
 

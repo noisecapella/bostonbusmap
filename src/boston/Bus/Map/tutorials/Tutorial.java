@@ -2,7 +2,8 @@ package boston.Bus.Map.tutorials;
 
 import java.util.List;
 
-import boston.Bus.Map.R;
+import com.schneeloch.mta.R;
+
 import boston.Bus.Map.main.Main;
 
 import android.app.Activity;

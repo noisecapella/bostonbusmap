@@ -34,7 +34,6 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.FrameLayout.LayoutParams;
-import boston.Bus.Map.R;
 import boston.Bus.Map.data.Alert;
 import boston.Bus.Map.data.BusLocation;
 import boston.Bus.Map.data.IntersectionLocation;
@@ -62,6 +61,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.readystatesoftware.mapviewballoons.BalloonOverlayView;
+import com.schneeloch.mta.R;
 
 
 public class BusPopupView extends BalloonOverlayView<BusOverlayItem>

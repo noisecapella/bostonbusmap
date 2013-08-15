@@ -25,13 +25,13 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
+import com.schneeloch.mta.R;
 
 import android.content.Context;
 import android.content.OperationApplicationException;
 import android.graphics.drawable.Drawable;
 import android.os.RemoteException;
 import android.util.Log;
-import boston.Bus.Map.R;
 import boston.Bus.Map.main.UpdateAsyncTask;
 import boston.Bus.Map.provider.DatabaseContentProvider.DatabaseAgent;
 import boston.Bus.Map.transit.TransitSource;

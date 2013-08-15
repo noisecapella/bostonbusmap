@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-      package="boston.Bus.Map"
+      package="com.schneeloch.mta"
       android:installLocation="auto" android:versionCode="107" android:versionName="4.08.4">
 	<!-- <supports-screens></supports-screens>-->
 	<uses-permission android:name="android.permission.INTERNET"></uses-permission>
@@ -37,13 +37,13 @@
                android:value="boston.Bus.Map.main.SearchResults" />
 		
 	<uses-library android:name="android.test.runner"></uses-library>
-	<provider android:name=".provider.TransitContentProvider" 
+	<provider android:name="boston.Bus.Map.provider.TransitContentProvider" 
 	    android:authorities="com.bostonbusmap.transitprovider"
 	    android:exported="false"></provider>
-	<provider android:name=".provider.DatabaseContentProvider" 
+	<provider android:name="boston.Bus.Map.provider.DatabaseContentProvider" 
 	    android:authorities="com.bostonbusmap.databaseprovider"
 	    android:exported="false"></provider>
-	<provider android:name=".provider.FavoritesContentProvider" 
+	<provider android:name="boston.Bus.Map.provider.FavoritesContentProvider" 
 	    android:authorities="com.bostonbusmap.favoritesprovider"
 	    android:exported="false"></provider>
 </application>

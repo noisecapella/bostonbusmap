@@ -1,6 +1,8 @@
 package boston.Bus.Map.main;
 
-import boston.Bus.Map.R;
+
+import com.schneeloch.mta.R;
+
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
