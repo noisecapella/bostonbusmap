@@ -87,9 +87,11 @@ lateness. Used at the trip’s origin.
 		this.flag = flag;
 	}
 	
-	@Override
-	public void makeSnippet(Context context, StringBuilder builder) {
-		int minutes = getMinutes();
+	public static void makeCommuterRailSnippet(long arrivalMillis, String routeTitle,
+			String vehicleId, String direction, boolean isDelayed, boolean affectedByLayover,
+			int lateness, StringBuilder builder) {
+		long nowMillis = System.currentTimeMillis();
+		int minutes = (int)(arrivalMillis - nowMillis) / 1000 / 60;
 		if (minutes < 0)
 		{
 			return;
@@ -109,7 +111,7 @@ lateness. Used at the trip’s origin.
 
 			DateFormat dateFormat = TransitSystem.getDefaultTimeFormat();
 
-			Date scheduledArrival = new Date(arrivalTimeMillis);
+			Date scheduledArrival = new Date(arrivalMillis);
 
 			if (dateFormat != null)
 			{

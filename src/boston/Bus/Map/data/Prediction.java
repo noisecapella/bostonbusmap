@@ -56,13 +56,14 @@ public class Prediction implements Comparable<Prediction>, Parcelable
 		this.lateness = lateness;
 	}
 
-	public void makeSnippet(Context context, StringBuilder builder) {
-		int minutes = getMinutes();
-		if (minutes < 0)
-		{
+	public static void makeSnippet(long arrivalMillis, String routeTitle, String vehicleId,
+			String direction, boolean isDelayed, boolean affectedByLayover, 
+			StringBuilder builder) {
+		long nowMillis = System.currentTimeMillis();
+		int minutes = (int)(arrivalMillis - nowMillis) / 1000 / 60;
+		if (minutes < 0) {
 			return;
 		}
-
 		builder.append("Route <b>").append(routeTitle).append("</b>");
 		if (vehicleId != null)
 		{
@@ -92,7 +93,7 @@ public class Prediction implements Comparable<Prediction>, Parcelable
 		{
 			DateFormat dateFormat = TransitSystem.getDefaultTimeFormat();
 
-			Date date = new Date(arrivalTimeMillis);
+			Date date = new Date(arrivalMillis);
 			if (dateFormat != null)
 			{
 				//the vast majority of the time this should be true but someone reported an exception where it's not

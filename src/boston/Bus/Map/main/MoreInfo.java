@@ -17,10 +17,12 @@ import boston.Bus.Map.data.Prediction;
 import boston.Bus.Map.data.RouteTitles;
 import boston.Bus.Map.data.TimeBounds;
 import boston.Bus.Map.data.TransitSourceTitles;
+import boston.Bus.Map.database.InMemoryAgent;
 import boston.Bus.Map.ui.TextViewBinder;
 import boston.Bus.Map.util.StringUtil;
 import android.app.Activity;
 import android.app.ListActivity;
+import android.content.ContentResolver;
 import android.content.Context;
 import android.graphics.Color;
 import android.os.Bundle;
@@ -54,7 +56,6 @@ public class MoreInfo extends ListActivity {
 	
 	public static final String boundKey = "bounds";
 	
-	private Prediction[] predictions;
 	private TextView title1;
 	private TextView title2;
 	private Spinner routeSpinner;
@@ -64,7 +65,6 @@ public class MoreInfo extends ListActivity {
 	 */
 	private boolean dataIsInitialized;
 	private String[] routeTitles;
-	private TimeBounds[] bounds;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -74,26 +74,6 @@ public class MoreInfo extends ListActivity {
 		
 		
 		final Bundle extras = getIntent().getExtras();
-		
-		
-		
-		{
-			Parcelable[] parcelables = (Parcelable[])extras.getParcelableArray(predictionsKey);
-			predictions = new Prediction[parcelables.length];
-			for (int i = 0; i < predictions.length; i++)
-			{
-				predictions[i] = (Prediction)parcelables[i];
-			}
-		}
-		
-		{
-			Parcelable[] boundParcelables = (Parcelable[])extras.getParcelableArray(boundKey);
-			bounds = new TimeBounds[boundParcelables.length];
-			for (int i = 0; i < bounds.length; i++) {
-				bounds[i] = (TimeBounds)boundParcelables[i];
-			}
-		}
-		
 		
 		title1 = (TextView)findViewById(R.id.moreinfo_title1);
 		title2 = (TextView)findViewById(R.id.moreinfo_title2);
@@ -215,31 +195,8 @@ public class MoreInfo extends ListActivity {
 			return;
 		}
 		
-		List<Map<String, Spanned>> data = Lists.newArrayList();
-		if (predictions != null)
-		{
-			for (Prediction prediction : predictions)
-			{
-				if (prediction != null && prediction.getMinutes() >= 0)
-				{
-					//if a route is given, filter based on it, else show all routes
-					if (routeTitle == null || routeTitle.equals(prediction.getRouteTitle()))
-					{
-						//data.add(prediction.generateMoreInfoMap());
-						ImmutableMap<String, Spanned> map = prediction.makeSnippetMap(this);
-						data.add(map);
-					}
-				}
-			}
-		}
-/*		if (bounds != null) {
-			for (TimeBounds bound : bounds) {
-				if (bound != null && (routeTitle == null || bound.getRouteTitle().equals(routeTitle))) {
-					ImmutableMap<String, Spanned> map = ImmutableMap.of(MoreInfo.textKey, Html.fromHtml(bound.makeSnippet()));
-					data.add(map);
-				}
-			}
-		}*/
+		ContentResolver resolver = getContentResolver();
+		List<Map<String, Spanned>> data = InMemoryAgent.getPredictionsSnippetMap(resolver, routeTitle, stopTag);
 		SimpleAdapter adapter = new SimpleAdapter(this, data, R.layout.moreinfo_row,
 				new String[]{textKey},
 				new int[] {R.id.moreinfo_text});

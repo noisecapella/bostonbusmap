@@ -157,7 +157,7 @@ public abstract class NextBusTransitSource implements TransitSource
 		{
 			//bus prediction
 
-			BusPredictionsFeedParser parser = new BusPredictionsFeedParser(routePool, directions);
+			BusPredictionsFeedParser parser = new BusPredictionsFeedParser(directions);
 
 			parser.runParse(data);
 		}

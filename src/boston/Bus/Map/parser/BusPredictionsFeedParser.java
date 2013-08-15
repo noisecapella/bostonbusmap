@@ -19,6 +19,7 @@ import boston.Bus.Map.data.Prediction;
 import boston.Bus.Map.data.RouteConfig;
 import boston.Bus.Map.data.RoutePool;
 import boston.Bus.Map.data.StopLocation;
+import boston.Bus.Map.database.InMemoryAgent;
 import boston.Bus.Map.util.LogUtil;
 
 public class BusPredictionsFeedParser extends DefaultHandler
@@ -34,15 +35,13 @@ public class BusPredictionsFeedParser extends DefaultHandler
 	private static final String routeTagKey = "routeTag";
 	private static final String delayedKey = "delayed";
 	
-	private final RoutePool stopMapping;
-	private StopLocation currentLocation;
-	private RouteConfig currentRoute;
 	private final Directions directions;
+	private String currentRouteTag;
+	private String currentStopTag;
 	
 	private final Map<String, Integer> tagCache = Maps.newHashMap();
 	
-	public BusPredictionsFeedParser(RoutePool stopMapping, Directions directions) {
-		this.stopMapping = stopMapping;
+	public BusPredictionsFeedParser(Directions directions) {
 		this.directions = directions;
 	}
 
@@ -57,34 +56,16 @@ public class BusPredictionsFeedParser extends DefaultHandler
 			Attributes attributes) throws SAXException {
 		if (localName.equals(predictionsKey))
 		{
-			String currentRouteTag = attributes.getValue(routeTagKey);
-			try
-			{
-				currentRoute = stopMapping.get(currentRouteTag);
-			}
-			catch (IOException e)
-			{
-				LogUtil.e(e);
-				currentRoute = null;
-			}
+			currentRouteTag = attributes.getValue(routeTagKey);
 			
-			currentLocation = null;
-			if (currentRoute != null)
-			{
-				String stopTag = attributes.getValue(stopTagKey);
-				currentLocation = currentRoute.getStop(stopTag);
-				
-				if (currentLocation != null)
-				{
-					currentLocation.clearPredictions(currentRoute);
-				}
-			}
+			currentStopTag = attributes.getValue(stopTagKey);
+			InMemoryAgent.clearPredictions(currentStopTag, currentRouteTag);
 		}
 		else if (localName.equals(predictionKey))
 		{
 			clearAttributes(attributes);
 			
-			if (currentLocation != null && currentRoute != null)
+			if (currentStopTag != null && currentRouteTag != null)
 			{
 				int minutes = Integer.parseInt(getAttribute(minutesKey, attributes));
 
@@ -100,7 +81,7 @@ public class BusPredictionsFeedParser extends DefaultHandler
 				
 				String dirTag = getAttribute(dirTagKey, attributes);
 
-				currentLocation.addPrediction(minutes, epochTime, vehicleId, dirTag, currentRoute, directions, affectedByLayover,
+				InMemoryAgent.addPrediction(currentStopTag, minutes, epochTime, vehicleId, dirTag, currentRouteTag, directions, affectedByLayover,
 						isDelayed, Prediction.NULL_LATENESS);
 			}
 		}

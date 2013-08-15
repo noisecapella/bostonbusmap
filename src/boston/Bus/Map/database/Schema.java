@@ -192,7 +192,7 @@ public class Schema {
     public static class Predictions {
         public static final String table = "predictions"; 
         public static final String[] columns = new String[] {
-            "stopid", "vehicleid", "route", "arrivalTimeInMillis", "affectedByLayover", "isDelayed", "lateness"
+            "stopid", "vehicleid", "routeTag", "routeTitle", "arrivalTimeInMillis", "affectedByLayover", "isDelayed", "direction", "lateness", "agency"
         };
 
         public static final int stopidIndex = 1;
@@ -201,54 +201,71 @@ public class Schema {
         public static final int vehicleidIndex = 2;
         public static final String vehicleidColumn = "vehicleid";
         public static final String vehicleidColumnOnTable = "predictions.vehicleid";
-        public static final int routeIndex = 3;
-        public static final String routeColumn = "route";
-        public static final String routeColumnOnTable = "predictions.route";
-        public static final int arrivalTimeInMillisIndex = 4;
+        public static final int routeTagIndex = 3;
+        public static final String routeTagColumn = "routeTag";
+        public static final String routeTagColumnOnTable = "predictions.routeTag";
+        public static final int routeTitleIndex = 4;
+        public static final String routeTitleColumn = "routeTitle";
+        public static final String routeTitleColumnOnTable = "predictions.routeTitle";
+        public static final int arrivalTimeInMillisIndex = 5;
         public static final String arrivalTimeInMillisColumn = "arrivalTimeInMillis";
         public static final String arrivalTimeInMillisColumnOnTable = "predictions.arrivalTimeInMillis";
-        public static final int affectedByLayoverIndex = 5;
+        public static final int affectedByLayoverIndex = 6;
         public static final String affectedByLayoverColumn = "affectedByLayover";
         public static final String affectedByLayoverColumnOnTable = "predictions.affectedByLayover";
-        public static final int isDelayedIndex = 6;
+        public static final int isDelayedIndex = 7;
         public static final String isDelayedColumn = "isDelayed";
         public static final String isDelayedColumnOnTable = "predictions.isDelayed";
-        public static final int latenessIndex = 7;
+        public static final int directionIndex = 8;
+        public static final String directionColumn = "direction";
+        public static final String directionColumnOnTable = "predictions.direction";
+        public static final int latenessIndex = 9;
         public static final String latenessColumn = "lateness";
         public static final String latenessColumnOnTable = "predictions.lateness";
+        public static final int agencyIndex = 10;
+        public static final String agencyColumn = "agency";
+        public static final String agencyColumnOnTable = "predictions.agency";
 
         public static final String dropSql = "DROP TABLE IF EXISTS predictions";
-        public static final String createSql = "CREATE TABLE IF NOT EXISTS predictions (stopid STRING, vehicleid STRING, route STRING, arrivalTimeInMillis STRING, affectedByLayover INTEGER, isDelayed INTEGER, lateness INTEGER)";
+        public static final String createSql = "CREATE TABLE IF NOT EXISTS predictions (stopid STRING, vehicleid STRING, routeTag STRING, routeTitle STRING, arrivalTimeInMillis STRING, affectedByLayover INTEGER, isDelayed INTEGER, direction STRING, lateness INTEGER, agency INTEGER)";
         public static class Bean {
             public final String stopid;
             public final String vehicleid;
-            public final String route;
+            public final String routeTag;
+            public final String routeTitle;
             public final long arrivalTimeInMillis;
             public final int affectedByLayover;
             public final int isDelayed;
+            public final String direction;
             public final int lateness;
-            public Bean(String stopid, String vehicleid, String route, long arrivalTimeInMillis, int affectedByLayover, int isDelayed, int lateness) {
+            public final int agency;
+            public Bean(String stopid, String vehicleid, String routeTag, String routeTitle, long arrivalTimeInMillis, int affectedByLayover, int isDelayed, String direction, int lateness, int agency) {
                 this.stopid = stopid;
                 this.vehicleid = vehicleid;
-                this.route = route;
+                this.routeTag = routeTag;
+                this.routeTitle = routeTitle;
                 this.arrivalTimeInMillis = arrivalTimeInMillis;
                 this.affectedByLayover = affectedByLayover;
                 this.isDelayed = isDelayed;
+                this.direction = direction;
                 this.lateness = lateness;
+                this.agency = agency;
             }
         }
         public static void executeInsertHelper(InsertHelper helper, Collection<Bean> beans) {
             for (Bean bean : beans) {
-                executeInsertHelper(helper, bean.stopid, bean.vehicleid, bean.route, bean.arrivalTimeInMillis, bean.affectedByLayover, bean.isDelayed, bean.lateness);
+                executeInsertHelper(helper, bean.stopid, bean.vehicleid, bean.routeTag, bean.routeTitle, bean.arrivalTimeInMillis, bean.affectedByLayover, bean.isDelayed, bean.direction, bean.lateness, bean.agency);
             }
         }
-        public static void executeInsertHelper(InsertHelper helper, String stopid, String vehicleid, String route, long arrivalTimeInMillis, int affectedByLayover, int isDelayed, int lateness) {
+        public static void executeInsertHelper(InsertHelper helper, String stopid, String vehicleid, String routeTag, String routeTitle, long arrivalTimeInMillis, int affectedByLayover, int isDelayed, String direction, int lateness, int agency) {
             helper.prepareForReplace();
             helper.bind(stopidIndex, stopid);
             helper.execute();
             helper.bind(vehicleidIndex, vehicleid);
             helper.execute();
-            helper.bind(routeIndex, route);
+            helper.bind(routeTagIndex, routeTag);
+            helper.execute();
+            helper.bind(routeTitleIndex, routeTitle);
             helper.execute();
             helper.bind(arrivalTimeInMillisIndex, arrivalTimeInMillis);
             helper.execute();
@@ -256,7 +273,11 @@ public class Schema {
             helper.execute();
             helper.bind(isDelayedIndex, isDelayed);
             helper.execute();
+            helper.bind(directionIndex, direction);
+            helper.execute();
             helper.bind(latenessIndex, lateness);
+            helper.execute();
+            helper.bind(agencyIndex, agency);
             helper.execute();
         }
     }
