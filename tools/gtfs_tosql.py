@@ -8,7 +8,7 @@ from gtfs_map import GtfsMap
 
 default_color = 0xff0000
 
-def write_sql(startorder, route, gtfs_map):
+def write_sql(startorder, route, gtfs_map, stops_already_inserted):
     trips_header, trips = gtfs_map.trips_header, gtfs_map.trips
     stops_header, stops = gtfs_map.stops_header, gtfs_map.stops
     routes_header, routes = gtfs_map.routes_header, gtfs_map.routes
@@ -56,11 +56,15 @@ def write_sql(startorder, route, gtfs_map):
     obj.routes.insert()
 
     for stop_row in stop_rows:
-        obj.stops.tag.value = stop_row[stops_header["stop_id"]]
-        obj.stops.title.value = stop_row[stops_header["stop_name"]]
-        obj.stops.lat.value = float(stop_row[stops_header["stop_lat"]])
-        obj.stops.lon.value = float(stop_row[stops_header["stop_lon"]])
-        obj.stops.insert()
+        stop_id = stop_row[stops_header["stop_id"]]
+        if stop_id not in stops_already_inserted:
+            stops_already_inserted.add(stop_id)
+
+            obj.stops.tag.value = stop_id
+            obj.stops.title.value = stop_row[stops_header["stop_name"]]
+            obj.stops.lat.value = float(stop_row[stops_header["stop_lat"]])
+            obj.stops.lon.value = float(stop_row[stops_header["stop_lon"]])
+            obj.stops.insert()
 
         obj.stopmapping.route.value = route
         obj.stopmapping.tag.value = stop_row[stops_header["stop_id"]]
@@ -85,8 +89,9 @@ def main():
     gtfs_map = GtfsMap(args.gtfs_path)
 
     routes = [route_row[gtfs_map.routes_header["route_id"]] for route_row in gtfs_map.routes]
+    stops_already_inserted = set()
     for route in routes:
-        write_sql(startorder + count, route, gtfs_map)
+        write_sql(startorder + count, route, gtfs_map, stops_already_inserted)
 
     print("END TRANSACTION;")
 
