@@ -42,7 +42,7 @@ public class Predictions
 	@IsGuardedBy("modificationLock")
 	private final List<StopLocation> allStops = Lists.newArrayList(); 
 	@IsGuardedBy("modificationLock")
-	private final SortedSet<Prediction> predictions = Sets.newTreeSet();
+	private final SortedSet<IPrediction> predictions = Sets.newTreeSet();
 	@IsGuardedBy("modificationLock")
 	private final Set<Alert> alerts = Sets.newTreeSet();
 	
@@ -78,7 +78,7 @@ public class Predictions
 		synchronized (modificationLock) {
 			allStops.add(stopLocation);
 
-			SortedSet<Prediction> allPredictions = Sets.newTreeSet();
+			SortedSet<IPrediction> allPredictions = Sets.newTreeSet();
 			for (StopLocation stop : allStops) {
 				if (stop.getPredictions() != null) {
 					allPredictions.addAll(stop.getPredictions().predictions);
@@ -120,22 +120,28 @@ public class Predictions
 	public void clearPredictions(String currentRouteName)
 	{
 		synchronized (modificationLock) {
-			ArrayList<Prediction> newPredictions = new ArrayList<Prediction>();
+			if (currentRouteName != null) {
+				ArrayList<IPrediction> newPredictions = Lists.newArrayList();
 
-			for (Prediction prediction : predictions)
-			{
-				if (prediction.getRouteName().equals(currentRouteName) == false)
+				for (IPrediction prediction : predictions)
 				{
-					newPredictions.add(prediction);
+					if (prediction.getRouteName().equals(currentRouteName) == false)
+					{
+						newPredictions.add(prediction);
+					}
 				}
+				predictions.clear();
+				predictions.addAll(newPredictions);
 			}
-			predictions.clear();
-			predictions.addAll(newPredictions);
+			else
+			{
+				predictions.clear();
+			}
 		}
 		
 	}
 
-	public void addPredictionIfNotExists(Prediction prediction)
+	public void addPredictionIfNotExists(IPrediction prediction)
 	{
 		synchronized (modificationLock) {
 			if (predictions.contains(prediction) == false)

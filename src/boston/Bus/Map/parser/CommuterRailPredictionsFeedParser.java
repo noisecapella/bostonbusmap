@@ -30,6 +30,7 @@ import boston.Bus.Map.data.CommuterTrainLocation;
 import boston.Bus.Map.data.Direction;
 import boston.Bus.Map.data.Directions;
 import boston.Bus.Map.data.Prediction;
+import boston.Bus.Map.data.PredictionStopLocationPair;
 import boston.Bus.Map.data.RouteConfig;
 import boston.Bus.Map.data.RouteTitles;
 import boston.Bus.Map.data.StopLocation;
@@ -67,16 +68,6 @@ public class CommuterRailPredictionsFeedParser
 			{
 				stopLocation.clearPredictions(routeConfig);
 			}
-		}
-	}
-
-	private class PredictionStopLocationPair {
-		private final Prediction prediction;
-		private final StopLocation stopLocation;
-		
-		public PredictionStopLocationPair(Prediction prediction, StopLocation stopLocation) {
-			this.prediction = prediction;
-			this.stopLocation = stopLocation;
 		}
 	}
 

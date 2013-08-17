@@ -36,6 +36,7 @@ import android.widget.Toast;
 import android.widget.FrameLayout.LayoutParams;
 import boston.Bus.Map.data.Alert;
 import boston.Bus.Map.data.BusLocation;
+import boston.Bus.Map.data.IPrediction;
 import boston.Bus.Map.data.IntersectionLocation;
 import boston.Bus.Map.data.Location;
 import boston.Bus.Map.data.Locations;
@@ -166,7 +167,7 @@ public class BusPopupView extends BalloonOverlayView<BusOverlayItem>
 					Intent intent = new Intent(context, MoreInfo.class);
 
 					StopPredictionView predictionView = (StopPredictionView)stopLocation.getPredictionView();
-					Prediction[] predictionArray = predictionView.getPredictions();
+					IPrediction[] predictionArray = predictionView.getPredictions();
 					if (predictionArray != null)
 					{
 						intent.putExtra(MoreInfo.predictionsKey, predictionArray);

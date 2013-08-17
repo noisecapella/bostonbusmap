@@ -21,10 +21,12 @@ import android.text.Spanned;
 /**
  * A container of a prediction. Immutable
  * 
+ * TODO: Rename to TimePrediction
+ * 
  * @author schneg
  *
  */
-public class Prediction implements Comparable<Prediction>, Parcelable
+public class Prediction implements IPrediction
 {
 	public static final int NULL_LATENESS = -1;
 	/**
@@ -108,16 +110,23 @@ public class Prediction implements Comparable<Prediction>, Parcelable
 	}
 
 	@Override
-	public int compareTo(Prediction another)
+	public int compareTo(IPrediction anotherObj)
 	{
-		return ComparisonChain.start().compare(arrivalTimeMillis, another.arrivalTimeMillis)
-				.compare(vehicleId, another.vehicleId)
-				.compare(direction, another.direction)
-				.compare(routeName, another.routeName)
-				.compareFalseFirst(affectedByLayover, another.affectedByLayover)
-				.compareFalseFirst(isDelayed, another.isDelayed)
-				.compare(lateness, another.lateness)
-				.result();
+		if (anotherObj instanceof Prediction) {
+			Prediction another = (Prediction)anotherObj;
+			return ComparisonChain.start().compare(arrivalTimeMillis, another.arrivalTimeMillis)
+					.compare(vehicleId, another.vehicleId)
+					.compare(direction, another.direction)
+					.compare(routeName, another.routeName)
+					.compareFalseFirst(affectedByLayover, another.affectedByLayover)
+					.compareFalseFirst(isDelayed, another.isDelayed)
+					.compare(lateness, another.lateness)
+					.result();
+		}
+		else
+		{
+			throw new RuntimeException("Cannot compare distance prediction with time prediction");
+		}
 	}
 
 	@Override
@@ -229,5 +238,10 @@ public class Prediction implements Comparable<Prediction>, Parcelable
 	protected static void writeBoolean(Parcel dest, boolean data)
 	{
 		dest.writeInt(data ? 1 : 0);
+	}
+
+	@Override
+	public boolean isInvalid() {
+		return getMinutes() < 0;
 	}
 }

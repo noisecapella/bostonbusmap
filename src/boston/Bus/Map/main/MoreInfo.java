@@ -12,6 +12,7 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.schneeloch.mta.R;
 
+import boston.Bus.Map.data.IPrediction;
 import boston.Bus.Map.data.Prediction;
 import boston.Bus.Map.data.RouteTitles;
 import boston.Bus.Map.data.TimeBounds;
@@ -53,7 +54,7 @@ public class MoreInfo extends ListActivity {
 	
 	public static final String boundKey = "bounds";
 	
-	private Prediction[] predictions;
+	private IPrediction[] predictions;
 	private TextView title1;
 	private TextView title2;
 	private Spinner routeSpinner;
@@ -217,9 +218,9 @@ public class MoreInfo extends ListActivity {
 		List<Map<String, Spanned>> data = Lists.newArrayList();
 		if (predictions != null)
 		{
-			for (Prediction prediction : predictions)
+			for (IPrediction prediction : predictions)
 			{
-				if (prediction != null && prediction.getMinutes() >= 0)
+				if (prediction != null && !prediction.isInvalid())
 				{
 					//if a route is given, filter based on it, else show all routes
 					if (routeTitle == null || routeTitle.equals(prediction.getRouteTitle()))

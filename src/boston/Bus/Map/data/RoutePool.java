@@ -350,4 +350,15 @@ public class RoutePool extends Pool<String, RouteConfig> {
 	public TransitSystem getTransitSystem() {
 		return transitSystem;
 	}
+
+	public void clearAllPredictions() {
+		for (RouteConfig routeConfig : values()) {
+			for (StopLocation stop : routeConfig.getStopMapping().values()) {
+				stop.clearPredictions(null);
+			}
+		}
+		for (StopLocation stop : sharedStops.values()) {
+			stop.clearPredictions(null);
+		}
+	}
 }

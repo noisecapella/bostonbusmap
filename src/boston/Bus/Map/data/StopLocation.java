@@ -200,7 +200,7 @@ public class StopLocation implements Location
 		recentlyUpdated = true;
 	}
 	
-	public void addPrediction(Prediction prediction)
+	public void addPrediction(IPrediction prediction)
 	{
 		if (predictions == null)
 		{

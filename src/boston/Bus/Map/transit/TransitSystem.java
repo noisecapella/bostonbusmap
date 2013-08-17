@@ -115,7 +115,8 @@ public class TransitSystem implements ITransitSystem {
 
 			TransitSourceTitles busTransitRoutes = routeTitles.getMappingForSource(Schema.Routes.enumagencyidBus);
 			
-			defaultTransitSource = new BusTransitSource(this, busDrawables, busTransitRoutes, routeTitles);
+			//defaultTransitSource = new BusTransitSource(this, busDrawables, busTransitRoutes, routeTitles);
+			defaultTransitSource = new MTABusTimeTransitSource(this, busDrawables, busTransitRoutes, routeTitles);
 			
 			ImmutableMap.Builder<String, TransitSource> mapBuilder = ImmutableMap.builder();
 			transitSourceMap = mapBuilder.build();
