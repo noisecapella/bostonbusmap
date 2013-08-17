@@ -8,7 +8,7 @@ from gtfs_map import GtfsMap
 
 default_color = 0xff0000
 
-def write_sql(startorder, route, gtfs_map, stops_already_inserted):
+def write_sql(startorder, route, gtfs_map, stops_already_inserted, routes_already_inserted):
     trips_header, trips = gtfs_map.trips_header, gtfs_map.trips
     stops_header, stops = gtfs_map.stops_header, gtfs_map.stops
     routes_header, routes = gtfs_map.routes_header, gtfs_map.routes
@@ -46,14 +46,17 @@ def write_sql(startorder, route, gtfs_map, stops_already_inserted):
     
     # insert route information
     obj = schema.getSchemaAsObject()
-    obj.routes.route.value = route
-    obj.routes.routetitle.value = route
-    obj.routes.color.value = default_color
-    obj.routes.oppositecolor.value = default_color
-    obj.routes.listorder.value = startorder
-    obj.routes.agencyid.value = schema.SubwayAgencyId
-    obj.routes.pathblob.value = pathblob
-    obj.routes.insert()
+    if route not in routes_already_inserted:
+        routes_already_inserted.add(route)
+
+        obj.routes.route.value = route
+        obj.routes.routetitle.value = route
+        obj.routes.color.value = default_color
+        obj.routes.oppositecolor.value = default_color
+        obj.routes.listorder.value = startorder
+        obj.routes.agencyid.value = schema.SubwayAgencyId
+        obj.routes.pathblob.value = pathblob
+        obj.routes.insert()
 
     for stop_row in stop_rows:
         stop_id = stop_row[stops_header["stop_id"]]
@@ -86,12 +89,17 @@ def main():
     count = 0
     startorder = args.order
 
-    gtfs_map = GtfsMap(args.gtfs_path)
+    # all routes.txt files are the same. TODO: add explicit check
 
-    routes = [route_row[gtfs_map.routes_header["route_id"]] for route_row in gtfs_map.routes]
     stops_already_inserted = set()
-    for route in routes:
-        write_sql(startorder + count, route, gtfs_map, stops_already_inserted)
+    routes_already_inserted = set()
+
+    for borough in ["bronx", "brooklyn", "queens", "manhattan", "staten_island"]:
+
+        gtfs_map = GtfsMap(os.path.join(args.gtfs_path, borough))
+        routes = [route_row[gtfs_map.routes_header["route_id"]] for route_row in gtfs_map.routes]
+        for route in routes:
+            write_sql(startorder + count, route, gtfs_map, stops_already_inserted, routes_already_inserted)
 
     print("END TRANSACTION;")
 
