@@ -108,31 +108,40 @@ public class SIRIVehicleLocationsFeedParser {
 			JsonObject vehicleLocation = monitoredVehicleJourney.get("VehicleLocation").getAsJsonObject();
 			float latitude = vehicleLocation.get("Latitude").getAsFloat();
 			float longitude = vehicleLocation.get("Longitude").getAsFloat();
-			
+
 			String dirTag = monitoredVehicleJourney.get("DestinationRef").getAsString();
-			
+
 			String routeName = monitoredVehicleJourney.get("PublishedLineName").getAsString();
 			String routeTitle = routeName;
-			
+
 			BusLocation location = new BusLocation(latitude, longitude,
 					vehicleId, lastFeedUpdateInMillis, lastUpdateInMillis, headingString,
 					true, dirTag, routeName, directions, routeTitle);
 			busMapping.put(vehicleId, location);
 			vehiclesToRemove.remove(vehicleId);
-			
-			JsonObject monitoredCall = monitoredVehicleJourney.get("MonitoredCall").getAsJsonObject();
-			String stopTag = monitoredCall.get("StopPointRef").getAsString();
-			JsonObject distances = monitoredCall.get("Extensions").getAsJsonObject().get("Distances").getAsJsonObject();
-			String presentableDistance = distances.get("PresentableDistance").getAsString();
-			
-			RouteConfig routeConfig = routePool.get(routeName);
-			StopLocation stop = routeConfig.getStop(stopTag);
-			String direction = monitoredVehicleJourney.get("DestinationName").getAsString();
-			float distanceInMeters = distances.get("DistanceFromCall").getAsFloat();
-			DistancePrediction prediction = new DistancePrediction(presentableDistance, vehicleId, direction,
-					routeName, routeTitle, distanceInMeters);
-			PredictionStopLocationPair pair = new PredictionStopLocationPair(prediction, stop);
-			ret.add(pair);
+
+			if (monitoredVehicleJourney.has("MonitoredCall")) {
+				JsonObject monitoredCall = monitoredVehicleJourney.get("MonitoredCall").getAsJsonObject();
+				String stopTag = monitoredCall.get("StopPointRef").getAsString();
+				if (stopTag.startsWith("MTA_")) {
+					stopTag = stopTag.substring(4);
+				}
+				JsonObject distances = monitoredCall.get("Extensions").getAsJsonObject().get("Distances").getAsJsonObject();
+				String presentableDistance = distances.get("PresentableDistance").getAsString();
+
+				RouteConfig routeConfig = routePool.get(routeName.toUpperCase());
+				if (routeConfig != null) {
+					StopLocation stop = routeConfig.getStop(stopTag);
+					if (stop != null) {
+						String direction = monitoredVehicleJourney.get("DestinationName").getAsString();
+						float distanceInMeters = distances.get("DistanceFromCall").getAsFloat();
+						DistancePrediction prediction = new DistancePrediction(presentableDistance, vehicleId, direction,
+								routeName, routeTitle, distanceInMeters);
+						PredictionStopLocationPair pair = new PredictionStopLocationPair(prediction, stop);
+						ret.add(pair);
+					}
+				}
+			}
 		}
 		
 		return ret;
