@@ -6,6 +6,12 @@ import itertools
 from collections import defaultdict
 from gtfs_map import GtfsMap
 
+from twisted.internet.defer import inlineCallbacks, returnValue
+from twisted.web.client import getPage
+from twisted.internet import reactor
+
+from mta_routes_available import get_available_routes
+
 default_color = 0xff0000
 
 def write_sql(startorder, route, gtfs_map, stops_already_inserted, routes_already_inserted):
@@ -41,7 +47,6 @@ def write_sql(startorder, route, gtfs_map, stops_already_inserted, routes_alread
     stop_rows = [stop_row for stop_row in stops
                  if stop_row[stops_header["stop_id"]] in stop_times_ids]
 
-    
     pathblob = schema.Box(paths).get_blob_string()
     
     # insert route information
@@ -75,6 +80,7 @@ def write_sql(startorder, route, gtfs_map, stops_already_inserted, routes_alread
 
         
 
+@inlineCallbacks
 def main():
     parser = argparse.ArgumentParser(description="Parse gtfs into SQL statements")
     parser.add_argument('gtfs_path', type=str)
@@ -94,14 +100,19 @@ def main():
     stops_already_inserted = set()
     routes_already_inserted = set()
 
+    available_routes = yield get_available_routes()
+
     for borough in ["bronx", "brooklyn", "queens", "manhattan", "staten_island"]:
 
         gtfs_map = GtfsMap(os.path.join(args.gtfs_path, borough))
-        routes = [route_row[gtfs_map.routes_header["route_id"]] for route_row in gtfs_map.routes]
+        routes = set([trip_row[gtfs_map.trips_header["route_id"]] for trip_row in gtfs_map.trips])
+        routes = filter(lambda route: route in available_routes, routes)
         for route in routes:
             write_sql(startorder + count, route, gtfs_map, stops_already_inserted, routes_already_inserted)
 
     print("END TRANSACTION;")
 
 if __name__ == "__main__":
-    main()
+    main().addBoth(lambda x: reactor.stop())
+
+    reactor.run()
