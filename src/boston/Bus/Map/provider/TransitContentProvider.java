@@ -19,7 +19,7 @@ public class TransitContentProvider extends SearchRecentSuggestionsProvider {
 
 	private UriMatcher matcher;
 
-	public static final String AUTHORITY = "com.bostonbusmap.transitprovider";
+	public static final String AUTHORITY = "com.bostonbusmap.mtatransitprovider";
 	public static final int MODE = SearchRecentSuggestionsProvider.DATABASE_MODE_QUERIES;
 	
 	

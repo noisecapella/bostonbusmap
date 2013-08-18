@@ -81,7 +81,7 @@ import android.util.Log;
 
 public class DatabaseContentProvider extends ContentProvider {
 	private static final UriMatcher uriMatcher;
-	public static final String AUTHORITY = "com.bostonbusmap.databaseprovider";
+	public static final String AUTHORITY = "com.bostonbusmap.mtadatabaseprovider";
 
 	private static final String STOPS_TYPE = "vnd.android.cursor.dir/vnd.bostonbusmap.stop";
 	public static final Uri STOPS_URI = Uri.parse("content://" + AUTHORITY + "/stops");

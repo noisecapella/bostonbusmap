@@ -15,7 +15,7 @@ import android.net.Uri;
 
 public class FavoritesContentProvider extends ContentProvider
 {
-	public static final String AUTHORITY = "com.bostonbusmap.favoritesprovider";
+	public static final String AUTHORITY = "com.bostonbusmap.mtafavoritesprovider";
 
 	private static final String FAVORITES_TYPE = "vnd.android.cursor.dir/vnd.bostonbusmap.favorite";
 	public static final Uri FAVORITES_URI = Uri.parse("content://" + AUTHORITY + "/favorites");
