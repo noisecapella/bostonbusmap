@@ -107,6 +107,7 @@ def main():
         gtfs_map = GtfsMap(os.path.join(args.gtfs_path, borough))
         routes = set([trip_row[gtfs_map.trips_header["route_id"]] for trip_row in gtfs_map.trips])
         routes = filter(lambda route: route in available_routes, routes)
+        routes = sorted(routes) # TODO: is there a better way than alphabetical?
         for route in routes:
             write_sql(startorder + count, route, gtfs_map, stops_already_inserted, routes_already_inserted)
 

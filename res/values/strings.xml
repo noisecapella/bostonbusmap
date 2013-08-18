@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-        <string name="app_name">Boston BusMap</string>
+        <string name="app_name">NYCBusMap</string>
 <string name="refreshButton">Refresh!</string>
 
 <string name="runInBackgroundCheckbox">runInBackgroundKey</string>
@@ -17,7 +17,7 @@
 <string name="addToFavorites">Favorite</string>
 <string name="removeFromFavorites">Favorite</string>
 <string name="refresh">Refresh</string>
-<string name="bostonsLocation">Boston</string>
+<string name="bostonsLocation">NYC</string>
 <string name="myLocation">My Location</string>
 <string name="settings">Settings</string>
 <string name="findingCurrentLocation">Finding current location&#8230;</string>

@@ -48,12 +48,12 @@ import boston.Bus.Map.util.Constants;
  *
  */
 public class TransitSystem implements ITransitSystem {
-	private static final double bostonLatitude = 42.3583333;
-	private static final double bostonLongitude = -71.0602778;
+	private static final double nycLatitude = 40.7142;
+	private static final double nycLongitude = -74.0064;
 	
 	private static final String website = "http://www.georgeschneeloch.com/bostonbusmap";
 
-	private static final String[] emails = new String[]{"bostonbusmap@gmail.com", "t-trackertrial@mbta.com"};
+	private static final String[] emails = new String[]{"bostonbusmap@gmail.com"};
 	private static final String emailSubject = "BostonBusMap error report";
 
 	private RouteTitles routeTitles;
@@ -64,21 +64,21 @@ public class TransitSystem implements ITransitSystem {
 	private AlertsFuture alertsFuture;
 	
 	public static double getCenterLat() {
-		return bostonLatitude;
+		return nycLatitude;
 	}
 
 	public static double getCenterLon() {
-		return bostonLongitude;
+		return nycLongitude;
 	}
 
 	public static int getCenterLatAsInt()
 	{
-		return (int)(bostonLatitude * Constants.E6);
+		return (int)(nycLatitude * Constants.E6);
 	}
 	
 	public static int getCenterLonAsInt()
 	{
-		return (int)(bostonLongitude * Constants.E6);
+		return (int)(nycLongitude * Constants.E6);
 	}
 
 	public static String getWebSite() {
@@ -286,7 +286,7 @@ public class TransitSystem implements ITransitSystem {
 			// this runs the alerts code in the background,
 			// providing empty alerts until the data is ready
 			
-			alertsFuture = new AlertsFuture(context, new MbtaAlertsParser(this));
+			//alertsFuture = new AlertsFuture(context, new MbtaAlertsParser(this));
 			
 		}
 	}
