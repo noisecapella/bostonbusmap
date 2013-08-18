@@ -44,7 +44,6 @@ import boston.Bus.Map.database.Schema;
 import boston.Bus.Map.main.Main;
 import boston.Bus.Map.main.UpdateAsyncTask;
 import boston.Bus.Map.parser.BusPredictionsFeedParser;
-import boston.Bus.Map.parser.RouteConfigFeedParser;
 import boston.Bus.Map.parser.VehicleLocationsFeedParser;
 import boston.Bus.Map.ui.ProgressMessage;
 import boston.Bus.Map.util.DownloadHelper;
@@ -265,7 +264,7 @@ public abstract class NextBusTransitSource implements TransitSource
 
 	@Override
 	public StopLocation createStop(float lat, float lon, String stopTag,
-			String title, int platformOrder, String branch, String route)
+			String title, String route)
 	{
 		StopLocation stop = new StopLocation.Builder(lat, lon, stopTag, title).build();
 		stop.addRoute(route);

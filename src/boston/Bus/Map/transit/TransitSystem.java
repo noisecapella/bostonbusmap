@@ -244,11 +244,11 @@ public class TransitSystem implements ITransitSystem {
 
 	@Override
 	public StopLocation createStop(float latitude, float longitude,
-			String stopTag, String stopTitle, int platformOrder, String branch,
+			String stopTag, String stopTitle,
 			String route) {
 		TransitSource source = getTransitSource(route);
 		
-		return source.createStop(latitude, longitude, stopTag, stopTitle, platformOrder, branch, route);
+		return source.createStop(latitude, longitude, stopTag, stopTitle, route);
 	}
 
 	@Override

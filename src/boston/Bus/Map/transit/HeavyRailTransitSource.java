@@ -235,10 +235,10 @@ public class HeavyRailTransitSource implements TransitSource {
 
 	@Override
 	public StopLocation createStop(float latitude, float longitude,
-			String stopTag, String stopTitle, int platformOrder, String branch,
+			String stopTag, String stopTitle,
 			String route) {
 		SubwayStopLocation stop = new SubwayStopLocation.SubwayBuilder(latitude,
-				longitude, stopTag, stopTitle, platformOrder, branch).build();
+				longitude, stopTag, stopTitle).build();
 		stop.addRoute(route);
 		return stop;
 	}

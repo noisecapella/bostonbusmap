@@ -8,6 +8,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentMap;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.transit.realtime.GtfsRealtime;
@@ -32,6 +33,33 @@ import boston.Bus.Map.util.DownloadHelper;
 public class MbtaAlertsParser implements IAlertsParser {
 	private final TransitSystem transitSystem;
 	private final RouteTitles routeTitles;
+
+	/**
+	 * Mapping of gtfs route id to a Nextbus route id. If key doesn't exist,
+	 * there is no difference between gtfs route id and Nextbus route id
+	 */
+	private static final ImmutableMap<String, String> gtfsRoutes;
+
+	static {
+		ImmutableMap.Builder<String, String> builder = ImmutableMap.builder();
+		
+		builder.put("01", "1");
+		builder.put("04", "4");
+		builder.put("05", "5");
+		builder.put("07", "7");
+		builder.put("08", "8");
+		builder.put("09", "9");
+		builder.put("931_", "Red");
+		builder.put("933_", "Red");
+		builder.put("946_", "Blue");
+		builder.put("9462", "Blue");
+		builder.put("948_", "Blue");
+		builder.put("9482", "Blue");
+		builder.put("903_", "Orange");
+		builder.put("913_", "Orange");
+		
+		gtfsRoutes = builder.build();
+	}
 	
 	public MbtaAlertsParser(TransitSystem transitSystem) {
 		this.transitSystem = transitSystem;
@@ -85,12 +113,8 @@ public class MbtaAlertsParser implements IAlertsParser {
 					stopsBuilder.add(stopId);
 				}
 				else if (selector.hasRouteId()) {
-					String routeId = selector.getRouteId();
-					
-					// HACK to convert GTFS route ids to Nextbus route ids
-					if (routeId.startsWith("0")) {
-						routeId = routeId.substring(1);
-					}
+					String gtfsRouteId = selector.getRouteId();
+					String routeId = translateGtfsRoute(gtfsRouteId);
 					
 					routes.add(routeId);
 				}
@@ -161,6 +185,22 @@ public class MbtaAlertsParser implements IAlertsParser {
 		
 		
 		return builder.build();
+	}
+
+	/**
+	 * GTFS Routes are slightly different from NextBus routes for the MBTA 
+	 * @param gtfsRouteId
+	 * @return
+	 */
+	private String translateGtfsRoute(String routeId) {
+		String newRoute = gtfsRoutes.get(routeId);
+		if (newRoute != null) {
+			return newRoute;
+		}
+		else
+		{
+			return routeId;
+		}
 	}
 
 }

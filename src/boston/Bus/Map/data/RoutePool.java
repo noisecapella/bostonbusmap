@@ -305,11 +305,6 @@ public class RoutePool extends Pool<String, RouteConfig> {
 
 	}
 
-	public ArrayList<StopLocation> getStopsByDirtag(String dirTag) {
-		return DatabaseAgent.getStopsByDirtag(context.getContentResolver(), 
-				dirTag, transitSystem);
-	}
-
 	public IntersectionLocation getIntersection(String name) {
 		if (name == null) {
 			return null;

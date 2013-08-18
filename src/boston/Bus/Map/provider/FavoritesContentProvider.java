@@ -59,7 +59,6 @@ public class FavoritesContentProvider extends ContentProvider
 				db.execSQL(Schema.Stops.dropSql);
 				db.execSQL(Schema.Stopmapping.dropSql);
 				db.execSQL(Schema.Routes.dropSql);
-				db.execSQL(Schema.Subway.dropSql);
 				db.execSQL(Schema.Directions.dropSql);
 			}
 			
