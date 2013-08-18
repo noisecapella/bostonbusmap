@@ -50,4 +50,13 @@ public class StringUtil {
 	public static boolean isEmpty(String intersection) {
 		return intersection == null || intersection.length() == 0;
 	}
+	
+	public static String trimPrefix(String string, String prefix) {
+		if (string.startsWith(prefix)) {
+			return string.substring(prefix.length());
+		}
+		else {
+			return string;
+		}
+	}
 }

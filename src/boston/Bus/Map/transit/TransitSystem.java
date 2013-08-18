@@ -59,9 +59,9 @@ public class TransitSystem implements ITransitSystem {
 	private RouteTitles routeTitles;
 	
 	/**
-	 * This will be null when alerts haven't been read yet
+	 * This is null if alerts haven't been set yet
 	 */
-	private AlertsFuture alertsFuture;
+	private IAlerts alerts;
 	
 	public static double getCenterLat() {
 		return nycLatitude;
@@ -240,14 +240,12 @@ public class TransitSystem implements ITransitSystem {
 
 	@Override
 	public IAlerts getAlerts() {
-		if (alertsFuture != null) {
-			return alertsFuture.getAlerts();
+		if (alerts == null) {
+			return AlertsFuture.EMPTY;
 		}
 		else
 		{
-			// this shouldn't happen but maybe some code might change
-			// to cause alerts to be read before they're set
-			return AlertsFuture.EMPTY;
+			return alerts;
 		}
 	}
 
@@ -276,18 +274,7 @@ public class TransitSystem implements ITransitSystem {
 		return defaultTransitSource;
 	}
 
-	/**
-	 * This downloads alerts in a background thread. If alerts are
-	 * not available when getAlerts() is called, empty alerts are returned
-	 * @param context
-	 */
-	public void startObtainAlerts(Context context) {
-		if (alertsFuture == null) {
-			// this runs the alerts code in the background,
-			// providing empty alerts until the data is ready
-			
-			//alertsFuture = new AlertsFuture(context, new MbtaAlertsParser(this));
-			
-		}
+	public void setAlerts(Alerts alerts) {
+		this.alerts = alerts;
 	}
 }
