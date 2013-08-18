@@ -4,7 +4,11 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -27,6 +31,7 @@ import boston.Bus.Map.data.RoutePool;
 import boston.Bus.Map.data.RouteTitles;
 import boston.Bus.Map.data.StopLocation;
 import boston.Bus.Map.data.TransitDrawables;
+import boston.Bus.Map.transit.TransitSystem;
 
 public class SIRIVehicleLocationsFeedParser {
 	private final RouteConfig routeConfig;
@@ -94,14 +99,18 @@ public class SIRIVehicleLocationsFeedParser {
 		JsonObject serviceDelivery = siri.get("ServiceDelivery").getAsJsonObject();
 		// serviceDelivery.get("SituationExchange") will have the alerts
 		JsonObject vehicleMonitoringDelivery = serviceDelivery.get("VehicleMonitoringDelivery").getAsJsonArray().get(0).getAsJsonObject();
+		
+		String dateString = vehicleMonitoringDelivery.get("ResponseTimestamp").getAsString();
+		
+		Date responseDate = parseTime(dateString);
 		JsonArray vehicleActivity = vehicleMonitoringDelivery.get("VehicleActivity").getAsJsonArray();
 
 		for (JsonElement element : vehicleActivity) {
 			
 			JsonObject monitoredVehicleJourney = ((JsonObject)element).get("MonitoredVehicleJourney").getAsJsonObject();
 			String vehicleId = monitoredVehicleJourney.get("VehicleRef").getAsString();
-			long lastFeedUpdateInMillis = System.currentTimeMillis();
-			long lastUpdateInMillis = System.currentTimeMillis();
+			long lastFeedUpdateInMillis = responseDate.getTime();
+			long lastUpdateInMillis = lastFeedUpdateInMillis;
 			float heading = monitoredVehicleJourney.get("Bearing").getAsFloat();
 			String headingString = Integer.toString((int)heading);
 			
@@ -145,5 +154,23 @@ public class SIRIVehicleLocationsFeedParser {
 		}
 		
 		return ret;
+	}
+
+	private Date parseTime(String dateString) {
+		SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ", Locale.US);
+		// example input:
+		// 2013-08-17T12:45:11.598-04:00
+		// need to convert -04:00 to -0400
+		int lastIndex = dateString.lastIndexOf(':');
+		if (lastIndex < 0) {
+			throw new RuntimeException("Error parsing dateString " + dateString);
+		}
+		String newDateString = dateString.substring(0, lastIndex) + dateString.substring(lastIndex + 1);
+		
+		try {
+			return simpleDateFormat.parse(newDateString);
+		} catch (ParseException e) {
+			throw new RuntimeException(e);
+		}
 	}
 }
