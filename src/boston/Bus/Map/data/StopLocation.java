@@ -210,20 +210,6 @@ public class StopLocation implements Location
 		predictions.addPredictionIfNotExists(prediction);
 	}
 	
-	public void addPrediction(int minutes, long epochTime, String vehicleId,
-			String direction, RouteConfig route, Directions directions, boolean affectedByLayover, boolean isDelayed, int lateness)
-	{
-		if (predictions == null)
-		{
-			predictions = new Predictions();
-		}
-		
-		Prediction prediction = new Prediction(minutes, vehicleId, 
-				directions.getTitleAndName(direction), route.getRouteName(),
-				route.getRouteTitle(), affectedByLayover, isDelayed, lateness);
-		predictions.addPredictionIfNotExists(prediction);
-	}
-
 	public String getTitle()
 	{
 		return title;

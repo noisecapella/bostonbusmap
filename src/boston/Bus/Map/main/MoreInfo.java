@@ -79,10 +79,10 @@ public class MoreInfo extends ListActivity {
 		
 		{
 			Parcelable[] parcelables = (Parcelable[])extras.getParcelableArray(predictionsKey);
-			predictions = new Prediction[parcelables.length];
+			predictions = new IPrediction[parcelables.length];
 			for (int i = 0; i < predictions.length; i++)
 			{
-				predictions[i] = (Prediction)parcelables[i];
+				predictions[i] = (IPrediction)parcelables[i];
 			}
 		}
 		
