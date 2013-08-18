@@ -63,7 +63,7 @@ android:id="@+id/linearLayoutMain" android:gravity="right">
 		android:layout_alignParentBottom="true"
 		android:layout_below="@+id/linearLayoutMain"
 		
-		android:apiKey="04_mZq9Q_5sL2pltlDIYof4iIQimS_U5YPnRafg"
+		android:apiKey="0UeumldxhB0YFu3UPUv-E9-7-YOc26Y_FUhYjBA"
 		 />
 		<RelativeLayout 
 	    android:layout_height="fill_parent"
@@ -119,7 +119,7 @@ android:id="@+id/linearLayoutMain" android:gravity="right">
 		</RelativeLayout>
 		
 	<!-- debug key: 0UeumldxhB0bPpe6UgModFrG5tLPAwclzgqJhRg -->
-	<!-- release key: 04_mZq9Q_5sL2pltlDIYof4iIQimS_U5YPnRafg -->
+	<!-- release key: 0UeumldxhB0YFu3UPUv-E9-7-YOc26Y_FUhYjBA -->
 
 
 <!-- 
