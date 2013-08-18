@@ -74,7 +74,7 @@ public class SIRITransitSource implements TransitSource {
 
 		SIRIVehicleLocationsFeedParser parser = new SIRIVehicleLocationsFeedParser(
 				routeConfig, directions, busMapping, allRouteTitles, routePool);
-		parser.runParse(new InputStreamReader(data));
+		parser.runParse(new InputStreamReader(data), transitSystem);
 		data.close();
 
 		//get the time that this information is valid until

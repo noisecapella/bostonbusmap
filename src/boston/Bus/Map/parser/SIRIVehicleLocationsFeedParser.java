@@ -60,7 +60,7 @@ public class SIRIVehicleLocationsFeedParser {
 		vehiclesToRemove = Sets.newHashSet(busMapping.keySet());
 	}
 
-	public void runParse(InputStreamReader data) throws IOException {
+	public void runParse(InputStreamReader data, TransitSystem transitSystem) throws IOException {
 		BufferedReader bufferedReader = new BufferedReader(data, 2048);
 
 		JsonElement root = new JsonParser().parse(bufferedReader);
@@ -73,7 +73,7 @@ public class SIRIVehicleLocationsFeedParser {
 		String route = routeConfig.getRouteName();
 		clearPredictions();
 		
-		
+		transitSystem.setAlerts(results.alerts);
 
 		for (PredictionStopLocationPair pair : results.pairs) {
 			pair.stopLocation.addPrediction(pair.prediction);
@@ -109,9 +109,6 @@ public class SIRIVehicleLocationsFeedParser {
 		// parse alerts
 		Alerts.Builder alertsBuilder = Alerts.builder();
 		
-		// this should be cleared after each alert is published
-		List<String> tempAffectedRoutes = Lists.newArrayList();
-		
 		JsonArray situationExchangeDeliveryArray = serviceDelivery.get("SituationExchangeDelivery").getAsJsonArray();
 		for (JsonElement situationExchangeDeliveryElement : situationExchangeDeliveryArray) {
 			
@@ -119,8 +116,6 @@ public class SIRIVehicleLocationsFeedParser {
 			JsonObject situations = situationExchangeDelivery.get("Situations").getAsJsonObject();
 			JsonArray ptSituationElementArray = situations.get("PtSituationElement").getAsJsonArray();
 			for (JsonElement ptSituationElement : ptSituationElementArray) {
-				tempAffectedRoutes.clear();
-
 				JsonObject ptSituation = ptSituationElement.getAsJsonObject();
 
 				// TODO: this should probably use PublicationWindow->StartTime
@@ -133,18 +128,14 @@ public class SIRIVehicleLocationsFeedParser {
 				JsonObject vehicleJourneys = affects.get("VehicleJourneys").getAsJsonObject();
 				JsonArray affectedVehicleJourneyArray = vehicleJourneys.get("AffectedVehicleJourney").getAsJsonArray();
 				
+				Alert alert = new Alert(creationTime, summary, description, "");
+
 				for (JsonElement affectedVehicleJourneyElement : affectedVehicleJourneyArray) {
 					// TODO: support DirectionRef
 					JsonObject affectedVehicleJourney = affectedVehicleJourneyElement.getAsJsonObject();
 					String route = truncateRouteId(affectedVehicleJourney.get("LineRef").getAsString());
-					tempAffectedRoutes.add(route);
-				}
-				
-				Alert alert = new Alert(creationTime, summary, description, "");
-				
-				for (String affectedRoute : tempAffectedRoutes) {
-					
-					alertsBuilder.addAlertForRoute(affectedRoute, alert);
+
+					alertsBuilder.addAlertForRoute(route, alert);
 				}
 			}
 		}
@@ -214,13 +205,13 @@ public class SIRIVehicleLocationsFeedParser {
 
 	private static String truncateVehicleId(String vehicleId) {
 		String ret = StringUtil.trimPrefix(vehicleId, "MTA NYCT_");
-		ret = StringUtil.trimPrefix(vehicleId, "MTABC_");
+		ret = StringUtil.trimPrefix(ret, "MTABC_");
 		return ret;
 	}
 	
 	private static String truncateRouteId(String routeId) {
 		String ret = StringUtil.trimPrefix(routeId, "MTA NYCT_");
-		ret = StringUtil.trimPrefix(routeId, "MTABC_");
+		ret = StringUtil.trimPrefix(ret, "MTABC_");
 		return ret;
 	}
 	

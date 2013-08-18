@@ -262,7 +262,7 @@ public class TransitSystem implements ITransitSystem {
 	}
 
 	public static boolean hasReportProblem() {
-		return true;
+		return false;
 	}
 
 	public TransitSource getTransitSourceByRouteType(int routeType) {
@@ -274,7 +274,7 @@ public class TransitSystem implements ITransitSystem {
 		return defaultTransitSource;
 	}
 
-	public void setAlerts(Alerts alerts) {
+	public void setAlerts(IAlerts alerts) {
 		this.alerts = alerts;
 	}
 }
