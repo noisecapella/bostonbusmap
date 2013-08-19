@@ -42,6 +42,10 @@ public class Directions {
 		directions.putIfAbsent(dirTag, direction);
 	}
 	
+	public boolean hasDirection(String dirTag) {
+		return directions.containsKey(dirTag);
+	}
+	
 	public Direction getDirection(String dirTag)
 	{
 		if (dirTag == null)

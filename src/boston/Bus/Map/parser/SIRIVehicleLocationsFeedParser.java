@@ -24,6 +24,7 @@ import com.google.gson.JsonParser;
 import boston.Bus.Map.data.Alert;
 import boston.Bus.Map.data.Alerts;
 import boston.Bus.Map.data.BusLocation;
+import boston.Bus.Map.data.Direction;
 import boston.Bus.Map.data.Directions;
 import boston.Bus.Map.data.DistancePrediction;
 import boston.Bus.Map.data.Prediction;
@@ -165,9 +166,13 @@ public class SIRIVehicleLocationsFeedParser {
 				float latitude = vehicleLocation.get("Latitude").getAsFloat();
 				float longitude = vehicleLocation.get("Longitude").getAsFloat();
 
-				String dirTag = monitoredVehicleJourney.get("DestinationRef").getAsString();
-
 				String routeName = monitoredVehicleJourney.get("PublishedLineName").getAsString();
+				String dirTag = monitoredVehicleJourney.get("DestinationRef").getAsString();
+				if (!directions.hasDirection(dirTag)) {
+					Direction direction = new Direction(dirTag, "", routeName, true);
+					directions.add(dirTag, direction);
+				}
+
 				if (routeTitles.hasRoute(routeName)) {
 					String routeTitle = routeTitles.getKey(routeName);
 
