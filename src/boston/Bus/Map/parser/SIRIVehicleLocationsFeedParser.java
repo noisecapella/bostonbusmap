@@ -167,7 +167,7 @@ public class SIRIVehicleLocationsFeedParser {
 				float longitude = vehicleLocation.get("Longitude").getAsFloat();
 
 				String routeName = monitoredVehicleJourney.get("PublishedLineName").getAsString();
-				String dirTag = monitoredVehicleJourney.get("DestinationRef").getAsString();
+				String dirTag = monitoredVehicleJourney.get("DestinationName").getAsString();
 				if (!directions.hasDirection(dirTag)) {
 					Direction direction = new Direction(dirTag, "", routeName, true);
 					directions.add(dirTag, direction);
