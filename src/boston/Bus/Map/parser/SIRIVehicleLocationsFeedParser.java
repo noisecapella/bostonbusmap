@@ -168,33 +168,36 @@ public class SIRIVehicleLocationsFeedParser {
 				String dirTag = monitoredVehicleJourney.get("DestinationRef").getAsString();
 
 				String routeName = monitoredVehicleJourney.get("PublishedLineName").getAsString();
-				String routeTitle = routeName;
+				if (routeTitles.hasRoute(routeName)) {
+					String routeTitle = routeTitles.getKey(routeName);
 
-				BusLocation location = new BusLocation(latitude, longitude,
-						vehicleId, lastFeedUpdateInMillis, lastUpdateInMillis, headingString,
-						true, dirTag, routeName, directions, routeTitle);
-				busMapping.put(vehicleId, location);
-				vehiclesToRemove.remove(vehicleId);
+					BusLocation location = new BusLocation(latitude, longitude,
+							vehicleId, lastFeedUpdateInMillis, lastUpdateInMillis, headingString,
+							true, dirTag, routeName, directions, routeTitle);
+					busMapping.put(vehicleId, location);
+					vehiclesToRemove.remove(vehicleId);
 
-				if (monitoredVehicleJourney.has("MonitoredCall")) {
-					// parse stop information
-					JsonObject monitoredCall = monitoredVehicleJourney.get("MonitoredCall").getAsJsonObject();
-					String stopTag = truncateStopId(monitoredCall.get("StopPointRef").getAsString());
+					String direction = monitoredVehicleJourney.get("DestinationName").getAsString();
+					if (monitoredVehicleJourney.has("OnwardCalls")) {
+						JsonObject onwardCalls = monitoredVehicleJourney.get("OnwardCalls").getAsJsonObject();
 
-					JsonObject distances = monitoredCall.get("Extensions").getAsJsonObject().get("Distances").getAsJsonObject();
-					String presentableDistance = distances.get("PresentableDistance").getAsString();
+						if (onwardCalls.has("OnwardCall")) {
+							JsonArray onwardCallArray = onwardCalls.get("OnwardCall").getAsJsonArray();
+							for (JsonElement onwardCallElement : onwardCallArray) {
+								JsonObject onwardCall = onwardCallElement.getAsJsonObject();
+								parseStopInformation(onwardCall, routeName, routeTitle, vehicleId, 
+										direction, ret);
 
-					RouteConfig routeConfig = routePool.get(routeName.toUpperCase());
-					if (routeConfig != null) {
-						StopLocation stop = routeConfig.getStop(stopTag);
-						if (stop != null) {
-							String direction = monitoredVehicleJourney.get("DestinationName").getAsString();
-							float distanceInMeters = distances.get("DistanceFromCall").getAsFloat();
-							DistancePrediction prediction = new DistancePrediction(presentableDistance, vehicleId, direction,
-									routeName, routeTitle, distanceInMeters);
-							PredictionStopLocationPair pair = new PredictionStopLocationPair(prediction, stop);
-							ret.add(pair);
+							}
 						}
+						// parse stop information
+					}
+					else if (monitoredVehicleJourney.has("MonitoredCall")) {
+						// parse stop information
+						JsonObject monitoredCall = monitoredVehicleJourney.get("MonitoredCall").getAsJsonObject();
+
+						parseStopInformation(monitoredCall, routeName, routeTitle, vehicleId, 
+								direction, ret);
 					}
 				}
 			}
@@ -203,6 +206,27 @@ public class SIRIVehicleLocationsFeedParser {
 		return new SIRIVehicleParsingResults(ret, alertsBuilder.build());
 	}
 
+	private void parseStopInformation(JsonObject monitoredCall, String routeName,
+			String routeTitle, String vehicleId, 
+			String direction, List<PredictionStopLocationPair> ret) throws IOException {
+		String stopTag = truncateStopId(monitoredCall.get("StopPointRef").getAsString());
+
+		JsonObject distances = monitoredCall.get("Extensions").getAsJsonObject().get("Distances").getAsJsonObject();
+		String presentableDistance = distances.get("PresentableDistance").getAsString();
+
+		RouteConfig routeConfig = routePool.get(routeName);
+		if (routeConfig != null) {
+			StopLocation stop = routeConfig.getStop(stopTag);
+			if (stop != null) {
+				float distanceInMeters = distances.get("DistanceFromCall").getAsFloat();
+				DistancePrediction prediction = new DistancePrediction(presentableDistance, vehicleId, direction,
+						routeName, routeTitle, distanceInMeters);
+				PredictionStopLocationPair pair = new PredictionStopLocationPair(prediction, stop);
+				ret.add(pair);
+			}
+		}
+	}
+	
 	private static String truncateVehicleId(String vehicleId) {
 		String ret = StringUtil.trimPrefix(vehicleId, "MTA NYCT_");
 		ret = StringUtil.trimPrefix(ret, "MTABC_");

@@ -43,8 +43,6 @@ public class Predictions
 	private final List<StopLocation> allStops = Lists.newArrayList(); 
 	@IsGuardedBy("modificationLock")
 	private final SortedSet<IPrediction> predictions = Sets.newTreeSet();
-	@IsGuardedBy("modificationLock")
-	private final Set<Alert> alerts = Sets.newTreeSet();
 	
 	private final Object modificationLock = new Object();
 	
@@ -56,15 +54,15 @@ public class Predictions
 			this.routes.clear();
 			this.routes.addAll(routes.getRoutes());
 			
-			this.alerts.clear();
-			this.alerts.addAll(alerts);
-			
 			allStops.clear();
 			allStops.add(stop);
 			
+			Set<Alert> alertSet = Sets.newTreeSet(alerts);
+			ImmutableList<Alert> alertImmutableSet = ImmutableList.copyOf(alertSet);
+			
 			predictionView = new StopPredictionViewImpl(this.routes, allStops,
 					predictions,
-					routeConfig, routeKeysToTitles, context, alerts, locations);
+					routeConfig, routeKeysToTitles, context, alertImmutableSet, locations);
 		}
 	}
 	
