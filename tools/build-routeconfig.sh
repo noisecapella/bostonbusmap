@@ -7,15 +7,14 @@ echo "<body copyright=\"All data copyright $agency 2011.\">" >> routeconfig_full
 for agency in brooklyn bronx staten-island
 do
 
-    wget "http://$prefix.nextbus.com/service/publicXMLFeed?a=$agency&command=routeList" -O routeList
-    cat routeList | grep route | awk -F"\"" '{ print $2 }' > routes
+    wget "http://$prefix.nextbus.com/service/publicXMLFeed?a=$agency&command=routeList" -O routeList_$agency
+    cat routeList_$agency | grep route | awk -F"\"" '{ print $2 }' > routes_$agency
 
-    for each in `cat routes`; do wget "http://$prefix.nextbus.com/service/publicXMLFeed?a=$agency&command=routeConfig&verbose&r=$each" -O routeConfig$each; sleep 10; done
+    for each in `cat routes_$agency`; do wget "http://$prefix.nextbus.com/service/publicXMLFeed?a=$agency&command=routeConfig&verbose&r=$each" -O routeConfig$each; sleep 10; done
 
     touch routeconfig_full.xml
 
-    #for each in `cat routes`; do cat routeConfig$each | awk '$0 ~ /<body/ { next } $0 ~ /body>/ { next } $0 ~ /<\?xml/ { next } { print }' >> routeconfig_full.xml; done
-    for each in `cat routes`; do cat routeConfig$each | awk 'BEGIN { in_path = 0 } $0 ~ /<body/ { next } $0 ~ /body>/ { next } $0 ~ /<\?xml/ { next } { print }' >> routeconfig_full.xml; done
+    for each in `cat routes_$agency`; do cat routeConfig$each | awk 'BEGIN { in_path = 0 } $0 ~ /<body/ { next } $0 ~ /body>/ { next } $0 ~ /<\?xml/ { next } { print }' >> routeconfig_full.xml; done
     
 done
 echo "</body>" >> routeconfig_full.xml
