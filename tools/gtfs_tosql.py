@@ -24,6 +24,7 @@ def write_sql(startorder, route, gtfs_map, stops_already_inserted, routes_alread
 
     route_rows = [route_row for route_row in routes
                   if (route_row[routes_header["route_id"]] == route)]
+    route_title = route_rows[0][routes_header["route_short_name"]]
     route_ids = set([route_row[routes_header["route_id"]] for route_row in route_rows])
 
     trip_rows = [trip_row for trip_row in trips
@@ -55,7 +56,7 @@ def write_sql(startorder, route, gtfs_map, stops_already_inserted, routes_alread
         routes_already_inserted.add(route)
 
         obj.routes.route.value = route
-        obj.routes.routetitle.value = route
+        obj.routes.routetitle.value = route_title
         obj.routes.color.value = default_color
         obj.routes.oppositecolor.value = default_color
         obj.routes.listorder.value = startorder
