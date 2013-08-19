@@ -65,46 +65,75 @@ public class SIRITransitSource implements TransitSource {
 		// TODO: when we handle multiple transit sources this should return early without download
 		// if the stops we're looking at aren't in this transit source
 
-		final String urlString = getVehicleLocationsUrl(locationsObj.getLastUpdateTime(), null);
-		final DownloadHelper downloadHelper = new DownloadHelper(urlString);
+		int mode = selection.getMode();
+		DownloadHelper downloadHelper;
+
+		switch (mode) {
+		case Selection.BUS_PREDICTIONS_ALL:
+		case Selection.BUS_PREDICTIONS_STAR:
+		case Selection.VEHICLE_LOCATIONS_ALL:
+		{
+			String urlString = getVehicleLocationsUrl(null);
+			downloadHelper = new DownloadHelper(urlString);
+			break;
+		}
+		case Selection.VEHICLE_LOCATIONS_ONE:
+		case Selection.BUS_PREDICTIONS_ONE:
+		default:
+		{
+			String urlString = getVehicleLocationsUrl(routeConfig.getRouteName());
+			downloadHelper = new DownloadHelper(urlString);
+			break;
+		}
+		}
 
 		downloadHelper.connect();
 
 		InputStream data = downloadHelper.getResponseData();
 
-		SIRIVehicleLocationsFeedParser parser = new SIRIVehicleLocationsFeedParser(
-				routeConfig, directions, busMapping, allRouteTitles, routePool);
-		parser.runParse(new InputStreamReader(data), transitSystem);
-		data.close();
-
-		//get the time that this information is valid until
-		locationsObj.setLastUpdateTime(parser.getLastUpdateTime());
-
-		// TODO: do I synchronize busMapping everywhere I should?
-		// given that this is a ConcurrentHashMap is synchronization even necessary?
-		synchronized (busMapping)
+		switch (mode) {
+		case Selection.BUS_PREDICTIONS_ALL:
+		case Selection.BUS_PREDICTIONS_ONE:
+		case Selection.BUS_PREDICTIONS_STAR:
+		case Selection.VEHICLE_LOCATIONS_ALL:
+		case Selection.VEHICLE_LOCATIONS_ONE:
 		{
+			SIRIVehicleLocationsFeedParser parser = new SIRIVehicleLocationsFeedParser(
+					routeConfig, directions, busMapping, allRouteTitles, routePool);
+			parser.runParse(new InputStreamReader(data), transitSystem);
+			//get the time that this information is valid until
+			locationsObj.setLastUpdateTime(parser.getLastUpdateTime());
 
-			//delete old buses
-			List<String> busesToBeDeleted = new ArrayList<String>();
-			for (String id : busMapping.keySet())
+			// TODO: do I synchronize busMapping everywhere I should?
+			// given that this is a ConcurrentHashMap is synchronization even necessary?
+			synchronized (busMapping)
 			{
-				BusLocation busLocation = busMapping.get(id);
-				if (busLocation.getLastUpdateInMillis() + 180000 < System.currentTimeMillis())
+
+				//delete old buses
+				List<String> busesToBeDeleted = new ArrayList<String>();
+				for (String id : busMapping.keySet())
 				{
-					//put this old dog to sleep
-					busesToBeDeleted.add(id);
+					BusLocation busLocation = busMapping.get(id);
+					if (busLocation.getLastUpdateInMillis() + 180000 < System.currentTimeMillis())
+					{
+						//put this old dog to sleep
+						busesToBeDeleted.add(id);
+					}
+				}
+
+				for (String id : busesToBeDeleted)
+				{
+					busMapping.remove(id);
 				}
 			}
-
-			for (String id : busesToBeDeleted)
-			{
-				busMapping.remove(id);
-			}
+			break;
 		}
+		}
+		data.close();
+
 	}
 
-	private String getVehicleLocationsUrl(long lastUpdateTime, String routeName) {
+	private String getVehicleLocationsUrl(String routeName) {
 		String ret = "http://bustime.mta.info/api/siri/vehicle-monitoring.json?key=" + KEY;
 		if (!StringUtil.isEmpty(routeName)) {
 			ret += "&LineRef=" + routeName;
