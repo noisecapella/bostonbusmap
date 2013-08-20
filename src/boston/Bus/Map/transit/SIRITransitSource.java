@@ -11,7 +11,9 @@ import javax.xml.parsers.ParserConfigurationException;
 
 import org.xml.sax.SAXException;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Lists;
 
 import boston.Bus.Map.data.AlertsFuture;
 import boston.Bus.Map.data.BusLocation;
@@ -28,6 +30,7 @@ import boston.Bus.Map.data.TransitDrawables;
 import boston.Bus.Map.data.TransitSourceTitles;
 import boston.Bus.Map.database.Schema;
 import boston.Bus.Map.parser.BusPredictionsFeedParser;
+import boston.Bus.Map.parser.SIRIStopLocationsFeedParser;
 import boston.Bus.Map.parser.SIRIVehicleLocationsFeedParser;
 import boston.Bus.Map.parser.VehicleLocationsFeedParser;
 import boston.Bus.Map.util.DownloadHelper;
@@ -54,6 +57,15 @@ public class SIRITransitSource implements TransitSource {
 		this.allRouteTitles = allRouteTitles;
 	}
 
+	private class StopLocationWithDownloadHelper {
+		private final StopLocation location;
+		private final DownloadHelper helper;
+		public StopLocationWithDownloadHelper(StopLocation location, DownloadHelper helper) {
+			this.location = location;
+			this.helper = helper;
+		}
+	}
+	
 	@Override
 	public void refreshData(RouteConfig routeConfig, Selection selection,
 			int maxStops, double centerLatitude, double centerLongitude,
@@ -66,71 +78,106 @@ public class SIRITransitSource implements TransitSource {
 		// if the stops we're looking at aren't in this transit source
 
 		int mode = selection.getMode();
-		DownloadHelper downloadHelper;
+		List<DownloadHelper> downloadHelpers = Lists.newArrayList();
+		List<StopLocationWithDownloadHelper> pairs;
 
 		switch (mode) {
-		case Selection.BUS_PREDICTIONS_ALL:
-		case Selection.BUS_PREDICTIONS_STAR:
 		case Selection.VEHICLE_LOCATIONS_ALL:
 		{
 			String urlString = getVehicleLocationsUrl(null);
-			downloadHelper = new DownloadHelper(urlString);
+			downloadHelpers.add(new DownloadHelper(urlString));
+			pairs = ImmutableList.of();
 			break;
 		}
 		case Selection.VEHICLE_LOCATIONS_ONE:
+		{
+			String urlString = getVehicleLocationsUrl(null);
+			DownloadHelper downloadHelper = new DownloadHelper(urlString);
+			downloadHelpers.add(downloadHelper);
+			downloadHelper.connect();
+			pairs = ImmutableList.of();
+			break;
+		}
 		case Selection.BUS_PREDICTIONS_ONE:
+		case Selection.BUS_PREDICTIONS_ALL:
+		case Selection.BUS_PREDICTIONS_STAR:
 		default:
 		{
-			String urlString = getVehicleLocationsUrl(routeConfig.getRouteName());
-			downloadHelper = new DownloadHelper(urlString);
-			break;
-		}
-		}
+			List<Location> locations = locationsObj.getLocations(10, centerLatitude, centerLongitude, false, selection);
 
-		downloadHelper.connect();
-
-		InputStream data = downloadHelper.getResponseData();
-
-		switch (mode) {
-		case Selection.BUS_PREDICTIONS_ALL:
-		case Selection.BUS_PREDICTIONS_ONE:
-		case Selection.BUS_PREDICTIONS_STAR:
-		case Selection.VEHICLE_LOCATIONS_ALL:
-		case Selection.VEHICLE_LOCATIONS_ONE:
-		{
-			SIRIVehicleLocationsFeedParser parser = new SIRIVehicleLocationsFeedParser(
-					routeConfig, directions, busMapping, allRouteTitles, routePool);
-			parser.runParse(new InputStreamReader(data), transitSystem);
-			//get the time that this information is valid until
-			locationsObj.setLastUpdateTime(parser.getLastUpdateTime());
-
-			// TODO: do I synchronize busMapping everywhere I should?
-			// given that this is a ConcurrentHashMap is synchronization even necessary?
-			synchronized (busMapping)
-			{
-
-				//delete old buses
-				List<String> busesToBeDeleted = new ArrayList<String>();
-				for (String id : busMapping.keySet())
-				{
-					BusLocation busLocation = busMapping.get(id);
-					if (busLocation.getLastUpdateInMillis() + 180000 < System.currentTimeMillis())
-					{
-						//put this old dog to sleep
-						busesToBeDeleted.add(id);
-					}
-				}
-
-				for (String id : busesToBeDeleted)
-				{
-					busMapping.remove(id);
+			pairs = Lists.newArrayList();
+			for (Location location : locations) {
+				if (location instanceof StopLocation) {
+					StopLocation stopLocation = (StopLocation)location;
+					String urlString = getPredictionsUrl(stopLocation.getStopTag());
+					DownloadHelper downloadHelper = new DownloadHelper(urlString);
+					downloadHelpers.add(downloadHelper);
+					downloadHelper.connect();
+					
+					pairs.add(new StopLocationWithDownloadHelper(stopLocation, downloadHelper));
 				}
 			}
 			break;
 		}
 		}
-		data.close();
 
+		switch (mode) {
+		case Selection.BUS_PREDICTIONS_ALL:
+		case Selection.BUS_PREDICTIONS_ONE:
+		case Selection.BUS_PREDICTIONS_STAR:
+		{
+			for (StopLocationWithDownloadHelper pair : pairs) {
+				InputStream data = pair.helper.getResponseData();
+
+
+				SIRIStopLocationsFeedParser parser = new SIRIStopLocationsFeedParser(routePool, directions, routeTitles);
+				parser.runParse(new InputStreamReader(data), pair.location);
+			}
+			break;
+		}
+		case Selection.VEHICLE_LOCATIONS_ALL:
+		case Selection.VEHICLE_LOCATIONS_ONE:
+		{
+			for (DownloadHelper helper : downloadHelpers) {
+				InputStream data = helper.getResponseData();
+				SIRIVehicleLocationsFeedParser parser = new SIRIVehicleLocationsFeedParser(
+						routeConfig, directions, allRouteTitles, routePool);
+				parser.runParse(new InputStreamReader(data), transitSystem, busMapping);
+				//get the time that this information is valid until
+				locationsObj.setLastUpdateTime(parser.getLastUpdateTime());
+
+				// TODO: do I synchronize busMapping everywhere I should?
+				// given that this is a ConcurrentHashMap is synchronization even necessary?
+				synchronized (busMapping)
+				{
+
+					//delete old buses
+					List<String> busesToBeDeleted = new ArrayList<String>();
+					for (String id : busMapping.keySet())
+					{
+						BusLocation busLocation = busMapping.get(id);
+						if (busLocation.getLastUpdateInMillis() + 180000 < System.currentTimeMillis())
+						{
+							//put this old dog to sleep
+							busesToBeDeleted.add(id);
+						}
+					}
+
+					for (String id : busesToBeDeleted)
+					{
+						busMapping.remove(id);
+					}
+				}
+				data.close();
+				break;
+			}
+		}
+		}
+	}
+
+	private String getPredictionsUrl(String stopId) {
+		String ret = "http://bustime.mta.info/api/siri/stop-monitoring.json?key=" + KEY + "&MonitoringRef=" + stopId;
+		return ret;
 	}
 
 	private String getVehicleLocationsUrl(String routeName) {
