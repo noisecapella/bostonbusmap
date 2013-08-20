@@ -1,14 +1,14 @@
 <resources>
 	<string-array name="updateContinuouslyKeys">
-		<item>Continuously (15 seconds)</item>
-		<item>Frequently (30 seconds)</item>
-		<item>Occasionally (60 seconds)</item>
+		<item>Continuously (30 seconds)</item>
+		<item>Frequently (60 seconds)</item>
+		<item>Occasionally (90 seconds)</item>
 		<item>Never</item>
 	</string-array>
 	<string-array name="updateContinuouslyValues">
-		<item>15</item>
 		<item>30</item>
 		<item>60</item>
+		<item>90</item>
 		<item>0</item>
 
 	</string-array>
