@@ -133,6 +133,32 @@ public class SIRITransitSource implements TransitSource {
 				SIRIVehicleLocationsFeedParser parser = new SIRIVehicleLocationsFeedParser(
 						routeConfig, directions, allRouteTitles, routePool);
 				parser.runParse(new InputStreamReader(data), transitSystem, busMapping);
+
+				// TODO: do I synchronize busMapping everywhere I should?
+				// given that this is a ConcurrentHashMap is synchronization even necessary?
+				synchronized (busMapping)
+				{
+
+					//delete old buses
+					List<String> busesToBeDeleted = new ArrayList<String>();
+					for (String id : busMapping.keySet())
+					{
+						BusLocation busLocation = busMapping.get(id);
+						if (busLocation.getLastUpdateInMillis() + 180000 < System.currentTimeMillis())
+						{
+							//put this old dog to sleep
+							busesToBeDeleted.add(id);
+						}
+					}
+
+					for (String id : busesToBeDeleted)
+					{
+						busMapping.remove(id);
+					}
+				}
+
+				data.close();
+				break;
 			}
 			for (StopLocationWithDownloadHelper pair : pairs) {
 				InputStream data = pair.helper.getResponseData();
@@ -184,9 +210,7 @@ public class SIRITransitSource implements TransitSource {
 	}
 
 	private String getAlertsUrl() {
-		// ask vehicle feed for only alert information
-		String ret = "http://bustime.mta.info/api/siri/vehicle-monitoring.json?key=" + KEY + "&MaximumStopVisits=1";
-		return ret;
+		return getVehicleLocationsUrl(null);
 	}
 
 	private String getPredictionsUrl(String stopId) {
