@@ -162,7 +162,7 @@ public abstract class SIRIParser {
 		float latitude = vehicleLocation.get("Latitude").getAsFloat();
 		float longitude = vehicleLocation.get("Longitude").getAsFloat();
 
-		String routeName = monitoredVehicleJourney.get("PublishedLineName").getAsString();
+		String routeName = truncateRouteId(monitoredVehicleJourney.get("LineRef").getAsString());
 		String dirTag = monitoredVehicleJourney.get("DestinationName").getAsString();
 		if (!directions.hasDirection(dirTag)) {
 			Direction direction = new Direction(dirTag, "", routeName, true);
