@@ -170,7 +170,7 @@ public abstract class SIRIParser {
 		}
 
 		if (routeTitles.hasRoute(routeName)) {
-			String routeTitle = routeTitles.getKey(routeName);
+			String routeTitle = routeTitles.getTitle(routeName);
 
 			BusLocation location = new BusLocation(latitude, longitude,
 					vehicleId, lastFeedUpdateInMillis, lastUpdateInMillis, headingString,
