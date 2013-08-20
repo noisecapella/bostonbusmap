@@ -30,6 +30,7 @@ import boston.Bus.Map.data.TransitDrawables;
 import boston.Bus.Map.data.TransitSourceTitles;
 import boston.Bus.Map.database.Schema;
 import boston.Bus.Map.parser.BusPredictionsFeedParser;
+import boston.Bus.Map.parser.CitibikeParser;
 import boston.Bus.Map.parser.SIRIStopLocationsFeedParser;
 import boston.Bus.Map.parser.SIRIVehicleLocationsFeedParser;
 import boston.Bus.Map.parser.VehicleLocationsFeedParser;
@@ -81,6 +82,8 @@ public class SIRITransitSource implements TransitSource {
 		List<DownloadHelper> downloadHelpers = Lists.newArrayList();
 		List<StopLocationWithDownloadHelper> pairs;
 		
+		DownloadHelper citibikeHelper = null;
+		
 		DownloadHelper alertsHelper = null;
 
 		switch (mode) {
@@ -107,6 +110,9 @@ public class SIRITransitSource implements TransitSource {
 				alertsHelper = new DownloadHelper(getAlertsUrl());
 				alertsHelper.connect();
 			}
+			
+			citibikeHelper = new DownloadHelper(getCitibikeUrl());
+			citibikeHelper.connect();
 			
 			for (Location location : locations) {
 				if (location instanceof StopLocation) {
@@ -159,6 +165,11 @@ public class SIRITransitSource implements TransitSource {
 
 				data.close();
 				break;
+			}
+			{
+				InputStream citiBikeData = citibikeHelper.getResponseData();
+				CitibikeParser citibikeParser = new CitibikeParser(routePool);
+				citibikeParser.runParse(new InputStreamReader(citiBikeData));
 			}
 			for (StopLocationWithDownloadHelper pair : pairs) {
 				InputStream data = pair.helper.getResponseData();
@@ -226,6 +237,10 @@ public class SIRITransitSource implements TransitSource {
 		return ret;
 	}
 
+	private String getCitibikeUrl() {
+		return "http://appservices.citibikenyc.com//data2/stations.php";
+	}
+	
 	@Override
 	public boolean hasPaths() {
 		return true;

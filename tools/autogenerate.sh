@@ -9,6 +9,8 @@ python create_tables.py > sql.dump
 echo "Parsing bus data..."
 # gtfs files from MTA organized such that ./gtfs/nyc/bronx/calendar.txt exists, etc
 python gtfs_tosql.py ./gtfs/nyc 0 >> sql.dump
+echo "Citibike data..."
+python citibike_tosql.py >> sql.dump
 #echo "Calculating bound times..."
 #python calculate_times.py gtfs/stop_times.txt gtfs/trips.txt gtfs/calendar.txt >> sql.dump
 echo "Dumping into sqlite..."
