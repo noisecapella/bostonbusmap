@@ -80,15 +80,11 @@ public class SIRITransitSource implements TransitSource {
 		int mode = selection.getMode();
 		List<DownloadHelper> downloadHelpers = Lists.newArrayList();
 		List<StopLocationWithDownloadHelper> pairs;
+		
+		DownloadHelper alertsHelper = null;
 
 		switch (mode) {
 		case Selection.VEHICLE_LOCATIONS_ALL:
-		{
-			String urlString = getVehicleLocationsUrl(null);
-			downloadHelpers.add(new DownloadHelper(urlString));
-			pairs = ImmutableList.of();
-			break;
-		}
 		case Selection.VEHICLE_LOCATIONS_ONE:
 		{
 			String urlString = getVehicleLocationsUrl(null);
@@ -106,6 +102,12 @@ public class SIRITransitSource implements TransitSource {
 			List<Location> locations = locationsObj.getLocations(10, centerLatitude, centerLongitude, false, selection);
 
 			pairs = Lists.newArrayList();
+			
+			if (transitSystem.alertsIsNull()) {
+				alertsHelper = new DownloadHelper(getAlertsUrl());
+				alertsHelper.connect();
+			}
+			
 			for (Location location : locations) {
 				if (location instanceof StopLocation) {
 					StopLocation stopLocation = (StopLocation)location;
@@ -126,6 +128,12 @@ public class SIRITransitSource implements TransitSource {
 		case Selection.BUS_PREDICTIONS_ONE:
 		case Selection.BUS_PREDICTIONS_STAR:
 		{
+			if (alertsHelper != null) {
+				InputStream data = alertsHelper.getResponseData();
+				SIRIVehicleLocationsFeedParser parser = new SIRIVehicleLocationsFeedParser(
+						routeConfig, directions, allRouteTitles, routePool);
+				parser.runParse(new InputStreamReader(data), transitSystem, busMapping);
+			}
 			for (StopLocationWithDownloadHelper pair : pairs) {
 				InputStream data = pair.helper.getResponseData();
 

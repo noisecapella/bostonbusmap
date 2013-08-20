@@ -248,6 +248,10 @@ public class TransitSystem implements ITransitSystem {
 			return alerts;
 		}
 	}
+	
+	public boolean alertsIsNull() {
+		return alerts == null;
+	}
 
 	public static String[] getEmails() {
 		return emails;

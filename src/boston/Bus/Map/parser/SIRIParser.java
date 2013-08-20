@@ -178,6 +178,7 @@ public abstract class SIRIParser {
 			results.busLocations.add(location);
 
 			String direction = monitoredVehicleJourney.get("DestinationName").getAsString();
+			/*
 			if (monitoredVehicleJourney.has("OnwardCalls")) {
 				JsonObject onwardCalls = monitoredVehicleJourney.get("OnwardCalls").getAsJsonObject();
 
@@ -192,7 +193,7 @@ public abstract class SIRIParser {
 				}
 				// parse stop information
 			}
-			else if (monitoredVehicleJourney.has("MonitoredCall")) {
+			else */if (monitoredVehicleJourney.has("MonitoredCall")) {
 				// parse stop information
 				JsonObject monitoredCall = monitoredVehicleJourney.get("MonitoredCall").getAsJsonObject();
 
