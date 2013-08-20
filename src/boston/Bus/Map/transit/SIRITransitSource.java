@@ -183,6 +183,12 @@ public class SIRITransitSource implements TransitSource {
 		}
 	}
 
+	private String getAlertsUrl() {
+		// ask vehicle feed for only alert information
+		String ret = "http://bustime.mta.info/api/siri/vehicle-monitoring.json?key=" + KEY + "&MaximumStopVisits=1";
+		return ret;
+	}
+
 	private String getPredictionsUrl(String stopId) {
 		String ret = "http://bustime.mta.info/api/siri/stop-monitoring.json?key=" + KEY + "&MonitoringRef=" + stopId;
 		return ret;
