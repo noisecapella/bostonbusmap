@@ -194,7 +194,15 @@ public class StopLocation implements Location
 	{
 		if (predictions != null)
 		{
-			predictions.clearPredictions(routeConfig.getRouteName());
+			String route;
+			if (routeConfig != null) {
+				route = routeConfig.getRouteName();
+			}
+			else
+			{
+				route = null;
+			}
+			predictions.clearPredictions(route);
 		}
 		
 		recentlyUpdated = true;
