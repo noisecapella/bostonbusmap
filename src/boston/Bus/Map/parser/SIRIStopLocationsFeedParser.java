@@ -43,4 +43,24 @@ public class SIRIStopLocationsFeedParser extends SIRIParser {
 		}
 	}
 
+	@Override
+	protected void parseSpecialElement(JsonObject serviceDelivery,
+			SIRIVehicleParsingResults results) throws IOException {
+
+		JsonArray stopMonitoringDeliveryArray = serviceDelivery.get("StopMonitoringDelivery").getAsJsonArray();
+		for (JsonElement stopMonitoringDeliveryElement : stopMonitoringDeliveryArray) {
+			JsonObject stopMonitoringDelivery = stopMonitoringDeliveryElement.getAsJsonObject();
+		
+			String dateString = stopMonitoringDelivery.get("ResponseTimestamp").getAsString();
+
+			Date responseDate = parseTime(dateString);
+			JsonArray vehicleActivity = stopMonitoringDelivery.get("MonitoredStopVisit").getAsJsonArray();
+
+			for (JsonElement element : vehicleActivity) {
+				JsonObject monitoredVehicleJourney = element.getAsJsonObject().get("MonitoredVehicleJourney").getAsJsonObject();
+				parseVehicleMonitoringDelivery(monitoredVehicleJourney, responseDate, results);
+			}
+		}
+		
+	}
 }

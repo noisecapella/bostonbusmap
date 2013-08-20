@@ -98,9 +98,6 @@ public abstract class SIRIParser {
 	protected SIRIVehicleParsingResults parseTree(JsonObject root) throws IOException {
 		this.lastUpdatedTime = System.currentTimeMillis();
 		
-		List<PredictionStopLocationPair> ret = Lists.newArrayList();
-		List<BusLocation> busLocations = Lists.newArrayList();
-		
 		JsonObject siri = root.get("Siri").getAsJsonObject();
 		JsonObject serviceDelivery = siri.get("ServiceDelivery").getAsJsonObject();
 		
@@ -138,72 +135,70 @@ public abstract class SIRIParser {
 			}
 		}
 		
-		JsonArray vehicleMonitoringDeliveryArray = serviceDelivery.get("VehicleMonitoringDelivery").getAsJsonArray();
-		for (JsonElement vehicleMonitoringDeliveryElement : vehicleMonitoringDeliveryArray) {
-			JsonObject vehicleMonitoringDelivery = vehicleMonitoringDeliveryElement.getAsJsonObject();
+		List<PredictionStopLocationPair> ret = Lists.newArrayList();
+		List<BusLocation> busLocations = Lists.newArrayList();
 		
-			String dateString = vehicleMonitoringDelivery.get("ResponseTimestamp").getAsString();
+		SIRIVehicleParsingResults results = new SIRIVehicleParsingResults(ret, alertsBuilder.build(), busLocations);
+		parseSpecialElement(serviceDelivery, results);
+		
+		return results;
+	}
 
-			Date responseDate = parseTime(dateString);
-			JsonArray vehicleActivity = vehicleMonitoringDelivery.get("VehicleActivity").getAsJsonArray();
+	protected abstract void parseSpecialElement(JsonObject serviceDelivery,
+			SIRIVehicleParsingResults results) throws IOException;
 
-			for (JsonElement element : vehicleActivity) {
+	protected void parseVehicleMonitoringDelivery(JsonObject monitoredVehicleJourney, 
+			Date responseDate, SIRIVehicleParsingResults results) throws IOException {
+		// parse vehicle information
+		String vehicleId = truncateVehicleId(monitoredVehicleJourney.get("VehicleRef").getAsString());
+		 
 
-				// parse vehicle information
-				JsonObject monitoredVehicleJourney = ((JsonObject)element).get("MonitoredVehicleJourney").getAsJsonObject();
-				String vehicleId = truncateVehicleId(monitoredVehicleJourney.get("VehicleRef").getAsString());
-				 
+		long lastFeedUpdateInMillis = responseDate.getTime();
+		long lastUpdateInMillis = lastFeedUpdateInMillis;
+		float heading = monitoredVehicleJourney.get("Bearing").getAsFloat();
+		String headingString = Integer.toString((int)heading);
 
-				long lastFeedUpdateInMillis = responseDate.getTime();
-				long lastUpdateInMillis = lastFeedUpdateInMillis;
-				float heading = monitoredVehicleJourney.get("Bearing").getAsFloat();
-				String headingString = Integer.toString((int)heading);
+		JsonObject vehicleLocation = monitoredVehicleJourney.get("VehicleLocation").getAsJsonObject();
+		float latitude = vehicleLocation.get("Latitude").getAsFloat();
+		float longitude = vehicleLocation.get("Longitude").getAsFloat();
 
-				JsonObject vehicleLocation = monitoredVehicleJourney.get("VehicleLocation").getAsJsonObject();
-				float latitude = vehicleLocation.get("Latitude").getAsFloat();
-				float longitude = vehicleLocation.get("Longitude").getAsFloat();
+		String routeName = monitoredVehicleJourney.get("PublishedLineName").getAsString();
+		String dirTag = monitoredVehicleJourney.get("DestinationName").getAsString();
+		if (!directions.hasDirection(dirTag)) {
+			Direction direction = new Direction(dirTag, "", routeName, true);
+			directions.add(dirTag, direction);
+		}
 
-				String routeName = monitoredVehicleJourney.get("PublishedLineName").getAsString();
-				String dirTag = monitoredVehicleJourney.get("DestinationName").getAsString();
-				if (!directions.hasDirection(dirTag)) {
-					Direction direction = new Direction(dirTag, "", routeName, true);
-					directions.add(dirTag, direction);
-				}
+		if (routeTitles.hasRoute(routeName)) {
+			String routeTitle = routeTitles.getKey(routeName);
 
-				if (routeTitles.hasRoute(routeName)) {
-					String routeTitle = routeTitles.getKey(routeName);
+			BusLocation location = new BusLocation(latitude, longitude,
+					vehicleId, lastFeedUpdateInMillis, lastUpdateInMillis, headingString,
+					true, dirTag, routeName, directions, routeTitle);
+			results.busLocations.add(location);
 
-					BusLocation location = new BusLocation(latitude, longitude,
-							vehicleId, lastFeedUpdateInMillis, lastUpdateInMillis, headingString,
-							true, dirTag, routeName, directions, routeTitle);
-					busLocations.add(location);
+			String direction = monitoredVehicleJourney.get("DestinationName").getAsString();
+			if (monitoredVehicleJourney.has("OnwardCalls")) {
+				JsonObject onwardCalls = monitoredVehicleJourney.get("OnwardCalls").getAsJsonObject();
 
-					String direction = monitoredVehicleJourney.get("DestinationName").getAsString();
-					if (monitoredVehicleJourney.has("OnwardCalls")) {
-						JsonObject onwardCalls = monitoredVehicleJourney.get("OnwardCalls").getAsJsonObject();
+				if (onwardCalls.has("OnwardCall")) {
+					JsonArray onwardCallArray = onwardCalls.get("OnwardCall").getAsJsonArray();
+					for (JsonElement onwardCallElement : onwardCallArray) {
+						JsonObject onwardCall = onwardCallElement.getAsJsonObject();
+						parseStopInformation(onwardCall, routeName, routeTitle, vehicleId, 
+								direction, results.pairs);
 
-						if (onwardCalls.has("OnwardCall")) {
-							JsonArray onwardCallArray = onwardCalls.get("OnwardCall").getAsJsonArray();
-							for (JsonElement onwardCallElement : onwardCallArray) {
-								JsonObject onwardCall = onwardCallElement.getAsJsonObject();
-								parseStopInformation(onwardCall, routeName, routeTitle, vehicleId, 
-										direction, ret);
-
-							}
-						}
-						// parse stop information
-					}
-					else if (monitoredVehicleJourney.has("MonitoredCall")) {
-						// parse stop information
-						JsonObject monitoredCall = monitoredVehicleJourney.get("MonitoredCall").getAsJsonObject();
-
-						parseStopInformation(monitoredCall, routeName, routeTitle, vehicleId, 
-								direction, ret);
 					}
 				}
+				// parse stop information
+			}
+			else if (monitoredVehicleJourney.has("MonitoredCall")) {
+				// parse stop information
+				JsonObject monitoredCall = monitoredVehicleJourney.get("MonitoredCall").getAsJsonObject();
+
+				parseStopInformation(monitoredCall, routeName, routeTitle, vehicleId, 
+						direction, results.pairs);
 			}
 		}
-		
-		return new SIRIVehicleParsingResults(ret, alertsBuilder.build(), busLocations);
 	}
 }

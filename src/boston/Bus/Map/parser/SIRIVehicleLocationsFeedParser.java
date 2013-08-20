@@ -74,5 +74,26 @@ public class SIRIVehicleLocationsFeedParser extends SIRIParser {
 		return lastUpdatedTime;
 	}
 
+	@Override
+	protected void parseSpecialElement(JsonObject serviceDelivery,
+			SIRIVehicleParsingResults results) throws IOException {
+
+		JsonArray vehicleMonitoringDeliveryArray = serviceDelivery.get("VehicleMonitoringDelivery").getAsJsonArray();
+		for (JsonElement vehicleMonitoringDeliveryElement : vehicleMonitoringDeliveryArray) {
+			JsonObject vehicleMonitoringDelivery = vehicleMonitoringDeliveryElement.getAsJsonObject();
+		
+			String dateString = vehicleMonitoringDelivery.get("ResponseTimestamp").getAsString();
+
+			Date responseDate = parseTime(dateString);
+			JsonArray vehicleActivity = vehicleMonitoringDelivery.get("VehicleActivity").getAsJsonArray();
+
+			for (JsonElement element : vehicleActivity) {
+				JsonObject monitoredVehicleJourney = element.getAsJsonObject().get("MonitoredVehicleJourney").getAsJsonObject();
+				parseVehicleMonitoringDelivery(monitoredVehicleJourney, responseDate, results);
+			}
+		}
+		
+	}
+
 
 }
