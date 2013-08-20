@@ -113,10 +113,10 @@ public class TransitSystem implements ITransitSystem {
 			ContentResolver resolver = context.getContentResolver();
 			routeTitles = DatabaseAgent.getRouteTitles(resolver);
 
-			TransitSourceTitles busTransitRoutes = routeTitles.getMappingForSource(Schema.Routes.enumagencyidBus);
+			//TransitSourceTitles busTransitRoutes = routeTitles.getMappingForSource(Schema.Routes.enumagencyidBus);
 			
 			//defaultTransitSource = new BusTransitSource(this, busDrawables, busTransitRoutes, routeTitles);
-			defaultTransitSource = new MTABusTimeTransitSource(this, busDrawables, busTransitRoutes, routeTitles);
+			defaultTransitSource = new MTABusTimeTransitSource(this, busDrawables, routeTitles, routeTitles);
 			
 			ImmutableMap.Builder<String, TransitSource> mapBuilder = ImmutableMap.builder();
 			transitSourceMap = mapBuilder.build();
