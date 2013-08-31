@@ -2,7 +2,6 @@ package boston.Bus.Map.data;
 
 import java.io.IOException;
 import java.util.Collection;
-import java.util.List;
 import java.util.Set;
 import java.util.SortedSet;
 
@@ -10,10 +9,7 @@ import android.content.Context;
 import boston.Bus.Map.util.LogUtil;
 
 import com.google.common.base.Joiner;
-import com.google.common.collect.Collections2;
 import com.google.common.collect.ImmutableCollection;
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 
 /**
@@ -27,7 +23,7 @@ public class StopPredictionViewImpl extends StopPredictionView {
 	private final String[] routeTitles;
 	private final String stops;
 	private final String snippet;
-	private final Prediction[] predictions;
+	private final TimePrediction[] predictions;
 	private final ImmutableCollection<Alert> alerts;
 	
 	/**
@@ -42,7 +38,7 @@ public class StopPredictionViewImpl extends StopPredictionView {
 	 * @param alerts
 	 */
 	public StopPredictionViewImpl(Set<String> routeTags, Collection<StopLocation> stops,
-			SortedSet<Prediction> predictions, RouteConfig ifOnlyOneRoute,
+			SortedSet<TimePrediction> predictions, RouteConfig ifOnlyOneRoute,
 			RouteTitles routeKeysToTitles, Context context, ImmutableCollection<Alert> alerts,
 			Locations locations) {
 		Set<String> stopTitles = Sets.newTreeSet();
@@ -126,7 +122,7 @@ public class StopPredictionViewImpl extends StopPredictionView {
 	}
 
 	private static void makeSnippet(RouteConfig routeConfig,
-			Collection<Prediction> predictions,
+			Collection<TimePrediction> predictions,
 			Context context, StringBuilder ret)
 	{
 		if (predictions == null || predictions.isEmpty()) {
@@ -138,7 +134,7 @@ public class StopPredictionViewImpl extends StopPredictionView {
 
 
 
-		for (Prediction prediction : predictions)
+		for (TimePrediction prediction : predictions)
 		{
 			if (routeConfig != null && routeConfig.getRouteName().equals(prediction.getRouteName()) == false)
 			{
@@ -198,7 +194,7 @@ public class StopPredictionViewImpl extends StopPredictionView {
 	 * Do not modify this!
 	 */
 	@Override
-	public Prediction[] getPredictions() {
+	public TimePrediction[] getPredictions() {
 		return predictions;
 	}
 	

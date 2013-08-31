@@ -10,7 +10,7 @@ public abstract class StopPredictionView extends PredictionView {
 
 	public abstract String getStops();
 
-	public abstract Prediction[] getPredictions();
+	public abstract TimePrediction[] getPredictions();
 
 	private final static StopPredictionView EMPTY = new StopPredictionView() {
 		@Override
@@ -39,7 +39,7 @@ public abstract class StopPredictionView extends PredictionView {
 		}
 
 		@Override
-		public Prediction[] getPredictions() {
+		public TimePrediction[] getPredictions() {
 			return nullPredictions;
 		}
 

@@ -3,29 +3,13 @@ package boston.Bus.Map.data;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.SortedSet;
-import java.util.TreeMap;
-import java.util.concurrent.CopyOnWriteArraySet;
 
-import com.google.common.base.Function;
 import com.google.common.base.Objects;
-import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableCollection;
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Iterables;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
 
 import boston.Bus.Map.annotations.KeepSorted;
 import boston.Bus.Map.database.Schema;
 import boston.Bus.Map.math.Geometry;
-import boston.Bus.Map.transit.TransitSource;
 import boston.Bus.Map.transit.TransitSystem;
 import android.content.Context;
 import android.graphics.drawable.Drawable;
@@ -200,7 +184,7 @@ public class StopLocation implements Location
 		recentlyUpdated = true;
 	}
 	
-	public void addPrediction(Prediction prediction)
+	public void addPrediction(TimePrediction prediction)
 	{
 		if (predictions == null)
 		{
@@ -218,7 +202,7 @@ public class StopLocation implements Location
 			predictions = new Predictions();
 		}
 		
-		Prediction prediction = new Prediction(minutes, vehicleId, 
+		TimePrediction prediction = new TimePrediction(minutes, vehicleId,
 				directions.getTitleAndName(direction), route.getRouteName(),
 				route.getRouteTitle(), affectedByLayover, isDelayed, lateness);
 		predictions.addPredictionIfNotExists(prediction);

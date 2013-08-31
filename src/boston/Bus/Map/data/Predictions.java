@@ -1,21 +1,11 @@
 package boston.Bus.Map.data;
 
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.SortedSet;
-import java.util.TreeMap;
-import java.util.TreeSet;
 
-import boston.Bus.Map.annotations.KeepSorted;
-
-import com.google.common.collect.Collections2;
 import com.google.common.collect.ImmutableCollection;
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
@@ -42,7 +32,7 @@ public class Predictions
 	@IsGuardedBy("modificationLock")
 	private final List<StopLocation> allStops = Lists.newArrayList(); 
 	@IsGuardedBy("modificationLock")
-	private final SortedSet<Prediction> predictions = Sets.newTreeSet();
+	private final SortedSet<TimePrediction> predictions = Sets.newTreeSet();
 	@IsGuardedBy("modificationLock")
 	private final Set<Alert> alerts = Sets.newTreeSet();
 	
@@ -78,7 +68,7 @@ public class Predictions
 		synchronized (modificationLock) {
 			allStops.add(stopLocation);
 
-			SortedSet<Prediction> allPredictions = Sets.newTreeSet();
+			SortedSet<TimePrediction> allPredictions = Sets.newTreeSet();
 			for (StopLocation stop : allStops) {
 				if (stop.getPredictions() != null) {
 					allPredictions.addAll(stop.getPredictions().predictions);
@@ -120,9 +110,9 @@ public class Predictions
 	public void clearPredictions(String currentRouteName)
 	{
 		synchronized (modificationLock) {
-			ArrayList<Prediction> newPredictions = new ArrayList<Prediction>();
+			ArrayList<TimePrediction> newPredictions = new ArrayList<TimePrediction>();
 
-			for (Prediction prediction : predictions)
+			for (TimePrediction prediction : predictions)
 			{
 				if (prediction.getRouteName().equals(currentRouteName) == false)
 				{
@@ -135,7 +125,7 @@ public class Predictions
 		
 	}
 
-	public void addPredictionIfNotExists(Prediction prediction)
+	public void addPredictionIfNotExists(TimePrediction prediction)
 	{
 		synchronized (modificationLock) {
 			if (predictions.contains(prediction) == false)

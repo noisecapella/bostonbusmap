@@ -3,32 +3,25 @@ package boston.Bus.Map.parser;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.Collection;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
-import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import com.google.gson.stream.JsonReader;
 
 import boston.Bus.Map.data.BusLocation;
 import boston.Bus.Map.data.Direction;
 import boston.Bus.Map.data.Directions;
-import boston.Bus.Map.data.Prediction;
+import boston.Bus.Map.data.TimePrediction;
 import boston.Bus.Map.data.RouteConfig;
 import boston.Bus.Map.data.RouteTitles;
 import boston.Bus.Map.data.StopLocation;
 import boston.Bus.Map.data.SubwayTrainLocation;
-import boston.Bus.Map.data.TransitDrawables;
-import boston.Bus.Map.transit.TransitSystem;
 import boston.Bus.Map.util.LogUtil;
 
 public class HeavyRailPredictionsFeedParser {
@@ -52,10 +45,10 @@ public class HeavyRailPredictionsFeedParser {
 	}
 
 	private class PredictionStopLocationPair {
-		private final Prediction prediction;
+		private final TimePrediction prediction;
 		private final StopLocation stopLocation;
 		
-		public PredictionStopLocationPair(Prediction prediction, StopLocation stopLocation) {
+		public PredictionStopLocationPair(TimePrediction prediction, StopLocation stopLocation) {
 			this.prediction = prediction;
 			this.stopLocation = stopLocation;
 		}
@@ -158,7 +151,7 @@ public class HeavyRailPredictionsFeedParser {
 					int minutes = seconds / 60;
 					
 					// TODO: should we define lateness here?
-					Prediction predictionObj = new Prediction(minutes,
+					TimePrediction predictionObj = new TimePrediction(minutes,
 							vehicleId, dirTag, routeName, routeTitle,
 							false, false, 0);
 					PredictionStopLocationPair pair = new PredictionStopLocationPair(predictionObj, stop);
