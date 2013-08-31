@@ -1,44 +1,29 @@
 package boston.Bus.Map.main;
 
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.SortedSet;
 
 import com.google.common.base.Joiner;
-import com.google.common.collect.ImmutableBiMap;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.schneeloch.mta.R;
 
 import boston.Bus.Map.data.IPrediction;
-import boston.Bus.Map.data.Prediction;
-import boston.Bus.Map.data.RouteTitles;
 import boston.Bus.Map.data.TimeBounds;
-import boston.Bus.Map.data.TransitSourceTitles;
 import boston.Bus.Map.ui.TextViewBinder;
-import boston.Bus.Map.util.StringUtil;
-import android.app.Activity;
+
 import android.app.ListActivity;
-import android.content.Context;
-import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.text.Html;
-import android.text.SpannableString;
 import android.text.Spanned;
 import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
-import android.widget.AdapterView.OnItemClickListener;
 import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.ArrayAdapter;
-import android.widget.ListAdapter;
-import android.widget.ListView;
 import android.widget.SimpleAdapter;
 import android.widget.Spinner;
-import android.widget.SpinnerAdapter;
 import android.widget.TextView;
 
 public class MoreInfo extends ListActivity {

@@ -15,7 +15,7 @@ import com.google.common.collect.Maps;
 
 import android.util.Xml.Encoding;
 import boston.Bus.Map.data.Directions;
-import boston.Bus.Map.data.Prediction;
+import boston.Bus.Map.data.TimePrediction;
 import boston.Bus.Map.data.RouteConfig;
 import boston.Bus.Map.data.RoutePool;
 import boston.Bus.Map.data.StopLocation;
@@ -100,9 +100,9 @@ public class BusPredictionsFeedParser extends DefaultHandler
 				
 				String dirTag = getAttribute(dirTagKey, attributes);
 
-				Prediction prediction = new Prediction(minutes, vehicleId, 
+				TimePrediction prediction = new TimePrediction(minutes, vehicleId,
 						directions.getTitleAndName(dirTag), currentRoute.getRouteName(),
-						currentRoute.getRouteTitle(), affectedByLayover, isDelayed, Prediction.NULL_LATENESS);
+						currentRoute.getRouteTitle(), affectedByLayover, isDelayed, TimePrediction.NULL_LATENESS);
 				
 				currentLocation.addPrediction(prediction);
 			}

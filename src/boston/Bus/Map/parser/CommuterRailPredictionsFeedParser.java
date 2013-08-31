@@ -4,20 +4,14 @@ package boston.Bus.Map.parser;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.Reader;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 
-import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 import skylight1.opengl.files.QuickParseUtil;
 
-import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
@@ -25,18 +19,14 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
 import boston.Bus.Map.data.BusLocation;
-import boston.Bus.Map.data.CommuterRailPrediction;
 import boston.Bus.Map.data.CommuterTrainLocation;
 import boston.Bus.Map.data.Direction;
 import boston.Bus.Map.data.Directions;
-import boston.Bus.Map.data.Prediction;
+import boston.Bus.Map.data.TimePrediction;
 import boston.Bus.Map.data.PredictionStopLocationPair;
 import boston.Bus.Map.data.RouteConfig;
 import boston.Bus.Map.data.RouteTitles;
 import boston.Bus.Map.data.StopLocation;
-import boston.Bus.Map.data.TransitDrawables;
-import boston.Bus.Map.transit.CommuterRailTransitSource;
-import boston.Bus.Map.transit.TransitSystem;
 import boston.Bus.Map.util.LogUtil;
 
 public class CommuterRailPredictionsFeedParser
@@ -155,7 +145,7 @@ public class CommuterRailPredictionsFeedParser
 				if (stop != null) {
 					int seconds = (int)(scheduled - nowSeconds);
 					int minutes = seconds / 60;
-					Prediction prediction = new Prediction(minutes,
+					TimePrediction prediction = new TimePrediction(minutes,
 							trip, dirTag, routeName,
 							routeTitle, false,
 							lateness > 5*60, lateness);
