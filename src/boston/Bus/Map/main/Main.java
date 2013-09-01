@@ -314,7 +314,9 @@ public class Main extends MapActivity
         	Drawable intersection = resources.getDrawable(R.drawable.busstop_intersect_statelist);
         
         	Drawable busStop = resources.getDrawable(R.drawable.busstop_statelist);
-        
+			Drawable busStopBike = resources.getDrawable(R.drawable.busstop_bike_statelist);
+			Drawable busStopBikeUpdated = resources.getDrawable(R.drawable.busstop_bike_statelist_updated);
+
         	TransitDrawables busDrawables = new TransitDrawables(this, busStop,
         			busStopUpdated, busPicture,
         			arrow, busPicture.getIntrinsicHeight() / 5, intersection);
@@ -324,8 +326,12 @@ public class Main extends MapActivity
         	TransitDrawables commuterRailDrawables = new TransitDrawables(this, busStop,
         			busStopUpdated, rail, arrow, rail.getIntrinsicHeight() / 5, 
         			intersection);
+			TransitDrawables hubwayDrawables = new TransitDrawables(this, busStopBike,
+					busStopBikeUpdated, rail, arrow, rail.getIntrinsicHeight() / 5,
+					intersection);
         	
-        	transitSystem.setDefaultTransitSource(busDrawables, subwayDrawables, commuterRailDrawables, this);
+        	transitSystem.setDefaultTransitSource(busDrawables, subwayDrawables, commuterRailDrawables, hubwayDrawables,
+					this);
         }
         SpinnerAdapter modeSpinnerAdapter = makeModeSpinner(); 
 

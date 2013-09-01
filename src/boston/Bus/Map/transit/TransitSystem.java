@@ -106,7 +106,7 @@ public class TransitSystem implements ITransitSystem {
 	 */
 	@Override
 	public void setDefaultTransitSource(TransitDrawables busDrawables, TransitDrawables subwayDrawables, 
-			TransitDrawables commuterRailDrawables, Context context)
+			TransitDrawables commuterRailDrawables, TransitDrawables hubwayDrawables, Context context)
 	{
 		if (defaultTransitSource == null)
 		{
@@ -116,6 +116,7 @@ public class TransitSystem implements ITransitSystem {
 			TransitSourceTitles busTransitRoutes = routeTitles.getMappingForSource(Schema.Routes.enumagencyidBus);
 			TransitSourceTitles subwayTransitRoutes = routeTitles.getMappingForSource(Schema.Routes.enumagencyidSubway);
 			TransitSourceTitles commuterRailTransitRoutes = routeTitles.getMappingForSource(Schema.Routes.enumagencyidCommuterRail);
+			TransitSourceTitles hubwayTransitRoutes = routeTitles.getMappingForSource(Schema.Routes.enumagencyidHubway);
 			
 			defaultTransitSource = new BusTransitSource(this, busDrawables, busTransitRoutes, routeTitles);
 			
@@ -132,9 +133,17 @@ public class TransitSystem implements ITransitSystem {
 			{
 				mapBuilder.put(route, commuterRailTransitSource);
 			}
+
+			HubwayTransitSource hubwayTransitSource = new HubwayTransitSource(hubwayDrawables, hubwayTransitRoutes,
+					this);
+
+			for (String route : hubwayTransitSource.getRouteTitles().routeTags()) {
+				mapBuilder.put(route, hubwayTransitSource);
+			}
 			transitSourceMap = mapBuilder.build();
 
-			transitSources = ImmutableList.of(commuterRailTransitSource, subwayTransitSource, defaultTransitSource);
+			transitSources = ImmutableList.of(commuterRailTransitSource, subwayTransitSource, hubwayTransitSource,
+					defaultTransitSource);
 		
 		}
 		else
