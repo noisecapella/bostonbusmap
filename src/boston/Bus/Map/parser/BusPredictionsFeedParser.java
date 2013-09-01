@@ -100,10 +100,10 @@ public class BusPredictionsFeedParser extends DefaultHandler
 				
 				String dirTag = getAttribute(dirTagKey, attributes);
 
-				TimePrediction prediction = new TimePrediction(minutes, vehicleId,
-						directions.getTitleAndName(dirTag), currentRoute.getRouteName(),
-						currentRoute.getRouteTitle(), affectedByLayover, isDelayed, TimePrediction.NULL_LATENESS);
-				
+                TimePrediction prediction = new TimePrediction(minutes, vehicleId,
+                        directions.getTitleAndName(dirTag), currentRoute.getRouteName(),
+                        currentRoute.getRouteTitle(), affectedByLayover, isDelayed,
+                        TimePrediction.NULL_LATENESS);
 				currentLocation.addPrediction(prediction);
 			}
 		}

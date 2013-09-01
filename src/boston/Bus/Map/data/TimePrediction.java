@@ -109,21 +109,21 @@ public class TimePrediction implements IPrediction
 	@Override
 	public int compareTo(IPrediction anotherObj)
 	{
-		if (anotherObj instanceof TimePrediction) {
-			TimePrediction another = (TimePrediction)anotherObj;
-			return ComparisonChain.start().compare(arrivalTimeMillis, another.arrivalTimeMillis)
-					.compare(vehicleId, another.vehicleId)
-					.compare(direction, another.direction)
-					.compare(routeName, another.routeName)
-					.compareFalseFirst(affectedByLayover, another.affectedByLayover)
-					.compareFalseFirst(isDelayed, another.isDelayed)
-					.compare(lateness, another.lateness)
-					.result();
-		}
-		else
-		{
-			throw new RuntimeException("Cannot compare distance prediction with time prediction");
-		}
+        if (anotherObj instanceof TimePrediction) {
+            TimePrediction another = (TimePrediction)anotherObj;
+		    return ComparisonChain.start().compare(arrivalTimeMillis, another.arrivalTimeMillis)
+				.compare(vehicleId, another.vehicleId)
+				.compare(direction, another.direction)
+				.compare(routeName, another.routeName)
+				.compareFalseFirst(affectedByLayover, another.affectedByLayover)
+				.compareFalseFirst(isDelayed, another.isDelayed)
+				.compare(lateness, another.lateness)
+				.result();
+        }
+        else
+        {
+            throw new RuntimeException("Cannot compare distance prediction with time prediction");
+        }
 	}
 
 	@Override
@@ -237,8 +237,8 @@ public class TimePrediction implements IPrediction
 		dest.writeInt(data ? 1 : 0);
 	}
 
-	@Override
-	public boolean isInvalid() {
-		return getMinutes() < 0;
-	}
+    @Override
+    public boolean isInvalid() {
+        return getMinutes() < 0;
+    }
 }

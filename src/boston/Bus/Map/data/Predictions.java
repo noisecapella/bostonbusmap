@@ -1,21 +1,12 @@
 package boston.Bus.Map.data;
 
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.SortedSet;
-import java.util.TreeMap;
-import java.util.TreeSet;
 
-import boston.Bus.Map.annotations.KeepSorted;
-
-import com.google.common.collect.Collections2;
 import com.google.common.collect.ImmutableCollection;
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
@@ -43,7 +34,7 @@ public class Predictions
 	private final List<StopLocation> allStops = Lists.newArrayList(); 
 	@IsGuardedBy("modificationLock")
 	private final SortedSet<IPrediction> predictions = Sets.newTreeSet();
-	
+
 	private final Object modificationLock = new Object();
 	
 	public void makeSnippetAndTitle(RouteConfig routeConfig,
@@ -56,10 +47,10 @@ public class Predictions
 			
 			allStops.clear();
 			allStops.add(stop);
-			
+
 			Set<Alert> alertSet = Sets.newTreeSet(alerts);
 			ImmutableList<Alert> alertImmutableSet = ImmutableList.copyOf(alertSet);
-			
+
 			predictionView = new StopPredictionViewImpl(this.routes, allStops,
 					predictions,
 					routeConfig, routeKeysToTitles, context, alertImmutableSet, locations);
@@ -113,7 +104,7 @@ public class Predictions
 
 	/**
 	 * Clear all predictions for a single route
-	 * @param routeName
+	 * @param currentRouteName
 	 */
 	public void clearPredictions(String currentRouteName)
 	{

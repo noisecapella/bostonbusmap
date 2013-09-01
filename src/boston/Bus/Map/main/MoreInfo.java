@@ -63,7 +63,7 @@ public class MoreInfo extends ListActivity {
 		
 		
 		{
-			Parcelable[] parcelables = (Parcelable[])extras.getParcelableArray(predictionsKey);
+			Parcelable[] parcelables = extras.getParcelableArray(predictionsKey);
 			predictions = new IPrediction[parcelables.length];
 			for (int i = 0; i < predictions.length; i++)
 			{
@@ -72,7 +72,7 @@ public class MoreInfo extends ListActivity {
 		}
 		
 		{
-			Parcelable[] boundParcelables = (Parcelable[])extras.getParcelableArray(boundKey);
+			Parcelable[] boundParcelables = extras.getParcelableArray(boundKey);
 			bounds = new TimeBounds[boundParcelables.length];
 			for (int i = 0; i < bounds.length; i++) {
 				bounds[i] = (TimeBounds)boundParcelables[i];

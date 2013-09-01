@@ -9,6 +9,9 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
+import boston.Bus.Map.data.IPrediction;
+import boston.Bus.Map.data.PredictionStopLocationPair;
+import boston.Bus.Map.data.TimePrediction;
 import skylight1.opengl.files.QuickParseUtil;
 
 import com.google.common.collect.Lists;
@@ -22,8 +25,6 @@ import boston.Bus.Map.data.BusLocation;
 import boston.Bus.Map.data.CommuterTrainLocation;
 import boston.Bus.Map.data.Direction;
 import boston.Bus.Map.data.Directions;
-import boston.Bus.Map.data.TimePrediction;
-import boston.Bus.Map.data.PredictionStopLocationPair;
 import boston.Bus.Map.data.RouteConfig;
 import boston.Bus.Map.data.RouteTitles;
 import boston.Bus.Map.data.StopLocation;
