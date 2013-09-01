@@ -30,11 +30,11 @@ fi
 dir_hdpi="$directory"
 dir_mdpi="$directory/../drawable-mdpi"
 
-convert "$dir_hdpi/$filename_without_ext.$extension" +level-colors 0x008000, "$dir_hdpi/${filename_without_ext}_updated.$extension"
-convert "$dir_hdpi/$filename_without_ext.$extension" +level-colors blue, "$dir_hdpi/${filename_without_ext}_selected.$extension"
+convert "$dir_hdpi/$filename_without_ext.$extension" +level-colors '#008000', "$dir_hdpi/${filename_without_ext}_updated.$extension"
+convert "$dir_hdpi/$filename_without_ext.$extension" +level-colors '#399cb5', "$dir_hdpi/${filename_without_ext}_selected.$extension"
 
-convert "$dir_hdpi/$filename_without_ext.$extension" +level-colors 0x008000, -resize 75% "$dir_mdpi/${filename_without_ext}_selected.$extension"
-convert "$dir_hdpi/$filename_without_ext.$extension" +level-colors blue, -resize 75% "$dir_mdpi/${filename_without_ext}_selected.$extension"
+convert "$dir_hdpi/$filename_without_ext.$extension" +level-colors '#008000', -resize 75% "$dir_mdpi/${filename_without_ext}_selected.$extension"
+convert "$dir_hdpi/$filename_without_ext.$extension" +level-colors '#399cb5', -resize 75% "$dir_mdpi/${filename_without_ext}_selected.$extension"
 
 cat  > "$dir_hdpi/${filename_without_ext}_statelist.xml" <<EOF
 <?xml version="1.0" encoding="utf-8"?>
