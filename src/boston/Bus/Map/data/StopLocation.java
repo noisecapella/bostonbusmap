@@ -178,7 +178,7 @@ public class StopLocation implements Location
 	{
 		if (predictions != null)
 		{
-			predictions.clearPredictions(routeConfig.getRouteName());
+			predictions.clearPredictions(routeConfig != null ? routeConfig.getRouteName() : null);
 		}
 		
 		recentlyUpdated = true;

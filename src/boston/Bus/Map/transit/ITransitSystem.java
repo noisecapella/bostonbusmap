@@ -23,7 +23,9 @@ public interface ITransitSystem {
 
 	public abstract void setDefaultTransitSource(TransitDrawables busDrawables,
 			TransitDrawables subwayDrawables,
-			TransitDrawables commuterRailDrawables, Context context);
+			TransitDrawables commuterRailDrawables,
+			TransitDrawables hubwayDrawables,
+			Context context);
 
 	public abstract TransitSource getDefaultTransitSource();
 

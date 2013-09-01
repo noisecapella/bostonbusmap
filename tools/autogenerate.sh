@@ -7,14 +7,14 @@ echo "Generating schema..."
 python generate_schema.py > ../src/boston/Bus/Map/database/Schema.java
 echo "Create tables..."
 python create_tables.py > sql.dump
+echo "Parsing Hubway data..."
+python hubway_tosql.py 0 >> sql.dump
 echo "Parsing commuter rail data..."
-python commuterrail_tosql.py "$GTFS_DIR" 0 StationOrder.csv >> sql.dump
+python commuterrail_tosql.py "$GTFS_DIR" 1 StationOrder.csv >> sql.dump
 echo "Parsing subway data..."
-python heavyrail_tosql.py "$GTFS_DIR" 12 >> sql.dump
+python heavyrail_tosql.py "$GTFS_DIR" 13 >> sql.dump
 echo "Parsing bus data..."
-python tosql.py routeconfig.xml routeList 15 >> sql.dump
-echo "Calculating bound times..."
-python calculate_times.py "$GTFS_DIR"/stop_times.txt "$GTFS_DIR"/trips.txt "$GTFS_DIR"/calendar.txt >> sql.dump
+python tosql.py routeconfig.xml routeList 16 >> sql.dump
 echo "Dumping into sqlite..."
 rm new.db* || true
 sqlite3 new.db < sql.dump
