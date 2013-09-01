@@ -12,6 +12,7 @@ import javax.xml.parsers.ParserConfigurationException;
 
 import boston.Bus.Map.data.BusLocation;
 import boston.Bus.Map.data.Directions;
+import boston.Bus.Map.data.HubwayStopLocation;
 import boston.Bus.Map.data.IAlerts;
 import boston.Bus.Map.data.Location;
 import boston.Bus.Map.data.Locations;
@@ -22,8 +23,10 @@ import boston.Bus.Map.data.Selection;
 import boston.Bus.Map.data.StopLocation;
 import boston.Bus.Map.data.TransitDrawables;
 import boston.Bus.Map.data.TransitSourceTitles;
+import boston.Bus.Map.database.Schema;
 import boston.Bus.Map.parser.HubwayParser;
 import boston.Bus.Map.util.DownloadHelper;
+import boston.Bus.Map.util.SearchHelper;
 
 /**
  * Created by schneg on 9/1/13.
@@ -94,32 +97,35 @@ public class HubwayTransitSource implements TransitSource {
 
 	@Override
 	public String searchForRoute(String indexingQuery, String lowercaseQuery) {
-		return null;
+		return SearchHelper.naiveSearch(indexingQuery, lowercaseQuery, routeTitles);
 	}
 
 	@Override
 	public TransitDrawables getDrawables() {
-		return null;
+		return drawables;
 	}
 
 	@Override
 	public StopLocation createStop(float latitude, float longitude, String stopTag, String stopTitle, String route) {
-		return null;
+		HubwayStopLocation stop = new HubwayStopLocation.HubwayBuilder(latitude,
+				longitude, stopTag, stopTitle).build();
+		stop.addRoute(route);
+		return stop;
 	}
 
 	@Override
 	public TransitSourceTitles getRouteTitles() {
-		return null;
+		return routeTitles;
 	}
 
 	@Override
 	public int getLoadOrder() {
-		return 0;
+		return 4;
 	}
 
 	@Override
 	public int getTransitSourceId() {
-		return 0;
+		return Schema.Routes.enumagencyidHubway;
 	}
 
 	@Override
@@ -129,11 +135,11 @@ public class HubwayTransitSource implements TransitSource {
 
 	@Override
 	public IAlerts getAlerts() {
-		return null;
+		return transitSystem.getAlerts();
 	}
 
 	@Override
 	public String getDescription() {
-		return null;
+		return "Hubway";
 	}
 }
