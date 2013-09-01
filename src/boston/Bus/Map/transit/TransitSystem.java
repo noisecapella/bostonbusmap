@@ -297,12 +297,12 @@ public class TransitSystem implements ITransitSystem {
 	 * @param routeMapping
 	 */
 	public void startObtainAlerts(Context context, Directions directions,
-								  RoutePool routePool) {
+								  RoutePool routePool, ConcurrentHashMap<String, BusLocation> busMapping) {
 		if (alertsFuture == null) {
 			// this runs the alerts code in the background,
 			// providing empty alerts until the data is ready
 			
-			alertsFuture = new AlertsFuture(context, new MbtaAlertsParser(this, directions, routePool));
+			alertsFuture = new AlertsFuture(context, new MbtaAlertsParser(this, directions, routePool, busMapping));
 			
 		}
 	}
