@@ -162,7 +162,7 @@ public abstract class SIRIParser {
 		float latitude = vehicleLocation.get("Latitude").getAsFloat();
 		float longitude = vehicleLocation.get("Longitude").getAsFloat();
 
-		String routeName = monitoredVehicleJourney.get("PublishedLineName").getAsString();
+		String routeName = truncateRouteId(monitoredVehicleJourney.get("LineRef").getAsString());
 		String dirTag = monitoredVehicleJourney.get("DestinationName").getAsString();
 		if (!directions.hasDirection(dirTag)) {
 			Direction direction = new Direction(dirTag, "", routeName, true);
@@ -170,7 +170,7 @@ public abstract class SIRIParser {
 		}
 
 		if (routeTitles.hasRoute(routeName)) {
-			String routeTitle = routeTitles.getKey(routeName);
+			String routeTitle = routeTitles.getTitle(routeName);
 
 			BusLocation location = new BusLocation(latitude, longitude,
 					vehicleId, lastFeedUpdateInMillis, lastUpdateInMillis, headingString,
@@ -178,21 +178,7 @@ public abstract class SIRIParser {
 			results.busLocations.add(location);
 
 			String direction = monitoredVehicleJourney.get("DestinationName").getAsString();
-			if (monitoredVehicleJourney.has("OnwardCalls")) {
-				JsonObject onwardCalls = monitoredVehicleJourney.get("OnwardCalls").getAsJsonObject();
-
-				if (onwardCalls.has("OnwardCall")) {
-					JsonArray onwardCallArray = onwardCalls.get("OnwardCall").getAsJsonArray();
-					for (JsonElement onwardCallElement : onwardCallArray) {
-						JsonObject onwardCall = onwardCallElement.getAsJsonObject();
-						parseStopInformation(onwardCall, routeName, routeTitle, vehicleId, 
-								direction, results.pairs);
-
-					}
-				}
-				// parse stop information
-			}
-			else if (monitoredVehicleJourney.has("MonitoredCall")) {
+			if (monitoredVehicleJourney.has("MonitoredCall")) {
 				// parse stop information
 				JsonObject monitoredCall = monitoredVehicleJourney.get("MonitoredCall").getAsJsonObject();
 
