@@ -9,6 +9,8 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
+import boston.Bus.Map.data.IPrediction;
+import boston.Bus.Map.data.PredictionStopLocationPair;
 import boston.Bus.Map.data.TimePrediction;
 import skylight1.opengl.files.QuickParseUtil;
 
@@ -57,16 +59,6 @@ public class CommuterRailPredictionsFeedParser
 			{
 				stopLocation.clearPredictions(routeConfig);
 			}
-		}
-	}
-
-	private class PredictionStopLocationPair {
-		private final TimePrediction prediction;
-		private final StopLocation stopLocation;
-		
-		public PredictionStopLocationPair(TimePrediction prediction, StopLocation stopLocation) {
-			this.prediction = prediction;
-			this.stopLocation = stopLocation;
 		}
 	}
 

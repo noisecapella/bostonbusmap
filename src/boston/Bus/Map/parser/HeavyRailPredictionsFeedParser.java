@@ -17,6 +17,7 @@ import com.google.gson.JsonParser;
 import boston.Bus.Map.data.BusLocation;
 import boston.Bus.Map.data.Direction;
 import boston.Bus.Map.data.Directions;
+import boston.Bus.Map.data.PredictionStopLocationPair;
 import boston.Bus.Map.data.TimePrediction;
 import boston.Bus.Map.data.RouteConfig;
 import boston.Bus.Map.data.RouteTitles;
@@ -44,16 +45,6 @@ public class HeavyRailPredictionsFeedParser {
 		vehiclesToRemove = Sets.newHashSet(busMapping.keySet());
 	}
 
-	private class PredictionStopLocationPair {
-		private final TimePrediction prediction;
-		private final StopLocation stopLocation;
-		
-		public PredictionStopLocationPair(TimePrediction prediction, StopLocation stopLocation) {
-			this.prediction = prediction;
-			this.stopLocation = stopLocation;
-		}
-	}
-	
 
 	/**
 	 * When this is done old vehicles should be removed from busMapping,

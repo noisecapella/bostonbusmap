@@ -184,7 +184,7 @@ public class StopLocation implements Location
 		recentlyUpdated = true;
 	}
 	
-	public void addPrediction(TimePrediction prediction)
+	public void addPrediction(IPrediction prediction)
 	{
 		if (predictions == null)
 		{
@@ -194,19 +194,6 @@ public class StopLocation implements Location
 		predictions.addPredictionIfNotExists(prediction);
 	}
 	
-	public void addPrediction(int minutes, long epochTime, String vehicleId,
-			String direction, RouteConfig route, Directions directions, boolean affectedByLayover, boolean isDelayed, int lateness)
-	{
-		if (predictions == null)
-		{
-			predictions = new Predictions();
-		}
-		
-		TimePrediction prediction = new TimePrediction(minutes, vehicleId,
-				directions.getTitleAndName(direction), route.getRouteName(),
-				route.getRouteTitle(), affectedByLayover, isDelayed, lateness);
-		predictions.addPredictionIfNotExists(prediction);
-	}
 
 	public String getTitle()
 	{

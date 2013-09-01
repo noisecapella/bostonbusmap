@@ -23,7 +23,7 @@ public class StopPredictionViewImpl extends StopPredictionView {
 	private final String[] routeTitles;
 	private final String stops;
 	private final String snippet;
-	private final TimePrediction[] predictions;
+	private final IPrediction[] predictions;
 	private final ImmutableCollection<Alert> alerts;
 	
 	/**
@@ -38,7 +38,7 @@ public class StopPredictionViewImpl extends StopPredictionView {
 	 * @param alerts
 	 */
 	public StopPredictionViewImpl(Set<String> routeTags, Collection<StopLocation> stops,
-			SortedSet<TimePrediction> predictions, RouteConfig ifOnlyOneRoute,
+			SortedSet<IPrediction> predictions, RouteConfig ifOnlyOneRoute,
 			RouteTitles routeKeysToTitles, Context context, ImmutableCollection<Alert> alerts,
 			Locations locations) {
 		Set<String> stopTitles = Sets.newTreeSet();
@@ -122,7 +122,7 @@ public class StopPredictionViewImpl extends StopPredictionView {
 	}
 
 	private static void makeSnippet(RouteConfig routeConfig,
-			Collection<TimePrediction> predictions,
+			Collection<IPrediction> predictions,
 			Context context, StringBuilder ret)
 	{
 		if (predictions == null || predictions.isEmpty()) {
@@ -134,14 +134,14 @@ public class StopPredictionViewImpl extends StopPredictionView {
 
 
 
-		for (TimePrediction prediction : predictions)
+		for (IPrediction prediction : predictions)
 		{
 			if (routeConfig != null && routeConfig.getRouteName().equals(prediction.getRouteName()) == false)
 			{
 				continue;
 			}
 
-			if (prediction.getMinutes() < 0)
+			if (prediction.isInvalid())
 			{
 				continue;
 			}
@@ -194,7 +194,7 @@ public class StopPredictionViewImpl extends StopPredictionView {
 	 * Do not modify this!
 	 */
 	@Override
-	public TimePrediction[] getPredictions() {
+	public IPrediction[] getPredictions() {
 		return predictions;
 	}
 	

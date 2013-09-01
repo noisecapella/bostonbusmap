@@ -9,7 +9,7 @@ import com.google.common.collect.Lists;
 
 import boston.Bus.Map.R;
 
-import boston.Bus.Map.data.TimePrediction;
+import boston.Bus.Map.data.IPrediction;
 import boston.Bus.Map.data.TimeBounds;
 import boston.Bus.Map.ui.TextViewBinder;
 
@@ -40,7 +40,7 @@ public class MoreInfo extends ListActivity {
 	
 	public static final String boundKey = "bounds";
 	
-	private TimePrediction[] predictions;
+	private IPrediction[] predictions;
 	private TextView title1;
 	private TextView title2;
 	private Spinner routeSpinner;
@@ -64,16 +64,16 @@ public class MoreInfo extends ListActivity {
 		
 		
 		{
-			Parcelable[] parcelables = (Parcelable[])extras.getParcelableArray(predictionsKey);
-			predictions = new TimePrediction[parcelables.length];
+			Parcelable[] parcelables = extras.getParcelableArray(predictionsKey);
+			predictions = new IPrediction[parcelables.length];
 			for (int i = 0; i < predictions.length; i++)
 			{
-				predictions[i] = (TimePrediction)parcelables[i];
+				predictions[i] = (IPrediction)parcelables[i];
 			}
 		}
 		
 		{
-			Parcelable[] boundParcelables = (Parcelable[])extras.getParcelableArray(boundKey);
+			Parcelable[] boundParcelables = extras.getParcelableArray(boundKey);
 			bounds = new TimeBounds[boundParcelables.length];
 			for (int i = 0; i < bounds.length; i++) {
 				bounds[i] = (TimeBounds)boundParcelables[i];
@@ -204,9 +204,9 @@ public class MoreInfo extends ListActivity {
 		List<Map<String, Spanned>> data = Lists.newArrayList();
 		if (predictions != null)
 		{
-			for (TimePrediction prediction : predictions)
+			for (IPrediction prediction : predictions)
 			{
-				if (prediction != null && prediction.getMinutes() >= 0)
+				if (prediction != null && !prediction.isInvalid())
 				{
 					//if a route is given, filter based on it, else show all routes
 					if (routeTitle == null || routeTitle.equals(prediction.getRouteTitle()))
