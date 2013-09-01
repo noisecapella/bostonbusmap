@@ -50,5 +50,19 @@ cat  > "$dir_hdpi/${filename_without_ext}_statelist.xml" <<EOF
 EOF
 cp "$dir_hdpi/${filename_without_ext}_statelist.xml" "$dir_mdpi"
 
+cat > "$dir_hdpi/${filename_without_ext}_statelist_updated.xml" <<EOF
+<?xml version="1.0" encoding="utf-8"?>
+
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+  android:state_focused="true"
+  android:drawable="@drawable/${filename_without_ext}_selected" />
+    <item  android:drawable="@drawable/${filename_without_ext}_updated" />
+</selector>
+
+EOF
+cp "$dir_hdpi/${filename_without_ext}_statelist_updated.xml" "$dir_mdpi"
+
 echo "Done!"
 
