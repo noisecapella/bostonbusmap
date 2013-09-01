@@ -6,6 +6,7 @@ import java.util.Set;
 import java.util.SortedSet;
 
 import com.google.common.collect.ImmutableCollection;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
@@ -46,10 +47,13 @@ public class Predictions
 			
 			allStops.clear();
 			allStops.add(stop);
-			
+
+			Set<Alert> alertSet = Sets.newTreeSet(alerts);
+			ImmutableList<Alert> alertImmutableSet = ImmutableList.copyOf(alertSet);
+
 			predictionView = new StopPredictionViewImpl(this.routes, allStops,
 					predictions,
-					routeConfig, routeKeysToTitles, context, alerts, locations);
+					routeConfig, routeKeysToTitles, context, alertImmutableSet, locations);
 		}
 	}
 	
