@@ -117,12 +117,14 @@ public class SIRITransitSource implements TransitSource {
 			for (Location location : locations) {
 				if (location instanceof StopLocation) {
 					StopLocation stopLocation = (StopLocation)location;
-					String urlString = getPredictionsUrl(stopLocation.getStopTag());
-					DownloadHelper downloadHelper = new DownloadHelper(urlString);
-					downloadHelpers.add(downloadHelper);
-					downloadHelper.connect();
-					
-					pairs.add(new StopLocationWithDownloadHelper(stopLocation, downloadHelper));
+					if (!stopLocation.getStopTag().startsWith("citibike_")) {
+						String urlString = getPredictionsUrl(stopLocation.getStopTag());
+						DownloadHelper downloadHelper = new DownloadHelper(urlString);
+						downloadHelpers.add(downloadHelper);
+						downloadHelper.connect();
+
+						pairs.add(new StopLocationWithDownloadHelper(stopLocation, downloadHelper));
+					}
 				}
 			}
 			break;
