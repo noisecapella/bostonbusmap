@@ -293,13 +293,16 @@ public class TransitSystem implements ITransitSystem {
 	 * This downloads alerts in a background thread. If alerts are
 	 * not available when getAlerts() is called, empty alerts are returned
 	 * @param context
+	 * @param directions
+	 * @param routeMapping
 	 */
-	public void startObtainAlerts(Context context) {
+	public void startObtainAlerts(Context context, Directions directions,
+								  RoutePool routePool) {
 		if (alertsFuture == null) {
 			// this runs the alerts code in the background,
 			// providing empty alerts until the data is ready
 			
-			alertsFuture = new AlertsFuture(context, new MbtaAlertsParser(this));
+			alertsFuture = new AlertsFuture(context, new MbtaAlertsParser(this, directions, routePool));
 			
 		}
 	}
