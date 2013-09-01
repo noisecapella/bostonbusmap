@@ -28,7 +28,7 @@ public class StopLocation implements Location
 	private Predictions predictions;
 	
 	private boolean isFavorite;
-	private boolean recentlyUpdated;
+	protected boolean recentlyUpdated;
 
 	
 	/**
