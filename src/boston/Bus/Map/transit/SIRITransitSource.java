@@ -48,7 +48,7 @@ public class SIRITransitSource implements TransitSource {
 	private static final String KEY = "b0a3f670-0a8b-43e7-8706-7a4ec985f1ff";
 
 	public SIRITransitSource(TransitSystem transitSystem,
-			TransitDrawables drawables, String string,
+			TransitDrawables drawables, String agency,
 			TransitSourceTitles routeTitles, RouteTitles allRouteTitles) {
 		this.transitSystem = transitSystem;
 		this.drawables = drawables;
@@ -169,8 +169,8 @@ public class SIRITransitSource implements TransitSource {
 					}
 				}
 				data.close();
-				break;
 			}
+			break;
 		}
 		}
 	}
