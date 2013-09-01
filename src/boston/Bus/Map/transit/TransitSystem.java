@@ -2,10 +2,6 @@ package boston.Bus.Map.transit;
 
 import java.io.IOException;
 import java.text.DateFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
 import java.util.TimeZone;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -13,22 +9,17 @@ import javax.xml.parsers.ParserConfigurationException;
 
 import org.xml.sax.SAXException;
 
-import com.google.common.collect.ImmutableBiMap;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 
-import android.R.string;
 import android.content.ContentResolver;
 import android.content.Context;
-import android.graphics.drawable.Drawable;
 import android.util.Log;
-import boston.Bus.Map.data.Alerts;
+
 import boston.Bus.Map.data.AlertsFuture;
 import boston.Bus.Map.data.BusLocation;
 import boston.Bus.Map.data.Directions;
 import boston.Bus.Map.data.IAlerts;
-import boston.Bus.Map.data.IsGuardedBy;
-import boston.Bus.Map.data.Location;
 import boston.Bus.Map.data.Locations;
 import boston.Bus.Map.data.RouteConfig;
 import boston.Bus.Map.data.RoutePool;
@@ -36,11 +27,7 @@ import boston.Bus.Map.data.RouteTitles;
 import boston.Bus.Map.data.Selection;
 import boston.Bus.Map.data.StopLocation;
 import boston.Bus.Map.data.TransitDrawables;
-import boston.Bus.Map.data.TransitSourceTitles;
-import boston.Bus.Map.database.Schema;
-import boston.Bus.Map.main.Main;
 import boston.Bus.Map.parser.MTAAlertsParser;
-import boston.Bus.Map.parser.MbtaAlertsParser;
 import boston.Bus.Map.provider.DatabaseContentProvider.DatabaseAgent;
 import boston.Bus.Map.util.Constants;
 /**
@@ -179,8 +166,6 @@ public class TransitSystem implements ITransitSystem {
 	private static final TimeZone bostonTimeZone = TimeZone.getTimeZone("America/New_York");
 	private static final boolean defaultAllRoutesBlue = false;
 
-	public static final String ALERTS_URL = "http://www.mta.info/status/serviceStatus.txt";
-	
 	private static DateFormat defaultTimeFormat;
 	private static DateFormat defaultDateFormat;
 		

@@ -21,9 +21,11 @@ import boston.Bus.Map.data.RoutePool;
 import boston.Bus.Map.data.RouteTitles;
 import boston.Bus.Map.data.SIRIVehicleParsingResults;
 import boston.Bus.Map.data.TransitSourceTitles;
+import boston.Bus.Map.transit.SIRITransitSource;
 import boston.Bus.Map.transit.TransitSource;
 import boston.Bus.Map.transit.TransitSystem;
 import boston.Bus.Map.util.DownloadHelper;
+import boston.Bus.Map.util.StringUtil;
 
 /**
  * Created by schneg on 8/31/13.
@@ -46,7 +48,7 @@ public class MTAAlertsParser implements IAlertsParser
 
 	@Override
 	public IAlerts obtainAlerts(Context context) throws IOException {
-		String alertsUrl = TransitSystem.ALERTS_URL;
+		String alertsUrl = getAlertsUrl();
 		DownloadHelper downloadHelper = new DownloadHelper(alertsUrl);
 		downloadHelper.connect();
 		InputStream data = downloadHelper.getResponseData();
@@ -61,5 +63,10 @@ public class MTAAlertsParser implements IAlertsParser
 		data.close();
 
 		return results.alerts;
+	}
+
+	private String getAlertsUrl() {
+		String ret = "http://bustime.mta.info/api/siri/vehicle-monitoring.json?key=" + SIRITransitSource.KEY;
+		return ret;
 	}
 }

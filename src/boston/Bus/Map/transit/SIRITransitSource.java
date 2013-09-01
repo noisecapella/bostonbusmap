@@ -45,7 +45,7 @@ public class SIRITransitSource implements TransitSource {
 	private final TransitSourceTitles routeTitles;
 	private final RouteTitles allRouteTitles;
 
-	private static final String KEY = "b0a3f670-0a8b-43e7-8706-7a4ec985f1ff";
+	public static final String KEY = "b0a3f670-0a8b-43e7-8706-7a4ec985f1ff";
 
 	public SIRITransitSource(TransitSystem transitSystem,
 			TransitDrawables drawables, String agency,
