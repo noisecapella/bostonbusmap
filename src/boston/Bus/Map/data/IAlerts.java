@@ -15,4 +15,5 @@ public interface IAlerts {
 	public abstract ImmutableCollection<Alert> getAlertsByRouteSetAndStop(
 			Collection<String> routes, String tag, int routeType);
 
+	boolean isEmpty();
 }

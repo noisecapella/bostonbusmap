@@ -78,6 +78,11 @@ public class AlertsFuture
 				Collection<String> routes, String tag, int routeType) {
 			return ImmutableList.of();
 		}
-		
+
+		@Override
+		public boolean isEmpty() {
+			return true;
+		}
+
 	}
 }

@@ -84,17 +84,27 @@ public class SIRITransitSource implements TransitSource {
 		switch (mode) {
 		case Selection.VEHICLE_LOCATIONS_ALL:
 		{
-			String urlString = getVehicleLocationsUrl(null);
-			downloadHelpers.add(new DownloadHelper(urlString));
+			if (transitSystem.getAlerts().isEmpty() == false) {
+				// the alerts feed is currently the same as the vehicle locations feed
+				// so we don't want to pull it twice
+				String urlString = getVehicleLocationsUrl(null);
+				DownloadHelper downloadHelper = new DownloadHelper(urlString);
+				downloadHelpers.add(downloadHelper);
+				downloadHelper.connect();
+			}
 			pairs = ImmutableList.of();
 			break;
 		}
 		case Selection.VEHICLE_LOCATIONS_ONE:
 		{
-			String urlString = getVehicleLocationsUrl(null);
-			DownloadHelper downloadHelper = new DownloadHelper(urlString);
-			downloadHelpers.add(downloadHelper);
-			downloadHelper.connect();
+			if (transitSystem.getAlerts().isEmpty() == false) {
+				// the alerts feed is currently the same as the vehicle locations feed
+				// so we don't want to pull it twice
+				String urlString = getVehicleLocationsUrl(null);
+				DownloadHelper downloadHelper = new DownloadHelper(urlString);
+				downloadHelpers.add(downloadHelper);
+				downloadHelper.connect();
+			}
 			pairs = ImmutableList.of();
 			break;
 		}
@@ -142,7 +152,7 @@ public class SIRITransitSource implements TransitSource {
 				InputStream data = helper.getResponseData();
 				SIRIVehicleLocationsFeedParser parser = new SIRIVehicleLocationsFeedParser(
 						routeConfig, directions, allRouteTitles, routePool);
-				parser.runParse(new InputStreamReader(data), transitSystem, busMapping);
+				parser.runParse(new InputStreamReader(data), busMapping);
 				//get the time that this information is valid until
 				locationsObj.setLastUpdateTime(parser.getLastUpdateTime());
 
@@ -234,7 +244,7 @@ public class SIRITransitSource implements TransitSource {
 
 	@Override
 	public IAlerts getAlerts() {
-		return AlertsFuture.EMPTY;
+		return transitSystem.getAlerts();
 	}
 
 	@Override

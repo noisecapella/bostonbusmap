@@ -39,6 +39,7 @@ import boston.Bus.Map.data.TransitDrawables;
 import boston.Bus.Map.data.TransitSourceTitles;
 import boston.Bus.Map.database.Schema;
 import boston.Bus.Map.main.Main;
+import boston.Bus.Map.parser.MTAAlertsParser;
 import boston.Bus.Map.parser.MbtaAlertsParser;
 import boston.Bus.Map.provider.DatabaseContentProvider.DatabaseAgent;
 import boston.Bus.Map.util.Constants;
@@ -59,10 +60,10 @@ public class TransitSystem implements ITransitSystem {
 	private RouteTitles routeTitles;
 	
 	/**
-	 * This is null if alerts haven't been set yet
+	 * This will be null when alerts haven't been read yet
 	 */
-	private IAlerts alerts;
-	
+	private AlertsFuture alertsFuture;
+
 	public static double getCenterLat() {
 		return nycLatitude;
 	}
@@ -178,7 +179,7 @@ public class TransitSystem implements ITransitSystem {
 	private static final TimeZone bostonTimeZone = TimeZone.getTimeZone("America/New_York");
 	private static final boolean defaultAllRoutesBlue = false;
 
-	public static final String ALERTS_URL = "http://developer.mbta.com/lib/gtrtfs/Alerts/Alerts.pb";
+	public static final String ALERTS_URL = "http://www.mta.info/status/serviceStatus.txt";
 	
 	private static DateFormat defaultTimeFormat;
 	private static DateFormat defaultDateFormat;
@@ -239,12 +240,13 @@ public class TransitSystem implements ITransitSystem {
 
 	@Override
 	public IAlerts getAlerts() {
-		if (alerts == null) {
-			return AlertsFuture.EMPTY;
+		if (alertsFuture != null) {
+			return alertsFuture.getAlerts();
 		}
 		else
 		{
-			return alerts;
+			// shouldn't happen
+			return AlertsFuture.EMPTY;
 		}
 	}
 
@@ -273,7 +275,14 @@ public class TransitSystem implements ITransitSystem {
 		return defaultTransitSource;
 	}
 
-	public void setAlerts(IAlerts alerts) {
-		this.alerts = alerts;
+	public void startObtainAlerts(Context context, Directions directions,
+								  RoutePool routePool, ConcurrentHashMap<String, BusLocation> busMapping) {
+		if (alertsFuture == null) {
+			// this runs the alerts code in the background,
+			// providing empty alerts until the data is ready
+
+			alertsFuture = new AlertsFuture(context, new MTAAlertsParser(this,
+					directions, routePool, busMapping));
+		}
 	}
 }

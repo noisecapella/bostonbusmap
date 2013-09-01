@@ -124,4 +124,11 @@ public class Alerts implements IAlerts {
 		ret.addAll(alertsByStop.get(tag));
 		return ret.build();
 	}
+
+	@Override
+	public boolean isEmpty() {
+		return alertsByRoute.isEmpty() && alertsByCommuterRailTripId.isEmpty() &&
+				alertsByRouteType.isEmpty() && alertsByCommuterRailTripId.isEmpty() &&
+				alertsByStop.isEmpty();
+	}
 }

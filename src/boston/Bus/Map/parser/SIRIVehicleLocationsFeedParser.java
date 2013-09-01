@@ -19,6 +19,7 @@ import boston.Bus.Map.data.RouteConfig;
 import boston.Bus.Map.data.RoutePool;
 import boston.Bus.Map.data.RouteTitles;
 import boston.Bus.Map.data.SIRIVehicleParsingResults;
+import boston.Bus.Map.data.TransitSourceTitles;
 import boston.Bus.Map.transit.TransitSystem;
 
 public class SIRIVehicleLocationsFeedParser extends SIRIParser {
@@ -28,12 +29,12 @@ public class SIRIVehicleLocationsFeedParser extends SIRIParser {
 
 	public SIRIVehicleLocationsFeedParser(RouteConfig routeConfig,
 			Directions directions,
-			RouteTitles routeTitles, RoutePool routePool) {
+			TransitSourceTitles routeTitles, RoutePool routePool) {
 		super(routePool, directions, routeTitles);
 		this.routeConfig = routeConfig;
 	}
 
-	public void runParse(InputStreamReader data, TransitSystem transitSystem, ConcurrentHashMap<String,BusLocation> busMapping) throws IOException {
+	public SIRIVehicleParsingResults runParse(InputStreamReader data, ConcurrentHashMap<String,BusLocation> busMapping) throws IOException {
 		BufferedReader bufferedReader = new BufferedReader(data, 2048);
 
 		JsonElement root = new JsonParser().parse(bufferedReader);
@@ -48,10 +49,8 @@ public class SIRIVehicleLocationsFeedParser extends SIRIParser {
 		for (String vehicleToRemove : vehiclesToRemove) {
 			busMapping.remove(vehicleToRemove);
 		}
-		
-		transitSystem.setAlerts(results.alerts);
 
-		
+		return results;
 	}
 	public double getLastUpdateTime() {
 		return lastUpdatedTime;
