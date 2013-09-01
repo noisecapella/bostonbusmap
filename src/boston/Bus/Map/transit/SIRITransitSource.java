@@ -46,10 +46,10 @@ public class SIRITransitSource implements TransitSource {
 	private final TransitSourceTitles routeTitles;
 	private final RouteTitles allRouteTitles;
 
-	private static final String KEY = "b0a3f670-0a8b-43e7-8706-7a4ec985f1ff";
+	public static final String KEY = "b0a3f670-0a8b-43e7-8706-7a4ec985f1ff";
 
 	public SIRITransitSource(TransitSystem transitSystem,
-			TransitDrawables drawables, String string,
+			TransitDrawables drawables, String agency,
 			TransitSourceTitles routeTitles, RouteTitles allRouteTitles) {
 		this.transitSystem = transitSystem;
 		this.drawables = drawables;
@@ -83,17 +83,31 @@ public class SIRITransitSource implements TransitSource {
 		List<StopLocationWithDownloadHelper> pairs;
 		
 		DownloadHelper citibikeHelper = null;
-		
-		DownloadHelper alertsHelper = null;
 
 		switch (mode) {
 		case Selection.VEHICLE_LOCATIONS_ALL:
+		{
+			if (transitSystem.getAlerts().isEmpty() == false) {
+				// the alerts feed is currently the same as the vehicle locations feed
+				// so we don't want to pull it twice
+				String urlString = getVehicleLocationsUrl(null);
+				DownloadHelper downloadHelper = new DownloadHelper(urlString);
+				downloadHelpers.add(downloadHelper);
+				downloadHelper.connect();
+			}
+			pairs = ImmutableList.of();
+			break;
+		}
 		case Selection.VEHICLE_LOCATIONS_ONE:
 		{
-			String urlString = getVehicleLocationsUrl(null);
-			DownloadHelper downloadHelper = new DownloadHelper(urlString);
-			downloadHelpers.add(downloadHelper);
-			downloadHelper.connect();
+			if (transitSystem.getAlerts().isEmpty() == false) {
+				// the alerts feed is currently the same as the vehicle locations feed
+				// so we don't want to pull it twice
+				String urlString = getVehicleLocationsUrl(null);
+				DownloadHelper downloadHelper = new DownloadHelper(urlString);
+				downloadHelpers.add(downloadHelper);
+				downloadHelper.connect();
+			}
 			pairs = ImmutableList.of();
 			break;
 		}
@@ -105,11 +119,6 @@ public class SIRITransitSource implements TransitSource {
 			List<Location> locations = locationsObj.getLocations(10, centerLatitude, centerLongitude, false, selection);
 
 			pairs = Lists.newArrayList();
-			
-			if (transitSystem.alertsIsNull()) {
-				alertsHelper = new DownloadHelper(getAlertsUrl());
-				alertsHelper.connect();
-			}
 			
 			citibikeHelper = new DownloadHelper(getCitibikeUrl());
 			citibikeHelper.connect();
@@ -136,38 +145,6 @@ public class SIRITransitSource implements TransitSource {
 		case Selection.BUS_PREDICTIONS_ONE:
 		case Selection.BUS_PREDICTIONS_STAR:
 		{
-			if (alertsHelper != null) {
-				InputStream data = alertsHelper.getResponseData();
-				SIRIVehicleLocationsFeedParser parser = new SIRIVehicleLocationsFeedParser(
-						routeConfig, directions, allRouteTitles, routePool);
-				parser.runParse(new InputStreamReader(data), transitSystem, busMapping);
-
-				// TODO: do I synchronize busMapping everywhere I should?
-				// given that this is a ConcurrentHashMap is synchronization even necessary?
-				synchronized (busMapping)
-				{
-
-					//delete old buses
-					List<String> busesToBeDeleted = new ArrayList<String>();
-					for (String id : busMapping.keySet())
-					{
-						BusLocation busLocation = busMapping.get(id);
-						if (busLocation.getLastUpdateInMillis() + 180000 < System.currentTimeMillis())
-						{
-							//put this old dog to sleep
-							busesToBeDeleted.add(id);
-						}
-					}
-
-					for (String id : busesToBeDeleted)
-					{
-						busMapping.remove(id);
-					}
-				}
-
-				data.close();
-				break;
-			}
 			{
 				InputStream citiBikeData = citibikeHelper.getResponseData();
 				CitibikeParser citibikeParser = new CitibikeParser(routePool);
@@ -189,7 +166,7 @@ public class SIRITransitSource implements TransitSource {
 				InputStream data = helper.getResponseData();
 				SIRIVehicleLocationsFeedParser parser = new SIRIVehicleLocationsFeedParser(
 						routeConfig, directions, allRouteTitles, routePool);
-				parser.runParse(new InputStreamReader(data), transitSystem, busMapping);
+				parser.runParse(new InputStreamReader(data), busMapping);
 				//get the time that this information is valid until
 				locationsObj.setLastUpdateTime(parser.getLastUpdateTime());
 
@@ -216,14 +193,10 @@ public class SIRITransitSource implements TransitSource {
 					}
 				}
 				data.close();
-				break;
 			}
+			break;
 		}
 		}
-	}
-
-	private String getAlertsUrl() {
-		return getVehicleLocationsUrl(null);
 	}
 
 	private String getPredictionsUrl(String stopId) {
@@ -289,7 +262,7 @@ public class SIRITransitSource implements TransitSource {
 
 	@Override
 	public IAlerts getAlerts() {
-		return AlertsFuture.EMPTY;
+		return transitSystem.getAlerts();
 	}
 
 	@Override

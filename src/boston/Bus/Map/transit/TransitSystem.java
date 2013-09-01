@@ -2,10 +2,6 @@ package boston.Bus.Map.transit;
 
 import java.io.IOException;
 import java.text.DateFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
 import java.util.TimeZone;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -13,22 +9,17 @@ import javax.xml.parsers.ParserConfigurationException;
 
 import org.xml.sax.SAXException;
 
-import com.google.common.collect.ImmutableBiMap;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 
-import android.R.string;
 import android.content.ContentResolver;
 import android.content.Context;
-import android.graphics.drawable.Drawable;
 import android.util.Log;
-import boston.Bus.Map.data.Alerts;
+
 import boston.Bus.Map.data.AlertsFuture;
 import boston.Bus.Map.data.BusLocation;
 import boston.Bus.Map.data.Directions;
 import boston.Bus.Map.data.IAlerts;
-import boston.Bus.Map.data.IsGuardedBy;
-import boston.Bus.Map.data.Location;
 import boston.Bus.Map.data.Locations;
 import boston.Bus.Map.data.RouteConfig;
 import boston.Bus.Map.data.RoutePool;
@@ -36,10 +27,7 @@ import boston.Bus.Map.data.RouteTitles;
 import boston.Bus.Map.data.Selection;
 import boston.Bus.Map.data.StopLocation;
 import boston.Bus.Map.data.TransitDrawables;
-import boston.Bus.Map.data.TransitSourceTitles;
-import boston.Bus.Map.database.Schema;
-import boston.Bus.Map.main.Main;
-import boston.Bus.Map.parser.MbtaAlertsParser;
+import boston.Bus.Map.parser.MTAAlertsParser;
 import boston.Bus.Map.provider.DatabaseContentProvider.DatabaseAgent;
 import boston.Bus.Map.util.Constants;
 /**
@@ -59,10 +47,10 @@ public class TransitSystem implements ITransitSystem {
 	private RouteTitles routeTitles;
 	
 	/**
-	 * This is null if alerts haven't been set yet
+	 * This will be null when alerts haven't been read yet
 	 */
-	private IAlerts alerts;
-	
+	private AlertsFuture alertsFuture;
+
 	public static double getCenterLat() {
 		return nycLatitude;
 	}
@@ -115,7 +103,6 @@ public class TransitSystem implements ITransitSystem {
 
 			//TransitSourceTitles busTransitRoutes = routeTitles.getMappingForSource(Schema.Routes.enumagencyidBus);
 			
-			//defaultTransitSource = new BusTransitSource(this, busDrawables, busTransitRoutes, routeTitles);
 			defaultTransitSource = new MTABusTimeTransitSource(this, busDrawables, routeTitles, routeTitles);
 			
 			ImmutableMap.Builder<String, TransitSource> mapBuilder = ImmutableMap.builder();
@@ -179,8 +166,6 @@ public class TransitSystem implements ITransitSystem {
 	private static final TimeZone bostonTimeZone = TimeZone.getTimeZone("America/New_York");
 	private static final boolean defaultAllRoutesBlue = false;
 
-	public static final String ALERTS_URL = "http://developer.mbta.com/lib/gtrtfs/Alerts/Alerts.pb";
-	
 	private static DateFormat defaultTimeFormat;
 	private static DateFormat defaultDateFormat;
 		
@@ -240,19 +225,16 @@ public class TransitSystem implements ITransitSystem {
 
 	@Override
 	public IAlerts getAlerts() {
-		if (alerts == null) {
-			return AlertsFuture.EMPTY;
+		if (alertsFuture != null) {
+			return alertsFuture.getAlerts();
 		}
 		else
 		{
-			return alerts;
+			// shouldn't happen
+			return AlertsFuture.EMPTY;
 		}
 	}
 	
-	public boolean alertsIsNull() {
-		return alerts == null;
-	}
-
 	public static String[] getEmails() {
 		return emails;
 	}
@@ -278,7 +260,14 @@ public class TransitSystem implements ITransitSystem {
 		return defaultTransitSource;
 	}
 
-	public void setAlerts(IAlerts alerts) {
-		this.alerts = alerts;
+	public void startObtainAlerts(Context context, Directions directions,
+								  RoutePool routePool, ConcurrentHashMap<String, BusLocation> busMapping) {
+		if (alertsFuture == null) {
+			// this runs the alerts code in the background,
+			// providing empty alerts until the data is ready
+
+			alertsFuture = new AlertsFuture(context, new MTAAlertsParser(this,
+					directions, routePool, busMapping));
+		}
 	}
 }

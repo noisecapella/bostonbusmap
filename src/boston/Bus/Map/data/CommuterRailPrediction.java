@@ -3,15 +3,13 @@ package boston.Bus.Map.data;
 import java.text.DateFormat;
 import java.util.Date;
 
-import com.google.common.collect.ImmutableMap;
-
 
 import android.content.Context;
 import android.os.Parcel;
 import android.os.Parcelable;
 import boston.Bus.Map.transit.TransitSystem;
 
-public class CommuterRailPrediction extends Prediction implements Parcelable
+public class CommuterRailPrediction extends TimePrediction implements Parcelable
 {
 	/**
 	 * Record has scheduled time but not the vehicle lateness. May have vehicle ID and position.
@@ -141,7 +139,7 @@ lateness. Used at the trip’s origin.
 		@Override
 		public CommuterRailPrediction createFromParcel(Parcel source)
 		{
-			//NOTE: if this changes you must also change Prediction.CREATOR.createFromParcel
+			//NOTE: if this changes you must also change TimePrediction.CREATOR.createFromParcel
 			long arrivalTimeMillis = source.readLong();
 			String vehicleId = source.readString();
 			if (vehicleId.length() == 0)

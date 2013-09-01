@@ -25,12 +25,7 @@ import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Map;
-import java.util.Set;
-import java.util.SortedMap;
 
-import java.util.HashSet;
-import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
@@ -39,30 +34,19 @@ import javax.xml.parsers.ParserConfigurationException;
 
 import org.xml.sax.SAXException;
 
-import com.google.android.maps.GeoPoint;
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
 
 
 import android.content.Context;
 import android.content.OperationApplicationException;
-import android.graphics.drawable.Drawable;
-import android.os.PowerManager;
 import android.os.RemoteException;
 import android.util.Log;
-import boston.Bus.Map.algorithms.GetDirections;
-import boston.Bus.Map.data.IntersectionLocation.Builder;
+
 import boston.Bus.Map.main.GetDirectionsAsyncTask;
-import boston.Bus.Map.main.Main;
 import boston.Bus.Map.main.UpdateAsyncTask;
-import boston.Bus.Map.parser.MbtaAlertsParser;
 import boston.Bus.Map.transit.TransitSource;
 import boston.Bus.Map.transit.TransitSystem;
-import boston.Bus.Map.ui.ProgressMessage;
-import boston.Bus.Map.util.Constants;
 import boston.Bus.Map.util.FeedException;
 import boston.Bus.Map.util.LogUtil;
 import boston.Bus.Map.util.StreamCounter;
@@ -135,7 +119,8 @@ public final class Locations
 		//see if route overlays need to be downloaded
 		String routeToUpdate = selection.getRoute();
 		RouteConfig routeConfig = routeMapping.get(routeToUpdate);
-		//transitSystem.startObtainAlerts(context);
+		transitSystem.startObtainAlerts(context, directions, routeMapping,
+				busMapping);
 		
 		int mode = selection.getMode();
 		switch (mode)

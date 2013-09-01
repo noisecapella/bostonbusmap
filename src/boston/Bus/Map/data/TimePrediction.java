@@ -2,13 +2,10 @@ package boston.Bus.Map.data;
 
 import java.text.DateFormat;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
 
 import com.google.common.base.Objects;
 import com.google.common.collect.ComparisonChain;
 import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.Maps;
 
 import boston.Bus.Map.main.MoreInfo;
 import boston.Bus.Map.transit.TransitSystem;
@@ -26,7 +23,7 @@ import android.text.Spanned;
  * @author schneg
  *
  */
-public class Prediction implements IPrediction
+public class TimePrediction implements IPrediction
 {
 	public static final int NULL_LATENESS = -1;
 	/**
@@ -41,9 +38,9 @@ public class Prediction implements IPrediction
 	protected final boolean isDelayed;
 	protected final int lateness;
 	
-	public Prediction(int minutes, String vehicleId,
-			String direction, String routeName, String routeTitle,
-			boolean affectedByLayover, boolean isDelayed, int lateness)
+	public TimePrediction(int minutes, String vehicleId,
+                          String direction, String routeName, String routeTitle,
+                          boolean affectedByLayover, boolean isDelayed, int lateness)
 	{
 		this.vehicleId = vehicleId;
 		this.direction = direction;
@@ -112,21 +109,21 @@ public class Prediction implements IPrediction
 	@Override
 	public int compareTo(IPrediction anotherObj)
 	{
-		if (anotherObj instanceof Prediction) {
-			Prediction another = (Prediction)anotherObj;
-			return ComparisonChain.start().compare(arrivalTimeMillis, another.arrivalTimeMillis)
-					.compare(vehicleId, another.vehicleId)
-					.compare(direction, another.direction)
-					.compare(routeName, another.routeName)
-					.compareFalseFirst(affectedByLayover, another.affectedByLayover)
-					.compareFalseFirst(isDelayed, another.isDelayed)
-					.compare(lateness, another.lateness)
-					.result();
-		}
-		else
-		{
-			throw new RuntimeException("Cannot compare distance prediction with time prediction");
-		}
+        if (anotherObj instanceof TimePrediction) {
+            TimePrediction another = (TimePrediction)anotherObj;
+		    return ComparisonChain.start().compare(arrivalTimeMillis, another.arrivalTimeMillis)
+				.compare(vehicleId, another.vehicleId)
+				.compare(direction, another.direction)
+				.compare(routeName, another.routeName)
+				.compareFalseFirst(affectedByLayover, another.affectedByLayover)
+				.compareFalseFirst(isDelayed, another.isDelayed)
+				.compare(lateness, another.lateness)
+				.result();
+        }
+        else
+        {
+            throw new RuntimeException("Cannot compare distance prediction with time prediction");
+        }
 	}
 
 	@Override
@@ -137,8 +134,8 @@ public class Prediction implements IPrediction
 	
 	@Override
 	public boolean equals(Object o) {
-		if (o instanceof Prediction) {
-			Prediction another = (Prediction)o;
+		if (o instanceof TimePrediction) {
+			TimePrediction another = (TimePrediction)o;
 			return Objects.equal(arrivalTimeMillis, another.arrivalTimeMillis) &&
 					Objects.equal(vehicleId, another.vehicleId) &&
 					Objects.equal(direction, another.direction) &&
@@ -188,15 +185,15 @@ public class Prediction implements IPrediction
 		dest.writeInt(lateness);
 	}
 	
-	public static final Parcelable.Creator<Prediction> CREATOR = new Creator<Prediction>() {
+	public static final Parcelable.Creator<TimePrediction> CREATOR = new Creator<TimePrediction>() {
 		
 		@Override
-		public Prediction[] newArray(int size) {
-			return new Prediction[size];
+		public TimePrediction[] newArray(int size) {
+			return new TimePrediction[size];
 		}
 		
 		@Override
-		public Prediction createFromParcel(Parcel source) {
+		public TimePrediction createFromParcel(Parcel source) {
 			//NOTE: if this changes you must also change CommuterRailPrediction.CREATOR.createFromParcel
 			long arrivalTimeMillis = source.readLong();
 			String vehicleId = source.readString();
@@ -212,7 +209,7 @@ public class Prediction implements IPrediction
 			int lateness = source.readInt();
 			
 			int minutes = calcMinutes(arrivalTimeMillis);
-			Prediction prediction = new Prediction(minutes, vehicleId, direction, routeName, routeTitle, affectedByLayover, isDelayed, lateness);
+			TimePrediction prediction = new TimePrediction(minutes, vehicleId, direction, routeName, routeTitle, affectedByLayover, isDelayed, lateness);
 			return prediction;
 		}
 	};
@@ -240,8 +237,8 @@ public class Prediction implements IPrediction
 		dest.writeInt(data ? 1 : 0);
 	}
 
-	@Override
-	public boolean isInvalid() {
-		return getMinutes() < 0;
-	}
+    @Override
+    public boolean isInvalid() {
+        return getMinutes() < 0;
+    }
 }

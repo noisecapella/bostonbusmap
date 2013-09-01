@@ -1,5 +1,6 @@
 #!/bin/bash
 PROGNAME=$(basename $0)
+GTFS_DIR=gtfs/nyc
 
 set -e
 echo "Generating schema..."
@@ -8,11 +9,11 @@ echo "Create tables..."
 python create_tables.py > sql.dump
 echo "Parsing bus data..."
 # gtfs files from MTA organized such that ./gtfs/nyc/bronx/calendar.txt exists, etc
-python gtfs_tosql.py ./gtfs/nyc 0 >> sql.dump
+python gtfs_tosql.py "$GTFS_DIR" 0 >> sql.dump
 echo "Citibike data..."
 python citibike_tosql.py >> sql.dump
 #echo "Calculating bound times..."
-#python calculate_times.py gtfs/stop_times.txt gtfs/trips.txt gtfs/calendar.txt >> sql.dump
+#python calculate_times.py "$GTFS_DIR"/stop_times.txt "$GTFS_DIR"/trips.txt "$GTFS_DIR"/calendar.txt >> sql.dump
 echo "Dumping into sqlite..."
 rm new.db* || true
 sqlite3 new.db < sql.dump

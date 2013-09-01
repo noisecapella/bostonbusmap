@@ -2,7 +2,10 @@ package boston.Bus.Map.parser;
 
 import java.io.IOException;
 
+import boston.Bus.Map.data.Directions;
 import boston.Bus.Map.data.IAlerts;
+import boston.Bus.Map.data.RoutePool;
+
 import android.content.Context;
 
 public interface IAlertsParser {
