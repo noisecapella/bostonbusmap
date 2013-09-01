@@ -34,7 +34,7 @@ convert "$dir_hdpi/$filename_without_ext.$extension" +level-colors '#008000', "$
 convert "$dir_hdpi/$filename_without_ext.$extension" +level-colors '#399cb5', "$dir_hdpi/${filename_without_ext}_selected.$extension"
 
 convert "$dir_hdpi/$filename_without_ext.$extension" +level-colors '#008000', -resize 75% "$dir_mdpi/${filename_without_ext}_selected.$extension"
-convert "$dir_hdpi/$filename_without_ext.$extension" +level-colors '#399cb5', -resize 75% "$dir_mdpi/${filename_without_ext}_selected.$extension"
+convert "$dir_hdpi/$filename_without_ext.$extension" +level-colors '#399cb5', -resize 75% "$dir_mdpi/${filename_without_ext}_updated.$extension"
 
 cat  > "$dir_hdpi/${filename_without_ext}_statelist.xml" <<EOF
 <?xml version="1.0" encoding="utf-8"?>
