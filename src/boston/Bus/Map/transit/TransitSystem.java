@@ -260,6 +260,13 @@ public class TransitSystem implements ITransitSystem {
 		return defaultTransitSource;
 	}
 
+	/**
+	 * This downloads alerts in a background thread. If alerts are
+	 * not available when getAlerts() is called, empty alerts are returned
+	 * @param context
+	 * @param directions
+	 * @param routeMapping
+	 */
 	public void startObtainAlerts(Context context, Directions directions,
 								  RoutePool routePool, ConcurrentHashMap<String, BusLocation> busMapping) {
 		if (alertsFuture == null) {

@@ -119,9 +119,8 @@ public final class Locations
 		//see if route overlays need to be downloaded
 		String routeToUpdate = selection.getRoute();
 		RouteConfig routeConfig = routeMapping.get(routeToUpdate);
-		transitSystem.startObtainAlerts(context, directions, routeMapping,
-				busMapping);
-		
+		transitSystem.startObtainAlerts(context, directions, routeMapping, busMapping);
+
 		int mode = selection.getMode();
 		switch (mode)
 		{
