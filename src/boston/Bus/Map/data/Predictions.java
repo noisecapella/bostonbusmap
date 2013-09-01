@@ -33,9 +33,7 @@ public class Predictions
 	private final List<StopLocation> allStops = Lists.newArrayList(); 
 	@IsGuardedBy("modificationLock")
 	private final SortedSet<IPrediction> predictions = Sets.newTreeSet();
-	@IsGuardedBy("modificationLock")
-	private final Set<Alert> alerts = Sets.newTreeSet();
-	
+
 	private final Object modificationLock = new Object();
 	
 	public void makeSnippetAndTitle(RouteConfig routeConfig,
@@ -45,9 +43,6 @@ public class Predictions
 		synchronized (modificationLock) {
 			this.routes.clear();
 			this.routes.addAll(routes.getRoutes());
-			
-			this.alerts.clear();
-			this.alerts.addAll(alerts);
 			
 			allStops.clear();
 			allStops.add(stop);
@@ -105,7 +100,7 @@ public class Predictions
 
 	/**
 	 * Clear all predictions for a single route
-	 * @param routeName
+	 * @param currentRouteName
 	 */
 	public void clearPredictions(String currentRouteName)
 	{
