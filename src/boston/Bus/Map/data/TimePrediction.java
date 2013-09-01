@@ -21,7 +21,7 @@ import android.text.Spanned;
  * @author schneg
  *
  */
-public class TimePrediction implements Comparable<TimePrediction>, Parcelable
+public class TimePrediction implements IPrediction
 {
 	public static final int NULL_LATENESS = -1;
 	/**
@@ -105,9 +105,11 @@ public class TimePrediction implements Comparable<TimePrediction>, Parcelable
 	}
 
 	@Override
-	public int compareTo(TimePrediction another)
+	public int compareTo(IPrediction anotherObj)
 	{
-		return ComparisonChain.start().compare(arrivalTimeMillis, another.arrivalTimeMillis)
+        if (anotherObj instanceof TimePrediction) {
+            TimePrediction another = (TimePrediction)anotherObj;
+		    return ComparisonChain.start().compare(arrivalTimeMillis, another.arrivalTimeMillis)
 				.compare(vehicleId, another.vehicleId)
 				.compare(direction, another.direction)
 				.compare(routeName, another.routeName)
@@ -115,6 +117,11 @@ public class TimePrediction implements Comparable<TimePrediction>, Parcelable
 				.compareFalseFirst(isDelayed, another.isDelayed)
 				.compare(lateness, another.lateness)
 				.result();
+        }
+        else
+        {
+            throw new RuntimeException("Cannot compare distance prediction with time prediction");
+        }
 	}
 
 	@Override
@@ -227,4 +234,9 @@ public class TimePrediction implements Comparable<TimePrediction>, Parcelable
 	{
 		dest.writeInt(data ? 1 : 0);
 	}
+
+    @Override
+    public boolean isInvalid() {
+        return getMinutes() < 0;
+    }
 }
