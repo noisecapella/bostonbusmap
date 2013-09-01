@@ -105,17 +105,23 @@ public class Predictions
 	public void clearPredictions(String currentRouteName)
 	{
 		synchronized (modificationLock) {
-			ArrayList<IPrediction> newPredictions = Lists.newArrayList();
+			if (currentRouteName != null) {
+				ArrayList<IPrediction> newPredictions = Lists.newArrayList();
 
-			for (IPrediction prediction : predictions)
-			{
-				if (prediction.getRouteName().equals(currentRouteName) == false)
+				for (IPrediction prediction : predictions)
 				{
-					newPredictions.add(prediction);
+					if (prediction.getRouteName().equals(currentRouteName) == false)
+					{
+						newPredictions.add(prediction);
+					}
 				}
+				predictions.clear();
+				predictions.addAll(newPredictions);
 			}
-			predictions.clear();
-			predictions.addAll(newPredictions);
+			else
+			{
+				predictions.clear();
+			}
 		}
 		
 	}
