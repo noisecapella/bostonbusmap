@@ -11,11 +11,11 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
-import boston.Bus.Map.data.CitibikePrediction;
 import boston.Bus.Map.data.PredictionStopLocationPair;
 import boston.Bus.Map.data.RouteConfig;
 import boston.Bus.Map.data.RoutePool;
 import boston.Bus.Map.data.SIRIVehicleParsingResults;
+import boston.Bus.Map.data.SimplePrediction;
 import boston.Bus.Map.data.StopLocation;
 
 public class CitibikeParser {
@@ -54,7 +54,7 @@ public class CitibikeParser {
 					String availableBikes = Integer.toString(result.get("availableBikes").getAsInt());
 					String availableDocks = Integer.toString(result.get("availableDocks").getAsInt());
 					String text = "Available Bikes: " + availableBikes + "<br/>Available Docks: " + availableDocks;
-					CitibikePrediction prediction = new CitibikePrediction(text);
+					SimplePrediction prediction = new SimplePrediction("Citibike", "Citibike", text);
 					
 					pairs.add(new PredictionStopLocationPair(prediction, stop));
 				}
