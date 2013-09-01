@@ -31,7 +31,7 @@ public class HubwayParser extends DefaultHandler {
 
 	private static final String idKey = "id";
 	private static final String numberBikesKey = "nbBikes";
-	private static final String numberEmptyDocksKey = "nbBikes";
+	private static final String numberEmptyDocksKey = "nbEmptyDocks";
 	private static final String lockedKey = "locked";
 	private static final String installedKey = "installed";
 	private static final String nameKey = "name";
