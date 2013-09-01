@@ -6,6 +6,7 @@ import java.util.Set;
 import java.util.SortedSet;
 
 import com.google.common.collect.ImmutableCollection;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
@@ -33,9 +34,7 @@ public class Predictions
 	private final List<StopLocation> allStops = Lists.newArrayList(); 
 	@IsGuardedBy("modificationLock")
 	private final SortedSet<IPrediction> predictions = Sets.newTreeSet();
-	@IsGuardedBy("modificationLock")
-	private final Set<Alert> alerts = Sets.newTreeSet();
-	
+
 	private final Object modificationLock = new Object();
 	
 	public void makeSnippetAndTitle(RouteConfig routeConfig,
@@ -46,15 +45,15 @@ public class Predictions
 			this.routes.clear();
 			this.routes.addAll(routes.getRoutes());
 			
-			this.alerts.clear();
-			this.alerts.addAll(alerts);
-			
 			allStops.clear();
 			allStops.add(stop);
-			
+
+			Set<Alert> alertSet = Sets.newTreeSet(alerts);
+			ImmutableList<Alert> alertImmutableSet = ImmutableList.copyOf(alertSet);
+
 			predictionView = new StopPredictionViewImpl(this.routes, allStops,
 					predictions,
-					routeConfig, routeKeysToTitles, context, alerts, locations);
+					routeConfig, routeKeysToTitles, context, alertImmutableSet, locations);
 		}
 	}
 	
@@ -105,22 +104,28 @@ public class Predictions
 
 	/**
 	 * Clear all predictions for a single route
-	 * @param routeName
+	 * @param currentRouteName
 	 */
 	public void clearPredictions(String currentRouteName)
 	{
 		synchronized (modificationLock) {
-			ArrayList<IPrediction> newPredictions = Lists.newArrayList();
+			if (currentRouteName != null) {
+				ArrayList<IPrediction> newPredictions = Lists.newArrayList();
 
-			for (IPrediction prediction : predictions)
-			{
-				if (prediction.getRouteName().equals(currentRouteName) == false)
+				for (IPrediction prediction : predictions)
 				{
-					newPredictions.add(prediction);
+					if (prediction.getRouteName().equals(currentRouteName) == false)
+					{
+						newPredictions.add(prediction);
+					}
 				}
+				predictions.clear();
+				predictions.addAll(newPredictions);
 			}
-			predictions.clear();
-			predictions.addAll(newPredictions);
+			else
+			{
+				predictions.clear();
+			}
 		}
 		
 	}

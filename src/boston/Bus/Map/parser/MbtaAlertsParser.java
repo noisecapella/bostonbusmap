@@ -22,7 +22,10 @@ import android.content.ContentResolver;
 import android.content.Context;
 import boston.Bus.Map.data.Alert;
 import boston.Bus.Map.data.Alerts;
+import boston.Bus.Map.data.BusLocation;
+import boston.Bus.Map.data.Directions;
 import boston.Bus.Map.data.IAlerts;
+import boston.Bus.Map.data.RoutePool;
 import boston.Bus.Map.data.RouteTitles;
 import boston.Bus.Map.data.StopLocation;
 import boston.Bus.Map.provider.DatabaseContentProvider.DatabaseAgent;
@@ -61,7 +64,7 @@ public class MbtaAlertsParser implements IAlertsParser {
 		gtfsRoutes = builder.build();
 	}
 	
-	public MbtaAlertsParser(TransitSystem transitSystem) {
+	public MbtaAlertsParser(TransitSystem transitSystem, Directions directions, RoutePool routePool, ConcurrentMap<String, BusLocation> busMapping) {
 		this.transitSystem = transitSystem;
 		this.routeTitles = transitSystem.getRouteKeysToTitles();
 	}
