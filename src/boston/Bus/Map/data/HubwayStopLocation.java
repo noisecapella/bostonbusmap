@@ -43,6 +43,6 @@ public class HubwayStopLocation extends StopLocation {
 
 	@Override
 	public boolean supportsBusPredictionsAllMode() {
-		return false;
+		return true;
 	}
 }
