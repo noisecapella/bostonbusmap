@@ -136,8 +136,16 @@ public final class Locations
 		String routeToUpdate = selection.getRoute();
 		RouteConfig routeConfig = routeMapping.get(routeToUpdate);
 		transitSystem.startObtainAlerts(context, directions, routeMapping, busMapping);
-		
+
 		int mode = selection.getMode();
+		switch (mode) {
+			case Selection.BUS_PREDICTIONS_ALL:
+			case Selection.BUS_PREDICTIONS_ONE:
+			case Selection.BUS_PREDICTIONS_STAR:
+				routeMapping.clearRecentlyUpdated();
+				break;
+
+		}
 		switch (mode)
 		{
 		case Selection.BUS_PREDICTIONS_STAR:
