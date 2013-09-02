@@ -44,8 +44,6 @@ public class HubwayParser extends DefaultHandler {
 	private boolean installed;
 	private String name;
 
-	private String inElement;
-
 	private final StringBuilder chars = new StringBuilder();
 
 	private final List<PredictionStopLocationPair> pairs = Lists.newArrayList();
@@ -75,7 +73,6 @@ public class HubwayParser extends DefaultHandler {
 			installed = false;
 			name = null;
 		}
-		inElement = localName;
 
 		chars.setLength(0);
 	}
@@ -91,10 +88,28 @@ public class HubwayParser extends DefaultHandler {
 
 	@Override
 	public void endElement(String uri, String localName, String qName) throws SAXException {
-		if (stationKey.equals(localName)) {
+		String string = chars.toString();
 
-			String text = makeText(chars);
-
+		if (idKey.equals(localName)) {
+			id = string;
+		}
+		else if (nameKey.equals(localName)) {
+			name = string;
+		}
+		else if (numberBikesKey.equals(localName)) {
+			numberBikes = string;
+		}
+		else if (numberEmptyDocksKey.equals(localName)) {
+			numberEmptyDocks = string;
+		}
+		else if (lockedKey.equals(localName)) {
+			locked = Boolean.parseBoolean(string);
+		}
+		else if (installedKey.equals(localName)) {
+			installed = Boolean.parseBoolean(string);
+		}
+		else if (stationKey.equals(localName)) {
+			String text = makeText();
 			SimplePrediction prediction = new SimplePrediction(routeConfig.getRouteName(),
 					routeConfig.getRouteTitle(), text);
 			StopLocation stop = routeConfig.getStop(HubwayTransitSource.stopTagPrefix + id);
@@ -109,27 +124,7 @@ public class HubwayParser extends DefaultHandler {
 		}
 	}
 
-	private String makeText(StringBuilder chars) {
-		String string = chars.toString();
-		if (idKey.equals(inElement)) {
-			id = string;
-		}
-		else if (nameKey.equals(inElement)) {
-			name = string;
-		}
-		else if (numberBikesKey.equals(inElement)) {
-			numberBikes = string;
-		}
-		else if (numberEmptyDocksKey.equals(inElement)) {
-			numberEmptyDocks = string;
-		}
-		else if (lockedKey.equals(inElement)) {
-			locked = Boolean.parseBoolean(string);
-		}
-		else if (installedKey.equals(inElement)) {
-			installed = Boolean.parseBoolean(string);
-		}
-
+	private String makeText() {
 		StringBuilder ret = new StringBuilder();
 
 		ret.append("Bikes: ").append(numberBikes).append("<br />");
