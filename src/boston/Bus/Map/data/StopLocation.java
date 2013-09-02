@@ -335,4 +335,8 @@ public class StopLocation implements Location
 	public int getTransitSourceType() {
 		return Schema.Routes.enumagencyidBus;
 	}
+
+	public boolean supportsBusPredictionsAllMode() {
+		return true;
+	}
 }
