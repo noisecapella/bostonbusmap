@@ -40,4 +40,9 @@ public class HubwayStopLocation extends StopLocation {
 		TransitDrawables drawables = transitSystem.getTransitSource("Hubway").getDrawables();
 		return recentlyUpdated ? drawables.getStopUpdated() : drawables.getStop();
 	}
+
+	@Override
+	public boolean supportsBusPredictionsAllMode() {
+		return false;
+	}
 }

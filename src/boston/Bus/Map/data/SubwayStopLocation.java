@@ -35,4 +35,9 @@ public class SubwayStopLocation extends StopLocation {
 	public int getTransitSourceType() {
 		return Schema.Routes.enumagencyidSubway;
 	}
+
+	@Override
+	public boolean supportsBusPredictionsAllMode() {
+		return false;
+	}
 }

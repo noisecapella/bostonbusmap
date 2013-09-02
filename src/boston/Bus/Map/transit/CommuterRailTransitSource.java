@@ -100,7 +100,8 @@ public class CommuterRailTransitSource implements TransitSource {
 			ParserConfigurationException, SAXException
 	{
 		int selectedBusPredictions = selection.getMode();
-		if (selectedBusPredictions == Selection.VEHICLE_LOCATIONS_ALL)
+		if (selectedBusPredictions == Selection.VEHICLE_LOCATIONS_ALL ||
+				selectedBusPredictions == Selection.BUS_PREDICTIONS_ALL)
 		{
 			//for now I'm only refreshing data for buses if this is checked
 			return;

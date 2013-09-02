@@ -46,6 +46,8 @@ public class HubwayParser extends DefaultHandler {
 
 	private String inElement;
 
+	private final StringBuilder chars = new StringBuilder();
+
 	private final List<PredictionStopLocationPair> pairs = Lists.newArrayList();
 
 	public HubwayParser(RouteConfig routeConfig) {
@@ -75,6 +77,7 @@ public class HubwayParser extends DefaultHandler {
 		}
 		inElement = localName;
 
+		chars.setLength(0);
 	}
 
 	@Override
@@ -82,7 +85,32 @@ public class HubwayParser extends DefaultHandler {
 		// technically this can be called repeatedly but I don't think there's any inner elements
 		// or surprises in this feed
 		String string = new String(ch, start, length);
+		chars.append(string);
 
+	}
+
+	@Override
+	public void endElement(String uri, String localName, String qName) throws SAXException {
+		if (stationKey.equals(localName)) {
+
+			String text = makeText(chars);
+
+			SimplePrediction prediction = new SimplePrediction(routeConfig.getRouteName(),
+					routeConfig.getRouteTitle(), text);
+			StopLocation stop = routeConfig.getStop(HubwayTransitSource.stopTagPrefix + id);
+			if (stop != null && name.equals(stop.getTitle())) {
+				PredictionStopLocationPair pair = new PredictionStopLocationPair(prediction, stop);
+				pairs.add(pair);
+			}
+			else
+			{
+				LogUtil.e(new RuntimeException("Found Hubway stop not in database: " + name + ", id: " + id));
+			}
+		}
+	}
+
+	private String makeText(StringBuilder chars) {
+		String string = chars.toString();
 		if (idKey.equals(inElement)) {
 			id = string;
 		}
@@ -101,28 +129,7 @@ public class HubwayParser extends DefaultHandler {
 		else if (installedKey.equals(inElement)) {
 			installed = Boolean.parseBoolean(string);
 		}
-	}
 
-	@Override
-	public void endElement(String uri, String localName, String qName) throws SAXException {
-		if (stationKey.equals(localName)) {
-			String text = makeText();
-
-			SimplePrediction prediction = new SimplePrediction(routeConfig.getRouteName(),
-					routeConfig.getRouteTitle(), text);
-			StopLocation stop = routeConfig.getStop(HubwayTransitSource.stopTagPrefix + id);
-			if (stop != null && name.equals(stop.getTitle())) {
-				PredictionStopLocationPair pair = new PredictionStopLocationPair(prediction, stop);
-				pairs.add(pair);
-			}
-			else
-			{
-				LogUtil.e(new RuntimeException("Found Hubway stop not in database: " + name + ", id: " + id));
-			}
-		}
-	}
-
-	private String makeText() {
 		StringBuilder ret = new StringBuilder();
 
 		ret.append("Bikes: ").append(numberBikes).append("<br />");
