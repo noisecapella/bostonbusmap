@@ -108,8 +108,6 @@ public abstract class NextBusTransitSource implements TransitSource
 		case  Selection.BUS_PREDICTIONS_ALL:
 		{
 
-			routePool.clearRecentlyUpdated();
-
 			List<Location> locations = locationsObj.getLocations(maxStops, centerLatitude, centerLongitude, false, selection);
 
 			//ok, do predictions now
@@ -204,23 +202,23 @@ public abstract class NextBusTransitSource implements TransitSource
 
 		for (Location location : locations)
 		{
-			if ((location instanceof StopLocation) && !(location instanceof SubwayStopLocation))
+			if (location instanceof StopLocation)
 			{
 				StopLocation stopLocation = (StopLocation)location;
-				if (routes.isEmpty() == false) {
-					for (String route : routes) {
-						if (stopLocation.hasRoute(route)) {
-							urlString.append("&stops=").append(route).append("%7C");
-							urlString.append("%7C").append(stopLocation.getStopTag());
+				if (stopLocation.getTransitSourceType() == Schema.Routes.enumagencyidBus) {
+					if (routes.isEmpty() == false) {
+						for (String route : routes) {
+							if (stopLocation.hasRoute(route)) {
+								urlString.append("&stops=").append(route).append("%7C");
+								urlString.append("%7C").append(stopLocation.getStopTag());
+							}
 						}
-					}
-				}
-				else
-				{
-					for (String stopRoute : stopLocation.getRoutes()) {
-						urlString.append("&stops=").append(stopRoute).append("%7C");
-						urlString.append("%7C").append(stopLocation.getStopTag());
-						
+					} else {
+						for (String stopRoute : stopLocation.getRoutes()) {
+							urlString.append("&stops=").append(stopRoute).append("%7C");
+							urlString.append("%7C").append(stopLocation.getStopTag());
+
+						}
 					}
 				}
 			}
