@@ -7,9 +7,11 @@ echo "Generating schema..."
 python generate_schema.py > ../src/boston/Bus/Map/database/Schema.java
 echo "Create tables..."
 python create_tables.py > sql.dump
+echo "Obtaining Citibike data..."
+python citibike_tosql.py 0 >> sql.dump
 echo "Parsing bus data..."
 # gtfs files from MTA organized such that ./gtfs/nyc/bronx/calendar.txt exists, etc
-python gtfs_tosql.py "$GTFS_DIR" 0 >> sql.dump
+python gtfs_tosql.py "$GTFS_DIR" 1 >> sql.dump
 echo "Dumping into sqlite..."
 rm new.db* || true
 sqlite3 new.db < sql.dump

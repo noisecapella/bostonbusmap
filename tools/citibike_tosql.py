@@ -5,11 +5,18 @@ from twisted.internet import reactor
 
 import schema
 
+import argparse
+
 default_color = 0xff0000
 
 
 @inlineCallbacks
 def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument("start_index")
+    args = parser.parse_args()
+    start_index = int(args.start_index)
+
     url = "http://appservices.citibikenyc.com//data2/stations.php"
 
     obj = schema.getSchemaAsObject()
@@ -22,8 +29,8 @@ def main():
     obj.routes.routetitle.value = "Citibike"
     obj.routes.color.value = default_color
     obj.routes.oppositecolor.value = default_color
-    obj.routes.listorder.value = 101 # count of routes
-    obj.routes.agencyid.value = schema.SubwayAgencyId
+    obj.routes.listorder.value = start_index
+    obj.routes.agencyid.value = schema.HubwayAgencyId
     obj.routes.pathblob.value = schema.Box([]).get_blob_string()
     obj.routes.insert()
     for result in json_obj["results"]:

@@ -22,8 +22,8 @@ public class CitibikeParser {
 
 	private final RouteConfig routeConfig;
 
-	public CitibikeParser(RoutePool routePool) throws IOException {
-		this.routeConfig = routePool.get("Citibike");
+	public CitibikeParser(RouteConfig routeConfig) throws IOException {
+		this.routeConfig = routeConfig;
 	}
 
 	public void runParse(InputStreamReader data) throws IOException {

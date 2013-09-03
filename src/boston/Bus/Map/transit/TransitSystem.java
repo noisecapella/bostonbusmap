@@ -27,6 +27,8 @@ import boston.Bus.Map.data.RouteTitles;
 import boston.Bus.Map.data.Selection;
 import boston.Bus.Map.data.StopLocation;
 import boston.Bus.Map.data.TransitDrawables;
+import boston.Bus.Map.data.TransitSourceTitles;
+import boston.Bus.Map.database.Schema;
 import boston.Bus.Map.parser.MTAAlertsParser;
 import boston.Bus.Map.provider.DatabaseContentProvider.DatabaseAgent;
 import boston.Bus.Map.util.Constants;
@@ -101,10 +103,13 @@ public class TransitSystem implements ITransitSystem {
 			ContentResolver resolver = context.getContentResolver();
 			routeTitles = DatabaseAgent.getRouteTitles(resolver);
 
-			//TransitSourceTitles busTransitRoutes = routeTitles.getMappingForSource(Schema.Routes.enumagencyidBus);
+			TransitSourceTitles busTransitRoutes = routeTitles.getMappingForSource(Schema.Routes.enumagencyidBus);
+			TransitSourceTitles citibikeTransitRoutes = routeTitles.getMappingForSource(Schema.Routes.enumagencyidHubway);
 
-			defaultTransitSource = new MTABusTimeTransitSource(this, busDrawables, routeTitles, routeTitles);
-			
+			defaultTransitSource = new MTABusTimeTransitSource(this, busDrawables, busTransitRoutes, routeTitles);
+			TransitSource citibikeTransitSource = new CitibikeTransitSource(this, hubwayDrawables, citibikeTransitRoutes,
+					routeTitles);
+
 			ImmutableMap.Builder<String, TransitSource> mapBuilder = ImmutableMap.builder();
 			transitSourceMap = mapBuilder.build();
 

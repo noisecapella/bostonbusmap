@@ -60,7 +60,7 @@ def write_sql(startorder, route, gtfs_map, stops_already_inserted, routes_alread
         obj.routes.color.value = default_color
         obj.routes.oppositecolor.value = default_color
         obj.routes.listorder.value = startorder
-        obj.routes.agencyid.value = schema.SubwayAgencyId
+        obj.routes.agencyid.value = schema.BusAgencyId
         obj.routes.pathblob.value = pathblob
         obj.routes.insert()
 
