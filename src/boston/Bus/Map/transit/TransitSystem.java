@@ -94,7 +94,7 @@ public class TransitSystem implements ITransitSystem {
 	 */
 	@Override
 	public void setDefaultTransitSource(TransitDrawables busDrawables, TransitDrawables subwayDrawables, 
-			TransitDrawables commuterRailDrawables, Context context)
+			TransitDrawables commuterRailDrawables, TransitDrawables hubwayDrawables, Context context)
 	{
 		if (defaultTransitSource == null)
 		{
@@ -102,14 +102,14 @@ public class TransitSystem implements ITransitSystem {
 			routeTitles = DatabaseAgent.getRouteTitles(resolver);
 
 			//TransitSourceTitles busTransitRoutes = routeTitles.getMappingForSource(Schema.Routes.enumagencyidBus);
-			
+
 			defaultTransitSource = new MTABusTimeTransitSource(this, busDrawables, routeTitles, routeTitles);
 			
 			ImmutableMap.Builder<String, TransitSource> mapBuilder = ImmutableMap.builder();
 			transitSourceMap = mapBuilder.build();
 
 			transitSources = ImmutableList.of(defaultTransitSource);
-		
+
 		}
 		else
 		{

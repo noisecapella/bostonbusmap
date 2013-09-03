@@ -28,7 +28,7 @@ public class StopLocation implements Location
 	private Predictions predictions;
 	
 	private boolean isFavorite;
-	private boolean recentlyUpdated;
+	protected boolean recentlyUpdated;
 
 	
 	/**
@@ -178,15 +178,7 @@ public class StopLocation implements Location
 	{
 		if (predictions != null)
 		{
-			String route;
-			if (routeConfig != null) {
-				route = routeConfig.getRouteName();
-			}
-			else
-			{
-				route = null;
-			}
-			predictions.clearPredictions(route);
+			predictions.clearPredictions(routeConfig != null ? routeConfig.getRouteName() : null);
 		}
 		
 		recentlyUpdated = true;
@@ -342,5 +334,9 @@ public class StopLocation implements Location
 	@Override
 	public int getTransitSourceType() {
 		return Schema.Routes.enumagencyidBus;
+	}
+
+	public boolean supportsBusPredictionsAllMode() {
+		return true;
 	}
 }

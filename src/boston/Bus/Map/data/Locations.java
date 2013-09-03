@@ -122,21 +122,22 @@ public final class Locations
 		transitSystem.startObtainAlerts(context, directions, routeMapping, busMapping);
 
 		int mode = selection.getMode();
+		switch (mode) {
+			case Selection.BUS_PREDICTIONS_ALL:
+			case Selection.BUS_PREDICTIONS_ONE:
+			case Selection.BUS_PREDICTIONS_STAR:
+				routeMapping.clearRecentlyUpdated();
+				break;
+
+		}
 		switch (mode)
 		{
 		case Selection.BUS_PREDICTIONS_STAR:
 		case Selection.VEHICLE_LOCATIONS_ALL:
+		case Selection.BUS_PREDICTIONS_ALL:
 			//get data from many transit sources
 			transitSystem.refreshData(routeConfig, selection, maxStops, centerLatitude,
 					centerLongitude, busMapping, routeMapping, directions, this);
-			break;
-		case Selection.BUS_PREDICTIONS_ALL:
-		{
-			TransitSource transitSource = transitSystem.getDefaultTransitSource();
-			transitSource.refreshData(routeConfig, selection, maxStops,
-					centerLatitude, centerLongitude, busMapping,
-					routeMapping, directions, this);
-		}
 			break;
 		default:
 		{
@@ -222,7 +223,7 @@ public final class Locations
 			Collection<StopLocation> stops = routeMapping.getClosestStops(centerLatitude, centerLongitude, maxLocations);
 			for (StopLocation stop : stops)
 			{
-				if (!(stop instanceof SubwayStopLocation))
+				if (stop.supportsBusPredictionsAllMode())
 				{
 					newLocations.add(stop);
 				}

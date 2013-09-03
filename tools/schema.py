@@ -7,16 +7,8 @@ CommuterRailAgencyId = 2
 SubwayAgencyId = 1
 BusAgencyId = 3
 # boat would be 4
+HubwayAgencyId = 50
 
-exampleSql =     """
-CREATE TABLE android_metadata (locale TEXT);
-CREATE TABLE directions (dirTag STRING PRIMARY KEY, dirNameKey STRING, dirTitleKey STRING, dirRouteKey STRING, useAsUI INTEGER);
-CREATE TABLE directionsStops(dirTag STRING, tag STRING);
-CREATE TABLE favorites (tag STRING PRIMARY KEY);
-CREATE TABLE routes (route STRING PRIMARY KEY, color INTEGER, oppositecolor INTEGER, pathblob BLOB, routetitle STRING);
-CREATE TABLE stopmapping (route STRING, tag STRING, dirTag STRING, PRIMARY KEY (route, tag));
-CREATE TABLE stops (tag STRING PRIMARY KEY, lat FLOAT, lon FLOAT, title STRING);
-CREATE TABLE subway (tag STRING PRIMARY KEY, platformorder INTEGER, branch STRING);"""
 
 def rawhex(b):
     if b > 0xff or b < 0:
@@ -85,7 +77,8 @@ schema = {"directions" : {"columns":[
             {"tag": "agencyid", "type" : "int", 
              "values" : {CommuterRailAgencyId:"CommuterRail",
                          BusAgencyId : "Bus",
-                         SubwayAgencyId : "Subway"}},
+                         SubwayAgencyId : "Subway",
+                         HubwayAgencyId : "Hubway"}},
             {"tag": "routetitle", "type": "String"}],
                       "primaryKeys" : ["route"],
                           "indexes" : []},
