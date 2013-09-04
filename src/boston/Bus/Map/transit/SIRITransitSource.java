@@ -83,28 +83,12 @@ public class SIRITransitSource implements TransitSource {
 
 		switch (mode) {
 		case Selection.VEHICLE_LOCATIONS_ALL:
-		{
-			if (transitSystem.getAlerts().isEmpty() == false) {
-				// the alerts feed is currently the same as the vehicle locations feed
-				// so we don't want to pull it twice
-				String urlString = getVehicleLocationsUrl(null);
-				DownloadHelper downloadHelper = new DownloadHelper(urlString);
-				downloadHelpers.add(downloadHelper);
-				downloadHelper.connect();
-			}
-			pairs = ImmutableList.of();
-			break;
-		}
 		case Selection.VEHICLE_LOCATIONS_ONE:
 		{
-			if (transitSystem.getAlerts().isEmpty() == false) {
-				// the alerts feed is currently the same as the vehicle locations feed
-				// so we don't want to pull it twice
-				String urlString = getVehicleLocationsUrl(null);
-				DownloadHelper downloadHelper = new DownloadHelper(urlString);
-				downloadHelpers.add(downloadHelper);
-				downloadHelper.connect();
-			}
+			String urlString = getVehicleLocationsUrl(null);
+			DownloadHelper downloadHelper = new DownloadHelper(urlString);
+			downloadHelpers.add(downloadHelper);
+			downloadHelper.connect();
 			pairs = ImmutableList.of();
 			break;
 		}
