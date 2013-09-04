@@ -55,6 +55,8 @@ public class TransitSystem implements ITransitSystem {
 	private static final String[] emails = new String[]{"bostonbusmap@gmail.com"};
 	private static final String emailSubject = "Los AngelBus error report";
 
+	public static String ALERTS_URL = null;
+
 	private RouteTitles routeTitles;
 	
 	/**
