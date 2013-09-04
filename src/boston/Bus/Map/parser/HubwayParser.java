@@ -128,7 +128,7 @@ public class HubwayParser extends DefaultHandler {
 		StringBuilder ret = new StringBuilder();
 
 		ret.append("Bikes: ").append(numberBikes).append("<br />");
-		ret.append("Docks: ").append(numberEmptyDocks).append("<br />");
+		ret.append("Empty Docks: ").append(numberEmptyDocks).append("<br />");
 		if (locked) {
 			ret.append("<b>Locked</b><br />");
 		}
