@@ -113,7 +113,7 @@ public class TransitSystem implements ITransitSystem {
 			ImmutableMap.Builder<String, TransitSource> mapBuilder = ImmutableMap.builder();
 			transitSourceMap = mapBuilder.build();
 
-			transitSources = ImmutableList.of(defaultTransitSource);
+			transitSources = ImmutableList.of(defaultTransitSource, citibikeTransitSource);
 
 		}
 		else
