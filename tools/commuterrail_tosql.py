@@ -2,9 +2,8 @@ import schema
 import argparse
 import os
 
-from commuterrail_paths import calculate_path
 from gtfs_map import GtfsMap
-
+import itertools
 purple = 0x940088
 
 
@@ -47,16 +46,22 @@ def write_sql(startorder, gtfs_map, stationorder_csv):
                      if trip_row[trips_header["route_id"]] == route_id]
         trip_ids = set([trip[trips_header["trip_id"]] for trip in trip_rows])
 
-        # TODO: when shape data appears in GTFS, add it here
-        # for now use stop_sequence instead
+        shape_ids = set([trip[trips_header["shape_id"]] for trip in trip_rows])
+        shape_rows = [shape_row for shape_row in shapes
+                      if shape_row[shapes_header["shape_id"]] in shape_ids]
+
+        # this stores a list of list of lat, lon pairs
+        paths = []
+        shape_rows = list(sorted(shape_rows, key=lambda shape: shape[shapes_header["shape_id"]]))
+        for shape_id, group_rows in itertools.groupby(shape_rows, lambda shape: shape[shapes_header["shape_id"]]):
+            path = [(float(row[shapes_header["shape_pt_lat"]]), float(row[shapes_header["shape_pt_lon"]])) for row in group_rows]
+            paths.append(path)
 
         all_stop_times_rows = [stop_times_row for stop_times_row in stop_times
                                if stop_times_row[stop_times_header["trip_id"]] in trip_ids]
         all_stop_times_ids = set([stop_times_row[stop_times_header["stop_id"]] for stop_times_row in all_stop_times_rows])
         stop_rows = [stop_row for stop_row in stops
                      if stop_row[stops_header["stop_id"]] in all_stop_times_ids]
-
-        paths = calculate_path(route_id, gtfs_map, stationorder_csv)
 
         pathblob = schema.Box(paths).get_blob_string()
 
