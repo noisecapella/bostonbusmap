@@ -1,21 +1,12 @@
 package boston.Bus.Map.data;
 
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.SortedSet;
-import java.util.TreeMap;
-import java.util.TreeSet;
 
-import boston.Bus.Map.annotations.KeepSorted;
-
-import com.google.common.collect.Collections2;
 import com.google.common.collect.ImmutableCollection;
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
@@ -42,10 +33,8 @@ public class Predictions
 	@IsGuardedBy("modificationLock")
 	private final List<StopLocation> allStops = Lists.newArrayList(); 
 	@IsGuardedBy("modificationLock")
-	private final SortedSet<Prediction> predictions = Sets.newTreeSet();
-	@IsGuardedBy("modificationLock")
-	private final Set<Alert> alerts = Sets.newTreeSet();
-	
+	private final SortedSet<IPrediction> predictions = Sets.newTreeSet();
+
 	private final Object modificationLock = new Object();
 	
 	public void makeSnippetAndTitle(RouteConfig routeConfig,
@@ -56,15 +45,15 @@ public class Predictions
 			this.routes.clear();
 			this.routes.addAll(routes.getRoutes());
 			
-			this.alerts.clear();
-			this.alerts.addAll(alerts);
-			
 			allStops.clear();
 			allStops.add(stop);
-			
+
+			Set<Alert> alertSet = Sets.newTreeSet(alerts);
+			ImmutableList<Alert> alertImmutableSet = ImmutableList.copyOf(alertSet);
+
 			predictionView = new StopPredictionViewImpl(this.routes, allStops,
 					predictions,
-					routeConfig, routeKeysToTitles, context, alerts, locations);
+					routeConfig, routeKeysToTitles, context, alertImmutableSet, locations);
 		}
 	}
 	
@@ -78,7 +67,7 @@ public class Predictions
 		synchronized (modificationLock) {
 			allStops.add(stopLocation);
 
-			SortedSet<Prediction> allPredictions = Sets.newTreeSet();
+			SortedSet<IPrediction> allPredictions = Sets.newTreeSet();
 			for (StopLocation stop : allStops) {
 				if (stop.getPredictions() != null) {
 					allPredictions.addAll(stop.getPredictions().predictions);
@@ -115,27 +104,33 @@ public class Predictions
 
 	/**
 	 * Clear all predictions for a single route
-	 * @param routeName
+	 * @param currentRouteName
 	 */
 	public void clearPredictions(String currentRouteName)
 	{
 		synchronized (modificationLock) {
-			ArrayList<Prediction> newPredictions = new ArrayList<Prediction>();
+			if (currentRouteName != null) {
+				ArrayList<IPrediction> newPredictions = Lists.newArrayList();
 
-			for (Prediction prediction : predictions)
-			{
-				if (prediction.getRouteName().equals(currentRouteName) == false)
+				for (IPrediction prediction : predictions)
 				{
-					newPredictions.add(prediction);
+					if (prediction.getRouteName().equals(currentRouteName) == false)
+					{
+						newPredictions.add(prediction);
+					}
 				}
+				predictions.clear();
+				predictions.addAll(newPredictions);
 			}
-			predictions.clear();
-			predictions.addAll(newPredictions);
+			else
+			{
+				predictions.clear();
+			}
 		}
 		
 	}
 
-	public void addPredictionIfNotExists(Prediction prediction)
+	public void addPredictionIfNotExists(IPrediction prediction)
 	{
 		synchronized (modificationLock) {
 			if (predictions.contains(prediction) == false)

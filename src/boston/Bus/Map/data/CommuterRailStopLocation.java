@@ -15,9 +15,9 @@ public class CommuterRailStopLocation extends SubwayStopLocation {
 	public static class CommuterRailBuilder extends SubwayBuilder {
 		public CommuterRailBuilder(float latitudeAsDegrees,
 				float longitudeAsDegrees, String tag,
-				String title, int platformOrder, String branch) {
+				String title) {
 			super (latitudeAsDegrees, longitudeAsDegrees, tag,
-					title, platformOrder, branch);
+					title);
 		}
 		
 		@Override

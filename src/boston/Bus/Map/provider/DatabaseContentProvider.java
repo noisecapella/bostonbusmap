@@ -123,10 +123,6 @@ public class DatabaseContentProvider extends ContentProvider {
 	public static final Uri STOPS_WITH_DISTANCE_URI = Uri.parse("content://" + AUTHORITY + "/stops_with_distance");
 	private static final int STOPS_WITH_DISTANCE = 11;
 
-	private static final String SUBWAY_STOPS_TYPE = "vnd.android.cursor.dir/vnd.bostonbusmap.subway_stop";
-	public static final Uri SUBWAY_STOPS_URI = Uri.parse("content://" + AUTHORITY + "/subway_stops");
-	private static final int SUBWAY_STOPS = 13;
-	
 	private static final String STOPS_AND_ROUTES_WITH_DISTANCE_TYPE = "vnd.android.cursor.dir/vnd.bostonbusmap.stop_and_route_with_distance";
 	public static final Uri STOPS_AND_ROUTES_WITH_DISTANCE_URI = Uri.parse("content://" + AUTHORITY + "/stops_and_routes_with_distance");
 	private static final int STOPS_AND_ROUTES_WITH_DISTANCE = 17;
@@ -389,15 +385,11 @@ public class DatabaseContentProvider extends ContentProvider {
 			//add all stops associated with the route, if they don't already exist
 
 			InsertHelper stopsToInsert = new InsertHelper(database, Schema.Stops.table);
-			InsertHelper subwayStopsToInsert = new InsertHelper(database, Schema.Subway.table);
 			InsertHelper stopRoutesToInsert = new InsertHelper(database, Schema.Stopmapping.table);
 			try
 			{
 				for (StopLocation stop : routeConfig.getStops())
 				{
-					/*"CREATE TABLE IF NOT EXISTS " + verboseStops + " (" + stopTagKey + " STRING PRIMARY KEY, " + 
-				latitudeKey + " FLOAT, " + longitudeKey + " FLOAT, " + stopTitleKey + " STRING, " +
-				branchKey + " STRING, " + platformOrderKey + " SHORT)"*/
 					String stopTag = stop.getStopTag();
 
 					if (sharedStops.contains(stopTag) == false)
@@ -405,22 +397,15 @@ public class DatabaseContentProvider extends ContentProvider {
 						sharedStops.add(stopTag);
 
 						Schema.Stops.executeInsertHelper(stopsToInsert, stopTag, stop.getLatitudeAsDegrees(), stop.getLongitudeAsDegrees(), stop.getTitle());
-
-						if (stop instanceof SubwayStopLocation)
-						{
-							SubwayStopLocation subwayStop = (SubwayStopLocation)stop;
-							Schema.Subway.executeInsertHelper(subwayStopsToInsert, stopTag, subwayStop.getPlatformOrder(), subwayStop.getBranch());
-						}
 					}
 
 					//show that there's a relationship between the stop and this route
-					Schema.Stopmapping.executeInsertHelper(stopRoutesToInsert, route, stopTag, "");
+					Schema.Stopmapping.executeInsertHelper(stopRoutesToInsert, route, stopTag);
 				}
 			}
 			finally
 			{
 				stopsToInsert.close();
-				subwayStopsToInsert.close();
 				stopRoutesToInsert.close();
 			}
 		}
@@ -547,15 +532,9 @@ public class DatabaseContentProvider extends ContentProvider {
 			}
 
 			{
-				//get all stops, joining in the subway stops, making sure that the stop references the route we're on
-
-				/* select stops.tag, lat, lon, title, platformorder, branch, stopmapping1.dirTag, stopmapping2.route 
-				 * from stops inner join stopmapping as stopmapping1 on (stops.tag = stopmapping1.tag) 
-				 * inner join stopmapping as stopmapping2 on (stops.tag = stopmapping2.tag)
-				 * left outer join subway on (stops.tag = subway.tag) 
-				 * where stopmapping1.route=71;*/ 
+				// get all stops, joining in stops again to get every route for every stop
 				String[] projectionIn = new String[] {Schema.Stops.tagColumnOnTable, Schema.Stops.latColumn, Schema.Stops.lonColumn, 
-						Schema.Stops.titleColumn, Schema.Subway.platformorderColumn, Schema.Subway.branchColumn, "sm2." + Schema.Stopmapping.dirTagColumn, "sm2." + Schema.Stopmapping.routeColumn};
+						Schema.Stops.titleColumn, "sm2." + Schema.Stopmapping.routeColumn};
 				String select = "sm1." + Schema.Stopmapping.routeColumn + "=?";
 				String[] selectArray = new String[]{routeToUpdate};
 
@@ -568,7 +547,7 @@ public class DatabaseContentProvider extends ContentProvider {
 					while (cursor.isAfterLast() == false)
 					{
 						String stopTag = cursor.getString(0);
-						String route = cursor.getString(7);
+						String route = cursor.getString(4);
 
 						//we need to ensure this stop is in the sharedstops and the route
 						StopLocation stop = sharedStops.get(stopTag);
@@ -590,11 +569,8 @@ public class DatabaseContentProvider extends ContentProvider {
 								float latitude = cursor.getFloat(1);
 								float longitude = cursor.getFloat(2);
 								String stopTitle = cursor.getString(3);
-								String branch = cursor.getString(5);
 
-								int platformOrder = cursor.getInt(4);
-
-								stop = transitSystem.createStop(latitude, longitude, stopTag, stopTitle, platformOrder, branch, route);
+								stop = transitSystem.createStop(latitude, longitude, stopTag, stopTitle, route);
 
 								routeConfigBuilder.addStop(stopTag, stop);
 							}
@@ -954,7 +930,7 @@ public class DatabaseContentProvider extends ContentProvider {
 
 			//get stop with name stopTag, joining with the subway table
 			String[] projectionIn = new String[] {Schema.Stops.tagColumnOnTable, Schema.Stops.latColumn, Schema.Stops.lonColumn, 
-					Schema.Stops.titleColumn, Schema.Subway.platformorderColumn, Schema.Subway.branchColumn, Schema.Stopmapping.routeColumnOnTable, Schema.Stopmapping.dirTagColumnOnTable};
+					Schema.Stops.titleColumn, Schema.Stopmapping.routeColumnOnTable};
 
 			//if size == 1, where clause is tag = ?. if size > 1, where clause is "IN (tag1, tag2, tag3...)"
 			StringBuilder select;
@@ -974,21 +950,13 @@ public class DatabaseContentProvider extends ContentProvider {
 				{
 					String stopTag = stopCursor.getString(0);
 
-					String route = stopCursor.getString(6);
+					String route = stopCursor.getString(4);
 
 					float lat = stopCursor.getFloat(1);
 					float lon = stopCursor.getFloat(2);
 					String title = stopCursor.getString(3);
 
-					int platformOrder = 0;
-					String branch = null;
-					if (stopCursor.isNull(4) == false)
-					{
-						platformOrder = stopCursor.getInt(4);
-						branch = stopCursor.getString(5);
-					}
-
-					StopLocation stop = transitSystem.createStop(lat, lon, stopTag, title, platformOrder, branch, route);
+					StopLocation stop = transitSystem.createStop(lat, lon, stopTag, title, route);
 					return stop;
 				}
 				else
@@ -1021,7 +989,7 @@ public class DatabaseContentProvider extends ContentProvider {
 
 			//get stop with name stopTag, joining with the subway table
 			String[] projectionIn = new String[] {Schema.Stops.tagColumnOnTable, Schema.Stops.latColumn, Schema.Stops.lonColumn, 
-					Schema.Stops.titleColumn, Schema.Subway.platformorderColumn, Schema.Subway.branchColumn, Schema.Stopmapping.routeColumnOnTable, Schema.Stopmapping.dirTagColumnOnTable};
+					Schema.Stops.titleColumn, Schema.Stopmapping.routeColumnOnTable};
 
 			//if size == 1, where clause is tag = ?. if size > 1, where clause is "IN (tag1, tag2, tag3...)"
 			StringBuilder select;
@@ -1071,7 +1039,7 @@ public class DatabaseContentProvider extends ContentProvider {
 				{
 					String stopTag = stopCursor.getString(0);
 
-					String route = stopCursor.getString(6);
+					String route = stopCursor.getString(4);
 
 					StopLocation stop = outputMapping.get(stopTag);
 					if (stop == null)
@@ -1080,15 +1048,7 @@ public class DatabaseContentProvider extends ContentProvider {
 						float lon = stopCursor.getFloat(2);
 						String title = stopCursor.getString(3);
 
-						int platformOrder = 0;
-						String branch = null;
-						if (stopCursor.isNull(4) == false)
-						{
-							platformOrder = stopCursor.getInt(4);
-							branch = stopCursor.getString(5);
-						}
-
-						stop = transitSystem.createStop(lat, lon, stopTag, title, platformOrder, branch, route);
+						stop = transitSystem.createStop(lat, lon, stopTag, title, route);
 						outputMapping.putIfAbsent(stopTag, stop);
 					}
 					else
@@ -1098,57 +1058,6 @@ public class DatabaseContentProvider extends ContentProvider {
 
 					stopCursor.moveToNext();
 				}
-			}
-			finally
-			{
-				if (stopCursor != null) {
-					stopCursor.close();
-				}
-			}
-		}
-
-		public static ArrayList<StopLocation> getStopsByDirtag(ContentResolver resolver, 
-				String dirTag, TransitSystem transitSystem) {
-			ArrayList<StopLocation> ret = new ArrayList<StopLocation>();
-			String[] projectionIn = new String[] {Schema.Stops.tagColumnOnTable, Schema.Stops.latColumn, Schema.Stops.lonColumn, 
-					Schema.Stops.titleColumn, Schema.Subway.platformorderColumn, Schema.Subway.branchColumn, Schema.Stopmapping.routeColumnOnTable, Schema.Stopmapping.dirTagColumnOnTable};
-
-			//if size == 1, where clause is tag = ?. if size > 1, where clause is "IN (tag1, tag2, tag3...)"
-			StringBuilder select;
-			String[] selectArray;
-
-			select = new StringBuilder(Schema.Stopmapping.dirTagColumnOnTable + "=?");
-			selectArray = new String[]{dirTag};
-
-			Cursor stopCursor = null;
-			try
-			{
-				stopCursor = resolver.query(STOPS_LOOKUP_3_URI, projectionIn, select.toString(), selectArray, null);
-
-				stopCursor.moveToFirst();
-				while (stopCursor.isAfterLast() == false)
-				{
-					String stopTag = stopCursor.getString(0);
-
-					String route = stopCursor.getString(6);
-
-					float lat = stopCursor.getFloat(1);
-					float lon = stopCursor.getFloat(2);
-					String title = stopCursor.getString(3);
-
-					int platformOrder = 0;
-					String branch = null;
-					if (stopCursor.isNull(4) == false)
-					{
-						platformOrder = stopCursor.getInt(4);
-						branch = stopCursor.getString(5);
-					}
-
-					StopLocation stop = transitSystem.createStop(lat, lon, stopTag, title, platformOrder, branch, route);
-					ret.add(stop);
-					stopCursor.moveToNext();
-				}
-				return ret;
 			}
 			finally
 			{
@@ -1389,7 +1298,6 @@ public class DatabaseContentProvider extends ContentProvider {
 		uriMatcher.addURI(AUTHORITY, "stops_lookup_3", STOPS_LOOKUP_3);
 		uriMatcher.addURI(AUTHORITY, "stops_with_distance/*/*/#", STOPS_WITH_DISTANCE);
 		uriMatcher.addURI(AUTHORITY, "stops_and_routes_with_distance/*/*/#", STOPS_AND_ROUTES_WITH_DISTANCE);
-		uriMatcher.addURI(AUTHORITY, "subway_stops", SUBWAY_STOPS);
 		uriMatcher.addURI(AUTHORITY, "routes_and_bounds", ROUTES_AND_BOUNDS);
 	}
 
@@ -1412,9 +1320,6 @@ public class DatabaseContentProvider extends ContentProvider {
 			break;
 		case DIRECTIONS_STOPS:
 			count = db.delete(Schema.DirectionsStops.table, selection, selectionArgs);
-			break;
-		case SUBWAY_STOPS:
-			count = db.delete(Schema.Subway.table, selection, selectionArgs);
 			break;
 		default:
 			throw new IllegalArgumentException("Unknown URI " + uri);
@@ -1449,8 +1354,6 @@ public class DatabaseContentProvider extends ContentProvider {
 			return STOPS_WITH_DISTANCE_TYPE;
 		case STOPS_AND_ROUTES_WITH_DISTANCE:
 			return STOPS_AND_ROUTES_WITH_DISTANCE_TYPE;
-		case SUBWAY_STOPS:
-			return SUBWAY_STOPS_TYPE;
 		case ROUTES_AND_BOUNDS:
 			return ROUTES_AND_BOUNDS_TYPE;
 		default:
@@ -1463,7 +1366,6 @@ public class DatabaseContentProvider extends ContentProvider {
 		int match = uriMatcher.match(uri);
 		switch (match) {
 		case STOPS:
-		case SUBWAY_STOPS:
 		case ROUTES:
 		case STOPS_ROUTES:
 		case DIRECTIONS:
@@ -1521,15 +1423,6 @@ public class DatabaseContentProvider extends ContentProvider {
 			}
 		}
 		break;
-		case SUBWAY_STOPS:
-		{
-			long rowId = db.replace(Schema.Subway.table, null, values);
-			if (rowId >= 0) {
-				getContext().getContentResolver().notifyChange(uri, null);
-				return SUBWAY_STOPS_URI;
-			}
-		}
-		break;
 		}
 		throw new SQLException("Failed to insert row into " + uri);
 	}
@@ -1550,9 +1443,6 @@ public class DatabaseContentProvider extends ContentProvider {
 		case STOPS:
 			builder.setTables(Schema.Stops.table);
 			break;
-		case SUBWAY_STOPS:
-			builder.setTables(Schema.Subway.table);
-			break;
 		case ROUTES:
 			builder.setTables(Schema.Routes.table);
 			break;
@@ -1565,9 +1455,8 @@ public class DatabaseContentProvider extends ContentProvider {
 		case STOPS_LOOKUP:
 			builder.setTables(Schema.Stops.table +
 						" JOIN " + Schema.Stopmapping.table + " AS sm1 ON (" + Schema.Stops.tagColumnOnTable + " = sm1." + Schema.Stopmapping.tagColumn + ")" +
-						" JOIN " + Schema.Stopmapping.table + " AS sm2 ON (" + Schema.Stops.tagColumnOnTable + " = sm2." + Schema.Stopmapping.tagColumn + ")" +
-						" LEFT OUTER JOIN " + Schema.Subway.table + " ON (" + Schema.Stops.tagColumnOnTable + " = " + 
-						Schema.Subway.tagColumnOnTable + ")");
+						" JOIN " + Schema.Stopmapping.table + " AS sm2 ON (" + Schema.Stops.tagColumnOnTable + " = sm2." + Schema.Stopmapping.tagColumn + ")"
+						);
 			break;
 		case DIRECTIONS:
 			builder.setTables(Schema.Directions.table);
@@ -1583,9 +1472,7 @@ public class DatabaseContentProvider extends ContentProvider {
 			break;
 		case STOPS_LOOKUP_3:
 			builder.setTables(Schema.Stops.table + " JOIN " + Schema.Stopmapping.table + " ON (" + Schema.Stops.tagColumnOnTable + " = " +
-					Schema.Stopmapping.tagColumnOnTable + ") LEFT OUTER JOIN " +
-					Schema.Subway.table + " ON (" + Schema.Stops.tagColumnOnTable + " = " + 
-					Schema.Subway.tagColumnOnTable + ")");
+					Schema.Stopmapping.tagColumnOnTable + ") ");
 			break;
 		case STOPS_WITH_DISTANCE:
 		{
@@ -1660,9 +1547,6 @@ public class DatabaseContentProvider extends ContentProvider {
 			break;
 		case DIRECTIONS_STOPS:
 			count = db.update(Schema.DirectionsStops.table, values, selection, selectionArgs);
-			break;
-		case SUBWAY_STOPS:
-			count = db.update(Schema.Subway.table, values, selection, selectionArgs);
 			break;
 		default:
 			throw new IllegalArgumentException("Unknown URI " + uri);

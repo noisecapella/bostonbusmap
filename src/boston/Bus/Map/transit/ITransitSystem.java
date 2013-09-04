@@ -23,7 +23,9 @@ public interface ITransitSystem {
 
 	public abstract void setDefaultTransitSource(TransitDrawables busDrawables,
 			TransitDrawables subwayDrawables,
-			TransitDrawables commuterRailDrawables, Context context);
+			TransitDrawables commuterRailDrawables,
+			TransitDrawables hubwayDrawables,
+			Context context);
 
 	public abstract TransitSource getDefaultTransitSource();
 
@@ -42,7 +44,7 @@ public interface ITransitSystem {
 			String lowercaseQuery);
 
 	public abstract StopLocation createStop(float latitude, float longitude,
-			String stopTag, String stopTitle, int platformOrder, String branch,
+			String stopTag, String stopTitle,
 			String route);
 
 	IAlerts getAlerts();

@@ -4,7 +4,7 @@ import com.google.common.collect.ImmutableCollection;
 
 public abstract class PredictionView {
 	protected final static String[] nullStrings = new String[0];
-	protected final static Prediction[] nullPredictions = new Prediction[0];
+	protected final static IPrediction[] nullPredictions = new IPrediction[0];
 	
 	
 	public abstract String getSnippet();

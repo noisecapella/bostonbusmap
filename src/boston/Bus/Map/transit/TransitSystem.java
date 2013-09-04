@@ -105,7 +105,7 @@ public class TransitSystem implements ITransitSystem {
 	 */
 	@Override
 	public void setDefaultTransitSource(TransitDrawables busDrawables, TransitDrawables subwayDrawables, 
-			TransitDrawables commuterRailDrawables, Context context)
+			TransitDrawables commuterRailDrawables, TransitDrawables hubwayDrawables, Context context)
 	{
 		if (defaultTransitSource == null)
 		{
@@ -115,6 +115,7 @@ public class TransitSystem implements ITransitSystem {
 			TransitSourceTitles busTransitRoutes = routeTitles.getMappingForSource(Schema.Routes.enumagencyidBus);
 			TransitSourceTitles subwayTransitRoutes = routeTitles.getMappingForSource(Schema.Routes.enumagencyidSubway);
 			TransitSourceTitles commuterRailTransitRoutes = routeTitles.getMappingForSource(Schema.Routes.enumagencyidCommuterRail);
+			TransitSourceTitles hubwayTransitRoutes = routeTitles.getMappingForSource(Schema.Routes.enumagencyidHubway);
 			
 			defaultTransitSource = new LABusTransitSource(this, busDrawables, busTransitRoutes, routeTitles);
 			
@@ -123,7 +124,7 @@ public class TransitSystem implements ITransitSystem {
 			transitSourceMap = mapBuilder.build();
 
 			transitSources = ImmutableList.of(defaultTransitSource);
-		
+
 		}
 		else
 		{
@@ -229,11 +230,11 @@ public class TransitSystem implements ITransitSystem {
 
 	@Override
 	public StopLocation createStop(float latitude, float longitude,
-			String stopTag, String stopTitle, int platformOrder, String branch,
+			String stopTag, String stopTitle,
 			String route) {
 		TransitSource source = getTransitSource(route);
 		
-		return source.createStop(latitude, longitude, stopTag, stopTitle, platformOrder, branch, route);
+		return source.createStop(latitude, longitude, stopTag, stopTitle, route);
 	}
 
 	@Override
@@ -278,8 +279,11 @@ public class TransitSystem implements ITransitSystem {
 	 * This downloads alerts in a background thread. If alerts are
 	 * not available when getAlerts() is called, empty alerts are returned
 	 * @param context
+	 * @param directions
+	 * @param routeMapping
 	 */
-	public void startObtainAlerts(Context context) {
+	public void startObtainAlerts(Context context, Directions directions,
+								  RoutePool routePool, ConcurrentHashMap<String, BusLocation> busMapping) {
 		// no alerts are provided for LosAngelbus currently
 	}
 }
