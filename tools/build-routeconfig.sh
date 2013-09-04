@@ -6,6 +6,7 @@ echo "<body copyright=\"All data copyright $agency 2011.\">" >> routeconfig_full
 
 for agency in brooklyn bronx staten-island
 do
+    echo "Downloading for agency $agency..."
 
     wget "http://$prefix.nextbus.com/service/publicXMLFeed?a=$agency&command=routeList" -O routeList_$agency --quiet
     cat routeList_$agency | grep route | awk -F"\"" '{ print $2 }' > routes_$agency
@@ -17,8 +18,8 @@ do
 	    echo "Downloaded $each"
 	else
 	    echo "Failed to download $each"
-	    sleep 10
 	fi
+	sleep 10
     done
 
     touch routeconfig_full.xml
