@@ -1,28 +1,5 @@
 <?xml version="1.0" encoding="utf-8" ?> 
 <body copyright="All data copyright MBTA 2013.">
-<route tag="CR-1" title="Greenbush" />
-<route tag="CR-2" title="Kingston/Plymouth" />
-<route tag="CR-3" title="Middleborough/Lakeville" />
-<route tag="CR-4" title="Fairmount" />
-<route tag="CR-5" title="Providence/Stoughton" />
-<route tag="CR-6" title="Franklin" />
-<route tag="CR-7" title="Needham" />
-<route tag="CR-8" title="Framingham/Worcester" />
-<route tag="CR-9" title="Fitchburg/South Acton" />
-<route tag="CR-10" title="Lowell" />
-<route tag="CR-11" title="Haverhill" />
-<route tag="CR-12" title="Newburyport/Rockport" />
-<route tag="Red" title="Red" />
-<route tag="Orange" title="Orange" />
-<route tag="Blue" title="Blue" />
-<route tag="701" title="CT1"/>
-<route tag="747" title="CT2"/>
-<route tag="708" title="CT3"/>
-<route tag="746" title="Silver Line"/>
-<route tag="741" title="Silver Line SL1"/>
-<route tag="742" title="Silver Line SL2"/>
-<route tag="751" title="Silver Line SL4"/>
-<route tag="749" title="Silver Line SL5"/>
 <route tag="1" title="1"/>
 <route tag="4" title="4"/>
 <route tag="5" title="5"/>
@@ -197,4 +174,15 @@
 <route tag="554" title="554"/>
 <route tag="556" title="556"/>
 <route tag="558" title="558"/>
+<route tag="701" title="Ct1"/>
+<route tag="747" title="Ct2"/>
+<route tag="708" title="Ct3"/>
+<route tag="746" title="Silver Line Waterfront"/>
+<route tag="741" title="Silver Line SL1"/>
+<route tag="742" title="Silver Line SL2"/>
+<route tag="751" title="Silver Line SL4"/>
+<route tag="749" title="Silver Line SL5"/>
+<route tag="9701" title="9701"/>
+<route tag="9702" title="9702"/>
+<route tag="9703" title="9703"/>
 </body>
