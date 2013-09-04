@@ -11,8 +11,8 @@ import java.util.concurrent.ConcurrentHashMap;
 import javax.xml.parsers.ParserConfigurationException;
 
 import boston.Bus.Map.data.BusLocation;
+import boston.Bus.Map.data.CitibikeStopLocation;
 import boston.Bus.Map.data.Directions;
-import boston.Bus.Map.data.HubwayStopLocation;
 import boston.Bus.Map.data.IAlerts;
 import boston.Bus.Map.data.Locations;
 import boston.Bus.Map.data.PredictionStopLocationPair;
@@ -103,7 +103,7 @@ public class CitibikeTransitSource implements TransitSource {
 
 	@Override
 	public StopLocation createStop(float latitude, float longitude, String stopTag, String stopTitle, String route) {
-		HubwayStopLocation stop = new HubwayStopLocation.HubwayBuilder(latitude,
+		CitibikeStopLocation stop = new CitibikeStopLocation.CitibikeBuilder(latitude,
 				longitude, stopTag, stopTitle).build();
 		stop.addRoute(route);
 		return stop;

@@ -8,14 +8,14 @@ import boston.Bus.Map.transit.TransitSystem;
 /**
  * Created by schneg on 9/1/13.
  */
-public class HubwayStopLocation extends StopLocation {
+public class CitibikeStopLocation extends StopLocation {
 
-	protected HubwayStopLocation(HubwayBuilder build) {
+	protected CitibikeStopLocation(CitibikeBuilder build) {
 		super(build);
 	}
 
-	public static class HubwayBuilder extends Builder {
-		public HubwayBuilder(float latitudeAsDegrees,
+	public static class CitibikeBuilder extends Builder {
+		public CitibikeBuilder(float latitudeAsDegrees,
 								   float longitudeAsDegrees, String tag,
 								   String title) {
 			super (latitudeAsDegrees, longitudeAsDegrees, tag,
@@ -23,8 +23,8 @@ public class HubwayStopLocation extends StopLocation {
 		}
 
 		@Override
-		public HubwayStopLocation build() {
-			return new HubwayStopLocation(this);
+		public CitibikeStopLocation build() {
+			return new CitibikeStopLocation(this);
 		}
 	}
 
@@ -37,7 +37,7 @@ public class HubwayStopLocation extends StopLocation {
 	public Drawable getDrawable(TransitSystem transitSystem) {
 		// stops all look the same, and they can support multiple transit sources
 		// so we'll just use the default transit source's drawables
-		TransitDrawables drawables = transitSystem.getTransitSource("Hubway").getDrawables();
+		TransitDrawables drawables = transitSystem.getTransitSource("Citibike").getDrawables();
 		return recentlyUpdated ? drawables.getStopUpdated() : drawables.getStop();
 	}
 
