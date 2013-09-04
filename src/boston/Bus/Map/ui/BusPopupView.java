@@ -2,8 +2,6 @@ package boston.Bus.Map.ui;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.ConcurrentMap;
 
@@ -11,7 +9,6 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.OperationApplicationException;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
@@ -20,28 +17,22 @@ import android.os.RemoteException;
 import android.text.Html;
 import android.text.Spanned;
 import android.util.Log;
-import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
-import android.widget.FrameLayout;
 import android.widget.ImageView;
-import android.widget.ListAdapter;
 import android.widget.ListView;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
-import android.widget.FrameLayout.LayoutParams;
 
 import boston.Bus.Map.data.Alert;
 import boston.Bus.Map.data.BusLocation;
+import boston.Bus.Map.data.IPrediction;
 import boston.Bus.Map.data.IntersectionLocation;
 import boston.Bus.Map.data.Location;
 import boston.Bus.Map.data.Locations;
-import boston.Bus.Map.data.Prediction;
-import boston.Bus.Map.data.PredictionView;
 import boston.Bus.Map.data.RouteTitles;
 import boston.Bus.Map.data.Selection;
 import boston.Bus.Map.data.StopLocation;
@@ -53,13 +44,10 @@ import boston.Bus.Map.main.MoreInfo;
 import boston.Bus.Map.main.UpdateHandler;
 import boston.Bus.Map.transit.TransitSystem;
 import boston.Bus.Map.util.LogUtil;
-import boston.Bus.Map.util.StringUtil;
 
 import com.google.android.maps.OverlayItem;
 import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableCollection;
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.readystatesoftware.mapviewballoons.BalloonOverlayView;
 import com.schneeloch.torontotransit.R;
@@ -168,7 +156,7 @@ public class BusPopupView extends BalloonOverlayView<BusOverlayItem>
 					Intent intent = new Intent(context, MoreInfo.class);
 
 					StopPredictionView predictionView = (StopPredictionView)stopLocation.getPredictionView();
-					Prediction[] predictionArray = predictionView.getPredictions();
+					IPrediction[] predictionArray = predictionView.getPredictions();
 					if (predictionArray != null)
 					{
 						intent.putExtra(MoreInfo.predictionsKey, predictionArray);

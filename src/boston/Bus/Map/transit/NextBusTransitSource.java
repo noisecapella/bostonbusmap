@@ -44,7 +44,6 @@ import boston.Bus.Map.database.Schema;
 import boston.Bus.Map.main.Main;
 import boston.Bus.Map.main.UpdateAsyncTask;
 import boston.Bus.Map.parser.BusPredictionsFeedParser;
-import boston.Bus.Map.parser.RouteConfigFeedParser;
 import boston.Bus.Map.parser.VehicleLocationsFeedParser;
 import boston.Bus.Map.ui.ProgressMessage;
 import boston.Bus.Map.util.DownloadHelper;
@@ -108,8 +107,6 @@ public abstract class NextBusTransitSource implements TransitSource
 		case  Selection.BUS_PREDICTIONS_STAR:
 		case  Selection.BUS_PREDICTIONS_ALL:
 		{
-
-			routePool.clearRecentlyUpdated();
 
 			List<Location> locations = locationsObj.getLocations(maxStops, centerLatitude, centerLongitude, false, selection);
 
@@ -205,23 +202,23 @@ public abstract class NextBusTransitSource implements TransitSource
 
 		for (Location location : locations)
 		{
-			if ((location instanceof StopLocation) && !(location instanceof SubwayStopLocation))
+			if (location instanceof StopLocation)
 			{
 				StopLocation stopLocation = (StopLocation)location;
-				if (routes.isEmpty() == false) {
-					for (String route : routes) {
-						if (stopLocation.hasRoute(route)) {
-							urlString.append("&stops=").append(route).append("%7C");
-							urlString.append("%7C").append(stopLocation.getStopTag());
+				if (stopLocation.getTransitSourceType() == Schema.Routes.enumagencyidBus) {
+					if (routes.isEmpty() == false) {
+						for (String route : routes) {
+							if (stopLocation.hasRoute(route)) {
+								urlString.append("&stops=").append(route).append("%7C");
+								urlString.append("%7C").append(stopLocation.getStopTag());
+							}
 						}
-					}
-				}
-				else
-				{
-					for (String stopRoute : stopLocation.getRoutes()) {
-						urlString.append("&stops=").append(stopRoute).append("%7C");
-						urlString.append("%7C").append(stopLocation.getStopTag());
-						
+					} else {
+						for (String stopRoute : stopLocation.getRoutes()) {
+							urlString.append("&stops=").append(stopRoute).append("%7C");
+							urlString.append("%7C").append(stopLocation.getStopTag());
+
+						}
 					}
 				}
 			}
@@ -265,7 +262,7 @@ public abstract class NextBusTransitSource implements TransitSource
 
 	@Override
 	public StopLocation createStop(float lat, float lon, String stopTag,
-			String title, int platformOrder, String branch, String route)
+			String title, String route)
 	{
 		StopLocation stop = new StopLocation.Builder(lat, lon, stopTag, title).build();
 		stop.addRoute(route);

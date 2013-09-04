@@ -2,10 +2,6 @@
 bin/*
 gen/*
 *.properties
-<<<<<<< HEAD
-tools/route*
-=======
 tools/route*.xml
 
 *~
->>>>>>> master

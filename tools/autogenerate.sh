@@ -1,5 +1,6 @@
 #!/bin/bash
 PROGNAME=$(basename $0)
+GTFS_DIR=gtfs/mbta
 
 set -e
 echo "Generating schema..."
