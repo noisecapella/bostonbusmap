@@ -111,6 +111,9 @@ public class TransitSystem implements ITransitSystem {
 					routeTitles);
 
 			ImmutableMap.Builder<String, TransitSource> mapBuilder = ImmutableMap.builder();
+			for (String route : citibikeTransitRoutes.routeTags()) {
+				mapBuilder.put(route, citibikeTransitSource);
+			}
 			transitSourceMap = mapBuilder.build();
 
 			transitSources = ImmutableList.of(defaultTransitSource, citibikeTransitSource);
