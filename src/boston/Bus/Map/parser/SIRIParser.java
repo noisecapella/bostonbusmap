@@ -103,34 +103,37 @@ public abstract class SIRIParser {
 		
 		// parse alerts
 		Alerts.Builder alertsBuilder = Alerts.builder();
-		
-		JsonArray situationExchangeDeliveryArray = serviceDelivery.get("SituationExchangeDelivery").getAsJsonArray();
-		for (JsonElement situationExchangeDeliveryElement : situationExchangeDeliveryArray) {
-			
-			JsonObject situationExchangeDelivery = situationExchangeDeliveryElement.getAsJsonObject();
-			JsonObject situations = situationExchangeDelivery.get("Situations").getAsJsonObject();
-			JsonArray ptSituationElementArray = situations.get("PtSituationElement").getAsJsonArray();
-			for (JsonElement ptSituationElement : ptSituationElementArray) {
-				JsonObject ptSituation = ptSituationElement.getAsJsonObject();
 
-				// TODO: this should probably use PublicationWindow->StartTime
-				String creationTimeString = ptSituation.get("CreationTime").getAsString();
-				Date creationTime = parseTime(creationTimeString);
-				String description = ptSituation.get("Description").getAsString();
-				String summary = ptSituation.get("Summary").getAsString();
-				
-				JsonObject affects = ptSituation.get("Affects").getAsJsonObject();
-				JsonObject vehicleJourneys = affects.get("VehicleJourneys").getAsJsonObject();
-				JsonArray affectedVehicleJourneyArray = vehicleJourneys.get("AffectedVehicleJourney").getAsJsonArray();
-				
-				Alert alert = new Alert(creationTime, summary, description, "");
+		JsonElement situationExchangeDeliveryObject = serviceDelivery.get("SituationExchangeDelivery");
+		if (situationExchangeDeliveryObject != null) {
+			JsonArray situationExchangeDeliveryArray = situationExchangeDeliveryObject.getAsJsonArray();
+			for (JsonElement situationExchangeDeliveryElement : situationExchangeDeliveryArray) {
 
-				for (JsonElement affectedVehicleJourneyElement : affectedVehicleJourneyArray) {
-					// TODO: support DirectionRef
-					JsonObject affectedVehicleJourney = affectedVehicleJourneyElement.getAsJsonObject();
-					String route = truncateRouteId(affectedVehicleJourney.get("LineRef").getAsString());
+				JsonObject situationExchangeDelivery = situationExchangeDeliveryElement.getAsJsonObject();
+				JsonObject situations = situationExchangeDelivery.get("Situations").getAsJsonObject();
+				JsonArray ptSituationElementArray = situations.get("PtSituationElement").getAsJsonArray();
+				for (JsonElement ptSituationElement : ptSituationElementArray) {
+					JsonObject ptSituation = ptSituationElement.getAsJsonObject();
 
-					alertsBuilder.addAlertForRoute(route, alert);
+					// TODO: this should probably use PublicationWindow->StartTime
+					String creationTimeString = ptSituation.get("CreationTime").getAsString();
+					Date creationTime = parseTime(creationTimeString);
+					String description = ptSituation.get("Description").getAsString();
+					String summary = ptSituation.get("Summary").getAsString();
+
+					JsonObject affects = ptSituation.get("Affects").getAsJsonObject();
+					JsonObject vehicleJourneys = affects.get("VehicleJourneys").getAsJsonObject();
+					JsonArray affectedVehicleJourneyArray = vehicleJourneys.get("AffectedVehicleJourney").getAsJsonArray();
+
+					Alert alert = new Alert(creationTime, summary, description, "");
+
+					for (JsonElement affectedVehicleJourneyElement : affectedVehicleJourneyArray) {
+						// TODO: support DirectionRef
+						JsonObject affectedVehicleJourney = affectedVehicleJourneyElement.getAsJsonObject();
+						String route = truncateRouteId(affectedVehicleJourney.get("LineRef").getAsString());
+
+						alertsBuilder.addAlertForRoute(route, alert);
+					}
 				}
 			}
 		}
