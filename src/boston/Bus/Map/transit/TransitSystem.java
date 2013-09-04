@@ -116,7 +116,7 @@ public class TransitSystem implements ITransitSystem {
 			}
 			transitSourceMap = mapBuilder.build();
 
-			transitSources = ImmutableList.of(defaultTransitSource, citibikeTransitSource);
+			transitSources = ImmutableList.of(citibikeTransitSource, defaultTransitSource);
 
 		}
 		else
