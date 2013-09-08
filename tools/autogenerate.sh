@@ -21,6 +21,7 @@ echo "Generating database..."
 #echo "Dumping into sqlite..."
 #rm new.db* || true
 #sqlite3 new.db < sql.dump
+rm -f new.db.gz
 gzip new.db
 cp new.db.gz ../res/raw/databasegz
 echo "Done!"
