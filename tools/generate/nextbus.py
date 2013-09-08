@@ -1,24 +1,22 @@
-import xml.sax.handler
+from twisted.internet.defer import inlineCallbacks, returnValue
+from twisted.web.client import getPage
+from twisted.internet import reactor
+
 import xml.sax
-import sys
 
+import time
+
+import xml.dom.minidom
 import schema
-import routetitleshandler
-import argparse
 
-def escaped(s):
-    return s.replace("'", "''")
+class RouteHandler(xml.sax.handler.ContentHandler):
+    def __init__(self, cur, startingOrder, sharedStops):
+        self.cur = cur
 
-def hexToDec(s):
-    return str(int(s, 16))
-
-class ToSql(xml.sax.handler.ContentHandler):
-    def __init__(self, routeKeysToTitles, startingOrder):
         self.currentDirection = None
         self.currentRoute = None
-        self.sharedStops = {}
+        self.sharedStops = sharedStops
         self.table = schema.getSchemaAsObject()
-        self.routeKeysToTitles = routeKeysToTitles
         self.startingOrder = startingOrder
         self.inPath = False
         self.paths = []
@@ -29,11 +27,10 @@ class ToSql(xml.sax.handler.ContentHandler):
             route = attributes["tag"]
             self.currentRoute = route
             table.routes.route.value = attributes["tag"]
-            routetitle, order = self.routeKeysToTitles[route]
-            table.routes.routetitle.value = routetitle
+            table.routes.routetitle.value = attributes["title"]
             table.routes.color.value = int(attributes["color"], 16)
             table.routes.oppositecolor.value = int(attributes["oppositeColor"], 16)
-            table.routes.listorder.value = self.startingOrder + order
+            table.routes.listorder.value = self.startingOrder
             table.routes.agencyid.value = schema.BusAgencyId
 
         elif name == "stop":
@@ -45,15 +42,15 @@ class ToSql(xml.sax.handler.ContentHandler):
                     table.stops.lat.value = attributes["lat"]
                     table.stops.lon.value = attributes["lon"]
                     table.stops.title.value = attributes["title"]
-                    table.stops.insert()
+                    self.cur.execute(table.stops.insert())
                 table.stopmapping.route.value = self.currentRoute
                 table.stopmapping.tag.value = tag
-                table.stopmapping.insert()
+                self.cur.execute(table.stopmapping.insert())
             else:
                 pass
                 #table.directionsStops.dirTag.value = self.currentDirection
                 #table.directionsStops.tag.value = tag
-                #table.directionsStops.insert()
+                #self.cur.execute(table.directionsStops.insert())
                 
         elif name == "direction": #band attributes["useForUI"] == "true":
             dirTag = attributes["tag"]
@@ -64,7 +61,7 @@ class ToSql(xml.sax.handler.ContentHandler):
                 table.directions.dirRouteKey.value = self.currentRoute
                 table.directions.dirNameKey.value = attributes["name"]
                 table.directions.useAsUI.value = schema.getIntFromBool(attributes["useForUI"])
-                table.directions.insert()
+                self.cur.execute(table.directions.insert())
         elif name == "path":
             self.inPath = True
             self.currentPathPoints = []
@@ -82,27 +79,59 @@ class ToSql(xml.sax.handler.ContentHandler):
             if len(self.paths) > 0:
                 self.table.routes.pathblob.value = schema.Box(self.paths).get_blob_string()
             self.paths = []
-            self.table.routes.insert()
+            self.cur.execute(self.table.routes.insert())
         elif name == "path":
             self.inPath = False
             self.paths.append(self.currentPathPoints)
                 
+    
 
-if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Parse routeconfig.xml into SQL statements")
-    parser.add_argument("routeconfig", type=str)
-    parser.add_argument("routeList", type=str)
-    parser.add_argument("order", type=int)
-    args = parser.parse_args()
+class NextBus:
+    url = "http://{prefix}.nextbus.com/service/publicXMLFeed?a={agency}&command={command}{other}"
+    def __init__(self, agency):
+        self.agency = agency
 
-    routeTitleParser = xml.sax.make_parser()
-    routeHandler = routetitleshandler.RouteTitlesHandler()
-    routeTitleParser.setContentHandler(routeHandler)
-    routeTitleParser.parse(args.routeList)
-        
-    print "BEGIN TRANSACTION;"
-    parser = xml.sax.make_parser()
-    handler = ToSql(routeHandler.mapping, args.order)
-    parser.setContentHandler(handler)
-    parser.parse(args.routeconfig)
-    print "END TRANSACTION;"
+    def routeListUrl(self):
+        return self.url.format(prefix = 'webservices',
+                               agency = self.agency,
+                               command = 'routeList',
+                               other = '')
+
+    def routeConfigUrl(self, route_name):
+        return self.url.format(prefix = 'webservices',
+                               agency = self.agency,
+                               command = 'routeConfig',
+                               other=('&r=%s' % route_name))
+
+    @inlineCallbacks
+    def generate(self, conn, index):
+        print "Downloading NextBus route data (this will take 10 or 20 minutes)..."
+        routeList_data = yield getPage(self.routeListUrl())
+        routeList_dom = xml.dom.minidom.parseString(routeList_data)
+
+        routes = []
+
+        cur = conn.cursor()
+        count = 0
+        shared_stops = {}
+        for routenode in routeList_dom.getElementsByTagName("route"):
+            route_name = routenode.getAttribute("tag")
+            route_title = routenode.getAttribute("title")
+            routes.append(route_name)
+            
+            print "Route %s..." % route_title
+            routeConfig_data = yield getPage(self.routeConfigUrl(route_name))
+
+            handler = RouteHandler(cur, index + count, shared_stops)
+            xml.sax.parseString(routeConfig_data, handler)
+
+            # NextBus rate limiting
+            time.sleep(15)
+            count += 1
+
+
+        conn.commit()
+        conn.close()
+
+        yield len(routes)
+        returnValue(len(routes))

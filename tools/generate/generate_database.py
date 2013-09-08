@@ -5,6 +5,7 @@ import sqlite3
 from hubway import Hubway
 from mbta_heavy_rail import MbtaHeavyRail
 from mbta_commuter_rail import MbtaCommuterRail
+from nextbus import NextBus
 from create_tables import create_tables
 
 from gtfs_map import GtfsMap
@@ -22,8 +23,8 @@ def generate(conn, gtfs_map):
     index = yield MbtaCommuterRail().generate(conn, index, gtfs_map)
     print "Generating heavy rail stops..."
     index = yield MbtaHeavyRail().generate(conn, index, gtfs_map)
-    #print "Generating NextBus stops..."
-    #index = yield NextBus("mbta").generate(conn, index)
+    print "Generating NextBus stops..."
+    index = yield NextBus("mbta").generate(conn, index)
     print index
 
 @inlineCallbacks
