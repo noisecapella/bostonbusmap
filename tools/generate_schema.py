@@ -2,7 +2,7 @@ indent = "    "
 indent2 = indent * 2
 indent3 = indent * 3
 indent4 = indent * 4
-import schema
+from generate import schema
 import inspect
 
 def capitalizeFirst(s):
