@@ -17,14 +17,8 @@ import traceback
 @inlineCallbacks
 def generate(conn, gtfs_map):
     create_tables(conn)
-    print "Generating Hubway stops..."
-    index = yield Hubway().generate(conn, 0)
-    print "Generating commuter rail stops..."
-    index = yield MbtaCommuterRail().generate(conn, index, gtfs_map)
-    print "Generating heavy rail stops..."
-    index = yield MbtaHeavyRail().generate(conn, index, gtfs_map)
     print "Generating NextBus stops..."
-    index = yield NextBus("mbta").generate(conn, index)
+    index = yield NextBus("lametro").generate(conn, index)
     print index
 
 @inlineCallbacks
