@@ -48,12 +48,3 @@ class Hubway:
         
         
 
-
-def print_and_stop(x):
-    #print x
-    reactor.stop()
-
-if __name__ == "__main__":
-    main().addBoth(print_and_stop)
-    reactor.run()
-

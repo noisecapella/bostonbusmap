@@ -1,12 +1,12 @@
 #!/bin/bash
 PROGNAME=$(basename $0)
-GTFS_DIR=gtfs/mbta
+GTFS_DIR=$(cd gtfs/mbta; pwd)
 
 set -e
 echo "Generate Schema.java..."
 python generate_schema.py > ../src/boston/Bus/Map/database/Schema.java
 echo "Generating database..."
-(cd generate; python generate_database.py ../new.db)
+(cd generate; python generate_database.py ../new.db "$GTFS_DIR")
 #echo "Create tables..."
 #python create_tables.py > sql.dump
 #echo "Parsing Hubway data..."
