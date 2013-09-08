@@ -9,6 +9,8 @@ BusAgencyId = 3
 # boat would be 4
 HubwayAgencyId = 50
 
+# TODO: change to SQLAlchemy, whose functionality this duplicates badly
+
 
 def rawhex(b):
     if b > 0xff or b < 0:
@@ -132,9 +134,10 @@ class Table:
         return "CREATE TABLE IF NOT EXISTS " + self.tablename + " (" + createParams + ")"
 
     def insert(self):
-        print "INSERT INTO " + self.tablename + " VALUES (",
-        print ", ".join(getattr(self, argument["tag"]).insert() for argument in self.arguments),
-        print ");"
+        ret = "INSERT INTO " + self.tablename + " VALUES ("
+        ret += ", ".join(getattr(self, argument["tag"]).insert() for argument in self.arguments)
+        ret += ")"
+        return ret
 
 class Column:
     value = None
