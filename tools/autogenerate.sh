@@ -1,4 +1,5 @@
 #!/bin/bash
+set -e
 PROGNAME=$(basename $0)
 GTFS_DIR=$(cd gtfs/mbta; pwd)
 
