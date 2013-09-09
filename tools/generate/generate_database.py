@@ -18,7 +18,7 @@ import traceback
 def generate(conn, gtfs_map):
     create_tables(conn)
     print "Generating NextBus stops..."
-    index = yield NextBus("lametro").generate(conn, index)
+    index = yield NextBus("lametro").generate(conn, 0)
     print index
 
 @inlineCallbacks
