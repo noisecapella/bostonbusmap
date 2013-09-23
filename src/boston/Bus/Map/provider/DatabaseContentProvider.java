@@ -168,8 +168,9 @@ public class DatabaseContentProvider extends ContentProvider {
 	public final static int ADDING_BOUNDS = 38;
 
 	public final static int CITIBIKE_1 = 40;
-	
-	public final static int CURRENT_DB_VERSION = CITIBIKE_1;
+	public final static int CITIBIKE_2 = 41;
+
+	public final static int CURRENT_DB_VERSION = CITIBIKE_2;
 
 	public static final int ALWAYS_POPULATE = 3;
 	public static final int POPULATE_IF_UPGRADE = 2;
