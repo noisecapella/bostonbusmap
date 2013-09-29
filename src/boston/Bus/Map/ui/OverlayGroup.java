@@ -34,10 +34,9 @@ public class OverlayGroup {
 	}
 	
 	public OverlayGroup(Main main, Drawable busPicture, MapView mapView,
-			RouteTitles dropdownRouteKeysToTitles,
-			UpdateHandler handler) {
+			RouteTitles dropdownRouteKeysToTitles) {
     	busOverlay = new BusOverlay(busPicture, main, mapView, dropdownRouteKeysToTitles);
-    	locationOverlay = new LocationOverlay(main, mapView, handler);
+    	locationOverlay = new LocationOverlay(main, mapView);
     	
     	RouteOverlay routeOverlay = new RouteOverlay(mapView.getProjection());
     	RouteOverlay getDirectionsOverlay = new RouteOverlay(mapView.getProjection());
@@ -63,7 +62,7 @@ public class OverlayGroup {
 	}
 
 	public OverlayGroup cloneOverlays(Main context, MapView mapView, 
-			RouteTitles dropDownRouteKeysToTitles, UpdateHandler handler) {
+			RouteTitles dropDownRouteKeysToTitles) {
 		
     	final BusOverlay newBusOverlay = new BusOverlay(busOverlay, context, mapView, dropDownRouteKeysToTitles);
 
@@ -73,7 +72,7 @@ public class OverlayGroup {
     		RouteOverlay newRouteOverlay = new RouteOverlay(oldRouteOverlay, mapView.getProjection());
     		newRouteOverlaysBuilder.put(key, newRouteOverlay);
     	}
-    	LocationOverlay newLocationOverlay = new LocationOverlay(context, mapView, handler);
+    	LocationOverlay newLocationOverlay = new LocationOverlay(context, mapView);
     	
     	return new OverlayGroup(newBusOverlay, newLocationOverlay, newRouteOverlaysBuilder.build());
 	}
