@@ -70,13 +70,11 @@ public class CurrentState {
 	 * @param context
 	 * @param mapView
 	 * @param dropdownRouteKeysToTitles
-	 * @param handler
 	 * @return
 	 */
 	public OverlayGroup cloneOverlays(Main context, MapView mapView,
-			RouteTitles dropdownRouteKeysToTitles,
-			UpdateHandler handler) {
-		return updateArguments.getOverlayGroup().cloneOverlays(context, mapView, dropdownRouteKeysToTitles, handler);
+			RouteTitles dropdownRouteKeysToTitles) {
+		return updateArguments.getOverlayGroup().cloneOverlays(context, mapView, dropdownRouteKeysToTitles);
 	}
 	
 }

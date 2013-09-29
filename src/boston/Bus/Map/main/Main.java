@@ -286,7 +286,7 @@ public class Main extends MapActivity
 	    				
 	    				Toast.makeText(Main.this, getString(R.string.findingCurrentLocation), Toast.LENGTH_SHORT).show();
 	    			}
-	   				myLocationOverlay.updateMapViewPosition();
+	   				myLocationOverlay.updateMapViewPosition(handler);
 	    		}
 				
 			}
@@ -394,7 +394,7 @@ public class Main extends MapActivity
         	CurrentState currentState = (CurrentState)lastNonConfigurationInstance;
         	currentState.restoreWidgets();
         	
-        	overlayGroup = currentState.cloneOverlays(this, mapView, dropdownRouteKeysToTitles, handler);
+        	overlayGroup = currentState.cloneOverlays(this, mapView, dropdownRouteKeysToTitles);
         	overlayGroup.refreshMapView(mapView);
         	
         	if (currentState.getLocationEnabled())
@@ -432,7 +432,7 @@ public class Main extends MapActivity
         }
         else
         {
-        	overlayGroup = new OverlayGroup(this, busPicture, mapView, dropdownRouteKeysToTitles, handler);
+        	overlayGroup = new OverlayGroup(this, busPicture, mapView, dropdownRouteKeysToTitles);
         	
         	locationEnabled = prefs.getBoolean(getString(R.string.alwaysShowLocationCheckbox), true);
             int selectedRouteIndex = prefs.getInt(selectedRouteIndexKey, 0);
