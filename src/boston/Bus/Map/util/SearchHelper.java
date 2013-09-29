@@ -163,7 +163,7 @@ public class SearchHelper
 			}
 
 			StopLocation stop = DatabaseAgent.getStopByTagOrTitle(context.getContentResolver(), 
-					indexingQuery, exactQuery, transitSystem);
+					lowercaseQuery, exactQuery, transitSystem);
 			if (stop != null)
 			{	
 				context.setNewStop(stop.getFirstRoute(), stop.getStopTag());

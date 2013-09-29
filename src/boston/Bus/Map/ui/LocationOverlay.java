@@ -16,16 +16,14 @@ import com.google.android.maps.MyLocationOverlay;
 public class LocationOverlay extends MyLocationOverlay {
 	private final Context context; 
 	private final MapView mapView;
-	private final UpdateHandler handler;
-	
-	public LocationOverlay(Context context, MapView mapView, UpdateHandler handler) {
+
+	public LocationOverlay(Context context, MapView mapView) {
 		super(context, mapView);
-		
+
 		this.context = context;
 		this.mapView = mapView;
-		this.handler = handler;
 	}
-	
+
 	@Override
 	public void onStatusChanged(String arg0, int arg1, Bundle arg2) {
 		// TODO Auto-generated method stub
@@ -40,7 +38,7 @@ public class LocationOverlay extends MyLocationOverlay {
 		}
 	}
 
-	public void updateMapViewPosition() {
+	public void updateMapViewPosition(final UpdateHandler handler) {
 		runOnFirstFix(new Runnable() {
 
 			@Override
