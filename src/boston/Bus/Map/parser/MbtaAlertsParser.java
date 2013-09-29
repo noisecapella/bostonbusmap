@@ -147,12 +147,12 @@ public class MbtaAlertsParser implements IAlertsParser {
 			// now construct alert and add for each stop, route, and systemwide
 			if (isSystemWide) {
 				Alert systemWideAlert = new Alert(now, "Systemwide",
-						description, "");
+						description);
 				builder.addSystemWideAlert(systemWideAlert);
 			}
 			for (String commuterRailTripId : commuterRailTripIds) {
 				Alert commuterRailAlert = new Alert(now, "Commuter Rail Trip " + commuterRailTripId,
-						description, "");
+						description);
 				builder.addAlertForCommuterRailTrip(commuterRailTripId, commuterRailAlert);
 			}
 			for (Integer routeType : sources) {
@@ -160,13 +160,13 @@ public class MbtaAlertsParser implements IAlertsParser {
 				if (source != null) {
 					String sourceDescription = source.getDescription();
 					Alert routeTypeAlert = new Alert(now, "All " + sourceDescription,
-							description, "");
+							description);
 					builder.addAlertForRouteType(routeType, routeTypeAlert);
 				}
 			}
 			for (String route : routes) {
 				String routeTitle = routeTitles.getTitle(route);
-				Alert routeAlert = new Alert(now, "Route " + routeTitle, description, "");
+				Alert routeAlert = new Alert(now, "Route " + routeTitle, description);
 				builder.addAlertForRoute(route, routeAlert);
 			}
 			ContentResolver resolver = context.getContentResolver();
@@ -180,7 +180,7 @@ public class MbtaAlertsParser implements IAlertsParser {
 				if (stopLocation != null) {
 					stopTitle = stopLocation.getTitle();
 				}
-				Alert stopAlert = new Alert(now, "Stop " + stopTitle, description, "");
+				Alert stopAlert = new Alert(now, "Stop " + stopTitle, description);
 				builder.addAlertForStop(stop, stopAlert);
 			}
 		}
@@ -192,7 +192,7 @@ public class MbtaAlertsParser implements IAlertsParser {
 
 	/**
 	 * GTFS Routes are slightly different from NextBus routes for the MBTA 
-	 * @param gtfsRouteId
+	 * @param routeId
 	 * @return
 	 */
 	private String translateGtfsRoute(String routeId) {

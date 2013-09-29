@@ -3,6 +3,7 @@ package boston.Bus.Map.main;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
+import java.util.List;
 
 import com.schneeloch.torontotransit.R;
 
@@ -17,6 +18,9 @@ import android.text.Html;
 import android.text.Spanned;
 import android.widget.SimpleAdapter;
 import android.widget.TextView;
+
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 
 public class AlertInfo extends ListActivity
 {
@@ -41,21 +45,28 @@ public class AlertInfo extends ListActivity
 
 		alerts = (Parcelable[])extras.getParcelableArray(alertsKey);
 
-		ArrayList<HashMap<String, Spanned>> data = new ArrayList<HashMap<String,Spanned>>();
+		ArrayList<HashMap<String, Spanned>> data = Lists.newArrayList();
 		if (alerts != null)
 		{
-			Calendar now = Calendar.getInstance();
-			Calendar yesterday = Calendar.getInstance();
-			yesterday.add(Calendar.DATE, -1);
-			
+			HashMap<String, List<Alert>> commonAlerts = Maps.newHashMap();
+
 			for (Object alertObj : alerts)
 			{
 				if (alertObj != null)
 				{
 					Alert alert = (Alert)alertObj;
-					HashMap<String, Spanned> map = alert.makeSnippetMap(this, yesterday, now);
-					data.add(map);
+					if (commonAlerts.containsKey(alert.getDescription()) == false) {
+						List<Alert> alertList = Lists.newArrayList();
+						commonAlerts.put(alert.getDescription(), alertList);
+					}
+					commonAlerts.get(alert.getDescription()).add(alert);
 				}
+			}
+
+			for (String description : commonAlerts.keySet()) {
+				List<Alert> alertList = commonAlerts.get(description);
+				HashMap<String, Spanned> map = Alert.makeSnippetMap(alertList);
+				data.add(map);
 			}
 		}
 		SimpleAdapter adapter = new SimpleAdapter(this, data, R.layout.moreinfo_row,

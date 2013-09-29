@@ -1,12 +1,18 @@
 package boston.Bus.Map.data;
 
 import java.text.DateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 
+import com.google.common.base.Joiner;
 import com.google.common.base.Objects;
 import com.google.common.collect.ComparisonChain;
+import com.google.common.collect.Lists;
 
 import boston.Bus.Map.main.AlertInfo;
 import boston.Bus.Map.transit.TransitSystem;
@@ -28,14 +34,12 @@ public class Alert implements Parcelable, Comparable<Alert>
 	private final Date date;
 	private final String title;
 	private final String description;
-	private final String delay;
-	
-	public Alert(Date date, CharSequence title, CharSequence description, CharSequence delay)
+
+	public Alert(Date date, CharSequence title, CharSequence description)
 	{
 		this.date = date;
 		this.title = title.toString();
 		this.description = description.toString();
-		this.delay = delay.toString();
 	}
 
 	public Date getDate() {
@@ -50,33 +54,44 @@ public class Alert implements Parcelable, Comparable<Alert>
 		return description;
 	}
 
-	public String getDelay() {
-		return delay;
-	}
-
-	public HashMap<String, Spanned> makeSnippetMap(Context context, Calendar yesterday, Calendar now)
+	public static HashMap<String, Spanned> makeSnippetMap(List<Alert> alerts)
 	{
 		HashMap<String, Spanned> map = new HashMap<String, Spanned>();
 		
-		String ret = makeSnippet(context, yesterday, now);
+		String ret = Alert.makeSnippet(alerts);
 		
 		map.put(AlertInfo.textKey, Html.fromHtml(ret));
 		
 		return map;
 	}
 
-	private String makeSnippet(Context context, Calendar yesterday, Calendar now)
+	/**
+	 *
+	 * @param alerts Some collection of alerts with the same description
+	 * @return Pseudo HTML which is shown in the AlertInfo screen
+	 */
+	private static String makeSnippet(List<Alert> alerts)
 	{
 		StringBuilder builder = new StringBuilder();
-		
-		if (title != null && title.length() != 0)
-		{
-			builder.append("<b>").append(title).append("</b><br />");
+		if (alerts.size() == 0) {
+			return "";
 		}
-		if (delay != null && delay.length() != 0)
-		{
-			builder.append("<b>Delay: </b>").append(delay).append("<br />");
+
+		List<String> titles = Lists.newArrayList();
+		for (Alert alert : alerts) {
+			String title = alert.getTitle();
+			if (title != null && title.length() != 0) {
+				titles.add(title);
+			}
 		}
+
+		// TODO: make this sort more logically
+		Collections.sort(titles);
+
+		builder.append("<b>").append(Joiner.on("<br />").join(titles)).append("</b><br />");
+
+		Alert firstAlert = alerts.get(0);
+		String description = firstAlert.getDescription();
 		if (description != null && description.length() != 0)
 		{
 			String newDescription = description.replace("\n", "<br/>");
@@ -114,7 +129,6 @@ public class Alert implements Parcelable, Comparable<Alert>
 		dest.writeLong(time);
 		dest.writeString(title);
 		dest.writeString(description);
-		dest.writeString(delay);
 	}
 	
 	public static final Creator<Alert> CREATOR = new Creator<Alert>() {
@@ -130,9 +144,8 @@ public class Alert implements Parcelable, Comparable<Alert>
 			Date date = epoch == 0 ? null : new Date(epoch);
 			String title = source.readString();
 			String description = source.readString();
-			String delay = source.readString();
-			
-			Alert alert = new Alert(date, title, description, delay);
+
+			Alert alert = new Alert(date, title, description);
 			return alert;
 		}
 	};
@@ -141,13 +154,12 @@ public class Alert implements Parcelable, Comparable<Alert>
 	public int compareTo(Alert another) {
 		return ComparisonChain.start().compare(date, another.date)
 				.compare(title, another.title)
-				.compare(description, another.description)
-				.compare(delay, another.delay).result();
+				.compare(description, another.description).result();
 	}
 	
 	@Override
 	public int hashCode() {
-		return Objects.hashCode(date, title, description, delay);
+		return Objects.hashCode(date, title, description);
 	}
 	
 	@Override
@@ -156,8 +168,7 @@ public class Alert implements Parcelable, Comparable<Alert>
 			Alert another = (Alert)o;
 			return Objects.equal(date, another.date) &&
 					Objects.equal(title, another.title) &&
-					Objects.equal(description, another.description) &&
-					Objects.equal(delay, another.delay);
+					Objects.equal(description, another.description);
 		}
 		else
 		{
