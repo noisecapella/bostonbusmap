@@ -120,7 +120,11 @@ class NextBus:
             routes.append(route_name)
             
             print "Route %s..." % route_title
-            routeConfig_data = yield getPage(self.routeConfigUrl(route_name))
+            try:
+                routeConfig_data = yield getPage(self.routeConfigUrl(route_name))
+            except Exception:
+                # try one more time
+                routeConfig_data = yield getPage(self.routeConfigUrl(route_name))
 
             handler = RouteHandler(cur, index + count, shared_stops)
             xml.sax.parseString(routeConfig_data, handler)
