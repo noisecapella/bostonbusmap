@@ -10,6 +10,7 @@ import java.util.Map;
 import java.util.TreeSet;
 import java.util.concurrent.CopyOnWriteArrayList;
 
+import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
@@ -24,17 +25,19 @@ import boston.Bus.Map.transit.TransitSystem;
 import boston.Bus.Map.util.Constants;
 
 
-import com.google.android.maps.GeoPoint;
-import com.google.android.maps.MapView;
-import com.google.android.maps.Overlay;
-import com.google.android.maps.Projection;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+
+import org.osmdroid.DefaultResourceProxyImpl;
+import org.osmdroid.ResourceProxy;
+import org.osmdroid.util.GeoPoint;
+import org.osmdroid.views.MapView;
+import org.osmdroid.views.overlay.Overlay;
 
 public class RouteOverlay extends Overlay
 {
 	private List<Path> paths = Lists.newLinkedList();
-	private final Projection projection;
+	private final MapView.Projection projection;
 	private boolean showRouteLine = true;
 	private boolean allRoutesBlue = TransitSystem.isDefaultAllRoutesBlue();
 	
@@ -44,17 +47,19 @@ public class RouteOverlay extends Overlay
 	
 	private static final int DEFAULTCOLOR = 0x000099;
 	
-	public RouteOverlay(Projection projection)
+	public RouteOverlay(MapView mapView)
 	{
-		this.projection = projection;
+		//TODO: is this ok?
+		super(new DefaultResourceProxyImpl(mapView.getContext()));
+		this.projection = mapView.getProjection();
 		
 		defaultPaint = new Paint();
 		applyDefaultSettings(defaultPaint);
 	}
 	
-	public RouteOverlay(RouteOverlay routeOverlay, Projection projection)
+	public RouteOverlay(RouteOverlay routeOverlay, MapView mapView)
 	{
-		this(projection);
+		this(mapView);
 		
 		addPaths(routeOverlay.paths);
 	}
@@ -179,8 +184,8 @@ public class RouteOverlay extends Overlay
 		
 		int width = canvas.getWidth();
 		int height = canvas.getHeight();
-		GeoPoint bottomRight = projection.fromPixels(width, height);
-		GeoPoint topLeft = projection.fromPixels(0, 0);
+		GeoPoint bottomRight = (GeoPoint) projection.fromPixels(width, height);
+		GeoPoint topLeft = (GeoPoint) projection.fromPixels(0, 0);
 		
 		int maxLat = topLeft.getLatitudeE6();
 		int minLat = bottomRight.getLatitudeE6();

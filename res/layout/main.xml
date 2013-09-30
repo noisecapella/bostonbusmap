@@ -57,13 +57,12 @@ android:id="@+id/linearLayoutMain" android:gravity="right">
 		</TableLayout>
 </RelativeLayout>
 
-	<com.google.android.maps.MapView
+	<org.osmdroid.views.MapView
 		android:id="@+id/mapview" android:layout_width="fill_parent"
 		android:layout_height="fill_parent" android:clickable="true"
 		android:layout_alignParentBottom="true"
 		android:layout_below="@+id/linearLayoutMain"
 		
-		android:apiKey="04_mZq9Q_5sL2pltlDIYof4iIQimS_U5YPnRafg"
 		 />
 		<RelativeLayout 
 	    android:layout_height="fill_parent"

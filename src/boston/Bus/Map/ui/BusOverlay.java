@@ -36,11 +36,6 @@ import boston.Bus.Map.main.Main;
 import boston.Bus.Map.main.UpdateHandler;
 import boston.Bus.Map.util.Constants;
 
-import com.google.android.maps.GeoPoint;
-import com.google.android.maps.ItemizedOverlay;
-import com.google.android.maps.MapView;
-import com.google.android.maps.OverlayItem;
-import com.google.android.maps.Projection;
 import com.google.common.collect.ImmutableCollection;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
@@ -57,6 +52,12 @@ import android.util.FloatMath;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View.OnClickListener;
+
+import org.osmdroid.api.IMapView;
+import org.osmdroid.util.GeoPoint;
+import org.osmdroid.views.MapView;
+import org.osmdroid.views.overlay.ItemizedOverlay;
+import org.osmdroid.views.overlay.OverlayItem;
 
 
 /**
@@ -124,7 +125,7 @@ public class BusOverlay extends BalloonItemizedOverlay<BusOverlayItem> {
 		paint.setAlpha(0x70);
 
 		//NOTE: remember to set updateable!
-		this.setOnFocusChangeListener(new OnFocusChangeListener() {
+		this.setOnFocusChangeListener(new ItemizedOverlay.OnFocusChangeListener() {
 
 			@Override
 			public void onFocusChanged(ItemizedOverlay overlay,
@@ -174,13 +175,13 @@ public class BusOverlay extends BalloonItemizedOverlay<BusOverlayItem> {
 
 		if (event.getAction() == MotionEvent.ACTION_DOWN)
 		{
-			oldMapGeoPoint = mapView.getMapCenter();
+			oldMapGeoPoint = (GeoPoint)mapView.getMapCenter();
 		}
 		else if (event.getAction() == MotionEvent.ACTION_UP)
 		{
 			if (oldMapGeoPoint != null && updateable != null)
 			{
-				GeoPoint newGeoPoint = mapView.getMapCenter();
+				GeoPoint newGeoPoint = (GeoPoint)mapView.getMapCenter();
 				if (!newGeoPoint.equals(oldMapGeoPoint)) {
 					updateable.triggerUpdate(250);
 					oldMapGeoPoint = null;
@@ -246,7 +247,7 @@ public class BusOverlay extends BalloonItemizedOverlay<BusOverlayItem> {
 				firstPoint = overlays.get(0).getPoint();
 			}
 
-			Projection projection = mapView.getProjection();
+			MapView.Projection projection = mapView.getProjection();
 			projection.toPixels(firstPoint, circleCenter);
 			final int circleCenterX = circleCenter.x;
 			final int circleCenterY = circleCenter.y;
@@ -389,7 +390,8 @@ public class BusOverlay extends BalloonItemizedOverlay<BusOverlayItem> {
 		return ret;
 	}
 
-	@Override
+	// TODO: I think this is OK, but double check
+/*	@Override
 	public boolean onTap(GeoPoint arg0, MapView arg1) {
 		if (nextTapListener != null) {
 			if (nextTapListener.onClick(arg0)) {
@@ -401,7 +403,7 @@ public class BusOverlay extends BalloonItemizedOverlay<BusOverlayItem> {
 		{
 			return super.onTap(arg0, arg1);
 		}
-	}
+	}*/
 
 	private void updateAllBoundCenterBottom(int selectedIndex, boolean shadow) {
 		// update boundCenterBottom for newly selected item
@@ -421,6 +423,12 @@ public class BusOverlay extends BalloonItemizedOverlay<BusOverlayItem> {
 	protected BalloonOverlayView<BusOverlayItem> createBalloonOverlayView() {
 		BusPopupView view = new BusPopupView(context, updateable, getBalloonBottomOffset(), locationsObj, routeKeysToTitles);
 		return view;
+	}
+
+	@Override
+	public boolean onSnapToItem(int i, int i2, Point point, IMapView iMapView) {
+		// TODO: how should we override this?
+		return false;
 	}
 
 	public interface OnClickListener {

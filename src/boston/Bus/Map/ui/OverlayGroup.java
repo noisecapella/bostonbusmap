@@ -9,8 +9,9 @@ import boston.Bus.Map.data.RouteTitles;
 import boston.Bus.Map.main.Main;
 import boston.Bus.Map.main.UpdateHandler;
 
-import com.google.android.maps.MapView;
-import com.google.android.maps.MyLocationOverlay;
+import org.osmdroid.api.IMapView;
+import org.osmdroid.views.MapView;
+
 import com.google.common.collect.ImmutableMap;
 
 public class OverlayGroup {
@@ -38,8 +39,8 @@ public class OverlayGroup {
     	busOverlay = new BusOverlay(busPicture, main, mapView, dropdownRouteKeysToTitles);
     	locationOverlay = new LocationOverlay(main, mapView);
     	
-    	RouteOverlay routeOverlay = new RouteOverlay(mapView.getProjection());
-    	RouteOverlay getDirectionsOverlay = new RouteOverlay(mapView.getProjection());
+    	RouteOverlay routeOverlay = new RouteOverlay(mapView);
+    	RouteOverlay getDirectionsOverlay = new RouteOverlay(mapView);
     	
     	ImmutableMap.Builder<String, RouteOverlay> routeOverlaysBuilder = ImmutableMap.builder();
     	routeOverlaysBuilder.put(ROUTE_OVERLAY_KEY, routeOverlay);
@@ -61,7 +62,7 @@ public class OverlayGroup {
 		locationOverlay = null;
 	}
 
-	public OverlayGroup cloneOverlays(Main context, MapView mapView, 
+	public OverlayGroup cloneOverlays(Main context, MapView mapView,
 			RouteTitles dropDownRouteKeysToTitles) {
 		
     	final BusOverlay newBusOverlay = new BusOverlay(busOverlay, context, mapView, dropDownRouteKeysToTitles);
@@ -69,7 +70,7 @@ public class OverlayGroup {
     	ImmutableMap.Builder<String, RouteOverlay> newRouteOverlaysBuilder = ImmutableMap.builder();
     	for (String key : routeOverlays.keySet()) {
     		RouteOverlay oldRouteOverlay = routeOverlays.get(key);
-    		RouteOverlay newRouteOverlay = new RouteOverlay(oldRouteOverlay, mapView.getProjection());
+    		RouteOverlay newRouteOverlay = new RouteOverlay(oldRouteOverlay, mapView);
     		newRouteOverlaysBuilder.put(key, newRouteOverlay);
     	}
     	LocationOverlay newLocationOverlay = new LocationOverlay(context, mapView);

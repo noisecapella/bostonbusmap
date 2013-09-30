@@ -5,7 +5,6 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
-import com.google.android.maps.MapView;
 import com.google.common.collect.ImmutableMap;
 
 import android.util.Log;

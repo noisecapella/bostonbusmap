@@ -7,9 +7,9 @@ import java.net.SocketTimeoutException;
 import javax.xml.parsers.FactoryConfigurationError;
 import javax.xml.parsers.ParserConfigurationException;
 
+import org.osmdroid.api.IGeoPoint;
 import org.xml.sax.SAXException;
 
-import com.google.android.maps.GeoPoint;
 import com.google.common.collect.ImmutableList;
 
 import android.content.Context;
@@ -43,7 +43,7 @@ public class RefreshAsyncTask extends UpdateAsyncTask
 			Locations busLocations = arguments.getBusLocations();
 			publish(new ProgressMessage(ProgressMessage.PROGRESS_SPINNER_ON, null, null));
 			
-			GeoPoint geoPoint = currentMapCenter;
+			IGeoPoint geoPoint = currentMapCenter;
 			double centerLatitude = geoPoint.getLatitudeE6() * Constants.InvE6;
 			double centerLongitude = geoPoint.getLongitudeE6() * Constants.InvE6;
 

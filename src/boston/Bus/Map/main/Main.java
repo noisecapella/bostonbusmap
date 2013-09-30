@@ -34,6 +34,13 @@ import javax.xml.parsers.FactoryConfigurationError;
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.apache.http.impl.conn.tsccm.RouteSpecificPool;
+import org.osmdroid.api.IGeoPoint;
+import org.osmdroid.api.IMapController;
+import org.osmdroid.tileprovider.tilesource.TileSourceFactory;
+import org.osmdroid.tileprovider.util.CloudmadeUtil;
+import org.osmdroid.util.GeoPoint;
+import org.osmdroid.views.MapController;
+import org.osmdroid.views.MapView;
 import org.xml.sax.SAXException;
 
 import boston.Bus.Map.R;
@@ -66,13 +73,6 @@ import boston.Bus.Map.util.SearchHelper;
 import boston.Bus.Map.util.StringUtil;
 
 
-import com.google.android.maps.GeoPoint;
-import com.google.android.maps.MapActivity;
-import com.google.android.maps.MapController;
-import com.google.android.maps.MapView;
-import com.google.android.maps.MyLocationOverlay;
-import com.google.android.maps.Overlay;
-import com.google.android.maps.OverlayItem;
 import com.google.common.collect.ImmutableCollection;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -142,11 +142,13 @@ import android.widget.Toast;
 import android.widget.ZoomControls;
 import android.widget.AdapterView.OnItemSelectedListener;
 
+import org.osmdroid.api.IMapView;
+
 /**
  * The main activity
  *
  */
-public class Main extends MapActivity
+public class Main extends Activity
 {
 	private static final String selectedRouteIndexKey = "selectedRouteIndex";
 	private static final String selectedBusPredictionsKey = "selectedBusPredictions";
@@ -217,7 +219,10 @@ public class Main extends MapActivity
         
         //get widgets
         final MapView mapView = (MapView)findViewById(R.id.mapview);
-        toggleButton = (Spinner)findViewById(R.id.predictionsOrLocations);
+
+		mapView.setTileSource(TileSourceFactory.DEFAULT_TILE_SOURCE);
+
+		toggleButton = (Spinner)findViewById(R.id.predictionsOrLocations);
         chooseAPlaceButton = (Button)findViewById(R.id.chooseAPlaceButton);
         chooseAFavoriteButton = (Button)findViewById(R.id.chooseFavoriteButton);
         searchView = (EditText)findViewById(R.id.searchTextView);
@@ -475,16 +480,16 @@ public class Main extends MapActivity
             if (centerLat != Integer.MAX_VALUE && centerLon != Integer.MAX_VALUE && zoomLevel != Integer.MAX_VALUE)
             {
 
-            	GeoPoint point = new GeoPoint(centerLat, centerLon);
-            	MapController controller = mapView.getController();
+            	IGeoPoint point = new GeoPoint(centerLat, centerLon);
+            	IMapController controller = mapView.getController();
             	controller.setCenter(point);
             	controller.setZoom(zoomLevel);
             }
             else
             {
             	//move maps widget to center of transit network
-            	MapController controller = mapView.getController();
-            	GeoPoint location = new GeoPoint(TransitSystem.getCenterLatAsInt(), TransitSystem.getCenterLonAsInt());
+            	IMapController controller = mapView.getController();
+            	IGeoPoint location = new GeoPoint(TransitSystem.getCenterLatAsInt(), TransitSystem.getCenterLonAsInt());
             	controller.setCenter(location);
 
             	//set zoom depth
@@ -505,7 +510,8 @@ public class Main extends MapActivity
 
         
     	//enable plus/minus zoom buttons in map
-        mapView.setBuiltInZoomControls(true);
+		// TODO: what's the equivalent?
+        //mapView.setBuiltInZoomControls(true);
         
         /*handler.post(new Runnable() {
         	public void run() {
@@ -589,8 +595,8 @@ public class Main extends MapActivity
     protected void onPause() {
     	if (arguments != null)
     	{
-    		final MapView mapView = arguments.getMapView();
-    		GeoPoint point = mapView.getMapCenter();
+    		final IMapView mapView = arguments.getMapView();
+    		IGeoPoint point = mapView.getMapCenter();
     		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
     		SharedPreferences.Editor editor = prefs.edit();
 
@@ -824,19 +830,6 @@ public class Main extends MapActivity
         return true;
     }
     
-	@Override
-	protected boolean isRouteDisplayed() {
-		//TODO: what exactly should we return here? 
-		if (arguments != null && arguments.getMapView().getOverlays().size() != 0)
-		{
-			return true;
-		}
-		else
-		{
-			return false;
-		}
-	}
-
 	@Override
 	protected void onResume() {
 		super.onResume();
