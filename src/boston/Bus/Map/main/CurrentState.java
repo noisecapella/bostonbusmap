@@ -11,9 +11,10 @@ import boston.Bus.Map.ui.LocationOverlay;
 import boston.Bus.Map.ui.OverlayGroup;
 import boston.Bus.Map.ui.RouteOverlay;
 
-import com.google.android.maps.MapView;
-import com.google.android.maps.Projection;
 import com.google.common.collect.ImmutableMap;
+
+import org.osmdroid.api.IMapView;
+import org.osmdroid.views.MapView;
 
 /**
  * Stores state when MainActivity pauses temporarily
