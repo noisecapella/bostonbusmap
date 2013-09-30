@@ -21,6 +21,14 @@ public class XmlParserHelper {
 		}
 	}
 
+	/**
+	 * I should have documented these properly when I first wrote them.
+	 * It looks like tagCache is initialized by clearAttributes and then
+	 * accessed by getAttribute
+	 * @param key
+	 * @param attributes
+	 * @return
+	 */
 	public static void clearAttributes(Attributes attributes, Map<String, Integer> tagCache)
 	{
 		final int attributesLength = attributes.getLength();
