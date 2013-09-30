@@ -20,6 +20,7 @@ import boston.Bus.Map.data.RouteConfig;
 import boston.Bus.Map.data.RoutePool;
 import boston.Bus.Map.data.StopLocation;
 import boston.Bus.Map.util.LogUtil;
+import boston.Bus.Map.util.StringUtil;
 
 public class BusPredictionsFeedParser extends DefaultHandler
 {
@@ -30,14 +31,17 @@ public class BusPredictionsFeedParser extends DefaultHandler
 	private static final String affectedByLayoverKey = "affectedByLayover";
 	private static final String dirTagKey = "dirTag";
 	private static final String predictionKey = "prediction";
+	private static final String directionKey = "direction";
 	private static final String predictionsKey = "predictions";
 	private static final String routeTagKey = "routeTag";
 	private static final String delayedKey = "delayed";
+	private static final String titleKey = "title";
 	
 	private final RoutePool stopMapping;
 	private StopLocation currentLocation;
 	private RouteConfig currentRoute;
 	private final Directions directions;
+	private String directionTitle;
 	
 	private final Map<String, Integer> tagCache = Maps.newHashMap();
 	
@@ -80,6 +84,11 @@ public class BusPredictionsFeedParser extends DefaultHandler
 				}
 			}
 		}
+		else if (localName.equals(directionKey)) {
+			clearAttributes(attributes);
+
+			directionTitle = getAttribute(titleKey, attributes);
+		}
 		else if (localName.equals(predictionKey))
 		{
 			clearAttributes(attributes);
@@ -100,16 +109,26 @@ public class BusPredictionsFeedParser extends DefaultHandler
 				
 				String dirTag = getAttribute(dirTagKey, attributes);
 
+				String directionSnippet = directions.getTitleAndName(dirTag);
+				if (StringUtil.isEmpty(directionSnippet)) {
+					directionSnippet = directionTitle;
+				}
                 TimePrediction prediction = new TimePrediction(minutes, vehicleId,
-                        directions.getTitleAndName(dirTag), currentRoute.getRouteName(),
+                        directionSnippet, currentRoute.getRouteName(),
                         currentRoute.getRouteTitle(), affectedByLayover, isDelayed,
                         TimePrediction.NULL_LATENESS);
 				currentLocation.addPrediction(prediction);
 			}
 		}
 	}
-	
-	
+
+	@Override
+	public void endElement(String uri, String localName, String qName) throws SAXException {
+		if (localName.equals(directionKey)) {
+			directionTitle = null;
+		}
+	}
+
 	private String getAttribute(String key, Attributes attributes)
 	{
 		return XmlParserHelper.getAttribute(key, attributes, tagCache);
