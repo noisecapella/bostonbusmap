@@ -435,8 +435,8 @@ public class Main extends MapActivity
         	overlayGroup = new OverlayGroup(this, busPicture, mapView, dropdownRouteKeysToTitles, handler);
         	
         	locationEnabled = prefs.getBoolean(getString(R.string.alwaysShowLocationCheckbox), true);
-            int selectedRouteIndex = prefs.getInt(selectedRouteIndexKey, 0);
-            int mode = prefs.getInt(selectedBusPredictionsKey, Selection.BUS_PREDICTIONS_ONE);
+            int selectedRouteIndex = prefs.getInt(selectedRouteIndexKey, 1);
+            int mode = prefs.getInt(selectedBusPredictionsKey, Selection.BUS_PREDICTIONS_ALL);
         	String route = dropdownRouteKeysToTitles.getTagUsingIndex(selectedRouteIndex);
             selection = new Selection(mode, route);
         }
