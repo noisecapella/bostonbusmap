@@ -101,7 +101,7 @@ class NextBus:
         return self.url.format(prefix = 'webservices',
                                agency = self.agency,
                                command = 'routeConfig',
-                               other=('&r=%s' % route_name))
+                               other=('&r=%s&verbose' % route_name))
 
     @inlineCallbacks
     def generate(self, conn, index):
