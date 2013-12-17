@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
       package="com.schneeloch.torontotransit"
-      android:installLocation="auto" android:versionCode="114" android:versionName="5.3.2">
+      android:installLocation="auto" android:versionCode="115" android:versionName="5.3.3">
 	<!-- <supports-screens></supports-screens>-->
 	<uses-permission android:name="android.permission.INTERNET"></uses-permission>
 
