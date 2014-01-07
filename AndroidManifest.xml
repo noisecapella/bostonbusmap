@@ -48,7 +48,8 @@
 	<provider android:name=".provider.FavoritesContentProvider" 
 	    android:authorities="com.bostonbusmap.favoritesprovider"
 	    android:exported="false"></provider>
-        <service android:name="boston.Bus.Map.services.AlarmService"></service>
-</application>
+        <receiver
+                android:name="boston.Bus.Map.receivers.AlarmReceiver" />
+    </application>
 
 </manifest>

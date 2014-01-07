@@ -48,7 +48,6 @@ import boston.Bus.Map.main.Main;
 import boston.Bus.Map.main.MoreInfo;
 import boston.Bus.Map.main.UpdateHandler;
 import boston.Bus.Map.receivers.AlarmReceiver;
-import boston.Bus.Map.services.AlarmService;
 import boston.Bus.Map.transit.TransitSystem;
 import boston.Bus.Map.util.LogUtil;
 
@@ -346,12 +345,8 @@ public class BusPopupView extends BalloonOverlayView<BusOverlayItem>
 						public void onClick(DialogInterface dialog, int which) {
 							if (which >= 0 && which < predictionTitles.length) {
 								String predictionTitle = predictionTitles[which];
-								Intent intent = new Intent(AlarmService.TRIGGER_ALARM_ACTION);
-								intent.putExtra(AlarmService.TITLE_KEY, predictionTitle);
-								TimePrediction timePrediction = predictionList.get(which);
 
-								intent.putExtra(AlarmService.MINUTES_KEY, timePrediction.getMinutes());
-								LocalBroadcastManager.getInstance(getContext()).sendBroadcast(intent);
+								AlarmReceiver.setAlarm(context, predictionList.get(which));
 							}
 						}
 					});

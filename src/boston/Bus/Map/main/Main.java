@@ -51,7 +51,6 @@ import boston.Bus.Map.data.TransitDrawables;
 import boston.Bus.Map.data.UpdateArguments;
 import boston.Bus.Map.provider.TransitContentProvider;
 import boston.Bus.Map.receivers.AlarmReceiver;
-import boston.Bus.Map.services.AlarmService;
 import boston.Bus.Map.transit.TransitSystem;
 import boston.Bus.Map.tutorials.IntroTutorial;
 import boston.Bus.Map.tutorials.Tutorial;
@@ -202,8 +201,6 @@ public class Main extends MapActivity
 	private RelativeLayout tutorialLayout;
 	private Button nextTutorialButton;
 
-	private BroadcastReceiver alarmReceiver;
-	
 	public static final int UPDATE_INTERVAL_INVALID = 9999;
 	public static final int UPDATE_INTERVAL_SHORT = 15;
 	public static final int UPDATE_INTERVAL_MEDIUM = 50;
@@ -623,8 +620,6 @@ public class Main extends MapActivity
 			}
 		}
 
-		LocalBroadcastManager.getInstance(this).unregisterReceiver(alarmReceiver);
-
 		super.onPause();
     }
 
@@ -848,12 +843,6 @@ public class Main extends MapActivity
 	@Override
 	protected void onResume() {
 		super.onResume();
-
-		IntentFilter filter = new IntentFilter();
-		filter.addAction(AlarmService.TRIGGER_ALARM_ACTION);
-		alarmReceiver = new AlarmReceiver();
-
-		LocalBroadcastManager.getInstance(this).registerReceiver(alarmReceiver, new IntentFilter(AlarmService.TRIGGER_ALARM_ACTION));
 
 		if (locationEnabled && arguments != null)
 		{
