@@ -14,6 +14,7 @@ import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
 
 import android.os.RemoteException;
+import android.support.v4.content.LocalBroadcastManager;
 import android.text.Html;
 import android.text.Spanned;
 import android.util.Log;
@@ -34,15 +35,20 @@ import boston.Bus.Map.data.IPrediction;
 import boston.Bus.Map.data.IntersectionLocation;
 import boston.Bus.Map.data.Location;
 import boston.Bus.Map.data.Locations;
+import boston.Bus.Map.data.PredictionStopLocationPair;
+import boston.Bus.Map.data.Predictions;
 import boston.Bus.Map.data.RouteTitles;
 import boston.Bus.Map.data.Selection;
 import boston.Bus.Map.data.StopLocation;
 import boston.Bus.Map.data.StopPredictionView;
 import boston.Bus.Map.data.TimeBounds;
+import boston.Bus.Map.data.TimePrediction;
 import boston.Bus.Map.main.AlertInfo;
 import boston.Bus.Map.main.Main;
 import boston.Bus.Map.main.MoreInfo;
 import boston.Bus.Map.main.UpdateHandler;
+import boston.Bus.Map.receivers.AlarmReceiver;
+import boston.Bus.Map.services.AlarmService;
 import boston.Bus.Map.transit.TransitSystem;
 import boston.Bus.Map.util.LogUtil;
 
@@ -62,6 +68,7 @@ public class BusPopupView extends BalloonOverlayView<BusOverlayItem>
 	private TextView deleteTextView;
 	private TextView editTextView;
 	private TextView nearbyRoutesTextView;
+	private TextView alarmTextView;
 	private final Locations locations;
 	private final RouteTitles routeKeysToTitles;
 	private Location location;
@@ -115,7 +122,11 @@ public class BusPopupView extends BalloonOverlayView<BusOverlayItem>
 		nearbyRoutesTextView = (TextView)layoutView.findViewById(R.id.balloon_item_nearby_routes);
 		Spanned nearbyRoutesText = Html.fromHtml("\n<a href='com.bostonbusmap://nearbyroutes'>Nearby<br/>Routes</a>\n");
 		nearbyRoutesTextView.setText(nearbyRoutesText);
-		
+
+		alarmTextView = (TextView)layoutView.findViewById(R.id.balloon_item_alarm);
+		Spanned alarmText = Html.fromHtml("\n<a href='com.bostonbusmap://alarms'>Alarms</a>\n");
+		alarmTextView.setText(alarmText);
+
 		alertsTextView = (TextView) layoutView.findViewById(R.id.balloon_item_alerts);
 		alertsTextView.setVisibility(View.GONE);
 		alertsTextView.setText(R.string.noalerts);
@@ -299,7 +310,57 @@ public class BusPopupView extends BalloonOverlayView<BusOverlayItem>
 				
 			}
 		});
-		
+
+		alarmTextView.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				if (location != null && location instanceof StopLocation) {
+					StopLocation stopLocation = (StopLocation)location;
+					AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+					builder.setTitle("Alarms for " + stopLocation.getTitle());
+
+					ListView listView = new ListView(getContext());
+					listView.setClickable(false);
+					builder.setView(listView);
+
+
+					Predictions predictions = stopLocation.getPredictions();
+					final List<TimePrediction> predictionList = Lists.newArrayList();
+					for (IPrediction prediction : predictions.getPredictions()) {
+						if (prediction instanceof TimePrediction) {
+							predictionList.add((TimePrediction)prediction);
+						}
+					}
+					List<String> predictionTitlesList = Lists.newArrayList();
+					for (TimePrediction timePrediction : predictionList) {
+						String predictionTitle = "Alarm for route " + timePrediction.getRouteTitle() + ", " +
+								timePrediction.getMinutes() + " minutes, stop " + stopLocation.getTitle() + ", vehicle id " + timePrediction.getVehicleId();
+						predictionTitlesList.add(predictionTitle);
+					}
+					final String[] predictionTitles = predictionTitlesList.toArray(new String[0]);
+
+					ArrayAdapter<String> arrayAdapter = new ArrayAdapter<String>(getContext(), android.R.layout.select_dialog_item, predictionTitles);
+					builder.setAdapter(arrayAdapter, new DialogInterface.OnClickListener() {
+
+						@Override
+						public void onClick(DialogInterface dialog, int which) {
+							if (which >= 0 && which < predictionTitles.length) {
+								String predictionTitle = predictionTitles[which];
+								Intent intent = new Intent(AlarmService.TRIGGER_ALARM_ACTION);
+								intent.putExtra(AlarmService.TITLE_KEY, predictionTitle);
+								TimePrediction timePrediction = predictionList.get(which);
+
+								intent.putExtra(AlarmService.MINUTES_KEY, timePrediction.getMinutes());
+								LocalBroadcastManager.getInstance(getContext()).sendBroadcast(intent);
+							}
+						}
+					});
+
+					builder.create().show();
+				}
+			}
+		});
+
 		editTextView.setOnClickListener(new OnClickListener() {
 			
 			@Override
@@ -501,6 +562,14 @@ public class BusPopupView extends BalloonOverlayView<BusOverlayItem>
 		int intersectionVisibility = location.isIntersection() ? View.VISIBLE : View.GONE;
 		for (TextView view : intersectionViews) {
 			view.setVisibility(intersectionVisibility);
+		}
+
+		if (location.hasAlarms()) {
+			alarmTextView.setVisibility(View.VISIBLE);
+		}
+		else
+		{
+			alarmTextView.setVisibility(View.GONE);
 		}
 	}
 	

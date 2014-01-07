@@ -7,6 +7,8 @@
 
 	<uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"></uses-permission>
 	<uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"></uses-permission>
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+    <uses-permission android:name="android.permission.VIBRATE" />
 	<instrumentation android:name="android.test.InstrumentationTestRunner" android:targetPackage="boston.Bus.Map"></instrumentation>
     <uses-sdk android:minSdkVersion="4" android:targetSdkVersion="8"></uses-sdk>
    	<application android:label="@string/app_name" android:icon="@drawable/appicon" 
@@ -46,6 +48,7 @@
 	<provider android:name=".provider.FavoritesContentProvider" 
 	    android:authorities="com.bostonbusmap.favoritesprovider"
 	    android:exported="false"></provider>
+        <service android:name="boston.Bus.Map.services.AlarmService"></service>
 </application>
 
 </manifest>

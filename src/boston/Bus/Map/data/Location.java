@@ -71,6 +71,8 @@ public interface Location {
 
 	boolean hasReportProblem();
 
+	boolean hasAlarms();
+
 	boolean isIntersection();
 	
 	/**

@@ -162,7 +162,12 @@ public class IntersectionLocation implements Location {
 	public boolean hasReportProblem() {
 		return false;
 	}
-	
+
+	@Override
+	public boolean hasAlarms() {
+		return false;
+	}
+
 	public ImmutableSet<String> getNearbyRoutes() {
 		return nearbyRoutes;
 	}

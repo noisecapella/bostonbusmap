@@ -239,4 +239,8 @@ public class TimePrediction implements IPrediction
     public boolean isInvalid() {
         return getMinutes() < 0;
     }
+
+	public String getVehicleId() {
+		return vehicleId;
+	}
 }

@@ -50,6 +50,8 @@ import boston.Bus.Map.data.StopLocation;
 import boston.Bus.Map.data.TransitDrawables;
 import boston.Bus.Map.data.UpdateArguments;
 import boston.Bus.Map.provider.TransitContentProvider;
+import boston.Bus.Map.receivers.AlarmReceiver;
+import boston.Bus.Map.services.AlarmService;
 import boston.Bus.Map.transit.TransitSystem;
 import boston.Bus.Map.tutorials.IntroTutorial;
 import boston.Bus.Map.tutorials.Tutorial;
@@ -83,9 +85,11 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.app.SearchManager;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.res.Resources;
 import android.database.sqlite.SQLiteDatabase;
@@ -109,6 +113,7 @@ import android.os.Handler.Callback;
 import android.preference.PreferenceActivity;
 import android.preference.PreferenceManager;
 import android.provider.SearchRecentSuggestions;
+import android.support.v4.content.LocalBroadcastManager;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.KeyEvent;
@@ -196,7 +201,8 @@ public class Main extends MapActivity
 	private Button skipTutorialButton;
 	private RelativeLayout tutorialLayout;
 	private Button nextTutorialButton;
-	
+
+	private BroadcastReceiver alarmReceiver;
 	
 	public static final int UPDATE_INTERVAL_INVALID = 9999;
 	public static final int UPDATE_INTERVAL_SHORT = 15;
@@ -516,7 +522,7 @@ public class Main extends MapActivity
         		
         	}
         });*/
-        
+
     }
 		
 	/**
@@ -616,7 +622,9 @@ public class Main extends MapActivity
 				arguments.getProgressDialog().dismiss();
 			}
 		}
-		
+
+		LocalBroadcastManager.getInstance(this).unregisterReceiver(alarmReceiver);
+
 		super.onPause();
     }
 
@@ -635,8 +643,7 @@ public class Main extends MapActivity
 		searchView = null;
 		
 		toggleButton = null;
-		
-		
+
 		super.onDestroy();
 	}
 	
@@ -842,6 +849,12 @@ public class Main extends MapActivity
 	protected void onResume() {
 		super.onResume();
 
+		IntentFilter filter = new IntentFilter();
+		filter.addAction(AlarmService.TRIGGER_ALARM_ACTION);
+		alarmReceiver = new AlarmReceiver();
+
+		LocalBroadcastManager.getInstance(this).registerReceiver(alarmReceiver, new IntentFilter(AlarmService.TRIGGER_ALARM_ACTION));
+
 		if (locationEnabled && arguments != null)
 		{
 			arguments.getOverlayGroup().getMyLocationOverlay().enableMyLocation();
@@ -850,7 +863,7 @@ public class Main extends MapActivity
 		//check the result
 		populateHandlerSettings();
 		handler.resume();
-		
+
     	Tutorial tutorial = new Tutorial(IntroTutorial.populate());
     	tutorial.start(this);
 	}

@@ -417,4 +417,9 @@ public class BusLocation implements Location {
 	protected ImmutableCollection<Alert> getAlerts(IAlerts alerts) {
 		return alerts.getAlertsByRoute(routeName, getTransitSourceType());
 	}
+
+	@Override
+	public boolean hasAlarms() {
+		return false;
+	}
 }
