@@ -50,6 +50,7 @@
 	    android:exported="false"></provider>
         <receiver
                 android:name="boston.Bus.Map.receivers.AlarmReceiver" />
+        <service android:name="boston.Bus.Map.services.AlarmService" />
     </application>
 
 </manifest>

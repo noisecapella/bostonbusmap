@@ -8,22 +8,28 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.os.PowerManager;
+import android.os.SystemClock;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.TaskStackBuilder;
 import android.support.v4.content.WakefulBroadcastReceiver;
 import android.util.Log;
+import android.widget.Toast;
 
 import boston.Bus.Map.R;
 import boston.Bus.Map.data.TimePrediction;
 import boston.Bus.Map.main.Main;
+import boston.Bus.Map.services.AlarmService;
 import boston.Bus.Map.util.LogUtil;
 
-public class AlarmReceiver extends BroadcastReceiver {
+public class AlarmReceiver extends WakefulBroadcastReceiver {
 	// mostly stolen from http://stackoverflow.com/questions/4459058/alarm-manager-example
 	public static final int ID = 3;
+	public static final String ROUTE = "route";
+	public static final String STOP = "stop";
 
-	public void triggerNotification(Context context, String title) {
+	public static void triggerNotification(Context context, String title) {
 		LogUtil.i("Triggering notification");
+
 		NotificationManager notificationManager =
 				(NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
 		NotificationCompat.Builder builder = new NotificationCompat.Builder(context);
@@ -48,7 +54,6 @@ public class AlarmReceiver extends BroadcastReceiver {
 		builder.setSmallIcon(R.drawable.appicon);
 		builder.setContentIntent(resultPendingIntent);
 		builder.setDefaults(Notification.DEFAULT_VIBRATE);
-
 		Notification notification = builder.build();
 
 		notificationManager.notify(ID, notification);
@@ -57,38 +62,32 @@ public class AlarmReceiver extends BroadcastReceiver {
 	@Override
 	public void onReceive(Context context, Intent intent) {
 		LogUtil.i("onReceive Alarm");
-		PowerManager powerManager = (PowerManager) context.getSystemService(Context.POWER_SERVICE);
-		PowerManager.WakeLock wakeLock = powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "");
-		try
-		{
-			wakeLock.acquire();
+		// if alarm is still good, renew alarm for another 30 seconds
+		// else trigger notification
 
-			// if alarm is still good, renew alarm for another 30 seconds
-			// else trigger notification
-
-			//setAlarm(context);
-			triggerNotification(context, "alarm");
-		}
-		finally
-		{
-			wakeLock.release();
-		}
+		Intent serviceIntent = new Intent(context, AlarmService.class);
+		serviceIntent.putExtra(STOP, intent.getStringExtra(STOP));
+		serviceIntent.putExtra(ROUTE, intent.getStringExtra(ROUTE));
+		startWakefulService(context, serviceIntent);
 	}
 
-	public static void setAlarm(Context context, TimePrediction timePrediction)
+	public static void setAlarm(Context context, String route, String stop, int delay)
 	{
-		LogUtil.i("Setting alarm");
 		AlarmManager alarmManager = (AlarmManager)context.getSystemService(Context.ALARM_SERVICE);
 		Intent intent = new Intent(context, AlarmReceiver.class);
-		PendingIntent pendingIntent = PendingIntent.getBroadcast(context, ID, intent, 0);
-		alarmManager.set(AlarmManager.RTC_WAKEUP, System.currentTimeMillis() + (30 * 1000), pendingIntent);
+		intent.putExtra(STOP, stop);
+		intent.putExtra(ROUTE, route);
+		PendingIntent pendingIntent = PendingIntent.getBroadcast(context, ID, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+		alarmManager.set(AlarmManager.ELAPSED_REALTIME_WAKEUP,
+				SystemClock.elapsedRealtime() + (delay * 1000), pendingIntent);
 	}
 
 	public static void cancelAlarm(Context context)
 	{
 		LogUtil.i("Cancelling alarm");
 		Intent intent = new Intent(context, AlarmReceiver.class);
-		PendingIntent sender = PendingIntent.getBroadcast(context, ID, intent, 0);
+		PendingIntent sender = PendingIntent.getBroadcast(context, ID, intent, PendingIntent.FLAG_UPDATE_CURRENT);
 		AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
 		alarmManager.cancel(sender);
-	}}
+	}
+}
