@@ -345,7 +345,9 @@ public class BusPopupView extends BalloonOverlayView<BusOverlayItem>
 						public void onClick(DialogInterface dialog, int which) {
 							if (which >= 0 && which < predictionTitles.length) {
 								TimePrediction timePrediction = predictionList.get(which);
-								AlarmReceiver.setAlarm(context, timePrediction.getRouteTitle() + ", " + ((StopLocation) location).getTitle(), timePrediction.getMinutes() * 60);
+								String route = timePrediction.getRouteName();
+								String stop = ((StopLocation) location).getStopTag();
+								AlarmReceiver.setAlarm(context, route, stop, 5);
 							}
 						}
 					});

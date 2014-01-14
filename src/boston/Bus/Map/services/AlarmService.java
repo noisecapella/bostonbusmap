@@ -48,10 +48,11 @@ public class AlarmService extends IntentService {
 			RouteConfig routeConfig = routePool.get(route);
 			Directions directions = new Directions(context);
 			Locations locations = new Locations(context, transitSystem, selection);
-
-			source.refreshData(routeConfig, selection, 1, 0, 0, null, routePool, directions, locations);
-
 			StopLocation stopLocation = routeConfig.getStop(stop);
+
+			source.refreshData(routeConfig, selection, 1, stopLocation.getLatitudeAsDegrees(),
+					stopLocation.getLongitudeAsDegrees(), null, routePool, directions, locations);
+
 			Predictions predictions = stopLocation.getPredictions();
 			List<IPrediction> predictionList = predictions.getPredictions();
 
