@@ -36,6 +36,7 @@ import boston.Bus.Map.data.IntersectionLocation;
 import boston.Bus.Map.data.Location;
 import boston.Bus.Map.data.Locations;
 import boston.Bus.Map.data.PredictionStopLocationPair;
+import boston.Bus.Map.data.PredictionView;
 import boston.Bus.Map.data.Predictions;
 import boston.Bus.Map.data.RouteTitles;
 import boston.Bus.Map.data.Selection;
@@ -324,15 +325,18 @@ public class BusPopupView extends BalloonOverlayView<BusOverlayItem>
 
 
 					Predictions predictions = stopLocation.getPredictions();
+
 					final List<TimePrediction> predictionList = Lists.newArrayList();
-					for (IPrediction prediction : predictions.getPredictions()) {
+					PredictionView predictionView = predictions.getPredictionView();
+					StopPredictionView stopPredictionView = (StopPredictionView)predictionView;
+					for (IPrediction prediction : stopPredictionView.getPredictions()) {
 						if (prediction instanceof TimePrediction) {
 							predictionList.add((TimePrediction)prediction);
 						}
 					}
 					List<String> predictionTitlesList = Lists.newArrayList();
 					for (TimePrediction timePrediction : predictionList) {
-						String predictionTitle = "Alarm for route " + timePrediction.getRouteTitle() + ", " +
+						String predictionTitle = "Route " + timePrediction.getRouteTitle() + ", " +
 								timePrediction.getMinutes() + " minutes, stop " + stopLocation.getTitle() + ", vehicle id " + timePrediction.getVehicleId();
 						predictionTitlesList.add(predictionTitle);
 					}
@@ -348,6 +352,7 @@ public class BusPopupView extends BalloonOverlayView<BusOverlayItem>
 								String route = timePrediction.getRouteName();
 								String stop = ((StopLocation) location).getStopTag();
 								AlarmReceiver.setAlarm(context, route, stop, 5);
+								Toast.makeText(context, "New alarm has been set", Toast.LENGTH_LONG).show();
 							}
 						}
 					});

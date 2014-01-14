@@ -130,7 +130,7 @@ public class StopLocation implements Location
 	{
 		return predictions;
 	}
-	
+
 	@Override
 	public void makeSnippetAndTitle(RouteConfig routeConfig, RouteTitles routeKeysToTitles, 
 			Locations locations, Context context)

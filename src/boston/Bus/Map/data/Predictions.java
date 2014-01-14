@@ -161,11 +161,4 @@ public class Predictions
 			return predictionView;
 		}
 	}
-
-	/**
-	 * Returns a defensive copy of predictions list
-	 */
-	public List<IPrediction> getPredictions() {
-		return ImmutableList.copyOf(predictions);
-	}
 }

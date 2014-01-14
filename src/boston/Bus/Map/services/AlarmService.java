@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.support.v4.content.WakefulBroadcastReceiver;
 
+import java.util.Arrays;
 import java.util.List;
 
 import boston.Bus.Map.data.Directions;
@@ -15,6 +16,7 @@ import boston.Bus.Map.data.RouteConfig;
 import boston.Bus.Map.data.RoutePool;
 import boston.Bus.Map.data.Selection;
 import boston.Bus.Map.data.StopLocation;
+import boston.Bus.Map.data.StopPredictionView;
 import boston.Bus.Map.data.TimePrediction;
 import boston.Bus.Map.receivers.AlarmReceiver;
 import boston.Bus.Map.transit.TransitSource;
@@ -54,7 +56,8 @@ public class AlarmService extends IntentService {
 					stopLocation.getLongitudeAsDegrees(), null, routePool, directions, locations);
 
 			Predictions predictions = stopLocation.getPredictions();
-			List<IPrediction> predictionList = predictions.getPredictions();
+			StopPredictionView stopPredictionView = (StopPredictionView)predictions.getPredictionView();
+			List<IPrediction> predictionList = Arrays.asList(stopPredictionView.getPredictions());
 
 			// TODO: throw better exceptions here if empty list or not TimePrediction
 			TimePrediction timePrediction = (TimePrediction)predictionList.get(0);
