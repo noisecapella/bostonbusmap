@@ -1,5 +1,7 @@
 import os
 import csv
+from datetime import datetime
+
 class GtfsMap:
     def __init__(self, gtfs_path):
         trip_path = os.path.join(gtfs_path, "trips.txt")
@@ -22,6 +24,15 @@ class GtfsMap:
         shapes_tup = self.read_rows(shapes_path)
         self.shapes_header, self.shapes = shapes_tup
 
+        calendar_path = os.path.join(gtfs_path, "calendar.txt")
+        self.last_date = None
+        with open(calendar_path) as f:
+            for row in csv.DictReader(f):
+                date = datetime.strptime(row["end_date"], '%Y%m%d')
+                if self.last_date is None or self.last_date < date:
+                    self.last_date = date
+        
+
 
     def make_index_map(self, array):
         ret = {}
@@ -31,8 +42,6 @@ class GtfsMap:
 
 
     def read_rows(self, path):
-        ret = {}
-
         with open(path) as f:
             reader = csv.reader(f)
 
