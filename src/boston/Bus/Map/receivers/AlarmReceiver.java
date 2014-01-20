@@ -5,8 +5,10 @@ import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.os.PowerManager;
 import android.os.SystemClock;
 import android.support.v4.app.NotificationCompat;
@@ -24,8 +26,6 @@ import boston.Bus.Map.util.LogUtil;
 public class AlarmReceiver extends WakefulBroadcastReceiver {
 	// mostly stolen from http://stackoverflow.com/questions/4459058/alarm-manager-example
 	public static final int ID = 3;
-	public static final String ROUTE = "route";
-	public static final String STOP = "stop";
 
 	public static void triggerNotification(Context context, String title) {
 		LogUtil.i("Triggering notification");
@@ -66,25 +66,40 @@ public class AlarmReceiver extends WakefulBroadcastReceiver {
 		// else trigger notification
 
 		Intent serviceIntent = new Intent(context, AlarmService.class);
-		serviceIntent.putExtra(STOP, intent.getStringExtra(STOP));
-		serviceIntent.putExtra(ROUTE, intent.getStringExtra(ROUTE));
 		startWakefulService(context, serviceIntent);
 	}
 
-	public static void setAlarm(Context context, String route, String stop, int delay)
+	/**
+	 * Start checking for alarms. Caller is expected to have already inserted alarm information into database
+	 * @param context
+	 * @param delay Trigger alarm this number of seconds from now
+	 */
+	public static void scheduleAlarm(Context context, int delay)
 	{
+		// turn on boot receiver
+		ComponentName receiver = new ComponentName(context, BootReceiver.class);
+		PackageManager pm = context.getPackageManager();
+
+		pm.setComponentEnabledSetting(receiver,
+				PackageManager.COMPONENT_ENABLED_STATE_ENABLED,
+				PackageManager.DONT_KILL_APP);
+
 		AlarmManager alarmManager = (AlarmManager)context.getSystemService(Context.ALARM_SERVICE);
 		Intent intent = new Intent(context, AlarmReceiver.class);
-		intent.putExtra(STOP, stop);
-		intent.putExtra(ROUTE, route);
 		PendingIntent pendingIntent = PendingIntent.getBroadcast(context, ID, intent, PendingIntent.FLAG_UPDATE_CURRENT);
 		alarmManager.set(AlarmManager.ELAPSED_REALTIME_WAKEUP,
 				SystemClock.elapsedRealtime() + (delay * 1000), pendingIntent);
 	}
 
-	public static void cancelAlarm(Context context)
+	public static void cancelAllAlarms(Context context)
 	{
-		LogUtil.i("Cancelling alarm");
+		ComponentName receiver = new ComponentName(context, BootReceiver.class);
+		PackageManager pm = context.getPackageManager();
+
+		pm.setComponentEnabledSetting(receiver,
+				PackageManager.COMPONENT_ENABLED_STATE_DISABLED,
+				PackageManager.DONT_KILL_APP);
+
 		Intent intent = new Intent(context, AlarmReceiver.class);
 		PendingIntent sender = PendingIntent.getBroadcast(context, ID, intent, PendingIntent.FLAG_UPDATE_CURRENT);
 		AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);

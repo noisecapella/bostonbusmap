@@ -96,12 +96,21 @@ schema = {"directions" : {"columns":[
             {"tag": "title", "type": "String"}], 
                      "primaryKeys" : ["tag"],
                      "indexes" : []},
-          "locations" : {"columns":[
+          "locations" : {"columns":[ #NOTE: this is a different database
             {"tag" : "lat", "type" : "float"},
             {"tag" : "lon", "type" : "float"},
             {"tag" : "name", "type" : "String"}],
                          "primaryKeys" : ["name"],
                          "indexes" : []},
+          "alarms" : {"columns": [ #NOTE: this is a different database
+              {"tag" : "scheduled_time", "type" : "long"},
+              {"tag" : "alarm_time", "type" : "long"},
+              {"tag" : "route", "type" : "String"},
+              {"tag" : "stop", "type" : "String"},
+              {"tag" : "dirTag", "type" : "String"},
+              {"tag" : "minutes_before", "type" : "int"}],
+                      "primaryKeys" : [],
+                      "indexes" : []},
           "bounds" : {"columns":[
             {"tag" : "route", "type" : "String"},
             {"tag" : "weekdays", "type" : "int"},
@@ -154,6 +163,8 @@ class Column:
         elif self.data_type == "byte[]":
             type = "BLOB"
         elif self.data_type == "int":
+            type = "INTEGER"
+        elif self.data_type == "long":
             type = "INTEGER"
         s = self.column_name + " " + type
 

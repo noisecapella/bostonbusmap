@@ -19,5 +19,4 @@ public interface IPrediction extends Comparable<IPrediction>, Parcelable {
     String getRouteTitle();
 
     ImmutableMap<String, Spanned> makeSnippetMap(Context context);
-
 }

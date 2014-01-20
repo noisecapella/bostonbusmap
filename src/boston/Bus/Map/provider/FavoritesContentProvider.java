@@ -25,9 +25,14 @@ public class FavoritesContentProvider extends ContentProvider
 	public static final Uri LOCATIONS_URI = Uri.parse("content://" + AUTHORITY + "/locations");
 	private static final int LOCATIONS = 14;
 
+	private static final String ALARMS_TYPE = "vnd.android.cursor.dir/vnd.bostonbusmap.alarm";
+	public static final Uri ALARMS_URI = Uri.parse("content://" + AUTHORITY + "/alarms");
+	private static final int ALARMS = 15;
+
 	public static final int ADD_LOCATIONS = 101;
+	public static final int ADD_ALARMS = 102;
 	
-	public static final int CURRENT_DB_VERSION = ADD_LOCATIONS;
+	public static final int CURRENT_DB_VERSION = ADD_ALARMS;
 	
 	private final UriMatcher uriMatcher;
 
@@ -37,13 +42,14 @@ public class FavoritesContentProvider extends ContentProvider
 		uriMatcher = new UriMatcher(UriMatcher.NO_MATCH);
 		uriMatcher.addURI(AUTHORITY, "favorites", FAVORITES);
 		uriMatcher.addURI(AUTHORITY, "locations", LOCATIONS);
+		uriMatcher.addURI(AUTHORITY, "alarms", ALARMS);
 	}
 	
 	private static class FavoritesDatabaseHelper extends SQLiteOpenHelper
 	{
 
 		public FavoritesDatabaseHelper(Context context) {
-			super(context, Schema.oldDb, null, DatabaseContentProvider.CURRENT_DB_VERSION);
+			super(context, Schema.oldDb, null, FavoritesContentProvider.CURRENT_DB_VERSION);
 			
 		}
 
@@ -51,6 +57,7 @@ public class FavoritesContentProvider extends ContentProvider
 		public void onCreate(SQLiteDatabase db) {
 			db.execSQL(Schema.Favorites.createSql);
 			db.execSQL(Schema.Locations.createSql);
+			db.execSQL(Schema.Alarms.createSql);
 		}
 
 		@Override
@@ -79,6 +86,9 @@ public class FavoritesContentProvider extends ContentProvider
 		case LOCATIONS:
 			count = db.delete(Schema.Locations.table, selection, selectionArgs);
 			break;
+		case ALARMS:
+			count = db.delete(Schema.Alarms.table, selection, selectionArgs);
+			break;
 		default:
 			throw new IllegalArgumentException("Unknown uri: " + uri);
 		}
@@ -92,7 +102,8 @@ public class FavoritesContentProvider extends ContentProvider
 			return FAVORITES_TYPE;
 		case LOCATIONS:
 			return LOCATIONS_TYPE;
-
+		case ALARMS:
+			return ALARMS_TYPE;
 		}
 		throw new IllegalArgumentException("Unknown uri: " + uri);
 	}
@@ -102,6 +113,7 @@ public class FavoritesContentProvider extends ContentProvider
 		switch (uriMatcher.match(uri)) {
 		case FAVORITES:
 		case LOCATIONS:
+		case ALARMS:
 			break;
 		default:
 			throw new IllegalArgumentException("Unknown uri: " + uri);
@@ -127,6 +139,15 @@ public class FavoritesContentProvider extends ContentProvider
 			}
 		}
 		break;
+		case ALARMS:
+		{
+			long rowId = db.replace(Schema.Alarms.table, null, values);
+			if (rowId >= 0) {
+				getContext().getContentResolver().notifyChange(uri, null);
+				return ALARMS_URI;
+			}
+		}
+		break;
 		}
 		throw new SQLException("Failed to insert row into " + uri);
 	}
@@ -146,6 +167,9 @@ public class FavoritesContentProvider extends ContentProvider
 			break;
 		case FAVORITES:
 			builder.setTables(Schema.Favorites.table);
+			break;
+		case ALARMS:
+			builder.setTables(Schema.Alarms.table);
 			break;
 		default:
 			throw new IllegalArgumentException("Unknown URI " + uri);
@@ -167,6 +191,9 @@ public class FavoritesContentProvider extends ContentProvider
 			break;
 		case LOCATIONS:
 			count = db.update(Schema.Locations.table, values, selection, selectionArgs);
+			break;
+		case ALARMS:
+			count = db.update(Schema.Alarms.table, values, selection, selectionArgs);
 			break;
 		default:
 			throw new IllegalArgumentException("Unknown URI " + uri);

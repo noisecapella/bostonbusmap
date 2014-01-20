@@ -29,6 +29,7 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.google.common.io.ByteStreams;
 
+import boston.Bus.Map.data.Alarm;
 import boston.Bus.Map.data.Direction;
 import boston.Bus.Map.data.IntersectionLocation;
 import boston.Bus.Map.data.IntersectionLocation.Builder;
@@ -1076,6 +1077,43 @@ public class DatabaseContentProvider extends ContentProvider {
 			}
 		}
 
+		public static List<Alarm> getAlarms(ContentResolver resolver) {
+			List<Alarm> ret = Lists.newArrayList();
+			Cursor cursor = null;
+			try
+			{
+				String[] keys = new String[] {
+					Schema.Alarms.alarm_timeColumn,
+						Schema.Alarms.scheduled_timeColumn,
+						Schema.Alarms.routeColumn,
+						Schema.Alarms.stopColumn,
+						Schema.Alarms.dirTagColumn,
+						Schema.Alarms.minutes_beforeColumn
+				};
+				cursor = resolver.query(FavoritesContentProvider.ALARMS_URI, keys, null, null, null);
+				cursor.moveToFirst();
+				while (cursor.isAfterLast() == false) {
+					long alarmTime = cursor.getLong(0);
+					long scheduledTime = cursor.getLong(1);
+					String route = cursor.getString(2);
+					String stop = cursor.getString(3);
+					String direction = cursor.getString(4);
+					int minutes = cursor.getInt(5);
+
+					ret.add(new Alarm(alarmTime, scheduledTime, stop, route, direction, minutes));
+
+					cursor.moveToNext();
+				}
+			}
+			finally
+			{
+				if (cursor != null) {
+					cursor.close();
+				}
+			}
+			return ret;
+		}
+
 		public static ArrayList<String> getDirectionTagsForStop(ContentResolver resolver, 
 				String stopTag) {
 			ArrayList<String> ret = new ArrayList<String>();
@@ -1268,7 +1306,7 @@ public class DatabaseContentProvider extends ContentProvider {
 
 		public static void removeIntersection(ContentResolver contentResolver,
 				String name) {
-			int result = contentResolver.delete(FavoritesContentProvider.LOCATIONS_URI, Schema.Locations.nameColumn + "= ?", new String[] {name});
+			int result = contentResolver.delete(FavoritesContentProvider.LOCATIONS_URI, Schema.Locations.nameColumn + "= ?", new String[]{name});
 			if (result == 0) {
 				Log.e("BostonBusMap", "Failed to delete intersection " + name);
 			}
@@ -1289,6 +1327,23 @@ public class DatabaseContentProvider extends ContentProvider {
 			}
 		}
 
+		public static void addAlarm(ContentResolver resolver,
+				Alarm alarm) {
+			ContentValues values = new ContentValues();
+			values.put(Schema.Alarms.alarm_timeColumn, alarm.getAlarmTime());
+			values.put(Schema.Alarms.scheduled_timeColumn, alarm.getScheduledTime());
+			values.put(Schema.Alarms.stopColumn, alarm.getStop());
+			values.put(Schema.Alarms.routeColumn, alarm.getRouteTitle());
+			values.put(Schema.Alarms.dirTagColumn, alarm.getDirectionTitle());
+			values.put(Schema.Alarms.minutes_beforeColumn, alarm.getMinutesBefore());
+
+			resolver.insert(FavoritesContentProvider.ALARMS_URI, values);
+		}
+
+		public static void removeAlarm(ContentResolver resolver, Alarm alarm) {
+			// TODO: use alarm id
+			resolver.delete(FavoritesContentProvider.ALARMS_URI, Schema.Alarms.alarm_timeColumn + " = ?", new String[] {String.valueOf(alarm.getAlarmTime())});
+		}
 	}
 
 

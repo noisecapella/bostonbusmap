@@ -20,6 +20,65 @@ public class Schema {
     }
 
 
+    public static class Alarms {
+        public static final String table = "alarms"; 
+        public static final String[] columns = new String[] {
+            "scheduled_time", "alarm_time", "route", "stop", "dirTag", "minutes_before"
+        };
+
+        public static final int scheduled_timeIndex = 1;
+        public static final String scheduled_timeColumn = "scheduled_time";
+        public static final String scheduled_timeColumnOnTable = "alarms.scheduled_time";
+        public static final int alarm_timeIndex = 2;
+        public static final String alarm_timeColumn = "alarm_time";
+        public static final String alarm_timeColumnOnTable = "alarms.alarm_time";
+        public static final int routeIndex = 3;
+        public static final String routeColumn = "route";
+        public static final String routeColumnOnTable = "alarms.route";
+        public static final int stopIndex = 4;
+        public static final String stopColumn = "stop";
+        public static final String stopColumnOnTable = "alarms.stop";
+        public static final int dirTagIndex = 5;
+        public static final String dirTagColumn = "dirTag";
+        public static final String dirTagColumnOnTable = "alarms.dirTag";
+        public static final int minutes_beforeIndex = 6;
+        public static final String minutes_beforeColumn = "minutes_before";
+        public static final String minutes_beforeColumnOnTable = "alarms.minutes_before";
+
+        public static final String dropSql = "DROP TABLE IF EXISTS alarms";
+        public static final String createSql = "CREATE TABLE IF NOT EXISTS alarms (scheduled_time INTEGER, alarm_time INTEGER, route STRING, stop STRING, dirTag STRING, minutes_before INTEGER)";
+        public static class Bean {
+            public final int scheduled_time;
+            public final int alarm_time;
+            public final String route;
+            public final String stop;
+            public final String dirTag;
+            public final int minutes_before;
+            public Bean(int scheduled_time, int alarm_time, String route, String stop, String dirTag, int minutes_before) {
+                this.scheduled_time = scheduled_time;
+                this.alarm_time = alarm_time;
+                this.route = route;
+                this.stop = stop;
+                this.dirTag = dirTag;
+                this.minutes_before = minutes_before;
+            }
+        }
+        public static void executeInsertHelper(InsertHelper helper, Collection<Bean> beans) {
+            for (Bean bean : beans) {
+                executeInsertHelper(helper, bean.scheduled_time, bean.alarm_time, bean.route, bean.stop, bean.dirTag, bean.minutes_before);
+            }
+        }
+        public static void executeInsertHelper(InsertHelper helper, int scheduled_time, int alarm_time, String route, String stop, String dirTag, int minutes_before) {
+            helper.prepareForReplace();
+            helper.bind(scheduled_timeIndex, scheduled_time);
+            helper.bind(alarm_timeIndex, alarm_time);
+            helper.bind(routeIndex, route);
+            helper.bind(stopIndex, stop);
+            helper.bind(dirTagIndex, dirTag);
+            helper.bind(minutes_beforeIndex, minutes_before);
+            helper.execute();
+        }
+    }
     public static class Bounds {
         public static final String table = "bounds"; 
         public static final String[] columns = new String[] {

@@ -78,10 +78,10 @@ lateness. Used at the trip’s origin.
 	
 	public CommuterRailPrediction(int minutes, String vehicleId, String direction,
 			String routeName, String routeTitle, boolean affectedByLayover, boolean isDelayed,
-			int lateness, int flag)
+			int lateness, String stop, int flag)
 	{
 		super(minutes, vehicleId, direction, routeName, routeTitle, affectedByLayover, isDelayed,
-				lateness);
+				lateness, stop);
 		this.flag = flag;
 	}
 	
@@ -152,12 +152,13 @@ lateness. Used at the trip’s origin.
 			boolean affectedByLayover = readBoolean(source);
 			boolean isDelayed = readBoolean(source);
 			int lateness = source.readInt();
+			String stop = source.readString();
 			
 			int minutes = calcMinutes(arrivalTimeMillis);
 			
 			int flag = source.readInt();
 			
-			CommuterRailPrediction prediction = new CommuterRailPrediction(minutes, vehicleId, direction, routeName, routeTitle, affectedByLayover, isDelayed, lateness, flag);
+			CommuterRailPrediction prediction = new CommuterRailPrediction(minutes, vehicleId, direction, routeName, routeTitle, affectedByLayover, isDelayed, lateness, stop, flag);
 			return prediction;
 		}
 	};

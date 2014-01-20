@@ -3,9 +3,13 @@ package boston.Bus.Map.ui;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.SortedSet;
 import java.util.concurrent.ConcurrentMap;
 
 import android.app.AlertDialog;
+import android.content.ContentResolver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -13,6 +17,7 @@ import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
 
+import android.os.Parcelable;
 import android.os.RemoteException;
 import android.support.v4.content.LocalBroadcastManager;
 import android.text.Html;
@@ -22,15 +27,20 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.ListAdapter;
 import android.widget.ListView;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import boston.Bus.Map.R;
+import boston.Bus.Map.data.Alarm;
 import boston.Bus.Map.data.Alert;
 import boston.Bus.Map.data.BusLocation;
+import boston.Bus.Map.data.Directions;
 import boston.Bus.Map.data.IPrediction;
 import boston.Bus.Map.data.IntersectionLocation;
 import boston.Bus.Map.data.Location;
@@ -48,6 +58,7 @@ import boston.Bus.Map.main.AlertInfo;
 import boston.Bus.Map.main.Main;
 import boston.Bus.Map.main.MoreInfo;
 import boston.Bus.Map.main.UpdateHandler;
+import boston.Bus.Map.provider.DatabaseContentProvider;
 import boston.Bus.Map.receivers.AlarmReceiver;
 import boston.Bus.Map.transit.TransitSystem;
 import boston.Bus.Map.util.LogUtil;
@@ -55,7 +66,10 @@ import boston.Bus.Map.util.LogUtil;
 import com.google.android.maps.OverlayItem;
 import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableCollection;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 import com.readystatesoftware.mapviewballoons.BalloonOverlayView;
 
 
@@ -315,49 +329,69 @@ public class BusPopupView extends BalloonOverlayView<BusOverlayItem>
 			@Override
 			public void onClick(View v) {
 				if (location != null && location instanceof StopLocation) {
-					StopLocation stopLocation = (StopLocation)location;
-					AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
-					builder.setTitle("Alarms for " + stopLocation.getTitle());
-
-					ListView listView = new ListView(getContext());
-					listView.setClickable(false);
-					builder.setView(listView);
-
+					final StopLocation stopLocation = (StopLocation)location;
 
 					Predictions predictions = stopLocation.getPredictions();
+					StopPredictionView stopPredictionView = (StopPredictionView)predictions.getPredictionView();
+					final IPrediction[] predictionList = stopPredictionView.getPredictions();
 
-					final List<TimePrediction> predictionList = Lists.newArrayList();
-					PredictionView predictionView = predictions.getPredictionView();
-					StopPredictionView stopPredictionView = (StopPredictionView)predictionView;
-					for (IPrediction prediction : stopPredictionView.getPredictions()) {
-						if (prediction instanceof TimePrediction) {
-							predictionList.add((TimePrediction)prediction);
-						}
+					AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+					builder.setTitle("Set alarm for " + stopLocation.getTitle());
+
+					final List<String> predictionDescriptions = Lists.newArrayList();
+					for (int i = 0; i < predictionList.length; i++) {
+						TimePrediction prediction = (TimePrediction)predictionList[i];
+						String description = "Route " + prediction.getRouteTitle() + "\n";
+						description += prediction.getDirectionTitle();
+
+						predictionDescriptions.add(description);
 					}
-					List<String> predictionTitlesList = Lists.newArrayList();
-					for (TimePrediction timePrediction : predictionList) {
-						String predictionTitle = "Route " + timePrediction.getRouteTitle() + ", " +
-								timePrediction.getMinutes() + " minutes, stop " + stopLocation.getTitle() + ", vehicle id " + timePrediction.getVehicleId();
-						predictionTitlesList.add(predictionTitle);
-					}
-					final String[] predictionTitles = predictionTitlesList.toArray(new String[0]);
 
-					ArrayAdapter<String> arrayAdapter = new ArrayAdapter<String>(getContext(), android.R.layout.select_dialog_item, predictionTitles);
-					builder.setAdapter(arrayAdapter, new DialogInterface.OnClickListener() {
-
+					ArrayAdapter<String> predictionsAdapter = new ArrayAdapter<String>(getContext(), android.R.layout.simple_dropdown_item_1line,
+							predictionDescriptions);
+					builder.setAdapter(predictionsAdapter, new DialogInterface.OnClickListener() {
 						@Override
-						public void onClick(DialogInterface dialog, int which) {
-							if (which >= 0 && which < predictionTitles.length) {
-								TimePrediction timePrediction = predictionList.get(which);
-								String route = timePrediction.getRouteName();
-								String stop = ((StopLocation) location).getStopTag();
-								AlarmReceiver.setAlarm(context, route, stop, 5);
-								Toast.makeText(context, "New alarm has been set", Toast.LENGTH_LONG).show();
+						public void onClick(DialogInterface dialog, int predictionsWhich) {
+
+							if (predictionsWhich < 0 || predictionsWhich >= predictionDescriptions.size()) {
+								throw new RuntimeException("Unknown option selected");
 							}
+							final TimePrediction prediction = (TimePrediction)predictionList[predictionsWhich];
+
+							final ImmutableList<String> minutesDescription = ImmutableList.of("Now",
+									"Five minutes", "Ten minutes");
+							final ImmutableList<Integer> minutes = ImmutableList.of(2, 5, 10);
+
+							AlertDialog.Builder minutesDialog = new AlertDialog.Builder(getContext());
+							minutesDialog.setTitle("Minutes before arrival");
+							minutesDialog.setAdapter(new ArrayAdapter<String>(getContext(),
+									android.R.layout.simple_dropdown_item_1line,
+									minutesDescription),
+									new DialogInterface.OnClickListener() {
+								@Override
+								public void onClick(DialogInterface dialog, int which) {
+									if (which < 0 || which >= minutes.size()) {
+										throw new RuntimeException("Unknown minutes option selected");
+									}
+									int minute = minutes.get(which);
+
+									long nowSeconds = System.currentTimeMillis()/1000;
+									Alarm alarm = new Alarm(nowSeconds, nowSeconds,
+											stopLocation.getStopTag(),
+											prediction.getRouteTitle(),
+											prediction.getDirectionTitle(),
+											minute);
+									ContentResolver resolver = getContext().getContentResolver();
+									DatabaseContentProvider.DatabaseAgent.addAlarm(resolver, alarm);
+									AlarmReceiver.scheduleAlarm(getContext(), 5);
+									Toast.makeText(getContext(), "New alarm set!", Toast.LENGTH_LONG).show();
+								}
+							});
+							minutesDialog.show();
 						}
 					});
 
-					builder.create().show();
+					builder.show();
 				}
 			}
 		});

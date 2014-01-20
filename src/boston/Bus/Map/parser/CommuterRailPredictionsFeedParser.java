@@ -149,7 +149,7 @@ public class CommuterRailPredictionsFeedParser
 					TimePrediction prediction = new TimePrediction(minutes,
 							trip, dirTag, routeName,
 							routeTitle, false,
-							lateness > 5*60, lateness);
+							lateness > 5*60, lateness, stopId);
 					PredictionStopLocationPair pair = new PredictionStopLocationPair(prediction,
 							stop);
 					pairs.add(pair);
