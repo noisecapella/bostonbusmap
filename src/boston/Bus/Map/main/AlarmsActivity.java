@@ -45,7 +45,7 @@ public class AlarmsActivity extends ListActivity {
 
 			long nowSeconds = (System.currentTimeMillis()/1000);
 			int minutesFromNow = (int)(alarm.getAlarmTime() - nowSeconds)/60;
-			String ret = Alarm.makeHtml(alarm.getRouteTitle(), alarm.getStop(), alarm.getDirectionTitle(),
+			String ret = Alarm.makeHtml(alarm.getRouteTitle(), alarm.getStopTitle(), alarm.getDirectionTitle(),
 					minutesFromNow);
 
 			map.put(textKey, Html.fromHtml(ret));

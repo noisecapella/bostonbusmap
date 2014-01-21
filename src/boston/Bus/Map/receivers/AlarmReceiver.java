@@ -19,6 +19,7 @@ import android.widget.Toast;
 
 import boston.Bus.Map.R;
 import boston.Bus.Map.data.TimePrediction;
+import boston.Bus.Map.main.FullScreenAlarmActivity;
 import boston.Bus.Map.main.Main;
 import boston.Bus.Map.services.AlarmService;
 import boston.Bus.Map.util.LogUtil;
@@ -27,7 +28,10 @@ public class AlarmReceiver extends WakefulBroadcastReceiver {
 	// mostly stolen from http://stackoverflow.com/questions/4459058/alarm-manager-example
 	public static final int ID = 3;
 
-	public static void triggerNotification(Context context, String title) {
+	private static final int FULL_SCREEN_CODE = 0;
+	private static final int NOTIFICATION_CODE = 1;
+
+	public static void triggerNotification(Context context, String title, String route, String stop) {
 		LogUtil.i("Triggering notification");
 
 		NotificationManager notificationManager =
@@ -37,6 +41,8 @@ public class AlarmReceiver extends WakefulBroadcastReceiver {
 		builder.setContentTitle("Alarm triggered!");
 
 		Intent resultIntent = new Intent(context, Main.class);
+		resultIntent.putExtra(Main.ROUTE_KEY, route);
+		resultIntent.putExtra(Main.STOP_KEY, stop);
 		// The stack builder object will contain an artificial back stack for the
 		// started Activity.
 		// This ensures that navigating backward from the Activity leads out of
@@ -48,12 +54,23 @@ public class AlarmReceiver extends WakefulBroadcastReceiver {
 		stackBuilder.addNextIntent(resultIntent);
 		PendingIntent resultPendingIntent =
 				stackBuilder.getPendingIntent(
-						0,
+						NOTIFICATION_CODE,
 						PendingIntent.FLAG_UPDATE_CURRENT
 				);
 		builder.setSmallIcon(R.drawable.appicon);
 		builder.setContentIntent(resultPendingIntent);
 		builder.setDefaults(Notification.DEFAULT_VIBRATE);
+
+		Intent fullScreenIntent = new Intent(context, FullScreenAlarmActivity.class);
+		fullScreenIntent.putExtra(FullScreenAlarmActivity.ROUTE_KEY, route);
+		fullScreenIntent.putExtra(FullScreenAlarmActivity.STOP_KEY, stop);
+
+		PendingIntent fullScreenPendingIntent = PendingIntent.getActivity(context,
+				FULL_SCREEN_CODE,
+				fullScreenIntent, PendingIntent.FLAG_UPDATE_CURRENT
+				);
+
+		builder.setFullScreenIntent(fullScreenPendingIntent, true);
 		Notification notification = builder.build();
 
 		notificationManager.notify(ID, notification);

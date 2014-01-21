@@ -206,7 +206,9 @@ public class Main extends MapActivity
 	public static final int UPDATE_INTERVAL_MEDIUM = 50;
 	public static final int UPDATE_INTERVAL_LONG = 100;
 	public static final int UPDATE_INTERVAL_NONE = 0;
-	
+
+	public static final String ROUTE_KEY = "route";
+	public static final String STOP_KEY = "stop";
 	
 	
     @Override
@@ -509,16 +511,24 @@ public class Main extends MapActivity
         
     	//enable plus/minus zoom buttons in map
         mapView.setBuiltInZoomControls(true);
-        
-        /*handler.post(new Runnable() {
-        	public void run() {
-                if (showIntroScreen || true)
-                {
-                	displayInstructions(Main.this);
-                }
-        		
-        	}
-        });*/
+
+		// if app is started with selection information, use it
+		Intent intent = getIntent();
+		if (intent != null) {
+			Bundle bundle = intent.getExtras();
+			if (bundle != null) {
+				String route = bundle.getString(ROUTE_KEY);
+				String stop = bundle.getString(STOP_KEY);
+
+				if (route != null && stop != null) {
+					setNewStop(route, stop);
+					setMode(Selection.BUS_PREDICTIONS_ONE, true, true);
+				}
+			}
+
+			// from http://stackoverflow.com/questions/13372326/how-to-get-getintent-to-return-null-after-activity-called-with-an-intent-set
+			intent.setData(null);
+		}
 
     }
 		

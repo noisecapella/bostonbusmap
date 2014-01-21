@@ -49,24 +49,35 @@ public class AlarmService extends IntentService {
 	protected void onHandleIntent(Intent intent) {
 		try
 		{
+			TransitSystem transitSystem = new TransitSystem();
+			transitSystem.setDefaultTransitSource(null, null, null, null, getApplicationContext());
+			RouteTitles routeTitles = transitSystem.getRouteKeysToTitles();
+
 			ContentResolver resolver = getContentResolver();
 			List<Alarm> alarms = DatabaseContentProvider.DatabaseAgent.getAlarms(resolver);
 
 			boolean checkAgain = false;
 
+			Integer checkAgainSeconds = null;
+
 			long nowSeconds = System.currentTimeMillis() / 1000;
 			for (Alarm alarm : alarms) {
+				// TODO: we shouldn't be looking up the route key from the route title
+				String route = routeTitles.getKey(alarm.getRouteTitle());
 				try {
 					int minutesBefore = alarm.getMinutesBefore();
-					if (alarm.getAlarmTime() - (minutesBefore * 60) < nowSeconds - (10 * 60)) {
+					long adjustedAlarmTime = alarm.getAlarmTime() - (minutesBefore * 60);
+					if (adjustedAlarmTime < nowSeconds - (10 * 60)) {
 						// TODO: is this condition necessary?
-						AlarmReceiver.triggerNotification(getApplicationContext(), "Error: still waiting for vehicle at stop " + alarm.getStop());
+						AlarmReceiver.triggerNotification(getApplicationContext(), "Error: still waiting for vehicle at stop " + alarm.getStop(),
+								route, alarm.getStop());
 						DatabaseContentProvider.DatabaseAgent.removeAlarm(resolver, alarm);
-					} else if (alarm.getAlarmTime() - (minutesBefore * 60) < nowSeconds + (10 * 60)) {
-						TimePrediction prediction = checkStops(alarm);
+					} else if (adjustedAlarmTime < nowSeconds + (10 * 60)) {
+						TimePrediction prediction = checkStops(transitSystem, alarm);
 						if (prediction != null) {
 							if (prediction.getMinutes() < minutesBefore) {
-								triggerAlarm(alarm);
+								AlarmReceiver.triggerNotification(getApplicationContext(),
+										"Arrival at " + alarm.getStopTitle(), route, alarm.getStop());
 								DatabaseContentProvider.DatabaseAgent.removeAlarm(resolver, alarm);
 							}
 							else
@@ -74,30 +85,54 @@ public class AlarmService extends IntentService {
 								Alarm newAlarm = alarm.withUpdatedTime(nowSeconds + (prediction.getMinutes() * 60));
 								DatabaseContentProvider.DatabaseAgent.updateAlarm(resolver, newAlarm);
 								checkAgain = true;
+
+								if (checkAgainSeconds == null || (checkAgainSeconds > 30)) {
+									checkAgainSeconds = 30;
+								}
 							}
 						} else {
-							AlarmReceiver.triggerNotification(getApplicationContext(), "Error: no predictions found");
+							AlarmReceiver.triggerNotification(getApplicationContext(), "Error: no predictions found",
+									route, alarm.getStop());
 							DatabaseContentProvider.DatabaseAgent.removeAlarm(resolver, alarm);
 						}
 					} else {
-						AlarmReceiver.triggerNotification(getApplicationContext(), "Error: too far into the future");
-						DatabaseContentProvider.DatabaseAgent.removeAlarm(resolver, alarm);
+						// too far in future
+						// adjustedAlarmTime >= nowSeconds + (10 * 60)
+
+						int seconds = (int)(adjustedAlarmTime - (nowSeconds + (10*60)));
+						checkAgain = true;
+						if (checkAgainSeconds == null || (checkAgainSeconds > seconds)) {
+							checkAgainSeconds = seconds;
+						}
 					}
 				} catch (Exception e) {
 					LogUtil.e(e);
-					AlarmReceiver.triggerNotification(getApplicationContext(), "Error: " + e.getMessage());
+					String stop = null;
+					if (alarm != null) {
+						stop = alarm.getStop();
+					}
+					AlarmReceiver.triggerNotification(getApplicationContext(), "Error: " + e.getMessage(), route,
+							stop);
 					DatabaseContentProvider.DatabaseAgent.removeAlarm(resolver, alarm);
 				}
 			}
 
 			if (checkAgain) {
-				AlarmReceiver.scheduleAlarm(getApplicationContext(), 30);
+				long seconds;
+				if (checkAgainSeconds == null) {
+					throw new RuntimeException("checkAgainSeconds not defined");
+				}
+				else
+				{
+					seconds = checkAgainSeconds;
+				}
+				AlarmReceiver.scheduleAlarm(getApplicationContext(), (int)seconds);
 			}
 
 		}
 		catch (Exception e) {
 			LogUtil.e(e);
-			AlarmReceiver.triggerNotification(getApplicationContext(), "Error: " + e.getMessage());
+			AlarmReceiver.triggerNotification(getApplicationContext(), "Error: " + e.getMessage(), null, null);
 		}
 		finally
 		{
@@ -105,10 +140,9 @@ public class AlarmService extends IntentService {
 		}
 	}
 
-	protected TimePrediction checkStops(Alarm alarm) throws IOException, ParserConfigurationException, SAXException {
+	protected TimePrediction checkStops(TransitSystem transitSystem,
+										Alarm alarm) throws IOException, ParserConfigurationException, SAXException {
 		Context context = getApplicationContext();
-		TransitSystem transitSystem = new TransitSystem();
-		transitSystem.setDefaultTransitSource(null, null, null, null, context);
 
 		RouteTitles routeTitles = transitSystem.getRouteKeysToTitles();
 
@@ -143,10 +177,5 @@ public class AlarmService extends IntentService {
 		}
 
 		return null;
-	}
-
-	protected void triggerAlarm(Alarm alarm) {
-		AlarmReceiver.triggerNotification(getApplicationContext(), "Arrival for route "
-				+ alarm.getRouteTitle() + ", stop " + alarm.getStop());
 	}
 }

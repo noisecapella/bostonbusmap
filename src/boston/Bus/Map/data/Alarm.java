@@ -8,15 +8,17 @@ public class Alarm {
 	private final long scheduledTime;
 	private final String routeTitle;
 	private final String stop;
+	private final String stopTitle;
 	private final String directionTitle;
 	private final int minutesBefore;
 
-	public Alarm(long alarmTime, long scheduledTime, String routeTitle,
-				 String stop, String directionTitle, int minutesBefore) {
+	public Alarm(long alarmTime, long scheduledTime, String stop,
+				 String stopTitle, String routeTitle, String directionTitle, int minutesBefore) {
 		this.alarmTime = alarmTime;
 		this.scheduledTime = scheduledTime;
 		this.routeTitle = routeTitle;
 		this.stop = stop;
+		this.stopTitle = stopTitle;
 		this.directionTitle = directionTitle;
 		this.minutesBefore = minutesBefore;
 	}
@@ -37,6 +39,11 @@ public class Alarm {
 		return stop;
 	}
 
+	public String getStopTitle()
+	{
+		return stopTitle;
+	}
+
 	public String getDirectionTitle() {
 		return directionTitle;
 	}
@@ -55,6 +62,6 @@ public class Alarm {
 	}
 
 	public Alarm withUpdatedTime(long alarmTime) {
-		return new Alarm(alarmTime, scheduledTime, stop, routeTitle, directionTitle, minutesBefore);
+		return new Alarm(alarmTime, scheduledTime, stop, stopTitle, routeTitle, directionTitle, minutesBefore);
 	}
 }

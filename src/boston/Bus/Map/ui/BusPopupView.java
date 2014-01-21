@@ -341,8 +341,10 @@ public class BusPopupView extends BalloonOverlayView<BusOverlayItem>
 					final List<Spanned> predictionDescriptions = Lists.newArrayList();
 					for (int i = 0; i < predictionList.length; i++) {
 						TimePrediction prediction = (TimePrediction)predictionList[i];
-						String description = "Route " + prediction.getRouteTitle() + "<br />";
-						description += prediction.getDirectionTitle();
+						String description = Alarm.makeHtml(prediction.getRouteTitle(),
+								stopLocation.getTitle(),
+								prediction.getDirectionTitle(),
+								prediction.getMinutes());
 
 						predictionDescriptions.add(Html.fromHtml(description));
 					}
@@ -382,7 +384,8 @@ public class BusPopupView extends BalloonOverlayView<BusOverlayItem>
 									long alarmTime = nowSeconds + (prediction.getMinutes() * 60);
 
 									Alarm alarm = new Alarm(alarmTime, nowSeconds,
-											stopLocation.getStopTag(),
+											prediction.getStopTag(),
+											stopLocation.getTitle(),
 											prediction.getRouteTitle(),
 											prediction.getDirectionTitle(),
 											minute);

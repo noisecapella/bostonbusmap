@@ -1087,6 +1087,7 @@ public class DatabaseContentProvider extends ContentProvider {
 						Schema.Alarms.scheduled_timeColumn,
 						Schema.Alarms.routeColumn,
 						Schema.Alarms.stopColumn,
+						Schema.Alarms.stopTitleColumn,
 						Schema.Alarms.dirTagColumn,
 						Schema.Alarms.minutes_beforeColumn
 				};
@@ -1097,10 +1098,11 @@ public class DatabaseContentProvider extends ContentProvider {
 					long scheduledTime = cursor.getLong(1);
 					String route = cursor.getString(2);
 					String stop = cursor.getString(3);
-					String direction = cursor.getString(4);
-					int minutes = cursor.getInt(5);
+					String stopTitle = cursor.getString(4);
+					String direction = cursor.getString(5);
+					int minutes = cursor.getInt(6);
 
-					ret.add(new Alarm(alarmTime, scheduledTime, stop, route, direction, minutes));
+					ret.add(new Alarm(alarmTime, scheduledTime, stop, stopTitle, route, direction, minutes));
 
 					cursor.moveToNext();
 				}
@@ -1333,6 +1335,7 @@ public class DatabaseContentProvider extends ContentProvider {
 			values.put(Schema.Alarms.alarm_timeColumn, alarm.getAlarmTime());
 			values.put(Schema.Alarms.scheduled_timeColumn, alarm.getScheduledTime());
 			values.put(Schema.Alarms.stopColumn, alarm.getStop());
+			values.put(Schema.Alarms.stopTitleColumn, alarm.getStopTitle());
 			values.put(Schema.Alarms.routeColumn, alarm.getRouteTitle());
 			values.put(Schema.Alarms.dirTagColumn, alarm.getDirectionTitle());
 			values.put(Schema.Alarms.minutes_beforeColumn, alarm.getMinutesBefore());

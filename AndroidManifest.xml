@@ -38,6 +38,8 @@
         <activity android:name="boston.Bus.Map.main.AlarmsActivity"
                   android:excludeFromRecents="true"
                   />
+        <activity android:name=".main.FullScreenAlarmActivity"
+                  android:excludeFromRecents="true" />
 
         <uses-library android:name="com.google.android.maps"></uses-library>
 		<meta-data android:name="android.app.default_searchable"

@@ -30,7 +30,7 @@ public class FavoritesContentProvider extends ContentProvider
 	private static final int ALARMS = 15;
 
 	public static final int ADD_LOCATIONS = 101;
-	public static final int ADD_ALARMS = 102;
+	public static final int ADD_ALARMS = 103;
 	
 	public static final int CURRENT_DB_VERSION = ADD_ALARMS;
 	

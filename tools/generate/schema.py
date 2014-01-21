@@ -107,6 +107,7 @@ schema = {"directions" : {"columns":[
               {"tag" : "alarm_time", "type" : "long"},
               {"tag" : "route", "type" : "String"},
               {"tag" : "stop", "type" : "String"},
+              {"tag" : "stopTitle", "type" : "String"},
               {"tag" : "dirTag", "type" : "String"},
               {"tag" : "minutes_before", "type" : "int"}],
                       "primaryKeys" : [],
