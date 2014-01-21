@@ -1342,7 +1342,16 @@ public class DatabaseContentProvider extends ContentProvider {
 
 		public static void removeAlarm(ContentResolver resolver, Alarm alarm) {
 			// TODO: use alarm id
-			resolver.delete(FavoritesContentProvider.ALARMS_URI, Schema.Alarms.alarm_timeColumn + " = ?", new String[] {String.valueOf(alarm.getAlarmTime())});
+			resolver.delete(FavoritesContentProvider.ALARMS_URI, Schema.Alarms.scheduled_timeColumn + " = ?",
+					new String[] {String.valueOf(alarm.getScheduledTime())});
+		}
+
+		public static void updateAlarm(ContentResolver resolver, Alarm newAlarm) {
+			ContentValues values = new ContentValues();
+			values.put(Schema.Alarms.alarm_timeColumn, newAlarm.getAlarmTime());
+			resolver.update(FavoritesContentProvider.ALARMS_URI, values,
+					Schema.Alarms.scheduled_timeColumn + " = ?",
+					new String[]{String.valueOf(newAlarm.getScheduledTime())});
 		}
 	}
 

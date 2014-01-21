@@ -91,6 +91,10 @@ public class Preferences extends PreferenceActivity
 				// show the tutorial since the key is set to false
 				finish();
 			}
+			else if ("showAlarms".equals(preferenceKey)) {
+				Intent startIntent = new Intent(this, AlarmsActivity.class);
+				startActivity(startIntent);
+			}
 		}
 		
 		return super.onPreferenceTreeClick(preferenceScreen, preference);

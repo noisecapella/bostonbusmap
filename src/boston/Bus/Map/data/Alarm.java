@@ -44,4 +44,17 @@ public class Alarm {
 	public int getMinutesBefore() {
 		return minutesBefore;
 	}
+
+	public static String makeHtml(String routeTitle, String stopTitle, String directionTitle, int minutesFromNow) {
+		StringBuilder builder = new StringBuilder();
+		builder.append("Route ").append(routeTitle);
+		builder.append("<br />").append(stopTitle).append("<br />");
+		builder.append(directionTitle).append("<br />");
+		builder.append("Estimated ").append(minutesFromNow).append(" minutes");
+		return builder.toString();
+	}
+
+	public Alarm withUpdatedTime(long alarmTime) {
+		return new Alarm(alarmTime, scheduledTime, stop, routeTitle, directionTitle, minutesBefore);
+	}
 }

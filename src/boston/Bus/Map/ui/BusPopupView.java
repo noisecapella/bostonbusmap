@@ -338,16 +338,18 @@ public class BusPopupView extends BalloonOverlayView<BusOverlayItem>
 					AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
 					builder.setTitle("Set alarm for " + stopLocation.getTitle());
 
-					final List<String> predictionDescriptions = Lists.newArrayList();
+					final List<Spanned> predictionDescriptions = Lists.newArrayList();
 					for (int i = 0; i < predictionList.length; i++) {
 						TimePrediction prediction = (TimePrediction)predictionList[i];
-						String description = "Route " + prediction.getRouteTitle() + "\n";
+						String description = "Route " + prediction.getRouteTitle() + "<br />";
 						description += prediction.getDirectionTitle();
 
-						predictionDescriptions.add(description);
+						predictionDescriptions.add(Html.fromHtml(description));
 					}
 
-					ArrayAdapter<String> predictionsAdapter = new ArrayAdapter<String>(getContext(), android.R.layout.simple_dropdown_item_1line,
+					ArrayAdapter<Spanned> predictionsAdapter = new ArrayAdapter<Spanned>(getContext(),
+							R.layout.alarm_row,
+							R.id.alarm_text,
 							predictionDescriptions);
 					builder.setAdapter(predictionsAdapter, new DialogInterface.OnClickListener() {
 						@Override
@@ -358,12 +360,12 @@ public class BusPopupView extends BalloonOverlayView<BusOverlayItem>
 							}
 							final TimePrediction prediction = (TimePrediction)predictionList[predictionsWhich];
 
-							final ImmutableList<String> minutesDescription = ImmutableList.of("Now",
-									"Five minutes", "Ten minutes");
+							final ImmutableList<String> minutesDescription = ImmutableList.of("At arrival",
+									"Five minutes before arrival", "Ten minutes before arrival");
 							final ImmutableList<Integer> minutes = ImmutableList.of(2, 5, 10);
 
 							AlertDialog.Builder minutesDialog = new AlertDialog.Builder(getContext());
-							minutesDialog.setTitle("Minutes before arrival");
+							minutesDialog.setTitle("Alarm time");
 							minutesDialog.setAdapter(new ArrayAdapter<String>(getContext(),
 									android.R.layout.simple_dropdown_item_1line,
 									minutesDescription),
@@ -376,7 +378,10 @@ public class BusPopupView extends BalloonOverlayView<BusOverlayItem>
 									int minute = minutes.get(which);
 
 									long nowSeconds = System.currentTimeMillis()/1000;
-									Alarm alarm = new Alarm(nowSeconds, nowSeconds,
+
+									long alarmTime = nowSeconds + (prediction.getMinutes() * 60);
+
+									Alarm alarm = new Alarm(alarmTime, nowSeconds,
 											stopLocation.getStopTag(),
 											prediction.getRouteTitle(),
 											prediction.getDirectionTitle(),
