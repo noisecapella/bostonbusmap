@@ -69,15 +69,17 @@ public class AlarmService extends IntentService {
 					long adjustedAlarmTime = alarm.getAlarmTime() - (minutesBefore * 60);
 					if (adjustedAlarmTime < nowSeconds - (10 * 60)) {
 						// TODO: is this condition necessary?
-						AlarmReceiver.triggerNotification(getApplicationContext(), "Error: still waiting for vehicle at stop " + alarm.getStop(),
-								route, alarm.getStop());
+						AlarmReceiver.triggerNotification(getApplicationContext(),
+								"Error: still waiting for vehicle at stop " + alarm.getStopTitle(),
+								route, alarm.getRouteTitle(), alarm.getStop(), alarm.getStopTitle());
 						DatabaseContentProvider.DatabaseAgent.removeAlarm(resolver, alarm);
 					} else if (adjustedAlarmTime < nowSeconds + (10 * 60)) {
 						TimePrediction prediction = checkStops(transitSystem, alarm);
 						if (prediction != null) {
 							if (prediction.getMinutes() < minutesBefore) {
 								AlarmReceiver.triggerNotification(getApplicationContext(),
-										"Arrival at " + alarm.getStopTitle(), route, alarm.getStop());
+										"Arrival at " + alarm.getStopTitle(),
+										route, alarm.getRouteTitle(), alarm.getStop(), alarm.getStopTitle());
 								DatabaseContentProvider.DatabaseAgent.removeAlarm(resolver, alarm);
 							}
 							else
@@ -92,7 +94,7 @@ public class AlarmService extends IntentService {
 							}
 						} else {
 							AlarmReceiver.triggerNotification(getApplicationContext(), "Error: no predictions found",
-									route, alarm.getStop());
+									route, alarm.getRouteTitle(), alarm.getStop(), alarm.getStopTitle());
 							DatabaseContentProvider.DatabaseAgent.removeAlarm(resolver, alarm);
 						}
 					} else {
@@ -108,11 +110,18 @@ public class AlarmService extends IntentService {
 				} catch (Exception e) {
 					LogUtil.e(e);
 					String stop = null;
+					String routeTitle = null;
+					String stopTitle = null;
 					if (alarm != null) {
 						stop = alarm.getStop();
+						routeTitle = alarm.getRouteTitle();
+						stopTitle = alarm.getStopTitle();
 					}
-					AlarmReceiver.triggerNotification(getApplicationContext(), "Error: " + e.getMessage(), route,
-							stop);
+					AlarmReceiver.triggerNotification(getApplicationContext(), "Error: " + e.getMessage(),
+							route,
+							routeTitle,
+							stop,
+							stopTitle);
 					DatabaseContentProvider.DatabaseAgent.removeAlarm(resolver, alarm);
 				}
 			}
@@ -128,11 +137,16 @@ public class AlarmService extends IntentService {
 				}
 				AlarmReceiver.scheduleAlarm(getApplicationContext(), (int)seconds);
 			}
+			else
+			{
+				AlarmReceiver.cancelAllAlarms(getApplicationContext());
+			}
 
 		}
 		catch (Exception e) {
 			LogUtil.e(e);
-			AlarmReceiver.triggerNotification(getApplicationContext(), "Error: " + e.getMessage(), null, null);
+			AlarmReceiver.triggerNotification(getApplicationContext(), "Error: " + e.getMessage(),
+					null, null, null, null);
 		}
 		finally
 		{

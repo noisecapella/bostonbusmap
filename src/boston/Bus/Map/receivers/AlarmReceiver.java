@@ -31,7 +31,7 @@ public class AlarmReceiver extends WakefulBroadcastReceiver {
 	private static final int FULL_SCREEN_CODE = 0;
 	private static final int NOTIFICATION_CODE = 1;
 
-	public static void triggerNotification(Context context, String title, String route, String stop) {
+	public static void triggerNotification(Context context, String title, String route, String routeTitle, String stop, String stopTitle) {
 		LogUtil.i("Triggering notification");
 
 		NotificationManager notificationManager =
@@ -62,8 +62,8 @@ public class AlarmReceiver extends WakefulBroadcastReceiver {
 		builder.setDefaults(Notification.DEFAULT_VIBRATE);
 
 		Intent fullScreenIntent = new Intent(context, FullScreenAlarmActivity.class);
-		fullScreenIntent.putExtra(FullScreenAlarmActivity.ROUTE_KEY, route);
-		fullScreenIntent.putExtra(FullScreenAlarmActivity.STOP_KEY, stop);
+		fullScreenIntent.putExtra(FullScreenAlarmActivity.ROUTE_TITLE_KEY, routeTitle);
+		fullScreenIntent.putExtra(FullScreenAlarmActivity.STOP_TITLE_KEY, stopTitle);
 
 		PendingIntent fullScreenPendingIntent = PendingIntent.getActivity(context,
 				FULL_SCREEN_CODE,
