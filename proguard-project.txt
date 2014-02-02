@@ -18,6 +18,7 @@
 #-keepclassmembers class fqcn.of.javascript.interface.for.webview {
 #   public *;
 #}
+-keep public class * extends com.google.protobuf.GeneratedMessage { * }
 -dontobfuscate
 -dontwarn
 -dontwarn javax.naming.**
