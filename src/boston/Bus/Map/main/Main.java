@@ -875,8 +875,9 @@ public class Main extends MapActivity
 				
 				
 				return mapView.onTouchEvent(downEvent);
-				
-				
+
+				// TODO: at some point I should test recycling this event. But this code will
+				// probably rarely get run on modern phones
 			}
 			else
 			{
@@ -968,7 +969,8 @@ public class Main extends MapActivity
 				MotionEvent upEvent = MotionEvent.obtain(SystemClock.uptimeMillis(), SystemClock.uptimeMillis(),
 						MotionEvent.ACTION_UP, centerX, centerY, 0);
 				
-				
+				// TODO: at some point I should test recycling this event. But this code will
+				// probably rarely get run on modern phones
 				return mapView.onTouchEvent(upEvent);
 				
 				
