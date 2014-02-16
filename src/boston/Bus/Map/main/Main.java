@@ -209,8 +209,8 @@ public class Main extends MapActivity
 
 	public static final String ROUTE_KEY = "route";
 	public static final String STOP_KEY = "stop";
-	
-	
+	public static final String MODE_KEY = "mode";
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -519,10 +519,29 @@ public class Main extends MapActivity
 			if (bundle != null) {
 				String route = bundle.getString(ROUTE_KEY);
 				String stop = bundle.getString(STOP_KEY);
+<<<<<<< HEAD
 
 				if (route != null && stop != null) {
 					setNewStop(route, stop);
 					setMode(Selection.BUS_PREDICTIONS_ONE, true, true);
+=======
+				String mode = bundle.getString(MODE_KEY);
+				int modeInt = Selection.BUS_PREDICTIONS_ALL;
+				if (mode != null) {
+					if (Selection.modeMap.containsKey(mode)) {
+						modeInt = Selection.modeMap.get(mode);
+					}
+				}
+
+				if (route != null && stop != null) {
+					setNewStop(route, stop);
+					setMode(modeInt, true, true);
+				}
+				else if (route != null) {
+					int routePosition = dropdownRouteKeysToTitles.getIndexForTag(route);
+					setNewRoute(routePosition, false);
+					setMode(modeInt, true, true);
+>>>>>>> master
 				}
 			}
 
@@ -530,7 +549,11 @@ public class Main extends MapActivity
 			intent.setData(null);
 		}
 
+<<<<<<< HEAD
     }
+=======
+	}
+>>>>>>> master
 		
 	/**
 	 * Updates search text depending on current mode
@@ -888,8 +911,9 @@ public class Main extends MapActivity
 				
 				
 				return mapView.onTouchEvent(downEvent);
-				
-				
+
+				// TODO: at some point I should test recycling this event. But this code will
+				// probably rarely get run on modern phones
 			}
 			else
 			{
@@ -981,7 +1005,8 @@ public class Main extends MapActivity
 				MotionEvent upEvent = MotionEvent.obtain(SystemClock.uptimeMillis(), SystemClock.uptimeMillis(),
 						MotionEvent.ACTION_UP, centerX, centerY, 0);
 				
-				
+				// TODO: at some point I should test recycling this event. But this code will
+				// probably rarely get run on modern phones
 				return mapView.onTouchEvent(upEvent);
 				
 				
