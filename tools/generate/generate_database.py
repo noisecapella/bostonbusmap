@@ -8,14 +8,19 @@ from mbta_commuter_rail import MbtaCommuterRail
 from nextbus import NextBus
 from create_tables import create_tables
 
+from datetime import datetime
+
 from gtfs_map import GtfsMap
 
 import os
 import argparse
 import traceback
 
+statusCode = 1
+
 @inlineCallbacks
 def generate(conn, gtfs_map):
+    raise Exception("HERE")
     create_tables(conn)
     print "Generating NextBus stops..."
     index = yield NextBus("ttc").generate(conn, 0)
@@ -40,17 +45,21 @@ def main():
         print "Reading GTFS into memory..."
         gtfs_map = GtfsMap(args.gtfs_path)
 
+        if gtfs_map.last_date < datetime.now():
+            raise Exception("GTFS data is old: %s is older than today" % str(gtfs_map.last_date))
+
         conn = sqlite3.connect(args.output_database)
         yield generate(conn, gtfs_map)
 
         conn.close()
         
+        statusCode = 0
+    finally:
         reactor.stop()
-    except Exception as e:
-        reactor.stop()
-        raise
+
 
 
 if __name__ == "__main__":
-    reactor.callWhenRunning(main)
+    reactor.callLater(0, main)
     reactor.run()
+    exit(statusCode)
