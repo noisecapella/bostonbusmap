@@ -43,4 +43,11 @@ android {
         }
   }
 
+  lintOptions {
+      abortOnError false
+  }
+}
+if(project.hasProperty("bostonbusmap.signing")
+        && new File(project.property("bostonbusmap.signing") + ".gradle").exists()) {
+    apply from: project.property("bostonbusmap.signing") + ".gradle";
 }
