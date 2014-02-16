@@ -36,6 +36,7 @@ public class BusPredictionsFeedParser extends DefaultHandler
 	private static final String routeTagKey = "routeTag";
 	private static final String delayedKey = "delayed";
 	private static final String titleKey = "title";
+	private static final String blockKey = "block";
 	
 	private final RoutePool stopMapping;
 	private StopLocation currentLocation;
@@ -108,6 +109,7 @@ public class BusPredictionsFeedParser extends DefaultHandler
 				
 				
 				String dirTag = getAttribute(dirTagKey, attributes);
+				String block = getAttribute(blockKey, attributes);
 
 				String directionSnippet = directions.getTitleAndName(dirTag);
 				if (StringUtil.isEmpty(directionSnippet)) {
@@ -116,7 +118,7 @@ public class BusPredictionsFeedParser extends DefaultHandler
                 TimePrediction prediction = new TimePrediction(minutes, vehicleId,
                         directionSnippet, currentRoute.getRouteName(),
                         currentRoute.getRouteTitle(), affectedByLayover, isDelayed,
-                        TimePrediction.NULL_LATENESS);
+                        TimePrediction.NULL_LATENESS, block);
 				currentLocation.addPrediction(prediction);
 			}
 		}
