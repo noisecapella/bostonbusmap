@@ -53,7 +53,6 @@ import boston.Bus.Map.util.Constants;
 import boston.Bus.Map.util.IBox;
 import boston.Bus.Map.util.LogUtil;
 import boston.Bus.Map.util.StringUtil;
-import android.R;
 import android.app.SearchManager;
 import android.content.ContentProvider;
 import android.content.ContentProviderOperation;

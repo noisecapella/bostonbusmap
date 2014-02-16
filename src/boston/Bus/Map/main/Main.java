@@ -204,7 +204,9 @@ public class Main extends MapActivity
 	public static final int UPDATE_INTERVAL_LONG = 100;
 	public static final int UPDATE_INTERVAL_NONE = 0;
 	
-	
+	public static final String ROUTE_KEY = "route";
+	public static final String STOP_KEY = "stop";
+	public static final String MODE_KEY = "mode";
 	
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -506,18 +508,38 @@ public class Main extends MapActivity
         
     	//enable plus/minus zoom buttons in map
         mapView.setBuiltInZoomControls(true);
-        
-        /*handler.post(new Runnable() {
-        	public void run() {
-                if (showIntroScreen || true)
-                {
-                	displayInstructions(Main.this);
-                }
-        		
-        	}
-        });*/
-        
-    }
+
+		// if app is started with selection information, use it
+		Intent intent = getIntent();
+		if (intent != null) {
+			Bundle bundle = intent.getExtras();
+			if (bundle != null) {
+				String route = bundle.getString(ROUTE_KEY);
+				String stop = bundle.getString(STOP_KEY);
+				String mode = bundle.getString(MODE_KEY);
+				int modeInt = Selection.BUS_PREDICTIONS_ALL;
+				if (mode != null) {
+					if (Selection.modeMap.containsKey(mode)) {
+						modeInt = Selection.modeMap.get(mode);
+					}
+				}
+
+				if (route != null && stop != null) {
+					setNewStop(route, stop);
+					setMode(modeInt, true, true);
+				}
+				else if (route != null) {
+					int routePosition = dropdownRouteKeysToTitles.getIndexForTag(route);
+					setNewRoute(routePosition, false);
+					setMode(modeInt, true, true);
+				}
+			}
+
+			// from http://stackoverflow.com/questions/13372326/how-to-get-getintent-to-return-null-after-activity-called-with-an-intent-set
+			intent.setData(null);
+		}
+
+	}
 		
 	/**
 	 * Updates search text depending on current mode
@@ -875,8 +897,9 @@ public class Main extends MapActivity
 				
 				
 				return mapView.onTouchEvent(downEvent);
-				
-				
+
+				// TODO: at some point I should test recycling this event. But this code will
+				// probably rarely get run on modern phones
 			}
 			else
 			{
@@ -968,7 +991,8 @@ public class Main extends MapActivity
 				MotionEvent upEvent = MotionEvent.obtain(SystemClock.uptimeMillis(), SystemClock.uptimeMillis(),
 						MotionEvent.ACTION_UP, centerX, centerY, 0);
 				
-				
+				// TODO: at some point I should test recycling this event. But this code will
+				// probably rarely get run on modern phones
 				return mapView.onTouchEvent(upEvent);
 				
 				

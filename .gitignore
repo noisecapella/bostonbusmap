@@ -6,3 +6,6 @@ tools/route*
 tools/route*.xml
 
 *~
+.gradle
+build
+tools/gtfs
