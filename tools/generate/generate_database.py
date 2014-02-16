@@ -20,7 +20,6 @@ statusCode = 1
 
 @inlineCallbacks
 def generate(conn, gtfs_map):
-    raise Exception("HERE")
     create_tables(conn)
     print "Generating Hubway stops..."
     index = yield Hubway().generate(conn, 0)
