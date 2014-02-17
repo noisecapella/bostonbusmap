@@ -6,18 +6,6 @@ GTFS_DIR=$(cd gtfs/nyc; pwd)
 set -e
 echo "Generate Schema.java..."
 python generate_schema.py > ../src/boston/Bus/Map/database/Schema.java
-<<<<<<< HEAD
-echo "Create tables..."
-python create_tables.py > sql.dump
-echo "Obtaining Citibike data..."
-python citibike_tosql.py 0 >> sql.dump
-echo "Parsing bus data..."
-# gtfs files from MTA organized such that ./gtfs/nyc/bronx/calendar.txt exists, etc
-python gtfs_tosql.py "$GTFS_DIR" 1 >> sql.dump
-echo "Dumping into sqlite..."
-rm new.db* || true
-sqlite3 new.db < sql.dump
-=======
 echo "Generating database..."
 (cd generate; python generate_database.py ../new.db "$GTFS_DIR")
 #echo "Create tables..."
@@ -34,7 +22,6 @@ echo "Generating database..."
 #rm new.db* || true
 #sqlite3 new.db < sql.dump
 rm -f new.db.gz
->>>>>>> master
 gzip new.db
 cp new.db.gz ../res/raw/databasegz
 echo "Done!"

@@ -3,13 +3,8 @@ package boston.Bus.Map.data;
 import com.schneeloch.mta.R;
 
 import android.content.SharedPreferences;
-<<<<<<< HEAD
-=======
-
 import com.google.common.collect.ImmutableMap;
 
-import boston.Bus.Map.R;
->>>>>>> master
 
 /**
  * Maintains selection state. 
