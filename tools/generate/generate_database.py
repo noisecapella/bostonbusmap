@@ -2,10 +2,11 @@ from twisted.internet.defer import inlineCallbacks, returnValue
 from twisted.web.client import getPage
 from twisted.internet import reactor
 import sqlite3
-from hubway import Hubway
+from citibike import Citibike
 from mbta_heavy_rail import MbtaHeavyRail
 from mbta_commuter_rail import MbtaCommuterRail
 from nextbus import NextBus
+from gtfs import Gtfs
 from create_tables import create_tables
 
 from datetime import datetime
@@ -19,12 +20,12 @@ import traceback
 statusCode = 1
 
 @inlineCallbacks
-def generate(conn, gtfs_map):
+def generate(conn, gtfs_path):
     create_tables(conn)
     print "Generating Citibike stops..."
     index = yield Citibike().generate(conn, 0)
     print "Generating GTFS stops..."
-    index = yield Gtfs().generate(conn, index)
+    index = yield Gtfs().generate(conn, index, gtfs_path)
     print index
 
 @inlineCallbacks
@@ -44,13 +45,8 @@ def main():
             raise Exception("%s is not a directory" % args.gtfs_path)
 
         print "Reading GTFS into memory..."
-        gtfs_map = GtfsMap(args.gtfs_path)
-
-        if gtfs_map.last_date < datetime.now():
-            raise Exception("GTFS data is old: %s is older than today" % str(gtfs_map.last_date))
-
         conn = sqlite3.connect(args.output_database)
-        yield generate(conn, gtfs_map)
+        yield generate(conn, args.gtfs_path)
 
         conn.close()
         
