@@ -32,6 +32,8 @@ public class HeavyRailPredictionsFeedParser {
 	private final RouteTitles routeTitles;
 	
 	private final Set<String> vehiclesToRemove;
+
+	private final long currentTimeMillis;
 	
 	public HeavyRailPredictionsFeedParser(RouteConfig routeConfig,
 			Directions directions,
@@ -43,6 +45,8 @@ public class HeavyRailPredictionsFeedParser {
 		this.routeTitles = routeTitles;
 		
 		vehiclesToRemove = Sets.newHashSet(busMapping.keySet());
+
+		currentTimeMillis = System.currentTimeMillis();
 	}
 
 
@@ -140,11 +144,12 @@ public class HeavyRailPredictionsFeedParser {
 				if (routeConfig.getStopMapping().containsKey(stopId)) {
 					StopLocation stop = routeConfig.getStop(stopId);
 					int minutes = seconds / 60;
-					
+					long arrivalTimeMillis = currentTimeMillis + minutes * 60 * 1000;
+
 					// TODO: should we define lateness here?
-					TimePrediction predictionObj = new TimePrediction(minutes,
+					TimePrediction predictionObj = new TimePrediction(arrivalTimeMillis,
 							vehicleId, dirTag, routeName, routeTitle,
-							false, false, 0);
+							false, false, 0, "");
 					PredictionStopLocationPair pair = new PredictionStopLocationPair(predictionObj, stop);
 					pairs.add(pair);
 				}

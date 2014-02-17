@@ -20,6 +20,7 @@ import boston.Bus.Map.data.RouteConfig;
 import boston.Bus.Map.data.RoutePool;
 import boston.Bus.Map.data.StopLocation;
 import boston.Bus.Map.util.LogUtil;
+import boston.Bus.Map.util.StringUtil;
 
 public class BusPredictionsFeedParser extends DefaultHandler
 {
@@ -30,20 +31,28 @@ public class BusPredictionsFeedParser extends DefaultHandler
 	private static final String affectedByLayoverKey = "affectedByLayover";
 	private static final String dirTagKey = "dirTag";
 	private static final String predictionKey = "prediction";
+	private static final String directionKey = "direction";
 	private static final String predictionsKey = "predictions";
 	private static final String routeTagKey = "routeTag";
 	private static final String delayedKey = "delayed";
+	private static final String titleKey = "title";
+	private static final String blockKey = "block";
 	
 	private final RoutePool stopMapping;
 	private StopLocation currentLocation;
 	private RouteConfig currentRoute;
 	private final Directions directions;
-	
+	private String directionTitle;
+
+	private final long currentTimeMillis;
+
 	private final Map<String, Integer> tagCache = Maps.newHashMap();
 	
 	public BusPredictionsFeedParser(RoutePool stopMapping, Directions directions) {
 		this.stopMapping = stopMapping;
 		this.directions = directions;
+
+		this.currentTimeMillis = System.currentTimeMillis();
 	}
 
 	public void runParse(InputStream data) throws ParserConfigurationException, SAXException, IOException
@@ -80,6 +89,11 @@ public class BusPredictionsFeedParser extends DefaultHandler
 				}
 			}
 		}
+		else if (localName.equals(directionKey)) {
+			clearAttributes(attributes);
+
+			directionTitle = getAttribute(titleKey, attributes);
+		}
 		else if (localName.equals(predictionKey))
 		{
 			clearAttributes(attributes);
@@ -99,17 +113,30 @@ public class BusPredictionsFeedParser extends DefaultHandler
 				
 				
 				String dirTag = getAttribute(dirTagKey, attributes);
+				String block = getAttribute(blockKey, attributes);
 
-                TimePrediction prediction = new TimePrediction(minutes, vehicleId,
-                        directions.getTitleAndName(dirTag), currentRoute.getRouteName(),
+				String directionSnippet = directions.getTitleAndName(dirTag);
+				if (StringUtil.isEmpty(directionSnippet)) {
+					directionSnippet = directionTitle;
+				}
+				long arrivalTimeMillis = currentTimeMillis + minutes * 60 * 1000;
+
+				TimePrediction prediction = new TimePrediction(arrivalTimeMillis, vehicleId,
+                        directionSnippet, currentRoute.getRouteName(),
                         currentRoute.getRouteTitle(), affectedByLayover, isDelayed,
-                        TimePrediction.NULL_LATENESS);
+                        TimePrediction.NULL_LATENESS, block);
 				currentLocation.addPrediction(prediction);
 			}
 		}
 	}
-	
-	
+
+	@Override
+	public void endElement(String uri, String localName, String qName) throws SAXException {
+		if (localName.equals(directionKey)) {
+			directionTitle = null;
+		}
+	}
+
 	private String getAttribute(String key, Attributes attributes)
 	{
 		return XmlParserHelper.getAttribute(key, attributes, tagCache);

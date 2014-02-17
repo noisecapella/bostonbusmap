@@ -1,0 +1,62 @@
+// Top-level build file where you can add configuration options common to all sub-projects/modules.
+buildscript {
+    repositories {
+        mavenCentral()
+    }
+    dependencies {
+        classpath 'com.android.tools.build:gradle:0.7.+'
+    }
+}
+
+allprojects {
+    repositories {
+        mavenCentral()
+    }
+}
+
+apply plugin: 'android'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+        compile group: 'com.google.guava', name: 'guava', version: '15.0'
+	compile 'com.google.code.gson:gson:2.2.4'
+	compile project(':androidmapviewballoons')
+	compile files('libs/protobuf-java-2.5.0.jar')
+}
+
+android {
+    compileSdkVersion "Google Inc.:Google APIs:19"
+    buildToolsVersion "18.0.1"
+
+    buildTypes {
+	release {
+	    runProguard true
+	    proguardFile 'proguard-project.txt'
+	}
+
+    }
+
+    sourceSets {
+        main {
+            manifest.srcFile './AndroidManifest.xml'
+            java {
+                srcDir 'src'
+            }
+            res {
+                srcDir 'res'
+            }
+        }
+  }
+
+
+  lintOptions {
+      abortOnError false
+  }
+}
+if(project.hasProperty("bostonbusmap.signing")
+        && new File(project.property("bostonbusmap.signing") + ".gradle").exists()) {
+    apply from: project.property("bostonbusmap.signing") + ".gradle";
+}
