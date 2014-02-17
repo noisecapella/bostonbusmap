@@ -77,25 +77,20 @@ public class SIRITransitSource implements TransitSource {
 		// TODO: when we handle multiple transit sources this should return early without download
 		// if the stops we're looking at aren't in this transit source
 
-		int mode = selection.getMode();
+		Selection.Mode mode = selection.getMode();
 		List<DownloadHelper> downloadHelpers = Lists.newArrayList();
 		List<StopLocationWithDownloadHelper> pairs;
 
-		switch (mode) {
-		case Selection.VEHICLE_LOCATIONS_ALL:
-		case Selection.VEHICLE_LOCATIONS_ONE:
+		if (mode == Selection.Mode.VEHICLE_LOCATIONS_ALL ||
+			mode == Selection.Mode.VEHICLE_LOCATIONS_ONE)
 		{
 			String urlString = getVehicleLocationsUrl(null);
 			DownloadHelper downloadHelper = new DownloadHelper(urlString);
 			downloadHelpers.add(downloadHelper);
 			downloadHelper.connect();
 			pairs = ImmutableList.of();
-			break;
 		}
-		case Selection.BUS_PREDICTIONS_ONE:
-		case Selection.BUS_PREDICTIONS_ALL:
-		case Selection.BUS_PREDICTIONS_STAR:
-		default:
+		else
 		{
 			List<Location> locations = locationsObj.getLocations(10, centerLatitude, centerLongitude, false, selection);
 
@@ -113,14 +108,11 @@ public class SIRITransitSource implements TransitSource {
 					}
 				}
 			}
-			break;
-		}
 		}
 
-		switch (mode) {
-		case Selection.BUS_PREDICTIONS_ALL:
-		case Selection.BUS_PREDICTIONS_ONE:
-		case Selection.BUS_PREDICTIONS_STAR:
+		if (mode == Selection.Mode.BUS_PREDICTIONS_ALL ||
+			mode == Selection.Mode.BUS_PREDICTIONS_ONE ||
+			mode == Selection.Mode.BUS_PREDICTIONS_STAR)
 		{
 			for (StopLocationWithDownloadHelper pair : pairs) {
 				InputStream data = pair.helper.getResponseData();
@@ -129,10 +121,9 @@ public class SIRITransitSource implements TransitSource {
 				SIRIStopLocationsFeedParser parser = new SIRIStopLocationsFeedParser(routePool, directions, routeTitles);
 				parser.runParse(new InputStreamReader(data), pair.location);
 			}
-			break;
 		}
-		case Selection.VEHICLE_LOCATIONS_ALL:
-		case Selection.VEHICLE_LOCATIONS_ONE:
+		else if (mode == Selection.Mode.VEHICLE_LOCATIONS_ALL ||
+			mode == Selection.Mode.VEHICLE_LOCATIONS_ONE)
 		{
 			for (DownloadHelper helper : downloadHelpers) {
 				InputStream data = helper.getResponseData();
@@ -166,8 +157,6 @@ public class SIRITransitSource implements TransitSource {
 				}
 				data.close();
 			}
-			break;
-		}
 		}
 	}
 

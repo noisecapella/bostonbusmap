@@ -57,29 +57,26 @@ public class CitibikeTransitSource implements TransitSource {
 							ConcurrentHashMap<String, BusLocation> busMapping,
 							RoutePool routePool, Directions directions,
 							Locations locationsObj) throws IOException, ParserConfigurationException, SAXException {
-		int mode = selection.getMode();
-		switch (mode) {
-			case Selection.VEHICLE_LOCATIONS_ALL:
-			case Selection.VEHICLE_LOCATIONS_ONE:
-				// no need for that here
-				return;
-			case Selection.BUS_PREDICTIONS_ALL:
-			case Selection.BUS_PREDICTIONS_ONE:
-			case Selection.BUS_PREDICTIONS_STAR:
-				RouteConfig hubwayRouteConfig = routePool.get(routeTag);
-				DownloadHelper downloadHelper = new DownloadHelper(dataUrl);
+		Selection.Mode mode = selection.getMode();
+		if (mode == Selection.Mode.VEHICLE_LOCATIONS_ALL ||
+				mode == Selection.Mode.VEHICLE_LOCATIONS_ONE) {
+			// no need for that here
+			return;
+		} else if (mode == Selection.Mode.BUS_PREDICTIONS_ALL ||
+				mode == Selection.Mode.BUS_PREDICTIONS_ONE ||
+				mode == Selection.Mode.BUS_PREDICTIONS_STAR) {
+			RouteConfig hubwayRouteConfig = routePool.get(routeTag);
+			DownloadHelper downloadHelper = new DownloadHelper(dataUrl);
 
-				downloadHelper.connect();
+			downloadHelper.connect();
 
 
-				InputStream stream = downloadHelper.getResponseData();
+			InputStream stream = downloadHelper.getResponseData();
 
-				CitibikeParser parser = new CitibikeParser(hubwayRouteConfig);
-				parser.runParse(new InputStreamReader(stream));
-
-				break;
-			default:
-				throw new RuntimeException("Unknown mode encountered");
+			CitibikeParser parser = new CitibikeParser(hubwayRouteConfig);
+			parser.runParse(new InputStreamReader(stream));
+		} else {
+			throw new RuntimeException("Unknown mode encountered");
 
 		}
 

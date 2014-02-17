@@ -68,7 +68,7 @@ public class DistancePrediction implements IPrediction {
 	}
 
 	@Override
-	public void makeSnippet(Context context, StringBuilder builder) {
+	public void makeSnippet(Context context, StringBuilder builder, boolean isMoreInfo) {
 		if (isInvalid())
 		{
 			return;
@@ -91,7 +91,7 @@ public class DistancePrediction implements IPrediction {
 	@Override
 	public ImmutableMap<String, Spanned> makeSnippetMap(Context context) {
 		StringBuilder ret = new StringBuilder();
-		makeSnippet(context, ret);
+		makeSnippet(context, ret, true);
 		
 		ImmutableMap<String, Spanned> map = ImmutableMap.of(MoreInfo.textKey, Html.fromHtml(ret.toString()));
 		

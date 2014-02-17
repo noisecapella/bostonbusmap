@@ -125,7 +125,7 @@ public abstract class SIRIParser {
 					JsonObject vehicleJourneys = affects.get("VehicleJourneys").getAsJsonObject();
 					JsonArray affectedVehicleJourneyArray = vehicleJourneys.get("AffectedVehicleJourney").getAsJsonArray();
 
-					Alert alert = new Alert(creationTime, summary, description, "");
+					Alert alert = new Alert(creationTime, summary, description);
 
 					for (JsonElement affectedVehicleJourneyElement : affectedVehicleJourneyArray) {
 						// TODO: support DirectionRef
