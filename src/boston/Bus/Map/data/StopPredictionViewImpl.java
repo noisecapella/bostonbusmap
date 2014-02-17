@@ -155,7 +155,7 @@ public class StopPredictionViewImpl extends StopPredictionView {
 
 			ret.append("<br />");
 
-			prediction.makeSnippet(context, ret);
+			prediction.makeSnippet(context, ret, false);
 
 			count++;
 			if (count >= max)
