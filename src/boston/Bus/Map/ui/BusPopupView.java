@@ -366,8 +366,39 @@ public class BusPopupView extends BalloonOverlayView<BusOverlayItem>
 							final ImmutableList<String> minutesDescription = ImmutableList.of("At arrival",
 									"Five minutes before arrival", "Ten minutes before arrival");
 
-							NumberPicker
+							AlertDialog.Builder minuteBuilder = new AlertDialog.Builder(getContext());
+							final List<String> minutes = new ArrayList<String>();
+							minutes.add("Now");
+							for (int i = 2; i <= 20; i++) {
+								minutes.add(i + " minutes");
+							}
+							minuteBuilder.setAdapter(new ArrayAdapter<String>(getContext(),
+									android.R.layout.simple_dropdown_item_1line,
+									android.R.id.text1,
+									minutes), new DialogInterface.OnClickListener() {
+								@Override
+								public void onClick(DialogInterface dialog, int which) {
+									if (which >= 0 && which < minutes.size()) {
+										int minute = which + 2;
 
+
+										long nowSeconds = System.currentTimeMillis() / 1000;
+
+										long alarmTime = nowSeconds + (prediction.getMinutes() * 60);
+
+										Alarm alarm = new Alarm(alarmTime, nowSeconds,
+												prediction.getStopTag(),
+												stopLocation.getTitle(),
+												prediction.getRouteTitle(),
+												prediction.getDirectionTitle(),
+												minute);
+										ContentResolver resolver = getContext().getContentResolver();
+										DatabaseContentProvider.DatabaseAgent.addAlarm(resolver, alarm);
+										AlarmReceiver.scheduleAlarm(getContext(), 5);
+										Toast.makeText(getContext(), "New alarm set!", Toast.LENGTH_LONG).show();
+									}
+								}
+							});
 						}
 					});
 
