@@ -288,7 +288,7 @@ public class BusPopupView extends BalloonOverlayView<BusOverlayItem>
 								String routeKey = routeKeysToTitles.getKey(routeTitle);
 								Selection newSelection = locations.getSelection().withDifferentRoute(routeKey);
 								locations.setSelection(newSelection);
-								main.setMode(Selection.BUS_PREDICTIONS_ONE, true, true);
+								main.setMode(Selection.Mode.BUS_PREDICTIONS_ONE, true, true);
 							}
 						}
 					});
@@ -345,27 +345,24 @@ public class BusPopupView extends BalloonOverlayView<BusOverlayItem>
 		});
 	}
 	
-	protected void createInfoForDeveloper(Context context, StringBuilder otherText, int mode, String routeTitle)
+	protected void createInfoForDeveloper(Context context, StringBuilder otherText, Selection.Mode mode, String routeTitle)
 	{
 		otherText.append("There was a problem with ");
-		switch (mode)
-		{
-		case Selection.BUS_PREDICTIONS_ONE:
+		if (mode == Selection.Mode.BUS_PREDICTIONS_ONE) {
 			otherText.append("bus predictions on one route. ");
-			break;
-		case Selection.BUS_PREDICTIONS_STAR:
+		}
+		else if (mode == Selection.Mode.BUS_PREDICTIONS_STAR) {
 			otherText.append("bus predictions for favorited routes. ");
-			break;
-		case Selection.BUS_PREDICTIONS_ALL:
+		}
+		else if (mode == Selection.Mode.BUS_PREDICTIONS_ALL) {
 			otherText.append("bus predictions for all routes. ");
-			break;
-		case Selection.VEHICLE_LOCATIONS_ALL:
+		}
+		else if (mode == Selection.Mode.VEHICLE_LOCATIONS_ALL) {
 			otherText.append("vehicle locations on all routes. ");
-			break;
-		case Selection.VEHICLE_LOCATIONS_ONE:
+		}
+		else if (mode == Selection.Mode.VEHICLE_LOCATIONS_ONE) {
 			otherText.append("vehicle locations for one route. ");
-			break;
-		default:
+		} else {
 			otherText.append("something that I can't figure out. ");
 		}
 		
@@ -385,7 +382,7 @@ public class BusPopupView extends BalloonOverlayView<BusOverlayItem>
 		otherText.append("Currently selected route is '").append(routeTitle).append("'. ");
 	}
 	
-	protected void createInfoForAgency(Context context, StringBuilder ret, int mode, String routeTitle)
+	protected void createInfoForAgency(Context context, StringBuilder ret, Selection.Mode mode, String routeTitle)
 	{
 		if (location instanceof StopLocation)
 		{
@@ -393,7 +390,7 @@ public class BusPopupView extends BalloonOverlayView<BusOverlayItem>
 			String stopTag = stopLocation.getStopTag();
 			ConcurrentMap<String, StopLocation> stopTags = locations.getAllStopsAtStop(stopTag);
 
-			if (mode == Selection.BUS_PREDICTIONS_ONE)
+			if (mode == Selection.Mode.BUS_PREDICTIONS_ONE)
 			{
 				if (stopTags.size() <= 1)
 				{
@@ -442,7 +439,7 @@ public class BusPopupView extends BalloonOverlayView<BusOverlayItem>
 	{
 		Selection selection = locations.getSelection();
 		if (selection == null) {
-			selection = new Selection(-1, null);
+			selection = new Selection(null, null);
 		}
 
 		String routeTitle = selection.getRoute();

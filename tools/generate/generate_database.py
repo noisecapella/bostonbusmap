@@ -20,7 +20,6 @@ statusCode = 1
 
 @inlineCallbacks
 def generate(conn, gtfs_map):
-    raise Exception("HERE")
     create_tables(conn)
     print "Generating NextBus stops..."
     index = yield NextBus("lametro").generate(conn, 0)

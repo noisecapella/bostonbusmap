@@ -136,32 +136,26 @@ public final class Locations
 		RouteConfig routeConfig = routeMapping.get(routeToUpdate);
 		transitSystem.startObtainAlerts(context, directions, routeMapping, busMapping);
 
-		int mode = selection.getMode();
-		switch (mode) {
-			case Selection.BUS_PREDICTIONS_ALL:
-			case Selection.BUS_PREDICTIONS_ONE:
-			case Selection.BUS_PREDICTIONS_STAR:
+		Selection.Mode mode = selection.getMode();
+		if (mode == Selection.Mode.BUS_PREDICTIONS_ALL ||
+				mode == Selection.Mode.BUS_PREDICTIONS_ONE ||
+				mode == Selection.Mode.BUS_PREDICTIONS_STAR) {
 				routeMapping.clearRecentlyUpdated();
-				break;
-
 		}
-		switch (mode)
+		if (mode == Selection.Mode.BUS_PREDICTIONS_STAR ||
+				mode == Selection.Mode.VEHICLE_LOCATIONS_ALL ||
+				mode == Selection.Mode.BUS_PREDICTIONS_ALL)
 		{
-		case Selection.BUS_PREDICTIONS_STAR:
-		case Selection.VEHICLE_LOCATIONS_ALL:
-		case Selection.BUS_PREDICTIONS_ALL:
 			//get data from many transit sources
 			transitSystem.refreshData(routeConfig, selection, maxStops, centerLatitude,
 					centerLongitude, busMapping, routeMapping, directions, this);
-			break;
-		default:
+		}
+		else
 		{
 			TransitSource transitSource = routeConfig.getTransitSource();
 			transitSource.refreshData(routeConfig, selection, maxStops,
 					centerLatitude, centerLongitude, busMapping,
 					routeMapping, directions, this);
-		}
-			break;
 		}
 	}
 
@@ -180,9 +174,9 @@ public final class Locations
 		ArrayList<Location> newLocations = Lists.newArrayListWithCapacity(maxLocations);
 		
 		String selectedRoute = selection.getRoute();
-		int mode = selection.getMode();
-		if (mode == Selection.VEHICLE_LOCATIONS_ALL ||
-				mode == Selection.VEHICLE_LOCATIONS_ONE)
+		Selection.Mode mode = selection.getMode();
+		if (mode == Selection.Mode.VEHICLE_LOCATIONS_ALL ||
+				mode == Selection.Mode.VEHICLE_LOCATIONS_ONE)
 		{
 			if (doShowUnpredictable == false)
 			{
@@ -190,14 +184,14 @@ public final class Locations
 				{
 					if (busLocation.predictable == true)
 					{
-						if (mode == Selection.VEHICLE_LOCATIONS_ONE)
+						if (mode == Selection.Mode.VEHICLE_LOCATIONS_ONE)
 						{
 							if (selectedRoute != null && selectedRoute.equals(busLocation.getRouteId()))
 							{
 								newLocations.add(busLocation);
 							}
 						}
-						else if (mode == Selection.VEHICLE_LOCATIONS_ALL) {
+						else if (mode == Selection.Mode.VEHICLE_LOCATIONS_ALL) {
 							newLocations.add(busLocation);
 						}
 						else
@@ -209,7 +203,7 @@ public final class Locations
 			}
 			else
 			{
-				if (mode == Selection.VEHICLE_LOCATIONS_ALL)
+				if (mode == Selection.Mode.VEHICLE_LOCATIONS_ALL)
 				{
 					newLocations.addAll(busMapping.values());
 				}
@@ -225,7 +219,7 @@ public final class Locations
 				}
 			}
 		}
-		else if (mode == Selection.BUS_PREDICTIONS_ONE)
+		else if (mode == Selection.Mode.BUS_PREDICTIONS_ONE)
 		{
 			RouteConfig routeConfig = routeMapping.get(selection.getRoute());
 			if (routeConfig != null)
@@ -233,7 +227,7 @@ public final class Locations
 				newLocations.addAll(routeConfig.getStops());
 			}
 		}
-		else if (mode == Selection.BUS_PREDICTIONS_ALL)
+		else if (mode == Selection.Mode.BUS_PREDICTIONS_ALL)
 		{
 			Collection<StopLocation> stops = routeMapping.getClosestStops(centerLatitude, centerLongitude, maxLocations);
 			for (StopLocation stop : stops)
@@ -244,7 +238,7 @@ public final class Locations
 				}
 			}
 		}
-		else if (mode == Selection.BUS_PREDICTIONS_STAR)
+		else if (mode == Selection.Mode.BUS_PREDICTIONS_STAR)
 		{
 			for (StopLocation stopLocation : routeMapping.getFavoriteStops())
 			{
@@ -252,9 +246,9 @@ public final class Locations
 			}
 		}
 		
-		if (mode == Selection.BUS_PREDICTIONS_ALL ||
-				mode == Selection.BUS_PREDICTIONS_ONE ||
-				mode == Selection.BUS_PREDICTIONS_STAR) {
+		if (mode == Selection.Mode.BUS_PREDICTIONS_ALL ||
+				mode == Selection.Mode.BUS_PREDICTIONS_ONE ||
+				mode == Selection.Mode.BUS_PREDICTIONS_STAR) {
 			newLocations.addAll(routeMapping.getIntersections());
 		}
 		
@@ -352,7 +346,7 @@ public final class Locations
 			if (routeConfig != null)
 			{
 				StopLocation stopLocation = routeConfig.getStop(stopTag);
-				Selection newSelection = new Selection(Selection.BUS_PREDICTIONS_ONE, route);
+				Selection newSelection = new Selection(Selection.Mode.BUS_PREDICTIONS_ONE, route);
 				mutableSelection = newSelection;
 				return stopLocation;
 			}

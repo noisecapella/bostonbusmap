@@ -54,38 +54,31 @@ public class HeavyRailTransitSource implements TransitSource {
 			ConcurrentHashMap<String, BusLocation> busMapping,
 			RoutePool routePool, Directions directions, Locations locationsObj)
 			throws IOException, ParserConfigurationException, SAXException {
-		int selectedBusPredictions = selection.getMode();
-		if (selectedBusPredictions == Selection.VEHICLE_LOCATIONS_ALL ||
-				selectedBusPredictions == Selection.BUS_PREDICTIONS_ALL)
+		Selection.Mode selectedBusPredictions = selection.getMode();
+		if (selectedBusPredictions == Selection.Mode.VEHICLE_LOCATIONS_ALL ||
+				selectedBusPredictions == Selection.Mode.BUS_PREDICTIONS_ALL)
 		{
 			//for now I'm only refreshing data for buses if this is checked
 			return;
 		}
 		
 		List<RefreshData> outputData = Lists.newArrayList();
-		switch (selectedBusPredictions)
-		{
-		case  Selection.BUS_PREDICTIONS_ONE:
-		case Selection.VEHICLE_LOCATIONS_ONE:
+		if (selectedBusPredictions == Selection.Mode.BUS_PREDICTIONS_ONE ||
+			selectedBusPredictions == Selection.Mode.VEHICLE_LOCATIONS_ONE)
 		{
 
 			List<Location> locations = locationsObj.getLocations(maxStops, centerLatitude, centerLongitude, false, selection);
 
 			//ok, do predictions now
 			getPredictionsUrl(locations, maxStops, routeConfig.getRouteName(), outputData, selectedBusPredictions);
-			break;
 		}
-		case Selection.BUS_PREDICTIONS_ALL:
-		case Selection.VEHICLE_LOCATIONS_ALL:
-		case Selection.BUS_PREDICTIONS_STAR:
+		else if (selectedBusPredictions == Selection.Mode.BUS_PREDICTIONS_ALL ||
+			selectedBusPredictions == Selection.Mode.VEHICLE_LOCATIONS_ALL ||
+			selectedBusPredictions == Selection.Mode.BUS_PREDICTIONS_STAR)
 		{
 			List<Location> locations = locationsObj.getLocations(maxStops, centerLatitude, centerLongitude, false, selection);
 			
 			getPredictionsUrl(locations, maxStops, null, outputData, selectedBusPredictions);
-
-		}
-		break;
-
 		}
 
 		for (RefreshData outputRow : outputData)
@@ -151,7 +144,7 @@ public class HeavyRailTransitSource implements TransitSource {
 	}
 
 	private void getPredictionsUrl(List<Location> locations, int maxStops,
-			String routeName, List<RefreshData> outputData, int mode)
+			String routeName, List<RefreshData> outputData, Selection.Mode mode)
 	{
 		//http://developer.mbta.com/lib/RTCR/RailLine_1.csv
 		
@@ -170,7 +163,7 @@ public class HeavyRailTransitSource implements TransitSource {
 		}
 		else
 		{
-			if (mode == Selection.BUS_PREDICTIONS_STAR)
+			if (mode == Selection.Mode.BUS_PREDICTIONS_STAR)
 			{
 				//ok, let's look at the locations and see what we can get
 				for (Location location : locations)
