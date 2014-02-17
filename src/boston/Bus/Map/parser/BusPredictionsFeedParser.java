@@ -43,12 +43,16 @@ public class BusPredictionsFeedParser extends DefaultHandler
 	private RouteConfig currentRoute;
 	private final Directions directions;
 	private String directionTitle;
-	
+
+	private final long currentTimeMillis;
+
 	private final Map<String, Integer> tagCache = Maps.newHashMap();
 	
 	public BusPredictionsFeedParser(RoutePool stopMapping, Directions directions) {
 		this.stopMapping = stopMapping;
 		this.directions = directions;
+
+		this.currentTimeMillis = System.currentTimeMillis();
 	}
 
 	public void runParse(InputStream data) throws ParserConfigurationException, SAXException, IOException
@@ -115,7 +119,9 @@ public class BusPredictionsFeedParser extends DefaultHandler
 				if (StringUtil.isEmpty(directionSnippet)) {
 					directionSnippet = directionTitle;
 				}
-                TimePrediction prediction = new TimePrediction(minutes, vehicleId,
+				long arrivalTimeMillis = currentTimeMillis + minutes * 60 * 1000;
+
+				TimePrediction prediction = new TimePrediction(arrivalTimeMillis, vehicleId,
                         directionSnippet, currentRoute.getRouteName(),
                         currentRoute.getRouteTitle(), affectedByLayover, isDelayed,
                         TimePrediction.NULL_LATENESS, block);

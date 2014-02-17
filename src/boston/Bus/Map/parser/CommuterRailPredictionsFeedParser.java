@@ -41,6 +41,11 @@ public class CommuterRailPredictionsFeedParser
 
 	private final Set<String> vehiclesToRemove;
 
+	/**
+	 * Keep this value consistent while reading data
+	 */
+	private final long currentTimeMillis;
+
 	public CommuterRailPredictionsFeedParser(RouteConfig routeConfig, Directions directions,
 			ConcurrentHashMap<String, BusLocation> busMapping, RouteTitles routeKeysToTitles)
 	{
@@ -50,6 +55,8 @@ public class CommuterRailPredictionsFeedParser
 		this.routeKeysToTitles = routeKeysToTitles;
 
 		vehiclesToRemove = Sets.newHashSet(busMapping.keySet());
+
+		this.currentTimeMillis = System.currentTimeMillis();
 	}
 
 	private void clearPredictions(String route) throws IOException
@@ -148,7 +155,10 @@ public class CommuterRailPredictionsFeedParser
 				if (stop != null) {
 					int seconds = (int)(scheduled - nowSeconds);
 					int minutes = seconds / 60;
-					CommuterRailPrediction prediction = new CommuterRailPrediction(minutes,
+					long arrivalTimeMillis = currentTimeMillis + minutes * 60 * 1000;
+
+
+					CommuterRailPrediction prediction = new CommuterRailPrediction(arrivalTimeMillis,
 							trip, dirTag, routeName,
 							routeTitle, false,
 							lateness > 5*60, lateness, "",
