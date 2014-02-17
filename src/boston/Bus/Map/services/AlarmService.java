@@ -168,7 +168,7 @@ public class AlarmService extends IntentService {
 
 
 		TransitSource source = transitSystem.getTransitSource(route);
-		Selection selection = new Selection(Selection.BUS_PREDICTIONS_ONE, route);
+		Selection selection = new Selection(Selection.Mode.BUS_PREDICTIONS_ONE, route);
 		RoutePool routePool = new RoutePool(context, transitSystem);
 		RouteConfig routeConfig = routePool.get(route);
 		Directions directions = new Directions(context);

@@ -399,6 +399,7 @@ public class BusPopupView extends BalloonOverlayView<BusOverlayItem>
 									}
 								}
 							});
+							minuteBuilder.show();
 						}
 					});
 
