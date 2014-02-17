@@ -1,8 +1,11 @@
 package boston.Bus.Map.ui;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import boston.Bus.Map.R;
+import boston.Bus.Map.data.Selection;
+
 import android.app.Activity;
 import android.content.Context;
 import android.graphics.drawable.Drawable;
@@ -15,10 +18,10 @@ import android.widget.TextView;
 
 
 
-public class ModeAdapter extends ArrayAdapter<ViewingMode> {
+public class ModeAdapter extends ArrayAdapter<Selection.Mode> {
 	private final Activity context;
 	
-	public ModeAdapter(Activity context, ArrayList<ViewingMode> modes)
+	public ModeAdapter(Activity context, List<Selection.Mode> modes)
 	{
 		super(context, R.layout.icon, modes);
 		
@@ -41,10 +44,10 @@ public class ModeAdapter extends ArrayAdapter<ViewingMode> {
         TextView text = (TextView) convertView.findViewById(R.id.text_dropdown);
 
         // Populate template
-        ViewingMode data = getItem(position);
-        text.setText(data.string);
+		Selection.Mode data = getItem(position);
+        text.setText(data.textResource);
 
-        Drawable drawable = context.getResources().getDrawable(data.drawable);
+        Drawable drawable = context.getResources().getDrawable(data.iconResource);
 
         icon.setImageDrawable(drawable);
         return convertView;
@@ -59,9 +62,9 @@ public class ModeAdapter extends ArrayAdapter<ViewingMode> {
 		}
 		
 		ImageView icon = (ImageView)convertView.findViewById(R.id.icon);
-		
-		ViewingMode data = getItem(position);
-		Drawable drawable = context.getResources().getDrawable(data.drawable);
+
+		Selection.Mode data = getItem(position);
+		Drawable drawable = context.getResources().getDrawable(data.iconResource);
 		icon.setImageDrawable(drawable);
 		return convertView;
 	}
