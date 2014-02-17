@@ -25,6 +25,7 @@ dependencies {
 	compile 'com.google.code.gson:gson:2.2.4'
 	compile project(':androidmapviewballoons')
 	compile files('libs/protobuf-java-2.5.0.jar')
+	compile 'com.android.support:support-v4:18.0.0'
 }
 
 android {
