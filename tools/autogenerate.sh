@@ -1,11 +1,7 @@
 #!/bin/bash
 set -e
 PROGNAME=$(basename $0)
-<<<<<<< HEAD
-GTFS_DIR=gtfs/nyc
-=======
-GTFS_DIR=$(cd gtfs/mbta; pwd)
->>>>>>> master
+GTFS_DIR=$(cd gtfs/nyc; pwd)
 
 set -e
 echo "Generate Schema.java..."
