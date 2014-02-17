@@ -149,7 +149,7 @@ public class HeavyRailPredictionsFeedParser {
 					// TODO: should we define lateness here?
 					TimePrediction predictionObj = new TimePrediction(arrivalTimeMillis,
 							vehicleId, dirTag, routeName, routeTitle,
-							false, false, 0, "");
+							false, false, 0, "", stopId);
 					PredictionStopLocationPair pair = new PredictionStopLocationPair(predictionObj, stop);
 					pairs.add(pair);
 				}
