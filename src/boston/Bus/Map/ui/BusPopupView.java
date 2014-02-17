@@ -363,9 +363,6 @@ public class BusPopupView extends BalloonOverlayView<BusOverlayItem>
 							}
 							final TimePrediction prediction = (TimePrediction)predictionList[predictionsWhich];
 
-							final ImmutableList<String> minutesDescription = ImmutableList.of("At arrival",
-									"Five minutes before arrival", "Ten minutes before arrival");
-
 							AlertDialog.Builder minuteBuilder = new AlertDialog.Builder(getContext());
 							final List<String> minutes = new ArrayList<String>();
 							minutes.add("Now");
@@ -399,6 +396,7 @@ public class BusPopupView extends BalloonOverlayView<BusOverlayItem>
 									}
 								}
 							});
+							minuteBuilder.setTitle("Minutes before arrival");
 							minuteBuilder.show();
 						}
 					});
