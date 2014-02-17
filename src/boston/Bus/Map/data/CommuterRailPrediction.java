@@ -11,82 +11,73 @@ import boston.Bus.Map.transit.TransitSystem;
 
 public class CommuterRailPrediction extends TimePrediction implements Parcelable
 {
-	/**
-	 * Record has scheduled time but not the vehicle lateness. May have vehicle ID and position.
-	 */
-	public static final int FLAG_Sch = 1;
-	/**
-	 *  Record has scheduled time and the vehicle’s current lateness and position
-	 */
-	public static final int FLAG_Pre = 2;
-	/**
-	 * Approaching the station now. Record has vehicle location but not lateness.
-	 */
-	public static final int FLAG_App = 3;
-	/**
-	 *  Arriving at the station now. Record has vehicle location but not lateness
-	 */
-	public static final int FLAG_Arr = 4;
-	/**
-	 * Departing the station now or has departed the station. Record has vehicle location but not 
-lateness. Used at the trip’s origin.
-	 */
-	public static final int FLAG_Dep = 5;
-	/**
-	 *  “Delayed.” Vehicle is late and is not moving. The lateness may or may not be included
-	 */
-	public static final int FLAG_Del = 6;
-	
-	
-	public static int toFlagEnum(String informationType)
-	{
-		if (informationType == null)
-		{
-			return FLAG_Sch;
+	public static enum Flag {
+		/**
+		 * Record has scheduled time but not the vehicle lateness. May have vehicle ID and position.
+		 */
+		Sch("sch"),
+		/**
+		 *  Record has scheduled time and the vehicle’s current lateness and position
+		 */
+		Pre("pre"),
+		/**
+		 * Approaching the station now. Record has vehicle location but not lateness.
+		 */
+		App("app"),
+		/**
+		 *  Arriving at the station now. Record has vehicle location but not lateness
+		 */
+		Arr("arr"),
+		/**
+		 * Departing the station now or has departed the station. Record has vehicle location but not
+		 lateness. Used at the trip’s origin.
+		 */
+		Dep("dep"),
+		/**
+		 *  “Delayed.” Vehicle is late and is not moving. The lateness may or may not be included
+		 */
+		Del("del");
+
+		public final String name;
+
+		Flag(String name) {
+			this.name = name;
 		}
-		else
+
+		public static Flag toFlagEnum(String informationType)
 		{
-			informationType = informationType.toLowerCase();
-			if (informationType.equals("del"))
+			if (informationType == null)
 			{
-				return FLAG_Del;
-			}
-			else if (informationType.equals("pre"))
-			{
-				return FLAG_Pre;
-			}
-			else if (informationType.equals("app"))
-			{
-				return FLAG_App;
-			}
-			else if (informationType.equals("arr"))
-			{
-				return FLAG_Arr;
-			}
-			else if (informationType.equals("dep"))
-			{
-				return FLAG_Dep;
+				return Sch;
 			}
 			else
 			{
-				return FLAG_Sch;
+				informationType = informationType.toLowerCase();
+				for (Flag flag : Flag.values()) {
+					if (flag.name.equals(informationType)) {
+						return flag;
+					}
+				}
+				return null;
 			}
 		}
+
 	}
 
-	private final int flag; 
 	
-	public CommuterRailPrediction(int minutes, String vehicleId, String direction,
+	private final Flag flag;
+	
+	public CommuterRailPrediction(long arrivalTimeMillis, String vehicleId, String direction,
 			String routeName, String routeTitle, boolean affectedByLayover, boolean isDelayed,
-			int lateness, String stop, int flag)
+			int lateness, String block, String stopId, Flag flag)
 	{
-		super(minutes, vehicleId, direction, routeName, routeTitle, affectedByLayover, isDelayed,
-				lateness, stop);
+		super(arrivalTimeMillis, vehicleId, direction, routeName, routeTitle, affectedByLayover, isDelayed,
+				lateness, stopId, block);
 		this.flag = flag;
 	}
 	
 	@Override
-	public void makeSnippet(Context context, StringBuilder builder) {
+	public void makeSnippet(Context context, StringBuilder builder, boolean isMoreInfo) {
 		int minutes = getMinutes();
 		if (minutes < 0)
 		{
@@ -126,7 +117,7 @@ lateness. Used at the trip’s origin.
 	@Override
 	public void writeToParcel(Parcel dest, int flags) {
 		super.writeToParcel(dest, flags);
-		dest.writeInt(flag);
+		dest.writeString(flag.name());
 	}
 	
 	public static final Creator<CommuterRailPrediction> CREATOR = new Creator<CommuterRailPrediction>() {
@@ -152,13 +143,12 @@ lateness. Used at the trip’s origin.
 			boolean affectedByLayover = readBoolean(source);
 			boolean isDelayed = readBoolean(source);
 			int lateness = source.readInt();
-			String stop = source.readString();
+			String block = source.readString();
+			String stopId = source.readString();
+
+			Flag flag = Flag.toFlagEnum(source.readString());
 			
-			int minutes = calcMinutes(arrivalTimeMillis);
-			
-			int flag = source.readInt();
-			
-			CommuterRailPrediction prediction = new CommuterRailPrediction(minutes, vehicleId, direction, routeName, routeTitle, affectedByLayover, isDelayed, lateness, stop, flag);
+			CommuterRailPrediction prediction = new CommuterRailPrediction(arrivalTimeMillis, vehicleId, direction, routeName, routeTitle, affectedByLayover, isDelayed, lateness, block, stopId, flag);
 			return prediction;
 		}
 	};

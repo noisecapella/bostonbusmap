@@ -61,7 +61,6 @@ import boston.Bus.Map.ui.LocationOverlay;
 import boston.Bus.Map.ui.ModeAdapter;
 import boston.Bus.Map.ui.OverlayGroup;
 import boston.Bus.Map.ui.RouteOverlay;
-import boston.Bus.Map.ui.ViewingMode;
 import boston.Bus.Map.util.Constants;
 import boston.Bus.Map.util.SearchHelper;
 import boston.Bus.Map.util.StringUtil;
@@ -338,7 +337,7 @@ public class Main extends MapActivity
         	transitSystem.setDefaultTransitSource(busDrawables, subwayDrawables, commuterRailDrawables, hubwayDrawables,
 					this);
         }
-        SpinnerAdapter modeSpinnerAdapter = makeModeSpinner(); 
+        SpinnerAdapter modeSpinnerAdapter = new ModeAdapter(this, Arrays.asList(Selection.modesSupported));
 
         toggleButton.setOnItemSelectedListener(new OnItemSelectedListener() {
 
@@ -418,7 +417,7 @@ public class Main extends MapActivity
         	}
         	else
         	{
-        		selection = new Selection(Selection.VEHICLE_LOCATIONS_ALL, null);
+        		selection = new Selection(Selection.Mode.VEHICLE_LOCATIONS_ALL, null);
         	}
 
         	lastUpdateTime = currentState.getLastUpdateTime();
@@ -441,9 +440,15 @@ public class Main extends MapActivity
         	
         	locationEnabled = prefs.getBoolean(getString(R.string.alwaysShowLocationCheckbox), true);
             int selectedRouteIndex = prefs.getInt(selectedRouteIndexKey, 0);
-            int mode = prefs.getInt(selectedBusPredictionsKey, Selection.BUS_PREDICTIONS_ONE);
-        	String route = dropdownRouteKeysToTitles.getTagUsingIndex(selectedRouteIndex);
-            selection = new Selection(mode, route);
+            int modeInt = prefs.getInt(selectedBusPredictionsKey, Selection.Mode.BUS_PREDICTIONS_ONE.modeInt);
+			selection = new Selection(Selection.Mode.VEHICLE_LOCATIONS_ALL, null);
+			for (Selection.Mode mode : Selection.Mode.values()) {
+				if (mode.modeInt == modeInt) {
+					String route = dropdownRouteKeysToTitles.getTagUsingIndex(selectedRouteIndex);
+					selection = new Selection(mode, route);
+					break;
+				}
+			}
         }
 
         //final boolean showIntroScreen = prefs.getBoolean(introScreenKey, true);
@@ -519,17 +524,14 @@ public class Main extends MapActivity
 			if (bundle != null) {
 				String route = bundle.getString(ROUTE_KEY);
 				String stop = bundle.getString(STOP_KEY);
-<<<<<<< HEAD
-
-				if (route != null && stop != null) {
-					setNewStop(route, stop);
-					setMode(Selection.BUS_PREDICTIONS_ONE, true, true);
-=======
-				String mode = bundle.getString(MODE_KEY);
-				int modeInt = Selection.BUS_PREDICTIONS_ALL;
-				if (mode != null) {
-					if (Selection.modeMap.containsKey(mode)) {
-						modeInt = Selection.modeMap.get(mode);
+				String modeString = bundle.getString(MODE_KEY);
+				Selection.Mode modeInt = Selection.Mode.BUS_PREDICTIONS_ALL;
+				if (modeString != null) {
+					for (Selection.Mode mode : Selection.Mode.values()) {
+						if (modeString.equals(mode.modeString)) {
+							modeInt = mode;
+							break;
+						}
 					}
 				}
 
@@ -541,7 +543,6 @@ public class Main extends MapActivity
 					int routePosition = dropdownRouteKeysToTitles.getIndexForTag(route);
 					setNewRoute(routePosition, false);
 					setMode(modeInt, true, true);
->>>>>>> master
 				}
 			}
 
@@ -549,12 +550,8 @@ public class Main extends MapActivity
 			intent.setData(null);
 		}
 
-<<<<<<< HEAD
-    }
-=======
 	}
->>>>>>> master
-		
+
 	/**
 	 * Updates search text depending on current mode
 	 */
@@ -607,20 +604,6 @@ public class Main extends MapActivity
     }
 
 
-	private SpinnerAdapter makeModeSpinner() {
-    	final ArrayList<ViewingMode> modes = new ArrayList<ViewingMode>();
-        
-        for (int i = 0; i < Selection.modesSupported.length; i++)
-        {
-        	ViewingMode mode = new ViewingMode(Selection.modeIconsSupported[i], Selection.modeTextSupported[i]);
-        	modes.add(mode);
-        }
-        
-        ModeAdapter adapter = new ModeAdapter(this, modes);
-        
-        return adapter;
-	}
-
 	@Override
     protected void onPause() {
     	if (arguments != null)
@@ -631,7 +614,7 @@ public class Main extends MapActivity
     		SharedPreferences.Editor editor = prefs.edit();
 
     		Selection selection = arguments.getBusLocations().getSelection();
-    		editor.putInt(selectedBusPredictionsKey, selection.getMode());
+    		editor.putInt(selectedBusPredictionsKey, selection.getMode().modeInt);
     		editor.putInt(selectedRouteIndexKey, arguments.getBusLocations().getRouteAsIndex(selection.getRoute()));
     		editor.putInt(centerLatKey, point.getLatitudeE6());
     		editor.putInt(centerLonKey, point.getLongitudeE6());
@@ -759,7 +742,7 @@ public class Main extends MapActivity
 						
 						String route = stop.getFirstRoute();
 						setNewStop(route, stop.getStopTag());
-						setMode(Selection.BUS_PREDICTIONS_STAR, true, true);
+						setMode(Selection.Mode.BUS_PREDICTIONS_STAR, true, true);
 					}
 				}
 			});
@@ -1076,9 +1059,9 @@ public class Main extends MapActivity
 		}
 	}
 
-	public void setMode(int mode, boolean updateIcon, boolean triggerRefresh)
+	public void setMode(Selection.Mode mode, boolean updateIcon, boolean triggerRefresh)
 	{
-		int setTo = Selection.VEHICLE_LOCATIONS_ALL; 
+		Selection.Mode setTo = Selection.Mode.VEHICLE_LOCATIONS_ALL;
 		for (int i = 0; i < Selection.modesSupported.length; i++)
 		{
 			if (Selection.modesSupported[i] == mode)
@@ -1115,8 +1098,8 @@ public class Main extends MapActivity
 	}
 	
 	private void updateButtonVisibility(Selection selection) {
-		int mode = selection.getMode();
-		if (mode == Selection.BUS_PREDICTIONS_STAR) {
+		Selection.Mode mode = selection.getMode();
+		if (mode == Selection.Mode.BUS_PREDICTIONS_STAR) {
 			chooseAFavoriteButton.setVisibility(View.VISIBLE);
 			chooseAPlaceButton.setVisibility(View.GONE);
 		}
@@ -1131,7 +1114,7 @@ public class Main extends MapActivity
 		if (arguments != null) {
 			Locations locations = arguments.getBusLocations();
 			
-			setMode(Selection.BUS_PREDICTIONS_ALL, true, false);
+			setMode(Selection.Mode.BUS_PREDICTIONS_ALL, true, false);
 			
 			IntersectionLocation newLocation = locations.getIntersection(name);
 			if (newLocation != null) {
@@ -1185,7 +1168,7 @@ public class Main extends MapActivity
 			}
 		}
 		
-		setMode(Selection.BUS_PREDICTIONS_ONE, true, true);
+		setMode(Selection.Mode.BUS_PREDICTIONS_ONE, true, true);
 		
 		MapController controller = arguments.getMapView().getController();
 		
@@ -1228,7 +1211,7 @@ public class Main extends MapActivity
 			}
 			case GetDirectionsDialog.NEEDS_INPUT_FROM:
 			case GetDirectionsDialog.NEEDS_INPUT_TO:
-				setMode(Selection.BUS_PREDICTIONS_ALL, true, true);
+				setMode(Selection.Mode.BUS_PREDICTIONS_ALL, true, true);
 				arguments.getOverlayGroup().getBusOverlay().captureNextTap(new BusOverlay.OnClickListener() {
 					@Override
 					public boolean onClick(GeoPoint point) {

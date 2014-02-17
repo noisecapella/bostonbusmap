@@ -36,7 +36,7 @@ public class Predictions
 	private final SortedSet<IPrediction> predictions = Sets.newTreeSet();
 
 	private final Object modificationLock = new Object();
-	
+
 	public void makeSnippetAndTitle(RouteConfig routeConfig,
 			RouteTitles routeKeysToTitles, Context context,
 			RouteSet routes, StopLocation stop, ImmutableCollection<Alert> alerts, Locations locations)

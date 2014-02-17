@@ -9,6 +9,8 @@ import com.google.common.collect.ImmutableMap;
 
 import boston.Bus.Map.main.MoreInfo;
 import boston.Bus.Map.transit.TransitSystem;
+import boston.Bus.Map.util.StringUtil;
+
 import android.content.Context;
 import android.os.Parcel;
 import android.os.Parcelable;
@@ -34,28 +36,33 @@ public class TimePrediction implements IPrediction
 	protected final long arrivalTimeMillis;
 	protected final boolean affectedByLayover;
 	protected final boolean isDelayed;
+	/**
+	 * In seconds
+	 */
 	protected final int lateness;
-	protected final String stop;
-
-	public TimePrediction(int minutes, String vehicleId,
+	protected final String block;
+	protected final String stopId;
+	
+	public TimePrediction(long arrivalTimeMillis, String vehicleId,
                           String direction, String routeName, String routeTitle,
-                          boolean affectedByLayover, boolean isDelayed, int lateness, String stop)
+                          boolean affectedByLayover, boolean isDelayed, int lateness,
+						  String block, String stopId)
 	{
 		this.vehicleId = vehicleId;
 		this.direction = direction;
 		this.routeName = routeName;
 		this.routeTitle = routeTitle;
 
-		arrivalTimeMillis = System.currentTimeMillis() + minutes * 60 * 1000;
-		
-		
+		this.arrivalTimeMillis = arrivalTimeMillis;
+
 		this.affectedByLayover = affectedByLayover;
 		this.isDelayed = isDelayed;
 		this.lateness = lateness;
-		this.stop = stop;
+		this.block = block;
+		this.stopId = stopId;
 	}
 
-	public void makeSnippet(Context context, StringBuilder builder) {
+	public void makeSnippet(Context context, StringBuilder builder, boolean isMoreInfo) {
 		int minutes = getMinutes();
 		if (minutes < 0)
 		{
@@ -66,6 +73,10 @@ public class TimePrediction implements IPrediction
 		if (vehicleId != null)
 		{
 			builder.append(", Vehicle <b>").append(vehicleId).append("</b>");
+		}
+
+		if (!StringUtil.isEmpty(block) && isMoreInfo) {
+			builder.append("<br />Run number <b>").append(block).append("</b>");
 		}
 
 		if (direction != null)
@@ -118,7 +129,8 @@ public class TimePrediction implements IPrediction
 				.compareFalseFirst(affectedByLayover, another.affectedByLayover)
 				.compareFalseFirst(isDelayed, another.isDelayed)
 				.compare(lateness, another.lateness)
-				.compare(stop, another.stop)
+				.compare(block, another.block)
+				.compare(stopId, another.stopId)
 				.result();
         }
         else
@@ -130,7 +142,7 @@ public class TimePrediction implements IPrediction
 	@Override
 	public int hashCode() {
 		return Objects.hashCode(vehicleId, direction, routeName, arrivalTimeMillis,
-				affectedByLayover, isDelayed, lateness, stop);
+				affectedByLayover, isDelayed, lateness, block, stopId);
 	}
 	
 	@Override
@@ -144,7 +156,8 @@ public class TimePrediction implements IPrediction
 					Objects.equal(affectedByLayover, another.affectedByLayover) &&
 					Objects.equal(isDelayed, another.isDelayed) &&
 					Objects.equal(lateness, another.lateness) &&
-					Objects.equal(stop, another.stop);
+					Objects.equal(block, another.block) &&
+					Objects.equal(stopId, another.stopId);
 		}
 		else
 		{
@@ -164,7 +177,7 @@ public class TimePrediction implements IPrediction
 	{
 		return (int)(arrivalTimeMillis - System.currentTimeMillis()) / 1000 / 60;
 	}
-	
+
 	public int getMinutes()
 	{
 		return calcMinutes(arrivalTimeMillis);
@@ -185,7 +198,8 @@ public class TimePrediction implements IPrediction
 		writeBoolean(dest, affectedByLayover);
 		writeBoolean(dest, isDelayed);
 		dest.writeInt(lateness);
-		dest.writeString(stop);
+		dest.writeString(block);
+		dest.writeString(stopId);
 	}
 	
 	public static final Parcelable.Creator<TimePrediction> CREATOR = new Creator<TimePrediction>() {
@@ -210,10 +224,10 @@ public class TimePrediction implements IPrediction
 			boolean affectedByLayover = readBoolean(source);
 			boolean isDelayed = readBoolean(source);
 			int lateness = source.readInt();
-			String stop = source.readString();
-			
-			int minutes = calcMinutes(arrivalTimeMillis);
-			TimePrediction prediction = new TimePrediction(minutes, vehicleId, direction, routeName, routeTitle, affectedByLayover, isDelayed, lateness, stop);
+			String block = source.readString();
+			String stopId = source.readString();
+
+			TimePrediction prediction = new TimePrediction(arrivalTimeMillis, vehicleId, direction, routeName, routeTitle, affectedByLayover, isDelayed, lateness, block, stopId);
 			return prediction;
 		}
 	};
@@ -225,7 +239,7 @@ public class TimePrediction implements IPrediction
 	 */
 	public ImmutableMap<String, Spanned> makeSnippetMap(Context context) {
 		StringBuilder ret = new StringBuilder();
-		makeSnippet(context, ret);
+		makeSnippet(context, ret, true);
 		
 		ImmutableMap<String, Spanned> map = ImmutableMap.of(MoreInfo.textKey, Html.fromHtml(ret.toString()));
 		
@@ -251,7 +265,7 @@ public class TimePrediction implements IPrediction
 	}
 
 	public String getStopTag() {
-		return stop;
+		return stopId;
 	}
 
 
