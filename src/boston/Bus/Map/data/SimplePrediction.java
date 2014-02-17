@@ -72,7 +72,7 @@ public class SimplePrediction implements IPrediction {
 	}
 
 	@Override
-	public void makeSnippet(Context context, StringBuilder ret) {
+	public void makeSnippet(Context context, StringBuilder ret, boolean isMoreInfo) {
 		ret.append(text);
 	}
 
@@ -84,7 +84,7 @@ public class SimplePrediction implements IPrediction {
 	@Override
 	public ImmutableMap<String, Spanned> makeSnippetMap(Context context) {
 		StringBuilder ret = new StringBuilder();
-		makeSnippet(context, ret);
+		makeSnippet(context, ret, true);
 		
 		ImmutableMap<String, Spanned> map = ImmutableMap.of(MoreInfo.textKey, Html.fromHtml(ret.toString()));
 		

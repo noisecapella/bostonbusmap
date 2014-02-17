@@ -9,6 +9,8 @@ import com.google.common.collect.ImmutableMap;
 
 import boston.Bus.Map.main.MoreInfo;
 import boston.Bus.Map.transit.TransitSystem;
+import boston.Bus.Map.util.StringUtil;
+
 import android.content.Context;
 import android.os.Parcel;
 import android.os.Parcelable;
@@ -58,7 +60,7 @@ public class TimePrediction implements IPrediction
 		this.block = block;
 	}
 
-	public void makeSnippet(Context context, StringBuilder builder) {
+	public void makeSnippet(Context context, StringBuilder builder, boolean isMoreInfo) {
 		int minutes = getMinutes();
 		if (minutes < 0)
 		{
@@ -69,6 +71,10 @@ public class TimePrediction implements IPrediction
 		if (vehicleId != null)
 		{
 			builder.append(", Vehicle <b>").append(vehicleId).append("</b>");
+		}
+
+		if (!StringUtil.isEmpty(block) && isMoreInfo) {
+			builder.append("<br />Run number <b>").append(block).append("</b>");
 		}
 
 		if (direction != null)
@@ -227,7 +233,7 @@ public class TimePrediction implements IPrediction
 	 */
 	public ImmutableMap<String, Spanned> makeSnippetMap(Context context) {
 		StringBuilder ret = new StringBuilder();
-		makeSnippet(context, ret);
+		makeSnippet(context, ret, true);
 		
 		ImmutableMap<String, Spanned> map = ImmutableMap.of(MoreInfo.textKey, Html.fromHtml(ret.toString()));
 		
