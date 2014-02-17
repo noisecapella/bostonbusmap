@@ -124,7 +124,7 @@ public class BusPredictionsFeedParser extends DefaultHandler
 				TimePrediction prediction = new TimePrediction(arrivalTimeMillis, vehicleId,
                         directionSnippet, currentRoute.getRouteName(),
                         currentRoute.getRouteTitle(), affectedByLayover, isDelayed,
-                        TimePrediction.NULL_LATENESS, block);
+                        TimePrediction.NULL_LATENESS, block, currentLocation.getStopTag());
 				currentLocation.addPrediction(prediction);
 			}
 		}

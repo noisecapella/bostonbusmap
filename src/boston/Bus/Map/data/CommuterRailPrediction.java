@@ -69,10 +69,10 @@ public class CommuterRailPrediction extends TimePrediction implements Parcelable
 	
 	public CommuterRailPrediction(long arrivalTimeMillis, String vehicleId, String direction,
 			String routeName, String routeTitle, boolean affectedByLayover, boolean isDelayed,
-			int lateness, String block, Flag flag)
+			int lateness, String block, String stopId, Flag flag)
 	{
 		super(arrivalTimeMillis, vehicleId, direction, routeName, routeTitle, affectedByLayover, isDelayed,
-				lateness, block);
+				lateness, stopId, block);
 		this.flag = flag;
 	}
 	
@@ -144,10 +144,11 @@ public class CommuterRailPrediction extends TimePrediction implements Parcelable
 			boolean isDelayed = readBoolean(source);
 			int lateness = source.readInt();
 			String block = source.readString();
+			String stopId = source.readString();
 			
 			Flag flag = Flag.toFlagEnum(source.readString());
 			
-			CommuterRailPrediction prediction = new CommuterRailPrediction(arrivalTimeMillis, vehicleId, direction, routeName, routeTitle, affectedByLayover, isDelayed, lateness, block, flag);
+			CommuterRailPrediction prediction = new CommuterRailPrediction(arrivalTimeMillis, vehicleId, direction, routeName, routeTitle, affectedByLayover, isDelayed, lateness, block, stopId, flag);
 			return prediction;
 		}
 	};
