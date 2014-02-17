@@ -322,9 +322,9 @@ public abstract class UpdateAsyncTask extends AsyncTask<Object, Object, Immutabl
 		Locations locationsObj = arguments.getBusLocations();
 		
 		RouteConfig selectedRouteConfig;
-		int mode = selection.getMode();
-		if (mode == Selection.BUS_PREDICTIONS_STAR || 
-				mode == Selection.BUS_PREDICTIONS_ALL)
+		Selection.Mode mode = selection.getMode();
+		if (mode == Selection.Mode.BUS_PREDICTIONS_STAR ||
+				mode == Selection.Mode.BUS_PREDICTIONS_ALL)
 		{
 	        Path[] paths = locationsObj.getPaths(selection.getRoute());
 			//we want this to be null. Else, the snippet drawing code would only show data for a particular route

@@ -100,19 +100,17 @@ public abstract class NextBusTransitSource implements TransitSource
 	throws IOException, ParserConfigurationException, SAXException {
 		//read data from the URL
 		DownloadHelper downloadHelper;
-		int mode = selection.getMode();
-		switch (mode)
-		{
-		case  Selection.BUS_PREDICTIONS_ONE:
-		case  Selection.BUS_PREDICTIONS_STAR:
-		case  Selection.BUS_PREDICTIONS_ALL:
+		Selection.Mode mode = selection.getMode();
+		if (mode == Selection.Mode.BUS_PREDICTIONS_ONE ||
+			mode == Selection.Mode.BUS_PREDICTIONS_STAR ||
+			mode == Selection.Mode.BUS_PREDICTIONS_ALL)
 		{
 
 			List<Location> locations = locationsObj.getLocations(maxStops, centerLatitude, centerLongitude, false, selection);
 
 			//ok, do predictions now
 			ImmutableSet<String> routes;
-			if (mode == Selection.BUS_PREDICTIONS_ONE) {
+			if (mode == Selection.Mode.BUS_PREDICTIONS_ONE) {
 				routes = ImmutableSet.of(routeConfig.getRouteName());
 			}
 			else
@@ -128,30 +126,24 @@ public abstract class NextBusTransitSource implements TransitSource
 
 			downloadHelper = new DownloadHelper(url);
 		}
-		break;
-
-		case Selection.VEHICLE_LOCATIONS_ONE:
+		else if (mode == Selection.Mode.VEHICLE_LOCATIONS_ONE)
 		{
 			final String urlString = getVehicleLocationsUrl(locationsObj.getLastUpdateTime(), routeConfig.getRouteName());
 			downloadHelper = new DownloadHelper(urlString);
 		}
-		break;
-		case Selection.VEHICLE_LOCATIONS_ALL:
-		default:
+		else
 		{
 			final String urlString = getVehicleLocationsUrl(locationsObj.getLastUpdateTime(), null);
 			downloadHelper = new DownloadHelper(urlString);
-		}
-		break;
 		}
 
 		downloadHelper.connect();
 
 		InputStream data = downloadHelper.getResponseData();
 
-		if (mode == Selection.BUS_PREDICTIONS_ONE || 
-				mode == Selection.BUS_PREDICTIONS_ALL ||
-				mode == Selection.BUS_PREDICTIONS_STAR)
+		if (mode == Selection.Mode.BUS_PREDICTIONS_ONE ||
+				mode == Selection.Mode.BUS_PREDICTIONS_ALL ||
+				mode == Selection.Mode.BUS_PREDICTIONS_STAR)
 		{
 			//bus prediction
 
