@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
+import boston.Bus.Map.data.CommuterRailPrediction;
 import boston.Bus.Map.data.IPrediction;
 import boston.Bus.Map.data.PredictionStopLocationPair;
 import boston.Bus.Map.data.TimePrediction;
@@ -138,6 +139,7 @@ public class CommuterRailPredictionsFeedParser
 			}
 			
 			// handle predictions
+			String flag = message.get("Flag").getAsString();
 			String stopId = message.get("Stop").getAsString();
 			String scheduledString = message.get("Scheduled").getAsString();
 			long scheduled = Long.parseLong(scheduledString);
@@ -146,10 +148,12 @@ public class CommuterRailPredictionsFeedParser
 				if (stop != null) {
 					int seconds = (int)(scheduled - nowSeconds);
 					int minutes = seconds / 60;
-					TimePrediction prediction = new TimePrediction(minutes,
+					CommuterRailPrediction prediction = new CommuterRailPrediction(minutes,
 							trip, dirTag, routeName,
 							routeTitle, false,
-							lateness > 5*60, lateness);
+							lateness > 5*60, lateness, "",
+							CommuterRailPrediction.Flag.toFlagEnum(flag)
+							);
 					PredictionStopLocationPair pair = new PredictionStopLocationPair(prediction,
 							stop);
 					pairs.add(pair);

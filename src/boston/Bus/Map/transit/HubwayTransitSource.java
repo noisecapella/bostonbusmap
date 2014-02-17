@@ -55,15 +55,14 @@ public class HubwayTransitSource implements TransitSource {
 							ConcurrentHashMap<String, BusLocation> busMapping,
 							RoutePool routePool, Directions directions,
 							Locations locationsObj) throws IOException, ParserConfigurationException, SAXException {
-		int mode = selection.getMode();
-		switch (mode) {
-			case Selection.VEHICLE_LOCATIONS_ALL:
-			case Selection.VEHICLE_LOCATIONS_ONE:
+		Selection.Mode mode = selection.getMode();
+		if (mode == Selection.Mode.VEHICLE_LOCATIONS_ALL ||
+			mode == Selection.Mode.VEHICLE_LOCATIONS_ONE) {
 				// no need for that here
-				return;
-			case Selection.BUS_PREDICTIONS_ALL:
-			case Selection.BUS_PREDICTIONS_ONE:
-			case Selection.BUS_PREDICTIONS_STAR:
+		}
+		else if (mode == Selection.Mode.BUS_PREDICTIONS_ALL ||
+				mode == Selection.Mode.BUS_PREDICTIONS_ONE ||
+				mode == Selection.Mode.BUS_PREDICTIONS_STAR) {
 				RouteConfig hubwayRouteConfig = routePool.get(routeTag);
 				DownloadHelper downloadHelper = new DownloadHelper(dataUrl);
 
@@ -81,9 +80,10 @@ public class HubwayTransitSource implements TransitSource {
 					pair.stopLocation.addPrediction(pair.prediction);
 				}
 
-				break;
-			default:
-				throw new RuntimeException("Unknown mode encountered");
+		}
+		else
+		{
+			throw new RuntimeException("Unknown mode encountered");
 
 		}
 
