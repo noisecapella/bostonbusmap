@@ -161,7 +161,7 @@ public class CommuterRailPredictionsFeedParser
 					CommuterRailPrediction prediction = new CommuterRailPrediction(arrivalTimeMillis,
 							trip, dirTag, routeName,
 							routeTitle, false,
-							lateness > 5*60, lateness, "",
+							lateness > 5*60, lateness, "", stopId,
 							CommuterRailPrediction.Flag.toFlagEnum(flag)
 							);
 					PredictionStopLocationPair pair = new PredictionStopLocationPair(prediction,
