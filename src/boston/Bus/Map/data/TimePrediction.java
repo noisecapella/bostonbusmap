@@ -34,10 +34,13 @@ public class TimePrediction implements IPrediction
 	protected final long arrivalTimeMillis;
 	protected final boolean affectedByLayover;
 	protected final boolean isDelayed;
+	/**
+	 * In seconds
+	 */
 	protected final int lateness;
 	protected final String block;
 	
-	public TimePrediction(int minutes, String vehicleId,
+	public TimePrediction(long arrivalTimeMillis, String vehicleId,
                           String direction, String routeName, String routeTitle,
                           boolean affectedByLayover, boolean isDelayed, int lateness,
 						  String block)
@@ -47,9 +50,8 @@ public class TimePrediction implements IPrediction
 		this.routeName = routeName;
 		this.routeTitle = routeTitle;
 
-		arrivalTimeMillis = System.currentTimeMillis() + minutes * 60 * 1000;
-		
-		
+		this.arrivalTimeMillis = arrivalTimeMillis;
+
 		this.affectedByLayover = affectedByLayover;
 		this.isDelayed = isDelayed;
 		this.lateness = lateness;
@@ -165,7 +167,7 @@ public class TimePrediction implements IPrediction
 	{
 		return (int)(arrivalTimeMillis - System.currentTimeMillis()) / 1000 / 60;
 	}
-	
+
 	public int getMinutes()
 	{
 		return calcMinutes(arrivalTimeMillis);
@@ -213,8 +215,7 @@ public class TimePrediction implements IPrediction
 			int lateness = source.readInt();
 			String block = source.readString();
 			
-			int minutes = calcMinutes(arrivalTimeMillis);
-			TimePrediction prediction = new TimePrediction(minutes, vehicleId, direction, routeName, routeTitle, affectedByLayover, isDelayed, lateness, block);
+			TimePrediction prediction = new TimePrediction(arrivalTimeMillis, vehicleId, direction, routeName, routeTitle, affectedByLayover, isDelayed, lateness, block);
 			return prediction;
 		}
 	};
