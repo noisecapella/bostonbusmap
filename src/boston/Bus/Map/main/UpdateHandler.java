@@ -1,6 +1,7 @@
 package boston.Bus.Map.main;
 
 import org.apache.http.impl.conn.tsccm.RouteSpecificPool;
+import org.osmdroid.api.IGeoPoint;
 
 import boston.Bus.Map.data.Direction;
 import boston.Bus.Map.data.Locations;
@@ -11,9 +12,6 @@ import boston.Bus.Map.ui.BusOverlay;
 import boston.Bus.Map.ui.LocationOverlay;
 import boston.Bus.Map.ui.RouteOverlay;
 import boston.Bus.Map.util.Constants;
-
-import com.google.android.maps.GeoPoint;
-import com.google.android.maps.MapView;
 
 import android.app.ProgressDialog;
 import android.content.Context;
@@ -108,7 +106,7 @@ public class UpdateHandler extends Handler {
 				
 			}
 
-			GeoPoint geoPoint = guiArguments.getMapView().getMapCenter();
+			IGeoPoint geoPoint = guiArguments.getMapView().getMapCenter();
 			double centerLatitude = geoPoint.getLatitudeE6() * Constants.InvE6;
 			double centerLongitude = geoPoint.getLongitudeE6() * Constants.InvE6;
 			

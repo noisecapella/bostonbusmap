@@ -46,7 +46,6 @@ import boston.Bus.Map.main.UpdateHandler;
 import boston.Bus.Map.transit.TransitSystem;
 import boston.Bus.Map.util.LogUtil;
 
-import com.google.android.maps.OverlayItem;
 import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableCollection;
 import com.google.common.collect.Lists;

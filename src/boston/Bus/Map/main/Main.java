@@ -34,6 +34,11 @@ import javax.xml.parsers.FactoryConfigurationError;
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.apache.http.impl.conn.tsccm.RouteSpecificPool;
+import org.osmdroid.api.IGeoPoint;
+import org.osmdroid.api.IMapController;
+import org.osmdroid.util.GeoPoint;
+import org.osmdroid.views.MapController;
+import org.osmdroid.views.MapView;
 import org.xml.sax.SAXException;
 
 import boston.Bus.Map.R;
@@ -65,13 +70,6 @@ import boston.Bus.Map.util.SearchHelper;
 import boston.Bus.Map.util.StringUtil;
 
 
-import com.google.android.maps.GeoPoint;
-import com.google.android.maps.MapActivity;
-import com.google.android.maps.MapController;
-import com.google.android.maps.MapView;
-import com.google.android.maps.MyLocationOverlay;
-import com.google.android.maps.Overlay;
-import com.google.android.maps.OverlayItem;
 import com.google.common.collect.ImmutableCollection;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -145,7 +143,7 @@ import android.widget.AdapterView.OnItemSelectedListener;
  * The main activity
  *
  */
-public class Main extends MapActivity
+public class Main extends Activity
 {
 	private static final String selectedRouteIndexKey = "selectedRouteIndex";
 	private static final String selectedBusPredictionsKey = "selectedBusPredictions";
@@ -483,14 +481,14 @@ public class Main extends MapActivity
             {
 
             	GeoPoint point = new GeoPoint(centerLat, centerLon);
-            	MapController controller = mapView.getController();
+            	IMapController controller = mapView.getController();
             	controller.setCenter(point);
             	controller.setZoom(zoomLevel);
             }
             else
             {
             	//move maps widget to center of transit network
-            	MapController controller = mapView.getController();
+            	IMapController controller = mapView.getController();
             	GeoPoint location = new GeoPoint(TransitSystem.getCenterLatAsInt(), TransitSystem.getCenterLonAsInt());
             	controller.setCenter(location);
 
@@ -606,7 +604,7 @@ public class Main extends MapActivity
     	if (arguments != null)
     	{
     		final MapView mapView = arguments.getMapView();
-    		GeoPoint point = mapView.getMapCenter();
+    		IGeoPoint point = mapView.getMapCenter();
     		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
     		SharedPreferences.Editor editor = prefs.edit();
 
@@ -840,7 +838,8 @@ public class Main extends MapActivity
 
         return true;
     }
-    
+    /*
+    Unneeded in OSM
 	@Override
 	protected boolean isRouteDisplayed() {
 		//TODO: what exactly should we return here? 
@@ -853,7 +852,7 @@ public class Main extends MapActivity
 			return false;
 		}
 	}
-
+*/
 	@Override
 	protected void onResume() {
 		super.onResume();
@@ -1117,7 +1116,7 @@ public class Main extends MapActivity
 			IntersectionLocation newLocation = locations.getIntersection(name);
 			if (newLocation != null) {
 
-				MapController controller = arguments.getMapView().getController();
+				IMapController controller = arguments.getMapView().getController();
 
 				int latE6 = (int)(newLocation.getLatitudeAsDegrees() * Constants.E6);
 				int lonE6 = (int)(newLocation.getLongitudeAsDegrees() * Constants.E6);
@@ -1168,7 +1167,7 @@ public class Main extends MapActivity
 		
 		setMode(Selection.Mode.BUS_PREDICTIONS_ONE, true, true);
 		
-		MapController controller = arguments.getMapView().getController();
+		IMapController controller = arguments.getMapView().getController();
 		
 		int latE6 = (int)(stopLocation.getLatitudeAsDegrees() * Constants.E6);
 		int lonE6 = (int)(stopLocation.getLongitudeAsDegrees() * Constants.E6);

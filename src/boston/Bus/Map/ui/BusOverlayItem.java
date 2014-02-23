@@ -9,9 +9,11 @@ import boston.Bus.Map.data.Alert;
 import boston.Bus.Map.data.Location;
 import boston.Bus.Map.data.Locations;
 
-import com.google.android.maps.GeoPoint;
-import com.google.android.maps.OverlayItem;
 import com.google.common.collect.ImmutableCollection;
+
+import org.osmdroid.api.IGeoPoint;
+import org.osmdroid.util.GeoPoint;
+import org.osmdroid.views.overlay.OverlayItem;
 
 public class BusOverlayItem extends OverlayItem
 {
@@ -24,7 +26,7 @@ public class BusOverlayItem extends OverlayItem
 	public BusOverlayItem(GeoPoint point, String title, String snippet,
 			ImmutableCollection<Alert> alerts, Location location)
 	{
-		super(point, title, snippet);
+		super(title, snippet, point);
 		this.alerts = alerts;
 		this.location = location;
 	}

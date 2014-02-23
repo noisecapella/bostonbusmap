@@ -67,3 +67,4 @@
 -dontwarn java.awt.**,javax.security.**,java.beans.**
 -dontwarn javax.xml.stream.events.**
 -dontwarn com.google.gdata.**, com.google.common.**
+

@@ -9,11 +9,11 @@ import boston.Bus.Map.ui.LocationOverlay;
 import boston.Bus.Map.ui.OverlayGroup;
 import boston.Bus.Map.ui.RouteOverlay;
 
-import com.google.android.maps.MapView;
-
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.widget.ProgressBar;
+
+import org.osmdroid.views.MapView;
 
 public class UpdateArguments {
 	private ProgressBar progress;

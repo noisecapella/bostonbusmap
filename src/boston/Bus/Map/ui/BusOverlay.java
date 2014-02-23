@@ -36,11 +36,6 @@ import boston.Bus.Map.main.Main;
 import boston.Bus.Map.main.UpdateHandler;
 import boston.Bus.Map.util.Constants;
 
-import com.google.android.maps.GeoPoint;
-import com.google.android.maps.ItemizedOverlay;
-import com.google.android.maps.MapView;
-import com.google.android.maps.OverlayItem;
-import com.google.android.maps.Projection;
 import com.google.common.collect.ImmutableCollection;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
@@ -57,6 +52,13 @@ import android.util.FloatMath;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View.OnClickListener;
+
+import org.osmdroid.api.IGeoPoint;
+import org.osmdroid.api.IMapView;
+import org.osmdroid.util.GeoPoint;
+import org.osmdroid.views.MapView;
+import org.osmdroid.views.overlay.ItemizedOverlay;
+import org.osmdroid.views.overlay.OverlayItem;
 
 
 /**
@@ -155,7 +157,7 @@ public class BusOverlay extends BalloonItemizedOverlay<BusOverlayItem> {
 	/**
 	 * Was there a drag between when the finger touched the touchscreen and when it released?
 	 */
-	private GeoPoint oldMapGeoPoint;
+	private IGeoPoint oldMapGeoPoint;
 	private boston.Bus.Map.ui.BusOverlay.OnClickListener nextTapListener;
 	
 	public void setDrawHighlightCircle(boolean b)
@@ -180,7 +182,7 @@ public class BusOverlay extends BalloonItemizedOverlay<BusOverlayItem> {
 		{
 			if (oldMapGeoPoint != null && updateable != null)
 			{
-				GeoPoint newGeoPoint = mapView.getMapCenter();
+				IGeoPoint newGeoPoint = mapView.getMapCenter();
 				if (!newGeoPoint.equals(oldMapGeoPoint)) {
 					updateable.triggerUpdate(250);
 					oldMapGeoPoint = null;
@@ -246,7 +248,7 @@ public class BusOverlay extends BalloonItemizedOverlay<BusOverlayItem> {
 				firstPoint = overlays.get(0).getPoint();
 			}
 
-			Projection projection = mapView.getProjection();
+			MapView.Projection projection = mapView.getProjection();
 			projection.toPixels(firstPoint, circleCenter);
 			final int circleCenterX = circleCenter.x;
 			final int circleCenterY = circleCenter.y;
@@ -389,6 +391,7 @@ public class BusOverlay extends BalloonItemizedOverlay<BusOverlayItem> {
 		return ret;
 	}
 
+	/* TODO: implement this to get places working
 	@Override
 	public boolean onTap(GeoPoint arg0, MapView arg1) {
 		if (nextTapListener != null) {
@@ -401,7 +404,7 @@ public class BusOverlay extends BalloonItemizedOverlay<BusOverlayItem> {
 		{
 			return super.onTap(arg0, arg1);
 		}
-	}
+	}*/
 
 	private void updateAllBoundCenterBottom(int selectedIndex, boolean shadow) {
 		// update boundCenterBottom for newly selected item
@@ -421,6 +424,12 @@ public class BusOverlay extends BalloonItemizedOverlay<BusOverlayItem> {
 	protected BalloonOverlayView<BusOverlayItem> createBalloonOverlayView() {
 		BusPopupView view = new BusPopupView(context, updateable, getBalloonBottomOffset(), locationsObj, routeKeysToTitles);
 		return view;
+	}
+
+	@Override
+	public boolean onSnapToItem(int x, int y, Point snapPoint, IMapView mapView) {
+		// TODO: should this be used?
+		return false;
 	}
 
 	public interface OnClickListener {

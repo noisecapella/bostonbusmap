@@ -36,6 +36,9 @@ import javax.xml.parsers.FactoryConfigurationError;
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.apache.http.client.CircularRedirectException;
+import org.osmdroid.api.IGeoPoint;
+import org.osmdroid.util.GeoPoint;
+import org.osmdroid.views.MapView;
 import org.xml.sax.SAXException;
 
 
@@ -60,10 +63,6 @@ import boston.Bus.Map.util.Constants;
 import boston.Bus.Map.util.FeedException;
 import boston.Bus.Map.util.LogUtil;
 
-import com.google.android.maps.GeoPoint;
-import com.google.android.maps.MapView;
-import com.google.android.maps.OverlayItem;
-import com.google.android.maps.Projection;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
@@ -121,7 +120,7 @@ public abstract class UpdateAsyncTask extends AsyncTask<Object, Object, Immutabl
 	/**
 	 * The last read center of the map.
 	 */
-	protected final GeoPoint currentMapCenter;
+	protected final IGeoPoint currentMapCenter;
 	
 	public UpdateAsyncTask(UpdateArguments arguments, boolean doShowUnpredictable,
 			int maxOverlays, boolean drawCircle, boolean allRoutesBlue,
@@ -274,7 +273,7 @@ public abstract class UpdateAsyncTask extends AsyncTask<Object, Object, Immutabl
 		}
 
 		try {
-			GeoPoint geoPoint = currentMapCenter;
+			IGeoPoint geoPoint = currentMapCenter;
 			double centerLatitude = geoPoint.getLatitudeE6() * Constants.InvE6;
 			double centerLongitude = geoPoint.getLongitudeE6() * Constants.InvE6;
 
@@ -428,7 +427,7 @@ public abstract class UpdateAsyncTask extends AsyncTask<Object, Object, Immutabl
 		//make sure we redraw map
 		mapView.invalidate();
 		
-		GeoPoint newCenter = mapView.getMapCenter();
+		IGeoPoint newCenter = mapView.getMapCenter();
 		if (!newCenter.equals(currentMapCenter)) {
 			handler.triggerUpdate();
 		}
