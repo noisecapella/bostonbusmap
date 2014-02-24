@@ -56,6 +56,8 @@ public class TransitSystem implements ITransitSystem {
 	private static final String[] emails = new String[]{"bostonbusmap@gmail.com", "t-trackertrial@mbta.com"};
 	private static final String emailSubject = "BostonBusMap error report";
 
+	private static final boolean showRunNumber = false;
+
 	private RouteTitles routeTitles;
 	
 	/**
@@ -283,6 +285,10 @@ public class TransitSystem implements ITransitSystem {
 
 	public static boolean isDefaultAllRoutesBlue() {
 		return defaultAllRoutesBlue;
+	}
+
+	public static boolean showRunNumber() {
+		return showRunNumber;
 	}
 
 	public static boolean hasReportProblem() {
