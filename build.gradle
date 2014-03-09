@@ -4,7 +4,7 @@ buildscript {
         mavenCentral()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:0.7.+'
+        classpath 'com.android.tools.build:gradle:0.9.0'
     }
 }
 
@@ -25,7 +25,7 @@ dependencies {
 	compile 'com.google.code.gson:gson:2.2.4'
 	compile project(':androidmapviewballoons')
 	compile files('libs/protobuf-java-2.5.0.jar')
-	compile 'com.android.support:support-v4:18.0.0'
+	compile 'com.android.support:support-v4:19.+'
 	compile 'org.osmdroid:osmdroid-android:4.0'
 	compile 'org.slf4j:slf4j-android:1.6.1-RC1'
 	compile "org.apache.httpcomponents:httpmime:4.2.3"
@@ -33,7 +33,7 @@ dependencies {
 
 android {
     compileSdkVersion "android-19"
-    buildToolsVersion "18.0.1"
+    buildToolsVersion "19.0.1"
 
     packagingOptions {
 	exclude 'META-INF/NOTICE.txt'

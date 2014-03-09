@@ -8,7 +8,7 @@ dependencies {
 
 android {
     compileSdkVersion "android-19"
-    buildToolsVersion "18.0.1"
+    buildToolsVersion "19.0.1"
 
     packagingOptions {
         exclude 'META-INF/NOTICE.txt'
@@ -20,8 +20,10 @@ android {
         targetSdkVersion 8
     }
 
-    release {
-        runProguard false
-        proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.txt'
+    buildTypes {
+        release {
+            runProguard false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.txt'
+        }
     }
 }
