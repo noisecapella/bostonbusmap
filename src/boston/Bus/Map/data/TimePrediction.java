@@ -62,7 +62,7 @@ public class TimePrediction implements IPrediction
 		this.stopId = stopId;
 	}
 
-	public void makeSnippet(Context context, StringBuilder builder, boolean isMoreInfo) {
+	public void makeSnippet(Context context, StringBuilder builder, boolean showRunNumber) {
 		int minutes = getMinutes();
 		if (minutes < 0)
 		{
@@ -75,7 +75,7 @@ public class TimePrediction implements IPrediction
 			builder.append(", Vehicle <b>").append(vehicleId).append("</b>");
 		}
 
-		if (!StringUtil.isEmpty(block) && isMoreInfo) {
+		if (!StringUtil.isEmpty(block) && showRunNumber) {
 			builder.append("<br />Run number <b>").append(block).append("</b>");
 		}
 
@@ -239,7 +239,7 @@ public class TimePrediction implements IPrediction
 	 */
 	public ImmutableMap<String, Spanned> makeSnippetMap(Context context) {
 		StringBuilder ret = new StringBuilder();
-		makeSnippet(context, ret, true);
+		makeSnippet(context, ret, TransitSystem.showRunNumber());
 		
 		ImmutableMap<String, Spanned> map = ImmutableMap.of(MoreInfo.textKey, Html.fromHtml(ret.toString()));
 		

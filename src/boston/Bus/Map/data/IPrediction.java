@@ -14,7 +14,7 @@ public interface IPrediction extends Comparable<IPrediction>, Parcelable {
 
     boolean isInvalid();
 
-    void makeSnippet(Context context, StringBuilder ret, boolean isMoreInfo);
+    void makeSnippet(Context context, StringBuilder ret, boolean showRunNumber);
 
     String getRouteTitle();
 

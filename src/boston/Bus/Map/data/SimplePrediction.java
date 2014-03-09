@@ -5,6 +5,7 @@ import android.os.Parcel;
 import android.text.Html;
 import android.text.Spanned;
 import boston.Bus.Map.main.MoreInfo;
+import boston.Bus.Map.transit.TransitSystem;
 
 import com.google.common.base.Objects;
 import com.google.common.collect.ComparisonChain;
@@ -72,7 +73,7 @@ public class SimplePrediction implements IPrediction {
 	}
 
 	@Override
-	public void makeSnippet(Context context, StringBuilder ret, boolean isMoreInfo) {
+	public void makeSnippet(Context context, StringBuilder ret, boolean showRunNumber) {
 		ret.append(text);
 	}
 
@@ -84,7 +85,7 @@ public class SimplePrediction implements IPrediction {
 	@Override
 	public ImmutableMap<String, Spanned> makeSnippetMap(Context context) {
 		StringBuilder ret = new StringBuilder();
-		makeSnippet(context, ret, true);
+		makeSnippet(context, ret, TransitSystem.showRunNumber());
 		
 		ImmutableMap<String, Spanned> map = ImmutableMap.of(MoreInfo.textKey, Html.fromHtml(ret.toString()));
 		
