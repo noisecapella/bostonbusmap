@@ -72,6 +72,9 @@
     <orderEntry type="jdk" jdkName="Android API 19 Platform" jdkType="Android SDK" />
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="library" exported="" name="osmdroid-android-4.0" level="project" />
+    <orderEntry type="library" exported="" name="httpcore-4.2.2" level="project" />
+    <orderEntry type="library" exported="" name="slf4j-android-1.6.1-RC1" level="project" />
+    <orderEntry type="library" exported="" name="httpmime-4.2.3" level="project" />
   </component>
 </module>
 
