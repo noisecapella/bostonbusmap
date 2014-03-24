@@ -53,9 +53,7 @@ import android.graphics.drawable.Drawable;
 import android.os.PowerManager;
 import android.os.RemoteException;
 import android.util.Log;
-import boston.Bus.Map.algorithms.GetDirections;
 import boston.Bus.Map.data.IntersectionLocation.Builder;
-import boston.Bus.Map.main.GetDirectionsAsyncTask;
 import boston.Bus.Map.main.Main;
 import boston.Bus.Map.main.UpdateAsyncTask;
 import boston.Bus.Map.parser.MbtaAlertsParser;
@@ -362,13 +360,6 @@ public final class Locations
 		}
 		
 		return null;
-	}
-
-	public void startGetDirectionsTask(UpdateArguments arguments, String startTag, String stopTag,
-			double currentLat, double currentLon) {
-		GetDirectionsAsyncTask task = new GetDirectionsAsyncTask(arguments, 
-				startTag, stopTag, directions, routeMapping, currentLat, currentLon);
-		task.execute();
 	}
 
 	/**
