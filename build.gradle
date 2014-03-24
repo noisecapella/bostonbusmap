@@ -4,7 +4,7 @@ buildscript {
         mavenCentral()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:0.7.+'
+        classpath 'com.android.tools.build:gradle:0.9.0'
     }
 }
 
@@ -25,18 +25,18 @@ dependencies {
 	compile 'com.google.code.gson:gson:2.2.4'
 	compile project(':androidmapviewballoons')
 	compile files('libs/protobuf-java-2.5.0.jar')
-	compile 'com.android.support:support-v4:18.0.0'
+	compile 'com.android.support:support-v4:19.+'
 }
 
 android {
     compileSdkVersion "Google Inc.:Google APIs:19"
-    buildToolsVersion "18.0.1"
+    buildToolsVersion "19.0.1"
 
     buildTypes {
-	release {
-	    runProguard true
-	    proguardFile 'proguard-project.txt'
-	}
+        release {
+            runProguard true
+            proguardFile 'proguard-project.txt'
+        }
 
     }
 

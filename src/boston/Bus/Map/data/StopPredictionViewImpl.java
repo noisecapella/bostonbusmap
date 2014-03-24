@@ -6,6 +6,8 @@ import java.util.Set;
 import java.util.SortedSet;
 
 import android.content.Context;
+
+import boston.Bus.Map.transit.TransitSystem;
 import boston.Bus.Map.util.LogUtil;
 
 import com.google.common.base.Joiner;
@@ -155,7 +157,7 @@ public class StopPredictionViewImpl extends StopPredictionView {
 
 			ret.append("<br />");
 
-			prediction.makeSnippet(context, ret, false);
+			prediction.makeSnippet(context, ret, TransitSystem.showRunNumber());
 
 			count++;
 			if (count >= max)
