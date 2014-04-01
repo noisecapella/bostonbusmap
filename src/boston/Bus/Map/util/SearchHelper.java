@@ -55,15 +55,13 @@ public class SearchHelper
 
 	/**
 	 * Try a search on the list of routes. If it matches, do that. Else, it's a geocode
-	 * 
-	 * @return if >= 0, it's an index to 
 	 */
 	private void searchRoutes(final Runnable onFinish) {
 		String lowercaseQuery = query.toLowerCase();
 		String printableQuery = query;
 		
 		//remove these words from the search
-		String[] wordsToRemove = new String[] {"route", "subway", "bus", "line", "stop", "direction"};
+		String[] wordsToRemove = new String[] {"route", "subway", "bus", "stop", "direction"};
 
 		queryType = QUERY_NONE;
 		String censoredQuery = query;
@@ -82,7 +80,7 @@ public class SearchHelper
 				}
 				else if (itEndsWith)
 				{
-					adjustedCensoredQuery = censoredQuery.substring(0, 1 + wordToRemove.length());
+					adjustedCensoredQuery = censoredQuery.substring(0, censoredQuery.length() - (1 + wordToRemove.length()));
 				}
 				else if (itStartsWith)
 				{
