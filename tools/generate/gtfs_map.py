@@ -96,4 +96,17 @@ class GtfsMap:
         return self._db.execute("SELECT * FROM routes WHERE route_long_name = ? OR route_short_name = ?", (name, name))
 
     def find_shapes_by_route(self, route):
-        return self._db.execute("SELECT shapes.* FROM shapes ")
+        return self._db.execute("SELECT shapes.* FROM shapes JOIN trips ON shapes.shape_id = trips.shape_id WHERE route_id = ?", route)
+
+    def find_routes_by_agencyid(self, agency_id):
+        return self._db.execute("SELECT routes.* FROM routes WHERE agency_id = ?", agency_id)
+
+    def find_stops_by_route(self, route):
+        return self._db.execute("SELECT stops.* FROM stops JOIN stop_times ON stop_times.stop_id = stops.stop_id JOIN trips ON stop_times.trip_id = trips.trip_id WHERE route_id = ?", route)
+
+    def find_trips_by_route(self, route):
+        return self._db.execute("SELECT trips.* FROM trips WHERE route_id = ?", route)
+
+    def __del__(self):
+        self._db.commit()
+        self._db.close()

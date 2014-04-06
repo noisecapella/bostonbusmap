@@ -19,9 +19,6 @@ class MbtaHeavyRail:
     def write_sql(self, cur, startorder, route, gtfs_map):
         supported_route_description = route + " Line"
         route_rows = gtfs_map.find_routes_by_name(supported_route_description)
-        #route_rows = [route_row for route_row in routes
-        #              if (route_row[routes_header["route_long_name"]] == supported_route_description or
-        #                  route_row[routes_header["route_short_name"]] == supported_route_description)]
         route_ids = set([route_row["route_id"] for route_row in route_rows])
 
         shape_rows = itertools.chain.from_iterable((gtfs_map.find_shapes_by_route(item) for item in route_ids))
