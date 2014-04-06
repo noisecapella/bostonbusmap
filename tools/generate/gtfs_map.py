@@ -1,28 +1,65 @@
 import os
 import csv
 from datetime import datetime
+import sqlite3
 
 class GtfsMap:
     def __init__(self, gtfs_path):
-        trip_path = os.path.join(gtfs_path, "trips.txt")
-        trips_tup = self.read_rows(trip_path)
-        self.trips_header, self.trips = trips_tup
-
-        stop_path = os.path.join(gtfs_path, "stops.txt")
-        stops_tup = self.read_rows(stop_path)
-        self.stops_header, self.stops = stops_tup
+        try:
+            os.unlink("./temp_gtfs.db")
+        except:
+            pass
+        self._db = sqlite3.connect("./temp_gtfs.db")
+        self._db.row_factory = sqlite3.Row
         
-        route_path = os.path.join(gtfs_path, "routes.txt")
-        routes_tup = self.read_rows(route_path)
-        self.routes_header, self.routes = routes_tup
+        self._create_table(gtfs_path, "trips", {"route_id" : "TEXT",
+                                                "service_id" : "TEXT",
+                                                "trip_id" : "TEXT PRIMARY KEY",
+                                                "trip_headsign": "TEXT",
+                                                "trip_short_name" : "TEXT",
+                                                "direction_id" : "INTEGER",
+                                                "block_id" : "TEXT",
+                                                "shape_id" : "TEXT"},
+                           ["shape_id", "route_id"])
+        self._create_table(gtfs_path, "stops", {"stop_id": "TEXT PRIMARY KEY",
+                                                "stop_code": "TEXT",
+                                                "stop_name": "TEXT",
+                                                "stop_desc": "TEXT",
+                                                "stop_lat": "TEXT",
+                                                "stop_lon": "TEXT",
+                                                "zone_id": "TEXT",
+                                                "stop_url": "TEXT",
+                                                "location_type": "INTEGER",
+                                                "parent_station": "TEXT"},
+                           [])
+        self._create_table(gtfs_path, "routes", {"route_id": "TEXT PRIMARY KEY",
+                                                 "agency_id": "TEXT",
+                                                 "route_short_name": "TEXT",
+                                                 "route_long_name": "TEXT",
+                                                 "route_desc": "TEXT",
+                                                 "route_type": "INTEGER",
+                                                 "route_url": "TEXT",
+                                                 "route_color": "TEXT",
+                                                 "route_text_color": "TEXT"}, [])
+        self._create_table(gtfs_path, "stop_times", {"trip_id": "TEXT",
+                                                     "arrival_time": "TEXT",
+                                                     "departure_time": "TEXT",
+                                                     "stop_id": "TEXT",
+                                                     "stop_sequence": "INTEGER",
+                                                     "stop_headsign": "TEXT",
+                                                     "pickup_type": "INTEGER",
+                                                     "drop_off_type": "INTEGER"}, ["stop_id", "trip_id"])
+        self._create_table(gtfs_path, "shapes", {"shape_id": "TEXT",
+                                                 "shape_pt_lat": "TEXT",
+                                                 "shape_pt_lon": "TEXT",
+                                                 "shape_pt_sequence": "INTEGER",
+                                                 "shape_dist_traveled": "TEXT"}, ["shape_id"])
 
-        stop_times_path = os.path.join(gtfs_path, "stop_times.txt")
-        stop_times_tup = self.read_rows(stop_times_path)
-        self.stop_times_header, self.stop_times = stop_times_tup
-
-        shapes_path = os.path.join(gtfs_path, "shapes.txt")
-        shapes_tup = self.read_rows(shapes_path)
-        self.shapes_header, self.shapes = shapes_tup
+        self._import_table(gtfs_path, "trips")
+        self._import_table(gtfs_path, "stops")
+        self._import_table(gtfs_path, "routes")
+        self._import_table(gtfs_path, "stop_times")
+        self._import_table(gtfs_path, "shapes")
 
         calendar_path = os.path.join(gtfs_path, "calendar.txt")
         self.last_date = None
@@ -32,19 +69,31 @@ class GtfsMap:
                 if self.last_date is None or self.last_date < date:
                     self.last_date = date
         
-
-
-    def make_index_map(self, array):
-        ret = {}
-        for i, item in enumerate(array):
-            ret[item] = i
-        return ret
-
-
-    def read_rows(self, path):
+    def _import_table(self, gtfs_path, table):
+        path = os.path.join(gtfs_path, table + ".txt")
         with open(path) as f:
             reader = csv.reader(f)
+            header = next(reader)
+            
+            joined_keys = ",".join(("'%s'" % item) for item in header)
+            joined_values = ",".join("?" for item in header)
+            
+            query = "INSERT INTO %s (%s) VALUES (%s)" % (table, joined_keys, joined_values)
+            self._db.executemany(query, reader)
 
-            header = self.make_index_map(next(reader))
-            return header, [row for row in reader]
-        
+    def _create_table(self, gtfs_path, table, types, indexes):
+        path = os.path.join(gtfs_path, table + ".txt")
+        with open(path) as f:
+            reader = csv.reader(f)
+            columns = next(reader)
+            
+            for column in columns:
+                if column not in types:
+                    raise Exception("Type for column not found: %s" % column)
+            joined_columns = ",".join(["%s %s" % (column, types[column]) for column in columns])
+            self._db.execute("CREATE TABLE %s (%s)" % (table, joined_columns))
+    def find_routes_by_name(self, name):
+        return self._db.execute("SELECT * FROM routes WHERE route_long_name = ? OR route_short_name = ?", (name, name))
+
+    def find_shapes_by_route(self, route):
+        return self._db.execute("SELECT shapes.* FROM shapes ")
