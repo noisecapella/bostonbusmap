@@ -41,7 +41,7 @@ def main():
     if not os.path.isdir(args.gtfs_path):
         raise Exception("%s is not a directory" % args.gtfs_path)
 
-    print "Reading GTFS into memory..."
+    print "Reading GTFS into temporary database (this may take a few minutes)..."
     gtfs_map = GtfsMap(args.gtfs_path)
 
     if gtfs_map.last_date < datetime.now():

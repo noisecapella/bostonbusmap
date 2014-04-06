@@ -4,13 +4,18 @@ from datetime import datetime
 import sqlite3
 
 class GtfsMap:
-    def __init__(self, gtfs_path):
-        try:
-            os.unlink("./temp_gtfs.db")
-        except:
-            pass
+    def __init__(self, gtfs_path, reinitialize=True):
         self._db = sqlite3.connect("./temp_gtfs.db")
         self._db.row_factory = sqlite3.Row
+
+        if not reinitialize:
+            return
+
+        self._db.execute("DROP TABLE IF EXISTS trips")
+        self._db.execute("DROP TABLE IF EXISTS stops")
+        self._db.execute("DROP TABLE IF EXISTS routes")
+        self._db.execute("DROP TABLE IF EXISTS stop_times")
+        self._db.execute("DROP TABLE IF EXISTS shapes")
         
         self._create_table(gtfs_path, "trips", {"route_id" : "TEXT",
                                                 "service_id" : "TEXT",
@@ -98,8 +103,8 @@ class GtfsMap:
     def find_shapes_by_route(self, route):
         return self._db.execute("SELECT shapes.* FROM shapes JOIN trips ON shapes.shape_id = trips.shape_id WHERE route_id = ?", (route,))
 
-    def find_routes_by_agencyid(self, agency_id):
-        return self._db.execute("SELECT routes.* FROM routes WHERE agency_id = ?", (agency_id,))
+    def find_routes_by_route_type(self, route_type):
+        return self._db.execute("SELECT routes.* FROM routes WHERE route_type = ?", (route_type,))
 
     def find_stops_by_route(self, route):
         return self._db.execute("SELECT stops.* FROM stops JOIN stop_times ON stop_times.stop_id = stops.stop_id JOIN trips ON stop_times.trip_id = trips.trip_id WHERE route_id = ?", (route,))

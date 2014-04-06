@@ -28,7 +28,7 @@ class MbtaCommuterRail:
 
         stops_inserted = set()
 
-        route_rows = gtfs_map.find_routes_by_agencyid(schema.CommuterRailAgencyId)
+        route_rows = gtfs_map.find_routes_by_route_type(schema.CommuterRailAgencyId)
 
         for route_row in route_rows:
             route_id = route_row["route_id"]
