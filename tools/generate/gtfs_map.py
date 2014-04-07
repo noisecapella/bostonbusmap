@@ -8,6 +8,15 @@ class GtfsMap:
         self._db = sqlite3.connect("./temp_gtfs.db")
         self._db.row_factory = sqlite3.Row
 
+
+        calendar_path = os.path.join(gtfs_path, "calendar.txt")
+        self.last_date = None
+        with open(calendar_path) as f:
+            for row in csv.DictReader(f):
+                date = datetime.strptime(row["end_date"], '%Y%m%d')
+                if self.last_date is None or self.last_date < date:
+                    self.last_date = date
+
         if not reinitialize:
             return
 
@@ -65,14 +74,6 @@ class GtfsMap:
         self._import_table(gtfs_path, "routes")
         self._import_table(gtfs_path, "stop_times")
         self._import_table(gtfs_path, "shapes")
-
-        calendar_path = os.path.join(gtfs_path, "calendar.txt")
-        self.last_date = None
-        with open(calendar_path) as f:
-            for row in csv.DictReader(f):
-                date = datetime.strptime(row["end_date"], '%Y%m%d')
-                if self.last_date is None or self.last_date < date:
-                    self.last_date = date
         
     def _import_table(self, gtfs_path, table):
         path = os.path.join(gtfs_path, table + ".txt")
@@ -97,20 +98,30 @@ class GtfsMap:
                     raise Exception("Type for column not found: %s" % column)
             joined_columns = ",".join(["%s %s" % (column, types[column]) for column in columns])
             self._db.execute("CREATE TABLE %s (%s)" % (table, joined_columns))
+
+        for index in indexes:
+            self._create_index(table, index)
+
+    def _create_index(self, table, column):
+        self._db.execute("CREATE INDEX idx_%s_%s ON %s (%s)" % (table, column, table, column))
     def find_routes_by_name(self, name):
         return self._db.execute("SELECT * FROM routes WHERE route_long_name = ? OR route_short_name = ?", (name, name))
 
     def find_shapes_by_route(self, route):
-        return self._db.execute("SELECT shapes.* FROM shapes JOIN trips ON shapes.shape_id = trips.shape_id WHERE route_id = ?", (route,))
+        return self._db.execute("SELECT DISTINCT shapes.* FROM shapes JOIN trips ON shapes.shape_id = trips.shape_id WHERE route_id = ?", (route,))
 
     def find_routes_by_route_type(self, route_type):
         return self._db.execute("SELECT routes.* FROM routes WHERE route_type = ?", (route_type,))
 
     def find_stops_by_route(self, route):
-        return self._db.execute("SELECT stops.* FROM stops JOIN stop_times ON stop_times.stop_id = stops.stop_id JOIN trips ON stop_times.trip_id = trips.trip_id WHERE route_id = ?", (route,))
+        stops = self._db.execute("SELECT DISTINCT stops.* FROM stops JOIN stop_times ON stop_times.stop_id = stops.stop_id JOIN trips ON stop_times.trip_id = trips.trip_id WHERE route_id = ?", (route,))
+        return stops
 
     def find_trips_by_route(self, route):
         return self._db.execute("SELECT trips.* FROM trips WHERE route_id = ?", (route,))
+
+    def find_stops_by_route_ids(self):
+        pass
 
     def __del__(self):
         self._db.commit()
