@@ -1,13 +1,10 @@
-from twisted.internet.defer import inlineCallbacks, returnValue
-from twisted.web.client import getPage
-from twisted.internet import reactor
-
 import xml.sax
 
 import time
 
 import xml.dom.minidom
 import schema
+import requests
 
 class RouteHandler(xml.sax.handler.ContentHandler):
     def __init__(self, cur, startingOrder, sharedStops):
@@ -103,10 +100,9 @@ class NextBus:
                                command = 'routeConfig',
                                other=('&r=%s&verbose' % route_name))
 
-    @inlineCallbacks
     def generate(self, conn, index):
         print "Downloading NextBus route data (this will take 10 or 20 minutes)..."
-        routeList_data = yield getPage(self.routeListUrl())
+        routeList_data = requests.get(self.routeListUrl()).text
         routeList_dom = xml.dom.minidom.parseString(routeList_data)
 
         routes = []
@@ -121,10 +117,10 @@ class NextBus:
             
             print "Route %s..." % route_title
             try:
-                routeConfig_data = yield getPage(self.routeConfigUrl(route_name))
+                routeConfig_data = requests.get(self.routeConfigUrl(route_name)).text
             except Exception:
                 # try one more time
-                routeConfig_data = yield getPage(self.routeConfigUrl(route_name))
+                routeConfig_data = requests.get(self.routeConfigUrl(route_name)).text
 
             handler = RouteHandler(cur, index + count, shared_stops)
             xml.sax.parseString(routeConfig_data, handler)
@@ -137,5 +133,4 @@ class NextBus:
         conn.commit()
         conn.close()
 
-        yield len(routes)
-        returnValue(len(routes))
+        return len(routes)
