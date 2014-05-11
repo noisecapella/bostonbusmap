@@ -30,10 +30,10 @@ public class RefreshAsyncTask extends UpdateAsyncTask
 {
 	public RefreshAsyncTask(UpdateArguments arguments,
 			boolean doShowUnpredictable, int maxOverlays,
-			boolean drawCircle, boolean allRoutesBlue, boolean doInit,
+			boolean drawCircle, boolean allRoutesBlue,
 			Selection selection, UpdateHandler handler) {
 		super(arguments, doShowUnpredictable, maxOverlays, drawCircle, allRoutesBlue,
-				doInit, selection, handler, null);
+				selection, handler, null);
 	}
 
 	@Override
