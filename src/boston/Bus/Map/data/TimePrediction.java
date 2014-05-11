@@ -63,7 +63,7 @@ public class TimePrediction implements IPrediction
 		this.stopId = stopId;
 	}
 
-	public void makeSnippet(Context context, StringBuilder builder, boolean isMoreInfo) {
+	public void makeSnippet(Context context, StringBuilder builder, boolean showRunNumber) {
 		int minutes = getMinutes();
 		if (minutes < 0)
 		{
@@ -76,7 +76,7 @@ public class TimePrediction implements IPrediction
 			builder.append(", Vehicle <b>").append(vehicleId).append("</b>");
 		}
 
-		if (!StringUtil.isEmpty(block) && isMoreInfo) {
+		if (!StringUtil.isEmpty(block) && showRunNumber) {
 			builder.append("<br />Run number <b>").append(block).append("</b>");
 		}
 
@@ -123,15 +123,13 @@ public class TimePrediction implements IPrediction
 	{
         if (anotherObj instanceof TimePrediction) {
             TimePrediction another = (TimePrediction)anotherObj;
-		    return ComparisonChain.start().compare(arrivalTimeMillis, another.arrivalTimeMillis)
-				.compare(vehicleId, another.vehicleId)
-				.compare(direction, another.direction)
-				.compare(routeName, another.routeName)
-				.compareFalseFirst(affectedByLayover, another.affectedByLayover)
-				.compareFalseFirst(isDelayed, another.isDelayed)
-				.compare(lateness, another.lateness)
-				.compare(block, another.block)
-				.compare(stopId, another.stopId)
+
+		    ComparisonChain comparisonChain = ComparisonChain.start().compare(arrivalTimeMillis, another.arrivalTimeMillis)
+				.compare(direction, another.direction);
+            if (routeName != null) {
+                comparisonChain.compare(routeName, another.routeName);
+            }
+            return comparisonChain
 				.result();
         }
         else
@@ -240,7 +238,7 @@ public class TimePrediction implements IPrediction
 	 */
 	public ImmutableMap<String, Spanned> makeSnippetMap(Context context) {
 		StringBuilder ret = new StringBuilder();
-		makeSnippet(context, ret, true);
+		makeSnippet(context, ret, TransitSystem.showRunNumber());
 		
 		ImmutableMap<String, Spanned> map = ImmutableMap.of(MoreInfo.textKey, Html.fromHtml(ret.toString()));
 		

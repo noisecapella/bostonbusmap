@@ -57,6 +57,8 @@ public class TransitSystem implements ITransitSystem {
 
 	public static String ALERTS_URL = null;
 
+	private static final boolean showRunNumber = false;
+
 	private RouteTitles routeTitles;
 	
 	/**
@@ -262,6 +264,10 @@ public class TransitSystem implements ITransitSystem {
 
 	public static boolean isDefaultAllRoutesBlue() {
 		return defaultAllRoutesBlue;
+	}
+
+	public static boolean showRunNumber() {
+		return showRunNumber;
 	}
 
 	public static boolean hasReportProblem() {

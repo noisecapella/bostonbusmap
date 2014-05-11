@@ -1,20 +1,17 @@
-from twisted.internet.defer import inlineCallbacks, returnValue
-from twisted.web.client import getPage
-from twisted.internet import reactor
 import schema
 import sqlite3
 import xml.dom.minidom
+import requests
 
 default_color = 0x6bc533
 
 class Hubway:
-    @inlineCallbacks
     def generate(self, conn, start_index):
         url = "http://www.thehubway.com/data/stations/bikeStations.xml"
 
         obj = schema.getSchemaAsObject()
 
-        data = yield getPage(url)
+        data = requests.get(url).text
         root = xml.dom.minidom.parseString(data)
 
         cur = conn.cursor()
@@ -44,7 +41,6 @@ class Hubway:
         conn.commit()
 
         cur.close()
-        returnValue(1)
-        
+        return 1
         
 

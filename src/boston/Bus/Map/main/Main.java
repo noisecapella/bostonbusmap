@@ -37,7 +37,6 @@ import org.apache.http.impl.conn.tsccm.RouteSpecificPool;
 import org.xml.sax.SAXException;
 
 import com.schneeloch.latransit.R;
-import boston.Bus.Map.algorithms.GetDirections;
 import boston.Bus.Map.data.Direction;
 import boston.Bus.Map.data.Locations;
 
@@ -918,9 +917,7 @@ public class Main extends MapActivity
     	handler.setAllRoutesBlue(allRoutesBlue);
     	arguments.getOverlayGroup().getRouteOverlay().setDrawLine(prefs.getBoolean(getString(R.string.showRouteLineCheckbox), false));
     	boolean showCoarseRouteLineCheckboxValue = prefs.getBoolean(getString(R.string.showCoarseRouteLineCheckbox), true); 
-    	//handler.setInitAllRouteInfo(prefs.getBoolean(getString(R.string.initAllRouteInfoCheckbox2), true));
-    	handler.setInitAllRouteInfo(true);
-    	
+
     	boolean alwaysUpdateLocationValue = prefs.getBoolean(getString(R.string.alwaysShowLocationCheckbox), true);
     	
     	String intervalString = Integer.valueOf(updateInterval).toString();
@@ -1175,81 +1172,5 @@ public class Main extends MapActivity
 		GeoPoint geoPoint = new GeoPoint(latE6, lonE6);
 		controller.setCenter(geoPoint);
 		controller.scrollBy(0, -100);
-	}
-
-	@Override
-	protected void onActivityResult(final int requestCode, final int resultCode, Intent data) {
-		if (requestCode == GetDirectionsDialog.GETDIRECTIONS_REQUEST_CODE) {
-			
-			final String startTag = data != null ? data.getStringExtra(GetDirectionsDialog.START_TAG_KEY) : null;
-			final String stopTag = data != null ? data.getStringExtra(GetDirectionsDialog.STOP_TAG_KEY) : null;
-			final String startDisplay = data != null ? data.getStringExtra(GetDirectionsDialog.START_DISPLAY_KEY) : null;
-			final String stopDisplay = data != null ? data.getStringExtra(GetDirectionsDialog.STOP_DISPLAY_KEY) : null;
-			
-			switch (resultCode) {
-			case GetDirectionsDialog.EVERYTHING_OK:
-			{
-				if (startTag == null) {
-					Toast.makeText(this, "Starting location is not set", Toast.LENGTH_LONG).show();
-					break;
-				}
-				if (stopTag == null) {
-					Toast.makeText(this, "Ending location is not set", Toast.LENGTH_LONG).show();
-					break;
-				}
-				
-				LocationManager locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-				Location location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
-				
-				arguments.getBusLocations().startGetDirectionsTask(arguments, startTag, stopTag,
-						location != null ? location.getLatitude() : 0,
-								location != null ? location.getLongitude() : 0);
-				break;
-			}
-			case GetDirectionsDialog.NEEDS_INPUT_FROM:
-			case GetDirectionsDialog.NEEDS_INPUT_TO:
-				setMode(Selection.Mode.BUS_PREDICTIONS_ALL, true, true);
-				arguments.getOverlayGroup().getBusOverlay().captureNextTap(new BusOverlay.OnClickListener() {
-					@Override
-					public boolean onClick(GeoPoint point) {
-						return false;
-					}
-
-					@Override
-					public boolean onClick(boston.Bus.Map.data.Location location) {
-						if (location instanceof StopLocation) {
-							StopLocation stopLocation = (StopLocation)location;
-							if (resultCode == GetDirectionsDialog.NEEDS_INPUT_FROM) {
-								String newStartTag = stopLocation.getStopTag();
-								Intent intent = new Intent(Main.this, GetDirectionsDialog.class);
-								intent.putExtra(GetDirectionsDialog.START_TAG_KEY, newStartTag);
-								intent.putExtra(GetDirectionsDialog.STOP_TAG_KEY, stopTag);
-								intent.putExtra(GetDirectionsDialog.START_DISPLAY_KEY, stopLocation.getTitle());
-								intent.putExtra(GetDirectionsDialog.STOP_DISPLAY_KEY, stopDisplay);
-								startActivityForResult(intent, GetDirectionsDialog.GETDIRECTIONS_REQUEST_CODE);
-							}
-							else
-							{
-								String newStopTag = stopLocation.getStopTag();
-								Intent intent = new Intent(Main.this, GetDirectionsDialog.class);
-								intent.putExtra(GetDirectionsDialog.START_TAG_KEY, startTag);
-								intent.putExtra(GetDirectionsDialog.STOP_TAG_KEY, newStopTag);
-								intent.putExtra(GetDirectionsDialog.START_DISPLAY_KEY, startDisplay);
-								intent.putExtra(GetDirectionsDialog.STOP_DISPLAY_KEY, stopLocation.getTitle());
-								startActivityForResult(intent, GetDirectionsDialog.GETDIRECTIONS_REQUEST_CODE);
-							}
-						}
-						else
-						{
-							Log.e("BostonBusMap", "weird... that should have selected a stop, not a vehicle");
-						}
-						return true;
-					}
-				});
-				Toast.makeText(this, "Click on the stop you wish to select", Toast.LENGTH_LONG).show();
-				break;
-			}
-			
-		}
 	}
 }
