@@ -1,9 +1,6 @@
 import schema
 import inspect
 import sqlite3
-from twisted.internet.defer import inlineCallbacks, returnValue
-from twisted.web.client import getPage
-from twisted.internet import reactor
 
 def create_tables(conn):
     ret = ""
@@ -16,9 +13,3 @@ def create_tables(conn):
             for index in table.index():
                 conn.execute(index)
 
-"""
--			db.execSQL("CREATE INDEX IF NOT EXISTS " + stopsRoutesMapIndexRoute + " ON " + Schema.Stopmapping.table + " (" + Schema.Stopmapping.routeColumn + ")");
--			db.execSQL("CREATE INDEX IF NOT EXISTS " + stopsRoutesMapIndexTag + " ON " + Schema.Stopmapping.table + " (" + Schema.Stopmapping.tagColumn + ")");
--			db.execSQL("CREATE INDEX IF NOT EXISTS " + directionsStopsMapIndexStop + " ON " + Schema.DirectionsStops.table + " (" + Schema.DirectionsStops.tagColumn + ")");
--			db.execSQL("CREATE INDEX IF NOT EXISTS " + directionsStopsMapIndexDirTag + " ON " + Schema.DirectionsStops.table + " (" + Schema.DirectionsStops.dirTagColumn + ")");
-"""
