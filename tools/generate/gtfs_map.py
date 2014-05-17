@@ -95,8 +95,11 @@ class GtfsMap:
             
             for column in columns:
                 if column not in types:
-                    raise Exception("Type for column not found: %s" % column)
-            joined_columns = ",".join(["%s %s" % (column, types[column]) for column in columns])
+                    print ("Type for column not found: %s" % column)
+                    type = "TEXT"
+                else:
+                    type = types[column]
+            joined_columns = ",".join(["%s %s" % (column, type) for column in columns])
             self._db.execute("CREATE TABLE %s (%s)" % (table, joined_columns))
 
         for index in indexes:
