@@ -721,8 +721,9 @@ public class Main extends MapActivity
 			for (int i = 0; i < stops.length; i++)
 			{
 				StopLocation stop = stops[i];
-				String routes = stop.getFirstRoute();
-				String title = stop.getTitle() + " (route " + routes + ")";
+				String routeTag = stop.getFirstRoute();
+				String routeTitle = arguments.getBusLocations().getRouteTitle(routeTag);
+				String title = stop.getTitle() + " (route " + routeTitle + ")";
 				titles[i] = title;
 			}
 			

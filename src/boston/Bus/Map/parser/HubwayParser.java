@@ -31,7 +31,7 @@ public class HubwayParser extends DefaultHandler {
 
 	private static final String idKey = "id";
 	private static final String numberBikesKey = "nbBikes";
-	private static final String numberEmptyDocksKey = "nbBikes";
+	private static final String numberEmptyDocksKey = "nbEmptyDocks";
 	private static final String lockedKey = "locked";
 	private static final String installedKey = "installed";
 	private static final String nameKey = "name";
@@ -128,7 +128,7 @@ public class HubwayParser extends DefaultHandler {
 		StringBuilder ret = new StringBuilder();
 
 		ret.append("Bikes: ").append(numberBikes).append("<br />");
-		ret.append("Docks: ").append(numberEmptyDocks).append("<br />");
+		ret.append("Empty Docks: ").append(numberEmptyDocks).append("<br />");
 		if (locked) {
 			ret.append("<b>Locked</b><br />");
 		}
