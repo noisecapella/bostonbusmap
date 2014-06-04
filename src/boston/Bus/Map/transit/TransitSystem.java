@@ -55,7 +55,7 @@ public class TransitSystem implements ITransitSystem {
 	private static final String[] emails = new String[]{"bostonbusmap@gmail.com"};
 	private static final String emailSubject = "Toronto Transit error report";
 
-	private static final boolean showRunNumber = false;
+	private static final boolean showRunNumber = true;
 
 	private RouteTitles routeTitles;
 	
