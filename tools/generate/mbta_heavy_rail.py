@@ -21,7 +21,7 @@ class MbtaHeavyRail:
         route_rows = gtfs_map.find_routes_by_name(supported_route_description)
         route_ids = set([route_row["route_id"] for route_row in route_rows])
 
-        shape_rows = set(itertools.chain.from_iterable((gtfs_map.find_shapes_by_route(item) for item in route_ids)))
+        shape_rows = itertools.chain.from_iterable((gtfs_map.find_shapes_by_route(item) for item in route_ids))
 
         # this stores a list of list of lat, lon pairs
         paths = []
@@ -30,7 +30,7 @@ class MbtaHeavyRail:
             path = [(float(row["shape_pt_lat"]), float(row["shape_pt_lon"])) for row in group_rows]
             paths.append(path)
 
-        stop_rows = set(itertools.chain.from_iterable(gtfs_map.find_stops_by_route(route) for route in route_ids))
+        stop_rows = itertools.chain.from_iterable(gtfs_map.find_stops_by_route(route) for route in route_ids)
 
 
         pathblob = schema.Box(paths).get_blob_string()
