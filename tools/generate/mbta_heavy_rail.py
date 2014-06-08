@@ -32,7 +32,7 @@ class MbtaHeavyRail:
 
         stop_rows = set(itertools.chain.from_iterable(gtfs_map.find_stops_by_route(route) for route in route_ids))
 
-    
+
         pathblob = schema.Box(paths).get_blob_string()
     
         # insert route information
