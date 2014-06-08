@@ -15,7 +15,7 @@ def main():
 
     gtfs_map = GtfsMap(args.gtfs_path, skip_stop_times=True)
     route_ids = [args.route]
-    shape_rows = set(itertools.chain.from_iterable((gtfs_map.find_shapes_by_route(item) for item in route_ids)))
+    shape_rows = itertools.chain.from_iterable((gtfs_map.find_shapes_by_route(item) for item in route_ids))
 
     # this stores a list of list of lat, lon pairs
     paths = []

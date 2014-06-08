@@ -109,20 +109,19 @@ class GtfsMap:
     def _create_index(self, table, column):
         self._db.execute("CREATE INDEX idx_%s_%s ON %s (%s)" % (table, column, table, column))
     def find_routes_by_name(self, name):
-        return self._db.execute("SELECT * FROM routes WHERE route_long_name = ? OR route_short_name = ?", (name, name))
+        return (dict(row) for row in self._db.execute("SELECT * FROM routes WHERE route_long_name = ? OR route_short_name = ?", (name, name)))
 
     def find_shapes_by_route(self, route):
-        return self._db.execute("SELECT DISTINCT shapes.* FROM shapes JOIN trips ON shapes.shape_id = trips.shape_id WHERE route_id = ?", (route,))
+        return (dict(row) for row in self._db.execute("SELECT DISTINCT shapes.* FROM shapes JOIN trips ON shapes.shape_id = trips.shape_id WHERE route_id = ?", (route,)))
 
     def find_routes_by_route_type(self, route_type):
-        return self._db.execute("SELECT routes.* FROM routes WHERE route_type = ?", (route_type,))
+        return (dict(row) for row in self._db.execute("SELECT routes.* FROM routes WHERE route_type = ?", (route_type,)))
 
     def find_stops_by_route(self, route):
-        stops = self._db.execute("SELECT DISTINCT stops.* FROM stops JOIN stop_times ON stop_times.stop_id = stops.stop_id JOIN trips ON stop_times.trip_id = trips.trip_id WHERE route_id = ?", (route,))
-        return stops
+        return (dict(row) for row in self._db.execute("SELECT DISTINCT stops.* FROM stops JOIN stop_times ON stop_times.stop_id = stops.stop_id JOIN trips ON stop_times.trip_id = trips.trip_id WHERE route_id = ?", (route,)))
 
     def find_trips_by_route(self, route):
-        return self._db.execute("SELECT trips.* FROM trips WHERE route_id = ?", (route,))
+        return (dict(row) for row in self._db.execute("SELECT trips.* FROM trips WHERE route_id = ?", (route,)))
 
     def find_stops_by_route_ids(self):
         pass
