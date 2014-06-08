@@ -4,7 +4,7 @@ from datetime import datetime
 import sqlite3
 
 class GtfsMap:
-    def __init__(self, gtfs_path, reinitialize=True):
+    def __init__(self, gtfs_path, reinitialize=True, skip_stop_times=False):
         self._db = sqlite3.connect("./temp_gtfs.db")
         self._db.row_factory = sqlite3.Row
 
@@ -72,7 +72,8 @@ class GtfsMap:
         self._import_table(gtfs_path, "trips")
         self._import_table(gtfs_path, "stops")
         self._import_table(gtfs_path, "routes")
-        self._import_table(gtfs_path, "stop_times")
+        if not skip_stop_times:
+            self._import_table(gtfs_path, "stop_times")
         self._import_table(gtfs_path, "shapes")
         
     def _import_table(self, gtfs_path, table):
