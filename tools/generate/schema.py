@@ -22,9 +22,10 @@ def rawhex(b):
         return s
 
 class Box:
-    def __init__(self, paths):
+    def __init__(self, paths=None):
         self.bytes = "" # this is hex
-        self.add_paths(paths)
+        if paths is not None:
+            self.add_paths(paths)
 
     def add_paths(self, paths):
         self.add_int(len(paths))
@@ -46,6 +47,37 @@ class Box:
     def get_blob_string(self):
         return "X'" + self.bytes + "'"
 
+    def from_hex_string(self, hex_string):
+        b = bytes.fromhex(hex_string)
+        return self.from_bytes(b)
+
+    def from_bytes(self, b):
+        counter = 0
+        def unpack_int():
+            nonlocal counter
+            ret = struct.unpack('>i', b[counter:counter+4])[0]
+            counter += 4
+            return ret
+        def unpack_float():
+            nonlocal counter
+            ret = struct.unpack('>f', b[counter:counter+4])[0]
+            counter += 4
+            return ret
+
+        length = unpack_int()
+
+        paths = []
+        for i in range(length):
+            path_length = int(unpack_int() / 2)
+            path = []
+            for j in range(path_length):
+                float1 = unpack_float()
+                float2 = unpack_float()
+                path.append((float1, float2))
+            paths.append(path)
+        if counter != len(b):
+            raise Exception("counter was %d but length was %d" % (counter, len(b)))
+        return paths
 def getIntFromBool(boolString):
     if str(boolString).lower() == "true":
         return 1
