@@ -58,6 +58,7 @@
 
 
 -keep public class * extends com.google.protobuf.GeneratedMessage
+-keep public class com.google.transit.realtime.GtfsRealtime
 -dontobfuscate
 -dontwarn
 -dontwarn javax.naming.**
