@@ -46,16 +46,21 @@ class MbtaHeavyRail:
         obj.routes.pathblob.value = pathblob
         cur.execute(obj.routes.insert())
 
+        stop_ids = set()
         for stop_row in stop_rows:
-            obj.stops.tag.value = stop_row["stop_id"]
-            obj.stops.title.value = stop_row["stop_name"]
-            obj.stops.lat.value = float(stop_row["stop_lat"])
-            obj.stops.lon.value = float(stop_row["stop_lon"])
-            cur.execute(obj.stops.insert())
+            stop_id = stop_row["stop_id"]
+            if stop_id not in stop_ids:
+                obj.stops.tag.value = stop_row["stop_id"]
+                obj.stops.title.value = stop_row["stop_name"]
+                obj.stops.lat.value = float(stop_row["stop_lat"])
+                obj.stops.lon.value = float(stop_row["stop_lon"])
+                cur.execute(obj.stops.insert())
 
-            obj.stopmapping.route.value = route
-            obj.stopmapping.tag.value = stop_row["stop_id"]
-            cur.execute(obj.stopmapping.insert())
+                obj.stopmapping.route.value = route
+                obj.stopmapping.tag.value = stop_row["stop_id"]
+                cur.execute(obj.stopmapping.insert())
+
+                stop_ids.add(stop_id)
 
         return (1)
 
