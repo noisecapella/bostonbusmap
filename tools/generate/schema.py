@@ -54,12 +54,12 @@ class Box:
     def from_bytes(self, b):
         counter = 0
         def unpack_int():
-            nonlocal counter
+            global counter
             ret = struct.unpack('>i', b[counter:counter+4])[0]
             counter += 4
             return ret
         def unpack_float():
-            nonlocal counter
+            global counter
             ret = struct.unpack('>f', b[counter:counter+4])[0]
             counter += 4
             return ret
