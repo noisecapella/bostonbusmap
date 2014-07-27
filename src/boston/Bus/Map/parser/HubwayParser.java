@@ -12,6 +12,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.util.HashMap;
 import java.util.List;
 
 import javax.xml.parsers.ParserConfigurationException;
@@ -43,6 +44,8 @@ public class HubwayParser extends DefaultHandler {
 	private boolean locked;
 	private boolean installed;
 	private String name;
+
+    private final HashMap<String, StopLocation> lookup = new HashMap<String, StopLocation>();
 
 	private final StringBuilder chars = new StringBuilder();
 
@@ -110,16 +113,19 @@ public class HubwayParser extends DefaultHandler {
 		}
 		else if (stationKey.equals(localName)) {
 			String text = makeText();
+            String tag = HubwayTransitSource.stopTagPrefix + id;
 			SimplePrediction prediction = new SimplePrediction(routeConfig.getRouteName(),
 					routeConfig.getRouteTitle(), text);
-			StopLocation stop = routeConfig.getStop(HubwayTransitSource.stopTagPrefix + id);
+			StopLocation stop = routeConfig.getStop(tag);
 			if (stop != null && name.equals(stop.getTitle())) {
 				PredictionStopLocationPair pair = new PredictionStopLocationPair(prediction, stop);
 				pairs.add(pair);
 			}
 			else
 			{
-				LogUtil.e(new RuntimeException("Found Hubway stop not in database: " + name + ", id: " + id));
+				StopLocation.Builder builder = new StopLocation.Builder(lat, lon, tag, name);
+                StopLocation newStop = builder.build();
+
 			}
 		}
 	}
