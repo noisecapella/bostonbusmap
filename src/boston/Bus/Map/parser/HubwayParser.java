@@ -17,6 +17,7 @@ import java.util.List;
 
 import javax.xml.parsers.ParserConfigurationException;
 
+import boston.Bus.Map.data.HubwayStopLocation;
 import boston.Bus.Map.data.PredictionStopLocationPair;
 import boston.Bus.Map.data.RouteConfig;
 import boston.Bus.Map.data.SimplePrediction;
@@ -37,12 +38,16 @@ public class HubwayParser extends DefaultHandler {
 	private static final String installedKey = "installed";
 	private static final String nameKey = "name";
 	private static final String stationKey = "station";
+    private static final String longitudeKey = "long";
+    private static final String latitudeKey = "lat";
 
 	private String id;
 	private String numberBikes;
 	private String numberEmptyDocks;
 	private boolean locked;
 	private boolean installed;
+    private float latitude;
+    private float longitude;
 	private String name;
 
     private final HashMap<String, StopLocation> lookup = new HashMap<String, StopLocation>();
@@ -75,6 +80,8 @@ public class HubwayParser extends DefaultHandler {
 			locked = true;
 			installed = false;
 			name = null;
+            latitude = 0;
+            longitude = 0;
 		}
 
 		chars.setLength(0);
@@ -111,11 +118,18 @@ public class HubwayParser extends DefaultHandler {
 		else if (installedKey.equals(localName)) {
 			installed = Boolean.parseBoolean(string);
 		}
+        else if (longitudeKey.equals(localName)) {
+            longitude = Float.parseFloat(string);
+        }
+        else if (latitudeKey.equals(localName)) {
+            latitude = Float.parseFloat(string);
+        }
 		else if (stationKey.equals(localName)) {
 			String text = makeText();
             String tag = HubwayTransitSource.stopTagPrefix + id;
 			SimplePrediction prediction = new SimplePrediction(routeConfig.getRouteName(),
 					routeConfig.getRouteTitle(), text);
+            String tag = HubwayTransitSource.stopTagPrefix + id;
 			StopLocation stop = routeConfig.getStop(tag);
 			if (stop != null && name.equals(stop.getTitle())) {
 				PredictionStopLocationPair pair = new PredictionStopLocationPair(prediction, stop);
@@ -123,9 +137,12 @@ public class HubwayParser extends DefaultHandler {
 			}
 			else
 			{
-				StopLocation.Builder builder = new StopLocation.Builder(lat, lon, tag, name);
-                StopLocation newStop = builder.build();
+				HubwayStopLocation.Builder builder = new HubwayStopLocation.Builder(latitude, longitude, tag, name);
 
+                HubwayStopLocation newStop = (HubwayStopLocation)builder.build();
+
+                PredictionStopLocationPair pair = new PredictionStopLocationPair(prediction, newStop);
+                pairs.add(pair);
 			}
 		}
 	}
