@@ -126,7 +126,6 @@ public class HubwayParser extends DefaultHandler {
         }
 		else if (stationKey.equals(localName)) {
 			String text = makeText();
-            String tag = HubwayTransitSource.stopTagPrefix + id;
 			SimplePrediction prediction = new SimplePrediction(routeConfig.getRouteName(),
 					routeConfig.getRouteTitle(), text);
             String tag = HubwayTransitSource.stopTagPrefix + id;
