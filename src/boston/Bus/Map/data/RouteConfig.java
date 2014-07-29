@@ -164,6 +164,9 @@ public class RouteConfig
 		return stopFacade.getStops().values();
 	}
 
+    public void replaceStops(ImmutableMap<String, StopLocation> newStops) {
+        stopFacade.replaceStops(newStops);
+    }
 	
 
 	public String getRouteName() {

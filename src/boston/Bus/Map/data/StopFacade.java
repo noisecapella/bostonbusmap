@@ -6,7 +6,7 @@ import com.google.common.collect.ImmutableMap;
  * Created by schneg on 7/21/14.
  */
 public class StopFacade {
-    private ImmutableMap<String, StopLocation> stops;
+    private volatile ImmutableMap<String, StopLocation> stops;
 
     public StopFacade(ImmutableMap<String, StopLocation> stops) {
         if (stops == null) {
