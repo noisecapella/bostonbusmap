@@ -136,9 +136,9 @@ public class HubwayParser extends DefaultHandler {
 			}
 			else
 			{
-				HubwayStopLocation.Builder builder = new HubwayStopLocation.Builder(latitude, longitude, tag, name);
+				HubwayStopLocation.HubwayBuilder builder = new HubwayStopLocation.HubwayBuilder(latitude, longitude, tag, name);
 
-                HubwayStopLocation newStop = (HubwayStopLocation)builder.build();
+                HubwayStopLocation newStop = builder.build();
 
                 PredictionStopLocationPair pair = new PredictionStopLocationPair(prediction, newStop);
                 pairs.add(pair);
