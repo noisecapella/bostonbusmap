@@ -33,8 +33,7 @@ class GtfsMap:
                                                 "trip_short_name" : "TEXT",
                                                 "direction_id" : "INTEGER",
                                                 "block_id" : "TEXT",
-                                                "shape_id" : "TEXT"},
-                           ["shape_id", "route_id"])
+                                                "shape_id" : "TEXT"})
         self._create_table(gtfs_path, "stops", {"stop_id": "TEXT PRIMARY KEY",
                                                 "stop_code": "TEXT",
                                                 "stop_name": "TEXT",
@@ -44,8 +43,7 @@ class GtfsMap:
                                                 "zone_id": "TEXT",
                                                 "stop_url": "TEXT",
                                                 "location_type": "INTEGER",
-                                                "parent_station": "TEXT"},
-                           [])
+                                                "parent_station": "TEXT"})
         self._create_table(gtfs_path, "routes", {"route_id": "TEXT PRIMARY KEY",
                                                  "agency_id": "TEXT",
                                                  "route_short_name": "TEXT",
@@ -54,7 +52,7 @@ class GtfsMap:
                                                  "route_type": "INTEGER",
                                                  "route_url": "TEXT",
                                                  "route_color": "TEXT",
-                                                 "route_text_color": "TEXT"}, [])
+                                                 "route_text_color": "TEXT"})
         self._create_table(gtfs_path, "stop_times", {"trip_id": "TEXT",
                                                      "arrival_time": "TEXT",
                                                      "departure_time": "TEXT",
@@ -62,19 +60,24 @@ class GtfsMap:
                                                      "stop_sequence": "INTEGER",
                                                      "stop_headsign": "TEXT",
                                                      "pickup_type": "INTEGER",
-                                                     "drop_off_type": "INTEGER"}, ["stop_id", "trip_id"])
+                                                     "drop_off_type": "INTEGER"})
         self._create_table(gtfs_path, "shapes", {"shape_id": "TEXT",
                                                  "shape_pt_lat": "TEXT",
                                                  "shape_pt_lon": "TEXT",
                                                  "shape_pt_sequence": "INTEGER",
-                                                 "shape_dist_traveled": "TEXT"}, ["shape_id"])
+                                                 "shape_dist_traveled": "TEXT"})
 
         self._import_table(gtfs_path, "trips")
+        self._create_index("trips", "shape_id")
+        self._create_index("trips", "route_id")
         self._import_table(gtfs_path, "stops")
         self._import_table(gtfs_path, "routes")
         if not skip_stop_times:
             self._import_table(gtfs_path, "stop_times")
+            self._create_index("stop_times", "stop_id")
+            self._create_index("stop_times", "trip_id")
         self._import_table(gtfs_path, "shapes")
+        self._create_index("shapes", "shape_id")
         
     def _import_table(self, gtfs_path, table):
         path = os.path.join(gtfs_path, table + ".txt")
@@ -103,8 +106,6 @@ class GtfsMap:
             joined_columns = ",".join(["%s %s" % (column, type) for column in columns])
             self._db.execute("CREATE TABLE %s (%s)" % (table, joined_columns))
 
-        for index in indexes:
-            self._create_index(table, index)
 
     def _create_index(self, table, column):
         self._db.execute("CREATE INDEX idx_%s_%s ON %s (%s)" % (table, column, table, column))
