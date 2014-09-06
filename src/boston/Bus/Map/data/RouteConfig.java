@@ -27,7 +27,7 @@ import boston.Bus.Map.util.IBox;
 public class RouteConfig
 {
 
-	private final ImmutableMap<String, StopLocation> stops;
+	private final StopFacade stopFacade;
 	private Path[] paths;
 	private final String route;
 	private final String routeTitle;
@@ -46,7 +46,7 @@ public class RouteConfig
 	private RouteConfig(Builder builder, ImmutableMap<String, StopLocation> stops) throws IOException {
 		this.route = builder.route;
 		this.routeTitle = builder.routeTitle;
-		this.stops = stops;
+		this.stopFacade = new StopFacade(stops);
 		
 		this.color = builder.color;
 		this.oppositeColor = builder.oppositeColor;
@@ -152,18 +152,21 @@ public class RouteConfig
 
 	public StopLocation getStop(String tag)
 	{
-		return stops.get(tag);
+		return stopFacade.getStops().get(tag);
 	}
 
 	public ImmutableMap<String, StopLocation> getStopMapping()
 	{
-		return stops;
+		return stopFacade.getStops();
 	}
 	
 	public Collection<StopLocation> getStops() {
-		return stops.values();
+		return stopFacade.getStops().values();
 	}
 
+    public void replaceStops(ImmutableMap<String, StopLocation> newStops) {
+        stopFacade.replaceStops(newStops);
+    }
 	
 
 	public String getRouteName() {
@@ -232,7 +235,7 @@ public class RouteConfig
 		float minDistance = 9999999;
 		StopLocation candidate = null;
 		for (String stopTag : stopTagsToChooseFrom) {
-			StopLocation stop = stops.get(stopTag);
+			StopLocation stop = stopFacade.getStops().get(stopTag);
 			float distance = Geometry.computeCompareDistanceFloat(stop.getLatitudeAsDegrees(), stop.getLongitudeAsDegrees(), otherStop.getLatitudeAsDegrees(), otherStop.getLongitudeAsDegrees());
 			if (distance < minDistance) {
 				candidate = stop;

@@ -12,7 +12,14 @@ Please email bostonbusmap@gmail.com if you have any problem, and please report a
 - choose a favorite stop by pressing the menu button and clicking "Favorite stops"
 - center on your current location by clicking the menu button and choosing "My Location". The speed and accuracy of location information depends on your phone location settings. You can tweak those in Home -> Settings -> Location & Security
 - draw the path along a route by clicking the menu button, going to Settings and selecting "Show route path"
-- this app should work for all touchscreen devices that are Android 1.6 and up (which means pretty much all Android phones and tablets). Please let me know if something doesn't work
+- this app should work for all touchscreen devices that are Android 1.6 and up (which means pretty much all Android phones and tablets). Please let me know if something doesn't work.
+
+#Development History
+The app started off with a few outdated decisions:
+ - I wanted it to perform well on the G1 so there were tight memory and speed constraints.
+ - It downloaded route data from NextBus into memory each time it was loaded. This quickly became unreasonable so the app was redesigned to ship all data with it (located in res/raw/databasegz). At first this was a compressed XML file because I wanted to import data using the same code as if I were downloading it over the web. Reading from XML and putting it in the database took a fair amount of time (although only once per app update) so this was changed to just ship a precalculated SQLite database with all route and stop data already in it. (Precalculation script is at tools/autogenerate.sh.)
+ - Various concurrency bugs led me to try to synchronize all relevant code points (badly), and later just make most things immutable.
+ - The database used to contain a SQLite blob with each route in a custom serialized format. Later I realized the space savings were small and the gains from being able to join data were huge.
 
 #Build
 You'll need to `git clone git@github.com:bostonbusmap/android-mapviewballoons.git`. This project references that code to draw the mapview balloons.
