@@ -91,7 +91,7 @@ class GtfsMap:
             query = "INSERT INTO %s (%s) VALUES (%s)" % (table, joined_keys, joined_values)
             self._db.executemany(query, reader)
 
-    def _create_table(self, gtfs_path, table, types, indexes):
+    def _create_table(self, gtfs_path, table, types):
         path = os.path.join(gtfs_path, table + ".txt")
         with open(path) as f:
             reader = csv.reader(f)
