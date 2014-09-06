@@ -16,6 +16,7 @@ import java.util.List;
 
 import javax.xml.parsers.ParserConfigurationException;
 
+import boston.Bus.Map.data.HubwayStopLocation;
 import boston.Bus.Map.data.PredictionStopLocationPair;
 import boston.Bus.Map.data.RouteConfig;
 import boston.Bus.Map.data.SimplePrediction;
@@ -36,12 +37,16 @@ public class HubwayParser extends DefaultHandler {
 	private static final String installedKey = "installed";
 	private static final String nameKey = "name";
 	private static final String stationKey = "station";
+    private static final String longitudeKey = "long";
+    private static final String latitudeKey = "lat";
 
 	private String id;
 	private String numberBikes;
 	private String numberEmptyDocks;
 	private boolean locked;
 	private boolean installed;
+    private float latitude;
+    private float longitude;
 	private String name;
 
 	private final StringBuilder chars = new StringBuilder();
@@ -72,6 +77,8 @@ public class HubwayParser extends DefaultHandler {
 			locked = true;
 			installed = false;
 			name = null;
+            latitude = 0;
+            longitude = 0;
 		}
 
 		chars.setLength(0);
@@ -108,18 +115,30 @@ public class HubwayParser extends DefaultHandler {
 		else if (installedKey.equals(localName)) {
 			installed = Boolean.parseBoolean(string);
 		}
+        else if (longitudeKey.equals(localName)) {
+            longitude = Float.parseFloat(string);
+        }
+        else if (latitudeKey.equals(localName)) {
+            latitude = Float.parseFloat(string);
+        }
 		else if (stationKey.equals(localName)) {
 			String text = makeText();
 			SimplePrediction prediction = new SimplePrediction(routeConfig.getRouteName(),
 					routeConfig.getRouteTitle(), text);
-			StopLocation stop = routeConfig.getStop(HubwayTransitSource.stopTagPrefix + id);
+            String tag = HubwayTransitSource.stopTagPrefix + id;
+			StopLocation stop = routeConfig.getStop(tag);
 			if (stop != null && name.equals(stop.getTitle())) {
 				PredictionStopLocationPair pair = new PredictionStopLocationPair(prediction, stop);
 				pairs.add(pair);
 			}
 			else
 			{
-				LogUtil.e(new RuntimeException("Found Hubway stop not in database: " + name + ", id: " + id));
+				HubwayStopLocation.Builder builder = new HubwayStopLocation.Builder(latitude, longitude, tag, name);
+
+                HubwayStopLocation newStop = (HubwayStopLocation)builder.build();
+
+                PredictionStopLocationPair pair = new PredictionStopLocationPair(prediction, newStop);
+                pairs.add(pair);
 			}
 		}
 	}
