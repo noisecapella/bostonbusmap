@@ -1,9 +1,13 @@
 import os
 import csv
-from datetime import datetime
+from datetime import datetime, timedelta
 import sqlite3
+from collections import namedtuple
 
-class GtfsMap:
+Prediction = namedtuple('Prediction', ['stop_id', 'trip_id', 'estimated_minutes'])
+Location = namedtuple('Location', ['trip_id', 'lat', 'lon', 'stop_id'])
+
+class GtfsMap(object):
     def __init__(self, gtfs_path, reinitialize=True, skip_stop_times=False):
         self._db = sqlite3.connect("./temp_gtfs.db")
         self._db.row_factory = sqlite3.Row
@@ -20,12 +24,7 @@ class GtfsMap:
         if not reinitialize:
             return
 
-        self._db.execute("DROP TABLE IF EXISTS trips")
-        self._db.execute("DROP TABLE IF EXISTS stops")
-        self._db.execute("DROP TABLE IF EXISTS routes")
-        self._db.execute("DROP TABLE IF EXISTS stop_times")
-        self._db.execute("DROP TABLE IF EXISTS shapes")
-        
+        self._drop_table("trips")
         self._create_table(gtfs_path, "trips", {"route_id" : "TEXT",
                                                 "service_id" : "TEXT",
                                                 "trip_id" : "TEXT PRIMARY KEY",
@@ -34,6 +33,7 @@ class GtfsMap:
                                                 "direction_id" : "INTEGER",
                                                 "block_id" : "TEXT",
                                                 "shape_id" : "TEXT"})
+        self._drop_table("stops")
         self._create_table(gtfs_path, "stops", {"stop_id": "TEXT PRIMARY KEY",
                                                 "stop_code": "TEXT",
                                                 "stop_name": "TEXT",
@@ -44,6 +44,7 @@ class GtfsMap:
                                                 "stop_url": "TEXT",
                                                 "location_type": "INTEGER",
                                                 "parent_station": "TEXT"})
+        self._drop_table("routes")
         self._create_table(gtfs_path, "routes", {"route_id": "TEXT PRIMARY KEY",
                                                  "agency_id": "TEXT",
                                                  "route_short_name": "TEXT",
@@ -53,6 +54,7 @@ class GtfsMap:
                                                  "route_url": "TEXT",
                                                  "route_color": "TEXT",
                                                  "route_text_color": "TEXT"})
+        self._drop_table("stop_times")
         self._create_table(gtfs_path, "stop_times", {"trip_id": "TEXT",
                                                      "arrival_time": "TEXT",
                                                      "departure_time": "TEXT",
@@ -61,23 +63,44 @@ class GtfsMap:
                                                      "stop_headsign": "TEXT",
                                                      "pickup_type": "INTEGER",
                                                      "drop_off_type": "INTEGER"})
+        self._drop_table("shapes")
         self._create_table(gtfs_path, "shapes", {"shape_id": "TEXT",
                                                  "shape_pt_lat": "TEXT",
                                                  "shape_pt_lon": "TEXT",
                                                  "shape_pt_sequence": "INTEGER",
                                                  "shape_dist_traveled": "TEXT"})
+        self._drop_table("calendar")
+        self._create_table(gtfs_path, "calendar", {"service_id" : "TEXT",
+                                                   "monday" : "INTEGER",
+                                                   "tuesday" : "INTEGER",
+                                                   "wednesday" : "INTEGER",
+                                                   "thursday" : "INTEGER",
+                                                   "friday" : "INTEGER",
+                                                   "saturday" : "INTEGER",
+                                                   "sunday" : "INTEGER",
+                                                   "start_date" : "TEXT",
+                                                   "end_date" : "TEXT"})
+        self._drop_table("calendar_dates")
+        self._create_table(gtfs_path, "calendar_dates", {"service_id" : "TEXT",
+                                                         "date" : "TEXT",
+                                                         "exception_type" : "INTEGER"})
+                                                   
 
         self._import_table(gtfs_path, "trips")
         self._create_index("trips", "shape_id")
         self._create_index("trips", "route_id")
+        self._create_index("trips", "service_id")
         self._import_table(gtfs_path, "stops")
         self._import_table(gtfs_path, "routes")
         if not skip_stop_times:
             self._import_table(gtfs_path, "stop_times")
             self._create_index("stop_times", "stop_id")
             self._create_index("stop_times", "trip_id")
+            self._create_index("stop_times", "departure_time")
         self._import_table(gtfs_path, "shapes")
         self._create_index("shapes", "shape_id")
+        self._import_table(gtfs_path, "calendar")
+        self._import_table(gtfs_path, "calendar_dates")
         
     def _import_table(self, gtfs_path, table):
         path = os.path.join(gtfs_path, table + ".txt")
@@ -90,6 +113,10 @@ class GtfsMap:
             
             query = "INSERT INTO %s (%s) VALUES (%s)" % (table, joined_keys, joined_values)
             self._db.executemany(query, reader)
+
+    def _drop_table(self, table):
+        self._db.execute("DROP TABLE IF EXISTS %s" % table)
+
 
     def _create_table(self, gtfs_path, table, types):
         path = os.path.join(gtfs_path, table + ".txt")
@@ -109,24 +136,52 @@ class GtfsMap:
 
     def _create_index(self, table, column):
         self._db.execute("CREATE INDEX idx_%s_%s ON %s (%s)" % (table, column, table, column))
+    
+    def _query(self, query, parameters):
+        return (dict(row) for row in self._db.execute(query, parameters))
+
     def find_routes_by_name(self, name):
-        return (dict(row) for row in self._db.execute("SELECT * FROM routes WHERE route_long_name = ? OR route_short_name = ?", (name, name)))
+        return self._query("SELECT * FROM routes WHERE route_long_name = ? OR route_short_name = ?", (name, name))
 
     def find_shapes_by_route(self, route):
-        return (dict(row) for row in self._db.execute("SELECT DISTINCT shapes.* FROM shapes JOIN trips ON shapes.shape_id = trips.shape_id WHERE route_id = ?", (route,)))
+        return self._query("SELECT DISTINCT shapes.* FROM shapes JOIN trips ON shapes.shape_id = trips.shape_id WHERE route_id = ?", (route,))
 
     def find_routes_by_route_type(self, route_type):
-        return (dict(row) for row in self._db.execute("SELECT routes.* FROM routes WHERE route_type = ?", (route_type,)))
+        return self._query("SELECT routes.* FROM routes WHERE route_type = ?", (route_type,))
 
     def find_stops_by_route(self, route):
-        return (dict(row) for row in self._db.execute("SELECT DISTINCT stops.* FROM stops JOIN stop_times ON stop_times.stop_id = stops.stop_id JOIN trips ON stop_times.trip_id = trips.trip_id WHERE route_id = ?", (route,)))
+        return self._query("SELECT DISTINCT stops.* FROM stops JOIN stop_times ON stop_times.stop_id = stops.stop_id JOIN trips ON stop_times.trip_id = trips.trip_id WHERE route_id = ?", (route,))
 
     def find_trips_by_route(self, route):
-        return (dict(row) for row in self._db.execute("SELECT trips.* FROM trips WHERE route_id = ?", (route,)))
+        return self._query("SELECT trips.* FROM trips WHERE route_id = ?", (route,))
 
-    def find_stops_by_route_ids(self):
-        pass
+    def find_trips_for_datetime(self, date):
+        day_of_week = date.weekday()
+        query = "SELECT s_t.*, route_id FROM calendar AS c JOIN trips AS t ON c.service_id = t.service_id JOIN stop_times AS s_t ON s_t.trip_id = t.trip_id "
+        if day_of_week == 0:
+            query += "WHERE monday = 1"
+        elif day_of_week == 1:
+            query += "WHERE tuesday = 1"
+        elif day_of_week == 2:
+            query += "WHERE wednesday = 1"
+        elif day_of_week == 3:
+            query += "WHERE thursday = 1"
+        elif day_of_week == 4:
+            query += "WHERE friday = 1"
+        elif day_of_week == 5:
+            query += "WHERE saturday = 1"
+        elif day_of_week == 6:
+            query += "WHERE sunday = 1"
 
+
+        # TODO: appropriate time zone handling for times, handling of times past midnight
+        # TODO: calendar_dates
+        date_string = date.strftime("%Y%m%d")
+        query += " AND start_date <= ? AND end_date >= ? ORDER BY departure_time ASC"
+
+        return self._query(query, (date_string, date_string))
+
+ 
     def __del__(self):
         self._db.commit()
         self._db.close()
