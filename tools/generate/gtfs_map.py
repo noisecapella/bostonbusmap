@@ -124,9 +124,6 @@ class GtfsMap:
     def find_trips_by_route(self, route):
         return (dict(row) for row in self._db.execute("SELECT trips.* FROM trips WHERE route_id = ?", (route,)))
 
-    def find_stops_by_route_ids(self):
-        pass
-
     def __del__(self):
         self._db.commit()
         self._db.close()
