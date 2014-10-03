@@ -33,7 +33,7 @@ public class LocationOverlay extends MyLocationOverlay {
 			break;
 		case LocationProvider.OUT_OF_SERVICE:
 		case LocationProvider.TEMPORARILY_UNAVAILABLE:
-			Toast.makeText(context, context.getString(R.string.locationUnavailable), Toast.LENGTH_LONG).show();
+			//Toast.makeText(context, context.getString(R.string.locationUnavailable), Toast.LENGTH_LONG).show();
 			break;
 		}
 	}
