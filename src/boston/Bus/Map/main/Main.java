@@ -270,28 +270,28 @@ public class Main extends MapActivity
 				showChooseStopDialog();
 			}
 		});
-        
+
         myLocationButton.setOnClickListener(new OnClickListener() {
-			
-			@Override
-			public void onClick(View v) {
-	    		if (arguments != null)
-	    		{
-	    			final LocationOverlay myLocationOverlay = arguments.getOverlayGroup().getMyLocationOverlay();
-	    			if (myLocationOverlay.isMyLocationEnabled() == false)
-	    			{
-	    				myLocationOverlay.enableMyLocation();
-	    				
-	    				locationEnabled = true;
-	    				
-	    				Toast.makeText(Main.this, getString(R.string.findingCurrentLocation), Toast.LENGTH_SHORT).show();
-	    			}
-	   				myLocationOverlay.updateMapViewPosition(handler);
-	    		}
-				
-			}
-		});
-        
+
+            @Override
+            public void onClick(View v) {
+                if (arguments != null)
+                {
+                    final LocationOverlay myLocationOverlay = arguments.getOverlayGroup().getMyLocationOverlay();
+                    if (myLocationOverlay.isMyLocationEnabled() == false)
+                    {
+                        myLocationOverlay.enableMyLocation();
+
+                        locationEnabled = true;
+
+                        Toast.makeText(Main.this, getString(R.string.findingCurrentLocation), Toast.LENGTH_SHORT).show();
+                    }
+                    myLocationOverlay.updateMapViewPosition(handler, false);
+                }
+
+            }
+        });
+
         skipTutorialButton.setOnClickListener(new OnClickListener() {
 			
 			@Override
@@ -463,7 +463,8 @@ public class Main extends MapActivity
         overlayGroup.getBusOverlay().setUpdateable(handler);
         
         populateHandlerSettings();
-        
+
+        boolean hasRefreshed = false;
         if (lastNonConfigurationInstance != null)
         {
         	updateSearchText(selection);
@@ -497,8 +498,23 @@ public class Main extends MapActivity
             	controller.setZoom(14);
             }
         	//make the textView blank
+
+            if (arguments != null)
+            {
+                final LocationOverlay myLocationOverlay = arguments.getOverlayGroup().getMyLocationOverlay();
+                if (myLocationOverlay.isMyLocationEnabled() == false)
+                {
+                    myLocationOverlay.enableMyLocation();
+
+                    locationEnabled = true;
+
+                    Toast.makeText(Main.this, getString(R.string.findingCurrentLocation), Toast.LENGTH_SHORT).show();
+                }
+                myLocationOverlay.updateMapViewPosition(handler, true);
+                hasRefreshed = true;
+            }
         }
-        
+
         handler.setLastUpdateTime(lastUpdateTime);
 
         //show all icons if there are any
@@ -506,7 +522,9 @@ public class Main extends MapActivity
         if (handler.getUpdateConstantlyInterval() != UPDATE_INTERVAL_NONE &&
         		previousUpdateConstantlyInterval == UPDATE_INTERVAL_NONE)
         {
-        	handler.instantRefresh();
+            if (!hasRefreshed) {
+                handler.instantRefresh(1500);
+            }
         }
 
         
@@ -545,7 +563,6 @@ public class Main extends MapActivity
 			// from http://stackoverflow.com/questions/13372326/how-to-get-getintent-to-return-null-after-activity-called-with-an-intent-set
 			intent.setData(null);
 		}
-
 	}
 		
 	/**
