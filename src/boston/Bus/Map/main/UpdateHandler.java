@@ -176,7 +176,15 @@ public class UpdateHandler extends Handler {
 		
 	}
 
-	public boolean instantRefresh() {
+    public boolean instantRefresh(int millis) {
+        removeMessages(MAJOR);
+        lastUpdateTime = 0;
+        sendEmptyMessageDelayed(MAJOR, millis);
+        return true;
+    }
+
+
+    public boolean instantRefresh() {
 		//removeAllMessages();
 		
 		if(getUpdateConstantlyInterval() != Main.UPDATE_INTERVAL_NONE)

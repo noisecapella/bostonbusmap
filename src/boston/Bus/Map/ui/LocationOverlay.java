@@ -35,12 +35,12 @@ public class LocationOverlay extends MyLocationOverlay {
 			break;
 		case LocationProvider.OUT_OF_SERVICE:
 		case LocationProvider.TEMPORARILY_UNAVAILABLE:
-			Toast.makeText(context, context.getString(R.string.locationUnavailable), Toast.LENGTH_LONG).show();
+			//Toast.makeText(context, context.getString(R.string.locationUnavailable), Toast.LENGTH_LONG).show();
 			break;
 		}
 	}
 
-	public void updateMapViewPosition(final UpdateHandler handler) {
+	public void updateMapViewPosition(final UpdateHandler handler, final boolean doRefresh) {
 		runOnFirstFix(new Runnable() {
 
 			@Override
@@ -51,6 +51,9 @@ public class LocationOverlay extends MyLocationOverlay {
 				{
 					// after 1.5 seconds, tell UpdateHandler to redraw stops near our new map position
 					handler.triggerUpdate(1500);
+                    if (doRefresh) {
+                        handler.instantRefresh(1500);
+                    }
 				}
 			}
 		});
