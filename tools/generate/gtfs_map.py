@@ -87,11 +87,14 @@ class GtfsMap(object):
                                                    
 
         self._import_table(gtfs_path, "trips")
+        self._create_index("trips", "trip_id")
         self._create_index("trips", "shape_id")
         self._create_index("trips", "route_id")
         self._create_index("trips", "service_id")
         self._import_table(gtfs_path, "stops")
+        self._create_index("stops", "stop_id")
         self._import_table(gtfs_path, "routes")
+        self._create_index("routes", "route_id")
         if not skip_stop_times:
             self._import_table(gtfs_path, "stop_times")
             self._create_index("stop_times", "stop_id")
@@ -150,7 +153,13 @@ class GtfsMap(object):
         return self._query("SELECT routes.* FROM routes WHERE route_type = ?", (route_type,))
 
     def find_stops_by_route(self, route):
-        return self._query("SELECT DISTINCT stops.* FROM stops JOIN stop_times ON stop_times.stop_id = stops.stop_id JOIN trips ON stop_times.trip_id = trips.trip_id WHERE route_id = ?", (route,))
+        # not entirely sure why I need to do this in two different steps
+        # you would think the stop -> stop_times join would be efficient enough
+        # not to require this
+        stop_ids = [row['stop_id'] for row in self._query("SELECT DISTINCT stop_times.stop_id FROM stop_times JOIN trips ON stop_times.trip_id = trips.trip_id WHERE route_id = ?", (route,))]
+        question_marks = ", ".join("?" for stop_id in stop_ids)
+
+        return self._query("SELECT stops.* FROM stops WHERE stop_id IN (%s)" % question_marks, stop_ids)
 
     def find_trips_by_route(self, route):
         return self._query("SELECT trips.* FROM trips WHERE route_id = ?", (route,))
