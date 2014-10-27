@@ -285,8 +285,8 @@ public abstract class NextBusTransitSource implements TransitSource
 	}
 	
 	@Override
-	public int getTransitSourceId() {
-		return Schema.Routes.enumagencyidBus;
+	public int[] getTransitSourceIds() {
+		return new int[] {Schema.Routes.enumagencyidBus};
 	}
 	
 	@Override

@@ -45,8 +45,8 @@ public class VehicleLocations {
 		return Sets.newHashSet(locations.keySet());
 	}
 
-	public void put(Key trip, BusLocation location) {
-		locations.put(trip, location);
+	public void put(Key key, BusLocation location) {
+		locations.put(key, location);
 	}
 
 	public void putAll(VehicleLocations busMapping) {

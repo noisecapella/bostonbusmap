@@ -298,8 +298,10 @@ public class TransitSystem implements ITransitSystem {
 
 	public TransitSource getTransitSourceByRouteType(int routeType) {
 		for (TransitSource source : transitSources) {
-			if (routeType == source.getTransitSourceId()) {
-				return source;
+			for (int otherRouteType : source.getTransitSourceIds()) {
+				if (routeType == otherRouteType) {
+					return source;
+				}
 			}
 		}
 		return defaultTransitSource;

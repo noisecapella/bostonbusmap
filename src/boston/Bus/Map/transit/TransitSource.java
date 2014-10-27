@@ -55,9 +55,9 @@ public interface TransitSource {
 	int getLoadOrder();
 
 	/**
-	 * Returns corresponding value in Schema.Routes.enumagency*
+	 * Returns corresponding values in Schema.Routes.enumagency*
 	 */
-	int getTransitSourceId();
+	int[] getTransitSourceIds();
 
 	/**
 	 * Do we need to look at the Schema.Subway table to get branch
