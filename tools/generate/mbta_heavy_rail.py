@@ -40,8 +40,8 @@ class MbtaHeavyRail:
         obj = schema.getSchemaAsObject()
         obj.routes.route.value = route
         obj.routes.routetitle.value = route
-        obj.routes.color.value = 
-        obj.routes.oppositecolor.value = subway_color[route]
+        obj.routes.color.value = int("0x%s" % route_color, 0)
+        obj.routes.oppositecolor.value = int("0x%s" % route_color, 0)
         obj.routes.listorder.value = startorder
         obj.routes.agencyid.value = schema.SubwayAgencyId
         obj.routes.pathblob.value = pathblob
