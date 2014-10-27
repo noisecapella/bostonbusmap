@@ -68,7 +68,6 @@ public class MbtaRealtimeTransitSource implements TransitSource {
 		// TODO: fix local names to match field names
 		ImmutableMap.Builder<String, Integer> routeToTransitSourceIdBuilder =
 				ImmutableMap.builder();
-		routeToTransitSourceIdBuilder.put(greenRoute, Schema.Routes.enumagencyidSubway);
 		
 		ImmutableMap.Builder<String, String> gtfsNameToRouteNameBuilder =
 				ImmutableMap.builder();
@@ -109,6 +108,11 @@ public class MbtaRealtimeTransitSource implements TransitSource {
 				"CR-Newburyport"
 		};
 
+		routeToTransitSourceIdBuilder.put(greenRoute, Schema.Routes.enumagencyidSubway);
+		routeToTransitSourceIdBuilder.put(redRoute, Schema.Routes.enumagencyidSubway);
+		routeToTransitSourceIdBuilder.put(orangeRoute, Schema.Routes.enumagencyidSubway);
+		routeToTransitSourceIdBuilder.put(blueRoute, Schema.Routes.enumagencyidSubway);
+		
 		for (String commuterRailRoute : commuterRailRoutes) {
 			gtfsNameToRouteNameBuilder.put(commuterRailRoute, commuterRailRoute);
 			routeToTransitSourceIdBuilder.put(commuterRailRoute, Schema.Routes.enumagencyidCommuterRail);
