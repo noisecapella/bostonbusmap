@@ -70,7 +70,7 @@ public final class Locations
 	/**
 	 * A mapping of the bus number to bus location
 	 */
-	private final ConcurrentHashMap<String, BusLocation> busMapping = new ConcurrentHashMap<String, BusLocation>();
+	private final VehicleLocations busMapping = new VehicleLocations();
 	
 	/**
 	 * A mapping of a route id to a RouteConfig object.

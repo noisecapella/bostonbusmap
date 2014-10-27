@@ -17,8 +17,9 @@ statusCode = 1
 
 def generate(conn, gtfs_map):
     create_tables(conn)
+    index = 0
     print "Generating Hubway stops..."
-    index = Hubway().generate(conn, 0)
+    index = Hubway().generate(conn, index)
     print "Generating commuter rail stops..."
     index = MbtaCommuterRail().generate(conn, index, gtfs_map)
     print "Generating heavy rail stops..."

@@ -37,6 +37,7 @@ import boston.Bus.Map.data.Selection;
 import boston.Bus.Map.data.StopLocation;
 import boston.Bus.Map.data.TransitDrawables;
 import boston.Bus.Map.data.TransitSourceTitles;
+import boston.Bus.Map.data.VehicleLocations;
 import boston.Bus.Map.database.Schema;
 import boston.Bus.Map.main.Main;
 import boston.Bus.Map.parser.MbtaAlertsParser;
@@ -116,26 +117,18 @@ public class TransitSystem implements ITransitSystem {
 			routeTitles = DatabaseAgent.getRouteTitles(resolver);
 
 			TransitSourceTitles busTransitRoutes = routeTitles.getMappingForSource(Schema.Routes.enumagencyidBus);
-			TransitSourceTitles subwayTransitRoutes = routeTitles.getMappingForSource(Schema.Routes.enumagencyidSubway);
-			TransitSourceTitles commuterRailTransitRoutes = routeTitles.getMappingForSource(Schema.Routes.enumagencyidCommuterRail);
 			TransitSourceTitles hubwayTransitRoutes = routeTitles.getMappingForSource(Schema.Routes.enumagencyidHubway);
 			
 			defaultTransitSource = new BusTransitSource(this, busDrawables, busTransitRoutes, routeTitles);
 			
 			ImmutableMap.Builder<String, TransitSource> mapBuilder = ImmutableMap.builder();
-			HeavyRailTransitSource subwayTransitSource = new HeavyRailTransitSource(subwayDrawables,
-					subwayTransitRoutes, this);
+			MbtaRealtimeTransitSource subwayTransitSource = new MbtaRealtimeTransitSource(
+					subwayDrawables,
+					routeTitles.getMappingForSources(new int[] {Schema.Routes.enumagencyidSubway, Schema.Routes.enumagencyidCommuterRail}), this);
 			for (String route : subwayTransitSource.getRouteTitles().routeTags()) {
 				mapBuilder.put(route, subwayTransitSource);
 			}
 			
-			CommuterRailTransitSource commuterRailTransitSource = new CommuterRailTransitSource(commuterRailDrawables,
-					commuterRailTransitRoutes, this);
-			for (String route : commuterRailTransitSource.getRouteTitles().routeTags())
-			{
-				mapBuilder.put(route, commuterRailTransitSource);
-			}
-
 			HubwayTransitSource hubwayTransitSource = new HubwayTransitSource(hubwayDrawables, hubwayTransitRoutes,
 					this);
 
@@ -144,7 +137,7 @@ public class TransitSystem implements ITransitSystem {
 			}
 			transitSourceMap = mapBuilder.build();
 
-			transitSources = ImmutableList.of(commuterRailTransitSource, subwayTransitSource, hubwayTransitSource,
+			transitSources = ImmutableList.of(subwayTransitSource, hubwayTransitSource,
 					defaultTransitSource);
 		
 		}
@@ -189,7 +182,7 @@ public class TransitSystem implements ITransitSystem {
 	@Override
 	public void refreshData(RouteConfig routeConfig,
 			Selection selection, int maxStops, double centerLatitude,
-			double centerLongitude, ConcurrentHashMap<String, BusLocation> busMapping,
+			double centerLongitude, VehicleLocations busMapping,
 			RoutePool routePool,
 			Directions directions, Locations locations) throws IOException, ParserConfigurationException, SAXException {
 		for (TransitSource source : transitSources)
@@ -297,8 +290,10 @@ public class TransitSystem implements ITransitSystem {
 
 	public TransitSource getTransitSourceByRouteType(int routeType) {
 		for (TransitSource source : transitSources) {
-			if (routeType == source.getTransitSourceId()) {
-				return source;
+			for (int otherRouteType : source.getTransitSourceIds()) {
+				if (routeType == otherRouteType) {
+					return source;
+				}
 			}
 		}
 		return defaultTransitSource;
@@ -312,7 +307,7 @@ public class TransitSystem implements ITransitSystem {
 	 * @param routeMapping
 	 */
 	public void startObtainAlerts(Context context, Directions directions,
-								  RoutePool routePool, ConcurrentHashMap<String, BusLocation> busMapping) {
+								  RoutePool routePool, VehicleLocations busMapping) {
 		if (alertsFuture == null) {
 			// this runs the alerts code in the background,
 			// providing empty alerts until the data is ready
