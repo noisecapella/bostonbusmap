@@ -24,6 +24,7 @@ import boston.Bus.Map.data.RouteTitles;
 import boston.Bus.Map.data.StopLocation;
 import boston.Bus.Map.data.SubwayTrainLocation;
 import boston.Bus.Map.data.VehicleLocations;
+import boston.Bus.Map.database.Schema;
 import boston.Bus.Map.util.LogUtil;
 
 public class HeavyRailPredictionsFeedParser {
@@ -32,7 +33,7 @@ public class HeavyRailPredictionsFeedParser {
 	private final VehicleLocations busMapping;
 	private final RouteTitles routeTitles;
 	
-	private final Set<String> vehiclesToRemove;
+	private final Set<VehicleLocations.Key> vehiclesToRemove;
 
 	private final long currentTimeMillis;
 	
@@ -72,7 +73,7 @@ public class HeavyRailPredictionsFeedParser {
 			pair.stopLocation.addPrediction(pair.prediction);
 		}
 		
-		for (String vehicleId : vehiclesToRemove) {
+		for (VehicleLocations.Key vehicleId : vehiclesToRemove) {
 			busMapping.remove(vehicleId);
 		}
 	}
@@ -130,7 +131,7 @@ public class HeavyRailPredictionsFeedParser {
 						vehicleId, nowEpochTime, vehicleUpdateTime,
 						Integer.valueOf(heading).toString(), true, dirTag, 
 						routeName, directions, routeTitle);
-				busMapping.put(vehicleId, vehicleLocation);
+				busMapping.put(new VehicleLocations.Key(Schema.Routes.enumagencyidSubway, vehicleId), vehicleLocation);
 				vehiclesToRemove.remove(vehicleId);
 			}
 

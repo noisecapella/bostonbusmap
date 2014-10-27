@@ -21,6 +21,7 @@ import org.xml.sax.SAXException;
 import com.google.common.collect.ImmutableBiMap;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Lists;
 import com.google.common.io.ByteStreams;
 
 import android.content.Context;
@@ -170,8 +171,8 @@ public abstract class NextBusTransitSource implements TransitSource
 				parser.fillMapping(busMapping);
 
 				//delete old buses
-				List<String> busesToBeDeleted = new ArrayList<String>();
-				for (String id : busMapping.copyVehicleIds())
+				List<VehicleLocations.Key> busesToBeDeleted = Lists.newArrayList();
+				for (VehicleLocations.Key id : busMapping.keySet())
 				{
 					BusLocation busLocation = busMapping.get(id);
 					if (busLocation.getLastUpdateInMillis() + 180000 < System.currentTimeMillis())
@@ -181,7 +182,7 @@ public abstract class NextBusTransitSource implements TransitSource
 					}
 				}
 
-				for (String id : busesToBeDeleted)
+				for (VehicleLocations.Key id : busesToBeDeleted)
 				{
 					busMapping.remove(id);
 				}

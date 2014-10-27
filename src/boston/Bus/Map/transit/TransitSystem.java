@@ -124,7 +124,7 @@ public class TransitSystem implements ITransitSystem {
 			defaultTransitSource = new BusTransitSource(this, busDrawables, busTransitRoutes, routeTitles);
 			
 			ImmutableMap.Builder<String, TransitSource> mapBuilder = ImmutableMap.builder();
-			HeavyRailTransitSource subwayTransitSource = new HeavyRailTransitSource(subwayDrawables,
+			MbtaRealtimeTransitSource subwayTransitSource = new MbtaRealtimeTransitSource(subwayDrawables,
 					subwayTransitRoutes, this);
 			for (String route : subwayTransitSource.getRouteTitles().routeTags()) {
 				mapBuilder.put(route, subwayTransitSource);

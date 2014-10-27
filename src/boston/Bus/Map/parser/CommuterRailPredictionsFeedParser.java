@@ -30,6 +30,7 @@ import boston.Bus.Map.data.RouteConfig;
 import boston.Bus.Map.data.RouteTitles;
 import boston.Bus.Map.data.StopLocation;
 import boston.Bus.Map.data.VehicleLocations;
+import boston.Bus.Map.database.Schema;
 import boston.Bus.Map.util.LogUtil;
 
 public class CommuterRailPredictionsFeedParser
@@ -40,7 +41,7 @@ public class CommuterRailPredictionsFeedParser
 	private final VehicleLocations busMapping;
 	private final RouteTitles routeKeysToTitles;
 
-	private final Set<String> vehiclesToRemove;
+	private final Set<VehicleLocations.Key> vehiclesToRemove;
 
 	/**
 	 * Keep this value consistent while reading data
@@ -60,14 +61,11 @@ public class CommuterRailPredictionsFeedParser
 		this.currentTimeMillis = System.currentTimeMillis();
 	}
 
-	private void clearPredictions(String route) throws IOException
+	private void clearPredictions() throws IOException
 	{
-		if (routeConfig != null)
+		for (StopLocation stopLocation : routeConfig.getStops())
 		{
-			for (StopLocation stopLocation : routeConfig.getStops())
-			{
-				stopLocation.clearPredictions(routeConfig);
-			}
+			stopLocation.clearPredictions(routeConfig);
 		}
 	}
 
@@ -78,14 +76,13 @@ public class CommuterRailPredictionsFeedParser
 		JsonElement root = new JsonParser().parse(bufferedReader);
 		List<PredictionStopLocationPair> pairs = parseTree(root.getAsJsonObject());
 		
-		String route = routeConfig.getRouteName();
-		clearPredictions(route);
+		clearPredictions();
 
 		for (PredictionStopLocationPair pair : pairs) {
 			pair.stopLocation.addPrediction(pair.prediction);
 		}
 		
-		for (String vehicleId : vehiclesToRemove) {
+		for (VehicleLocations.Key vehicleId : vehiclesToRemove) {
 			busMapping.remove(vehicleId);
 		}
 	}
@@ -141,7 +138,7 @@ public class CommuterRailPredictionsFeedParser
 							lon, trip, timestampMillis, timestampMillis,
 							headingString, true, dirTag, routeName, directions,
 							routeTitle);
-					busMapping.put(trip, location);
+					busMapping.put(new VehicleLocations.Key(Schema.Routes.enumagencyidCommuterRail, trip), location);
 					vehiclesToRemove.remove(trip);
 				}
 			}
