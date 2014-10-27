@@ -117,26 +117,18 @@ public class TransitSystem implements ITransitSystem {
 			routeTitles = DatabaseAgent.getRouteTitles(resolver);
 
 			TransitSourceTitles busTransitRoutes = routeTitles.getMappingForSource(Schema.Routes.enumagencyidBus);
-			TransitSourceTitles subwayTransitRoutes = routeTitles.getMappingForSource(Schema.Routes.enumagencyidSubway);
-			TransitSourceTitles commuterRailTransitRoutes = routeTitles.getMappingForSource(Schema.Routes.enumagencyidCommuterRail);
 			TransitSourceTitles hubwayTransitRoutes = routeTitles.getMappingForSource(Schema.Routes.enumagencyidHubway);
 			
 			defaultTransitSource = new BusTransitSource(this, busDrawables, busTransitRoutes, routeTitles);
 			
 			ImmutableMap.Builder<String, TransitSource> mapBuilder = ImmutableMap.builder();
-			MbtaRealtimeTransitSource subwayTransitSource = new MbtaRealtimeTransitSource(subwayDrawables,
-					subwayTransitRoutes, this);
+			MbtaRealtimeTransitSource subwayTransitSource = new MbtaRealtimeTransitSource(
+					subwayDrawables,
+					routeTitles.getMappingForSources(new int[] {Schema.Routes.enumagencyidSubway, Schema.Routes.enumagencyidCommuterRail}), this);
 			for (String route : subwayTransitSource.getRouteTitles().routeTags()) {
 				mapBuilder.put(route, subwayTransitSource);
 			}
 			
-			CommuterRailTransitSource commuterRailTransitSource = new CommuterRailTransitSource(commuterRailDrawables,
-					commuterRailTransitRoutes, this);
-			for (String route : commuterRailTransitSource.getRouteTitles().routeTags())
-			{
-				mapBuilder.put(route, commuterRailTransitSource);
-			}
-
 			HubwayTransitSource hubwayTransitSource = new HubwayTransitSource(hubwayDrawables, hubwayTransitRoutes,
 					this);
 
@@ -145,7 +137,7 @@ public class TransitSystem implements ITransitSystem {
 			}
 			transitSourceMap = mapBuilder.build();
 
-			transitSources = ImmutableList.of(commuterRailTransitSource, subwayTransitSource, hubwayTransitSource,
+			transitSources = ImmutableList.of(subwayTransitSource, hubwayTransitSource,
 					defaultTransitSource);
 		
 		}
