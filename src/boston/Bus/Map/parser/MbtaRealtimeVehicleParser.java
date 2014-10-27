@@ -107,6 +107,7 @@ public class MbtaRealtimeVehicleParser {
 									
 									for (JsonElement tripElem : trips) {
 										JsonObject tripObj = tripElem.getAsJsonObject();
+										String tripHeadsign = tripObj.get("trip_headsign").getAsString();
 										
 										if (tripObj.has("vehicle")) {
 											JsonObject vehicleObj = tripObj.get("vehicle").getAsJsonObject();
@@ -121,7 +122,7 @@ public class MbtaRealtimeVehicleParser {
 											
 											String routeTitle = routeKeysToTitles.getTitle(routeName);
 											
-											Direction direction = new Direction(directionId, "", routeName, true); 
+											Direction direction = new Direction(tripHeadsign, directionId, routeName, true); 
 											directionsObj.add(directionId, direction);
 											
 											BusLocation location;

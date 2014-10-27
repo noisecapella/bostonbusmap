@@ -162,35 +162,32 @@ public class MbtaRealtimeTransitSource implements TransitSource {
 		
 		String routesString = Joiner.on(",").join(routesInUrl);
 		 
-		String url;
-		if (selectedBusPredictions == Selection.Mode.VEHICLE_LOCATIONS_ALL ||
-				selectedBusPredictions == Selection.Mode.VEHICLE_LOCATIONS_ONE)
-		{
-			url = dataUrlPrefix + "vehiclesbyroutes?api_key=" + apiKey + "&format=json&routes=" + routesString;
-		}
-		else {
-			url = dataUrlPrefix + "predictionsbyroutes?api_key=" + apiKey + "&format=json&routes=" + routesString;
-		}
-		
-		DownloadHelper downloadHelper = new DownloadHelper(url);
-			
-		downloadHelper.connect();
-			
-		InputStream stream = downloadHelper.getResponseData();
-		InputStreamReader data = new InputStreamReader(stream);
+		String vehiclesUrl = dataUrlPrefix + "vehiclesbyroutes?api_key=" + apiKey + "&format=json&routes=" + routesString;
+		String predictionsUrl = dataUrlPrefix + "predictionsbyroutes?api_key=" + apiKey + "&format=json&routes=" + routesString;
 
-		if (selectedBusPredictions == Selection.Mode.VEHICLE_LOCATIONS_ALL ||
-				selectedBusPredictions == Selection.Mode.VEHICLE_LOCATIONS_ONE)
-		{
-			MbtaRealtimeVehicleParser parser = new MbtaRealtimeVehicleParser(routeTitles, busMapping, directions);
-			parser.runParse(data);
-		}
-		else {
-			MbtaRealtimePredictionsParser parser = new MbtaRealtimePredictionsParser(routeConfigs, routeTitles);
-			parser.runParse(data);
-		}
+		DownloadHelper vehiclesDownloadHelper = new DownloadHelper(vehiclesUrl);
+			
+		vehiclesDownloadHelper.connect();
+			
+		InputStream vehicleStream = vehiclesDownloadHelper.getResponseData();
+		InputStreamReader vehicleData = new InputStreamReader(vehicleStream);
+
+		MbtaRealtimeVehicleParser vehicleParser = new MbtaRealtimeVehicleParser(routeTitles, busMapping, directions);
+		vehicleParser.runParse(vehicleData);
 		
-		data.close();
+		DownloadHelper predictionsDownloadHelper = new DownloadHelper(predictionsUrl);
+		
+		predictionsDownloadHelper.connect();
+			
+		InputStream predictionsStream = predictionsDownloadHelper.getResponseData();
+		InputStreamReader predictionsData = new InputStreamReader(predictionsStream);
+
+		
+		
+		MbtaRealtimePredictionsParser parser = new MbtaRealtimePredictionsParser(routeConfigs, routeTitles);
+		parser.runParse(predictionsData);
+		
+		predictionsData.close();
 	}
 
 	@Override
