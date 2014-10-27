@@ -37,6 +37,7 @@ import boston.Bus.Map.data.Selection;
 import boston.Bus.Map.data.StopLocation;
 import boston.Bus.Map.data.TransitDrawables;
 import boston.Bus.Map.data.TransitSourceTitles;
+import boston.Bus.Map.data.VehicleLocations;
 import boston.Bus.Map.database.Schema;
 import boston.Bus.Map.main.Main;
 import boston.Bus.Map.parser.MbtaAlertsParser;
@@ -189,7 +190,7 @@ public class TransitSystem implements ITransitSystem {
 	@Override
 	public void refreshData(RouteConfig routeConfig,
 			Selection selection, int maxStops, double centerLatitude,
-			double centerLongitude, ConcurrentHashMap<String, BusLocation> busMapping,
+			double centerLongitude, VehicleLocations busMapping,
 			RoutePool routePool,
 			Directions directions, Locations locations) throws IOException, ParserConfigurationException, SAXException {
 		for (TransitSource source : transitSources)
@@ -312,7 +313,7 @@ public class TransitSystem implements ITransitSystem {
 	 * @param routeMapping
 	 */
 	public void startObtainAlerts(Context context, Directions directions,
-								  RoutePool routePool, ConcurrentHashMap<String, BusLocation> busMapping) {
+								  RoutePool routePool, VehicleLocations busMapping) {
 		if (alertsFuture == null) {
 			// this runs the alerts code in the background,
 			// providing empty alerts until the data is ready

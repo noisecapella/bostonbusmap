@@ -28,6 +28,7 @@ import boston.Bus.Map.data.IAlerts;
 import boston.Bus.Map.data.RoutePool;
 import boston.Bus.Map.data.RouteTitles;
 import boston.Bus.Map.data.StopLocation;
+import boston.Bus.Map.data.VehicleLocations;
 import boston.Bus.Map.provider.DatabaseContentProvider.DatabaseAgent;
 import boston.Bus.Map.transit.TransitSource;
 import boston.Bus.Map.transit.TransitSystem;
@@ -64,7 +65,7 @@ public class MbtaAlertsParser implements IAlertsParser {
 		gtfsRoutes = builder.build();
 	}
 	
-	public MbtaAlertsParser(TransitSystem transitSystem, Directions directions, RoutePool routePool, ConcurrentMap<String, BusLocation> busMapping) {
+	public MbtaAlertsParser(TransitSystem transitSystem, Directions directions, RoutePool routePool, VehicleLocations busMapping) {
 		this.transitSystem = transitSystem;
 		this.routeTitles = transitSystem.getRouteKeysToTitles();
 	}

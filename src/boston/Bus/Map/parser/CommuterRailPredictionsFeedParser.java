@@ -29,6 +29,7 @@ import boston.Bus.Map.data.Directions;
 import boston.Bus.Map.data.RouteConfig;
 import boston.Bus.Map.data.RouteTitles;
 import boston.Bus.Map.data.StopLocation;
+import boston.Bus.Map.data.VehicleLocations;
 import boston.Bus.Map.util.LogUtil;
 
 public class CommuterRailPredictionsFeedParser
@@ -36,7 +37,7 @@ public class CommuterRailPredictionsFeedParser
 	private final RouteConfig routeConfig;
 	private final Directions directions;
 
-	private final ConcurrentHashMap<String, BusLocation> busMapping;
+	private final VehicleLocations busMapping;
 	private final RouteTitles routeKeysToTitles;
 
 	private final Set<String> vehiclesToRemove;
@@ -47,14 +48,14 @@ public class CommuterRailPredictionsFeedParser
 	private final long currentTimeMillis;
 
 	public CommuterRailPredictionsFeedParser(RouteConfig routeConfig, Directions directions,
-			ConcurrentHashMap<String, BusLocation> busMapping, RouteTitles routeKeysToTitles)
+			VehicleLocations busMapping, RouteTitles routeKeysToTitles)
 	{
 		this.routeConfig = routeConfig;
 		this.directions = directions;
 		this.busMapping = busMapping;
 		this.routeKeysToTitles = routeKeysToTitles;
 
-		vehiclesToRemove = Sets.newHashSet(busMapping.keySet());
+		vehiclesToRemove = busMapping.copyVehicleIds();
 
 		this.currentTimeMillis = System.currentTimeMillis();
 	}

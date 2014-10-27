@@ -18,6 +18,7 @@ import boston.Bus.Map.data.RouteTitles;
 import boston.Bus.Map.data.Selection;
 import boston.Bus.Map.data.StopLocation;
 import boston.Bus.Map.data.TransitDrawables;
+import boston.Bus.Map.data.VehicleLocations;
 
 public interface ITransitSystem {
 
@@ -36,7 +37,7 @@ public interface ITransitSystem {
 	public abstract void refreshData(RouteConfig routeConfig,
 			Selection selection, int maxStops, double centerLatitude,
 			double centerLongitude,
-			ConcurrentHashMap<String, BusLocation> busMapping,
+			VehicleLocations busMapping,
 			RoutePool routePool, Directions directions, Locations locations)
 			throws IOException, ParserConfigurationException, SAXException;
 

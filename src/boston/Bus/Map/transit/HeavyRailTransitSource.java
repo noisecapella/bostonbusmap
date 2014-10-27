@@ -24,6 +24,7 @@ import boston.Bus.Map.data.StopLocation;
 import boston.Bus.Map.data.SubwayStopLocation;
 import boston.Bus.Map.data.TransitDrawables;
 import boston.Bus.Map.data.TransitSourceTitles;
+import boston.Bus.Map.data.VehicleLocations;
 import boston.Bus.Map.database.Schema;
 import boston.Bus.Map.parser.HeavyRailPredictionsFeedParser;
 import boston.Bus.Map.util.DownloadHelper;
@@ -51,7 +52,7 @@ public class HeavyRailTransitSource implements TransitSource {
 	@Override
 	public void refreshData(RouteConfig routeConfig, Selection selection,
 			int maxStops, double centerLatitude, double centerLongitude,
-			ConcurrentHashMap<String, BusLocation> busMapping,
+			VehicleLocations busMapping,
 			RoutePool routePool, Directions directions, Locations locationsObj)
 			throws IOException, ParserConfigurationException, SAXException {
 		Selection.Mode selectedBusPredictions = selection.getMode();

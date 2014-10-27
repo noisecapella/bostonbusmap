@@ -45,6 +45,7 @@ import boston.Bus.Map.data.StopLocation;
 import boston.Bus.Map.data.SubwayStopLocation;
 import boston.Bus.Map.data.TransitDrawables;
 import boston.Bus.Map.data.TransitSourceTitles;
+import boston.Bus.Map.data.VehicleLocations;
 import boston.Bus.Map.database.Schema;
 import boston.Bus.Map.main.Main;
 import boston.Bus.Map.main.UpdateAsyncTask;
@@ -94,7 +95,7 @@ public class CommuterRailTransitSource implements TransitSource {
 	public void refreshData(RouteConfig routeConfig,
 			Selection selection, int maxStops, double centerLatitude,
 			double centerLongitude,
-			ConcurrentHashMap<String, BusLocation> busMapping,
+			VehicleLocations busMapping,
 			RoutePool routePool, Directions directions,
 			Locations locationsObj) throws IOException,
 			ParserConfigurationException, SAXException

@@ -43,6 +43,7 @@ import boston.Bus.Map.data.RouteConfig;
 import boston.Bus.Map.data.RoutePool;
 import boston.Bus.Map.data.RouteTitles;
 import boston.Bus.Map.data.TransitDrawables;
+import boston.Bus.Map.data.VehicleLocations;
 import boston.Bus.Map.transit.TransitSystem;
 
 public class VehicleLocationsFeedParser extends DefaultHandler
@@ -67,7 +68,7 @@ public class VehicleLocationsFeedParser extends DefaultHandler
 	}
 
 	private long lastUpdateTime;
-	private final ConcurrentMap<String, BusLocation> busMapping = Maps.newConcurrentMap();
+	private final VehicleLocations busMapping = new VehicleLocations();
 	private final Map<String, Integer> tagCache = Maps.newHashMap();
 	
 	
@@ -141,7 +142,7 @@ public class VehicleLocationsFeedParser extends DefaultHandler
 		return lastUpdateTime;
 	}
 
-	public void fillMapping(ConcurrentHashMap<String, BusLocation> outputBusMapping) {
+	public void fillMapping(VehicleLocations outputBusMapping) {
 		outputBusMapping.putAll(busMapping);
 	}
 }

@@ -23,12 +23,13 @@ import boston.Bus.Map.data.RouteConfig;
 import boston.Bus.Map.data.RouteTitles;
 import boston.Bus.Map.data.StopLocation;
 import boston.Bus.Map.data.SubwayTrainLocation;
+import boston.Bus.Map.data.VehicleLocations;
 import boston.Bus.Map.util.LogUtil;
 
 public class HeavyRailPredictionsFeedParser {
 	private final RouteConfig routeConfig;
 	private final Directions directions;
-	private final ConcurrentHashMap<String, BusLocation> busMapping;
+	private final VehicleLocations busMapping;
 	private final RouteTitles routeTitles;
 	
 	private final Set<String> vehiclesToRemove;
@@ -37,14 +38,14 @@ public class HeavyRailPredictionsFeedParser {
 	
 	public HeavyRailPredictionsFeedParser(RouteConfig routeConfig,
 			Directions directions,
-			ConcurrentHashMap<String, BusLocation> busMapping,
+			VehicleLocations busMapping,
 			RouteTitles routeTitles) {
 		this.routeConfig = routeConfig;
 		this.directions = directions;
 		this.busMapping = busMapping;
 		this.routeTitles = routeTitles;
 		
-		vehiclesToRemove = Sets.newHashSet(busMapping.keySet());
+		vehiclesToRemove = busMapping.copyVehicleIds();
 
 		currentTimeMillis = System.currentTimeMillis();
 	}
