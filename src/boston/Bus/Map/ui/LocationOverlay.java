@@ -38,7 +38,7 @@ public class LocationOverlay extends MyLocationOverlay {
 		}
 	}
 
-	public void updateMapViewPosition(final UpdateHandler handler, final boolean doRefresh) {
+	public void updateMapViewPosition(final UpdateHandler handler) {
 		runOnFirstFix(new Runnable() {
 
 			@Override
@@ -49,9 +49,6 @@ public class LocationOverlay extends MyLocationOverlay {
 				{
 					// after 1.5 seconds, tell UpdateHandler to redraw stops near our new map position
 					handler.triggerUpdate(1500);
-                    if (doRefresh) {
-                        handler.instantRefresh(1500);
-                    }
 				}
 			}
 		});
