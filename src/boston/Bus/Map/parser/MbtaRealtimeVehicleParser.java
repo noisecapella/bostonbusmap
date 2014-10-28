@@ -12,6 +12,7 @@ import skylight1.opengl.files.QuickParseUtil;
 
 import boston.Bus.Map.data.BusLocation;
 import boston.Bus.Map.data.CommuterTrainLocation;
+import boston.Bus.Map.data.Direction;
 import boston.Bus.Map.data.Directions;
 import boston.Bus.Map.data.PredictionStopLocationPair;
 import boston.Bus.Map.data.RouteConfig;
@@ -106,6 +107,7 @@ public class MbtaRealtimeVehicleParser {
 									
 									for (JsonElement tripElem : trips) {
 										JsonObject tripObj = tripElem.getAsJsonObject();
+										String tripHeadsign = tripObj.get("trip_headsign").getAsString();
 										
 										if (tripObj.has("vehicle")) {
 											JsonObject vehicleObj = tripObj.get("vehicle").getAsJsonObject();
@@ -119,6 +121,9 @@ public class MbtaRealtimeVehicleParser {
 											vehiclesToRemove.remove(key);
 											
 											String routeTitle = routeKeysToTitles.getTitle(routeName);
+											
+											Direction direction = new Direction(tripHeadsign, directionId, routeName, true); 
+											directionsObj.add(directionId, direction);
 											
 											BusLocation location;
 											if (transitSourceId == Schema.Routes.enumagencyidCommuterRail) {
