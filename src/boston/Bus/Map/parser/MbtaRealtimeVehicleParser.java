@@ -122,19 +122,20 @@ public class MbtaRealtimeVehicleParser {
 											
 											String routeTitle = routeKeysToTitles.getTitle(routeName);
 											
-											Direction direction = new Direction(tripHeadsign, directionId, routeName, true); 
-											directionsObj.add(directionId, direction);
+											Direction direction = new Direction(tripHeadsign, directionId, routeName, true);
+                                            String newDirectionId = directionId + "_" + tripHeadsign;
+											directionsObj.add(newDirectionId, direction);
 											
 											BusLocation location;
 											if (transitSourceId == Schema.Routes.enumagencyidCommuterRail) {
 												location = new CommuterTrainLocation(latitude, longitude, id,
 														lastFeedUpdateInMillis, timestamp, bearing, true,
-														directionId, routeName, directionsObj, routeTitle);
+                                                        newDirectionId, routeName, directionsObj, routeTitle);
 											}
 											else if (transitSourceId == Schema.Routes.enumagencyidSubway) {
 												location = new SubwayTrainLocation(latitude, longitude, id,
 														lastFeedUpdateInMillis, timestamp, bearing, true,
-														directionId, routeName, directionsObj, routeTitle);
+                                                        newDirectionId, routeName, directionsObj, routeTitle);
 											}
 											else {
 												throw new RuntimeException("Unexpected transit id");
