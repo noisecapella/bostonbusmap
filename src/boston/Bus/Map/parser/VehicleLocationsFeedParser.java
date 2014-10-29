@@ -95,8 +95,8 @@ public class VehicleLocationsFeedParser extends DefaultHandler
 		{
 			clearAttributes(attributes);
 			
-			float lat = QuickParseUtil.parseFloat(getAttribute(latKey, attributes));
-			float lon = QuickParseUtil.parseFloat(getAttribute(lonKey, attributes));
+			float lat = Float.parseFloat(getAttribute(latKey, attributes));
+			float lon = Float.parseFloat(getAttribute(lonKey, attributes));
 			String id = getAttribute(idKey, attributes);
 			String route = getAttribute(routeTagKey, attributes);
 			int seconds = Integer.parseInt(getAttribute(secsSinceReportKey, attributes));

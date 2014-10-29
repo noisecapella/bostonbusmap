@@ -112,8 +112,8 @@ public class MbtaRealtimeVehicleParser {
 										if (tripObj.has("vehicle")) {
 											JsonObject vehicleObj = tripObj.get("vehicle").getAsJsonObject();
 											String id = vehicleObj.get("vehicle_id").getAsString();
-											float latitude = QuickParseUtil.parseFloat(vehicleObj.get("vehicle_lat").getAsString());
-											float longitude = QuickParseUtil.parseFloat(vehicleObj.get("vehicle_lon").getAsString());
+											float latitude = Float.parseFloat(vehicleObj.get("vehicle_lat").getAsString());
+											float longitude = Float.parseFloat(vehicleObj.get("vehicle_lon").getAsString());
 											long timestamp = Long.parseLong(vehicleObj.get("vehicle_timestamp").getAsString());
 											String bearing = vehicleObj.get("vehicle_bearing").getAsString();
 											
