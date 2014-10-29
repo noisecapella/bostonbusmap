@@ -12,7 +12,6 @@ import android.graphics.drawable.Drawable;
 
 public class SubwayStopLocation extends StopLocation {
 
-	
 	protected SubwayStopLocation(SubwayBuilder builder)
 	{
 		super(builder);
@@ -40,4 +39,14 @@ public class SubwayStopLocation extends StopLocation {
 	public boolean supportsBusPredictionsAllMode() {
 		return false;
 	}
+
+    @Override
+    public boolean isBeta() {
+        for (String route : this.getRoutes()) {
+            if (route.equals("Green")) {
+                return true;
+            }
+        }
+        return false;
+    }
 }

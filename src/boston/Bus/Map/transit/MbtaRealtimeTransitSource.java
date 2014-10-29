@@ -18,6 +18,7 @@ import com.google.common.collect.ImmutableTable;
 import com.google.common.collect.Lists;
 
 import boston.Bus.Map.data.BusLocation;
+import boston.Bus.Map.data.CommuterRailStopLocation;
 import boston.Bus.Map.data.Directions;
 import boston.Bus.Map.data.IAlerts;
 import boston.Bus.Map.data.Location;
@@ -208,8 +209,18 @@ public class MbtaRealtimeTransitSource implements TransitSource {
 	@Override
 	public StopLocation createStop(float latitude, float longitude,
 			String stopTag, String stopTitle, String route) {
-		StopLocation stop = new StopLocation.Builder(latitude,
-				longitude, stopTag, stopTitle).build();
+        int transitSourceId = routeNameToTransitSource.get(route);
+        StopLocation stop;
+        if (transitSourceId == Schema.Routes.enumagencyidSubway) {
+            stop = new SubwayStopLocation.SubwayBuilder(latitude,
+                    longitude, stopTag, stopTitle).build();
+        }
+        else if (transitSourceId == Schema.Routes.enumagencyidCommuterRail) {
+            stop = new CommuterRailStopLocation.CommuterRailBuilder(latitude, longitude, stopTag, stopTitle).build();
+        }
+        else {
+            throw new RuntimeException("Unexpected transit source " + transitSourceId);
+        }
 		stop.addRoute(route);
 		return stop;
 

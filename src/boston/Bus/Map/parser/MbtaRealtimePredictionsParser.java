@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
+import boston.Bus.Map.data.SimplePrediction;
 import skylight1.opengl.files.QuickParseUtil;
 
 import boston.Bus.Map.data.BusLocation;
@@ -22,6 +23,7 @@ import boston.Bus.Map.data.TimePrediction;
 import boston.Bus.Map.data.TransitSourceTitles;
 import boston.Bus.Map.util.LogUtil;
 
+import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
@@ -137,17 +139,17 @@ public class MbtaRealtimePredictionsParser {
 											for (JsonElement stopElem : stops) {
 												JsonObject stopObj = stopElem.getAsJsonObject();
 												String stopId = stopObj.get("stop_id").getAsString();
-												
-												
+
+
+                                                String routeTitle = this.routeKeysToTitles.getTitle(routeName);
 												StopLocation stop = routeConfig.getStop(stopId);
 												if (stop != null) {
-												
-													// TODO: make this more thorough
-													if (stopObj.has("pre_dt")) {
+
+                                                    if (stopObj.has("pre_dt")) {
+                                                        // TODO: make this more thorough
 														long arrivalTimeSeconds = Long.parseLong(stopObj.get("pre_dt").getAsString());
 														long arrivalTimeMillis = arrivalTimeSeconds * 1000;
 													
-														String routeTitle = this.routeKeysToTitles.getTitle(routeName);
 														TimePrediction prediction = new TimePrediction(arrivalTimeMillis, vehicleId, directionName,
 															routeName, routeTitle, false, false, 0, null, stopId); 
 													
@@ -177,7 +179,7 @@ public class MbtaRealtimePredictionsParser {
 	private void clearPredictions() throws IOException
 	{
 		for (RouteConfig routeConfig : routeConfigs.values()) {
-			for (StopLocation stopLocation : routeConfig.getStops())
+            for (StopLocation stopLocation : routeConfig.getStops())
 			{
 				stopLocation.clearPredictions(routeConfig);
 			}
