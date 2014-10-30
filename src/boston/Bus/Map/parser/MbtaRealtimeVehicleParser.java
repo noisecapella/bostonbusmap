@@ -108,6 +108,7 @@ public class MbtaRealtimeVehicleParser {
 									for (JsonElement tripElem : trips) {
 										JsonObject tripObj = tripElem.getAsJsonObject();
 										String tripHeadsign = tripObj.get("trip_headsign").getAsString();
+                                        String tripName = tripObj.get("trip_name").getAsString();
 										
 										if (tripObj.has("vehicle")) {
 											JsonObject vehicleObj = tripObj.get("vehicle").getAsJsonObject();
@@ -128,7 +129,7 @@ public class MbtaRealtimeVehicleParser {
 											
 											BusLocation location;
 											if (transitSourceId == Schema.Routes.enumagencyidCommuterRail) {
-												location = new CommuterTrainLocation(latitude, longitude, id,
+												location = new CommuterTrainLocation(latitude, longitude, tripName,
 														lastFeedUpdateInMillis, timestamp, bearing, true,
                                                         newDirectionId, routeName, directionsObj, routeTitle);
 											}
