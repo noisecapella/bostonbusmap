@@ -162,8 +162,8 @@ public class MbtaRealtimeTransitSource implements TransitSource {
 		
 		String routesString = Joiner.on(",").join(routesInUrl);
 		 
-		String vehiclesUrl = dataUrlPrefix + "vehiclesbyroutes?api_key=" + apiKey + "&format=json&routes=" + routesString;
-		String predictionsUrl = dataUrlPrefix + "predictionsbyroutes?api_key=" + apiKey + "&format=json&routes=" + routesString;
+		String vehiclesUrl = dataUrlPrefix + "vehiclesbyroutes?api_key=" + apiKey + "&format=json&include_service_alerts=false&routes=" + routesString;
+		String predictionsUrl = dataUrlPrefix + "predictionsbyroutes?api_key=" + apiKey + "&format=json&include_service_alerts=false&routes=" + routesString;
 
 		DownloadHelper vehiclesDownloadHelper = new DownloadHelper(vehiclesUrl);
 			
