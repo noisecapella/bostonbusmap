@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
+import boston.Bus.Map.transit.MbtaRealtimeTransitSource;
 import skylight1.opengl.files.QuickParseUtil;
 
 import boston.Bus.Map.data.BusLocation;
@@ -33,7 +34,6 @@ import com.google.gson.JsonParser;
 public class MbtaRealtimePredictionsParser {
 	private final TransitSourceTitles routeKeysToTitles;
 
-	private final ImmutableMap<String, String> routeIdMap;
 	private final ImmutableMap<String, RouteConfig> routeConfigs;
 	
 	public MbtaRealtimePredictionsParser(ImmutableMap<String, RouteConfig> routeConfigs,
@@ -41,32 +41,6 @@ public class MbtaRealtimePredictionsParser {
 	{
 		this.routeKeysToTitles = routeKeysToTitles;
 		this.routeConfigs = routeConfigs;
-
-		// workaround for the quick and dirty way things are done in this app
-		ImmutableMap.Builder<String, String> routeIdMapBuilder =
-				ImmutableMap.builder();
-		routeIdMapBuilder.put("810_", "Green");
-		routeIdMapBuilder.put("813_", "Green");
-		routeIdMapBuilder.put("823_", "Green");
-		routeIdMapBuilder.put("830_", "Green");
-		routeIdMapBuilder.put("831_", "Green");
-		routeIdMapBuilder.put("840_", "Green");
-		routeIdMapBuilder.put("842_", "Green");
-		routeIdMapBuilder.put("851_", "Green");
-		routeIdMapBuilder.put("852_", "Green");
-		routeIdMapBuilder.put("880_", "Green");
-		routeIdMapBuilder.put("882_", "Green");
-
-		routeIdMapBuilder.put("931_", "Red");
-		routeIdMapBuilder.put("933_", "Red");
-
-		routeIdMapBuilder.put("903_", "Orange");
-		routeIdMapBuilder.put("913_", "Orange");
-		
-		routeIdMapBuilder.put("946_", "Blue");
-		routeIdMapBuilder.put("948_", "Blue");
-
-		routeIdMap = routeIdMapBuilder.build();
 	}
 	
 	public void runParse(Reader data) throws IOException {
@@ -98,8 +72,8 @@ public class MbtaRealtimePredictionsParser {
 						String routeId = routeObj.get("route_id").getAsString();
 						
 						String routeName;
-						if (routeIdMap.containsKey(routeId)) {
-							routeName = routeIdMap.get(routeId);
+						if (MbtaRealtimeTransitSource.gtfsNameToRouteName.containsKey(routeId)) {
+							routeName = MbtaRealtimeTransitSource.gtfsNameToRouteName.get(routeId);
 						}
 						else {
 							LogUtil.i("Route id not found: " + routeId);
