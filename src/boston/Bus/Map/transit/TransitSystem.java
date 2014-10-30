@@ -37,6 +37,7 @@ import boston.Bus.Map.data.Selection;
 import boston.Bus.Map.data.StopLocation;
 import boston.Bus.Map.data.TransitDrawables;
 import boston.Bus.Map.data.TransitSourceTitles;
+import boston.Bus.Map.data.VehicleLocations;
 import boston.Bus.Map.database.Schema;
 import boston.Bus.Map.main.Main;
 import boston.Bus.Map.provider.DatabaseContentProvider.DatabaseAgent;
@@ -117,8 +118,6 @@ public class TransitSystem implements ITransitSystem {
 			routeTitles = DatabaseAgent.getRouteTitles(resolver);
 
 			TransitSourceTitles busTransitRoutes = routeTitles.getMappingForSource(Schema.Routes.enumagencyidBus);
-			TransitSourceTitles subwayTransitRoutes = routeTitles.getMappingForSource(Schema.Routes.enumagencyidSubway);
-			TransitSourceTitles commuterRailTransitRoutes = routeTitles.getMappingForSource(Schema.Routes.enumagencyidCommuterRail);
 			TransitSourceTitles hubwayTransitRoutes = routeTitles.getMappingForSource(Schema.Routes.enumagencyidHubway);
 			
 			defaultTransitSource = new LABusTransitSource(this, busDrawables, busTransitRoutes, routeTitles);
@@ -171,7 +170,7 @@ public class TransitSystem implements ITransitSystem {
 	@Override
 	public void refreshData(RouteConfig routeConfig,
 			Selection selection, int maxStops, double centerLatitude,
-			double centerLongitude, ConcurrentHashMap<String, BusLocation> busMapping,
+			double centerLongitude, VehicleLocations busMapping,
 			RoutePool routePool,
 			Directions directions, Locations locations) throws IOException, ParserConfigurationException, SAXException {
 		for (TransitSource source : transitSources)
@@ -276,8 +275,10 @@ public class TransitSystem implements ITransitSystem {
 
 	public TransitSource getTransitSourceByRouteType(int routeType) {
 		for (TransitSource source : transitSources) {
-			if (routeType == source.getTransitSourceId()) {
-				return source;
+			for (int otherRouteType : source.getTransitSourceIds()) {
+				if (routeType == otherRouteType) {
+					return source;
+				}
 			}
 		}
 		return defaultTransitSource;

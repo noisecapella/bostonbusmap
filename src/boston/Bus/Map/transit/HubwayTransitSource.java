@@ -23,6 +23,7 @@ import boston.Bus.Map.data.Selection;
 import boston.Bus.Map.data.StopLocation;
 import boston.Bus.Map.data.TransitDrawables;
 import boston.Bus.Map.data.TransitSourceTitles;
+import boston.Bus.Map.data.VehicleLocations;
 import boston.Bus.Map.database.Schema;
 import boston.Bus.Map.parser.HubwayParser;
 import boston.Bus.Map.util.DownloadHelper;
@@ -52,7 +53,7 @@ public class HubwayTransitSource implements TransitSource {
 	@Override
 	public void refreshData(RouteConfig routeConfig, Selection selection,
 							int maxStops, double centerLatitude, double centerLongitude,
-							ConcurrentHashMap<String, BusLocation> busMapping,
+							VehicleLocations busMapping,
 							RoutePool routePool, Directions directions,
 							Locations locationsObj) throws IOException, ParserConfigurationException, SAXException {
 		Selection.Mode mode = selection.getMode();
@@ -131,8 +132,8 @@ public class HubwayTransitSource implements TransitSource {
 	}
 
 	@Override
-	public int getTransitSourceId() {
-		return Schema.Routes.enumagencyidHubway;
+	public int[] getTransitSourceIds() {
+		return new int[] {Schema.Routes.enumagencyidHubway};
 	}
 
 	@Override

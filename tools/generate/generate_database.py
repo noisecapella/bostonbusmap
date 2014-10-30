@@ -17,8 +17,9 @@ statusCode = 1
 
 def generate(conn, gtfs_map):
     create_tables(conn)
+    index = 0
     print "Generating NextBus stops..."
-    index = NextBus("lametro").generate(conn, 0)
+    index = NextBus("lametro").generate(conn, index)
     print index
 
 def main():

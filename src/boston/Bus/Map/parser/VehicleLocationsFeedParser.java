@@ -43,6 +43,8 @@ import boston.Bus.Map.data.RouteConfig;
 import boston.Bus.Map.data.RoutePool;
 import boston.Bus.Map.data.RouteTitles;
 import boston.Bus.Map.data.TransitDrawables;
+import boston.Bus.Map.data.VehicleLocations;
+import boston.Bus.Map.database.Schema;
 import boston.Bus.Map.transit.TransitSystem;
 
 public class VehicleLocationsFeedParser extends DefaultHandler
@@ -67,7 +69,7 @@ public class VehicleLocationsFeedParser extends DefaultHandler
 	}
 
 	private long lastUpdateTime;
-	private final ConcurrentMap<String, BusLocation> busMapping = Maps.newConcurrentMap();
+	private final VehicleLocations busMapping = new VehicleLocations();
 	private final Map<String, Integer> tagCache = Maps.newHashMap();
 	
 	
@@ -93,8 +95,8 @@ public class VehicleLocationsFeedParser extends DefaultHandler
 		{
 			clearAttributes(attributes);
 			
-			float lat = QuickParseUtil.parseFloat(getAttribute(latKey, attributes));
-			float lon = QuickParseUtil.parseFloat(getAttribute(lonKey, attributes));
+			float lat = Float.parseFloat(getAttribute(latKey, attributes));
+			float lon = Float.parseFloat(getAttribute(lonKey, attributes));
 			String id = getAttribute(idKey, attributes);
 			String route = getAttribute(routeTagKey, attributes);
 			int seconds = Integer.parseInt(getAttribute(secsSinceReportKey, attributes));
@@ -107,19 +109,20 @@ public class VehicleLocationsFeedParser extends DefaultHandler
 			BusLocation newBusLocation = new BusLocation(lat, lon, id, lastFeedUpdate, lastUpdateTime, 
 					heading, predictable, dirTag, route, directions, routeKeysToTitles.getTitle(route));
 
-			if (busMapping.containsKey(id))
+			VehicleLocations.Key key = new VehicleLocations.Key(Schema.Routes.enumagencyidBus, id);
+			if (busMapping.containsKey(key))
 			{
 				//calculate the direction of the bus from the current and previous locations
-				newBusLocation.movedFrom(busMapping.get(id));
+				newBusLocation.movedFrom(busMapping.get(key));
 			}
 
-			busMapping.put(id, newBusLocation);
+			busMapping.put(key, newBusLocation);
 		}
 		else if (localName.equals(lastTimeKey))
 		{
 			lastUpdateTime = Long.parseLong(attributes.getValue(timeKey));
 			
-			for (String key : busMapping.keySet())
+			for (VehicleLocations.Key key : busMapping.keySet())
 			{
 				busMapping.get(key).setLastUpdateInMillis(lastUpdateTime);
 			}
@@ -141,7 +144,7 @@ public class VehicleLocationsFeedParser extends DefaultHandler
 		return lastUpdateTime;
 	}
 
-	public void fillMapping(ConcurrentHashMap<String, BusLocation> outputBusMapping) {
+	public void fillMapping(VehicleLocations outputBusMapping) {
 		outputBusMapping.putAll(busMapping);
 	}
 }
