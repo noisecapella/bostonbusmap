@@ -133,13 +133,10 @@ public class MbtaRealtimeVehicleParser {
 														lastFeedUpdateInMillis, timestamp, bearing, true,
                                                         newDirectionId, routeName, directionsObj, routeTitle);
 											}
-											else if (transitSourceId == Schema.Routes.enumagencyidSubway) {
+											else {
 												location = new SubwayTrainLocation(latitude, longitude, id,
 														lastFeedUpdateInMillis, timestamp, bearing, true,
                                                         newDirectionId, routeName, directionsObj, routeTitle);
-											}
-											else {
-												throw new RuntimeException("Unexpected transit id");
 											}
 											busMapping.put(key, location);
 										}
