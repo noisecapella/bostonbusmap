@@ -90,11 +90,22 @@ public class RouteTitles extends TransitSourceTitles
 		return map.keySet().asList().get(index);
 	}
 
-	public TransitSourceTitles getMappingForSource(
-			int transitSourceId) {
-		return transitSourceMaps.get(transitSourceId);
+	public TransitSourceTitles getMappingForSources(
+			int[] transitSourceIds) {
+		ImmutableBiMap.Builder<String, String> builder = ImmutableBiMap.builder();
+		
+		for (int id : transitSourceIds) {
+			TransitSourceTitles titles = transitSourceMaps.get(id);
+			builder.putAll(titles.map);
+		}
+		
+		return new TransitSourceTitles(builder.build());
 	}
 
+	public TransitSourceTitles getMappingForSource(int transitSourceId) {
+		return transitSourceMaps.get(transitSourceId);
+	}
+	
 	public int getTransitSourceId(String routeName) {
 		return transitSourceIds.get(routeName);
 	}

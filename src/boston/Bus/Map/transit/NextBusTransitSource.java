@@ -21,6 +21,7 @@ import org.xml.sax.SAXException;
 import com.google.common.collect.ImmutableBiMap;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Lists;
 import com.google.common.io.ByteStreams;
 
 import android.content.Context;
@@ -40,6 +41,7 @@ import boston.Bus.Map.data.StopLocation;
 import boston.Bus.Map.data.SubwayStopLocation;
 import boston.Bus.Map.data.TransitDrawables;
 import boston.Bus.Map.data.TransitSourceTitles;
+import boston.Bus.Map.data.VehicleLocations;
 import boston.Bus.Map.database.Schema;
 import boston.Bus.Map.main.Main;
 import boston.Bus.Map.main.UpdateAsyncTask;
@@ -95,7 +97,7 @@ public abstract class NextBusTransitSource implements TransitSource
 
 	@Override
 	public void refreshData(RouteConfig routeConfig, Selection selection, int maxStops,
-			double centerLatitude, double centerLongitude, ConcurrentHashMap<String, BusLocation> busMapping, 
+			double centerLatitude, double centerLongitude, VehicleLocations busMapping, 
 			RoutePool routePool, Directions directions, Locations locationsObj)
 	throws IOException, ParserConfigurationException, SAXException {
 		//read data from the URL
@@ -169,8 +171,8 @@ public abstract class NextBusTransitSource implements TransitSource
 				parser.fillMapping(busMapping);
 
 				//delete old buses
-				List<String> busesToBeDeleted = new ArrayList<String>();
-				for (String id : busMapping.keySet())
+				List<VehicleLocations.Key> busesToBeDeleted = Lists.newArrayList();
+				for (VehicleLocations.Key id : busMapping.keySet())
 				{
 					BusLocation busLocation = busMapping.get(id);
 					if (busLocation.getLastUpdateInMillis() + 180000 < System.currentTimeMillis())
@@ -180,7 +182,7 @@ public abstract class NextBusTransitSource implements TransitSource
 					}
 				}
 
-				for (String id : busesToBeDeleted)
+				for (VehicleLocations.Key id : busesToBeDeleted)
 				{
 					busMapping.remove(id);
 				}
@@ -283,8 +285,8 @@ public abstract class NextBusTransitSource implements TransitSource
 	}
 	
 	@Override
-	public int getTransitSourceId() {
-		return Schema.Routes.enumagencyidBus;
+	public int[] getTransitSourceIds() {
+		return new int[] {Schema.Routes.enumagencyidBus};
 	}
 	
 	@Override

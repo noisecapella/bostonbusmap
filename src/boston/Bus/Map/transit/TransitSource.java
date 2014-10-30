@@ -26,13 +26,14 @@ import boston.Bus.Map.data.Selection;
 import boston.Bus.Map.data.StopLocation;
 import boston.Bus.Map.data.TransitDrawables;
 import boston.Bus.Map.data.TransitSourceTitles;
+import boston.Bus.Map.data.VehicleLocations;
 import boston.Bus.Map.main.UpdateAsyncTask;
 
 public interface TransitSource {
 
 	void refreshData(RouteConfig routeConfig, Selection selection,
 			int maxStops, double centerLatitude, double centerLongitude,
-			ConcurrentHashMap<String, BusLocation> busMapping,
+			VehicleLocations busMapping,
 			RoutePool routePool, Directions directions, Locations locationsObj)
 	throws IOException, ParserConfigurationException, SAXException;
 
@@ -54,9 +55,9 @@ public interface TransitSource {
 	int getLoadOrder();
 
 	/**
-	 * Returns corresponding value in Schema.Routes.enumagency*
+	 * Returns corresponding values in Schema.Routes.enumagency*
 	 */
-	int getTransitSourceId();
+	int[] getTransitSourceIds();
 
 	/**
 	 * Do we need to look at the Schema.Subway table to get branch
