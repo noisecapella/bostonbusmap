@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
+import boston.Bus.Map.database.Schema;
 import boston.Bus.Map.transit.MbtaRealtimeTransitSource;
 import skylight1.opengl.files.QuickParseUtil;
 
@@ -104,6 +105,7 @@ public class MbtaRealtimePredictionsParser {
 										if (tripObj.has("trip_headsign")) {
 											directionName = tripObj.get("trip_headsign").getAsString();
 										}
+                                        String tripName = tripObj.get("trip_name").getAsString();
 										
 										if (tripObj.has("stop")) {
 											JsonArray stops = tripObj.get("stop").getAsJsonArray();
@@ -120,10 +122,18 @@ public class MbtaRealtimePredictionsParser {
 													if (stopObj.has("pre_dt")) {
 														long arrivalTimeSeconds = Long.parseLong(stopObj.get("pre_dt").getAsString());
 														long arrivalTimeMillis = arrivalTimeSeconds * 1000;
-													
+
 														String routeTitle = this.routeKeysToTitles.getTitle(routeName);
-														TimePrediction prediction = new TimePrediction(arrivalTimeMillis, vehicleId, directionName,
-															routeName, routeTitle, false, false, 0, null, stopId); 
+
+                                                        String id;
+                                                        if (MbtaRealtimeTransitSource.routeNameToTransitSource.get(routeName) == Schema.Routes.enumagencyidCommuterRail) {
+                                                            id = tripName;
+                                                        }
+                                                        else {
+                                                            id = vehicleId;
+                                                        }
+														TimePrediction prediction = new TimePrediction(arrivalTimeMillis, id, directionName,
+															routeName, routeTitle, false, false, 0, null, stopId);
 													
 														PredictionStopLocationPair pair = new PredictionStopLocationPair(prediction, stop);
 														pairs.add(pair);
