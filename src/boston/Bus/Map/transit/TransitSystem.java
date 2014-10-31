@@ -58,6 +58,11 @@ public class TransitSystem implements ITransitSystem {
 
 	private static final boolean showRunNumber = true;
 
+    /**
+     * Unimplemented for Toronto
+     */
+    public static final String ALERTS_URL = null;
+
 	private RouteTitles routeTitles;
 	
 	/**
@@ -290,7 +295,7 @@ public class TransitSystem implements ITransitSystem {
 	 * @param routeMapping
 	 */
 	public void startObtainAlerts(Context context, Directions directions,
-								  RoutePool routePool, ConcurrentHashMap<String, BusLocation> busMapping) {
+								  RoutePool routePool, VehicleLocations busMapping) {
 		// alerts not currently implemented for Toronto
 	}
 }
