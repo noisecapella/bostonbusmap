@@ -130,6 +130,8 @@ def make_field_map(obj, ret, name):
         elif isinstance(value, list):
             for item in value:
                 make_field_map(item, ret, key)
+            else:
+                make_field_map({}, ret, key)
 
 def make_type_str(fieldmap, k, fieldname):
     type = fieldmap[k][fieldname]
