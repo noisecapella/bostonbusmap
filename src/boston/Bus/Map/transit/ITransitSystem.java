@@ -49,4 +49,7 @@ public interface ITransitSystem {
 			String route);
 
 	IAlerts getAlerts();
+
+    public void startObtainAlerts(Context context, Directions directions,
+                                  RoutePool routePool, VehicleLocations busMapping);
 }
