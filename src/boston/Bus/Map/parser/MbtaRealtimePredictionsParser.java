@@ -8,6 +8,11 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 import boston.Bus.Map.database.Schema;
+import boston.Bus.Map.parser.gson.MbtaRealtimeRoot;
+import boston.Bus.Map.parser.gson.Mode;
+import boston.Bus.Map.parser.gson.Route;
+import boston.Bus.Map.parser.gson.Stop;
+import boston.Bus.Map.parser.gson.Trip;
 import boston.Bus.Map.transit.MbtaRealtimeTransitSource;
 import skylight1.opengl.files.QuickParseUtil;
 
@@ -27,6 +32,7 @@ import boston.Bus.Map.util.LogUtil;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
+import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -43,119 +49,84 @@ public class MbtaRealtimePredictionsParser {
 		this.routeKeysToTitles = routeKeysToTitles;
 		this.routeConfigs = routeConfigs;
 	}
-	
+
 	public void runParse(Reader data) throws IOException {
 		BufferedReader bufferedReader = new BufferedReader(data, 2048);
 
-		JsonElement root = new JsonParser().parse(bufferedReader);
-		List<PredictionStopLocationPair> pairs = parseTree(root.getAsJsonObject());
-		
+        MbtaRealtimeRoot root = new Gson().fromJson(bufferedReader, MbtaRealtimeRoot.class);
+
 		clearPredictions();
 
-		for (PredictionStopLocationPair pair : pairs) {
+		for (PredictionStopLocationPair pair : parseTree(root)) {
 			pair.stopLocation.addPrediction(pair.prediction);
 		}
 	}
 	
-	private List<PredictionStopLocationPair> parseTree(JsonObject root) {
+	private List<PredictionStopLocationPair> parseTree(MbtaRealtimeRoot root) {
 		List<PredictionStopLocationPair> pairs = Lists.newArrayList();
 
-		if (root.has("mode")) {
-			JsonArray modes = root.get("mode").getAsJsonArray();
+        for (Mode mode : root.mode) {
+            for (Route route : mode.route) {
+                String routeName;
+                if (MbtaRealtimeTransitSource.gtfsNameToRouteName.containsKey(route.route_id)) {
+                    routeName = MbtaRealtimeTransitSource.gtfsNameToRouteName.get(route.route_id);
+                }
+                else {
+                    LogUtil.i("Route id not found: " + route.route_id);
+                    continue;
+                }
+                RouteConfig routeConfig = routeConfigs.get(routeName);
 
-			for (JsonElement modeElem : modes) {
-				JsonObject modeObj = modeElem.getAsJsonObject();
-				if (modeObj.has("route")) {
-					JsonArray routes = modeObj.get("route").getAsJsonArray();
-					
-					for (JsonElement routeElem : routes) {
-						JsonObject routeObj = routeElem.getAsJsonObject();
-						String routeId = routeObj.get("route_id").getAsString();
-						
-						String routeName;
-						if (MbtaRealtimeTransitSource.gtfsNameToRouteName.containsKey(routeId)) {
-							routeName = MbtaRealtimeTransitSource.gtfsNameToRouteName.get(routeId);
-						}
-						else {
-							LogUtil.i("Route id not found: " + routeId);
-							continue;
-						}
-						RouteConfig routeConfig = routeConfigs.get(routeName);
-						
-						if (routeObj.has("direction")) {
-							JsonArray directions = routeObj.get("direction").getAsJsonArray();
-							
-							for (JsonElement directionElem : directions) {
-								JsonObject directionObj = directionElem.getAsJsonObject();
-								String directionId = directionObj.get("direction_name").getAsString();
-								
-								if (directionObj.has("trip")) {
-									JsonArray trips = directionObj.get("trip").getAsJsonArray();
-									
-									for (JsonElement tripElem : trips) {
-										JsonObject tripObj = tripElem.getAsJsonObject();
-										
-										String vehicleId = null;
-										if (tripObj.has("vehicle")) {
-											JsonObject vehicleObj = tripObj.get("vehicle").getAsJsonObject();
-											vehicleId = vehicleObj.get("vehicle_id").getAsString();
-										}
-										
-										String directionName = null;
-										if (tripObj.has("trip_headsign")) {
-											directionName = tripObj.get("trip_headsign").getAsString();
-										}
-                                        String tripName = tripObj.get("trip_name").getAsString();
-										
-										if (tripObj.has("stop")) {
-											JsonArray stops = tripObj.get("stop").getAsJsonArray();
-											
-											for (JsonElement stopElem : stops) {
-												JsonObject stopObj = stopElem.getAsJsonObject();
-												String stopId = stopObj.get("stop_id").getAsString();
-												
-												
-												StopLocation stop = routeConfig.getStop(stopId);
-												if (stop != null) {
-												
-													// TODO: make this more thorough
-													if (stopObj.has("pre_dt")) {
-														long arrivalTimeSeconds = Long.parseLong(stopObj.get("pre_dt").getAsString());
-														long arrivalTimeMillis = arrivalTimeSeconds * 1000;
 
-														String routeTitle = this.routeKeysToTitles.getTitle(routeName);
+                for (boston.Bus.Map.parser.gson.Direction direction : route.direction) {
+                    for (Trip trip : direction.trip) {
+                        String vehicleId = null;
+                        if (trip.vehicle != null) {
+                            vehicleId = trip.vehicle.vehicle_id;
+                        }
 
-                                                        String id;
-                                                        if (MbtaRealtimeTransitSource.routeNameToTransitSource.get(routeName) == Schema.Routes.enumagencyidCommuterRail) {
-                                                            id = tripName;
-                                                        }
-                                                        else {
-                                                            id = vehicleId;
-                                                        }
-														TimePrediction prediction = new TimePrediction(arrivalTimeMillis, id, directionName,
-															routeName, routeTitle, false, false, 0, null, stopId);
-													
-														PredictionStopLocationPair pair = new PredictionStopLocationPair(prediction, stop);
-														pairs.add(pair);
-													}
-												}
-												else {
-													LogUtil.i("Unable to find stop " + stopId + " in database");
-												}
-											}
-										}
-									}
-								}
-							}
-						}
-					}
-				}
-			}
-		}
-		else {
-			// no predictions
-		}
-		
+                        String directionName = trip.trip_headsign;
+                        String tripName = trip.trip_name;
+                        for (Stop stop : trip.stop) {
+                            String stopId = stop.stop_id;
+
+                            if ("N/A".equals(stopId)) {
+                                // not sure whether this value is coming from feed or Gson parser
+                                continue;
+                            }
+
+                            StopLocation stopLocation = routeConfig.getStop(stopId);
+                            if (stopLocation != null) {
+                                // TODO: make this more thorough
+                                if (stop.pre_dt != null) {
+                                    long arrivalTimeSeconds = Long.parseLong(stop.pre_dt);
+                                    long arrivalTimeMillis = arrivalTimeSeconds * 1000;
+
+                                    String routeTitle = this.routeKeysToTitles.getTitle(routeName);
+
+                                    String id;
+                                    if (MbtaRealtimeTransitSource.routeNameToTransitSource.get(routeName) == Schema.Routes.enumagencyidCommuterRail) {
+                                        id = tripName;
+                                    }
+                                    else {
+                                        id = vehicleId;
+                                    }
+                                    TimePrediction prediction = new TimePrediction(arrivalTimeMillis, id, directionName,
+                                            routeName, routeTitle, false, false, 0, null, stopId);
+
+                                    PredictionStopLocationPair pair = new PredictionStopLocationPair(prediction, stopLocation);
+                                    pairs.add(pair);
+                                }
+                            }
+                            else {
+                                LogUtil.i("Unable to find stop " + stopId + " in database");
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
 		return pairs;
 	}
 	private void clearPredictions() throws IOException
