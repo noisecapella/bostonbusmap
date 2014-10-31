@@ -8,6 +8,10 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
+import boston.Bus.Map.parser.gson.MbtaRealtimeRoot;
+import boston.Bus.Map.parser.gson.Mode;
+import boston.Bus.Map.parser.gson.Route;
+import boston.Bus.Map.parser.gson.Trip;
 import skylight1.opengl.files.QuickParseUtil;
 
 import boston.Bus.Map.data.BusLocation;
@@ -30,6 +34,7 @@ import boston.Bus.Map.util.LogUtil;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
+import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -61,97 +66,71 @@ public class MbtaRealtimeVehicleParser {
 	public void runParse(Reader data) throws IOException {
 		BufferedReader bufferedReader = new BufferedReader(data, 2048);
 
-		JsonElement root = new JsonParser().parse(bufferedReader);
-		parseTree(root.getAsJsonObject());
+        MbtaRealtimeRoot root = new Gson().fromJson(bufferedReader, MbtaRealtimeRoot.class);
+		parseTree(root);
 		
 		for (VehicleLocations.Key vehicleId : vehiclesToRemove) {
 			busMapping.remove(vehicleId);
 		}
 	}
 	
-	private void parseTree(JsonObject root) {
-		if (root.has("mode")) {
-			JsonArray modes = root.get("mode").getAsJsonArray();
+	private void parseTree(MbtaRealtimeRoot root) {
+        for (Mode mode : root.mode) {
+            for (Route route : mode.route) {
+                String routeName;
+                int transitSourceId;
+                if (MbtaRealtimeTransitSource.gtfsNameToRouteName.containsKey(route.route_id)) {
+                    routeName = MbtaRealtimeTransitSource.gtfsNameToRouteName.get(route.route_id);
+                    transitSourceId = MbtaRealtimeTransitSource.routeNameToTransitSource.get(routeName);
+                }
+                else {
+                    // this is weird because if we get a route id we would have requested it
+                    LogUtil.i("Route id not found: " + route.route_id);
+                    continue;
+                }
 
-			for (JsonElement modeElem : modes) {
-				JsonObject modeObj = modeElem.getAsJsonObject();
-				if (modeObj.has("route")) {
-					JsonArray routes = modeObj.get("route").getAsJsonArray();
-					
-					for (JsonElement routeElem : routes) {
-						JsonObject routeObj = routeElem.getAsJsonObject();
-						String routeId = routeObj.get("route_id").getAsString();
-						
-						String routeName;
-						int transitSourceId;
-						if (MbtaRealtimeTransitSource.gtfsNameToRouteName.containsKey(routeId)) {
-							routeName = MbtaRealtimeTransitSource.gtfsNameToRouteName.get(routeId);
-							transitSourceId = MbtaRealtimeTransitSource.routeNameToTransitSource.get(routeName);
-						}
-						else {
-							// this is weird because if we get a route id we would have requested it
-							LogUtil.i("Route id not found: " + routeId);
-							continue;
-						}
-						//RouteConfig routeConfig = routeConfigs.get(routeInfo.routeName);
-						
-						if (routeObj.has("direction")) {
-							JsonArray directions = routeObj.get("direction").getAsJsonArray();
-							
-							for (JsonElement directionElem : directions) {
-								JsonObject directionObj = directionElem.getAsJsonObject();
-								String directionId = directionObj.get("direction_name").getAsString();
-								
-								if (directionObj.has("trip")) {
-									JsonArray trips = directionObj.get("trip").getAsJsonArray();
-									
-									for (JsonElement tripElem : trips) {
-										JsonObject tripObj = tripElem.getAsJsonObject();
-										String tripHeadsign = tripObj.get("trip_headsign").getAsString();
-										
-										if (tripObj.has("vehicle")) {
-											JsonObject vehicleObj = tripObj.get("vehicle").getAsJsonObject();
-											String id = vehicleObj.get("vehicle_id").getAsString();
-											float latitude = Float.parseFloat(vehicleObj.get("vehicle_lat").getAsString());
-											float longitude = Float.parseFloat(vehicleObj.get("vehicle_lon").getAsString());
-											long timestamp = Long.parseLong(vehicleObj.get("vehicle_timestamp").getAsString());
-											String bearing = vehicleObj.get("vehicle_bearing").getAsString();
-											
-											VehicleLocations.Key key = new VehicleLocations.Key(transitSourceId, id);
-											vehiclesToRemove.remove(key);
-											
-											String routeTitle = routeKeysToTitles.getTitle(routeName);
-											
-											Direction direction = new Direction(tripHeadsign, directionId, routeName, true);
-                                            String newDirectionId = directionId + "_" + tripHeadsign;
-											directionsObj.add(newDirectionId, direction);
-											
-											BusLocation location;
-											if (transitSourceId == Schema.Routes.enumagencyidCommuterRail) {
-												location = new CommuterTrainLocation(latitude, longitude, id,
-														lastFeedUpdateInMillis, timestamp, bearing, true,
-                                                        newDirectionId, routeName, directionsObj, routeTitle);
-											}
-											else if (transitSourceId == Schema.Routes.enumagencyidSubway) {
-												location = new SubwayTrainLocation(latitude, longitude, id,
-														lastFeedUpdateInMillis, timestamp, bearing, true,
-                                                        newDirectionId, routeName, directionsObj, routeTitle);
-											}
-											else {
-												throw new RuntimeException("Unexpected transit id");
-											}
-											busMapping.put(key, location);
-										}
-									}
-								}
-							}
-						}
-					}
-				}
-			}
-		}
-		else {
-			// no vehicles
-		}
+                for (boston.Bus.Map.parser.gson.Direction direction : route.direction) {
+                    String directionId = direction.direction_name;
+
+                    for (Trip trip : direction.trip) {
+                        String tripHeadsign = trip.trip_headsign;
+                        String tripName = trip.trip_name;
+
+                        if (trip.vehicle != null) {
+                            String id = trip.vehicle.vehicle_id;
+                            if (trip.vehicle.vehicle_lat == null || trip.vehicle.vehicle_lon == null) {
+                                continue;
+                            }
+                            float latitude = Float.parseFloat(trip.vehicle.vehicle_lat);
+                            float longitude = Float.parseFloat(trip.vehicle.vehicle_lon);
+                            long timestamp = Long.parseLong(trip.vehicle.vehicle_timestamp);
+                            String bearing = trip.vehicle.vehicle_bearing;
+
+                            VehicleLocations.Key key = new VehicleLocations.Key(transitSourceId, id);
+                            vehiclesToRemove.remove(key);
+
+                            String routeTitle = routeKeysToTitles.getTitle(routeName);
+
+                            Direction directionObj = new Direction(tripHeadsign, directionId, routeName, true);
+                            String newDirectionId = directionId + "_" + tripHeadsign;
+                            directionsObj.add(newDirectionId, directionObj);
+
+                            BusLocation location;
+                            if (transitSourceId == Schema.Routes.enumagencyidCommuterRail) {
+                                location = new CommuterTrainLocation(latitude, longitude, tripName,
+                                        lastFeedUpdateInMillis, timestamp, bearing, true,
+                                        newDirectionId, routeName, directionsObj, routeTitle);
+                            }
+                            else {
+                                location = new SubwayTrainLocation(latitude, longitude, id,
+                                        lastFeedUpdateInMillis, timestamp, bearing, true,
+                                        newDirectionId, routeName, directionsObj, routeTitle);
+                            }
+                            busMapping.put(key, location);
+                        }
+                    }
+                }
+            }
+        }
 	}
 }
