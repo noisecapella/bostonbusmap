@@ -56,6 +56,9 @@ public class TransitSystem implements ITransitSystem {
 	private static final String[] emails = new String[]{"bostonbusmap@gmail.com"};
 	private static final String emailSubject = "Los AngelBus error report";
 
+    /**
+     * Unimplemented for Los Angelbus
+     */
 	public static String ALERTS_URL = null;
 
 	private static final boolean showRunNumber = false;
@@ -292,7 +295,7 @@ public class TransitSystem implements ITransitSystem {
 	 * @param routeMapping
 	 */
 	public void startObtainAlerts(Context context, Directions directions,
-								  RoutePool routePool, ConcurrentHashMap<String, BusLocation> busMapping) {
+								  RoutePool routePool, VehicleLocations busMapping) {
 		// no alerts are provided for LosAngelbus currently
 	}
 }
