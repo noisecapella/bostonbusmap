@@ -116,7 +116,6 @@ public class MbtaRealtimePredictionsParser {
 												String stopId = stopObj.get("stop_id").getAsString();
 
 
-                                                String routeTitle = this.routeKeysToTitles.getTitle(routeName);
 												StopLocation stop = routeConfig.getStop(stopId);
 												if (stop != null) {
 
