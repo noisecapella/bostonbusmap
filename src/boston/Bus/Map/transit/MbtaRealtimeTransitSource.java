@@ -35,6 +35,7 @@ import boston.Bus.Map.database.Schema;
 import boston.Bus.Map.parser.MbtaRealtimePredictionsParser;
 import boston.Bus.Map.parser.MbtaRealtimeVehicleParser;
 import boston.Bus.Map.util.DownloadHelper;
+import boston.Bus.Map.util.LogUtil;
 import boston.Bus.Map.util.SearchHelper;
 
 public class MbtaRealtimeTransitSource implements TransitSource {
@@ -163,7 +164,7 @@ public class MbtaRealtimeTransitSource implements TransitSource {
 		String routesString = Joiner.on(",").join(routesInUrl);
 		 
 		String vehiclesUrl = dataUrlPrefix + "vehiclesbyroutes?api_key=" + apiKey + "&format=json&routes=" + routesString;
-		String predictionsUrl = dataUrlPrefix + "predictionsbyroutes?api_key=" + apiKey + "&format=json&routes=" + routesString;
+		String predictionsUrl = dataUrlPrefix + "predictionsbyroutes?api_key=" + apiKey + "&format=json&include_service_alerts=false&routes=" + routesString;
 
 		DownloadHelper vehiclesDownloadHelper = new DownloadHelper(vehiclesUrl);
 			
