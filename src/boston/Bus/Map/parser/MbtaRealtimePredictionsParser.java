@@ -66,6 +66,9 @@ public class MbtaRealtimePredictionsParser {
 	private List<PredictionStopLocationPair> parseTree(MbtaRealtimeRoot root) {
 		List<PredictionStopLocationPair> pairs = Lists.newArrayList();
 
+        if (root.mode == null) {
+            return pairs;
+        }
         for (Mode mode : root.mode) {
             for (Route route : mode.route) {
                 String routeName;

@@ -75,6 +75,9 @@ public class MbtaRealtimeVehicleParser {
 	}
 	
 	private void parseTree(MbtaRealtimeRoot root) {
+        if (root.mode == null) {
+            return;
+        }
         for (Mode mode : root.mode) {
             for (Route route : mode.route) {
                 String routeName;
