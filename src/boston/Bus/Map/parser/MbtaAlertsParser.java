@@ -65,7 +65,7 @@ public class MbtaAlertsParser implements IAlertsParser {
 		gtfsRoutes = builder.build();
 	}
 	
-	public MbtaAlertsParser(TransitSystem transitSystem, Directions directions, RoutePool routePool, VehicleLocations busMapping) {
+	public MbtaAlertsParser(TransitSystem transitSystem) {
 		this.transitSystem = transitSystem;
 		this.routeTitles = transitSystem.getRouteKeysToTitles();
 	}

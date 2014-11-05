@@ -5,9 +5,11 @@ import java.io.IOException;
 import java.io.Reader;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
+import boston.Bus.Map.data.Location;
 import boston.Bus.Map.parser.gson.MbtaRealtimeRoot;
 import boston.Bus.Map.parser.gson.Mode;
 import boston.Bus.Map.parser.gson.Route;
@@ -33,6 +35,7 @@ import boston.Bus.Map.util.LogUtil;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
@@ -42,8 +45,6 @@ import com.google.gson.JsonParser;
 
 public class MbtaRealtimeVehicleParser {
 	private final TransitSourceTitles routeKeysToTitles;
-
-	private final Set<VehicleLocations.Key> vehiclesToRemove;
 
 	private final VehicleLocations busMapping;
 	
@@ -56,7 +57,6 @@ public class MbtaRealtimeVehicleParser {
 	{
 		this.routeKeysToTitles = routeKeysToTitles;
 
-		vehiclesToRemove = busMapping.copyVehicleIds();
 		this.busMapping = busMapping;
 		this.directionsObj = directionsObj;
 		
@@ -68,16 +68,15 @@ public class MbtaRealtimeVehicleParser {
 
         MbtaRealtimeRoot root = new Gson().fromJson(bufferedReader, MbtaRealtimeRoot.class);
 		parseTree(root);
-		
-		for (VehicleLocations.Key vehicleId : vehiclesToRemove) {
-			busMapping.remove(vehicleId);
-		}
 	}
 	
 	private void parseTree(MbtaRealtimeRoot root) {
         if (root.mode == null) {
             return;
         }
+
+        Map<Key, BusLocation> newSubwayVehicles = Maps.newHashMap();
+        Map<Key, BusLocation> newCommuterRailVehicles = Maps.newHashMap();
         for (Mode mode : root.mode) {
             for (Route route : mode.route) {
                 String routeName;
@@ -110,7 +109,6 @@ public class MbtaRealtimeVehicleParser {
                             String bearing = trip.vehicle.vehicle_bearing;
 
                             VehicleLocations.Key key = new VehicleLocations.Key(transitSourceId, id);
-                            vehiclesToRemove.remove(key);
 
                             String routeTitle = routeKeysToTitles.getTitle(routeName);
 
@@ -123,17 +121,21 @@ public class MbtaRealtimeVehicleParser {
                                 location = new CommuterTrainLocation(latitude, longitude, tripName,
                                         lastFeedUpdateInMillis, timestamp, bearing, true,
                                         newDirectionId, routeName, directionsObj, routeTitle);
+                                newCommuterRailVehicles.put(key, location);
                             }
                             else {
                                 location = new SubwayTrainLocation(latitude, longitude, id,
                                         lastFeedUpdateInMillis, timestamp, bearing, true,
                                         newDirectionId, routeName, directionsObj, routeTitle);
+                                newSubwayVehicles.put(key, location);
                             }
-                            busMapping.put(key, location);
                         }
                     }
                 }
             }
         }
+
+        busMapping.update(Schema.Routes.enumagencyidCommuterRail, newCommuterRailVehicles);
+        busMapping.update(Schema.Routes.enumagencyidSubway, newSubwayVehicles);
 	}
 }

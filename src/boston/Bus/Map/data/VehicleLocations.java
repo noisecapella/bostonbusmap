@@ -1,6 +1,7 @@
 package boston.Bus.Map.data;
 
 import java.util.Collection;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -37,21 +38,26 @@ public class VehicleLocations {
 	
 	private final ConcurrentHashMap<Key, BusLocation> locations = new ConcurrentHashMap<Key, BusLocation>();
 
-	public void remove(Key vehicleId) {
-		locations.remove(vehicleId);
-	}
+    /**
+     * Remove all vehicles with the given transitSourceId and replace with what's in newItems
+     * @param transitSourceId
+     * @param newItems
+     */
+    public void update(int transitSourceId, Map<Key, BusLocation> newItems) {
+        Set<VehicleLocations.Key> toRemove = Sets.newHashSet();
 
-	public Set<Key> copyVehicleIds() {
-		return Sets.newHashSet(locations.keySet());
-	}
+        for (VehicleLocations.Key key : locations.keySet()) {
+            if (key.transitSourceId == transitSourceId && locations.containsKey(key)) {
+                toRemove.add(key);
+            }
+        }
 
-	public void put(Key key, BusLocation location) {
-		locations.put(key, location);
-	}
+        for (VehicleLocations.Key key : toRemove) {
+            locations.remove(key);
+        }
 
-	public void putAll(VehicleLocations busMapping) {
-		locations.putAll(busMapping.locations);
-	}
+        locations.putAll(newItems);
+    }
 
 	public BusLocation get(VehicleLocations.Key id) {
 		return locations.get(id);
