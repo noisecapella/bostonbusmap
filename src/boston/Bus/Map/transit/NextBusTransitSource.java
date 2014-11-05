@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.FileHandler;
 import java.util.zip.GZIPInputStream;
@@ -100,95 +101,71 @@ public abstract class NextBusTransitSource implements TransitSource
 			double centerLatitude, double centerLongitude, VehicleLocations busMapping, 
 			RoutePool routePool, Directions directions, Locations locationsObj)
 	throws IOException, ParserConfigurationException, SAXException {
-		//read data from the URL
-		DownloadHelper downloadHelper;
-		Selection.Mode mode = selection.getMode();
-		if (mode == Selection.Mode.BUS_PREDICTIONS_ONE ||
-			mode == Selection.Mode.BUS_PREDICTIONS_STAR ||
-			mode == Selection.Mode.BUS_PREDICTIONS_ALL)
-		{
+        //read data from the URL
+        DownloadHelper downloadHelper;
+        Selection.Mode mode = selection.getMode();
+        if (mode == Selection.Mode.BUS_PREDICTIONS_ONE ||
+                mode == Selection.Mode.BUS_PREDICTIONS_STAR ||
+                mode == Selection.Mode.BUS_PREDICTIONS_ALL) {
 
-			List<Location> locations = locationsObj.getLocations(maxStops, centerLatitude, centerLongitude, false, selection);
+            List<Location> locations = locationsObj.getLocations(maxStops, centerLatitude, centerLongitude, false, selection);
 
-			//ok, do predictions now
-			ImmutableSet<String> routes;
-			if (mode == Selection.Mode.BUS_PREDICTIONS_ONE) {
-				routes = ImmutableSet.of(routeConfig.getRouteName());
-			}
-			else
-			{
-				routes = ImmutableSet.of();
-			}
-			String url = getPredictionsUrl(locations, maxStops, routes);
+            //ok, do predictions now
+            ImmutableSet<String> routes;
+            if (mode == Selection.Mode.BUS_PREDICTIONS_ONE) {
+                routes = ImmutableSet.of(routeConfig.getRouteName());
+            } else {
+                routes = ImmutableSet.of();
+            }
+            String url = getPredictionsUrl(locations, maxStops, routes);
 
-			if (url == null)
-			{
-				return;
-			}
+            if (url == null) {
+                return;
+            }
 
-			downloadHelper = new DownloadHelper(url);
-		}
-		else if (mode == Selection.Mode.VEHICLE_LOCATIONS_ONE)
-		{
-			final String urlString = getVehicleLocationsUrl(locationsObj.getLastUpdateTime(), routeConfig.getRouteName());
-			downloadHelper = new DownloadHelper(urlString);
-		}
-		else
-		{
-			final String urlString = getVehicleLocationsUrl(locationsObj.getLastUpdateTime(), null);
-			downloadHelper = new DownloadHelper(urlString);
-		}
+            downloadHelper = new DownloadHelper(url);
+        } else if (mode == Selection.Mode.VEHICLE_LOCATIONS_ONE) {
+            final String urlString = getVehicleLocationsUrl(locationsObj.getLastUpdateTime(), routeConfig.getRouteName());
+            downloadHelper = new DownloadHelper(urlString);
+        } else {
+            final String urlString = getVehicleLocationsUrl(locationsObj.getLastUpdateTime(), null);
+            downloadHelper = new DownloadHelper(urlString);
+        }
 
-		downloadHelper.connect();
+        downloadHelper.connect();
 
-		InputStream data = downloadHelper.getResponseData();
+        InputStream data = downloadHelper.getResponseData();
 
-		if (mode == Selection.Mode.BUS_PREDICTIONS_ONE ||
-				mode == Selection.Mode.BUS_PREDICTIONS_ALL ||
-				mode == Selection.Mode.BUS_PREDICTIONS_STAR)
-		{
-			//bus prediction
+        if (mode == Selection.Mode.BUS_PREDICTIONS_ONE ||
+                mode == Selection.Mode.BUS_PREDICTIONS_ALL ||
+                mode == Selection.Mode.BUS_PREDICTIONS_STAR) {
+            //bus prediction
 
-			BusPredictionsFeedParser parser = new BusPredictionsFeedParser(routePool, directions);
+            BusPredictionsFeedParser parser = new BusPredictionsFeedParser(routePool, directions);
 
-			parser.runParse(data);
-		}
-		else 
-		{
-			//vehicle locations
-			//VehicleLocationsFeedParser parser = new VehicleLocationsFeedParser(stream);
+            parser.runParse(data);
+        } else {
+            //vehicle locations
+            //VehicleLocationsFeedParser parser = new VehicleLocationsFeedParser(stream);
 
-			//lastUpdateTime = parser.getLastUpdateTime();
+            //lastUpdateTime = parser.getLastUpdateTime();
 
-			VehicleLocationsFeedParser parser = new VehicleLocationsFeedParser(drawables, directions, transitSystem.getRouteKeysToTitles());
-			parser.runParse(data);
+            VehicleLocationsFeedParser parser = new VehicleLocationsFeedParser(drawables, directions, transitSystem.getRouteKeysToTitles());
+            parser.runParse(data);
 
-			//get the time that this information is valid until
-			locationsObj.setLastUpdateTime(parser.getLastUpdateTime());
+            //get the time that this information is valid until
+            locationsObj.setLastUpdateTime(parser.getLastUpdateTime());
 
-			synchronized (busMapping)
-			{
-				parser.fillMapping(busMapping);
+            long lastUpdateTime = parser.getLastUpdateTime();
+            Map<VehicleLocations.Key, BusLocation> newBuses = parser.getNewBuses();
 
-				//delete old buses
-				List<VehicleLocations.Key> busesToBeDeleted = Lists.newArrayList();
-				for (VehicleLocations.Key id : busMapping.keySet())
-				{
-					BusLocation busLocation = busMapping.get(id);
-					if (busLocation.getLastUpdateInMillis() + 180000 < System.currentTimeMillis())
-					{
-						//put this old dog to sleep
-						busesToBeDeleted.add(id);
-					}
-				}
+            for (BusLocation bus : newBuses.values()) {
+                bus.setLastUpdateInMillis(lastUpdateTime);
+            }
 
-				for (VehicleLocations.Key id : busesToBeDeleted)
-				{
-					busMapping.remove(id);
-				}
-			}
-		}
-	}
+            busMapping.update(Schema.Routes.enumagencyidBus, newBuses);
+        }
+    }
 
 	protected String getPredictionsUrl(List<Location> locations, int maxStops, Collection<String> routes)
 	{

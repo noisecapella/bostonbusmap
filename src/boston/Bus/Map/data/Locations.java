@@ -79,7 +79,7 @@ public final class Locations
 	
 	private final Directions directions;
 	
-	private double lastUpdateTime = 0;
+	private long lastUpdateTime = 0;
 	
 	private Selection mutableSelection;
 	private final TransitSystem transitSystem;
@@ -133,7 +133,7 @@ public final class Locations
 		//see if route overlays need to be downloaded
 		String routeToUpdate = selection.getRoute();
 		RouteConfig routeConfig = routeMapping.get(routeToUpdate);
-		transitSystem.startObtainAlerts(context, directions, routeMapping, busMapping);
+		transitSystem.startObtainAlerts(context);
 
 		Selection.Mode mode = selection.getMode();
 		if (mode == Selection.Mode.BUS_PREDICTIONS_ALL ||
@@ -323,13 +323,13 @@ public final class Locations
 		return routeMapping.getFavoriteStops();
 	}
 	
-	public void setLastUpdateTime(double lastUpdateTime) {
+	public void setLastUpdateTime(long lastUpdateTime) {
 		this.lastUpdateTime = lastUpdateTime;
 	}
 	
 	public long getLastUpdateTime()
 	{
-		return (long)lastUpdateTime;
+		return lastUpdateTime;
 	}
 	
 	public ConcurrentMap<String, StopLocation> getAllStopsAtStop(String stopTag)

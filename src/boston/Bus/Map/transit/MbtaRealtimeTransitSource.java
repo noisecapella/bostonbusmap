@@ -140,10 +140,6 @@ public class MbtaRealtimeTransitSource implements TransitSource {
 			RoutePool routePool, Directions directions, Locations locationsObj)
 			throws IOException, ParserConfigurationException, SAXException {
 		Selection.Mode selectedBusPredictions = selection.getMode();
-        if (selectedBusPredictions == Selection.Mode.VEHICLE_LOCATIONS_ALL) {
-            // for now don't refresh all vehicles mode since we're only reading from the nextbus source
-            return;
-        }
 		List<String> routesInUrl = Lists.newArrayList();
 		ImmutableMap<String, RouteConfig> routeConfigs;
 		if (selectedBusPredictions == Selection.Mode.VEHICLE_LOCATIONS_ONE ||
