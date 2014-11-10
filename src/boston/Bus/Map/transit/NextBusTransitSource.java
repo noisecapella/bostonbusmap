@@ -163,7 +163,7 @@ public abstract class NextBusTransitSource implements TransitSource
                 bus.setLastUpdateInMillis(lastUpdateTime);
             }
 
-            busMapping.update(Schema.Routes.enumagencyidBus, newBuses);
+            busMapping.update(Schema.Routes.enumagencyidBus, routeTitles.routeTags(), true, newBuses);
         }
     }
 

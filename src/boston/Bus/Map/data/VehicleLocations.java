@@ -8,21 +8,25 @@ import java.util.concurrent.ConcurrentHashMap;
 import boston.Bus.Map.data.VehicleLocations.Key;
 
 import com.google.common.base.Objects;
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
 
 public class VehicleLocations {
 	public static class Key {
 		private final int transitSourceId;
+        private final String routeName;
 		private final String id;
 		
-		public Key(int transitSourceId, String id) {
+		public Key(int transitSourceId, String routeName, String id) {
 			this.transitSourceId = transitSourceId;
+            this.routeName = routeName;
 			this.id = id;
 		}
 		
 		@Override
 		public int hashCode() {
-			return Objects.hashCode(transitSourceId, id);
+			return Objects.hashCode(transitSourceId, routeName, id);
 		}
 		
 		@Override
@@ -30,6 +34,7 @@ public class VehicleLocations {
 			if (obj instanceof Key) {
 				Key other = (Key)obj;
 				return Objects.equal(this.transitSourceId, other.transitSourceId) &&
+                        Objects.equal(this.routeName, other.routeName) &&
 						Objects.equal(this.id, other.id);
 			}
 			return false;
@@ -38,17 +43,16 @@ public class VehicleLocations {
 	
 	private final ConcurrentHashMap<Key, BusLocation> locations = new ConcurrentHashMap<Key, BusLocation>();
 
-    /**
-     * Remove all vehicles with the given transitSourceId and replace with what's in newItems
-     * @param transitSourceId
-     * @param newItems
-     */
-    public void update(int transitSourceId, Map<Key, BusLocation> newItems) {
+    public void update(int transitSourceId, ImmutableSet<String> routeNames, boolean incremental, Map<Key, BusLocation> newItems) {
         Set<VehicleLocations.Key> toRemove = Sets.newHashSet();
 
         for (VehicleLocations.Key key : locations.keySet()) {
             if (key.transitSourceId == transitSourceId && locations.containsKey(key)) {
-                toRemove.add(key);
+                if (!incremental) {
+                    if (routeNames.contains(key.routeName)) {
+                        toRemove.add(key);
+                    }
+                }
             }
         }
 

@@ -7,6 +7,7 @@ import java.util.Set;
 
 import com.google.common.collect.ImmutableBiMap;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Maps;
 
 /**
@@ -23,11 +24,11 @@ public class TransitSourceTitles {
 		
 	}
 
-	public Set<String> routeTags() {
+	public ImmutableSet<String> routeTags() {
 		return map.keySet();
 	}
 
-	public Collection<String> routeTitles() {
+	public ImmutableSet<String> routeTitles() {
 		return map.values();
 	}
 

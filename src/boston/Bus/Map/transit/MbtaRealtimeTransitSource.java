@@ -14,6 +14,7 @@ import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableBiMap;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableMultimap;
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.ImmutableTable;
 import com.google.common.collect.Lists;
 
@@ -141,25 +142,24 @@ public class MbtaRealtimeTransitSource implements TransitSource {
 			throws IOException, ParserConfigurationException, SAXException {
 		Selection.Mode selectedBusPredictions = selection.getMode();
 		List<String> routesInUrl = Lists.newArrayList();
-		ImmutableMap<String, RouteConfig> routeConfigs;
+		ImmutableSet<String> routeNames;
 		if (selectedBusPredictions == Selection.Mode.VEHICLE_LOCATIONS_ONE ||
 				selectedBusPredictions == Selection.Mode.BUS_PREDICTIONS_ONE) {
 			for (String gtfsRoute : routeNameToGtfsName.get(routeConfig.getRouteName())) {
 				routesInUrl.add(gtfsRoute);
 			}
-			routeConfigs = ImmutableMap.of(routeConfig.getRouteName(), routeConfig);
+			routeNames = ImmutableSet.of(routeConfig.getRouteName());
 		}
 		else {
 			routesInUrl.addAll(routeNameToGtfsName.values());
 			
-			ImmutableMap.Builder<String, RouteConfig> builder = 
-				ImmutableMap.builder();
+			ImmutableSet.Builder<String> builder =
+				ImmutableSet.builder();
 			
 			for (String routeName : routeNameToTransitSource.keySet()) {
-				RouteConfig aRouteConfig = routePool.get(routeName);
-				builder.put(aRouteConfig.getRouteName(), aRouteConfig);
+				builder.add(routeName);
 			}
-			routeConfigs = builder.build();
+            routeNames = builder.build();
 		}
 		
 		String routesString = Joiner.on(",").join(routesInUrl);
@@ -174,7 +174,7 @@ public class MbtaRealtimeTransitSource implements TransitSource {
 		InputStream vehicleStream = vehiclesDownloadHelper.getResponseData();
 		InputStreamReader vehicleData = new InputStreamReader(vehicleStream);
 
-		MbtaRealtimeVehicleParser vehicleParser = new MbtaRealtimeVehicleParser(routeTitles, busMapping, directions);
+		MbtaRealtimeVehicleParser vehicleParser = new MbtaRealtimeVehicleParser(routeTitles, busMapping, directions, routeNames);
 		vehicleParser.runParse(vehicleData);
 		
 		DownloadHelper predictionsDownloadHelper = new DownloadHelper(predictionsUrl);
@@ -186,7 +186,7 @@ public class MbtaRealtimeTransitSource implements TransitSource {
 
 		
 		
-		MbtaRealtimePredictionsParser parser = new MbtaRealtimePredictionsParser(routeConfigs, routeTitles);
+		MbtaRealtimePredictionsParser parser = new MbtaRealtimePredictionsParser(routeNames, routePool, routeTitles);
 		parser.runParse(predictionsData);
 		
 		predictionsData.close();
