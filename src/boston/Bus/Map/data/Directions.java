@@ -51,7 +51,6 @@ public class Directions {
 		Direction direction = directions.get(dirTag);
 		if (direction == null)
 		{
-			Log.i("BostonBusMap", "strange, dirTag + " + dirTag + " doesnt exist. If you see this many times, we're having trouble storing the data in the database. Too much DB activity causes objects to persist which causes a crash");
 			doRefresh();
 			
 			return directions.get(dirTag);

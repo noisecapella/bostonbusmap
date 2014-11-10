@@ -115,23 +115,19 @@ public class MbtaRealtimeVehicleParser {
 
                             VehicleLocations.Key key = new VehicleLocations.Key(transitSourceId, routeName, id);
 
-                            String routeTitle = routeKeysToTitles.getTitle(routeName);
-
-                            Direction directionObj = new Direction(tripHeadsign, directionId, routeName, true);
-                            String newDirectionId = directionId + "_" + tripHeadsign;
-                            directionsObj.add(newDirectionId, directionObj);
+                            String directionDescription = directionId + "<br />" + tripHeadsign;
 
                             BusLocation location;
                             if (transitSourceId == Schema.Routes.enumagencyidCommuterRail) {
                                 location = new CommuterTrainLocation(latitude, longitude, tripName,
-                                        lastFeedUpdateInMillis, timestamp, bearing, true,
-                                        newDirectionId, routeName, directionsObj, routeTitle);
+                                        timestamp, bearing, true,
+                                        directionDescription, false, routeName);
                                 newCommuterRailVehicles.put(key, location);
                             }
                             else {
                                 location = new SubwayTrainLocation(latitude, longitude, id,
-                                        lastFeedUpdateInMillis, timestamp, bearing, true,
-                                        newDirectionId, routeName, directionsObj, routeTitle);
+                                        timestamp, bearing, true,
+                                        directionDescription, false, routeName);
                                 newSubwayVehicles.put(key, location);
                             }
                         }
