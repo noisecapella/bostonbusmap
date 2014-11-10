@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
+import boston.Bus.Map.data.RoutePool;
 import boston.Bus.Map.database.Schema;
 import boston.Bus.Map.parser.gson.MbtaRealtimeRoot;
 import boston.Bus.Map.parser.gson.Mode;
@@ -30,6 +31,7 @@ import boston.Bus.Map.data.TransitSourceTitles;
 import boston.Bus.Map.util.LogUtil;
 
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.google.gson.Gson;
@@ -41,13 +43,16 @@ import com.google.gson.JsonParser;
 public class MbtaRealtimePredictionsParser {
 	private final TransitSourceTitles routeKeysToTitles;
 
-	private final ImmutableMap<String, RouteConfig> routeConfigs;
+	private final ImmutableSet<String> routeNames;
+    private final RoutePool routePool;
 	
-	public MbtaRealtimePredictionsParser(ImmutableMap<String, RouteConfig> routeConfigs,
+	public MbtaRealtimePredictionsParser(ImmutableSet<String> routeNames,
+                                         RoutePool routePool,
 			TransitSourceTitles routeKeysToTitles)
 	{
 		this.routeKeysToTitles = routeKeysToTitles;
-		this.routeConfigs = routeConfigs;
+		this.routeNames = routeNames;
+        this.routePool = routePool;
 	}
 
 	public void runParse(Reader data) throws IOException {
@@ -62,7 +67,7 @@ public class MbtaRealtimePredictionsParser {
 		}
 	}
 	
-	private List<PredictionStopLocationPair> parseTree(MbtaRealtimeRoot root) {
+	private List<PredictionStopLocationPair> parseTree(MbtaRealtimeRoot root) throws IOException {
 		List<PredictionStopLocationPair> pairs = Lists.newArrayList();
 
         if (root.mode == null) {
@@ -78,7 +83,7 @@ public class MbtaRealtimePredictionsParser {
                     LogUtil.i("Route id not found: " + route.route_id);
                     continue;
                 }
-                RouteConfig routeConfig = routeConfigs.get(routeName);
+                RouteConfig routeConfig = routePool.get(routeName);
 
 
                 for (boston.Bus.Map.parser.gson.Direction direction : route.direction) {
@@ -134,8 +139,9 @@ public class MbtaRealtimePredictionsParser {
 	}
 	private void clearPredictions() throws IOException
 	{
-		for (RouteConfig routeConfig : routeConfigs.values()) {
-			for (StopLocation stopLocation : routeConfig.getStops())
+		for (String route : routeNames) {
+            RouteConfig routeConfig = routePool.get(route);
+            for (StopLocation stopLocation : routeConfig.getStops())
 			{
 				stopLocation.clearPredictions(routeConfig);
 			}

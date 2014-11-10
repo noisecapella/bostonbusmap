@@ -33,7 +33,9 @@ import boston.Bus.Map.database.Schema;
 import boston.Bus.Map.transit.MbtaRealtimeTransitSource;
 import boston.Bus.Map.util.LogUtil;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
@@ -51,14 +53,17 @@ public class MbtaRealtimeVehicleParser {
 	private final long lastFeedUpdateInMillis;
 	
 	private final Directions directionsObj;
+
+    private final ImmutableSet<String> routeNames;
 	
 	public MbtaRealtimeVehicleParser(TransitSourceTitles routeKeysToTitles,
-			VehicleLocations busMapping, Directions directionsObj)
+			VehicleLocations busMapping, Directions directionsObj, ImmutableSet<String> routeNames)
 	{
 		this.routeKeysToTitles = routeKeysToTitles;
 
 		this.busMapping = busMapping;
 		this.directionsObj = directionsObj;
+        this.routeNames = routeNames;
 		
 		this.lastFeedUpdateInMillis = System.currentTimeMillis();
 	}
@@ -108,7 +113,7 @@ public class MbtaRealtimeVehicleParser {
                             long timestamp = Long.parseLong(trip.vehicle.vehicle_timestamp);
                             String bearing = trip.vehicle.vehicle_bearing;
 
-                            VehicleLocations.Key key = new VehicleLocations.Key(transitSourceId, id);
+                            VehicleLocations.Key key = new VehicleLocations.Key(transitSourceId, routeName, id);
 
                             String routeTitle = routeKeysToTitles.getTitle(routeName);
 
@@ -135,7 +140,7 @@ public class MbtaRealtimeVehicleParser {
             }
         }
 
-        busMapping.update(Schema.Routes.enumagencyidCommuterRail, newCommuterRailVehicles);
-        busMapping.update(Schema.Routes.enumagencyidSubway, newSubwayVehicles);
+        busMapping.update(Schema.Routes.enumagencyidCommuterRail, routeNames, false, newCommuterRailVehicles);
+        busMapping.update(Schema.Routes.enumagencyidSubway, routeNames, false, newSubwayVehicles);
 	}
 }
