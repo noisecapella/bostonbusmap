@@ -159,10 +159,6 @@ public abstract class NextBusTransitSource implements TransitSource
             long lastUpdateTime = parser.getLastUpdateTime();
             Map<VehicleLocations.Key, BusLocation> newBuses = parser.getNewBuses();
 
-            for (BusLocation bus : newBuses.values()) {
-                bus.setLastUpdateInMillis(lastUpdateTime);
-            }
-
             busMapping.update(Schema.Routes.enumagencyidBus, routeTitles.routeTags(), true, newBuses);
         }
     }
