@@ -294,8 +294,7 @@ public class TransitSystem implements ITransitSystem {
 	 * @param directions
 	 * @param routeMapping
 	 */
-	public void startObtainAlerts(Context context, Directions directions,
-								  RoutePool routePool, VehicleLocations busMapping) {
+	public void startObtainAlerts(Context context) {
 		// no alerts are provided for LosAngelbus currently
 	}
 }
