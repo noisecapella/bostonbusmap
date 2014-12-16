@@ -52,6 +52,7 @@ public class VehicleLocationsFeedParser extends DefaultHandler
 	private final TransitDrawables drawables;
 	private final Directions directions;
 	private final RouteTitles routeKeysToTitles;
+    private final Map<VehicleLocations.Key, BusLocation> newBuses = Maps.newHashMap();
 	
 	public VehicleLocationsFeedParser(TransitDrawables drawables,
 			Directions directions, RouteTitles routeKeysToTitles)
@@ -86,7 +87,11 @@ public class VehicleLocationsFeedParser extends DefaultHandler
 	private static final String timeKey = "time";
 	private static final String tripTagKey = "tripTag";
 	private static final String speedKmHrKey = "speedKmHr";
-	
+
+    public Map<VehicleLocations.Key, BusLocation> getNewBuses() {
+        return newBuses;
+    }
+
 	@Override
 	public void startElement(String uri, String localName, String qName,
 			Attributes attributes) throws SAXException {
@@ -106,26 +111,16 @@ public class VehicleLocationsFeedParser extends DefaultHandler
 			
 			long lastFeedUpdate = System.currentTimeMillis() - (seconds * 1000);
 			
-			BusLocation newBusLocation = new BusLocation(lat, lon, id, lastFeedUpdate, lastUpdateTime, 
-					heading, predictable, dirTag, route, directions, routeKeysToTitles.getTitle(route));
+			BusLocation newBusLocation = new BusLocation(lat, lon, id, lastFeedUpdate,
+					heading, predictable, dirTag, true, route);
 
-			VehicleLocations.Key key = new VehicleLocations.Key(Schema.Routes.enumagencyidBus, id);
-			if (busMapping.containsKey(key))
-			{
-				//calculate the direction of the bus from the current and previous locations
-				newBusLocation.movedFrom(busMapping.get(key));
-			}
+			VehicleLocations.Key key = new VehicleLocations.Key(Schema.Routes.enumagencyidBus, route, id);
 
-			busMapping.put(key, newBusLocation);
+			newBuses.put(key, newBusLocation);
 		}
 		else if (localName.equals(lastTimeKey))
 		{
 			lastUpdateTime = Long.parseLong(attributes.getValue(timeKey));
-			
-			for (VehicleLocations.Key key : busMapping.keySet())
-			{
-				busMapping.get(key).setLastUpdateInMillis(lastUpdateTime);
-			}
 		}
 
 	}
@@ -140,11 +135,7 @@ public class VehicleLocationsFeedParser extends DefaultHandler
 		XmlParserHelper.clearAttributes(attributes, tagCache);
 	}
 
-	public double getLastUpdateTime() {
+	public long getLastUpdateTime() {
 		return lastUpdateTime;
-	}
-
-	public void fillMapping(VehicleLocations outputBusMapping) {
-		outputBusMapping.putAll(busMapping);
 	}
 }
