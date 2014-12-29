@@ -415,8 +415,4 @@ public final class Locations
 	public TransitSystem getTransitSystem() {
 		return routeMapping.getTransitSystem();
 	}
-
-    public Directions getDirections() {
-        return directions;
-    }
 }
