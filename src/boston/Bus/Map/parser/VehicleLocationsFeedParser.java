@@ -111,10 +111,15 @@ public class VehicleLocationsFeedParser extends DefaultHandler
 			
 			long lastFeedUpdate = System.currentTimeMillis() - (seconds * 1000);
 			
-			BusLocation newBusLocation = new BusLocation(lat, lon, id, lastFeedUpdate,
-					heading, predictable, dirTag, true, route);
+			BusLocation newBusLocation = new BusLocation(lat, lon, id, lastFeedUpdate, lastUpdateTime, 
+					heading, predictable, dirTag, route, directions, routeKeysToTitles.getTitle(route));
 
 			VehicleLocations.Key key = new VehicleLocations.Key(Schema.Routes.enumagencyidBus, route, id);
+			if (busMapping.containsKey(key))
+			{
+				//calculate the direction of the bus from the current and previous locations
+				newBusLocation.movedFrom(busMapping.get(key));
+			}
 
 			newBuses.put(key, newBusLocation);
 		}
