@@ -42,6 +42,7 @@ import boston.Bus.Map.database.Schema;
 import boston.Bus.Map.main.Main;
 import boston.Bus.Map.parser.MbtaAlertsParser;
 import boston.Bus.Map.provider.DatabaseAgent;
+import boston.Bus.Map.provider.ResolverWrapper;
 import boston.Bus.Map.util.Constants;
 /**
  * Any transit-system specific stuff should go here, if possible
@@ -105,7 +106,6 @@ public class TransitSystem implements ITransitSystem {
 	 * @param busDrawables
 	 * @param subwayDrawables
 	 * @param commuterRailDrawables
-	 * @param alertsData
 	 */
 	@Override
 	public void setDefaultTransitSource(TransitDrawables busDrawables, TransitDrawables subwayDrawables, 
@@ -114,7 +114,7 @@ public class TransitSystem implements ITransitSystem {
 		if (defaultTransitSource == null)
 		{
 			ContentResolver resolver = context.getContentResolver();
-			routeTitles = DatabaseAgent.getRouteTitles(resolver);
+			routeTitles = DatabaseAgent.getRouteTitles(new ResolverWrapper(context.getContentResolver()));
 
 			TransitSourceTitles busTransitRoutes = routeTitles.getMappingForSource(Schema.Routes.enumagencyidBus);
 			TransitSourceTitles hubwayTransitRoutes = routeTitles.getMappingForSource(Schema.Routes.enumagencyidHubway);
@@ -303,8 +303,6 @@ public class TransitSystem implements ITransitSystem {
 	 * This downloads alerts in a background thread. If alerts are
 	 * not available when getAlerts() is called, empty alerts are returned
 	 * @param context
-	 * @param directions
-	 * @param routeMapping
 	 */
 	public void startObtainAlerts(Context context) {
 		if (alertsFuture == null) {

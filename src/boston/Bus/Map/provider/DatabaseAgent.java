@@ -1,12 +1,10 @@
 package boston.Bus.Map.provider;
 
 import android.app.SearchManager;
-import android.content.ContentResolver;
 import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.OperationApplicationException;
-import android.database.Cursor;
 import android.database.DatabaseUtils;
 import android.database.MatrixCursor;
 import android.database.SQLException;
@@ -60,10 +58,10 @@ public class DatabaseAgent {
      * Fill the given HashSet with all stop tags that are favorites
      * @param favorites
      */
-    public static void populateFavorites(ContentResolver contentResolver,
+    public static void populateFavorites(ResolverWrapper contentResolver,
                                          CopyOnWriteArraySet<String> favorites)
     {
-        Cursor cursor = null;
+        CursorWrapper cursor = null;
         try
         {
             cursor = contentResolver.query(FavoritesContentProvider.FAVORITES_URI, new String[]{Schema.Favorites.tagColumn},
@@ -165,10 +163,10 @@ public class DatabaseAgent {
         }
     }
 
-    public static ImmutableList<String> getAllStopTagsAtLocation(ContentResolver resolver,
+    public static ImmutableList<String> getAllStopTagsAtLocation(ResolverWrapper resolver,
                                                                  String stopTag)
     {
-        Cursor cursor = null;
+        CursorWrapper cursor = null;
         try
         {
             cursor = resolver.query(DatabaseContentProvider.STOPS_STOPS_URI,
@@ -195,7 +193,7 @@ public class DatabaseAgent {
         }
     }
 
-    private static void storeFavorite(ContentResolver resolver, Collection<String> stopTags) throws RemoteException
+    private static void storeFavorite(ResolverWrapper resolver, Collection<String> stopTags) throws RemoteException
     {
         if (stopTags == null || stopTags.size() == 0)
         {
@@ -214,7 +212,7 @@ public class DatabaseAgent {
     }
 
 
-    public static void saveFavorite(ContentResolver resolver,
+    public static void saveFavorite(ResolverWrapper resolver,
                                     Collection<String> allStopTagsAtLocation, boolean isFavorite) throws RemoteException {
         if (isFavorite)
         {
@@ -227,14 +225,14 @@ public class DatabaseAgent {
         }
     }
 
-    public static RouteConfig getRoute(ContentResolver resolver, String routeToUpdate,
+    public static RouteConfig getRoute(ResolverWrapper resolver, String routeToUpdate,
                                        ConcurrentMap<String, StopLocation> sharedStops,
                                        TransitSystem transitSystem) throws IOException {
 
         //get the route-specific information, like the path outline and the color
         RouteConfig.Builder routeConfigBuilder = null;
         {
-            Cursor cursor = null;
+            CursorWrapper cursor = null;
             try
             {
                 String[] projectionIn = new String[]{Schema.Routes.colorColumn,
@@ -293,7 +291,7 @@ public class DatabaseAgent {
             String select = "sm1." + Schema.Stopmapping.routeColumn + "=?";
             String[] selectArray = new String[]{routeToUpdate};
 
-            Cursor cursor = null;
+            CursorWrapper cursor = null;
             try
             {
                 cursor = resolver.query(DatabaseContentProvider.STOPS_LOOKUP_URI, projectionIn, select, selectArray, null);
@@ -346,10 +344,10 @@ public class DatabaseAgent {
         return routeConfigBuilder.build();
     }
 
-    public static ImmutableList<String> routeInfoNeedsUpdating(ContentResolver resolver,
+    public static ImmutableList<String> routeInfoNeedsUpdating(ResolverWrapper resolver,
                                                                RouteTitles supportedRoutes) {
         Set<String> routesInDB = Sets.newHashSet();
-        Cursor cursor = null;
+        CursorWrapper cursor = null;
         try
         {
             cursor = resolver.query(DatabaseContentProvider.ROUTES_URI, new String[]{Schema.Routes.routeColumn}, null, null, null);
@@ -386,8 +384,8 @@ public class DatabaseAgent {
      *
      * NOTE: these data structures are assumed to be synchronized
      */
-    public static void refreshDirections(ContentResolver resolver, ConcurrentHashMap<String, Direction> directions) {
-        Cursor cursor = null;
+    public static void refreshDirections(ResolverWrapper resolver, ConcurrentHashMap<String, Direction> directions) {
+        CursorWrapper cursor = null;
         try
         {
             cursor = resolver.query(DatabaseContentProvider.DIRECTIONS_URI, new String[]{Schema.Directions.dirTagColumn, Schema.Directions.dirNameKeyColumn, Schema.Directions.dirTitleKeyColumn, Schema.Directions.dirRouteKeyColumn, Schema.Directions.useAsUIColumn},
@@ -453,7 +451,7 @@ public class DatabaseAgent {
         }
     }
 
-    public static Cursor getCursorForSearch(ContentResolver resolver, String search) {
+    public static MatrixCursor getCursorForSearch(ResolverWrapper resolver, String search) {
         String[] columns = new String[] {BaseColumns._ID, SearchManager.SUGGEST_COLUMN_TEXT_1, SearchManager.SUGGEST_COLUMN_QUERY, SearchManager.SUGGEST_COLUMN_TEXT_2};
         MatrixCursor ret = new MatrixCursor(columns);
 
@@ -464,14 +462,14 @@ public class DatabaseAgent {
         return ret;
     }
 
-    private static void addSearchRoutes(ContentResolver resolver, String search, MatrixCursor ret)
+    private static void addSearchRoutes(ResolverWrapper resolver, String search, MatrixCursor ret)
     {
         if (search == null)
         {
             return;
         }
 
-        Cursor cursor = null;
+        CursorWrapper cursor = null;
         try
         {
             cursor = resolver.query(DatabaseContentProvider.ROUTES_URI, new String[]{Schema.Routes.routetitleColumn, Schema.Routes.routeColumn}, Schema.Routes.routetitleColumn + " LIKE ?",
@@ -499,7 +497,7 @@ public class DatabaseAgent {
         }
     }
 
-    private static void addSearchStops(ContentResolver resolver, String search, MatrixCursor ret)
+    private static void addSearchStops(ResolverWrapper resolver, String search, MatrixCursor ret)
     {
         if (search == null)
         {
@@ -511,7 +509,7 @@ public class DatabaseAgent {
         String select = thisStopTitleKey + " LIKE ?";
         String[] selectArray = new String[]{"%" + search + "%"};
 
-        Cursor cursor = null;
+        CursorWrapper cursor = null;
         try
         {
             cursor = resolver.query(DatabaseContentProvider.STOPS_LOOKUP_2_URI,
@@ -591,13 +589,13 @@ public class DatabaseAgent {
         return uri;
     }
 
-    public static Collection<StopLocation> getClosestStopsAndFilterRoutes(ContentResolver resolver,
+    public static Collection<StopLocation> getClosestStopsAndFilterRoutes(ResolverWrapper resolver,
                                                                           double currentLat, double currentLon, TransitSystem transitSystem,
                                                                           ConcurrentMap<String, StopLocation> sharedStops, int limit, Set<String> routes) {
         return getClosestStops(resolver, currentLat, currentLon, transitSystem,
                 sharedStops, limit, routes, true);
     }
-    public static Collection<StopLocation> getClosestStops(ContentResolver resolver,
+    public static Collection<StopLocation> getClosestStops(ResolverWrapper resolver,
                                                            double currentLat, double currentLon, TransitSystem transitSystem,
                                                            ConcurrentMap<String, StopLocation> sharedStops, int limit) {
         Set<String> emptySet = Collections.emptySet();
@@ -605,7 +603,7 @@ public class DatabaseAgent {
                 sharedStops, limit, emptySet, false);
 
     }
-    private static Collection<StopLocation> getClosestStops(ContentResolver resolver,
+    private static Collection<StopLocation> getClosestStops(ResolverWrapper resolver,
                                                             double currentLat, double currentLon, TransitSystem transitSystem,
                                                             ConcurrentMap<String, StopLocation> sharedStops, int limit, Set<String> routes,
                                                             boolean filterRoutes)
@@ -625,7 +623,7 @@ public class DatabaseAgent {
         }
         uri = appendUris(uri, currentLatAsInt, currentLonAsInt, limit);
 
-        Cursor cursor = null;
+        CursorWrapper cursor = null;
         try
         {
             String select;
@@ -675,7 +673,7 @@ public class DatabaseAgent {
         }
     }
 
-    public static StopLocation getStopByTagOrTitle(ContentResolver resolver,
+    public static StopLocation getStopByTagOrTitle(ResolverWrapper resolver,
                                                    String tagQuery, String titleQuery, TransitSystem transitSystem)
     {
         //TODO: we should have a factory somewhere to abstract details away regarding subway vs bus
@@ -691,7 +689,7 @@ public class DatabaseAgent {
         select = new StringBuilder(Schema.Stops.tagColumnOnTable + "=? OR " + Schema.Stops.titleColumnOnTable + "=?");
         selectArray = new String[]{tagQuery, titleQuery};
 
-        Cursor stopCursor = null;
+        CursorWrapper stopCursor = null;
         try
         {
             stopCursor = resolver.query(DatabaseContentProvider.STOPS_LOOKUP_3_URI, projectionIn, select.toString(), selectArray, null);
@@ -729,7 +727,7 @@ public class DatabaseAgent {
      * @param transitSystem
      * @return
      */
-    public static void getStops(ContentResolver resolver, ImmutableList<String> stopTags,
+    public static void getStops(ResolverWrapper resolver, ImmutableList<String> stopTags,
                                 TransitSystem transitSystem, ConcurrentMap<String, StopLocation> outputMapping) {
         if (stopTags == null || stopTags.size() == 0)
         {
@@ -777,7 +775,7 @@ public class DatabaseAgent {
             //Log.v("BostonBusMap", select.toString());
         }
 
-        Cursor stopCursor = null;
+        CursorWrapper stopCursor = null;
         try
         {
             stopCursor = resolver.query(DatabaseContentProvider.STOPS_LOOKUP_3_URI, projectionIn, select.toString(), selectArray, null);
@@ -818,10 +816,10 @@ public class DatabaseAgent {
         }
     }
 
-    public static ArrayList<String> getDirectionTagsForStop(ContentResolver resolver,
+    public static ArrayList<String> getDirectionTagsForStop(ResolverWrapper resolver,
                                                             String stopTag) {
         ArrayList<String> ret = new ArrayList<String>();
-        Cursor cursor = null;
+        CursorWrapper cursor = null;
         try
         {
             cursor = resolver.query(DatabaseContentProvider.DIRECTIONS_STOPS_URI, new String[] {Schema.DirectionsStops.dirTagColumn},
@@ -843,10 +841,10 @@ public class DatabaseAgent {
         }
     }
 
-    public static List<String> getStopTagsForDirTag(ContentResolver resolver,
+    public static List<String> getStopTagsForDirTag(ResolverWrapper resolver,
                                                     String dirTag) {
         ArrayList<String> ret = Lists.newArrayList();
-        Cursor cursor = null;
+        CursorWrapper cursor = null;
         try
         {
             cursor = resolver.query(DatabaseContentProvider.DIRECTIONS_STOPS_URI, new String[] {Schema.DirectionsStops.tagColumn},
@@ -882,7 +880,7 @@ public class DatabaseAgent {
     }
 
     public static void populateIntersections(
-            ContentResolver resolver,
+            ResolverWrapper resolver,
             ConcurrentMap<String, IntersectionLocation> intersections,
             TransitSystem transitSystem, ConcurrentMap<String, StopLocation> sharedStops,
             float miles, boolean filterByDistance) {
@@ -891,7 +889,7 @@ public class DatabaseAgent {
 
         String[] projectionIn = new String[]{Schema.Locations.nameColumn,
                 Schema.Locations.latColumn, Schema.Locations.lonColumn};
-        Cursor cursor = resolver.query(FavoritesContentProvider.LOCATIONS_URI, projectionIn, null, null, null);
+        CursorWrapper cursor = resolver.query(FavoritesContentProvider.LOCATIONS_URI, projectionIn, null, null, null);
         try
         {
             cursor.moveToFirst();
@@ -956,7 +954,7 @@ public class DatabaseAgent {
      * @param build
      * @return true for success, false for failure
      */
-    public static boolean addIntersection(ContentResolver resolver,
+    public static boolean addIntersection(ResolverWrapper resolver,
                                           IntersectionLocation.Builder build, TransitSourceTitles routeTitles) {
         // temporary throwaway location. We still need to attach nearby routes to it,
         // that gets done in populateIntersections
@@ -976,9 +974,9 @@ public class DatabaseAgent {
         }
     }
 
-    public static RouteTitles getRouteTitles(ContentResolver resolver) {
+    public static RouteTitles getRouteTitles(ResolverWrapper resolver) {
 
-        Cursor cursor = resolver.query(DatabaseContentProvider.ROUTES_URI, new String[]{
+        CursorWrapper cursor = resolver.query(DatabaseContentProvider.ROUTES_URI, new String[]{
                         Schema.Routes.routeColumn, Schema.Routes.routetitleColumn, Schema.Routes.agencyidColumn},
                 null, null, Schema.Routes.listorderColumn);
         try
@@ -1008,7 +1006,7 @@ public class DatabaseAgent {
     }
 
 
-    public static void removeIntersection(ContentResolver contentResolver,
+    public static void removeIntersection(ResolverWrapper contentResolver,
                                           String name) {
         int result = contentResolver.delete(FavoritesContentProvider.LOCATIONS_URI, Schema.Locations.nameColumn + "= ?", new String[]{name});
         if (result == 0) {
@@ -1017,7 +1015,7 @@ public class DatabaseAgent {
     }
 
     public static void editIntersectionName(
-            ContentResolver contentResolver, String oldName, String newName) {
+            ResolverWrapper contentResolver, String oldName, String newName) {
         if (oldName.equals(newName))
         {
             return;

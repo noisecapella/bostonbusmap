@@ -30,6 +30,7 @@ import boston.Bus.Map.data.RouteTitles;
 import boston.Bus.Map.data.StopLocation;
 import boston.Bus.Map.data.VehicleLocations;
 import boston.Bus.Map.provider.DatabaseAgent;
+import boston.Bus.Map.provider.ResolverWrapper;
 import boston.Bus.Map.transit.TransitSource;
 import boston.Bus.Map.transit.TransitSystem;
 import boston.Bus.Map.util.DownloadHelper;
@@ -173,7 +174,7 @@ public class MbtaAlertsParser implements IAlertsParser {
 			ContentResolver resolver = context.getContentResolver();
 			
 			ConcurrentMap<String, StopLocation> stopMapping = Maps.newConcurrentMap();
-			DatabaseAgent.getStops(resolver, stops,
+			DatabaseAgent.getStops(new ResolverWrapper(resolver), stops,
 					transitSystem, stopMapping);
 			for (String stop : stops) {
 				String stopTitle = stop;
