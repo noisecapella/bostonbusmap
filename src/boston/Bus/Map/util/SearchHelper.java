@@ -16,7 +16,7 @@ import boston.Bus.Map.data.StopLocation;
 import boston.Bus.Map.data.TransitSourceTitles;
 import boston.Bus.Map.data.UpdateArguments;
 import boston.Bus.Map.main.Main;
-import boston.Bus.Map.provider.DatabaseContentProvider.DatabaseAgent;
+import boston.Bus.Map.provider.DatabaseAgent;
 import boston.Bus.Map.transit.TransitSystem;
 
 public class SearchHelper

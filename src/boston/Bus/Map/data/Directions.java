@@ -12,7 +12,8 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableMap.Builder;
 import com.google.common.collect.Maps;
 
-import boston.Bus.Map.provider.DatabaseContentProvider.DatabaseAgent;
+import boston.Bus.Map.provider.DatabaseContentProvider;
+import boston.Bus.Map.provider.DatabaseAgent;
 
 
 import android.content.Context;

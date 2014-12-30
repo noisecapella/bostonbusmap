@@ -41,7 +41,7 @@ import boston.Bus.Map.data.VehicleLocations;
 import boston.Bus.Map.database.Schema;
 import boston.Bus.Map.main.Main;
 import boston.Bus.Map.parser.MbtaAlertsParser;
-import boston.Bus.Map.provider.DatabaseContentProvider.DatabaseAgent;
+import boston.Bus.Map.provider.DatabaseAgent;
 import boston.Bus.Map.util.Constants;
 /**
  * Any transit-system specific stuff should go here, if possible
