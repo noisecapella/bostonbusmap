@@ -17,7 +17,6 @@ import boston.Bus.Map.data.TransitSourceTitles;
 import boston.Bus.Map.data.UpdateArguments;
 import boston.Bus.Map.main.Main;
 import boston.Bus.Map.provider.DatabaseAgent;
-import boston.Bus.Map.provider.ResolverWrapper;
 import boston.Bus.Map.transit.TransitSystem;
 
 public class SearchHelper
@@ -46,6 +45,8 @@ public class SearchHelper
 	
 	/**
 	 * Search for query and do whatever actions we do when that happens
+	 * @param runnable 
+	 * @param query
 	 */
 	public void runSearch(Runnable onFinish)
 	{
@@ -159,7 +160,7 @@ public class SearchHelper
 				exactQuery = printableQuery;
 			}
 
-			StopLocation stop = DatabaseAgent.getStopByTagOrTitle(new ResolverWrapper(context.getContentResolver()),
+			StopLocation stop = DatabaseAgent.getStopByTagOrTitle(context.getContentResolver(), 
 					lowercaseQuery, exactQuery, transitSystem);
 			if (stop != null)
 			{	

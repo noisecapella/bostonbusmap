@@ -14,7 +14,6 @@ import com.google.common.collect.Maps;
 
 import boston.Bus.Map.provider.DatabaseContentProvider;
 import boston.Bus.Map.provider.DatabaseAgent;
-import boston.Bus.Map.provider.ResolverWrapper;
 
 
 import android.content.Context;
@@ -68,7 +67,7 @@ public class Directions {
 	private void doRefresh() {
 		if (isRefreshed == false)
 		{
-			DatabaseAgent.refreshDirections(new ResolverWrapper(context.getContentResolver()), directions);
+			DatabaseAgent.refreshDirections(context.getContentResolver(), directions);
 			isRefreshed = true;
 		}
 		
@@ -128,7 +127,7 @@ public class Directions {
 		}
 		else
 		{
-			ArrayList<String> dirTagSet = DatabaseAgent.getDirectionTagsForStop(new ResolverWrapper(context.getContentResolver()), stopTag);
+			ArrayList<String> dirTagSet = DatabaseAgent.getDirectionTagsForStop(context.getContentResolver(), stopTag);
 			return getDirections(dirTagSet);
 		}
 	}
@@ -148,7 +147,7 @@ public class Directions {
 		}
 		else
 		{
-			List<String> ret = DatabaseAgent.getStopTagsForDirTag(new ResolverWrapper(context.getContentResolver()), dirTag);
+			List<String> ret = DatabaseAgent.getStopTagsForDirTag(context.getContentResolver(), dirTag);
 			dirTagToStops.put(dirTag, ret.toArray(new String[0]));
 			return ret;
 		}

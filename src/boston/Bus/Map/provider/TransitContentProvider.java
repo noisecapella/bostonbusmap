@@ -56,7 +56,7 @@ public class TransitContentProvider extends SearchRecentSuggestionsProvider {
 			else
 			{
 				ContentResolver resolver = getContext().getContentResolver();
-				return DatabaseAgent.getCursorForSearch(new ResolverWrapper(resolver), selectionArgs[0]);
+				return DatabaseAgent.getCursorForSearch(resolver, selectionArgs[0]);
 			}
 		default:
 			return super.query(uri, projection, selection, selectionArgs, sortOrder);
