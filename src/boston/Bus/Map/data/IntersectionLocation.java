@@ -10,6 +10,7 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
 
 import boston.Bus.Map.math.Geometry;
+import boston.Bus.Map.transit.ITransitSystem;
 import boston.Bus.Map.transit.TransitSystem;
 import android.content.Context;
 import android.graphics.drawable.Drawable;
@@ -95,7 +96,7 @@ public class IntersectionLocation implements Location {
 	}
 
 	@Override
-	public Drawable getDrawable(TransitSystem transitSystem) {
+	public Drawable getDrawable(ITransitSystem transitSystem) {
 		return transitSystem.getDefaultTransitSource().getDrawables().getIntersection();
 	}
 
@@ -128,13 +129,13 @@ public class IntersectionLocation implements Location {
 
 	@Override
 	public void makeSnippetAndTitle(RouteConfig selectedRoute,
-			RouteTitles routeKeysToTitles, Locations locations, Context context) {
+			RouteTitles routeKeysToTitles, Locations locations) {
 		// do nothing
 	}
 
 	@Override
 	public void addToSnippetAndTitle(RouteConfig routeConfig,
-			Location location, RouteTitles routeKeysToTitles, Locations locations, Context context) {
+			Location location, RouteTitles routeKeysToTitles, Locations locations) {
 		// do nothing
 	}
 

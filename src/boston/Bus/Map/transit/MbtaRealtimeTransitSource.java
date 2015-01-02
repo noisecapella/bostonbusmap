@@ -45,7 +45,7 @@ public class MbtaRealtimeTransitSource implements TransitSource {
 
 	private final TransitDrawables drawables;
 	private final TransitSourceTitles routeTitles;
-	private final TransitSystem transitSystem;
+	private final ITransitSystem transitSystem;
 	
 	public static final ImmutableMap<String, String> gtfsNameToRouteName;
 	public static final ImmutableMultimap<String, String> routeNameToGtfsName;

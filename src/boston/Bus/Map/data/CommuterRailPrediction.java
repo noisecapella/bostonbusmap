@@ -77,7 +77,7 @@ public class CommuterRailPrediction extends TimePrediction implements Parcelable
 	}
 	
 	@Override
-	public void makeSnippet(Context context, StringBuilder builder, boolean showRunNumber) {
+	public void makeSnippet(StringBuilder builder, boolean showRunNumber) {
 		int minutes = getMinutes();
 		if (minutes < 0)
 		{

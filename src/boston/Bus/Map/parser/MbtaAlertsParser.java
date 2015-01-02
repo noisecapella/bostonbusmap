@@ -30,12 +30,13 @@ import boston.Bus.Map.data.RouteTitles;
 import boston.Bus.Map.data.StopLocation;
 import boston.Bus.Map.data.VehicleLocations;
 import boston.Bus.Map.provider.DatabaseAgent;
+import boston.Bus.Map.transit.ITransitSystem;
 import boston.Bus.Map.transit.TransitSource;
 import boston.Bus.Map.transit.TransitSystem;
 import boston.Bus.Map.util.DownloadHelper;
 
 public class MbtaAlertsParser implements IAlertsParser {
-	private final TransitSystem transitSystem;
+	private final ITransitSystem transitSystem;
 	private final RouteTitles routeTitles;
 
 	/**
@@ -71,7 +72,7 @@ public class MbtaAlertsParser implements IAlertsParser {
 	}
 	
 	@Override
-	public IAlerts obtainAlerts(Context context) throws IOException {
+	public IAlerts obtainAlerts(DatabaseAgent databaseAgent) throws IOException {
 		Alerts.Builder builder = Alerts.builder();
 		
 		Date now = new Date();
@@ -170,10 +171,9 @@ public class MbtaAlertsParser implements IAlertsParser {
 				Alert routeAlert = new Alert(now, "Route " + routeTitle, description);
 				builder.addAlertForRoute(route, routeAlert);
 			}
-			ContentResolver resolver = context.getContentResolver();
-			
+
 			ConcurrentMap<String, StopLocation> stopMapping = Maps.newConcurrentMap();
-			DatabaseAgent.getStops(resolver, stops,
+			databaseAgent.getStops(stops,
 					transitSystem, stopMapping);
 			for (String stop : stops) {
 				String stopTitle = stop;

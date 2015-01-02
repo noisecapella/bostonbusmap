@@ -57,6 +57,8 @@ import boston.Bus.Map.data.IntersectionLocation.Builder;
 import boston.Bus.Map.main.Main;
 import boston.Bus.Map.main.UpdateAsyncTask;
 import boston.Bus.Map.parser.MbtaAlertsParser;
+import boston.Bus.Map.provider.DatabaseAgent;
+import boston.Bus.Map.transit.ITransitSystem;
 import boston.Bus.Map.transit.TransitSource;
 import boston.Bus.Map.transit.TransitSystem;
 import boston.Bus.Map.ui.ProgressMessage;
@@ -82,14 +84,14 @@ public final class Locations
 	private long lastUpdateTime = 0;
 	
 	private Selection mutableSelection;
-	private final TransitSystem transitSystem;
+	private final ITransitSystem transitSystem;
 
-	public Locations(Context context, 
-			TransitSystem transitSystem, Selection selection)
+	public Locations(DatabaseAgent databaseAgent,
+			ITransitSystem transitSystem, Selection selection)
 	{
 		this.transitSystem = transitSystem;
-		routeMapping = new RoutePool(context, transitSystem);
-		directions = new Directions(context);
+		routeMapping = new RoutePool(databaseAgent, transitSystem);
+		directions = new Directions(databaseAgent);
 		mutableSelection = selection;
 	}
 	
@@ -102,19 +104,9 @@ public final class Locations
 		return transitSystem.getRouteKeysToTitles().getIndexForTag(key);
 	}
 	
-	public static InputStream downloadStream(URL url, UpdateAsyncTask task) throws IOException {
-		URLConnection connection = url.openConnection();
-		int totalDownloadSize = connection.getContentLength();
-		InputStream inputStream = connection.getInputStream();
-
-		return new StreamCounter(inputStream, task, totalDownloadSize);
-	}
-
 	/**
 	 * Update the bus locations based on data from the XML feed 
 	 * 
-	 * @param centerLat
-	 * @param centerLon
 	 * @throws SAXException
 	 * @throws IOException
 	 * @throws ParserConfigurationException
@@ -123,7 +115,7 @@ public final class Locations
 	 * @throws RemoteException 
 	 * @throws FeedException 
 	 */
-	public void refresh(Context context, Selection selection,
+	public void refresh(DatabaseAgent databaseAgent, Selection selection,
 			double centerLatitude, double centerLongitude,
 			UpdateAsyncTask updateAsyncTask, boolean showRoute) throws SAXException, IOException,
 			ParserConfigurationException, FactoryConfigurationError, RemoteException, OperationApplicationException 
@@ -133,7 +125,7 @@ public final class Locations
 		//see if route overlays need to be downloaded
 		String routeToUpdate = selection.getRoute();
 		RouteConfig routeConfig = routeMapping.get(routeToUpdate);
-		transitSystem.startObtainAlerts(context);
+		transitSystem.startObtainAlerts(databaseAgent);
 
 		Selection.Mode mode = selection.getMode();
 		if (mode == Selection.Mode.BUS_PREDICTIONS_ALL ||
@@ -413,7 +405,7 @@ public final class Locations
 		return routeMapping.getIntersectionNames();
 	}
 	
-	public TransitSystem getTransitSystem() {
+	public ITransitSystem getTransitSystem() {
 		return routeMapping.getTransitSystem();
 	}
 }

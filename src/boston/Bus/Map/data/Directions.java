@@ -25,18 +25,12 @@ public class Directions {
 	private final ConcurrentHashMap<String, Direction> directions
 		= new ConcurrentHashMap<String, Direction>();
 	
-	//TODO: convert to Table
-	private final ConcurrentHashMap<String, String[]> dirTagToStops
-		= new ConcurrentHashMap<String, String[]>();;
-	private final ConcurrentHashMap<String, String[]> stopsToDirTag
-		= new ConcurrentHashMap<String, String[]>();;
-	
 	private boolean isRefreshed = false;
 
-	private Context context;
+	private DatabaseAgent databaseAgent;
 	
-	public Directions(Context context) {
-		this.context = context;
+	public Directions(DatabaseAgent databaseAgent) {
+		this.databaseAgent = databaseAgent;
 	}
 
 	public void add(String dirTag, Direction direction) {
@@ -67,14 +61,10 @@ public class Directions {
 	private void doRefresh() {
 		if (isRefreshed == false)
 		{
-			DatabaseAgent.refreshDirections(context.getContentResolver(), directions);
+			databaseAgent.refreshDirections(directions);
 			isRefreshed = true;
 		}
 		
-	}
-
-	public void writeToDatabase() throws RemoteException, OperationApplicationException {
-		DatabaseAgent.writeDirections(context, directions);
 	}
 
 	/**
@@ -117,39 +107,6 @@ public class Directions {
 				return title + "<br />" + name;
 			}
 				
-		}
-	}
-
-	public Map<String, Direction> getDirectionsForStop(String stopTag) {
-		String[] dirTags = stopsToDirTag.get(stopTag);
-		if (dirTags != null) {
-			return getDirections(Arrays.asList(dirTags));
-		}
-		else
-		{
-			ArrayList<String> dirTagSet = DatabaseAgent.getDirectionTagsForStop(context.getContentResolver(), stopTag);
-			return getDirections(dirTagSet);
-		}
-	}
-
-	private ImmutableMap<String, Direction> getDirections(Collection<String> dirTags) {
-		Builder<String, Direction> ret = ImmutableMap.builder();
-		for (String dirTag : dirTags) {
-			ret.put(dirTag, getDirection(dirTag));
-		}
-		return ret.build();
-	}
-
-	public List<String> getStopTagsForDirTag(String dirTag) {
-		String[] stopTags = dirTagToStops.get(dirTag);
-		if (stopTags != null) {
-			return Arrays.asList(stopTags);
-		}
-		else
-		{
-			List<String> ret = DatabaseAgent.getStopTagsForDirTag(context.getContentResolver(), dirTag);
-			dirTagToStops.put(dirTag, ret.toArray(new String[0]));
-			return ret;
 		}
 	}
 }

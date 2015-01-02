@@ -14,10 +14,10 @@ public interface IPrediction extends Comparable<IPrediction>, Parcelable {
 
     boolean isInvalid();
 
-    void makeSnippet(Context context, StringBuilder ret, boolean showRunNumber);
+    void makeSnippet(StringBuilder ret, boolean showRunNumber);
 
     String getRouteTitle();
 
-    ImmutableMap<String, Spanned> makeSnippetMap(Context context);
+    ImmutableMap<String, Spanned> makeSnippetMap();
 
 }

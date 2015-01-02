@@ -11,6 +11,7 @@ import com.google.common.collect.Lists;
 
 import boston.Bus.Map.database.Schema;
 import boston.Bus.Map.math.Geometry;
+import boston.Bus.Map.transit.ITransitSystem;
 import boston.Bus.Map.transit.TransitSource;
 import boston.Bus.Map.transit.TransitSystem;
 import android.content.Context;
@@ -196,7 +197,7 @@ public class BusLocation implements Location {
 
 	@Override
 	public void addToSnippetAndTitle(RouteConfig routeConfig,
-			Location location, RouteTitles routeKeysToTitles, Locations locations, Context context) {
+			Location location, RouteTitles routeKeysToTitles, Locations locations) {
 		BusLocation busLocation = (BusLocation) location;
 
 		PredictionView oldPredictionView = predictionView;
@@ -222,10 +223,10 @@ public class BusLocation implements Location {
 
 	@Override
 	public void makeSnippetAndTitle(RouteConfig routeConfig,
-			RouteTitles routeKeysToTitles, Locations locations, Context context) {
+			RouteTitles routeKeysToTitles, Locations locations) {
 		String snippet = makeSnippet(routeConfig);
 		String snippetTitle = makeTitle();
-		TransitSystem transitSystem = locations.getTransitSystem();
+        ITransitSystem transitSystem = locations.getTransitSystem();
 		IAlerts alerts = transitSystem.getAlerts();
 		snippetAlerts = getAlerts(alerts);
 		
@@ -327,7 +328,7 @@ public class BusLocation implements Location {
 	}
 	
 	@Override
-	public Drawable getDrawable(TransitSystem transitSystem) {
+	public Drawable getDrawable(ITransitSystem transitSystem) {
 		TransitSource transitSource = transitSystem.getTransitSource(routeName);
 		int headingValue = hasHeading() ? getHeading() : NO_HEADING;
 		return transitSource.getDrawables().getVehicle(headingValue);

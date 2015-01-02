@@ -48,7 +48,9 @@ import boston.Bus.Map.data.Selection;
 import boston.Bus.Map.data.StopLocation;
 import boston.Bus.Map.data.TransitDrawables;
 import boston.Bus.Map.data.UpdateArguments;
+import boston.Bus.Map.provider.DatabaseAgent;
 import boston.Bus.Map.provider.TransitContentProvider;
+import boston.Bus.Map.transit.ITransitSystem;
 import boston.Bus.Map.transit.TransitSystem;
 import boston.Bus.Map.tutorials.IntroTutorial;
 import boston.Bus.Map.tutorials.Tutorial;
@@ -232,6 +234,8 @@ public class Main extends MapActivity
         
     	SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
 
+        final DatabaseAgent databaseAgent = new DatabaseAgent(getContentResolver());
+
     	final ProgressDialog progressDialog = new ProgressDialog(this);
 		progressDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
 		progressDialog.setCancelable(true);
@@ -305,7 +309,7 @@ public class Main extends MapActivity
         // busPicture is used to initialize busOverlay, otherwise it would
         // joint the rest of the drawables in the brackets 
     	Drawable busPicture = resources.getDrawable(R.drawable.bus_statelist);
-    	final TransitSystem transitSystem = new TransitSystem();
+    	final ITransitSystem transitSystem = new TransitSystem();
         {
         	Drawable busStopUpdated = resources.getDrawable(R.drawable.busstop_statelist_updated);
         	Drawable arrow = resources.getDrawable(R.drawable.arrow);
@@ -329,9 +333,11 @@ public class Main extends MapActivity
 			TransitDrawables hubwayDrawables = new TransitDrawables(this, busStopBike,
 					busStopBikeUpdated, rail, arrow, rail.getIntrinsicHeight() / 5,
 					intersection);
-        	
+
+
+
         	transitSystem.setDefaultTransitSource(busDrawables, subwayDrawables, commuterRailDrawables, hubwayDrawables,
-					this);
+					databaseAgent);
         }
         SpinnerAdapter modeSpinnerAdapter = new ModeAdapter(this, Arrays.asList(Selection.modesSupported));
 
@@ -453,12 +459,12 @@ public class Main extends MapActivity
 
         if (busLocations == null)
         {
-        	busLocations = new Locations(this, transitSystem, selection);
+        	busLocations = new Locations(databaseAgent, transitSystem, selection);
         }
 
         arguments = new UpdateArguments(progress, progressDialog,
-        		mapView, this, overlayGroup,
-        		majorHandler, busLocations, transitSystem);
+        		mapView, databaseAgent, overlayGroup,
+        		majorHandler, busLocations, transitSystem, this);
         handler = new UpdateHandler(arguments);
         overlayGroup.getBusOverlay().setUpdateable(handler);
         
@@ -1028,7 +1034,7 @@ public class Main extends MapActivity
 			}
 
 			
-			final SearchHelper helper = new SearchHelper(this, dropdownRouteKeysToTitles, arguments, query);
+			final SearchHelper helper = new SearchHelper(this, dropdownRouteKeysToTitles, arguments, query, new DatabaseAgent(getContentResolver()));
 			helper.runSearch(new Runnable()
 			{
 				@Override

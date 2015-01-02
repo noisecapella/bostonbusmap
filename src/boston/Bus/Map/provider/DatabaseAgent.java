@@ -45,6 +45,7 @@ import boston.Bus.Map.data.TransitSourceTitles;
 import boston.Bus.Map.database.Schema;
 import boston.Bus.Map.main.UpdateAsyncTask;
 import boston.Bus.Map.math.Geometry;
+import boston.Bus.Map.transit.ITransitSystem;
 import boston.Bus.Map.transit.TransitSource;
 import boston.Bus.Map.transit.TransitSystem;
 import boston.Bus.Map.ui.ProgressMessage;
@@ -56,17 +57,22 @@ import boston.Bus.Map.util.StringUtil;
 
 
 public class DatabaseAgent {
+    private final ContentResolver resolver;
+
+    public DatabaseAgent(ContentResolver resolver) {
+        this.resolver = resolver;
+    }
+
     /**
      * Fill the given HashSet with all stop tags that are favorites
      * @param favorites
      */
-    public static void populateFavorites(ContentResolver contentResolver,
-                                         CopyOnWriteArraySet<String> favorites)
+    public void populateFavorites(CopyOnWriteArraySet<String> favorites)
     {
         Cursor cursor = null;
         try
         {
-            cursor = contentResolver.query(FavoritesContentProvider.FAVORITES_URI, new String[]{Schema.Favorites.tagColumn},
+            cursor = resolver.query(FavoritesContentProvider.FAVORITES_URI, new String[]{Schema.Favorites.tagColumn},
                     null, null, null);
 
             cursor.moveToFirst();
@@ -90,8 +96,7 @@ public class DatabaseAgent {
     }
 
 
-    public static ImmutableList<String> getAllStopTagsAtLocation(ContentResolver resolver,
-                                                                 String stopTag)
+    public ImmutableList<String> getAllStopTagsAtLocation(String stopTag)
     {
         Cursor cursor = null;
         try
@@ -120,7 +125,7 @@ public class DatabaseAgent {
         }
     }
 
-    private static void storeFavorite(ContentResolver resolver, Collection<String> stopTags) throws RemoteException
+    private void storeFavorite(Collection<String> stopTags) throws RemoteException
     {
         if (stopTags == null || stopTags.size() == 0)
         {
@@ -139,11 +144,10 @@ public class DatabaseAgent {
     }
 
 
-    public static void saveFavorite(ContentResolver resolver,
-                                    Collection<String> allStopTagsAtLocation, boolean isFavorite) throws RemoteException {
+    public void saveFavorite(Collection<String> allStopTagsAtLocation, boolean isFavorite) throws RemoteException {
         if (isFavorite)
         {
-            storeFavorite(resolver, allStopTagsAtLocation);
+            storeFavorite(allStopTagsAtLocation);
         }
         else
         {
@@ -152,9 +156,9 @@ public class DatabaseAgent {
         }
     }
 
-    public static RouteConfig getRoute(ContentResolver resolver, String routeToUpdate,
+    public RouteConfig getRoute(String routeToUpdate,
                                        ConcurrentMap<String, StopLocation> sharedStops,
-                                       TransitSystem transitSystem) throws IOException {
+                                       ITransitSystem transitSystem) throws IOException {
 
         //get the route-specific information, like the path outline and the color
         RouteConfig.Builder routeConfigBuilder = null;
@@ -277,7 +281,7 @@ public class DatabaseAgent {
      *
      * NOTE: these data structures are assumed to be synchronized
      */
-    public static void refreshDirections(ContentResolver resolver, ConcurrentHashMap<String, Direction> directions) {
+    public void refreshDirections(ConcurrentHashMap<String, Direction> directions) {
         Cursor cursor = null;
         try
         {
@@ -303,44 +307,6 @@ public class DatabaseAgent {
             if (cursor != null) {
                 cursor.close();
             }
-        }
-    }
-
-    public static void writeDirections(Context context, ConcurrentHashMap<String, Direction> directions) throws RemoteException, OperationApplicationException {
-        DatabaseContentProvider.DatabaseHelper helper = DatabaseContentProvider.DatabaseHelper.getInstance(context);
-
-        SQLiteDatabase database = helper.getWritableDatabase();
-        DatabaseUtils.InsertHelper directionHelper = new DatabaseUtils.InsertHelper(database, Schema.Directions.table);
-        DatabaseUtils.InsertHelper directionStopHelper = new DatabaseUtils.InsertHelper(database, Schema.DirectionsStops.table);
-        try
-        {
-            database.beginTransaction();
-            for (String dirTag : directions.keySet())
-            {
-                Direction direction = directions.get(dirTag);
-                String name = direction.getName();
-                String title = direction.getTitle();
-                String route = direction.getRoute();
-                boolean useAsUI = direction.isUseForUI();
-
-                Schema.Directions.executeInsertHelper(directionHelper, dirTag, name, title, route, Schema.toInteger(useAsUI));
-
-                for (String stopTag : direction.getStopTags()) {
-                    Schema.DirectionsStops.executeInsertHelper(directionStopHelper, dirTag, stopTag);
-                }
-
-            }
-            database.setTransactionSuccessful();
-        }
-        finally
-        {
-            if (directionHelper != null) {
-                directionHelper.close();
-            }
-            if (directionStopHelper != null) {
-                directionStopHelper.close();
-            }
-            database.endTransaction();
         }
     }
 
@@ -482,22 +448,19 @@ public class DatabaseAgent {
         return uri;
     }
 
-    public static Collection<StopLocation> getClosestStopsAndFilterRoutes(ContentResolver resolver,
-                                                                          double currentLat, double currentLon, TransitSystem transitSystem,
+    public Collection<StopLocation> getClosestStopsAndFilterRoutes(double currentLat, double currentLon, ITransitSystem transitSystem,
                                                                           ConcurrentMap<String, StopLocation> sharedStops, int limit, Set<String> routes) {
-        return getClosestStops(resolver, currentLat, currentLon, transitSystem,
+        return getClosestStops(currentLat, currentLon, transitSystem,
                 sharedStops, limit, routes, true);
     }
-    public static Collection<StopLocation> getClosestStops(ContentResolver resolver,
-                                                           double currentLat, double currentLon, TransitSystem transitSystem,
+    public Collection<StopLocation> getClosestStops(double currentLat, double currentLon, ITransitSystem transitSystem,
                                                            ConcurrentMap<String, StopLocation> sharedStops, int limit) {
         Set<String> emptySet = Collections.emptySet();
-        return getClosestStops(resolver, currentLat, currentLon, transitSystem,
+        return getClosestStops(currentLat, currentLon, transitSystem,
                 sharedStops, limit, emptySet, false);
 
     }
-    private static Collection<StopLocation> getClosestStops(ContentResolver resolver,
-                                                            double currentLat, double currentLon, TransitSystem transitSystem,
+    private Collection<StopLocation> getClosestStops(double currentLat, double currentLon, ITransitSystem transitSystem,
                                                             ConcurrentMap<String, StopLocation> sharedStops, int limit, Set<String> routes,
                                                             boolean filterRoutes)
     {
@@ -548,7 +511,7 @@ public class DatabaseAgent {
                 cursor.moveToNext();
             }
             ImmutableList<String> stopTags = stopTagsBuilder.build();
-            getStops(resolver, stopTags, transitSystem, sharedStops);
+            getStops(stopTags, transitSystem, sharedStops);
 
             ImmutableList.Builder<StopLocation> builder = ImmutableList.builder();
             for (String stopTag : stopTagsInAll)
@@ -566,8 +529,7 @@ public class DatabaseAgent {
         }
     }
 
-    public static StopLocation getStopByTagOrTitle(ContentResolver resolver,
-                                                   String tagQuery, String titleQuery, TransitSystem transitSystem)
+    public StopLocation getStopByTagOrTitle(String tagQuery, String titleQuery, ITransitSystem transitSystem)
     {
         //TODO: we should have a factory somewhere to abstract details away regarding subway vs bus
 
@@ -620,8 +582,8 @@ public class DatabaseAgent {
      * @param transitSystem
      * @return
      */
-    public static void getStops(ContentResolver resolver, ImmutableList<String> stopTags,
-                                TransitSystem transitSystem, ConcurrentMap<String, StopLocation> outputMapping) {
+    public void getStops(ImmutableList<String> stopTags,
+                                ITransitSystem transitSystem, ConcurrentMap<String, StopLocation> outputMapping) {
         if (stopTags == null || stopTags.size() == 0)
         {
             return;
@@ -709,9 +671,8 @@ public class DatabaseAgent {
         }
     }
 
-    public static ArrayList<String> getDirectionTagsForStop(ContentResolver resolver,
-                                                            String stopTag) {
-        ArrayList<String> ret = new ArrayList<String>();
+    public ArrayList<String> getDirectionTagsForStop(String stopTag) {
+        ArrayList<String> ret = Lists.newArrayList();
         Cursor cursor = null;
         try
         {
@@ -734,8 +695,7 @@ public class DatabaseAgent {
         }
     }
 
-    public static List<String> getStopTagsForDirTag(ContentResolver resolver,
-                                                    String dirTag) {
+    public List<String> getStopTagsForDirTag(String dirTag) {
         ArrayList<String> ret = Lists.newArrayList();
         Cursor cursor = null;
         try
@@ -759,10 +719,9 @@ public class DatabaseAgent {
         }
     }
 
-    public static void populateIntersections(
-            ContentResolver resolver,
+    public void populateIntersections(
             ConcurrentMap<String, IntersectionLocation> intersections,
-            TransitSystem transitSystem, ConcurrentMap<String, StopLocation> sharedStops,
+            ITransitSystem transitSystem, ConcurrentMap<String, StopLocation> sharedStops,
             float miles, boolean filterByDistance) {
 
         Map<String, IntersectionLocation.Builder> ret = Maps.newHashMap();
@@ -800,7 +759,7 @@ public class DatabaseAgent {
 
             int limit = 35;
 
-            Collection<StopLocation> stops = getClosestStops(resolver,
+            Collection<StopLocation> stops = getClosestStops(
                     builder.getLatitudeAsDegrees(), builder.getLongitudeAsDegrees(),
                     transitSystem, sharedStops, limit);
             Set<String> routes = Sets.newHashSet();
@@ -830,12 +789,10 @@ public class DatabaseAgent {
 
     /**
      *
-     * @param resolver
      * @param build
      * @return true for success, false for failure
      */
-    public static boolean addIntersection(ContentResolver resolver,
-                                          IntersectionLocation.Builder build, TransitSourceTitles routeTitles) {
+    public boolean addIntersection(IntersectionLocation.Builder build, TransitSourceTitles routeTitles) {
         // temporary throwaway location. We still need to attach nearby routes to it,
         // that gets done in populateIntersections
         IntersectionLocation location = build.build(routeTitles);
@@ -854,7 +811,7 @@ public class DatabaseAgent {
         }
     }
 
-    public static RouteTitles getRouteTitles(ContentResolver resolver) {
+    public RouteTitles getRouteTitles() {
 
         Cursor cursor = resolver.query(DatabaseContentProvider.ROUTES_URI, new String[]{
                         Schema.Routes.routeColumn, Schema.Routes.routetitleColumn, Schema.Routes.agencyidColumn},
@@ -886,16 +843,15 @@ public class DatabaseAgent {
     }
 
 
-    public static void removeIntersection(ContentResolver contentResolver,
-                                          String name) {
-        int result = contentResolver.delete(FavoritesContentProvider.LOCATIONS_URI, Schema.Locations.nameColumn + "= ?", new String[]{name});
+    public void removeIntersection(String name) {
+        int result = resolver.delete(FavoritesContentProvider.LOCATIONS_URI, Schema.Locations.nameColumn + "= ?", new String[]{name});
         if (result == 0) {
             Log.e("BostonBusMap", "Failed to delete intersection " + name);
         }
     }
 
-    public static void editIntersectionName(
-            ContentResolver contentResolver, String oldName, String newName) {
+    public void editIntersectionName(
+            String oldName, String newName) {
         if (oldName.equals(newName))
         {
             return;
@@ -903,7 +859,7 @@ public class DatabaseAgent {
 
         ContentValues values = new ContentValues();
         values.put(Schema.Locations.nameColumn, newName);
-        int result = contentResolver.update(FavoritesContentProvider.LOCATIONS_URI, values, Schema.Locations.nameColumn + "= ?", new String[]{oldName});
+        int result = resolver.update(FavoritesContentProvider.LOCATIONS_URI, values, Schema.Locations.nameColumn + "= ?", new String[]{oldName});
         if (result == 0) {
             Log.e("BostonBusMap", "Failed to update intersection");
         }

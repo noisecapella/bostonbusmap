@@ -109,12 +109,11 @@ public class TransitSystem implements ITransitSystem {
 	 */
 	@Override
 	public void setDefaultTransitSource(TransitDrawables busDrawables, TransitDrawables subwayDrawables, 
-			TransitDrawables commuterRailDrawables, TransitDrawables hubwayDrawables, Context context)
+			TransitDrawables commuterRailDrawables, TransitDrawables hubwayDrawables, DatabaseAgent databaseAgent)
 	{
 		if (defaultTransitSource == null)
 		{
-			ContentResolver resolver = context.getContentResolver();
-			routeTitles = DatabaseAgent.getRouteTitles(resolver);
+			routeTitles = databaseAgent.getRouteTitles();
 
 			TransitSourceTitles busTransitRoutes = routeTitles.getMappingForSource(Schema.Routes.enumagencyidBus);
 			TransitSourceTitles hubwayTransitRoutes = routeTitles.getMappingForSource(Schema.Routes.enumagencyidHubway);
@@ -302,16 +301,13 @@ public class TransitSystem implements ITransitSystem {
 	/**
 	 * This downloads alerts in a background thread. If alerts are
 	 * not available when getAlerts() is called, empty alerts are returned
-	 * @param context
-	 * @param directions
-	 * @param routeMapping
 	 */
-	public void startObtainAlerts(Context context) {
+	public void startObtainAlerts(DatabaseAgent databaseAgent) {
 		if (alertsFuture == null) {
 			// this runs the alerts code in the background,
 			// providing empty alerts until the data is ready
 			
-			alertsFuture = new AlertsFuture(context, new MbtaAlertsParser(this));
+			alertsFuture = new AlertsFuture(databaseAgent, new MbtaAlertsParser(this));
 			
 		}
 	}

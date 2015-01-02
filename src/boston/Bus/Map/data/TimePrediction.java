@@ -62,7 +62,7 @@ public class TimePrediction implements IPrediction
 		this.stopId = stopId;
 	}
 
-	public void makeSnippet(Context context, StringBuilder builder, boolean showRunNumber) {
+	public void makeSnippet(StringBuilder builder, boolean showRunNumber) {
 		int minutes = getMinutes();
 		if (minutes < 0)
 		{
@@ -230,14 +230,9 @@ public class TimePrediction implements IPrediction
 		}
 	};
 
-	/**
-	 * Create 
-	 * @param routeKeysToTitles
-	 * @return
-	 */
-	public ImmutableMap<String, Spanned> makeSnippetMap(Context context) {
+	public ImmutableMap<String, Spanned> makeSnippetMap() {
 		StringBuilder ret = new StringBuilder();
-		makeSnippet(context, ret, TransitSystem.showRunNumber());
+		makeSnippet(ret, TransitSystem.showRunNumber());
 		
 		ImmutableMap<String, Spanned> map = ImmutableMap.of(MoreInfo.textKey, Html.fromHtml(ret.toString()));
 		

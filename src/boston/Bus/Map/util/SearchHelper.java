@@ -17,6 +17,7 @@ import boston.Bus.Map.data.TransitSourceTitles;
 import boston.Bus.Map.data.UpdateArguments;
 import boston.Bus.Map.main.Main;
 import boston.Bus.Map.provider.DatabaseAgent;
+import boston.Bus.Map.transit.ITransitSystem;
 import boston.Bus.Map.transit.TransitSystem;
 
 public class SearchHelper
@@ -33,14 +34,16 @@ public class SearchHelper
 	private int queryType = QUERY_NONE;
 	
 	private final UpdateArguments arguments;
+    private final DatabaseAgent databaseAgent;
 	
 	public SearchHelper(Main context, RouteTitles dropdownRouteKeysToTitles,
-			UpdateArguments arguments, String query)
+			UpdateArguments arguments, String query, DatabaseAgent databaseAgent)
 	{
 		this.context = context;
 		this.dropdownRouteKeysToTitles = dropdownRouteKeysToTitles;
 		this.query = query;
 		this.arguments = arguments;
+        this.databaseAgent = databaseAgent;
 	}
 	
 	/**
@@ -128,7 +131,7 @@ public class SearchHelper
 	}
 
 	private void returnResults(Runnable onFinish, String indexingQuery, String lowercaseQuery, String printableQuery) {
-		final TransitSystem transitSystem = arguments.getTransitSystem();
+		final ITransitSystem transitSystem = arguments.getTransitSystem();
 		if (queryType == QUERY_NONE || queryType == QUERY_ROUTE)
 		{
 			int position = getAsRoute(indexingQuery, lowercaseQuery);
@@ -160,7 +163,7 @@ public class SearchHelper
 				exactQuery = printableQuery;
 			}
 
-			StopLocation stop = DatabaseAgent.getStopByTagOrTitle(context.getContentResolver(), 
+			StopLocation stop = databaseAgent.getStopByTagOrTitle(
 					lowercaseQuery, exactQuery, transitSystem);
 			if (stop != null)
 			{	

@@ -35,12 +35,13 @@ import boston.Bus.Map.R;
 import boston.Bus.Map.main.UpdateAsyncTask;
 import boston.Bus.Map.provider.DatabaseContentProvider;
 import boston.Bus.Map.provider.DatabaseAgent;
+import boston.Bus.Map.transit.ITransitSystem;
 import boston.Bus.Map.transit.TransitSource;
 import boston.Bus.Map.transit.TransitSystem;
 import boston.Bus.Map.ui.ProgressMessage;
 
 public class RoutePool extends Pool<String, RouteConfig> {
-	private final Context context;
+	private final DatabaseAgent databaseAgent;
 	
 	private final ConcurrentMap<String, StopLocation> sharedStops = Maps.newConcurrentMap();
 	
@@ -51,16 +52,16 @@ public class RoutePool extends Pool<String, RouteConfig> {
 	
 	private final ConcurrentMap<String, IntersectionLocation> intersections = Maps.newConcurrentMap();
 	
-	private final TransitSystem transitSystem;
+	private final ITransitSystem transitSystem;
 	
 	private float maximumDistanceFromIntersection;
 
 	private boolean filterStopsFromIntersection;
 	
-	public RoutePool(Context context, TransitSystem transitSystem) {
+	public RoutePool(DatabaseAgent databaseAgent, ITransitSystem transitSystem) {
 		super(50);
 
-		this.context = context;
+		this.databaseAgent = databaseAgent;
 		this.transitSystem = transitSystem;
 		//TODO: define these as settings
 		maximumDistanceFromIntersection = 1.0f;
@@ -116,7 +117,7 @@ public class RoutePool extends Pool<String, RouteConfig> {
 			}
 		}
 		
-		DatabaseAgent.getStops(context.getContentResolver(), ImmutableList.copyOf(stopTagsToRetrieve), 
+		databaseAgent.getStops(ImmutableList.copyOf(stopTagsToRetrieve),
 				transitSystem, ret);
 		
 		if (ret != null)
@@ -128,18 +129,18 @@ public class RoutePool extends Pool<String, RouteConfig> {
 	}
 
 	protected RouteConfig create(String routeToUpdate) throws IOException {
-		return DatabaseAgent.getRoute(context.getContentResolver(), routeToUpdate, sharedStops, transitSystem);
+		return databaseAgent.getRoute(routeToUpdate, sharedStops, transitSystem);
 	}
 	
 
 	private void populateFavorites() {
-		DatabaseAgent.populateFavorites(context.getContentResolver(), favoriteStops);
+        databaseAgent.populateFavorites(favoriteStops);
 		fillInFavoritesRoutes();
 
 	}
 	
 	private void populateIntersections() {
-		DatabaseAgent.populateIntersections(context.getContentResolver(), intersections,
+        databaseAgent.populateIntersections(intersections,
 				transitSystem, sharedStops, maximumDistanceFromIntersection, filterStopsFromIntersection);
 	}
 
@@ -173,9 +174,9 @@ public class RoutePool extends Pool<String, RouteConfig> {
 	}
 	
 	public int setFavorite(StopLocation location, boolean isFavorite) throws RemoteException {
-		Collection<String> stopTags = DatabaseAgent.getAllStopTagsAtLocation(context.getContentResolver(), location.getStopTag());
+		Collection<String> stopTags = databaseAgent.getAllStopTagsAtLocation(location.getStopTag());
 
-		DatabaseAgent.saveFavorite(context.getContentResolver(), stopTags, isFavorite);
+        databaseAgent.saveFavorite(stopTags, isFavorite);
 		favoriteStops.clear();
 		populateFavorites();
 		
@@ -196,7 +197,7 @@ public class RoutePool extends Pool<String, RouteConfig> {
 	}
 
 	public boolean addIntersection(IntersectionLocation.Builder build) {
-		boolean success = DatabaseAgent.addIntersection(context.getContentResolver(), build, transitSystem.getRouteKeysToTitles());
+		boolean success = databaseAgent.addIntersection(build, transitSystem.getRouteKeysToTitles());
 		if (success) {
 			populateIntersections();
 		}
@@ -204,9 +205,9 @@ public class RoutePool extends Pool<String, RouteConfig> {
 	}
 	
 	public ConcurrentMap<String, StopLocation> getAllStopTagsAtLocation(String stopTag) {
-		ImmutableList<String> tags = DatabaseAgent.getAllStopTagsAtLocation(context.getContentResolver(), stopTag);
+		ImmutableList<String> tags = databaseAgent.getAllStopTagsAtLocation(stopTag);
 		ConcurrentMap<String, StopLocation> outputMapping = Maps.newConcurrentMap();
-		DatabaseAgent.getStops(context.getContentResolver(), tags, transitSystem, outputMapping);
+        databaseAgent.getStops(tags, transitSystem, outputMapping);
 		
 		return outputMapping;
 	}
@@ -253,26 +254,10 @@ public class RoutePool extends Pool<String, RouteConfig> {
 	private ClosestCacheKey previousKey;
 	private Collection<StopLocation> previousValue;
 	
-	public Collection<StopLocation> getClosestStopsAndFilterRoutes(double centerLatitude,
-			double centerLongitude, int maxStops, Set<String> routes) {
-		if (previousKey == null || previousKey.equals(centerLatitude, centerLongitude, maxStops, routes, true) == false) {
-			Collection<StopLocation> value = DatabaseAgent.getClosestStopsAndFilterRoutes(context.getContentResolver(),	
-					centerLatitude, centerLongitude, transitSystem, sharedStops, maxStops, routes);
-			previousKey = new ClosestCacheKey(centerLatitude, centerLongitude, maxStops, routes, true);
-			previousValue = value;
-			return value;
-		}
-		else
-		{
-			return previousValue;
-		}
-	}
-
 	public Collection<StopLocation> getClosestStops(double centerLatitude,
 			double centerLongitude, int maxStops)
 	{
-		return DatabaseAgent.getClosestStops(context.getContentResolver(), 
-				centerLatitude, centerLongitude, transitSystem, sharedStops, maxStops);
+		return databaseAgent.getClosestStops(centerLatitude, centerLongitude, transitSystem, sharedStops, maxStops);
 
 	}
 
@@ -297,13 +282,13 @@ public class RoutePool extends Pool<String, RouteConfig> {
 	}
 	
 	public void removeIntersection(String name) {
-		DatabaseAgent.removeIntersection(context.getContentResolver(), name);
+        databaseAgent.removeIntersection(name);
 		
 		intersections.remove(name);
 	}
 
 	public void editIntersectionName(String oldName, String newName) {
-		DatabaseAgent.editIntersectionName(context.getContentResolver(), oldName, newName);
+        databaseAgent.editIntersectionName(oldName, newName);
 		
 		intersections.remove(oldName);
 		
@@ -318,7 +303,7 @@ public class RoutePool extends Pool<String, RouteConfig> {
 		return intersections.values();
 	}
 	
-	public TransitSystem getTransitSystem() {
+	public ITransitSystem getTransitSystem() {
 		return transitSystem;
 	}
 }

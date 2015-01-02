@@ -21,7 +21,7 @@ public class VehicleSnippet implements IPrediction {
     }
 
     @Override
-    public void makeSnippet(Context context, StringBuilder ret, boolean showRunNumber) {
+    public void makeSnippet(StringBuilder ret, boolean showRunNumber) {
 
     }
 
@@ -31,7 +31,7 @@ public class VehicleSnippet implements IPrediction {
     }
 
     @Override
-    public ImmutableMap<String, Spanned> makeSnippetMap(Context context) {
+    public ImmutableMap<String, Spanned> makeSnippetMap() {
         return null;
     }
 

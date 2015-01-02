@@ -212,7 +212,7 @@ public class MoreInfo extends ListActivity {
 					if (routeTitle == null || routeTitle.equals(prediction.getRouteTitle()))
 					{
 						//data.add(prediction.generateMoreInfoMap());
-						ImmutableMap<String, Spanned> map = prediction.makeSnippetMap(this);
+						ImmutableMap<String, Spanned> map = prediction.makeSnippetMap();
 						data.add(map);
 					}
 				}

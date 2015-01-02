@@ -61,7 +61,7 @@ import boston.Bus.Map.util.StreamCounter;
  */
 public abstract class NextBusTransitSource implements TransitSource
 {
-	private final TransitSystem transitSystem;
+	private final ITransitSystem transitSystem;
 	
 	private static final String prefix = "webservices";
 	/**

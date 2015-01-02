@@ -19,6 +19,7 @@ import boston.Bus.Map.data.Selection;
 import boston.Bus.Map.data.StopLocation;
 import boston.Bus.Map.data.TransitDrawables;
 import boston.Bus.Map.data.VehicleLocations;
+import boston.Bus.Map.provider.DatabaseAgent;
 
 public interface ITransitSystem {
 
@@ -26,7 +27,7 @@ public interface ITransitSystem {
 			TransitDrawables subwayDrawables,
 			TransitDrawables commuterRailDrawables,
 			TransitDrawables hubwayDrawables,
-			Context context);
+			DatabaseAgent databaseAgent);
 
 	public abstract TransitSource getDefaultTransitSource();
 
@@ -50,5 +51,7 @@ public interface ITransitSystem {
 
 	IAlerts getAlerts();
 
-    public void startObtainAlerts(Context context);
+    public void startObtainAlerts(DatabaseAgent databaseAgent);
+
+    TransitSource getTransitSourceByRouteType(int routeType);
 }

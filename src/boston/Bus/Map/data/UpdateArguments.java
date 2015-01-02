@@ -3,6 +3,8 @@ package boston.Bus.Map.data;
 import boston.Bus.Map.main.Main;
 import boston.Bus.Map.main.RefreshAsyncTask;
 import boston.Bus.Map.main.UpdateAsyncTask;
+import boston.Bus.Map.provider.DatabaseAgent;
+import boston.Bus.Map.transit.ITransitSystem;
 import boston.Bus.Map.transit.TransitSystem;
 import boston.Bus.Map.ui.BusOverlay;
 import boston.Bus.Map.ui.LocationOverlay;
@@ -19,25 +21,27 @@ public class UpdateArguments {
 	private ProgressBar progress;
 	private ProgressDialog progressDialog;
 	private MapView mapView;
-	private Context context;
+	private DatabaseAgent databaseAgent;
 	private OverlayGroup overlayGroup;
 	private RefreshAsyncTask majorHandler;
 	private Locations busLocations;
-	private TransitSystem transitSystem;
+	private ITransitSystem transitSystem;
+    private Context context;
 	
 	public UpdateArguments(ProgressBar progress,
-			ProgressDialog progressDialog, MapView mapView, Context context,
+			ProgressDialog progressDialog, MapView mapView, DatabaseAgent databaseAgent,
 			OverlayGroup overlayGroup, RefreshAsyncTask majorHandler,
 			Locations busLocations,
-			TransitSystem transitSystem) {
+            ITransitSystem transitSystem, Context context) {
 		this.progress = progress;
 		this.progressDialog = progressDialog;
 		this.mapView = mapView;
-		this.context = context;
+		this.databaseAgent = databaseAgent;
 		this.overlayGroup = overlayGroup;
 		this.majorHandler = majorHandler;
 		this.busLocations = busLocations;
 		this.transitSystem = transitSystem;
+        this.context = context;
 	}
 
 	public ProgressBar getProgress() {
@@ -48,7 +52,11 @@ public class UpdateArguments {
 		return progressDialog;
 	}
 
-	public void setProgress(ProgressBar progress) {
+    public Context getContext() {
+        return context;
+    }
+
+    public void setProgress(ProgressBar progress) {
 		this.progress = progress;
 	}
 	
@@ -60,8 +68,8 @@ public class UpdateArguments {
 		return mapView;
 	}
 
-	public Context getContext() {
-		return context;
+	public DatabaseAgent getDatabaseAgent() {
+		return databaseAgent;
 	}
 
 	public RefreshAsyncTask getMajorHandler() {
@@ -76,7 +84,7 @@ public class UpdateArguments {
 		return busLocations;
 	}
 
-	public TransitSystem getTransitSystem() {
+	public ITransitSystem getTransitSystem() {
 		return transitSystem;
 	}
 
@@ -85,6 +93,6 @@ public class UpdateArguments {
 	}
 
 	public UpdateArguments cloneMe() {
-		return new UpdateArguments(progress, progressDialog, mapView, context, overlayGroup, majorHandler, busLocations, transitSystem);
+		return new UpdateArguments(progress, progressDialog, mapView, databaseAgent, overlayGroup, majorHandler, busLocations, transitSystem, context);
 	}
 }

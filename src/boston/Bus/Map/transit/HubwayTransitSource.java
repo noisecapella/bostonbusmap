@@ -39,7 +39,7 @@ public class HubwayTransitSource implements TransitSource {
 
 	private final TransitDrawables drawables;
 	private final TransitSourceTitles routeTitles;
-	private final TransitSystem transitSystem;
+	private final ITransitSystem transitSystem;
 
 
 	public HubwayTransitSource(TransitDrawables drawables, TransitSourceTitles routeTitles,

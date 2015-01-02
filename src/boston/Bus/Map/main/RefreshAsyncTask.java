@@ -47,7 +47,7 @@ public class RefreshAsyncTask extends UpdateAsyncTask
 			double centerLatitude = geoPoint.getLatitudeE6() * Constants.InvE6;
 			double centerLongitude = geoPoint.getLongitudeE6() * Constants.InvE6;
 
-			busLocations.refresh(arguments.getContext(), selection,
+			busLocations.refresh(arguments.getDatabaseAgent(), selection,
 					centerLatitude, centerLongitude, this, arguments.getOverlayGroup().getRouteOverlay().isShowLine());
 			return true;
 		}
