@@ -14,7 +14,6 @@ import boston.Bus.Map.math.Geometry;
 import boston.Bus.Map.transit.ITransitSystem;
 import boston.Bus.Map.transit.TransitSource;
 import boston.Bus.Map.transit.TransitSystem;
-import android.content.Context;
 import android.graphics.drawable.Drawable;
 
 /**

@@ -10,9 +10,6 @@ import java.util.concurrent.TimeoutException;
 import com.google.common.collect.ImmutableCollection;
 import com.google.common.collect.ImmutableList;
 
-import android.content.Context;
-import android.os.AsyncTask;
-import android.os.Handler;
 import boston.Bus.Map.annotations.KeepSorted;
 import boston.Bus.Map.parser.IAlertsParser;
 import boston.Bus.Map.parser.MbtaAlertsParser;

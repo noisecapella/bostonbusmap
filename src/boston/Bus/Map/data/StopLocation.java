@@ -11,8 +11,6 @@ import boston.Bus.Map.annotations.KeepSorted;
 import boston.Bus.Map.database.Schema;
 import boston.Bus.Map.math.Geometry;
 import boston.Bus.Map.transit.ITransitSystem;
-import boston.Bus.Map.transit.TransitSystem;
-import android.content.Context;
 import android.graphics.drawable.Drawable;
 
 public class StopLocation implements Location

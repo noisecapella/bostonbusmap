@@ -8,18 +8,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.ImmutableMap.Builder;
-import com.google.common.collect.Maps;
-
 import boston.Bus.Map.provider.DatabaseContentProvider;
 import boston.Bus.Map.provider.DatabaseAgent;
 
-
-import android.content.Context;
-import android.content.OperationApplicationException;
-import android.os.RemoteException;
-import android.util.Log;
 
 public class Directions {
 	private final ConcurrentHashMap<String, Direction> directions
@@ -46,7 +37,7 @@ public class Directions {
 		Direction direction = directions.get(dirTag);
 		if (direction == null)
 		{
-			Log.i("BostonBusMap", "strange, dirTag + " + dirTag + " doesnt exist. If you see this many times, we're having trouble storing the data in the database. Too much DB activity causes objects to persist which causes a crash");
+			// Log.i("BostonBusMap", "strange, dirTag + " + dirTag + " doesnt exist. If you see this many times, we're having trouble storing the data in the database. Too much DB activity causes objects to persist which causes a crash");
 			doRefresh();
 			
 			return directions.get(dirTag);
