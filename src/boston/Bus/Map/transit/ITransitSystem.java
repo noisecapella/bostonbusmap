@@ -1,14 +1,11 @@
 package boston.Bus.Map.transit;
 
 import java.io.IOException;
-import java.util.concurrent.ConcurrentHashMap;
 
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.xml.sax.SAXException;
 
-import android.content.Context;
-import boston.Bus.Map.data.BusLocation;
 import boston.Bus.Map.data.Directions;
 import boston.Bus.Map.data.IAlerts;
 import boston.Bus.Map.data.Locations;
@@ -19,7 +16,7 @@ import boston.Bus.Map.data.Selection;
 import boston.Bus.Map.data.StopLocation;
 import boston.Bus.Map.data.TransitDrawables;
 import boston.Bus.Map.data.VehicleLocations;
-import boston.Bus.Map.provider.DatabaseAgent;
+import boston.Bus.Map.provider.IDatabaseAgent;
 
 public interface ITransitSystem {
 
@@ -27,7 +24,7 @@ public interface ITransitSystem {
 			TransitDrawables subwayDrawables,
 			TransitDrawables commuterRailDrawables,
 			TransitDrawables hubwayDrawables,
-			DatabaseAgent databaseAgent);
+			IDatabaseAgent databaseAgent);
 
 	public abstract TransitSource getDefaultTransitSource();
 
@@ -51,7 +48,7 @@ public interface ITransitSystem {
 
 	IAlerts getAlerts();
 
-    public void startObtainAlerts(DatabaseAgent databaseAgent);
+    public void startObtainAlerts(IDatabaseAgent databaseAgent);
 
     TransitSource getTransitSourceByRouteType(int routeType);
 }

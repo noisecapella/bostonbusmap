@@ -56,7 +56,7 @@ import boston.Bus.Map.util.LogUtil;
 import boston.Bus.Map.util.StringUtil;
 
 
-public class DatabaseAgent {
+public class DatabaseAgent implements IDatabaseAgent {
     private final ContentResolver resolver;
 
     public DatabaseAgent(ContentResolver resolver) {
@@ -67,6 +67,7 @@ public class DatabaseAgent {
      * Fill the given HashSet with all stop tags that are favorites
      * @param favorites
      */
+    @Override
     public void populateFavorites(CopyOnWriteArraySet<String> favorites)
     {
         Cursor cursor = null;
@@ -96,6 +97,7 @@ public class DatabaseAgent {
     }
 
 
+    @Override
     public ImmutableList<String> getAllStopTagsAtLocation(String stopTag)
     {
         Cursor cursor = null;
@@ -144,6 +146,7 @@ public class DatabaseAgent {
     }
 
 
+    @Override
     public void saveFavorite(Collection<String> allStopTagsAtLocation, boolean isFavorite) throws RemoteException {
         if (isFavorite)
         {
@@ -156,9 +159,10 @@ public class DatabaseAgent {
         }
     }
 
+    @Override
     public RouteConfig getRoute(String routeToUpdate,
-                                       ConcurrentMap<String, StopLocation> sharedStops,
-                                       ITransitSystem transitSystem) throws IOException {
+                                ConcurrentMap<String, StopLocation> sharedStops,
+                                ITransitSystem transitSystem) throws IOException {
 
         //get the route-specific information, like the path outline and the color
         RouteConfig.Builder routeConfigBuilder = null;
@@ -281,6 +285,7 @@ public class DatabaseAgent {
      *
      * NOTE: these data structures are assumed to be synchronized
      */
+    @Override
     public void refreshDirections(ConcurrentHashMap<String, Direction> directions) {
         Cursor cursor = null;
         try
@@ -448,13 +453,15 @@ public class DatabaseAgent {
         return uri;
     }
 
+    @Override
     public Collection<StopLocation> getClosestStopsAndFilterRoutes(double currentLat, double currentLon, ITransitSystem transitSystem,
-                                                                          ConcurrentMap<String, StopLocation> sharedStops, int limit, Set<String> routes) {
+                                                                   ConcurrentMap<String, StopLocation> sharedStops, int limit, Set<String> routes) {
         return getClosestStops(currentLat, currentLon, transitSystem,
                 sharedStops, limit, routes, true);
     }
+    @Override
     public Collection<StopLocation> getClosestStops(double currentLat, double currentLon, ITransitSystem transitSystem,
-                                                           ConcurrentMap<String, StopLocation> sharedStops, int limit) {
+                                                    ConcurrentMap<String, StopLocation> sharedStops, int limit) {
         Set<String> emptySet = Collections.emptySet();
         return getClosestStops(currentLat, currentLon, transitSystem,
                 sharedStops, limit, emptySet, false);
@@ -529,6 +536,7 @@ public class DatabaseAgent {
         }
     }
 
+    @Override
     public StopLocation getStopByTagOrTitle(String tagQuery, String titleQuery, ITransitSystem transitSystem)
     {
         //TODO: we should have a factory somewhere to abstract details away regarding subway vs bus
@@ -582,8 +590,9 @@ public class DatabaseAgent {
      * @param transitSystem
      * @return
      */
+    @Override
     public void getStops(ImmutableList<String> stopTags,
-                                ITransitSystem transitSystem, ConcurrentMap<String, StopLocation> outputMapping) {
+                         ITransitSystem transitSystem, ConcurrentMap<String, StopLocation> outputMapping) {
         if (stopTags == null || stopTags.size() == 0)
         {
             return;
@@ -671,6 +680,7 @@ public class DatabaseAgent {
         }
     }
 
+    @Override
     public ArrayList<String> getDirectionTagsForStop(String stopTag) {
         ArrayList<String> ret = Lists.newArrayList();
         Cursor cursor = null;
@@ -695,6 +705,7 @@ public class DatabaseAgent {
         }
     }
 
+    @Override
     public List<String> getStopTagsForDirTag(String dirTag) {
         ArrayList<String> ret = Lists.newArrayList();
         Cursor cursor = null;
@@ -719,6 +730,7 @@ public class DatabaseAgent {
         }
     }
 
+    @Override
     public void populateIntersections(
             ConcurrentMap<String, IntersectionLocation> intersections,
             ITransitSystem transitSystem, ConcurrentMap<String, StopLocation> sharedStops,
@@ -792,6 +804,7 @@ public class DatabaseAgent {
      * @param build
      * @return true for success, false for failure
      */
+    @Override
     public boolean addIntersection(IntersectionLocation.Builder build, TransitSourceTitles routeTitles) {
         // temporary throwaway location. We still need to attach nearby routes to it,
         // that gets done in populateIntersections
@@ -811,6 +824,7 @@ public class DatabaseAgent {
         }
     }
 
+    @Override
     public RouteTitles getRouteTitles() {
 
         Cursor cursor = resolver.query(DatabaseContentProvider.ROUTES_URI, new String[]{
@@ -843,6 +857,7 @@ public class DatabaseAgent {
     }
 
 
+    @Override
     public void removeIntersection(String name) {
         int result = resolver.delete(FavoritesContentProvider.LOCATIONS_URI, Schema.Locations.nameColumn + "= ?", new String[]{name});
         if (result == 0) {
@@ -850,6 +865,7 @@ public class DatabaseAgent {
         }
     }
 
+    @Override
     public void editIntersectionName(
             String oldName, String newName) {
         if (oldName.equals(newName))

@@ -1,15 +1,8 @@
 package boston.Bus.Map.data;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import boston.Bus.Map.provider.DatabaseContentProvider;
-import boston.Bus.Map.provider.DatabaseAgent;
+import boston.Bus.Map.provider.IDatabaseAgent;
 
 
 public class Directions {
@@ -18,9 +11,9 @@ public class Directions {
 	
 	private boolean isRefreshed = false;
 
-	private DatabaseAgent databaseAgent;
+	private IDatabaseAgent databaseAgent;
 	
-	public Directions(DatabaseAgent databaseAgent) {
+	public Directions(IDatabaseAgent databaseAgent) {
 		this.databaseAgent = databaseAgent;
 	}
 

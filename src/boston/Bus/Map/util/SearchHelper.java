@@ -1,24 +1,15 @@
 package boston.Bus.Map.util;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
-
-import com.google.android.maps.MapView;
-import com.google.common.collect.ImmutableMap;
-
 import android.util.Log;
 import android.widget.Toast;
-import boston.Bus.Map.data.Direction;
+
 import boston.Bus.Map.data.RouteTitles;
 import boston.Bus.Map.data.StopLocation;
 import boston.Bus.Map.data.TransitSourceTitles;
 import boston.Bus.Map.data.UpdateArguments;
 import boston.Bus.Map.main.Main;
-import boston.Bus.Map.provider.DatabaseAgent;
+import boston.Bus.Map.provider.IDatabaseAgent;
 import boston.Bus.Map.transit.ITransitSystem;
-import boston.Bus.Map.transit.TransitSystem;
 
 public class SearchHelper
 {
@@ -34,10 +25,10 @@ public class SearchHelper
 	private int queryType = QUERY_NONE;
 	
 	private final UpdateArguments arguments;
-    private final DatabaseAgent databaseAgent;
+    private final IDatabaseAgent databaseAgent;
 	
 	public SearchHelper(Main context, RouteTitles dropdownRouteKeysToTitles,
-			UpdateArguments arguments, String query, DatabaseAgent databaseAgent)
+			UpdateArguments arguments, String query, IDatabaseAgent databaseAgent)
 	{
 		this.context = context;
 		this.dropdownRouteKeysToTitles = dropdownRouteKeysToTitles;

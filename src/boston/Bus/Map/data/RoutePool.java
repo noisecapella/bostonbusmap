@@ -5,43 +5,24 @@ import java.util.AbstractCollection;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.CopyOnWriteArraySet;
 
-import com.google.android.maps.GeoPoint;
-import com.google.common.base.Objects;
-import com.google.common.cache.Cache;
-import com.google.common.cache.CacheBuilder;
-import com.google.common.cache.CacheLoader;
-import com.google.common.cache.LoadingCache;
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 
-import android.content.Context;
-import android.content.OperationApplicationException;
-import android.graphics.drawable.Drawable;
 import android.os.RemoteException;
 import android.util.Log;
 import boston.Bus.Map.R;
-import boston.Bus.Map.main.UpdateAsyncTask;
-import boston.Bus.Map.provider.DatabaseContentProvider;
-import boston.Bus.Map.provider.DatabaseAgent;
+import boston.Bus.Map.provider.IDatabaseAgent;
 import boston.Bus.Map.transit.ITransitSystem;
-import boston.Bus.Map.transit.TransitSource;
-import boston.Bus.Map.transit.TransitSystem;
-import boston.Bus.Map.ui.ProgressMessage;
 
 public class RoutePool extends Pool<String, RouteConfig> {
-	private final DatabaseAgent databaseAgent;
+	private final IDatabaseAgent databaseAgent;
 	
 	private final ConcurrentMap<String, StopLocation> sharedStops = Maps.newConcurrentMap();
 	
@@ -58,7 +39,7 @@ public class RoutePool extends Pool<String, RouteConfig> {
 
 	private boolean filterStopsFromIntersection;
 	
-	public RoutePool(DatabaseAgent databaseAgent, ITransitSystem transitSystem) {
+	public RoutePool(IDatabaseAgent databaseAgent, ITransitSystem transitSystem) {
 		super(50);
 
 		this.databaseAgent = databaseAgent;
