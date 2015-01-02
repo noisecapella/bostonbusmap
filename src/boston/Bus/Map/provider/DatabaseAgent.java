@@ -89,81 +89,6 @@ public class DatabaseAgent {
         }
     }
 
-    public static void saveMapping(Context context,
-                                   Map<String, RouteConfig> mapping,
-                                   HashSet<String> sharedStops, UpdateAsyncTask task)
-            throws IOException, RemoteException, OperationApplicationException
-    {
-        int total = mapping.keySet().size();
-        task.publish(new ProgressMessage(ProgressMessage.SET_MAX, total));
-
-        int count = 0;
-        for (String route : mapping.keySet())
-        {
-            RouteConfig routeConfig = mapping.get(route);
-            if (routeConfig != null)
-            {
-                String routeTitle = routeConfig.getRouteTitle();
-                saveMappingKernel(context, route, routeTitle, routeConfig, sharedStops);
-            }
-
-            count++;
-            task.publish(count);
-        }
-    }
-
-    /**
-     *
-     * @param route
-     * @param routeConfig
-     * @throws IOException
-     */
-    private static void saveMappingKernel(Context context,
-                                          String route, String routeTitle, RouteConfig routeConfig,
-                                          HashSet<String> sharedStops) throws IOException
-    {
-        DatabaseContentProvider.DatabaseHelper databaseHelper = DatabaseContentProvider.DatabaseHelper.getInstance(context);
-        SQLiteDatabase database = databaseHelper.getWritableDatabase();
-
-        DatabaseUtils.InsertHelper routeInsertHelper = new DatabaseUtils.InsertHelper(database, Schema.Routes.table);
-        try
-        {
-            Schema.Routes.executeInsertHelper(routeInsertHelper, route,
-                    routeConfig.getColor(), routeConfig.getOppositeColor(),
-                    pathsToBlob(routeConfig.getPaths()), routeConfig.getListOrder(),
-                    routeConfig.getTransitSourceId(), routeTitle);
-        }
-        finally
-        {
-            routeInsertHelper.close();
-        }
-        //add all stops associated with the route, if they don't already exist
-
-        DatabaseUtils.InsertHelper stopsToInsert = new DatabaseUtils.InsertHelper(database, Schema.Stops.table);
-        DatabaseUtils.InsertHelper stopRoutesToInsert = new DatabaseUtils.InsertHelper(database, Schema.Stopmapping.table);
-        try
-        {
-            for (StopLocation stop : routeConfig.getStops())
-            {
-                String stopTag = stop.getStopTag();
-
-                if (sharedStops.contains(stopTag) == false)
-                {
-                    sharedStops.add(stopTag);
-
-                    Schema.Stops.executeInsertHelper(stopsToInsert, stopTag, stop.getLatitudeAsDegrees(), stop.getLongitudeAsDegrees(), stop.getTitle());
-                }
-
-                //show that there's a relationship between the stop and this route
-                Schema.Stopmapping.executeInsertHelper(stopRoutesToInsert, route, stopTag);
-            }
-        }
-        finally
-        {
-            stopsToInsert.close();
-            stopRoutesToInsert.close();
-        }
-    }
 
     public static ImmutableList<String> getAllStopTagsAtLocation(ContentResolver resolver,
                                                                  String stopTag)
@@ -346,40 +271,6 @@ public class DatabaseAgent {
         return routeConfigBuilder.build();
     }
 
-    public static ImmutableList<String> routeInfoNeedsUpdating(ContentResolver resolver,
-                                                               RouteTitles supportedRoutes) {
-        Set<String> routesInDB = Sets.newHashSet();
-        Cursor cursor = null;
-        try
-        {
-            cursor = resolver.query(DatabaseContentProvider.ROUTES_URI, new String[]{Schema.Routes.routeColumn}, null, null, null);
-            cursor.moveToFirst();
-            while (cursor.isAfterLast() == false)
-            {
-                routesInDB.add(cursor.getString(0));
-
-                cursor.moveToNext();
-            }
-
-            ImmutableList.Builder<String> routesThatNeedUpdating = ImmutableList.builder();
-
-            for (String route : supportedRoutes.routeTags())
-            {
-                if (routesInDB.contains(route) == false)
-                {
-                    routesThatNeedUpdating.add(route);
-                }
-            }
-
-            return routesThatNeedUpdating.build();
-        }
-        finally
-        {
-            if (cursor != null) {
-                cursor.close();
-            }
-        }
-    }
 
     /**
      * Populate directions from the database
@@ -866,19 +757,6 @@ public class DatabaseAgent {
                 cursor.close();
             }
         }
-    }
-
-    public static byte[] pathsToBlob(
-            Path[] currentPaths) throws IOException {
-        byte[] pathsBlob = null;
-        if (currentPaths != null) {
-            IBox serializedPath = new Box(null, DatabaseContentProvider.CURRENT_DB_VERSION);
-
-            serializedPath.writePathsList(currentPaths);
-
-            pathsBlob = serializedPath.getBlob();
-        }
-        return pathsBlob;
     }
 
     public static void populateIntersections(

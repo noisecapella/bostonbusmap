@@ -127,36 +127,11 @@ public class RoutePool extends Pool<String, RouteConfig> {
 		return ret;
 	}
 
-	/**
-	 * In the future, this may be necessary to implement. Currently all route data is shipped with the app
-	 * 
-	 * @param route
-	 * @return
-	 */
-	public boolean isMissingRouteInfo(String route) {
-		return false;
-	}
-
 	protected RouteConfig create(String routeToUpdate) throws IOException {
 		return DatabaseAgent.getRoute(context.getContentResolver(), routeToUpdate, sharedStops, transitSystem);
 	}
 	
-	public void writeToDatabase(ImmutableMap<String, RouteConfig> map, UpdateAsyncTask task, boolean silent) throws IOException, RemoteException, OperationApplicationException {
-		if (!silent)
-		{
-			task.publish(new ProgressMessage(ProgressMessage.PROGRESS_DIALOG_ON, "Saving to database", null));
-		}
-		
-		HashSet<String> stopTags = Sets.newHashSet();
-		DatabaseAgent.saveMapping(context, map, stopTags, task);
-		
-		clearAll();
-		populateFavorites();
-		//saveFavoritesToDatabase();
-	}
 
-	
-	
 	private void populateFavorites() {
 		DatabaseAgent.populateFavorites(context.getContentResolver(), favoriteStops);
 		fillInFavoritesRoutes();
@@ -175,11 +150,6 @@ public class RoutePool extends Pool<String, RouteConfig> {
 		intersections.clear();
 	}
 
-
-	public ImmutableList<String> routeInfoNeedsUpdating(RouteTitles supportedRoutes) {
-		//TODO: what if another route gets added later, and we want to download it from the server and add it?
-		return DatabaseAgent.routeInfoNeedsUpdating(context.getContentResolver(), supportedRoutes);
-	}
 
 	public StopLocation[] getFavoriteStops() {
 		ArrayList<StopLocation> ret = new ArrayList<StopLocation>(favoriteStops.size());
