@@ -4,190 +4,115 @@ import boston.Bus.Map.R;
 
 public class BusDrawables {
 
-    public static int getIdFromAngle(int angle) {
+    private static final int[] idLookup = new int[] {
+         R.drawable.bus_0,
+        R.drawable.bus_8,
+        R.drawable.bus_16,
+        R.drawable.bus_24,
+        R.drawable.bus_32,
+        R.drawable.bus_40,
+        R.drawable.bus_48,
+        R.drawable.bus_56,
+        R.drawable.bus_64,
+        R.drawable.bus_72,
+        R.drawable.bus_80,
+        R.drawable.bus_88,
+        R.drawable.bus_96,
+        R.drawable.bus_104,
+        R.drawable.bus_112,
+        R.drawable.bus_120,
+        R.drawable.bus_128,
+        R.drawable.bus_136,
+        R.drawable.bus_144,
+        R.drawable.bus_152,
+        R.drawable.bus_160,
+        R.drawable.bus_168,
+        R.drawable.bus_176,
+        R.drawable.bus_184,
+        R.drawable.bus_192,
+        R.drawable.bus_200,
+        R.drawable.bus_208,
+        R.drawable.bus_216,
+        R.drawable.bus_224,
+        R.drawable.bus_232,
+        R.drawable.bus_240,
+        R.drawable.bus_248,
+        R.drawable.bus_256,
+        R.drawable.bus_264,
+        R.drawable.bus_272,
+        R.drawable.bus_280,
+        R.drawable.bus_288,
+        R.drawable.bus_296,
+        R.drawable.bus_304,
+        R.drawable.bus_312,
+        R.drawable.bus_320,
+        R.drawable.bus_328,
+        R.drawable.bus_336,
+        R.drawable.bus_344,
+        R.drawable.bus_352
+        };
 
-        if (angle < 8) {
-            return R.drawable.bus_0;
+    private static final int[] idSelectedLookup = new int[] {
+         R.drawable.bus_selected_0,
+        R.drawable.bus_selected_8,
+        R.drawable.bus_selected_16,
+        R.drawable.bus_selected_24,
+        R.drawable.bus_selected_32,
+        R.drawable.bus_selected_40,
+        R.drawable.bus_selected_48,
+        R.drawable.bus_selected_56,
+        R.drawable.bus_selected_64,
+        R.drawable.bus_selected_72,
+        R.drawable.bus_selected_80,
+        R.drawable.bus_selected_88,
+        R.drawable.bus_selected_96,
+        R.drawable.bus_selected_104,
+        R.drawable.bus_selected_112,
+        R.drawable.bus_selected_120,
+        R.drawable.bus_selected_128,
+        R.drawable.bus_selected_136,
+        R.drawable.bus_selected_144,
+        R.drawable.bus_selected_152,
+        R.drawable.bus_selected_160,
+        R.drawable.bus_selected_168,
+        R.drawable.bus_selected_176,
+        R.drawable.bus_selected_184,
+        R.drawable.bus_selected_192,
+        R.drawable.bus_selected_200,
+        R.drawable.bus_selected_208,
+        R.drawable.bus_selected_216,
+        R.drawable.bus_selected_224,
+        R.drawable.bus_selected_232,
+        R.drawable.bus_selected_240,
+        R.drawable.bus_selected_248,
+        R.drawable.bus_selected_256,
+        R.drawable.bus_selected_264,
+        R.drawable.bus_selected_272,
+        R.drawable.bus_selected_280,
+        R.drawable.bus_selected_288,
+        R.drawable.bus_selected_296,
+        R.drawable.bus_selected_304,
+        R.drawable.bus_selected_312,
+        R.drawable.bus_selected_320,
+        R.drawable.bus_selected_328,
+        R.drawable.bus_selected_336,
+        R.drawable.bus_selected_344,
+        R.drawable.bus_selected_352
+        };
+    
+
+    public static int getIdFromAngle(int angle, boolean isSelected) {
+        if (isSelected) {
+            if (angle < 0 || angle >= 360) {
+                return R.drawable.bus_selected_0;
+            }
+            return idSelectedLookup[angle/8];
         }
-
-        else if (angle < 16) {
-            return R.drawable.bus_8;
-        }
-
-        else if (angle < 24) {
-            return R.drawable.bus_16;
-        }
-
-        else if (angle < 32) {
-            return R.drawable.bus_24;
-        }
-
-        else if (angle < 40) {
-            return R.drawable.bus_32;
-        }
-
-        else if (angle < 48) {
-            return R.drawable.bus_40;
-        }
-
-        else if (angle < 56) {
-            return R.drawable.bus_48;
-        }
-
-        else if (angle < 64) {
-            return R.drawable.bus_56;
-        }
-
-        else if (angle < 72) {
-            return R.drawable.bus_64;
-        }
-
-        else if (angle < 80) {
-            return R.drawable.bus_72;
-        }
-
-        else if (angle < 88) {
-            return R.drawable.bus_80;
-        }
-
-        else if (angle < 96) {
-            return R.drawable.bus_88;
-        }
-
-        else if (angle < 104) {
-            return R.drawable.bus_96;
-        }
-
-        else if (angle < 112) {
-            return R.drawable.bus_104;
-        }
-
-        else if (angle < 120) {
-            return R.drawable.bus_112;
-        }
-
-        else if (angle < 128) {
-            return R.drawable.bus_120;
-        }
-
-        else if (angle < 136) {
-            return R.drawable.bus_128;
-        }
-
-        else if (angle < 144) {
-            return R.drawable.bus_136;
-        }
-
-        else if (angle < 152) {
-            return R.drawable.bus_144;
-        }
-
-        else if (angle < 160) {
-            return R.drawable.bus_152;
-        }
-
-        else if (angle < 168) {
-            return R.drawable.bus_160;
-        }
-
-        else if (angle < 176) {
-            return R.drawable.bus_168;
-        }
-
-        else if (angle < 184) {
-            return R.drawable.bus_176;
-        }
-
-        else if (angle < 192) {
-            return R.drawable.bus_184;
-        }
-
-        else if (angle < 200) {
-            return R.drawable.bus_192;
-        }
-
-        else if (angle < 208) {
-            return R.drawable.bus_200;
-        }
-
-        else if (angle < 216) {
-            return R.drawable.bus_208;
-        }
-
-        else if (angle < 224) {
-            return R.drawable.bus_216;
-        }
-
-        else if (angle < 232) {
-            return R.drawable.bus_224;
-        }
-
-        else if (angle < 240) {
-            return R.drawable.bus_232;
-        }
-
-        else if (angle < 248) {
-            return R.drawable.bus_240;
-        }
-
-        else if (angle < 256) {
-            return R.drawable.bus_248;
-        }
-
-        else if (angle < 264) {
-            return R.drawable.bus_256;
-        }
-
-        else if (angle < 272) {
-            return R.drawable.bus_264;
-        }
-
-        else if (angle < 280) {
-            return R.drawable.bus_272;
-        }
-
-        else if (angle < 288) {
-            return R.drawable.bus_280;
-        }
-
-        else if (angle < 296) {
-            return R.drawable.bus_288;
-        }
-
-        else if (angle < 304) {
-            return R.drawable.bus_296;
-        }
-
-        else if (angle < 312) {
-            return R.drawable.bus_304;
-        }
-
-        else if (angle < 320) {
-            return R.drawable.bus_312;
-        }
-
-        else if (angle < 328) {
-            return R.drawable.bus_320;
-        }
-
-        else if (angle < 336) {
-            return R.drawable.bus_328;
-        }
-
-        else if (angle < 344) {
-            return R.drawable.bus_336;
-        }
-
-        else if (angle < 352) {
-            return R.drawable.bus_344;
-        }
-
-        else if (angle < 360) {
-            return R.drawable.bus_352;
-        }
-
         else {
-            return R.drawable.bus_0;
+            if (angle < 0 || angle >= 360) {
+                return R.drawable.bus_0;
+            }
+            return idLookup[angle/8];
         }
     }
 }

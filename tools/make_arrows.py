@@ -19,6 +19,8 @@ def adjust_arrow_dimensions(arrow_width, arrow_height, angle):
     
     s = math.sin(angle)
     c = math.cos(angle)
+
+    
     
     def rotate_by_angle(x, y):
         # rotation of 2d point
@@ -59,6 +61,23 @@ def create_image(path, angle):
 
             cbus.save(filename=os.path.join(path, "bus_%d.png" % int(angle)))
 
+        with Image(filename=os.path.join(path, "bus_selected.png")) as bus:
+            cbus = bus.clone()
+            bus_width, bus_height = bus.size
+
+            new_arrow_width, new_arrow_height = adjust_arrow_dimensions(arrow_width, arrow_height, angle)
+
+            carrow.rotate(angle)
+
+            carrow.resize(new_arrow_width, new_arrow_height)
+
+            arrow_left = bus_width/2 - new_arrow_width/2
+            arrow_top = bus_height/6
+
+            cbus.composite(carrow, arrow_left, arrow_top)
+
+            cbus.save(filename=os.path.join(path, "bus_selected_%d.png" % int(angle)))
+
 
 def write_bus_drawables():
     total_rotation = 360
@@ -68,28 +87,49 @@ def write_bus_drawables():
         header = """package boston.Bus.Map.ui;
 
 public class BusDrawables {
-
-    public static int getIdFromAngle(int angle) {
+"""
+        f.write(header)
+        prefix = """
+    private static final int[] idLookup = new int[] {
  """
 
-        f.write(header)
+        f.write(prefix)
         for i in xrange(num_divisions):
             angle = i * increment
 
-            if i == 0:
-                maybe_else = ""
-            else:
-                maybe_else = "else"
-            code = """
-        %s if (angle < %d) {
-            return R.drawable.bus_%d;
-        }
-""" % (maybe_else, angle + increment, angle)
+            if i != 0:
+                f.write(",\n")
+            f.write("        R.drawable.bus_%d" % angle)
 
-            f.write(code)
         footer = """
+        };
+
+    private static final int[] idSelectedLookup = new int[] {
+ """
+        f.write(footer)
+        for i in xrange(num_divisions):
+            angle = i * increment
+
+            if i != 0:
+                f.write(",\n")
+            f.write("        R.drawable.bus_selected_%d" % angle)
+
+        footer = """
+        };
+    
+
+    public static int getIdFromAngle(int angle, boolean isSelected) {
+        if (isSelected) {
+            if (angle < 0 || angle >= 360) {
+                return R.drawable.bus_selected_0;
+            }
+            return idSelectedLookup[angle/8];
+        }
         else {
-            return R.drawable.bus_0;
+            if (angle < 0 || angle >= 360) {
+                return R.drawable.bus_0;
+            }
+            return idLookup[angle/8];
         }
     }
 }
@@ -111,6 +151,7 @@ def write_images():
 
 def main():
     write_images()
+    write_bus_drawables()
 
 if __name__ == "__main__":
     main()
