@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.WeakHashMap;
 
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
 
 import android.content.Context;
@@ -14,6 +15,8 @@ import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.StateListDrawable;
 import android.util.SparseArray;
+
+import boston.Bus.Map.database.Schema;
 
 /**
  * Drawables for a particular TransitSource
@@ -28,7 +31,12 @@ public class TransitDrawables {
 	private final Drawable stop;
 	private final Drawable stopUpdated;
 	private final Drawable vehicle;
-	
+
+    public static TransitDrawables busDrawables;
+    public static TransitDrawables commuterRailDrawables;
+    public static TransitDrawables hubwayDrawables;
+    public static TransitDrawables subwayDrawables;
+
 	private final SparseArray<Drawable> vehicles = new SparseArray<Drawable>();
 	
 	private static final int[][] validStates = new int[][] {
@@ -102,15 +110,26 @@ public class TransitDrawables {
 		return stateListDrawable;
 	}
 
-	public Drawable getStop() {
-		return stop;
-	}
 
-	public Drawable getStopUpdated() {
-		return stopUpdated;
-	}
-
-	public Drawable getIntersection() {
-		return intersection;
-	}
+    public Drawable getDrawable(Location location) {
+        LocationType locationType = location.getLocationType();
+        boolean isUpdated = location.isUpdated();
+        if (locationType == LocationType.Intersection) {
+            return intersection;
+        }
+        else if (locationType == LocationType.Stop) {
+            if (isUpdated) {
+                return stopUpdated;
+            }
+            else {
+                return stop;
+            }
+        }
+        else if (locationType == LocationType.Vehicle) {
+            return vehicle;
+        }
+        else {
+            throw new RuntimeException("Unexpected location type");
+        }
+    }
 }

@@ -96,11 +96,6 @@ public class IntersectionLocation implements Location {
 	}
 
 	@Override
-	public Drawable getDrawable(ITransitSystem transitSystem) {
-		return transitSystem.getDefaultTransitSource().getDrawables().getIntersection();
-	}
-
-	@Override
 	public float getLatitudeAsDegrees() {
 		return latitudeAsDegrees;
 	}
@@ -185,4 +180,15 @@ public class IntersectionLocation implements Location {
 	public int getTransitSourceType() {
 		return -1;
 	}
+
+    @Override
+    public boolean isUpdated() {
+        // only relevant for stops
+        return false;
+    }
+
+    @Override
+    public LocationType getLocationType() {
+        return LocationType.Intersection;
+    }
 }

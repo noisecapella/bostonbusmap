@@ -327,13 +327,6 @@ public class BusLocation implements Location {
 	}
 	
 	@Override
-	public Drawable getDrawable(ITransitSystem transitSystem) {
-		TransitSource transitSource = transitSystem.getTransitSource(routeName);
-		int headingValue = hasHeading() ? getHeading() : NO_HEADING;
-		return transitSource.getDrawables().getVehicle(headingValue);
-	}
-	
-	@Override
 	public float getLatitudeAsDegrees() {
 		// TODO Auto-generated method stub
 		return latitudeAsDegrees;
@@ -413,8 +406,19 @@ public class BusLocation implements Location {
 	public int getTransitSourceType() {
 		return Schema.Routes.enumagencyidBus;
 	}
-	
-	protected ImmutableCollection<Alert> getAlerts(IAlerts alerts) {
+
+    @Override
+    public boolean isUpdated() {
+        // this is only relevant for stops
+        return false;
+    }
+
+    protected ImmutableCollection<Alert> getAlerts(IAlerts alerts) {
 		return alerts.getAlertsByRoute(routeName, getTransitSourceType());
 	}
+
+    @Override
+    public LocationType getLocationType() {
+        return LocationType.Vehicle;
+    }
 }

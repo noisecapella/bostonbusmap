@@ -87,14 +87,6 @@ public class StopLocation implements Location
 		return Geometry.computeDistanceInMiles(latitude, longitude, latitudeAsRads, longitudeAsRads);
 	}
 
-	@Override
-	public Drawable getDrawable(ITransitSystem transitSystem) {
-		// stops all look the same, and they can support multiple transit sources
-		// so we'll just use the default transit source's drawables 
-		TransitDrawables drawables = transitSystem.getDefaultTransitSource().getDrawables();
-		return recentlyUpdated ? drawables.getStopUpdated() : drawables.getStop();
-	}
-
 	public void clearRecentlyUpdated()
 	{
 		recentlyUpdated = false;
@@ -338,4 +330,14 @@ public class StopLocation implements Location
 	public boolean supportsBusPredictionsAllMode() {
 		return true;
 	}
+
+    @Override
+    public LocationType getLocationType() {
+        return LocationType.Stop;
+    }
+
+    @Override
+    public boolean isUpdated() {
+        return recentlyUpdated;
+    }
 }

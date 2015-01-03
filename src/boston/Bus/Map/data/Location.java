@@ -15,17 +15,18 @@ import android.content.Context;
 import android.graphics.drawable.Drawable;
 
 public interface Location {
+
 	/**
 	 * Some unique value for the location
 	 * @return
 	 */
 	int getId();
 
+    LocationType getLocationType();
+
 	boolean hasHeading();
 
 	int getHeading();
-
-	Drawable getDrawable(ITransitSystem transitSystem);
 
 	float getLatitudeAsDegrees();
 	
@@ -75,4 +76,6 @@ public interface Location {
 	 * @return
 	 */
 	int getTransitSourceType();
+
+    boolean isUpdated();
 }

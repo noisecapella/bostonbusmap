@@ -35,14 +35,6 @@ public class HubwayStopLocation extends StopLocation {
 	}
 
 	@Override
-	public Drawable getDrawable(ITransitSystem transitSystem) {
-		// stops all look the same, and they can support multiple transit sources
-		// so we'll just use the default transit source's drawables
-		TransitDrawables drawables = transitSystem.getTransitSource("Hubway").getDrawables();
-		return recentlyUpdated ? drawables.getStopUpdated() : drawables.getStop();
-	}
-
-	@Override
 	public boolean supportsBusPredictionsAllMode() {
 		return true;
 	}

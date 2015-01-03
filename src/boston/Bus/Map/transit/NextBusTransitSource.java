@@ -27,12 +27,14 @@ import com.google.common.io.ByteStreams;
 
 import android.content.Context;
 import android.content.OperationApplicationException;
+import android.graphics.drawable.Drawable;
 import android.os.RemoteException;
 import boston.Bus.Map.data.BusLocation;
 import boston.Bus.Map.data.Directions;
 import boston.Bus.Map.data.IAlerts;
 import boston.Bus.Map.data.IntersectionLocation;
 import boston.Bus.Map.data.Location;
+import boston.Bus.Map.data.LocationType;
 import boston.Bus.Map.data.Locations;
 import boston.Bus.Map.data.RouteConfig;
 import boston.Bus.Map.data.RoutePool;
@@ -84,7 +86,7 @@ public abstract class NextBusTransitSource implements TransitSource
 	{
 		this.transitSystem = transitSystem;
 		this.drawables = drawables;
-		
+
 		mbtaLocationsDataUrlOneRoute = "http://" + prefix + ".nextbus.com/service/publicXMLFeed?command=vehicleLocations&a=" + agency + "&t=";
 		mbtaLocationsDataUrlAllRoutes = "http://" + prefix + ".nextbus.com/service/publicXMLFeed?command=vehicleLocations&a=" + agency + "&t=";
 		mbtaRouteConfigDataUrl = "http://" + prefix + ".nextbus.com/service/publicXMLFeed?command=routeConfig&a=" + agency + "&r=";
@@ -150,7 +152,7 @@ public abstract class NextBusTransitSource implements TransitSource
 
             //lastUpdateTime = parser.getLastUpdateTime();
 
-            VehicleLocationsFeedParser parser = new VehicleLocationsFeedParser(drawables, directions, transitSystem.getRouteKeysToTitles());
+            VehicleLocationsFeedParser parser = new VehicleLocationsFeedParser(directions, transitSystem.getRouteKeysToTitles());
             parser.runParse(data);
 
             //get the time that this information is valid until
@@ -250,7 +252,7 @@ public abstract class NextBusTransitSource implements TransitSource
 	public TransitDrawables getDrawables() {
 		return drawables;
 	}
-	
+
 	@Override
 	public int getLoadOrder() {
 		return 1;

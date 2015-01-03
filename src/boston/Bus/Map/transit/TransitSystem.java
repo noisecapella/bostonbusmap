@@ -92,7 +92,6 @@ public class TransitSystem implements ITransitSystem {
 	 * @param busDrawables
 	 * @param subwayDrawables
 	 * @param commuterRailDrawables
-	 * @param alertsData
 	 */
 	@Override
 	public void setDefaultTransitSource(TransitDrawables busDrawables, TransitDrawables subwayDrawables, 

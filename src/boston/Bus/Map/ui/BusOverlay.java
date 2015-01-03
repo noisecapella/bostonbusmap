@@ -34,6 +34,8 @@ import boston.Bus.Map.data.TransitDrawables;
 import boston.Bus.Map.data.Location;
 import boston.Bus.Map.main.Main;
 import boston.Bus.Map.main.UpdateHandler;
+import boston.Bus.Map.transit.ITransitSystem;
+import boston.Bus.Map.transit.TransitSource;
 import boston.Bus.Map.util.Constants;
 
 import com.google.android.maps.GeoPoint;
@@ -409,7 +411,9 @@ public class BusOverlay extends BalloonItemizedOverlay<BusOverlayItem> {
 		{
 			Location newLocation = item.getCurrentLocation();
 
-			Drawable drawable = newLocation.getDrawable(locationsObj.getTransitSystem());
+            ITransitSystem transitSystem = locationsObj.getTransitSystem();
+            TransitSource transitSource = transitSystem.getTransitSourceByRouteType(newLocation.getTransitSourceType());
+			Drawable drawable = transitSource.getDrawables().getDrawable(newLocation);
 			item.setMarker(drawable);
 
 			boundCenterBottom(drawable);

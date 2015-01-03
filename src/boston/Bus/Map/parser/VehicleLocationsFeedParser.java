@@ -49,15 +49,12 @@ import boston.Bus.Map.transit.TransitSystem;
 
 public class VehicleLocationsFeedParser extends DefaultHandler
 {
-	private final TransitDrawables drawables;
 	private final Directions directions;
 	private final RouteTitles routeKeysToTitles;
     private final Map<VehicleLocations.Key, BusLocation> newBuses = Maps.newHashMap();
 	
-	public VehicleLocationsFeedParser(TransitDrawables drawables,
-			Directions directions, RouteTitles routeKeysToTitles)
+	public VehicleLocationsFeedParser(Directions directions, RouteTitles routeKeysToTitles)
 	{
-		this.drawables = drawables;
 		this.directions = directions;
 		this.routeKeysToTitles = routeKeysToTitles;
 	}
