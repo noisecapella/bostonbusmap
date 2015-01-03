@@ -1,22 +1,12 @@
 package boston.Bus.Map.transit;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import org.apache.http.client.ClientProtocolException;
-import org.xml.sax.SAXException;
-
-import com.google.common.collect.ImmutableMap;
-
-import boston.Bus.Map.data.RouteConfig;
+import boston.Bus.Map.data.ITransitDrawables;
 import boston.Bus.Map.data.RouteTitles;
-import boston.Bus.Map.data.TransitDrawables;
 import boston.Bus.Map.data.TransitSourceTitles;
-import boston.Bus.Map.util.DownloadHelper;
 
 public class BusTransitSource extends NextBusTransitSource {
 
-	public BusTransitSource(TransitSystem transitSystem, TransitDrawables drawables, TransitSourceTitles routeTitles, RouteTitles allRouteTitles)
+	public BusTransitSource(TransitSystem transitSystem, ITransitDrawables drawables, TransitSourceTitles routeTitles, RouteTitles allRouteTitles)
 	{
 		super(transitSystem, drawables, "mbta", routeTitles, allRouteTitles);
 	}

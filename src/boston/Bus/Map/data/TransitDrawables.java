@@ -1,12 +1,5 @@
 package boston.Bus.Map.data;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.WeakHashMap;
-
-import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.Maps;
-
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
@@ -16,14 +9,12 @@ import android.graphics.drawable.Drawable;
 import android.graphics.drawable.StateListDrawable;
 import android.util.SparseArray;
 
-import boston.Bus.Map.database.Schema;
-
 /**
  * Drawables for a particular TransitSource
  * @author schneg
  *
  */
-public class TransitDrawables {
+public class TransitDrawables implements ITransitDrawables {
 	private final Context context;
 	private final Drawable intersection;
 	private final Drawable arrow;
@@ -32,10 +23,10 @@ public class TransitDrawables {
 	private final Drawable stopUpdated;
 	private final Drawable vehicle;
 
-    public static TransitDrawables busDrawables;
-    public static TransitDrawables commuterRailDrawables;
-    public static TransitDrawables hubwayDrawables;
-    public static TransitDrawables subwayDrawables;
+    public static ITransitDrawables busDrawables;
+    public static ITransitDrawables commuterRailDrawables;
+    public static ITransitDrawables hubwayDrawables;
+    public static ITransitDrawables subwayDrawables;
 
 	private final SparseArray<Drawable> vehicles = new SparseArray<Drawable>();
 	
@@ -54,7 +45,8 @@ public class TransitDrawables {
 		this.context = context;
 	}
 
-	public Drawable getVehicle(int heading) {
+	@Override
+    public Drawable getVehicle(int heading) {
 		Drawable drawable = vehicles.get(heading);
 		if (drawable == null) {
 			drawable = createBusDrawable(heading);
@@ -111,6 +103,7 @@ public class TransitDrawables {
 	}
 
 
+    @Override
     public Drawable getDrawable(Location location) {
         LocationType locationType = location.getLocationType();
         boolean isUpdated = location.isUpdated();

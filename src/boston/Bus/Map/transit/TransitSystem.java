@@ -17,13 +17,13 @@ import android.util.Log;
 import boston.Bus.Map.data.AlertsFuture;
 import boston.Bus.Map.data.Directions;
 import boston.Bus.Map.data.IAlerts;
+import boston.Bus.Map.data.ITransitDrawables;
 import boston.Bus.Map.data.Locations;
 import boston.Bus.Map.data.RouteConfig;
 import boston.Bus.Map.data.RoutePool;
 import boston.Bus.Map.data.RouteTitles;
 import boston.Bus.Map.data.Selection;
 import boston.Bus.Map.data.StopLocation;
-import boston.Bus.Map.data.TransitDrawables;
 import boston.Bus.Map.data.TransitSourceTitles;
 import boston.Bus.Map.data.VehicleLocations;
 import boston.Bus.Map.database.Schema;
@@ -94,8 +94,8 @@ public class TransitSystem implements ITransitSystem {
 	 * @param commuterRailDrawables
 	 */
 	@Override
-	public void setDefaultTransitSource(TransitDrawables busDrawables, TransitDrawables subwayDrawables, 
-			TransitDrawables commuterRailDrawables, TransitDrawables hubwayDrawables, IDatabaseAgent databaseAgent)
+	public void setDefaultTransitSource(ITransitDrawables busDrawables, ITransitDrawables subwayDrawables,
+			ITransitDrawables commuterRailDrawables, ITransitDrawables hubwayDrawables, IDatabaseAgent databaseAgent)
 	{
 		if (defaultTransitSource == null)
 		{

@@ -25,6 +25,7 @@ import java.util.Collections;
 import java.util.List;
 
 import boston.Bus.Map.R;
+import boston.Bus.Map.data.ITransitDrawables;
 import boston.Bus.Map.data.Locations;
 
 import boston.Bus.Map.data.IntersectionLocation;
@@ -266,23 +267,23 @@ public class Main extends MapActivity
 			Drawable busStopBike = resources.getDrawable(R.drawable.busstop_bike_statelist);
 			Drawable busStopBikeUpdated = resources.getDrawable(R.drawable.busstop_bike_statelist_updated);
 
-        	TransitDrawables busDrawables = new TransitDrawables(this, busStop,
+        	ITransitDrawables busDrawables = new TransitDrawables(this, busStop,
         			busStopUpdated, busPicture,
         			arrow, busPicture.getIntrinsicHeight() / 5, intersection);
-        	TransitDrawables subwayDrawables = new TransitDrawables(this, busStop,
+        	ITransitDrawables subwayDrawables = new TransitDrawables(this, busStop,
         			busStopUpdated, rail,
         			arrow, rail.getIntrinsicHeight() / 5, intersection);
-        	TransitDrawables commuterRailDrawables = new TransitDrawables(this, busStop,
+        	ITransitDrawables commuterRailDrawables = new TransitDrawables(this, busStop,
         			busStopUpdated, rail, arrow, rail.getIntrinsicHeight() / 5, 
         			intersection);
-			TransitDrawables hubwayDrawables = new TransitDrawables(this, busStopBike,
+			ITransitDrawables hubwayDrawables = new TransitDrawables(this, busStopBike,
 					busStopBikeUpdated, rail, arrow, rail.getIntrinsicHeight() / 5,
 					intersection);
 
 
 
         	transitSystem.setDefaultTransitSource(busDrawables, subwayDrawables, commuterRailDrawables, hubwayDrawables,
-					databaseAgent);
+                    databaseAgent);
         }
         SpinnerAdapter modeSpinnerAdapter = new ModeAdapter(this, Arrays.asList(Selection.modesSupported));
 

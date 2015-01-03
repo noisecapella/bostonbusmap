@@ -7,21 +7,19 @@ import org.xml.sax.SAXException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
-import java.util.concurrent.ConcurrentHashMap;
 
 import javax.xml.parsers.ParserConfigurationException;
 
-import boston.Bus.Map.data.BusLocation;
 import boston.Bus.Map.data.Directions;
 import boston.Bus.Map.data.HubwayStopLocation;
 import boston.Bus.Map.data.IAlerts;
+import boston.Bus.Map.data.ITransitDrawables;
 import boston.Bus.Map.data.Locations;
 import boston.Bus.Map.data.PredictionStopLocationPair;
 import boston.Bus.Map.data.RouteConfig;
 import boston.Bus.Map.data.RoutePool;
 import boston.Bus.Map.data.Selection;
 import boston.Bus.Map.data.StopLocation;
-import boston.Bus.Map.data.TransitDrawables;
 import boston.Bus.Map.data.TransitSourceTitles;
 import boston.Bus.Map.data.VehicleLocations;
 import boston.Bus.Map.database.Schema;
@@ -37,12 +35,12 @@ public class HubwayTransitSource implements TransitSource {
 	private static final String routeTag = "Hubway";
 	private static final String dataUrl = "http://www.thehubway.com/data/stations/bikeStations.xml";
 
-	private final TransitDrawables drawables;
+	private final ITransitDrawables drawables;
 	private final TransitSourceTitles routeTitles;
 	private final ITransitSystem transitSystem;
 
 
-	public HubwayTransitSource(TransitDrawables drawables, TransitSourceTitles routeTitles,
+	public HubwayTransitSource(ITransitDrawables drawables, TransitSourceTitles routeTitles,
 							   TransitSystem transitSystem) {
 
 		this.drawables = drawables;
@@ -109,7 +107,7 @@ public class HubwayTransitSource implements TransitSource {
 	}
 
 	@Override
-	public TransitDrawables getDrawables() {
+	public ITransitDrawables getDrawables() {
 		return drawables;
 	}
 
