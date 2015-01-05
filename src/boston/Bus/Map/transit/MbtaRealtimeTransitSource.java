@@ -15,6 +15,7 @@ import com.google.common.collect.ImmutableMultimap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 
+import boston.Bus.Map.data.CommuterRailStopLocation;
 import boston.Bus.Map.data.Directions;
 import boston.Bus.Map.data.IAlerts;
 import boston.Bus.Map.data.ITransitDrawables;
@@ -23,6 +24,7 @@ import boston.Bus.Map.data.RouteConfig;
 import boston.Bus.Map.data.RoutePool;
 import boston.Bus.Map.data.Selection;
 import boston.Bus.Map.data.StopLocation;
+import boston.Bus.Map.data.SubwayStopLocation;
 import boston.Bus.Map.data.TransitSourceTitles;
 import boston.Bus.Map.data.VehicleLocations;
 import boston.Bus.Map.database.Schema;
