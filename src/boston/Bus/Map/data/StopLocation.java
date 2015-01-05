@@ -10,9 +10,7 @@ import com.google.common.collect.ImmutableCollection;
 import boston.Bus.Map.annotations.KeepSorted;
 import boston.Bus.Map.database.Schema;
 import boston.Bus.Map.math.Geometry;
-import boston.Bus.Map.transit.TransitSystem;
-import android.content.Context;
-import android.graphics.drawable.Drawable;
+import boston.Bus.Map.transit.ITransitSystem;
 
 public class StopLocation implements Location
 {
@@ -88,14 +86,6 @@ public class StopLocation implements Location
 		return Geometry.computeDistanceInMiles(latitude, longitude, latitudeAsRads, longitudeAsRads);
 	}
 
-	@Override
-	public Drawable getDrawable(TransitSystem transitSystem) {
-		// stops all look the same, and they can support multiple transit sources
-		// so we'll just use the default transit source's drawables 
-		TransitDrawables drawables = transitSystem.getDefaultTransitSource().getDrawables();
-		return recentlyUpdated ? drawables.getStopUpdated() : drawables.getStop();
-	}
-
 	public void clearRecentlyUpdated()
 	{
 		recentlyUpdated = false;
@@ -133,24 +123,24 @@ public class StopLocation implements Location
 	
 	@Override
 	public void makeSnippetAndTitle(RouteConfig routeConfig, RouteTitles routeKeysToTitles, 
-			Locations locations, Context context)
+			Locations locations)
 	{
 		if (predictions == null)
 		{
 			predictions = new Predictions();
 		}
-		
-		TransitSystem transitSystem = locations.getTransitSystem();
+
+        ITransitSystem transitSystem = locations.getTransitSystem();
 		IAlerts alertsObj = transitSystem.getAlerts();
 		ImmutableCollection<Alert> alerts = alertsObj.getAlertsByRouteSetAndStop(
 				routes.getRoutes(), tag, getTransitSourceType());
 		
-		predictions.makeSnippetAndTitle(routeConfig, routeKeysToTitles, context, routes, this, alerts, locations);
+		predictions.makeSnippetAndTitle(routeConfig, routeKeysToTitles, routes, this, alerts, locations);
 	}
 	
 	@Override
 	public void addToSnippetAndTitle(RouteConfig routeConfig, Location location, RouteTitles routeKeysToTitles,
-			Locations locations, Context context)
+			Locations locations)
 	{
 		if (predictions == null)
 		{
@@ -158,7 +148,7 @@ public class StopLocation implements Location
 		}
 		
 		StopLocation stopLocation = (StopLocation)location;
-		TransitSystem transitSystem = locations.getTransitSystem();
+        ITransitSystem transitSystem = locations.getTransitSystem();
 		IAlerts alertsObj = transitSystem.getAlerts();
 		
 		ImmutableCollection<Alert> newAlerts = alertsObj.getAlertsByRouteSetAndStop(
@@ -166,7 +156,7 @@ public class StopLocation implements Location
 				stopLocation.getTransitSourceType());
 		
 		predictions.addToSnippetAndTitle(routeConfig, stopLocation,
-				routeKeysToTitles, context, stopLocation.routes, newAlerts, locations);
+				routeKeysToTitles, stopLocation.routes, newAlerts, locations);
 	}
 	
 	public String getStopTag()
@@ -339,4 +329,14 @@ public class StopLocation implements Location
 	public boolean supportsBusPredictionsAllMode() {
 		return true;
 	}
+
+    @Override
+    public LocationType getLocationType() {
+        return LocationType.Stop;
+    }
+
+    @Override
+    public boolean isUpdated() {
+        return recentlyUpdated;
+    }
 }

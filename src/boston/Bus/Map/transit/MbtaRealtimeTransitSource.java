@@ -4,55 +4,46 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.List;
-import java.util.concurrent.ConcurrentHashMap;
 
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.xml.sax.SAXException;
 
 import com.google.common.base.Joiner;
-import com.google.common.collect.ImmutableBiMap;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableMultimap;
 import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.ImmutableTable;
 import com.google.common.collect.Lists;
 
-import boston.Bus.Map.data.BusLocation;
-import boston.Bus.Map.data.CommuterRailStopLocation;
 import boston.Bus.Map.data.Directions;
 import boston.Bus.Map.data.IAlerts;
-import boston.Bus.Map.data.Location;
+import boston.Bus.Map.data.ITransitDrawables;
 import boston.Bus.Map.data.Locations;
 import boston.Bus.Map.data.RouteConfig;
 import boston.Bus.Map.data.RoutePool;
-import boston.Bus.Map.data.RouteTitles;
 import boston.Bus.Map.data.Selection;
 import boston.Bus.Map.data.StopLocation;
-import boston.Bus.Map.data.SubwayStopLocation;
-import boston.Bus.Map.data.TransitDrawables;
 import boston.Bus.Map.data.TransitSourceTitles;
 import boston.Bus.Map.data.VehicleLocations;
 import boston.Bus.Map.database.Schema;
 import boston.Bus.Map.parser.MbtaRealtimePredictionsParser;
 import boston.Bus.Map.parser.MbtaRealtimeVehicleParser;
 import boston.Bus.Map.util.DownloadHelper;
-import boston.Bus.Map.util.LogUtil;
 import boston.Bus.Map.util.SearchHelper;
 
 public class MbtaRealtimeTransitSource implements TransitSource {
 	private static final String dataUrlPrefix = "http://realtime.mbta.com/developer/api/v2/";
 	private static final String apiKey = "gmozilm-CkSCh8CE53wvsw";
 
-	private final TransitDrawables drawables;
+	private final ITransitDrawables drawables;
 	private final TransitSourceTitles routeTitles;
-	private final TransitSystem transitSystem;
+	private final ITransitSystem transitSystem;
 	
 	public static final ImmutableMap<String, String> gtfsNameToRouteName;
 	public static final ImmutableMultimap<String, String> routeNameToGtfsName;
 	public static final ImmutableMap<String, Integer> routeNameToTransitSource;
 
-	public MbtaRealtimeTransitSource(TransitDrawables drawables,
+	public MbtaRealtimeTransitSource(ITransitDrawables drawables,
 			TransitSourceTitles routeTitles,
 			TransitSystem transitSystem) {
 		this.drawables = drawables;
@@ -203,7 +194,7 @@ public class MbtaRealtimeTransitSource implements TransitSource {
 	}
 
 	@Override
-	public TransitDrawables getDrawables() {
+	public ITransitDrawables getDrawables() {
 		return drawables;
 	}
 

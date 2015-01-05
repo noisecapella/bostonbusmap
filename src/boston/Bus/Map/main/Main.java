@@ -18,96 +18,57 @@
     */
 package boston.Bus.Map.main;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.lang.reflect.Array;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 
 import java.util.List;
-import java.util.concurrent.ConcurrentMap;
-
-import javax.xml.parsers.FactoryConfigurationError;
-import javax.xml.parsers.ParserConfigurationException;
-
-import org.apache.http.impl.conn.tsccm.RouteSpecificPool;
-import org.xml.sax.SAXException;
 
 import boston.Bus.Map.R;
-import boston.Bus.Map.data.Direction;
+import boston.Bus.Map.data.ITransitDrawables;
 import boston.Bus.Map.data.Locations;
 
-import boston.Bus.Map.data.BusLocation;
 import boston.Bus.Map.data.IntersectionLocation;
-import boston.Bus.Map.data.RouteConfig;
 import boston.Bus.Map.data.RouteTitles;
 import boston.Bus.Map.data.Selection;
 import boston.Bus.Map.data.StopLocation;
 import boston.Bus.Map.data.TransitDrawables;
 import boston.Bus.Map.data.UpdateArguments;
+import boston.Bus.Map.provider.DatabaseAgent;
+import boston.Bus.Map.provider.IDatabaseAgent;
 import boston.Bus.Map.provider.TransitContentProvider;
+import boston.Bus.Map.transit.ITransitSystem;
 import boston.Bus.Map.transit.TransitSystem;
 import boston.Bus.Map.tutorials.IntroTutorial;
 import boston.Bus.Map.tutorials.Tutorial;
-import boston.Bus.Map.tutorials.TutorialStep;
 import boston.Bus.Map.ui.BusOverlay;
 
 import boston.Bus.Map.ui.LocationOverlay;
 import boston.Bus.Map.ui.ModeAdapter;
 import boston.Bus.Map.ui.OverlayGroup;
-import boston.Bus.Map.ui.RouteOverlay;
 import boston.Bus.Map.util.Constants;
 import boston.Bus.Map.util.SearchHelper;
-import boston.Bus.Map.util.StringUtil;
 
 
 import com.google.android.maps.GeoPoint;
 import com.google.android.maps.MapActivity;
 import com.google.android.maps.MapController;
 import com.google.android.maps.MapView;
-import com.google.android.maps.MyLocationOverlay;
-import com.google.android.maps.Overlay;
-import com.google.android.maps.OverlayItem;
-import com.google.common.collect.ImmutableCollection;
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.ImmutableTable;
 import com.google.common.collect.Lists;
 
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.app.SearchManager;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Resources;
-import android.database.sqlite.SQLiteDatabase;
-import android.graphics.BitmapFactory;
-import android.graphics.Point;
 import android.graphics.drawable.Drawable;
-import android.graphics.drawable.StateListDrawable;
-import android.location.Address;
-import android.location.Criteria;
-import android.location.Geocoder;
-import android.location.Location;
-import android.location.LocationManager;
-import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Message;
 
 import android.os.SystemClock;
-import android.os.Handler.Callback;
-import android.preference.PreferenceActivity;
 import android.preference.PreferenceManager;
 import android.provider.SearchRecentSuggestions;
-import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.Menu;
@@ -115,29 +76,16 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.MenuItem.OnMenuItemClickListener;
 import android.view.View.OnClickListener;
-import android.view.View.OnKeyListener;
-import android.view.View.OnTouchListener;
-import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
-import android.widget.AdapterView.OnItemClickListener;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
-import android.widget.CheckBox;
 import android.widget.EditText;
-import android.widget.Gallery;
 import android.widget.ImageButton;
-import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
-import android.widget.SimpleAdapter;
 import android.widget.Spinner;
 import android.widget.SpinnerAdapter;
-import android.widget.TextView;
-import android.widget.TextView.OnEditorActionListener;
 import android.widget.Toast;
-import android.widget.ZoomControls;
 import android.widget.AdapterView.OnItemSelectedListener;
 
 /**
@@ -232,6 +180,8 @@ public class Main extends MapActivity
         
     	SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
 
+        final IDatabaseAgent databaseAgent = new DatabaseAgent(getContentResolver());
+
     	final ProgressDialog progressDialog = new ProgressDialog(this);
 		progressDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
 		progressDialog.setCancelable(true);
@@ -305,7 +255,7 @@ public class Main extends MapActivity
         // busPicture is used to initialize busOverlay, otherwise it would
         // joint the rest of the drawables in the brackets 
     	Drawable busPicture = resources.getDrawable(R.drawable.bus_statelist);
-    	final TransitSystem transitSystem = new TransitSystem();
+    	final ITransitSystem transitSystem = new TransitSystem();
         {
         	Drawable busStopUpdated = resources.getDrawable(R.drawable.busstop_statelist_updated);
         	Drawable arrow = resources.getDrawable(R.drawable.arrow);
@@ -317,21 +267,23 @@ public class Main extends MapActivity
 			Drawable busStopBike = resources.getDrawable(R.drawable.busstop_bike_statelist);
 			Drawable busStopBikeUpdated = resources.getDrawable(R.drawable.busstop_bike_statelist_updated);
 
-        	TransitDrawables busDrawables = new TransitDrawables(this, busStop,
+        	ITransitDrawables busDrawables = new TransitDrawables(this, busStop,
         			busStopUpdated, busPicture,
         			arrow, busPicture.getIntrinsicHeight() / 5, intersection);
-        	TransitDrawables subwayDrawables = new TransitDrawables(this, busStop,
+        	ITransitDrawables subwayDrawables = new TransitDrawables(this, busStop,
         			busStopUpdated, rail,
         			arrow, rail.getIntrinsicHeight() / 5, intersection);
-        	TransitDrawables commuterRailDrawables = new TransitDrawables(this, busStop,
+        	ITransitDrawables commuterRailDrawables = new TransitDrawables(this, busStop,
         			busStopUpdated, rail, arrow, rail.getIntrinsicHeight() / 5, 
         			intersection);
-			TransitDrawables hubwayDrawables = new TransitDrawables(this, busStopBike,
+			ITransitDrawables hubwayDrawables = new TransitDrawables(this, busStopBike,
 					busStopBikeUpdated, rail, arrow, rail.getIntrinsicHeight() / 5,
 					intersection);
-        	
+
+
+
         	transitSystem.setDefaultTransitSource(busDrawables, subwayDrawables, commuterRailDrawables, hubwayDrawables,
-					this);
+                    databaseAgent);
         }
         SpinnerAdapter modeSpinnerAdapter = new ModeAdapter(this, Arrays.asList(Selection.modesSupported));
 
@@ -453,12 +405,12 @@ public class Main extends MapActivity
 
         if (busLocations == null)
         {
-        	busLocations = new Locations(this, transitSystem, selection);
+        	busLocations = new Locations(databaseAgent, transitSystem, selection);
         }
 
         arguments = new UpdateArguments(progress, progressDialog,
-        		mapView, this, overlayGroup,
-        		majorHandler, busLocations, transitSystem);
+        		mapView, databaseAgent, overlayGroup,
+        		majorHandler, busLocations, transitSystem, this);
         handler = new UpdateHandler(arguments);
         overlayGroup.getBusOverlay().setUpdateable(handler);
         
@@ -1028,7 +980,7 @@ public class Main extends MapActivity
 			}
 
 			
-			final SearchHelper helper = new SearchHelper(this, dropdownRouteKeysToTitles, arguments, query);
+			final SearchHelper helper = new SearchHelper(this, dropdownRouteKeysToTitles, arguments, query, new DatabaseAgent(getContentResolver()));
 			helper.runSearch(new Runnable()
 			{
 				@Override

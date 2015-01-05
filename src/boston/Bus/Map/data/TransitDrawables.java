@@ -1,11 +1,5 @@
 package boston.Bus.Map.data;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.WeakHashMap;
-
-import com.google.common.collect.Maps;
-
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
@@ -20,7 +14,7 @@ import android.util.SparseArray;
  * @author schneg
  *
  */
-public class TransitDrawables {
+public class TransitDrawables implements ITransitDrawables {
 	private final Context context;
 	private final Drawable intersection;
 	private final Drawable arrow;
@@ -28,7 +22,12 @@ public class TransitDrawables {
 	private final Drawable stop;
 	private final Drawable stopUpdated;
 	private final Drawable vehicle;
-	
+
+    public static ITransitDrawables busDrawables;
+    public static ITransitDrawables commuterRailDrawables;
+    public static ITransitDrawables hubwayDrawables;
+    public static ITransitDrawables subwayDrawables;
+
 	private final SparseArray<Drawable> vehicles = new SparseArray<Drawable>();
 	
 	private static final int[][] validStates = new int[][] {
@@ -46,7 +45,8 @@ public class TransitDrawables {
 		this.context = context;
 	}
 
-	public Drawable getVehicle(int heading) {
+	@Override
+    public Drawable getVehicle(int heading) {
 		Drawable drawable = vehicles.get(heading);
 		if (drawable == null) {
 			drawable = createBusDrawable(heading);
@@ -102,15 +102,27 @@ public class TransitDrawables {
 		return stateListDrawable;
 	}
 
-	public Drawable getStop() {
-		return stop;
-	}
 
-	public Drawable getStopUpdated() {
-		return stopUpdated;
-	}
-
-	public Drawable getIntersection() {
-		return intersection;
-	}
+    @Override
+    public Drawable getDrawable(Location location) {
+        LocationType locationType = location.getLocationType();
+        boolean isUpdated = location.isUpdated();
+        if (locationType == LocationType.Intersection) {
+            return intersection;
+        }
+        else if (locationType == LocationType.Stop) {
+            if (isUpdated) {
+                return stopUpdated;
+            }
+            else {
+                return stop;
+            }
+        }
+        else if (locationType == LocationType.Vehicle) {
+            return vehicle;
+        }
+        else {
+            throw new RuntimeException("Unexpected location type");
+        }
+    }
 }

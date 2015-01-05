@@ -3,6 +3,7 @@ package boston.Bus.Map.data;
 import android.graphics.drawable.Drawable;
 
 import boston.Bus.Map.database.Schema;
+import boston.Bus.Map.transit.ITransitSystem;
 import boston.Bus.Map.transit.TransitSystem;
 
 /**
@@ -31,14 +32,6 @@ public class HubwayStopLocation extends StopLocation {
 	@Override
 	public int getTransitSourceType() {
 		return Schema.Routes.enumagencyidHubway;
-	}
-
-	@Override
-	public Drawable getDrawable(TransitSystem transitSystem) {
-		// stops all look the same, and they can support multiple transit sources
-		// so we'll just use the default transit source's drawables
-		TransitDrawables drawables = transitSystem.getTransitSource("Hubway").getDrawables();
-		return recentlyUpdated ? drawables.getStopUpdated() : drawables.getStop();
 	}
 
 	@Override

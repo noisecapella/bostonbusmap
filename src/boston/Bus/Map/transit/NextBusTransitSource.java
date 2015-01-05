@@ -1,37 +1,21 @@
 package boston.Bus.Map.transit;
 
-import java.io.BufferedInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.logging.FileHandler;
-import java.util.zip.GZIPInputStream;
 
 import javax.xml.parsers.ParserConfigurationException;
 
-import org.apache.http.client.ClientProtocolException;
 import org.xml.sax.SAXException;
 
-import com.google.common.collect.ImmutableBiMap;
-import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Lists;
-import com.google.common.io.ByteStreams;
 
-import android.content.Context;
-import android.content.OperationApplicationException;
-import android.os.RemoteException;
 import boston.Bus.Map.data.BusLocation;
 import boston.Bus.Map.data.Directions;
 import boston.Bus.Map.data.IAlerts;
-import boston.Bus.Map.data.IntersectionLocation;
+import boston.Bus.Map.data.ITransitDrawables;
 import boston.Bus.Map.data.Location;
 import boston.Bus.Map.data.Locations;
 import boston.Bus.Map.data.RouteConfig;
@@ -39,20 +23,13 @@ import boston.Bus.Map.data.RoutePool;
 import boston.Bus.Map.data.RouteTitles;
 import boston.Bus.Map.data.Selection;
 import boston.Bus.Map.data.StopLocation;
-import boston.Bus.Map.data.SubwayStopLocation;
-import boston.Bus.Map.data.TransitDrawables;
 import boston.Bus.Map.data.TransitSourceTitles;
 import boston.Bus.Map.data.VehicleLocations;
 import boston.Bus.Map.database.Schema;
-import boston.Bus.Map.main.Main;
-import boston.Bus.Map.main.UpdateAsyncTask;
 import boston.Bus.Map.parser.BusPredictionsFeedParser;
 import boston.Bus.Map.parser.VehicleLocationsFeedParser;
-import boston.Bus.Map.ui.ProgressMessage;
 import boston.Bus.Map.util.DownloadHelper;
-import boston.Bus.Map.util.LogUtil;
 import boston.Bus.Map.util.SearchHelper;
-import boston.Bus.Map.util.StreamCounter;
 
 /**
  * A transit source which accesses a NextBus webservice. Override for a specific agency
@@ -61,7 +38,7 @@ import boston.Bus.Map.util.StreamCounter;
  */
 public abstract class NextBusTransitSource implements TransitSource
 {
-	private final TransitSystem transitSystem;
+	private final ITransitSystem transitSystem;
 	
 	private static final String prefix = "webservices";
 	/**
@@ -73,18 +50,18 @@ public abstract class NextBusTransitSource implements TransitSource
 	private final String mbtaRouteConfigDataUrlAllRoutes;
 	private final String mbtaPredictionsDataUrl;
 
-	private final TransitDrawables drawables;
+	private final ITransitDrawables drawables;
 
 	private final TransitSourceTitles routeTitles;
 	private final RouteTitles allRouteTitles;
 
 	public NextBusTransitSource(TransitSystem transitSystem, 
-			TransitDrawables drawables, String agency, TransitSourceTitles routeTitles,
+			ITransitDrawables drawables, String agency, TransitSourceTitles routeTitles,
 			RouteTitles allRouteTitles)
 	{
 		this.transitSystem = transitSystem;
 		this.drawables = drawables;
-		
+
 		mbtaLocationsDataUrlOneRoute = "http://" + prefix + ".nextbus.com/service/publicXMLFeed?command=vehicleLocations&a=" + agency + "&t=";
 		mbtaLocationsDataUrlAllRoutes = "http://" + prefix + ".nextbus.com/service/publicXMLFeed?command=vehicleLocations&a=" + agency + "&t=";
 		mbtaRouteConfigDataUrl = "http://" + prefix + ".nextbus.com/service/publicXMLFeed?command=routeConfig&a=" + agency + "&r=";
@@ -150,7 +127,7 @@ public abstract class NextBusTransitSource implements TransitSource
 
             //lastUpdateTime = parser.getLastUpdateTime();
 
-            VehicleLocationsFeedParser parser = new VehicleLocationsFeedParser(drawables, directions, transitSystem.getRouteKeysToTitles());
+            VehicleLocationsFeedParser parser = new VehicleLocationsFeedParser(directions, transitSystem.getRouteKeysToTitles());
             parser.runParse(data);
 
             //get the time that this information is valid until
@@ -247,10 +224,10 @@ public abstract class NextBusTransitSource implements TransitSource
 	}
 	
 	@Override
-	public TransitDrawables getDrawables() {
+	public ITransitDrawables getDrawables() {
 		return drawables;
 	}
-	
+
 	@Override
 	public int getLoadOrder() {
 		return 1;

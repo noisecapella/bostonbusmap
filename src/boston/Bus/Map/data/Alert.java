@@ -15,9 +15,7 @@ import com.google.common.collect.ComparisonChain;
 import com.google.common.collect.Lists;
 
 import boston.Bus.Map.main.AlertInfo;
-import boston.Bus.Map.transit.TransitSystem;
 
-import android.content.Context;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.text.Html;

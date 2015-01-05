@@ -5,41 +5,24 @@ import java.util.AbstractCollection;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.CopyOnWriteArraySet;
 
-import com.google.android.maps.GeoPoint;
-import com.google.common.base.Objects;
-import com.google.common.cache.Cache;
-import com.google.common.cache.CacheBuilder;
-import com.google.common.cache.CacheLoader;
-import com.google.common.cache.LoadingCache;
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 
-import android.content.Context;
-import android.content.OperationApplicationException;
-import android.graphics.drawable.Drawable;
 import android.os.RemoteException;
 import android.util.Log;
 import boston.Bus.Map.R;
-import boston.Bus.Map.main.UpdateAsyncTask;
-import boston.Bus.Map.provider.DatabaseContentProvider.DatabaseAgent;
-import boston.Bus.Map.transit.TransitSource;
-import boston.Bus.Map.transit.TransitSystem;
-import boston.Bus.Map.ui.ProgressMessage;
+import boston.Bus.Map.provider.IDatabaseAgent;
+import boston.Bus.Map.transit.ITransitSystem;
 
 public class RoutePool extends Pool<String, RouteConfig> {
-	private final Context context;
+	private final IDatabaseAgent databaseAgent;
 	
 	private final ConcurrentMap<String, StopLocation> sharedStops = Maps.newConcurrentMap();
 	
@@ -50,16 +33,16 @@ public class RoutePool extends Pool<String, RouteConfig> {
 	
 	private final ConcurrentMap<String, IntersectionLocation> intersections = Maps.newConcurrentMap();
 	
-	private final TransitSystem transitSystem;
+	private final ITransitSystem transitSystem;
 	
 	private float maximumDistanceFromIntersection;
 
 	private boolean filterStopsFromIntersection;
 	
-	public RoutePool(Context context, TransitSystem transitSystem) {
+	public RoutePool(IDatabaseAgent databaseAgent, ITransitSystem transitSystem) {
 		super(50);
 
-		this.context = context;
+		this.databaseAgent = databaseAgent;
 		this.transitSystem = transitSystem;
 		//TODO: define these as settings
 		maximumDistanceFromIntersection = 1.0f;
@@ -115,7 +98,7 @@ public class RoutePool extends Pool<String, RouteConfig> {
 			}
 		}
 		
-		DatabaseAgent.getStops(context.getContentResolver(), ImmutableList.copyOf(stopTagsToRetrieve), 
+		databaseAgent.getStops(ImmutableList.copyOf(stopTagsToRetrieve),
 				transitSystem, ret);
 		
 		if (ret != null)
@@ -126,44 +109,19 @@ public class RoutePool extends Pool<String, RouteConfig> {
 		return ret;
 	}
 
-	/**
-	 * In the future, this may be necessary to implement. Currently all route data is shipped with the app
-	 * 
-	 * @param route
-	 * @return
-	 */
-	public boolean isMissingRouteInfo(String route) {
-		return false;
-	}
-
 	protected RouteConfig create(String routeToUpdate) throws IOException {
-		return DatabaseAgent.getRoute(context.getContentResolver(), routeToUpdate, sharedStops, transitSystem);
+		return databaseAgent.getRoute(routeToUpdate, sharedStops, transitSystem);
 	}
 	
-	public void writeToDatabase(ImmutableMap<String, RouteConfig> map, UpdateAsyncTask task, boolean silent) throws IOException, RemoteException, OperationApplicationException {
-		if (!silent)
-		{
-			task.publish(new ProgressMessage(ProgressMessage.PROGRESS_DIALOG_ON, "Saving to database", null));
-		}
-		
-		HashSet<String> stopTags = Sets.newHashSet();
-		DatabaseAgent.saveMapping(context, map, stopTags, task);
-		
-		clearAll();
-		populateFavorites();
-		//saveFavoritesToDatabase();
-	}
 
-	
-	
 	private void populateFavorites() {
-		DatabaseAgent.populateFavorites(context.getContentResolver(), favoriteStops);
+        databaseAgent.populateFavorites(favoriteStops);
 		fillInFavoritesRoutes();
 
 	}
 	
 	private void populateIntersections() {
-		DatabaseAgent.populateIntersections(context.getContentResolver(), intersections,
+        databaseAgent.populateIntersections(intersections,
 				transitSystem, sharedStops, maximumDistanceFromIntersection, filterStopsFromIntersection);
 	}
 
@@ -174,11 +132,6 @@ public class RoutePool extends Pool<String, RouteConfig> {
 		intersections.clear();
 	}
 
-
-	public ImmutableList<String> routeInfoNeedsUpdating(RouteTitles supportedRoutes) {
-		//TODO: what if another route gets added later, and we want to download it from the server and add it?
-		return DatabaseAgent.routeInfoNeedsUpdating(context.getContentResolver(), supportedRoutes);
-	}
 
 	public StopLocation[] getFavoriteStops() {
 		ArrayList<StopLocation> ret = new ArrayList<StopLocation>(favoriteStops.size());
@@ -202,9 +155,9 @@ public class RoutePool extends Pool<String, RouteConfig> {
 	}
 	
 	public int setFavorite(StopLocation location, boolean isFavorite) throws RemoteException {
-		Collection<String> stopTags = DatabaseAgent.getAllStopTagsAtLocation(context.getContentResolver(), location.getStopTag());
+		Collection<String> stopTags = databaseAgent.getAllStopTagsAtLocation(location.getStopTag());
 
-		DatabaseAgent.saveFavorite(context.getContentResolver(), stopTags, isFavorite);
+        databaseAgent.saveFavorite(stopTags, isFavorite);
 		favoriteStops.clear();
 		populateFavorites();
 		
@@ -225,7 +178,7 @@ public class RoutePool extends Pool<String, RouteConfig> {
 	}
 
 	public boolean addIntersection(IntersectionLocation.Builder build) {
-		boolean success = DatabaseAgent.addIntersection(context.getContentResolver(), build, transitSystem.getRouteKeysToTitles());
+		boolean success = databaseAgent.addIntersection(build, transitSystem.getRouteKeysToTitles());
 		if (success) {
 			populateIntersections();
 		}
@@ -233,9 +186,9 @@ public class RoutePool extends Pool<String, RouteConfig> {
 	}
 	
 	public ConcurrentMap<String, StopLocation> getAllStopTagsAtLocation(String stopTag) {
-		ImmutableList<String> tags = DatabaseAgent.getAllStopTagsAtLocation(context.getContentResolver(), stopTag);
+		ImmutableList<String> tags = databaseAgent.getAllStopTagsAtLocation(stopTag);
 		ConcurrentMap<String, StopLocation> outputMapping = Maps.newConcurrentMap();
-		DatabaseAgent.getStops(context.getContentResolver(), tags, transitSystem, outputMapping);
+        databaseAgent.getStops(tags, transitSystem, outputMapping);
 		
 		return outputMapping;
 	}
@@ -282,26 +235,10 @@ public class RoutePool extends Pool<String, RouteConfig> {
 	private ClosestCacheKey previousKey;
 	private Collection<StopLocation> previousValue;
 	
-	public Collection<StopLocation> getClosestStopsAndFilterRoutes(double centerLatitude,
-			double centerLongitude, int maxStops, Set<String> routes) {
-		if (previousKey == null || previousKey.equals(centerLatitude, centerLongitude, maxStops, routes, true) == false) {
-			Collection<StopLocation> value = DatabaseAgent.getClosestStopsAndFilterRoutes(context.getContentResolver(),	
-					centerLatitude, centerLongitude, transitSystem, sharedStops, maxStops, routes);
-			previousKey = new ClosestCacheKey(centerLatitude, centerLongitude, maxStops, routes, true);
-			previousValue = value;
-			return value;
-		}
-		else
-		{
-			return previousValue;
-		}
-	}
-
 	public Collection<StopLocation> getClosestStops(double centerLatitude,
 			double centerLongitude, int maxStops)
 	{
-		return DatabaseAgent.getClosestStops(context.getContentResolver(), 
-				centerLatitude, centerLongitude, transitSystem, sharedStops, maxStops);
+		return databaseAgent.getClosestStops(centerLatitude, centerLongitude, transitSystem, sharedStops, maxStops);
 
 	}
 
@@ -326,13 +263,13 @@ public class RoutePool extends Pool<String, RouteConfig> {
 	}
 	
 	public void removeIntersection(String name) {
-		DatabaseAgent.removeIntersection(context.getContentResolver(), name);
+        databaseAgent.removeIntersection(name);
 		
 		intersections.remove(name);
 	}
 
 	public void editIntersectionName(String oldName, String newName) {
-		DatabaseAgent.editIntersectionName(context.getContentResolver(), oldName, newName);
+        databaseAgent.editIntersectionName(oldName, newName);
 		
 		intersections.remove(oldName);
 		
@@ -347,7 +284,7 @@ public class RoutePool extends Pool<String, RouteConfig> {
 		return intersections.values();
 	}
 	
-	public TransitSystem getTransitSystem() {
+	public ITransitSystem getTransitSystem() {
 		return transitSystem;
 	}
 }

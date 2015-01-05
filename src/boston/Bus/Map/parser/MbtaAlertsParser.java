@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Date;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.ConcurrentMap;
 
 import com.google.common.collect.ImmutableList;
@@ -15,27 +14,21 @@ import com.google.transit.realtime.GtfsRealtime;
 import com.google.transit.realtime.GtfsRealtime.EntitySelector;
 import com.google.transit.realtime.GtfsRealtime.FeedEntity;
 import com.google.transit.realtime.GtfsRealtime.FeedMessage;
-import com.google.transit.realtime.GtfsRealtime.TranslatedString;
 import com.google.transit.realtime.GtfsRealtime.TranslatedString.Translation;
 
-import android.content.ContentResolver;
-import android.content.Context;
 import boston.Bus.Map.data.Alert;
 import boston.Bus.Map.data.Alerts;
-import boston.Bus.Map.data.BusLocation;
-import boston.Bus.Map.data.Directions;
 import boston.Bus.Map.data.IAlerts;
-import boston.Bus.Map.data.RoutePool;
 import boston.Bus.Map.data.RouteTitles;
 import boston.Bus.Map.data.StopLocation;
-import boston.Bus.Map.data.VehicleLocations;
-import boston.Bus.Map.provider.DatabaseContentProvider.DatabaseAgent;
+import boston.Bus.Map.provider.IDatabaseAgent;
+import boston.Bus.Map.transit.ITransitSystem;
 import boston.Bus.Map.transit.TransitSource;
 import boston.Bus.Map.transit.TransitSystem;
 import boston.Bus.Map.util.DownloadHelper;
 
 public class MbtaAlertsParser implements IAlertsParser {
-	private final TransitSystem transitSystem;
+	private final ITransitSystem transitSystem;
 	private final RouteTitles routeTitles;
 
 	/**
@@ -71,7 +64,7 @@ public class MbtaAlertsParser implements IAlertsParser {
 	}
 	
 	@Override
-	public IAlerts obtainAlerts(Context context) throws IOException {
+	public IAlerts obtainAlerts(IDatabaseAgent databaseAgent) throws IOException {
 		Alerts.Builder builder = Alerts.builder();
 		
 		Date now = new Date();
@@ -170,10 +163,9 @@ public class MbtaAlertsParser implements IAlertsParser {
 				Alert routeAlert = new Alert(now, "Route " + routeTitle, description);
 				builder.addAlertForRoute(route, routeAlert);
 			}
-			ContentResolver resolver = context.getContentResolver();
-			
+
 			ConcurrentMap<String, StopLocation> stopMapping = Maps.newConcurrentMap();
-			DatabaseAgent.getStops(resolver, stops,
+			databaseAgent.getStops(stops,
 					transitSystem, stopMapping);
 			for (String stop : stops) {
 				String stopTitle = stop;

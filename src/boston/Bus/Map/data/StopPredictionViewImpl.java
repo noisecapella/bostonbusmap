@@ -31,17 +31,14 @@ public class StopPredictionViewImpl extends StopPredictionView {
 	/**
 	 * Note that this makes defensive copies of all containers. It doesn't use ImmutableList
 	 * because Parcelables use arrays when transferring data
-	 * @param routeTitles
 	 * @param stops
-	 * @param predictions. This should be sorted
 	 * @param ifOnlyOneRoute
 	 * @param routeKeysToTitles
-	 * @param context
 	 * @param alerts
 	 */
 	public StopPredictionViewImpl(Set<String> routeTags, Collection<StopLocation> stops,
 			SortedSet<IPrediction> predictions, RouteConfig ifOnlyOneRoute,
-			RouteTitles routeKeysToTitles, Context context, ImmutableCollection<Alert> alerts,
+			RouteTitles routeKeysToTitles, ImmutableCollection<Alert> alerts,
 			Locations locations) {
 		Set<String> stopTitles = Sets.newTreeSet();
 		SortedSet<String> stopIds = Sets.newTreeSet();
@@ -95,7 +92,7 @@ public class StopPredictionViewImpl extends StopPredictionView {
 			LogUtil.e(e);
 		}
 
-		makeSnippet(ifOnlyOneRoute, predictions, context, ret);
+		makeSnippet(ifOnlyOneRoute, predictions, ret);
 		
 		snippet = ret.toString();
 
@@ -125,7 +122,7 @@ public class StopPredictionViewImpl extends StopPredictionView {
 
 	private static void makeSnippet(RouteConfig routeConfig,
 			Collection<IPrediction> predictions,
-			Context context, StringBuilder ret)
+			StringBuilder ret)
 	{
 		if (predictions == null || predictions.isEmpty()) {
 			return;
@@ -157,7 +154,7 @@ public class StopPredictionViewImpl extends StopPredictionView {
 
 			ret.append("<br />");
 
-			prediction.makeSnippet(context, ret, TransitSystem.showRunNumber());
+			prediction.makeSnippet(ret, TransitSystem.showRunNumber());
 
 			count++;
 			if (count >= max)

@@ -11,9 +11,9 @@ import com.google.common.collect.Lists;
 
 import boston.Bus.Map.database.Schema;
 import boston.Bus.Map.math.Geometry;
+import boston.Bus.Map.transit.ITransitSystem;
 import boston.Bus.Map.transit.TransitSource;
 import boston.Bus.Map.transit.TransitSystem;
-import android.content.Context;
 import android.graphics.drawable.Drawable;
 
 /**
@@ -196,7 +196,7 @@ public class BusLocation implements Location {
 
 	@Override
 	public void addToSnippetAndTitle(RouteConfig routeConfig,
-			Location location, RouteTitles routeKeysToTitles, Locations locations, Context context) {
+			Location location, RouteTitles routeKeysToTitles, Locations locations) {
 		BusLocation busLocation = (BusLocation) location;
 
 		PredictionView oldPredictionView = predictionView;
@@ -222,10 +222,10 @@ public class BusLocation implements Location {
 
 	@Override
 	public void makeSnippetAndTitle(RouteConfig routeConfig,
-			RouteTitles routeKeysToTitles, Locations locations, Context context) {
+			RouteTitles routeKeysToTitles, Locations locations) {
 		String snippet = makeSnippet(routeConfig);
 		String snippetTitle = makeTitle();
-		TransitSystem transitSystem = locations.getTransitSystem();
+        ITransitSystem transitSystem = locations.getTransitSystem();
 		IAlerts alerts = transitSystem.getAlerts();
 		snippetAlerts = getAlerts(alerts);
 		
@@ -327,13 +327,6 @@ public class BusLocation implements Location {
 	}
 	
 	@Override
-	public Drawable getDrawable(TransitSystem transitSystem) {
-		TransitSource transitSource = transitSystem.getTransitSource(routeName);
-		int headingValue = hasHeading() ? getHeading() : NO_HEADING;
-		return transitSource.getDrawables().getVehicle(headingValue);
-	}
-	
-	@Override
 	public float getLatitudeAsDegrees() {
 		// TODO Auto-generated method stub
 		return latitudeAsDegrees;
@@ -413,8 +406,19 @@ public class BusLocation implements Location {
 	public int getTransitSourceType() {
 		return Schema.Routes.enumagencyidBus;
 	}
-	
-	protected ImmutableCollection<Alert> getAlerts(IAlerts alerts) {
+
+    @Override
+    public boolean isUpdated() {
+        // this is only relevant for stops
+        return false;
+    }
+
+    protected ImmutableCollection<Alert> getAlerts(IAlerts alerts) {
 		return alerts.getAlertsByRoute(routeName, getTransitSourceType());
 	}
+
+    @Override
+    public LocationType getLocationType() {
+        return LocationType.Vehicle;
+    }
 }

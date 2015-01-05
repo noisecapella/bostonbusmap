@@ -4,7 +4,6 @@ import java.text.DateFormat;
 import java.util.Date;
 
 
-import android.content.Context;
 import android.os.Parcel;
 import android.os.Parcelable;
 import boston.Bus.Map.transit.TransitSystem;
@@ -77,7 +76,7 @@ public class CommuterRailPrediction extends TimePrediction implements Parcelable
 	}
 	
 	@Override
-	public void makeSnippet(Context context, StringBuilder builder, boolean showRunNumber) {
+	public void makeSnippet(StringBuilder builder, boolean showRunNumber) {
 		int minutes = getMinutes();
 		if (minutes < 0)
 		{

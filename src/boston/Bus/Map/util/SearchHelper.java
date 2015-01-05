@@ -1,23 +1,15 @@
 package boston.Bus.Map.util;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
-
-import com.google.android.maps.MapView;
-import com.google.common.collect.ImmutableMap;
-
 import android.util.Log;
 import android.widget.Toast;
-import boston.Bus.Map.data.Direction;
+
 import boston.Bus.Map.data.RouteTitles;
 import boston.Bus.Map.data.StopLocation;
 import boston.Bus.Map.data.TransitSourceTitles;
 import boston.Bus.Map.data.UpdateArguments;
 import boston.Bus.Map.main.Main;
-import boston.Bus.Map.provider.DatabaseContentProvider.DatabaseAgent;
-import boston.Bus.Map.transit.TransitSystem;
+import boston.Bus.Map.provider.IDatabaseAgent;
+import boston.Bus.Map.transit.ITransitSystem;
 
 public class SearchHelper
 {
@@ -33,14 +25,16 @@ public class SearchHelper
 	private int queryType = QUERY_NONE;
 	
 	private final UpdateArguments arguments;
+    private final IDatabaseAgent databaseAgent;
 	
 	public SearchHelper(Main context, RouteTitles dropdownRouteKeysToTitles,
-			UpdateArguments arguments, String query)
+			UpdateArguments arguments, String query, IDatabaseAgent databaseAgent)
 	{
 		this.context = context;
 		this.dropdownRouteKeysToTitles = dropdownRouteKeysToTitles;
 		this.query = query;
 		this.arguments = arguments;
+        this.databaseAgent = databaseAgent;
 	}
 	
 	/**
@@ -128,7 +122,7 @@ public class SearchHelper
 	}
 
 	private void returnResults(Runnable onFinish, String indexingQuery, String lowercaseQuery, String printableQuery) {
-		final TransitSystem transitSystem = arguments.getTransitSystem();
+		final ITransitSystem transitSystem = arguments.getTransitSystem();
 		if (queryType == QUERY_NONE || queryType == QUERY_ROUTE)
 		{
 			int position = getAsRoute(indexingQuery, lowercaseQuery);
@@ -160,7 +154,7 @@ public class SearchHelper
 				exactQuery = printableQuery;
 			}
 
-			StopLocation stop = DatabaseAgent.getStopByTagOrTitle(context.getContentResolver(), 
+			StopLocation stop = databaseAgent.getStopByTagOrTitle(
 					lowercaseQuery, exactQuery, transitSystem);
 			if (stop != null)
 			{	

@@ -38,7 +38,7 @@ public class Predictions
 	private final Object modificationLock = new Object();
 
 	public void makeSnippetAndTitle(RouteConfig routeConfig,
-			RouteTitles routeKeysToTitles, Context context,
+			RouteTitles routeKeysToTitles,
 			RouteSet routes, StopLocation stop, ImmutableCollection<Alert> alerts, Locations locations)
 	{
 		synchronized (modificationLock) {
@@ -53,7 +53,7 @@ public class Predictions
 
 			predictionView = new StopPredictionViewImpl(this.routes, allStops,
 					predictions,
-					routeConfig, routeKeysToTitles, context, alertImmutableSet, locations);
+					routeConfig, routeKeysToTitles, alertImmutableSet, locations);
 		}
 	}
 	
@@ -62,7 +62,7 @@ public class Predictions
 	
 	public void addToSnippetAndTitle(RouteConfig routeConfig, StopLocation stopLocation, 
 			RouteTitles routeKeysToTitles,
-			Context context, RouteSet routes, ImmutableCollection<Alert> alerts, Locations locations)
+			RouteSet routes, ImmutableCollection<Alert> alerts, Locations locations)
 	{
 		synchronized (modificationLock) {
 			allStops.add(stopLocation);
@@ -96,7 +96,7 @@ public class Predictions
 			predictionView = new StopPredictionViewImpl(this.routes, allStops,
 					allPredictions,
 					routeConfig,
-					routeKeysToTitles, context, immutableNewAlerts.build(),
+					routeKeysToTitles, immutableNewAlerts.build(),
 					locations);
 		}
 

@@ -19,19 +19,10 @@
 package boston.Bus.Map.data;
 
 import java.io.IOException;
-import java.io.InputStream;
-import java.net.URL;
-import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Map;
-import java.util.Set;
-import java.util.SortedMap;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
 import javax.xml.parsers.FactoryConfigurationError;
@@ -39,31 +30,20 @@ import javax.xml.parsers.ParserConfigurationException;
 
 import org.xml.sax.SAXException;
 
-import com.google.android.maps.GeoPoint;
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
 
 
-import android.content.Context;
 import android.content.OperationApplicationException;
-import android.graphics.drawable.Drawable;
-import android.os.PowerManager;
 import android.os.RemoteException;
 import android.util.Log;
-import boston.Bus.Map.data.IntersectionLocation.Builder;
-import boston.Bus.Map.main.Main;
+
 import boston.Bus.Map.main.UpdateAsyncTask;
-import boston.Bus.Map.parser.MbtaAlertsParser;
+import boston.Bus.Map.provider.IDatabaseAgent;
+import boston.Bus.Map.transit.ITransitSystem;
 import boston.Bus.Map.transit.TransitSource;
-import boston.Bus.Map.transit.TransitSystem;
-import boston.Bus.Map.ui.ProgressMessage;
-import boston.Bus.Map.util.Constants;
 import boston.Bus.Map.util.FeedException;
 import boston.Bus.Map.util.LogUtil;
-import boston.Bus.Map.util.StreamCounter;
 
 public final class Locations
 {
@@ -82,14 +62,14 @@ public final class Locations
 	private long lastUpdateTime = 0;
 	
 	private Selection mutableSelection;
-	private final TransitSystem transitSystem;
+	private final ITransitSystem transitSystem;
 
-	public Locations(Context context, 
-			TransitSystem transitSystem, Selection selection)
+	public Locations(IDatabaseAgent databaseAgent,
+			ITransitSystem transitSystem, Selection selection)
 	{
 		this.transitSystem = transitSystem;
-		routeMapping = new RoutePool(context, transitSystem);
-		directions = new Directions(context);
+		routeMapping = new RoutePool(databaseAgent, transitSystem);
+		directions = new Directions(databaseAgent);
 		mutableSelection = selection;
 	}
 	
@@ -102,19 +82,9 @@ public final class Locations
 		return transitSystem.getRouteKeysToTitles().getIndexForTag(key);
 	}
 	
-	public static InputStream downloadStream(URL url, UpdateAsyncTask task) throws IOException {
-		URLConnection connection = url.openConnection();
-		int totalDownloadSize = connection.getContentLength();
-		InputStream inputStream = connection.getInputStream();
-
-		return new StreamCounter(inputStream, task, totalDownloadSize);
-	}
-
 	/**
 	 * Update the bus locations based on data from the XML feed 
 	 * 
-	 * @param centerLat
-	 * @param centerLon
 	 * @throws SAXException
 	 * @throws IOException
 	 * @throws ParserConfigurationException
@@ -123,7 +93,7 @@ public final class Locations
 	 * @throws RemoteException 
 	 * @throws FeedException 
 	 */
-	public void refresh(Context context, Selection selection,
+	public void refresh(IDatabaseAgent databaseAgent, Selection selection,
 			double centerLatitude, double centerLongitude,
 			UpdateAsyncTask updateAsyncTask, boolean showRoute) throws SAXException, IOException,
 			ParserConfigurationException, FactoryConfigurationError, RemoteException, OperationApplicationException 
@@ -133,7 +103,7 @@ public final class Locations
 		//see if route overlays need to be downloaded
 		String routeToUpdate = selection.getRoute();
 		RouteConfig routeConfig = routeMapping.get(routeToUpdate);
-		transitSystem.startObtainAlerts(context);
+		transitSystem.startObtainAlerts(databaseAgent);
 
 		Selection.Mode mode = selection.getMode();
 		if (mode == Selection.Mode.BUS_PREDICTIONS_ALL ||
@@ -413,7 +383,7 @@ public final class Locations
 		return routeMapping.getIntersectionNames();
 	}
 	
-	public TransitSystem getTransitSystem() {
+	public ITransitSystem getTransitSystem() {
 		return routeMapping.getTransitSystem();
 	}
 }

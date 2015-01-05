@@ -10,6 +10,7 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
 
 import boston.Bus.Map.math.Geometry;
+import boston.Bus.Map.transit.ITransitSystem;
 import boston.Bus.Map.transit.TransitSystem;
 import android.content.Context;
 import android.graphics.drawable.Drawable;
@@ -95,11 +96,6 @@ public class IntersectionLocation implements Location {
 	}
 
 	@Override
-	public Drawable getDrawable(TransitSystem transitSystem) {
-		return transitSystem.getDefaultTransitSource().getDrawables().getIntersection();
-	}
-
-	@Override
 	public float getLatitudeAsDegrees() {
 		return latitudeAsDegrees;
 	}
@@ -128,13 +124,13 @@ public class IntersectionLocation implements Location {
 
 	@Override
 	public void makeSnippetAndTitle(RouteConfig selectedRoute,
-			RouteTitles routeKeysToTitles, Locations locations, Context context) {
+			RouteTitles routeKeysToTitles, Locations locations) {
 		// do nothing
 	}
 
 	@Override
 	public void addToSnippetAndTitle(RouteConfig routeConfig,
-			Location location, RouteTitles routeKeysToTitles, Locations locations, Context context) {
+			Location location, RouteTitles routeKeysToTitles, Locations locations) {
 		// do nothing
 	}
 
@@ -184,4 +180,15 @@ public class IntersectionLocation implements Location {
 	public int getTransitSourceType() {
 		return -1;
 	}
+
+    @Override
+    public boolean isUpdated() {
+        // only relevant for stops
+        return false;
+    }
+
+    @Override
+    public LocationType getLocationType() {
+        return LocationType.Intersection;
+    }
 }

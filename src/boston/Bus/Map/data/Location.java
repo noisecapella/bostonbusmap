@@ -3,6 +3,7 @@ package boston.Bus.Map.data;
 import java.util.ArrayList;
 import java.util.Collection;
 
+import boston.Bus.Map.transit.ITransitSystem;
 import boston.Bus.Map.transit.TransitSystem;
 
 import com.google.common.collect.ImmutableCollection;
@@ -14,25 +15,24 @@ import android.content.Context;
 import android.graphics.drawable.Drawable;
 
 public interface Location {
+
 	/**
 	 * Some unique value for the location
 	 * @return
 	 */
 	int getId();
 
+    LocationType getLocationType();
+
 	boolean hasHeading();
 
 	int getHeading();
-
-	Drawable getDrawable(TransitSystem transitSystem);
 
 	float getLatitudeAsDegrees();
 	
 	float getLongitudeAsDegrees();
 
 	/**
-	 * @param lat2 latitude in radians
-	 * @param lon2 longitude in radians
 	 * @return compare distance, not necessarily any particular unit
 	 */
 	float distanceFrom(double centerLatitudeAsRadians, double centerLongitudeAsRadians);
@@ -44,17 +44,15 @@ public interface Location {
 	/**
 	 * Prepare the textbox text and store it in the class
 	 * @param selectedRoute show only this route, if not null
-	 * @param context used for formatting the time
 	 */
-	void makeSnippetAndTitle(RouteConfig selectedRoute, RouteTitles routeKeysToTitles, Locations locations, Context context);
+	void makeSnippetAndTitle(RouteConfig selectedRoute, RouteTitles routeKeysToTitles, Locations locations);
 
 	/**
 	 * In case two locations share the same space, combine the textbox text in a nice way
 	 * @param routeConfig show only this route, if not null
 	 * @param location whose textbox info you're adding to this class
-	 * @param context used for formatting the time
 	 */
-	void addToSnippetAndTitle(RouteConfig routeConfig, Location location, RouteTitles routeKeysToTitles, Locations locations, Context context);
+	void addToSnippetAndTitle(RouteConfig routeConfig, Location location, RouteTitles routeKeysToTitles, Locations locations);
 
 	/**
 	 * Does this location match the given id?
@@ -78,4 +76,6 @@ public interface Location {
 	 * @return
 	 */
 	int getTransitSourceType();
+
+    boolean isUpdated();
 }

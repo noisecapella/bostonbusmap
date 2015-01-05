@@ -2,46 +2,33 @@ package boston.Bus.Map.transit;
 
 import java.io.IOException;
 import java.text.DateFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
 import java.util.TimeZone;
-import java.util.concurrent.ConcurrentHashMap;
 
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.xml.sax.SAXException;
 
-import com.google.common.collect.ImmutableBiMap;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 
-import android.R.string;
-import android.content.ContentResolver;
 import android.content.Context;
-import android.graphics.drawable.Drawable;
 import android.util.Log;
-import boston.Bus.Map.data.Alerts;
+
 import boston.Bus.Map.data.AlertsFuture;
-import boston.Bus.Map.data.BusLocation;
 import boston.Bus.Map.data.Directions;
 import boston.Bus.Map.data.IAlerts;
-import boston.Bus.Map.data.IsGuardedBy;
-import boston.Bus.Map.data.Location;
+import boston.Bus.Map.data.ITransitDrawables;
 import boston.Bus.Map.data.Locations;
 import boston.Bus.Map.data.RouteConfig;
 import boston.Bus.Map.data.RoutePool;
 import boston.Bus.Map.data.RouteTitles;
 import boston.Bus.Map.data.Selection;
 import boston.Bus.Map.data.StopLocation;
-import boston.Bus.Map.data.TransitDrawables;
 import boston.Bus.Map.data.TransitSourceTitles;
 import boston.Bus.Map.data.VehicleLocations;
 import boston.Bus.Map.database.Schema;
-import boston.Bus.Map.main.Main;
 import boston.Bus.Map.parser.MbtaAlertsParser;
-import boston.Bus.Map.provider.DatabaseContentProvider.DatabaseAgent;
+import boston.Bus.Map.provider.IDatabaseAgent;
 import boston.Bus.Map.util.Constants;
 /**
  * Any transit-system specific stuff should go here, if possible
@@ -105,16 +92,14 @@ public class TransitSystem implements ITransitSystem {
 	 * @param busDrawables
 	 * @param subwayDrawables
 	 * @param commuterRailDrawables
-	 * @param alertsData
 	 */
 	@Override
-	public void setDefaultTransitSource(TransitDrawables busDrawables, TransitDrawables subwayDrawables, 
-			TransitDrawables commuterRailDrawables, TransitDrawables hubwayDrawables, Context context)
+	public void setDefaultTransitSource(ITransitDrawables busDrawables, ITransitDrawables subwayDrawables,
+			ITransitDrawables commuterRailDrawables, ITransitDrawables hubwayDrawables, IDatabaseAgent databaseAgent)
 	{
 		if (defaultTransitSource == null)
 		{
-			ContentResolver resolver = context.getContentResolver();
-			routeTitles = DatabaseAgent.getRouteTitles(resolver);
+			routeTitles = databaseAgent.getRouteTitles();
 
 			TransitSourceTitles busTransitRoutes = routeTitles.getMappingForSource(Schema.Routes.enumagencyidBus);
 			TransitSourceTitles hubwayTransitRoutes = routeTitles.getMappingForSource(Schema.Routes.enumagencyidHubway);
@@ -302,16 +287,13 @@ public class TransitSystem implements ITransitSystem {
 	/**
 	 * This downloads alerts in a background thread. If alerts are
 	 * not available when getAlerts() is called, empty alerts are returned
-	 * @param context
-	 * @param directions
-	 * @param routeMapping
 	 */
-	public void startObtainAlerts(Context context) {
+	public void startObtainAlerts(IDatabaseAgent databaseAgent) {
 		if (alertsFuture == null) {
 			// this runs the alerts code in the background,
 			// providing empty alerts until the data is ready
 			
-			alertsFuture = new AlertsFuture(context, new MbtaAlertsParser(this));
+			alertsFuture = new AlertsFuture(databaseAgent, new MbtaAlertsParser(this));
 			
 		}
 	}
