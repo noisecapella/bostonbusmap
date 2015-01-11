@@ -201,7 +201,7 @@ public class BusLocation implements Location {
 
 		PredictionView oldPredictionView = predictionView;
 		String snippet = oldPredictionView.getSnippet() + "<br />" +
-				busLocation.makeSnippet(routeConfig);
+				busLocation.makeSnippet();
 
 		String snippetTitle;
 		if (busLocation.predictable) {
@@ -223,9 +223,9 @@ public class BusLocation implements Location {
 	@Override
 	public void makeSnippetAndTitle(RouteConfig routeConfig,
 			RouteTitles routeKeysToTitles, Locations locations) {
-		String snippet = makeSnippet(routeConfig);
+		String snippet = makeSnippet();
 		String snippetTitle = makeTitle();
-        ITransitSystem transitSystem = locations.getTransitSystem();
+		ITransitSystem transitSystem = locations.getTransitSystem();
 		IAlerts alerts = transitSystem.getAlerts();
 		snippetAlerts = getAlerts(alerts);
 		
@@ -237,7 +237,7 @@ public class BusLocation implements Location {
 		return "";
 	}
 	
-	private String makeSnippet(RouteConfig routeConfig) {
+	private String makeSnippet() {
 		String snippet = getBetaWarning();
 		snippet += getBusNumberMessage();
 

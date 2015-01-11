@@ -141,10 +141,11 @@ public class MbtaRealtimePredictionsParser {
 	{
 		for (String route : routeNames) {
             RouteConfig routeConfig = routePool.get(route);
-            for (StopLocation stopLocation : routeConfig.getStops())
-			{
-				stopLocation.clearPredictions(routeConfig);
-			}
+            if (routeConfig != null) {
+                for (StopLocation stopLocation : routeConfig.getStops()) {
+                    stopLocation.clearPredictions(routeConfig);
+                }
+            }
 		}
 	}
 }
