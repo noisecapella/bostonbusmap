@@ -334,7 +334,6 @@ public class BusOverlay extends BalloonItemizedOverlay<BusOverlayItem> {
 
 				if (busLocation.containsId(selectedBusId))
 				{
-					Log.e("BostonBusMap", "selectedBusId was set to index " + i + ", id=" + selectedBusId);
 					selectedBusIndex = i;
 					setFocus(createItem(i));
 					break;

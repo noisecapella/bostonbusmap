@@ -176,6 +176,11 @@ public class UpdateHandler extends Handler {
 		
 	}
 
+    public void triggerRefresh(long millis) {
+        removeMessages(MAJOR);
+        sendEmptyMessageDelayed(MAJOR, millis);
+    }
+
 	public boolean instantRefresh() {
 		//removeAllMessages();
 		
