@@ -1,13 +1,9 @@
 package boston.Bus.Map.ui;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-
 import android.graphics.drawable.Drawable;
-import boston.Bus.Map.data.Alert;
-import boston.Bus.Map.data.Location;
-import boston.Bus.Map.data.Locations;
+import com.schneeloch.bostonbusmap_library.data.Alert;
+import com.schneeloch.bostonbusmap_library.data.Location;
+import com.schneeloch.bostonbusmap_library.data.Locations;
 
 import com.google.android.maps.GeoPoint;
 import com.google.android.maps.OverlayItem;

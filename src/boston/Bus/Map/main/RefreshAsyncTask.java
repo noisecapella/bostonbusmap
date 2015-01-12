@@ -12,19 +12,16 @@ import org.xml.sax.SAXException;
 import com.google.android.maps.GeoPoint;
 import com.google.common.collect.ImmutableList;
 
-import android.content.Context;
 import android.content.OperationApplicationException;
 import android.os.RemoteException;
-import boston.Bus.Map.data.Location;
-import boston.Bus.Map.data.Locations;
-import boston.Bus.Map.data.RouteTitles;
-import boston.Bus.Map.data.Selection;
+import com.schneeloch.bostonbusmap_library.data.Location;
+import com.schneeloch.bostonbusmap_library.data.Locations;
+import com.schneeloch.bostonbusmap_library.data.Selection;
 import boston.Bus.Map.data.UpdateArguments;
 import boston.Bus.Map.ui.ProgressMessage;
-import boston.Bus.Map.util.Constants;
-import boston.Bus.Map.util.FeedException;
-import boston.Bus.Map.util.LogUtil;
-import boston.Bus.Map.util.StringUtil;
+import com.schneeloch.bostonbusmap_library.util.Constants;
+import com.schneeloch.bostonbusmap_library.util.FeedException;
+import com.schneeloch.bostonbusmap_library.util.LogUtil;
 
 public class RefreshAsyncTask extends UpdateAsyncTask
 {
@@ -48,7 +45,7 @@ public class RefreshAsyncTask extends UpdateAsyncTask
 			double centerLongitude = geoPoint.getLongitudeE6() * Constants.InvE6;
 
 			busLocations.refresh(arguments.getDatabaseAgent(), selection,
-					centerLatitude, centerLongitude, this, arguments.getOverlayGroup().getRouteOverlay().isShowLine());
+					centerLatitude, centerLongitude, arguments.getOverlayGroup().getRouteOverlay().isShowLine());
 			return true;
 		}
 		catch (IOException e)

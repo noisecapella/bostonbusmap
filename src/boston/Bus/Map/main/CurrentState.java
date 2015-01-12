@@ -1,19 +1,13 @@
 package boston.Bus.Map.main;
 
 
-import android.content.Context;
-import boston.Bus.Map.data.Locations;
-import boston.Bus.Map.data.RouteTitles;
-import boston.Bus.Map.data.Selection;
+import com.schneeloch.bostonbusmap_library.data.RouteTitles;
+
 import boston.Bus.Map.data.UpdateArguments;
-import boston.Bus.Map.ui.BusOverlay;
-import boston.Bus.Map.ui.LocationOverlay;
+
 import boston.Bus.Map.ui.OverlayGroup;
-import boston.Bus.Map.ui.RouteOverlay;
 
 import com.google.android.maps.MapView;
-import com.google.android.maps.Projection;
-import com.google.common.collect.ImmutableMap;
 
 /**
  * Stores state when MainActivity pauses temporarily

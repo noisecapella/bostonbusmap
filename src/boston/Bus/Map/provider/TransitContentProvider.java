@@ -1,18 +1,10 @@
 package boston.Bus.Map.provider;
 
-import boston.Bus.Map.data.RoutePool;
-import boston.Bus.Map.main.Main;
-import boston.Bus.Map.provider.DatabaseAgent;
-import boston.Bus.Map.transit.TransitSystem;
 import android.app.SearchManager;
-import android.content.ContentProvider;
 import android.content.ContentResolver;
-import android.content.ContentValues;
 import android.content.SearchRecentSuggestionsProvider;
 import android.content.UriMatcher;
 import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
-import android.database.sqlite.SQLiteQueryBuilder;
 import android.net.Uri;
 
 public class TransitContentProvider extends SearchRecentSuggestionsProvider {

@@ -1,13 +1,13 @@
 package boston.Bus.Map.ui;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import boston.Bus.Map.R;
-import boston.Bus.Map.data.Selection;
+import boston.Bus.Map.util.SelectionResources;
+
+import com.schneeloch.bostonbusmap_library.data.Selection;
 
 import android.app.Activity;
-import android.content.Context;
 import android.graphics.drawable.Drawable;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -45,9 +45,9 @@ public class ModeAdapter extends ArrayAdapter<Selection.Mode> {
 
         // Populate template
 		Selection.Mode data = getItem(position);
-        text.setText(data.textResource);
+        text.setText(SelectionResources.getText(data));
 
-        Drawable drawable = context.getResources().getDrawable(data.iconResource);
+        Drawable drawable = context.getResources().getDrawable(SelectionResources.getDrawable(data));
 
         icon.setImageDrawable(drawable);
         return convertView;
@@ -64,7 +64,7 @@ public class ModeAdapter extends ArrayAdapter<Selection.Mode> {
 		ImageView icon = (ImageView)convertView.findViewById(R.id.icon);
 
 		Selection.Mode data = getItem(position);
-		Drawable drawable = context.getResources().getDrawable(data.iconResource);
+		Drawable drawable = context.getResources().getDrawable(SelectionResources.getDrawable(data));
 		icon.setImageDrawable(drawable);
 		return convertView;
 	}
