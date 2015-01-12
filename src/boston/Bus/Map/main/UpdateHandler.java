@@ -1,29 +1,15 @@
 package boston.Bus.Map.main;
 
-import org.apache.http.impl.conn.tsccm.RouteSpecificPool;
-
-import boston.Bus.Map.data.Direction;
-import boston.Bus.Map.data.Locations;
-import boston.Bus.Map.data.Selection;
+import com.schneeloch.bostonbusmap_library.data.Selection;
 import boston.Bus.Map.data.UpdateArguments;
-import boston.Bus.Map.transit.TransitSystem;
-import boston.Bus.Map.ui.BusOverlay;
-import boston.Bus.Map.ui.LocationOverlay;
-import boston.Bus.Map.ui.RouteOverlay;
-import boston.Bus.Map.util.Constants;
+import com.schneeloch.bostonbusmap_library.transit.TransitSystem;
+
+import com.schneeloch.bostonbusmap_library.util.Constants;
 
 import com.google.android.maps.GeoPoint;
-import com.google.android.maps.MapView;
 
-import android.app.ProgressDialog;
-import android.content.Context;
-import android.graphics.drawable.Drawable;
 import android.os.Handler;
 import android.os.Message;
-import android.util.Log;
-import android.widget.ProgressBar;
-import android.widget.TextView;
-import android.widget.Toast;
 
 public class UpdateHandler extends Handler {
 	/**

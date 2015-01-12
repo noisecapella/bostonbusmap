@@ -3,13 +3,13 @@ package boston.Bus.Map.util;
 import android.util.Log;
 import android.widget.Toast;
 
-import boston.Bus.Map.data.RouteTitles;
-import boston.Bus.Map.data.StopLocation;
-import boston.Bus.Map.data.TransitSourceTitles;
+import com.schneeloch.bostonbusmap_library.data.RouteTitles;
+import com.schneeloch.bostonbusmap_library.data.StopLocation;
+
 import boston.Bus.Map.data.UpdateArguments;
 import boston.Bus.Map.main.Main;
-import boston.Bus.Map.provider.IDatabaseAgent;
-import boston.Bus.Map.transit.ITransitSystem;
+import com.schneeloch.bostonbusmap_library.provider.IDatabaseAgent;
+import com.schneeloch.bostonbusmap_library.transit.ITransitSystem;
 
 public class SearchHelper
 {
@@ -39,8 +39,6 @@ public class SearchHelper
 	
 	/**
 	 * Search for query and do whatever actions we do when that happens
-	 * @param runnable 
-	 * @param query
 	 */
 	public void runSearch(Runnable onFinish)
 	{
@@ -194,26 +192,4 @@ public class SearchHelper
 		return suggestionsQuery;
 	}
 
-	public static String naiveSearch(String indexingQuery, String lowercaseQuery,
-			TransitSourceTitles routeKeysToTitles)
-	{
-		if (routeKeysToTitles.hasRoute(indexingQuery))
-		{
-			return indexingQuery;
-		}
-		else
-		{
-			//try the titles
-			for (String route : routeKeysToTitles.routeTags()) {
-				String title = routeKeysToTitles.getTitle(route);
-				String titleWithoutSpaces = title.toLowerCase().replaceAll(" ", "");
-				if (titleWithoutSpaces.equals(lowercaseQuery)) {
-					return route;
-				}
-			}
-			
-			//no match
-			return null;
-		}
-	}
 }

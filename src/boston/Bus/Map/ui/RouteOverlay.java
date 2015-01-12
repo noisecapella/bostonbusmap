@@ -1,27 +1,19 @@
 package boston.Bus.Map.ui;
 
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
-import java.util.TreeSet;
-import java.util.concurrent.CopyOnWriteArrayList;
 
 import android.graphics.Canvas;
-import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Paint.Style;
 import android.graphics.Point;
-import android.os.Debug;
 import android.util.Log;
-import android.widget.PopupWindow;
-import boston.Bus.Map.data.Path;
-import boston.Bus.Map.main.Main;
-import boston.Bus.Map.transit.TransitSystem;
-import boston.Bus.Map.util.Constants;
+
+import com.schneeloch.bostonbusmap_library.data.Path;
+import com.schneeloch.bostonbusmap_library.transit.TransitSystem;
+import com.schneeloch.bostonbusmap_library.util.Constants;
 
 
 import com.google.android.maps.GeoPoint;

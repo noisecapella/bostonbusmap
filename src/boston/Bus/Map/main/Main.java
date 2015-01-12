@@ -25,20 +25,20 @@ import java.util.Collections;
 import java.util.List;
 
 import boston.Bus.Map.R;
-import boston.Bus.Map.data.ITransitDrawables;
-import boston.Bus.Map.data.Locations;
+import com.schneeloch.bostonbusmap_library.data.ITransitDrawables;
+import com.schneeloch.bostonbusmap_library.data.Locations;
 
-import boston.Bus.Map.data.IntersectionLocation;
-import boston.Bus.Map.data.RouteTitles;
-import boston.Bus.Map.data.Selection;
-import boston.Bus.Map.data.StopLocation;
-import boston.Bus.Map.data.TransitDrawables;
+import com.schneeloch.bostonbusmap_library.data.IntersectionLocation;
+import com.schneeloch.bostonbusmap_library.data.RouteTitles;
+import com.schneeloch.bostonbusmap_library.data.Selection;
+import com.schneeloch.bostonbusmap_library.data.StopLocation;
+import com.schneeloch.bostonbusmap_library.data.TransitDrawables;
 import boston.Bus.Map.data.UpdateArguments;
 import boston.Bus.Map.provider.DatabaseAgent;
-import boston.Bus.Map.provider.IDatabaseAgent;
+import com.schneeloch.bostonbusmap_library.provider.IDatabaseAgent;
 import boston.Bus.Map.provider.TransitContentProvider;
-import boston.Bus.Map.transit.ITransitSystem;
-import boston.Bus.Map.transit.TransitSystem;
+import com.schneeloch.bostonbusmap_library.transit.ITransitSystem;
+import com.schneeloch.bostonbusmap_library.transit.TransitSystem;
 import boston.Bus.Map.tutorials.IntroTutorial;
 import boston.Bus.Map.tutorials.Tutorial;
 import boston.Bus.Map.ui.BusOverlay;
@@ -46,8 +46,9 @@ import boston.Bus.Map.ui.BusOverlay;
 import boston.Bus.Map.ui.LocationOverlay;
 import boston.Bus.Map.ui.ModeAdapter;
 import boston.Bus.Map.ui.OverlayGroup;
-import boston.Bus.Map.util.Constants;
 import boston.Bus.Map.util.SearchHelper;
+
+import com.schneeloch.bostonbusmap_library.util.Constants;
 
 
 import com.google.android.maps.GeoPoint;
@@ -767,7 +768,7 @@ public class Main extends MapActivity
 							}
 							
 							@Override
-							public boolean onClick(boston.Bus.Map.data.Location location) {
+							public boolean onClick(com.schneeloch.bostonbusmap_library.data.Location location) {
 								return onClick(BusOverlay.toGeoPoint(location));
 							}
 						});

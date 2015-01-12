@@ -1,1 +1,1 @@
-include ':androidmapviewballoons'
+include ':androidmapviewballoons', ':bostonbusmap-library'

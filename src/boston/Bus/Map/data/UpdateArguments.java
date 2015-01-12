@@ -1,8 +1,10 @@
 package boston.Bus.Map.data;
 
 import boston.Bus.Map.main.RefreshAsyncTask;
-import boston.Bus.Map.provider.IDatabaseAgent;
-import boston.Bus.Map.transit.ITransitSystem;
+
+import com.schneeloch.bostonbusmap_library.data.Locations;
+import com.schneeloch.bostonbusmap_library.provider.IDatabaseAgent;
+import com.schneeloch.bostonbusmap_library.transit.ITransitSystem;
 import boston.Bus.Map.ui.OverlayGroup;
 
 import com.google.android.maps.MapView;

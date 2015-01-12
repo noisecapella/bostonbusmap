@@ -20,21 +20,16 @@ package boston.Bus.Map.main;
 
 import boston.Bus.Map.R;
 import boston.Bus.Map.provider.TransitContentProvider;
-import boston.Bus.Map.transit.TransitSystem;
+import com.schneeloch.bostonbusmap_library.transit.TransitSystem;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
-import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
 import android.preference.Preference;
 import android.preference.PreferenceActivity;
-import android.preference.PreferenceManager;
 import android.preference.PreferenceScreen;
 import android.provider.SearchRecentSuggestions;
-import android.view.MenuItem;
-import android.widget.TextView;
 import android.widget.Toast;
 
 public class Preferences extends PreferenceActivity 
