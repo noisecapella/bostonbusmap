@@ -55,8 +55,19 @@ android {
     lintOptions {
         abortOnError false
     }
-}
-if(project.hasProperty("bostonbusmap.signing")
-        && new File(project.property("bostonbusmap.signing") + ".gradle").exists()) {
-    apply from: project.property("bostonbusmap.signing") + ".gradle";
+    signingConfigs {
+        release {
+            release {
+                storeFile file(RELEASE_STORE_FILE)
+                storePassword RELEASE_STORE_PASSWORD
+                keyAlias RELEASE_KEY_ALIAS
+                keyPassword RELEASE_KEY_PASSWORD
+            }
+        }
+    }
+    buildTypes {
+        release {
+            signingConfig signingConfigs.release
+        }
+    }
 }
