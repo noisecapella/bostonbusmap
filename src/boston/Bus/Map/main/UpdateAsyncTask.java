@@ -109,7 +109,7 @@ public abstract class UpdateAsyncTask extends AsyncTask<Object, Object, Immutabl
 	 */
 	public void runUpdate()
 	{
-		execute();
+        execute();
 	}
 
 	@Override

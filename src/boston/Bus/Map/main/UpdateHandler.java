@@ -7,6 +7,7 @@ import com.schneeloch.bostonbusmap_library.transit.TransitSystem;
 import com.schneeloch.bostonbusmap_library.util.Constants;
 
 import com.google.android.maps.GeoPoint;
+import com.schneeloch.bostonbusmap_library.util.LogUtil;
 
 import android.os.Handler;
 import android.os.Message;
@@ -53,20 +54,13 @@ public class UpdateHandler extends Handler {
 		switch (msg.what)
 		{
 		case MAJOR:
+            LogUtil.i("MAJOR");
 			//remove duplicates
 			long currentTime = System.currentTimeMillis();
-			
+
 			int interval = getUpdateConstantlyInterval() * 1000;
 			
-			if (currentTime - lastUpdateTime > interval)
-			{
-				//if not too soon, do the update
-				runUpdateTask();
-			}
-			else if (currentTime - lastUpdateTime > fetchDelay && msg.arg1 == IMMEDIATE_REFRESH)
-			{
-				runUpdateTask();
-			}
+			runUpdateTask();
 
 			//make updateBuses execute every 10 seconds (or whatever fetchDelay is)
 			//to disable this, the user should go into the settings and uncheck 'Run in background'
@@ -79,6 +73,7 @@ public class UpdateHandler extends Handler {
 
 			break;
 		case MINOR:
+            LogUtil.i("MINOR");
 			//don't do two updates at once
 			if (minorUpdate != null)
 			{
@@ -90,10 +85,6 @@ public class UpdateHandler extends Handler {
 				
 			}
 
-			GeoPoint geoPoint = guiArguments.getMapView().getMapCenter();
-			double centerLatitude = geoPoint.getLatitudeE6() * Constants.InvE6;
-			double centerLongitude = geoPoint.getLongitudeE6() * Constants.InvE6;
-			
 			//remove duplicate messages
 			removeMessages(MINOR);
 			
@@ -109,6 +100,7 @@ public class UpdateHandler extends Handler {
 			
 
 			minorUpdate.runUpdate();
+            LogUtil.i("Minor update");
 			
 			break;
 		}		
@@ -148,6 +140,7 @@ public class UpdateHandler extends Handler {
 			if (guiArguments.getMajorHandler().getStatus().equals(UpdateAsyncTask.Status.FINISHED) == false)
 			{
 				//task is not finished yet
+                LogUtil.i("MAJOR task is not finished yet");
 				return;
 			}
 			
@@ -158,13 +151,17 @@ public class UpdateHandler extends Handler {
 				hideHighlightCircle == false, allRoutesBlue, 
 				selection, this);
 		guiArguments.setMajorHandler(updateAsyncTask);
-		updateAsyncTask.runUpdate();
+        LogUtil.i("major update");
+
+        updateAsyncTask.runUpdate();
 		
 	}
 
     public void triggerRefresh(long millis) {
         removeMessages(MAJOR);
         sendEmptyMessageDelayed(MAJOR, millis);
+        removeMessages(MINOR);
+        sendEmptyMessageDelayed(MINOR, millis);
     }
 
 	public boolean instantRefresh() {

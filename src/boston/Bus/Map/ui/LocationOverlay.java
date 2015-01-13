@@ -47,7 +47,7 @@ public class LocationOverlay extends MyLocationOverlay {
 
 				if (handler != null)
 				{
-					// after 1.5 seconds, tell UpdateHandler to redraw stops near our new map position
+					// after 2.5 seconds, tell UpdateHandler to redraw stops near our new map position
 					handler.triggerRefresh(1500);
 				}
 			}
