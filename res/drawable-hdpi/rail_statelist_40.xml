@@ -4,6 +4,6 @@
 
     <item
   android:state_focused="true"
-  android:drawable="@drawable/bus_selected_40" />
-    <item  android:drawable="@drawable/bus_40" />
+  android:drawable="@drawable/rail_selected_40" />
+    <item  android:drawable="@drawable/rail_40" />
 </selector>
