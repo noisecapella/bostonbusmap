@@ -118,18 +118,18 @@ def write_xml():
 
     for i in xrange(num_divisions):
         angle = i * increment
-        xml = """<?xml version="1.0" encoding="utf-8"?>
+        for prefix in ("bus", "rail"):
+            xml = """<?xml version="1.0" encoding="utf-8"?>
 
 <selector xmlns:android="http://schemas.android.com/apk/res/android">
 
     <item
   android:state_focused="true"
-  android:drawable="@drawable/bus_selected_%d" />
-    <item  android:drawable="@drawable/bus_%d" />
+  android:drawable="@drawable/%s_selected_%d" />
+    <item  android:drawable="@drawable/%s_%d" />
 </selector>
-""" % (angle, angle)
+""" % (prefix, angle, prefix, angle)
 
-        for prefix in ("bus", "rail"):
             for path in ("../res/drawable-hdpi", "../res/drawable-mdpi"):
                 with open("%s/%s_statelist_%d.xml" % (path, prefix, int(angle)), 'w') as f:
                     f.write(xml)
@@ -137,8 +137,8 @@ def write_xml():
 
 
 def main():
-    write_images()
-    write_bus_drawables()
+    #write_images()
+    #write_bus_drawables()
     write_xml()
 
 if __name__ == "__main__":
