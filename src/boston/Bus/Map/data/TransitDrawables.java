@@ -1,4 +1,4 @@
-package com.schneeloch.bostonbusmap_library.data;
+package boston.Bus.Map.data;
 
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -8,6 +8,13 @@ import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.StateListDrawable;
 import android.util.SparseArray;
+
+import com.schneeloch.bostonbusmap_library.data.BusLocation;
+import com.schneeloch.bostonbusmap_library.data.ITransitDrawables;
+import com.schneeloch.bostonbusmap_library.data.Location;
+import com.schneeloch.bostonbusmap_library.data.LocationType;
+
+import boston.Bus.Map.ui.BusDrawables;
 
 /**
  * Drawables for a particular TransitSource
@@ -119,7 +126,7 @@ public class TransitDrawables implements ITransitDrawables {
             }
         }
         else if (locationType == LocationType.Vehicle) {
-            return vehicle;
+            return context.getResources().getDrawable(BusDrawables.getIdFromAngle(location.getHeading(), false));
         }
         else {
             throw new RuntimeException("Unexpected location type");
