@@ -67,8 +67,6 @@ def create_image(path, angle):
 
             new_arrow_width, new_arrow_height = adjust_arrow_dimensions(arrow_width, arrow_height, angle)
 
-            carrow.rotate(angle)
-
             carrow.resize(new_arrow_width, new_arrow_height)
 
             arrow_left = bus_width/2 - new_arrow_width/2
