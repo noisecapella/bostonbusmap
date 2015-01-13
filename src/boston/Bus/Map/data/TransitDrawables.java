@@ -14,6 +14,8 @@ import com.schneeloch.bostonbusmap_library.data.ITransitDrawables;
 import com.schneeloch.bostonbusmap_library.data.Location;
 import com.schneeloch.bostonbusmap_library.data.LocationType;
 
+import boston.Bus.Map.ui.BusDrawables;
+
 /**
  * Drawables for a particular TransitSource
  * @author schneg
@@ -124,7 +126,7 @@ public class TransitDrawables implements ITransitDrawables {
             }
         }
         else if (locationType == LocationType.Vehicle) {
-            return BusDrawables.;
+            return context.getResources().getDrawable(BusDrawables.getIdFromAngle(location.getHeading(), false));
         }
         else {
             throw new RuntimeException("Unexpected location type");

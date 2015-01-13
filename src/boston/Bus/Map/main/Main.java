@@ -32,7 +32,7 @@ import com.schneeloch.bostonbusmap_library.data.IntersectionLocation;
 import com.schneeloch.bostonbusmap_library.data.RouteTitles;
 import com.schneeloch.bostonbusmap_library.data.Selection;
 import com.schneeloch.bostonbusmap_library.data.StopLocation;
-import com.schneeloch.bostonbusmap_library.data.TransitDrawables;
+import boston.Bus.Map.data.TransitDrawables;
 import boston.Bus.Map.data.UpdateArguments;
 import boston.Bus.Map.provider.DatabaseAgent;
 import com.schneeloch.bostonbusmap_library.provider.IDatabaseAgent;

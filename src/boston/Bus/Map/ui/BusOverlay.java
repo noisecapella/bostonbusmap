@@ -23,12 +23,9 @@ import java.util.Collection;
 
 
 import com.schneeloch.bostonbusmap_library.data.Alert;
-import com.schneeloch.bostonbusmap_library.data.IntersectionLocation;
 import com.schneeloch.bostonbusmap_library.data.PredictionView;
 import com.schneeloch.bostonbusmap_library.data.Locations;
 import com.schneeloch.bostonbusmap_library.data.RouteTitles;
-import com.schneeloch.bostonbusmap_library.data.StopLocation;
-import com.schneeloch.bostonbusmap_library.data.TransitDrawables;
 
 import com.schneeloch.bostonbusmap_library.data.Location;
 import boston.Bus.Map.main.Main;
