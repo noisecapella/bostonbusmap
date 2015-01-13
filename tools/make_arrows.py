@@ -86,7 +86,11 @@ public class BusDrawables {
 
                 if i != 0:
                     f.write(",\n")
-                f.write("        R.drawable.%s_%d" % (prefix, angle))
+                if prefix.endswith("selected"):
+                    resource_name = prefix[:-len("selected")] + "statelist"
+                else:
+                    resource_name = prefix
+                f.write("        R.drawable.%s_%d" % (resource_name, angle))
 
             code = """
         };

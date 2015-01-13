@@ -13,8 +13,10 @@ import com.schneeloch.bostonbusmap_library.data.BusLocation;
 import com.schneeloch.bostonbusmap_library.data.ITransitDrawables;
 import com.schneeloch.bostonbusmap_library.data.Location;
 import com.schneeloch.bostonbusmap_library.data.LocationType;
+import com.schneeloch.bostonbusmap_library.database.Schema;
 
 import boston.Bus.Map.ui.BusDrawables;
+import boston.Bus.Map.ui.BusDrawablesLookup;
 
 /**
  * Drawables for a particular TransitSource
@@ -126,7 +128,11 @@ public class TransitDrawables implements ITransitDrawables {
             }
         }
         else if (locationType == LocationType.Vehicle) {
-            return context.getResources().getDrawable(BusDrawables.getIdFromAngle(location.getHeading(), false));
+            boolean isRail = true;
+            if (location.getTransitSourceType() == Schema.Routes.enumagencyidBus) {
+                isRail = false;
+            }
+            return context.getResources().getDrawable(BusDrawablesLookup.getIdFromAngle(location.getHeading(), false, isRail));
         }
         else {
             throw new RuntimeException("Unexpected location type");
