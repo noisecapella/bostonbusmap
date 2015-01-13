@@ -1,7 +1,5 @@
 package boston.Bus.Map.ui;
 
-import boston.Bus.Map.R;
-
 public class BusDrawables {
 
     private static final int[] idLookup = new int[] {
