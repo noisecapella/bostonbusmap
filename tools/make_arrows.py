@@ -112,25 +112,19 @@ public class BusDrawables {
 
             if i != 0:
                 f.write(",\n")
-            f.write("        R.drawable.bus_selected_%d" % angle)
+            f.write("        R.drawable.bus_statelist_%d" % angle)
 
         footer = """
         };
     
 
     public static int getIdFromAngle(int angle, boolean isSelected) {
-        if (isSelected) {
-            if (angle < 0 || angle >= 360) {
-                return R.drawable.bus_selected_0;
-            }
-            return idSelectedLookup[angle/8];
+        angle += (360 / idSelectedLookup.length) / 2;
+        angle = angle % 360;
+        if (angle < 0 || angle >= 360) {
+            return R.drawable.bus_statelist_0;
         }
-        else {
-            if (angle < 0 || angle >= 360) {
-                return R.drawable.bus_0;
-            }
-            return idLookup[angle/8];
-        }
+        return idSelectedLookup[angle/8];
     }
 }
 """
@@ -147,11 +141,35 @@ def write_images():
         create_image("../res/drawable-hdpi", angle)
         create_image("../res/drawable-mdpi", angle)
 
-            
+def write_xml():
+    total_rotation = 360
+    num_divisions = 45
+    increment = float(total_rotation) / float(num_divisions)
+
+    for i in xrange(num_divisions):
+        angle = i * increment
+        xml = """<?xml version="1.0" encoding="utf-8"?>
+
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+  android:state_focused="true"
+  android:drawable="@drawable/bus_selected_%d" />
+    <item  android:drawable="@drawable/bus_%d" />
+</selector>
+""" % (angle, angle)
+        
+        with open("../res/drawable-hdpi/bus_statelist_%d.xml" % int(angle), 'w') as f:
+            f.write(xml)
+        with open("../res/drawable-mdpi/bus_statelist_%d.xml" % int(angle), 'w') as f:
+            f.write(xml)
+
+
 
 def main():
     write_images()
     write_bus_drawables()
+    write_xml()
 
 if __name__ == "__main__":
     main()
