@@ -42,39 +42,26 @@ def adjust_arrow_dimensions(arrow_width, arrow_height, angle):
 
 def create_image(path, angle):
     with Image(filename=os.path.join(path, "arrow.png")) as arrow:
-        carrow = arrow.clone()
+
         arrow_width, arrow_height = arrow.size
-        with Image(filename=os.path.join(path, "bus.png")) as bus:
-            cbus = bus.clone()
-            bus_width, bus_height = bus.size
 
-            new_arrow_width, new_arrow_height = adjust_arrow_dimensions(arrow_width, arrow_height, angle)
+        for prefix in ("bus", "bus_selected", "rail", "rail_selected"):
+            with Image(filename=os.path.join(path, "%s.png" % prefix)) as bus:
+                cbus = bus.clone()
+                bus_width, bus_height = bus.size
 
-            carrow.rotate(angle)
+                carrow = arrow.clone()
+                carrow.rotate(angle)
+                new_arrow_width, new_arrow_height = adjust_arrow_dimensions(arrow_width, arrow_height, angle)
 
-            carrow.resize(new_arrow_width, new_arrow_height)
+                carrow.resize(new_arrow_width, new_arrow_height)
 
-            arrow_left = bus_width/2 - new_arrow_width/2
-            arrow_top = bus_height/6
+                arrow_left = bus_width/2 - new_arrow_width/2
+                arrow_top = bus_height/6
 
-            cbus.composite(carrow, arrow_left, arrow_top)
+                cbus.composite(carrow, arrow_left, arrow_top)
 
-            cbus.save(filename=os.path.join(path, "bus_%d.png" % int(angle)))
-
-        with Image(filename=os.path.join(path, "bus_selected.png")) as bus:
-            cbus = bus.clone()
-            bus_width, bus_height = bus.size
-
-            new_arrow_width, new_arrow_height = adjust_arrow_dimensions(arrow_width, arrow_height, angle)
-
-            carrow.resize(new_arrow_width, new_arrow_height)
-
-            arrow_left = bus_width/2 - new_arrow_width/2
-            arrow_top = bus_height/6
-
-            cbus.composite(carrow, arrow_left, arrow_top)
-
-            cbus.save(filename=os.path.join(path, "bus_selected_%d.png" % int(angle)))
+                cbus.save(filename=os.path.join(path, "%s_%d.png" % (prefix, int(angle))))
 
 
 def write_bus_drawables():
@@ -87,47 +74,28 @@ def write_bus_drawables():
 public class BusDrawables {
 """
         f.write(header)
-        prefix = """
-    private static final int[] idLookup = new int[] {
- """
 
-        f.write(prefix)
-        for i in xrange(num_divisions):
-            angle = i * increment
+        for prefix in ("bus", "bus_selected", "rail", "rail_selected"):
+            code = """
+    public static final int[] %sLookup = new int[] {
+ """ % prefix
 
-            if i != 0:
-                f.write(",\n")
-            f.write("        R.drawable.bus_%d" % angle)
+            f.write(code)
+            for i in xrange(num_divisions):
+                angle = i * increment
 
-        footer = """
+                if i != 0:
+                    f.write(",\n")
+                f.write("        R.drawable.%s_%d" % (prefix, angle))
+
+            code = """
         };
-
-    private static final int[] idSelectedLookup = new int[] {
- """
-        f.write(footer)
-        for i in xrange(num_divisions):
-            angle = i * increment
-
-            if i != 0:
-                f.write(",\n")
-            f.write("        R.drawable.bus_statelist_%d" % angle)
-
-        footer = """
-        };
-    
-
-    public static int getIdFromAngle(int angle, boolean isSelected) {
-        angle += (360 / idSelectedLookup.length) / 2;
-        angle = angle % 360;
-        if (angle < 0 || angle >= 360) {
-            return R.drawable.bus_statelist_0;
-        }
-        return idSelectedLookup[angle/8];
-    }
-}
 """
+            f.write(code)
 
-        f.write(footer)
+        f.write("""
+}
+""")
             
 def write_images():
     total_rotation = 360
@@ -156,11 +124,11 @@ def write_xml():
     <item  android:drawable="@drawable/bus_%d" />
 </selector>
 """ % (angle, angle)
-        
-        with open("../res/drawable-hdpi/bus_statelist_%d.xml" % int(angle), 'w') as f:
-            f.write(xml)
-        with open("../res/drawable-mdpi/bus_statelist_%d.xml" % int(angle), 'w') as f:
-            f.write(xml)
+
+        for prefix in ("bus", "rail"):
+            for path in ("../res/drawable-hdpi", "../res/drawable-mdpi"):
+                with open("%s/%s_statelist_%d.xml" % (path, prefix, int(angle)), 'w') as f:
+                    f.write(xml)
 
 
 
