@@ -127,17 +127,17 @@ public class MbtaAlertsParser implements IAlertsParser {
 			ImmutableList<String> stops = stopsBuilder.build();
 			
 			String description = "";
+            if (alert.hasHeaderText() &&
+                    alert.getHeaderText().getTranslationCount() > 0) {
+                Translation translation = alert.getHeaderText().getTranslation(0);
+                description += translation.getText();
+            }
 			if (alert.hasDescriptionText() &&
 				alert.getDescriptionText().getTranslationCount() > 0) {
 					Translation translation = alert.getDescriptionText().getTranslation(0);
-					description = translation.getText();
+					description += "\n\n" + translation.getText();
 			}
-			else if (alert.hasHeaderText() &&
-					alert.getHeaderText().getTranslationCount() > 0) {
-					Translation translation = alert.getHeaderText().getTranslation(0);
-					description = translation.getText();
-			}
-			
+
 			// now construct alert and add for each stop, route, and systemwide
 			if (isSystemWide) {
 				Alert systemWideAlert = new Alert(now, "Systemwide",
