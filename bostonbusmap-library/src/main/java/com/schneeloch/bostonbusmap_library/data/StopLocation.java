@@ -37,8 +37,13 @@ public class StopLocation implements Location
 	private final RouteSet routes = new RouteSet();
 
 	private static final int LOCATIONTYPE = 3;
-	
-	protected StopLocation(Builder builder)
+
+    /**
+     * Used to prevent requests for stop data too frequently
+     */
+    private long lastUpdate;
+
+    protected StopLocation(Builder builder)
 	{
 		this.latitudeAsDegrees = builder.latitudeAsDegrees;
 		this.longitudeAsDegrees = builder.longitudeAsDegrees;
@@ -46,9 +51,10 @@ public class StopLocation implements Location
 		this.longitude = (float) (longitudeAsDegrees * Geometry.degreesToRadians);
 		this.tag = builder.tag;
 		this.title = builder.title;
+        this.lastUpdate = 0;
 	}
 
-	public static class Builder {
+    public static class Builder {
 		private final float latitudeAsDegrees;
 		private final float longitudeAsDegrees;
 		private final String tag;
@@ -60,14 +66,6 @@ public class StopLocation implements Location
 			this.longitudeAsDegrees = longitudeAsDegrees;
 			this.tag = tag;
 			this.title = title;
-		}
-		
-		public float getLatitudeAsDegrees() {
-			return latitudeAsDegrees;
-		}
-		
-		public float getLongitudeAsDegrees() {
-			return longitudeAsDegrees;
 		}
 		
 		public StopLocation build() {
@@ -338,5 +336,13 @@ public class StopLocation implements Location
     @Override
     public boolean isUpdated() {
         return recentlyUpdated;
+    }
+
+    public long getLastUpdate() {
+        return lastUpdate;
+    }
+
+    public void setLastUpdate(long lastUpdate) {
+        this.lastUpdate = lastUpdate;
     }
 }

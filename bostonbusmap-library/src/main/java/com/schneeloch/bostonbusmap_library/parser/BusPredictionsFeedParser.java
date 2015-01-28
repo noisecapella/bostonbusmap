@@ -82,6 +82,7 @@ public class BusPredictionsFeedParser extends DefaultHandler
 			{
 				String stopTag = attributes.getValue(stopTagKey);
 				currentLocation = currentRoute.getStop(stopTag);
+                currentLocation.setLastUpdate(currentTimeMillis);
 				
 				if (currentLocation != null)
 				{

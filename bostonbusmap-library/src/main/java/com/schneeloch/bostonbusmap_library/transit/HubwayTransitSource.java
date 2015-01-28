@@ -74,9 +74,11 @@ public class HubwayTransitSource implements TransitSource {
             parser.runParse(stream);
             List<PredictionStopLocationPair> pairs = parser.getPairs();
 
+            long lastUpdate = System.currentTimeMillis();
             for (PredictionStopLocationPair pair : pairs) {
                 pair.stopLocation.clearPredictions(null);
                 pair.stopLocation.addPrediction(pair.prediction);
+                pair.stopLocation.setLastUpdate(lastUpdate);
             }
 
             ImmutableMap.Builder<String, StopLocation> builder = ImmutableMap.builder();

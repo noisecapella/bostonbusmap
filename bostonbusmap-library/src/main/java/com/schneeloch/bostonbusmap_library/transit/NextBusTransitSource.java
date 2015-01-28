@@ -94,7 +94,8 @@ public abstract class NextBusTransitSource implements TransitSource
             } else {
                 routes = ImmutableSet.of();
             }
-            String url = getPredictionsUrl(locations, maxStops, routes);
+            long updateTime = System.currentTimeMillis();
+            String url = getPredictionsUrl(locations, maxStops, routes, updateTime);
 
             if (url == null) {
                 return;
@@ -125,8 +126,6 @@ public abstract class NextBusTransitSource implements TransitSource
             //vehicle locations
             //VehicleLocationsFeedParser parser = new VehicleLocationsFeedParser(stream);
 
-            //lastUpdateTime = parser.getLastUpdateTime();
-
             VehicleLocationsFeedParser parser = new VehicleLocationsFeedParser(directions, transitSystem.getRouteKeysToTitles());
             parser.runParse(data);
 
@@ -144,7 +143,7 @@ public abstract class NextBusTransitSource implements TransitSource
         }
     }
 
-	protected String getPredictionsUrl(List<Location> locations, int maxStops, Collection<String> routes)
+	protected String getPredictionsUrl(List<Location> locations, int maxStops, Collection<String> routes, long currentUpdateMillis)
 	{
 		StringBuilder urlString = new StringBuilder(mbtaPredictionsDataUrl);
 
@@ -154,20 +153,22 @@ public abstract class NextBusTransitSource implements TransitSource
 			{
 				StopLocation stopLocation = (StopLocation)location;
 				if (stopLocation.getTransitSourceType() == Schema.Routes.enumagencyidBus) {
-					if (routes.isEmpty() == false) {
-						for (String route : routes) {
-							if (stopLocation.hasRoute(route)) {
-								urlString.append("&stops=").append(route).append("%7C");
-								urlString.append("%7C").append(stopLocation.getStopTag());
-							}
-						}
-					} else {
-						for (String stopRoute : stopLocation.getRoutes()) {
-							urlString.append("&stops=").append(stopRoute).append("%7C");
-							urlString.append("%7C").append(stopLocation.getStopTag());
+                    if (stopLocation.getLastUpdate() + 1200 < currentUpdateMillis) {
+                        if (routes.isEmpty() == false) {
+                            for (String route : routes) {
+                                if (stopLocation.hasRoute(route)) {
+                                    urlString.append("&stops=").append(route).append("%7C");
+                                    urlString.append("%7C").append(stopLocation.getStopTag());
+                                }
+                            }
+                        } else {
+                            for (String stopRoute : stopLocation.getRoutes()) {
+                                urlString.append("&stops=").append(stopRoute).append("%7C");
+                                urlString.append("%7C").append(stopLocation.getStopTag());
 
-						}
-					}
+                            }
+                        }
+                    }
 				}
 			}
 		}
