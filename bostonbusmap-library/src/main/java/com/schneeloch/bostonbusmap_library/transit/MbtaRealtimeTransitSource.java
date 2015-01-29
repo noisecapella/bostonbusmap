@@ -146,14 +146,17 @@ public class MbtaRealtimeTransitSource implements TransitSource {
         ImmutableSet<String> routeNames;
         if (selectedBusPredictions == Selection.Mode.VEHICLE_LOCATIONS_ONE ||
 				selectedBusPredictions == Selection.Mode.BUS_PREDICTIONS_ONE) {
-            Long lastUpdate = lastUpdates.get(routeConfig.getRouteName());
-            if (lastUpdate == null || lastUpdate + fetchDelay < currentMillis) {
-                builder.add(routeConfig.getRouteName());
+            String routeName = routeConfig.getRouteName();
+            if (routeNameToTransitSource.containsKey(routeName)) {
+                Long lastUpdate = lastUpdates.get(routeConfig.getRouteName());
+                if (lastUpdate == null || lastUpdate + fetchDelay < currentMillis) {
+                    builder.add(routeName);
+                }
             }
 		}
 		else {
 			for (String routeName : routeNameToTransitSource.keySet()) {
-                Long lastUpdate = lastUpdates.get(routeConfig.getRouteName());
+                Long lastUpdate = lastUpdates.get(routeName);
                 if (lastUpdate == null || lastUpdate + fetchDelay < currentMillis) {
                     builder.add(routeName);
                 }
