@@ -46,11 +46,9 @@ public class MbtaRealtimePredictionsParser {
         MbtaRealtimeRoot root = new Gson().fromJson(bufferedReader, MbtaRealtimeRoot.class);
 
 		clearPredictions();
-        long lastUpdate = System.currentTimeMillis();
 
 		for (PredictionStopLocationPair pair : parseTree(root)) {
 			pair.stopLocation.addPrediction(pair.prediction);
-            pair.stopLocation.setLastUpdate(lastUpdate);
 		}
 	}
 	

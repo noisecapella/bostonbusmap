@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
 
 import javax.xml.parsers.ParserConfigurationException;
 
@@ -45,13 +46,18 @@ public class MbtaRealtimeTransitSource implements TransitSource {
 	public static final ImmutableMultimap<String, String> routeNameToGtfsName;
 	public static final ImmutableMap<String, Integer> routeNameToTransitSource;
 
+    private final ConcurrentHashMap<String, Long> lastUpdates;
+
+    private static final long fetchDelay = 15000;
+
 	public MbtaRealtimeTransitSource(ITransitDrawables drawables,
 			TransitSourceTitles routeTitles,
 			TransitSystem transitSystem) {
 		this.drawables = drawables;
 		this.routeTitles = routeTitles;
 		this.transitSystem = transitSystem;
-		
+
+        lastUpdates = new ConcurrentHashMap<>();
 	}
 
 	static {
@@ -135,27 +141,39 @@ public class MbtaRealtimeTransitSource implements TransitSource {
 			throws IOException, ParserConfigurationException, SAXException {
 		Selection.Mode selectedBusPredictions = selection.getMode();
 		List<String> routesInUrl = Lists.newArrayList();
-		ImmutableSet<String> routeNames;
-		if (selectedBusPredictions == Selection.Mode.VEHICLE_LOCATIONS_ONE ||
+        ImmutableSet.Builder<String> builder = ImmutableSet.builder();
+
+        long currentMillis = System.currentTimeMillis();
+
+        ImmutableSet<String> routeNames;
+        if (selectedBusPredictions == Selection.Mode.VEHICLE_LOCATIONS_ONE ||
 				selectedBusPredictions == Selection.Mode.BUS_PREDICTIONS_ONE) {
-			for (String gtfsRoute : routeNameToGtfsName.get(routeConfig.getRouteName())) {
-				routesInUrl.add(gtfsRoute);
-			}
-			routeNames = ImmutableSet.of(routeConfig.getRouteName());
+            Long lastUpdate = lastUpdates.get(routeConfig.getRouteName());
+            if (lastUpdate == null || lastUpdate + fetchDelay < currentMillis) {
+                builder.add(routeConfig.getRouteName());
+            }
 		}
 		else {
-			routesInUrl.addAll(routeNameToGtfsName.values());
-			
-			ImmutableSet.Builder<String> builder =
-				ImmutableSet.builder();
-			
 			for (String routeName : routeNameToTransitSource.keySet()) {
-				builder.add(routeName);
+                Long lastUpdate = lastUpdates.get(routeConfig.getRouteName());
+                if (lastUpdate == null || lastUpdate + fetchDelay < currentMillis) {
+                    builder.add(routeName);
+                }
 			}
-            routeNames = builder.build();
 		}
-		
-		String routesString = Joiner.on(",").join(routesInUrl);
+        routeNames = builder.build();
+
+        if (routeNames.size() == 0) {
+            return;
+        }
+
+        for (String routeName : routeNames) {
+            for (String gtfsRoute : routeNameToGtfsName.get(routeName)) {
+                routesInUrl.add(gtfsRoute);
+            }
+        }
+
+        String routesString = Joiner.on(",").join(routesInUrl);
 		 
 		String vehiclesUrl = dataUrlPrefix + "vehiclesbyroutes?api_key=" + apiKey + "&format=json&routes=" + routesString;
 		String predictionsUrl = dataUrlPrefix + "predictionsbyroutes?api_key=" + apiKey + "&format=json&include_service_alerts=false&routes=" + routesString;
@@ -177,8 +195,6 @@ public class MbtaRealtimeTransitSource implements TransitSource {
 		InputStream predictionsStream = predictionsDownloadHelper.getResponseData();
 		InputStreamReader predictionsData = new InputStreamReader(predictionsStream);
 
-		
-		
 		MbtaRealtimePredictionsParser parser = new MbtaRealtimePredictionsParser(routeNames, routePool, routeTitles);
 		parser.runParse(predictionsData);
 		

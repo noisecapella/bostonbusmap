@@ -7,6 +7,7 @@ import org.xml.sax.SAXException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
 
 import javax.xml.parsers.ParserConfigurationException;
 
@@ -39,6 +40,10 @@ public class HubwayTransitSource implements TransitSource {
 	private final TransitSourceTitles routeTitles;
 	private final ITransitSystem transitSystem;
 
+    private long lastUpdate;
+
+    private static final long fetchDelay = 15000;
+
 
 	public HubwayTransitSource(ITransitDrawables drawables, TransitSourceTitles routeTitles,
 							   TransitSystem transitSystem) {
@@ -46,6 +51,8 @@ public class HubwayTransitSource implements TransitSource {
 		this.drawables = drawables;
 		this.routeTitles = routeTitles;
 		this.transitSystem = transitSystem;
+
+        lastUpdate = 0;
 	}
 
 	@Override
@@ -55,6 +62,14 @@ public class HubwayTransitSource implements TransitSource {
 							RoutePool routePool, Directions directions,
 							Locations locationsObj) throws IOException, ParserConfigurationException, SAXException {
 		Selection.Mode mode = selection.getMode();
+
+        long currentMillis = System.currentTimeMillis();
+        if (lastUpdate + fetchDelay >= currentMillis) {
+            return;
+        }
+
+        lastUpdate = currentMillis;
+
 		if (mode == Selection.Mode.VEHICLE_LOCATIONS_ALL ||
 			mode == Selection.Mode.VEHICLE_LOCATIONS_ONE) {
 				// no need for that here
@@ -74,11 +89,9 @@ public class HubwayTransitSource implements TransitSource {
             parser.runParse(stream);
             List<PredictionStopLocationPair> pairs = parser.getPairs();
 
-            long lastUpdate = System.currentTimeMillis();
             for (PredictionStopLocationPair pair : pairs) {
                 pair.stopLocation.clearPredictions(null);
                 pair.stopLocation.addPrediction(pair.prediction);
-                pair.stopLocation.setLastUpdate(lastUpdate);
             }
 
             ImmutableMap.Builder<String, StopLocation> builder = ImmutableMap.builder();

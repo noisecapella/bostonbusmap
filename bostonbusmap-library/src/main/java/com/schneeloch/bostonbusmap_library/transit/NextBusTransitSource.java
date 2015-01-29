@@ -5,6 +5,7 @@ import java.io.InputStream;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import javax.xml.parsers.ParserConfigurationException;
 
@@ -53,7 +54,21 @@ public abstract class NextBusTransitSource implements TransitSource
 	private final ITransitDrawables drawables;
 
 	private final TransitSourceTitles routeTitles;
-	private final RouteTitles allRouteTitles;
+
+    /**
+     * stop id -> time in millis
+     */
+    private final ConcurrentHashMap<String, Long> predictionsLastUpdates;
+    /**
+     * route id -> time in millis
+     */
+    private final ConcurrentHashMap<String, Long> vehiclesLastUpdates;
+    /**
+     * Time of last transit source-wide update
+     */
+    private long wholeSourceVehicleLastUpdate;
+
+    private static final long fetchDelay = 15000;
 
 	public NextBusTransitSource(TransitSystem transitSystem, 
 			ITransitDrawables drawables, String agency, TransitSourceTitles routeTitles,
@@ -69,7 +84,9 @@ public abstract class NextBusTransitSource implements TransitSource
 		mbtaPredictionsDataUrl = "http://" + prefix + ".nextbus.com/service/publicXMLFeed?command=predictionsForMultiStops&a=" + agency;
 		
 		this.routeTitles = routeTitles;
-		this.allRouteTitles = allRouteTitles;
+        predictionsLastUpdates = new ConcurrentHashMap<>();
+        vehiclesLastUpdates = new ConcurrentHashMap<>();
+        wholeSourceVehicleLastUpdate = 0;
 	}
 
 
@@ -81,6 +98,7 @@ public abstract class NextBusTransitSource implements TransitSource
         //read data from the URL
         DownloadHelper downloadHelper;
         Selection.Mode mode = selection.getMode();
+        long updateTime = System.currentTimeMillis();
         if (mode == Selection.Mode.BUS_PREDICTIONS_ONE ||
                 mode == Selection.Mode.BUS_PREDICTIONS_STAR ||
                 mode == Selection.Mode.BUS_PREDICTIONS_ALL) {
@@ -94,7 +112,6 @@ public abstract class NextBusTransitSource implements TransitSource
             } else {
                 routes = ImmutableSet.of();
             }
-            long updateTime = System.currentTimeMillis();
             String url = getPredictionsUrl(locations, maxStops, routes, updateTime);
 
             if (url == null) {
@@ -103,10 +120,19 @@ public abstract class NextBusTransitSource implements TransitSource
 
             downloadHelper = new DownloadHelper(url);
         } else if (mode == Selection.Mode.VEHICLE_LOCATIONS_ONE) {
-            final String urlString = getVehicleLocationsUrl(locationsObj.getLastUpdateTime(), routeConfig.getRouteName());
+            final String urlString = getVehicleLocationsUrl(locationsObj.getLastUpdateTime(), routeConfig.getRouteName(), updateTime);
+            vehiclesLastUpdates.put(routeConfig.getRouteName(), updateTime);
+            if (urlString == null) {
+                return;
+            }
             downloadHelper = new DownloadHelper(urlString);
         } else {
-            final String urlString = getVehicleLocationsUrl(locationsObj.getLastUpdateTime(), null);
+            final String urlString = getVehicleLocationsUrl(locationsObj.getLastUpdateTime(), null, updateTime);
+            vehiclesLastUpdates.clear();
+            wholeSourceVehicleLastUpdate = updateTime;
+            if (urlString == null) {
+                return;
+            }
             downloadHelper = new DownloadHelper(urlString);
         }
 
@@ -124,8 +150,6 @@ public abstract class NextBusTransitSource implements TransitSource
             parser.runParse(data);
         } else {
             //vehicle locations
-            //VehicleLocationsFeedParser parser = new VehicleLocationsFeedParser(stream);
-
             VehicleLocationsFeedParser parser = new VehicleLocationsFeedParser(directions, transitSystem.getRouteKeysToTitles());
             parser.runParse(data);
 
@@ -147,25 +171,31 @@ public abstract class NextBusTransitSource implements TransitSource
 	{
 		StringBuilder urlString = new StringBuilder(mbtaPredictionsDataUrl);
 
+        int stopCount = 0;
 		for (Location location : locations)
 		{
 			if (location instanceof StopLocation)
 			{
 				StopLocation stopLocation = (StopLocation)location;
 				if (stopLocation.getTransitSourceType() == Schema.Routes.enumagencyidBus) {
-                    if (stopLocation.getLastUpdate() + 1200 < currentUpdateMillis) {
+                    Long lastUpdate = predictionsLastUpdates.get(stopLocation.getStopTag());
+
+                    if (lastUpdate == null || (lastUpdate + fetchDelay < currentUpdateMillis)) {
                         if (routes.isEmpty() == false) {
                             for (String route : routes) {
                                 if (stopLocation.hasRoute(route)) {
                                     urlString.append("&stops=").append(route).append("%7C");
                                     urlString.append("%7C").append(stopLocation.getStopTag());
+                                    predictionsLastUpdates.put(stopLocation.getStopTag(), currentUpdateMillis);
+                                    stopCount++;
                                 }
                             }
                         } else {
                             for (String stopRoute : stopLocation.getRoutes()) {
                                 urlString.append("&stops=").append(stopRoute).append("%7C");
                                 urlString.append("%7C").append(stopLocation.getStopTag());
-
+                                predictionsLastUpdates.put(stopLocation.getStopTag(), currentUpdateMillis);
+                                stopCount++;
                             }
                         }
                     }
@@ -175,31 +205,34 @@ public abstract class NextBusTransitSource implements TransitSource
 
 		//TODO: hard limit this to 150 requests
 
+        if (stopCount == 0) {
+            return null;
+        }
 		return urlString.toString();
 	}
 
-	protected String getVehicleLocationsUrl(long time, String route)
+	protected String getVehicleLocationsUrl(long time, String route, long currentUpdateMillis)
 	{
-		if (route != null)
-		{
-			return mbtaLocationsDataUrlOneRoute + time + "&r=" + route;
-		}
-		else
-		{
-			return mbtaLocationsDataUrlAllRoutes + time;
-		}
-	}
-
-	protected String getRouteConfigUrl(String route)
-	{
-		if (route == null)
-		{
-			return mbtaRouteConfigDataUrlAllRoutes;
-		}
-		else
-		{
-			return mbtaRouteConfigDataUrl + route;
-		}
+        Long lastUpdate;
+        if (route != null) {
+            lastUpdate = vehiclesLastUpdates.get(route);
+        }
+        else {
+            lastUpdate = wholeSourceVehicleLastUpdate;
+        }
+        if (lastUpdate == null || (vehiclesLastUpdates.get(route) + fetchDelay < currentUpdateMillis)) {
+            if (route != null)
+            {
+                return mbtaLocationsDataUrlOneRoute + time + "&r=" + route;
+            }
+            else
+            {
+                return mbtaLocationsDataUrlAllRoutes + time;
+            }
+        }
+        else {
+            return null;
+        }
 	}
 
 

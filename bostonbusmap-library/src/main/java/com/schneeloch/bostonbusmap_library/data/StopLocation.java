@@ -38,11 +38,6 @@ public class StopLocation implements Location
 
 	private static final int LOCATIONTYPE = 3;
 
-    /**
-     * Used to prevent requests for stop data too frequently
-     */
-    private long lastUpdate;
-
     protected StopLocation(Builder builder)
 	{
 		this.latitudeAsDegrees = builder.latitudeAsDegrees;
@@ -51,7 +46,6 @@ public class StopLocation implements Location
 		this.longitude = (float) (longitudeAsDegrees * Geometry.degreesToRadians);
 		this.tag = builder.tag;
 		this.title = builder.title;
-        this.lastUpdate = 0;
 	}
 
     public static class Builder {
@@ -336,13 +330,5 @@ public class StopLocation implements Location
     @Override
     public boolean isUpdated() {
         return recentlyUpdated;
-    }
-
-    public long getLastUpdate() {
-        return lastUpdate;
-    }
-
-    public void setLastUpdate(long lastUpdate) {
-        this.lastUpdate = lastUpdate;
     }
 }
