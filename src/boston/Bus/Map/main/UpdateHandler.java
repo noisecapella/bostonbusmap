@@ -28,8 +28,6 @@ public class UpdateHandler extends Handler {
 	 */
 	private long lastUpdateTime;
 
-	public final static int fetchDelay = 15000;
-	
 	private final int maxOverlays = 75;
 
 	private final int IMMEDIATE_REFRESH = 1;
@@ -174,11 +172,6 @@ public class UpdateHandler extends Handler {
 			sendEmptyMessageDelayed(MAJOR, getUpdateConstantlyInterval() * 1000);
 		}
 		
-		if (System.currentTimeMillis() - lastUpdateTime < fetchDelay)
-		{
-			return false;
-		}
-
 		runUpdateTask();
 		return true;
 

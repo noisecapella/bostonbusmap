@@ -136,16 +136,10 @@ public class Main extends MapActivity
 	private RouteTitles dropdownRouteKeysToTitles;
 	private AlertDialog routeChooserDialog;
 
-	private ImageButton searchButton;
+    private UpdateArguments arguments;
 
-	private UpdateArguments arguments;
-	private ImageButton myLocationButton;
-	private Button skipTutorialButton;
-	private RelativeLayout tutorialLayout;
-	private Button nextTutorialButton;
-	
-	
-	public static final int UPDATE_INTERVAL_INVALID = 9999;
+
+    public static final int UPDATE_INTERVAL_INVALID = 9999;
 	public static final int UPDATE_INTERVAL_SHORT = 15;
 	public static final int UPDATE_INTERVAL_MEDIUM = 50;
 	public static final int UPDATE_INTERVAL_LONG = 100;
@@ -171,13 +165,14 @@ public class Main extends MapActivity
         chooseAFavoriteButton = (Button)findViewById(R.id.chooseFavoriteButton);
         searchView = (EditText)findViewById(R.id.searchTextView);
         final ProgressBar progress = (ProgressBar)findViewById(R.id.progress);
-        searchButton = (ImageButton)findViewById(R.id.searchButton);
-        
-        myLocationButton = (ImageButton)findViewById(R.id.myLocationButton);
+        ImageButton searchButton = (ImageButton) findViewById(R.id.searchButton);
+
+        ImageButton myLocationButton = (ImageButton) findViewById(R.id.myLocationButton);
+        ImageButton refreshButton = (ImageButton) findViewById(R.id.refreshButton);
         myLocationButton.getBackground().setAlpha(0xbb);
-        tutorialLayout = (RelativeLayout)findViewById(R.id.mapViewTutorial);
-        skipTutorialButton = (Button)findViewById(R.id.mapViewTutorialSkipButton);
-        nextTutorialButton = (Button)findViewById(R.id.mapViewTutorialNextButton);
+        RelativeLayout tutorialLayout = (RelativeLayout) findViewById(R.id.mapViewTutorial);
+        Button skipTutorialButton = (Button) findViewById(R.id.mapViewTutorialSkipButton);
+        Button nextTutorialButton = (Button) findViewById(R.id.mapViewTutorialNextButton);
         
     	SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
 
@@ -199,12 +194,12 @@ public class Main extends MapActivity
 		});
         
         searchButton.setOnClickListener(new OnClickListener() {
-			
-			@Override
-			public void onClick(View v) {
-				onSearchRequested();
-			}
-		});
+
+            @Override
+            public void onClick(View v) {
+                onSearchRequested();
+            }
+        });
         
         chooseAPlaceButton.setOnClickListener(new OnClickListener() {
 			
@@ -223,33 +218,42 @@ public class Main extends MapActivity
 		});
         
         myLocationButton.setOnClickListener(new OnClickListener() {
-			
-			@Override
-			public void onClick(View v) {
-	    		if (arguments != null)
-	    		{
-	    			final LocationOverlay myLocationOverlay = arguments.getOverlayGroup().getMyLocationOverlay();
-	    			if (myLocationOverlay.isMyLocationEnabled() == false)
-	    			{
-	    				myLocationOverlay.enableMyLocation();
-	    				
-	    				locationEnabled = true;
-	    				
-	    				Toast.makeText(Main.this, getString(R.string.findingCurrentLocation), Toast.LENGTH_SHORT).show();
-	    			}
-	   				myLocationOverlay.updateMapViewPosition(handler);
-	    		}
-				
-			}
-		});
+
+            @Override
+            public void onClick(View v) {
+                if (arguments != null) {
+                    final LocationOverlay myLocationOverlay = arguments.getOverlayGroup().getMyLocationOverlay();
+                    if (myLocationOverlay.isMyLocationEnabled() == false) {
+                        myLocationOverlay.enableMyLocation();
+
+                        locationEnabled = true;
+
+                        Toast.makeText(Main.this, getString(R.string.findingCurrentLocation), Toast.LENGTH_SHORT).show();
+                    }
+                    myLocationOverlay.updateMapViewPosition(handler);
+                }
+
+            }
+        });
+
+        refreshButton.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                boolean b = handler.instantRefresh();
+                if (b == false)
+                {
+                    Toast.makeText(Main.this, "Please wait 10 seconds before clicking Refresh again", Toast.LENGTH_LONG).show();
+                }
+            }
+        });
         
         skipTutorialButton.setOnClickListener(new OnClickListener() {
-			
-			@Override
-			public void onClick(View v) {
-				
-			}
-		});
+
+            @Override
+            public void onClick(View v) {
+
+            }
+        });
         
         Resources resources = getResources();
 
