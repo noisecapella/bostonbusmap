@@ -168,6 +168,10 @@ public class MbtaRealtimeTransitSource implements TransitSource {
         }
 
         for (String routeName : routeNames) {
+            lastUpdates.put(routeName, currentMillis);
+        }
+
+        for (String routeName : routeNames) {
             for (String gtfsRoute : routeNameToGtfsName.get(routeName)) {
                 routesInUrl.add(gtfsRoute);
             }
