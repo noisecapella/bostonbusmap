@@ -36,6 +36,7 @@ public class DownloadHelper {
 	
 	public DownloadHelper(String url) {
 		this.url = url;
+        LogUtil.i("url: " + url);
 		
 		httpGet = new HttpGet(url);
 		httpGet.addHeader("Accept-Encoding", "gzip");
