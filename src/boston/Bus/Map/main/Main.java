@@ -822,6 +822,23 @@ public class Main extends MapActivity
 		//check the result
 		populateHandlerSettings();
 		handler.resume();
+
+        // workaround for bad design decisions
+        if (arguments.getProgressDialog() == null) {
+            final ProgressDialog progressDialog = new ProgressDialog(this);
+            progressDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
+            progressDialog.setCancelable(true);
+
+            arguments.setProgressDialog(progressDialog);
+        }
+
+        if (arguments.getProgress() == null) {
+            final ProgressBar progress = (ProgressBar)findViewById(R.id.progress);
+
+            arguments.setProgress(progress);
+        }
+
+
 		
     	Tutorial tutorial = new Tutorial(IntroTutorial.populate());
     	tutorial.start(this);
@@ -877,7 +894,7 @@ public class Main extends MapActivity
     	boolean showCoarseRouteLineCheckboxValue = prefs.getBoolean(getString(R.string.showCoarseRouteLineCheckbox), true); 
 
     	boolean alwaysUpdateLocationValue = prefs.getBoolean(getString(R.string.alwaysShowLocationCheckbox), true);
-    	
+
     	String intervalString = Integer.valueOf(updateInterval).toString();
     	//since the default value for this flag is true, make sure we let the preferences know of this
     	prefs.edit().
