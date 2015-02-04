@@ -5,6 +5,7 @@ import java.text.DateFormat;
 import java.util.List;
 import java.util.TimeZone;
 import java.util.concurrent.Callable;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -179,13 +180,11 @@ public class TransitSystem implements ITransitSystem {
                             final double centerLongitude, final VehicleLocations busMapping,
                             final RoutePool routePool,
                             final Directions directions, final Locations locations) throws IOException, ParserConfigurationException, SAXException {
-        List<Thread> tasks = Lists.newArrayList();
-        final Exception[] exceptions = new Exception[transitSources.size()];
+        List<Thread> threads = Lists.newArrayList();
+        final ConcurrentHashMap<String, Exception> exceptions = new ConcurrentHashMap<>();
 
-		for (int i = 0; i < transitSources.size(); i++)
+		for (final TransitSource source : transitSources)
 		{
-            final int j = i;
-            final TransitSource source = transitSources.get(i);
             Thread thread = new Thread(new Runnable() {
                 @Override
                 public void run() {
@@ -193,28 +192,28 @@ public class TransitSystem implements ITransitSystem {
                         source.refreshData(routeConfig, selection, maxStops, centerLatitude,
                                 centerLongitude, busMapping, routePool, directions, locations);
                     } catch (IOException | ParserConfigurationException | SAXException e) {
-                        exceptions[j] = e;
+                        exceptions.put(source.getDescription(), e);
                     }
                 }
             });
-            tasks.add(thread);
+            threads.add(thread);
             thread.start();
 		}
 
 
-        for (int i = 0; i < tasks.size(); i++) {
-            Thread task = tasks.get(i);
+        for (Thread thread : threads) {
             try {
-                task.join();
+                thread.join();
             } catch (InterruptedException e) {
-                exceptions[i] = e;
+                LogUtil.e(e);
             }
         }
 
-        for (Exception exception : exceptions) {
-            if (exception != null) {
-                throw new RuntimeException(exception);
-            }
+        if (exceptions.size() > 0) {
+            // hopefully no more than one. We can't throw more than one exception at a time
+            String key = exceptions.keySet().iterator().next();
+            Exception exception = exceptions.get(key);
+            throw new RuntimeException("Error downloading from " + key + " data feed", exception);
         }
 	}
 
