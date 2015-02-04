@@ -149,6 +149,7 @@ public class UpdateHandler extends Handler {
 				hideHighlightCircle == false, allRoutesBlue, 
 				selection, this);
 		guiArguments.setMajorHandler(updateAsyncTask);
+
         LogUtil.i("major update");
 
         updateAsyncTask.runUpdate();
