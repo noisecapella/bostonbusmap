@@ -2,7 +2,13 @@ package com.schneeloch.bostonbusmap_library.transit;
 
 import java.io.IOException;
 import java.text.DateFormat;
+import java.util.List;
 import java.util.TimeZone;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.FutureTask;
 
 import javax.xml.parsers.ParserConfigurationException;
 
@@ -14,6 +20,7 @@ import com.google.common.collect.ImmutableMap;
 import android.content.Context;
 import android.util.Log;
 
+import com.google.common.collect.Lists;
 import com.schneeloch.bostonbusmap_library.data.AlertsFuture;
 import com.schneeloch.bostonbusmap_library.data.Directions;
 import com.schneeloch.bostonbusmap_library.data.IAlerts;
@@ -30,6 +37,8 @@ import com.schneeloch.bostonbusmap_library.database.Schema;
 import com.schneeloch.bostonbusmap_library.parser.MbtaAlertsParser;
 import com.schneeloch.bostonbusmap_library.provider.IDatabaseAgent;
 import com.schneeloch.bostonbusmap_library.util.Constants;
+import com.schneeloch.bostonbusmap_library.util.LogUtil;
+
 /**
  * Any transit-system specific stuff should go here, if possible
  * @author schneg
@@ -165,16 +174,37 @@ public class TransitSystem implements ITransitSystem {
 	}
 
 	@Override
-	public void refreshData(RouteConfig routeConfig,
-			Selection selection, int maxStops, double centerLatitude,
-			double centerLongitude, VehicleLocations busMapping,
-			RoutePool routePool,
-			Directions directions, Locations locations) throws IOException, ParserConfigurationException, SAXException {
-		for (TransitSource source : transitSources)
+	public void refreshData(final RouteConfig routeConfig,
+                            final Selection selection, final int maxStops, final double centerLatitude,
+                            final double centerLongitude, final VehicleLocations busMapping,
+                            final RoutePool routePool,
+                            final Directions directions, final Locations locations) throws IOException, ParserConfigurationException, SAXException {
+        List<Thread> tasks = Lists.newArrayList();
+
+		for (final TransitSource source : transitSources)
 		{
-			source.refreshData(routeConfig, selection, maxStops, centerLatitude,
-					centerLongitude, busMapping, routePool, directions, locations);
+            Thread thread = new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        source.refreshData(routeConfig, selection, maxStops, centerLatitude,
+                                centerLongitude, busMapping, routePool, directions, locations);
+                    } catch (IOException | ParserConfigurationException | SAXException e) {
+                        throw new RuntimeException(e);
+                    }
+                }
+            });
+            tasks.add(thread);
+            thread.start();
 		}
+
+        for (Thread task : tasks) {
+            try {
+                task.join();
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+        }
 	}
 
 
