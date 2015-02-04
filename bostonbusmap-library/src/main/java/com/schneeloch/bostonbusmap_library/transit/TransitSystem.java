@@ -180,9 +180,12 @@ public class TransitSystem implements ITransitSystem {
                             final RoutePool routePool,
                             final Directions directions, final Locations locations) throws IOException, ParserConfigurationException, SAXException {
         List<Thread> tasks = Lists.newArrayList();
+        final Exception[] exceptions = new Exception[transitSources.size()];
 
-		for (final TransitSource source : transitSources)
+		for (int i = 0; i < transitSources.size(); i++)
 		{
+            final int j = i;
+            final TransitSource source = transitSources.get(i);
             Thread thread = new Thread(new Runnable() {
                 @Override
                 public void run() {
@@ -190,7 +193,7 @@ public class TransitSystem implements ITransitSystem {
                         source.refreshData(routeConfig, selection, maxStops, centerLatitude,
                                 centerLongitude, busMapping, routePool, directions, locations);
                     } catch (IOException | ParserConfigurationException | SAXException e) {
-                        throw new RuntimeException(e);
+                        exceptions[j] = e;
                     }
                 }
             });
@@ -198,11 +201,19 @@ public class TransitSystem implements ITransitSystem {
             thread.start();
 		}
 
-        for (Thread task : tasks) {
+
+        for (int i = 0; i < tasks.size(); i++) {
+            Thread task = tasks.get(i);
             try {
                 task.join();
             } catch (InterruptedException e) {
-                throw new RuntimeException(e);
+                exceptions[i] = e;
+            }
+        }
+
+        for (Exception exception : exceptions) {
+            if (exception != null) {
+                throw new RuntimeException(exception);
             }
         }
 	}
