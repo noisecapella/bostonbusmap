@@ -191,7 +191,7 @@ public class TransitSystem implements ITransitSystem {
                     try {
                         source.refreshData(routeConfig, selection, maxStops, centerLatitude,
                                 centerLongitude, busMapping, routePool, directions, locations);
-                    } catch (IOException | ParserConfigurationException | SAXException e) {
+                    } catch (Exception e) {
                         exceptions.put(source.getDescription(), e);
                     }
                 }

@@ -220,19 +220,32 @@ public abstract class NextBusTransitSource implements TransitSource
         else {
             lastUpdate = wholeSourceVehicleLastUpdate;
         }
-        if (lastUpdate == null || (vehiclesLastUpdates.get(route) + fetchDelay < currentUpdateMillis)) {
-            if (route != null)
-            {
-                return mbtaLocationsDataUrlOneRoute + time + "&r=" + route;
-            }
-            else
-            {
-                return mbtaLocationsDataUrlAllRoutes + time;
+
+        String url;
+        if (route != null)
+        {
+            url = mbtaLocationsDataUrlOneRoute + time + "&r=" + route;
+        }
+        else
+        {
+            url = mbtaLocationsDataUrlAllRoutes + time;
+        }
+
+        if (lastUpdate == null) {
+            return url;
+        }
+        else if (route == null) {
+            if (wholeSourceVehicleLastUpdate + fetchDelay < currentUpdateMillis) {
+                return url;
             }
         }
         else {
-            return null;
+            if (vehiclesLastUpdates.get(route) + fetchDelay < currentUpdateMillis) {
+                return url;
+            }
         }
+
+        return null;
 	}
 
 
