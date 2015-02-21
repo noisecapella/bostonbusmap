@@ -1,9 +1,9 @@
 package com.schneeloch.bostonbusmap_library.util;
 
-public class FeedException extends Exception
+public class FeedException extends RuntimeException
 {
-	public FeedException()
+	public FeedException(String msg, Exception e)
 	{
-		super("The feed is reporting an error");
+		super(msg, e);
 	}
 }
