@@ -38,6 +38,7 @@ import com.schneeloch.bostonbusmap_library.database.Schema;
 import com.schneeloch.bostonbusmap_library.parser.MbtaAlertsParser;
 import com.schneeloch.bostonbusmap_library.provider.IDatabaseAgent;
 import com.schneeloch.bostonbusmap_library.util.Constants;
+import com.schneeloch.bostonbusmap_library.util.FeedException;
 import com.schneeloch.bostonbusmap_library.util.LogUtil;
 
 /**
@@ -213,7 +214,7 @@ public class TransitSystem implements ITransitSystem {
             // hopefully no more than one. We can't throw more than one exception at a time
             String key = exceptions.keySet().iterator().next();
             Exception exception = exceptions.get(key);
-            throw new RuntimeException("Error downloading from " + key + " data feed", exception);
+            throw new FeedException("Error downloading from " + key + " data feed", exception);
         }
 	}
 
