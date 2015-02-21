@@ -82,22 +82,14 @@ public class RefreshAsyncTask extends UpdateAsyncTask
 			
 			return false;
 		}
-		catch (RuntimeException e)
-		{
-			if (e.getCause() instanceof FeedException)
-			{
-				publish(new ProgressMessage(ProgressMessage.TOAST, null, "The feed is reporting an error"));
+        catch (FeedException e) {
+            publish(new ProgressMessage(ProgressMessage.TOAST, null, e.getMessage()));
 
-				LogUtil.e(e);
-				
-				return false;
-			}
-			else
-			{
-				throw e;
-			}
-		}
-		catch (AssertionError e)
+            LogUtil.e(e);
+
+            return false;
+        }
+        catch (AssertionError e)
 		{
 			Throwable cause = e.getCause();
 			if (cause != null)
