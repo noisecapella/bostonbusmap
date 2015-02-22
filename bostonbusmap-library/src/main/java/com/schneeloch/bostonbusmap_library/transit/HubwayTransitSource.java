@@ -21,6 +21,7 @@ import com.schneeloch.bostonbusmap_library.data.RouteConfig;
 import com.schneeloch.bostonbusmap_library.data.RoutePool;
 import com.schneeloch.bostonbusmap_library.data.Selection;
 import com.schneeloch.bostonbusmap_library.data.StopLocation;
+import com.schneeloch.bostonbusmap_library.data.TransitSourceCache;
 import com.schneeloch.bostonbusmap_library.data.TransitSourceTitles;
 import com.schneeloch.bostonbusmap_library.data.VehicleLocations;
 import com.schneeloch.bostonbusmap_library.database.Schema;
@@ -40,10 +41,7 @@ public class HubwayTransitSource implements TransitSource {
 	private final TransitSourceTitles routeTitles;
 	private final ITransitSystem transitSystem;
 
-    private long lastUpdate;
-
-    private static final long fetchDelay = 15000;
-
+    private final TransitSourceCache cache;
 
 	public HubwayTransitSource(ITransitDrawables drawables, TransitSourceTitles routeTitles,
 							   TransitSystem transitSystem) {
@@ -52,7 +50,7 @@ public class HubwayTransitSource implements TransitSource {
 		this.routeTitles = routeTitles;
 		this.transitSystem = transitSystem;
 
-        lastUpdate = 0;
+        cache = new TransitSourceCache();
 	}
 
 	@Override
@@ -63,51 +61,51 @@ public class HubwayTransitSource implements TransitSource {
 							Locations locationsObj) throws IOException, ParserConfigurationException, SAXException {
 		Selection.Mode mode = selection.getMode();
 
-        long currentMillis = System.currentTimeMillis();
-        if (lastUpdate + fetchDelay >= currentMillis) {
-            return;
+        switch (mode) {
+            case VEHICLE_LOCATIONS_ALL:
+            case VEHICLE_LOCATIONS_ONE:
+                // no need for that here
+                break;
+            case BUS_PREDICTIONS_ALL:
+            case BUS_PREDICTIONS_ONE:
+            case BUS_PREDICTIONS_STAR:
+                if (!cache.canUpdateAllPredictions()) {
+                    return;
+                }
+
+
+                RouteConfig hubwayRouteConfig = routePool.get(routeTag);
+                DownloadHelper downloadHelper = new DownloadHelper(dataUrl);
+
+                downloadHelper.connect();
+
+
+                InputStream stream = downloadHelper.getResponseData();
+
+                HubwayParser parser = new HubwayParser(hubwayRouteConfig);
+                parser.runParse(stream);
+                List<PredictionStopLocationPair> pairs = parser.getPairs();
+
+                for (PredictionStopLocationPair pair : pairs) {
+                    pair.stopLocation.clearPredictions(null);
+                    pair.stopLocation.addPrediction(pair.prediction);
+                }
+
+                ImmutableMap.Builder<String, StopLocation> builder = ImmutableMap.builder();
+                for (PredictionStopLocationPair pair : pairs) {
+                    StopLocation stop = pair.stopLocation;
+                    builder.put(stop.getStopTag(), stop);
+                }
+                ImmutableMap<String, StopLocation> stops = builder.build();
+                hubwayRouteConfig.replaceStops(stops);
+
+                cache.updateAllPredictions();
+
+                break;
+            default:
+                throw new RuntimeException("Unknown mode encountered");
+
         }
-
-        lastUpdate = currentMillis;
-
-		if (mode == Selection.Mode.VEHICLE_LOCATIONS_ALL ||
-			mode == Selection.Mode.VEHICLE_LOCATIONS_ONE) {
-				// no need for that here
-		}
-		else if (mode == Selection.Mode.BUS_PREDICTIONS_ALL ||
-				mode == Selection.Mode.BUS_PREDICTIONS_ONE ||
-				mode == Selection.Mode.BUS_PREDICTIONS_STAR) {
-            RouteConfig hubwayRouteConfig = routePool.get(routeTag);
-            DownloadHelper downloadHelper = new DownloadHelper(dataUrl);
-
-            downloadHelper.connect();
-
-
-            InputStream stream = downloadHelper.getResponseData();
-
-            HubwayParser parser = new HubwayParser(hubwayRouteConfig);
-            parser.runParse(stream);
-            List<PredictionStopLocationPair> pairs = parser.getPairs();
-
-            for (PredictionStopLocationPair pair : pairs) {
-                pair.stopLocation.clearPredictions(null);
-                pair.stopLocation.addPrediction(pair.prediction);
-            }
-
-            ImmutableMap.Builder<String, StopLocation> builder = ImmutableMap.builder();
-            for (PredictionStopLocationPair pair : pairs) {
-                StopLocation stop = pair.stopLocation;
-                builder.put(stop.getStopTag(), stop);
-            }
-            ImmutableMap<String, StopLocation> stops = builder.build();
-            hubwayRouteConfig.replaceStops(stops);
-        }
-		else
-		{
-			throw new RuntimeException("Unknown mode encountered");
-
-		}
-
 
 	}
 

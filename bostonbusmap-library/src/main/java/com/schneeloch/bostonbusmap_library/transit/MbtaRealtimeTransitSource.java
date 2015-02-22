@@ -26,6 +26,7 @@ import com.schneeloch.bostonbusmap_library.data.RoutePool;
 import com.schneeloch.bostonbusmap_library.data.Selection;
 import com.schneeloch.bostonbusmap_library.data.StopLocation;
 import com.schneeloch.bostonbusmap_library.data.SubwayStopLocation;
+import com.schneeloch.bostonbusmap_library.data.TransitSourceCache;
 import com.schneeloch.bostonbusmap_library.data.TransitSourceTitles;
 import com.schneeloch.bostonbusmap_library.data.VehicleLocations;
 import com.schneeloch.bostonbusmap_library.database.Schema;
@@ -46,9 +47,7 @@ public class MbtaRealtimeTransitSource implements TransitSource {
 	public static final ImmutableMultimap<String, String> routeNameToGtfsName;
 	public static final ImmutableMap<String, Integer> routeNameToTransitSource;
 
-    private final ConcurrentHashMap<String, Long> lastUpdates;
-
-    private static final long fetchDelay = 15000;
+    private final TransitSourceCache cache;
 
 	public MbtaRealtimeTransitSource(ITransitDrawables drawables,
 			TransitSourceTitles routeTitles,
@@ -57,7 +56,7 @@ public class MbtaRealtimeTransitSource implements TransitSource {
 		this.routeTitles = routeTitles;
 		this.transitSystem = transitSystem;
 
-        lastUpdates = new ConcurrentHashMap<>();
+        cache = new TransitSourceCache();
 	}
 
 	static {
@@ -143,35 +142,37 @@ public class MbtaRealtimeTransitSource implements TransitSource {
 		List<String> routesInUrl = Lists.newArrayList();
         ImmutableSet.Builder<String> builder = ImmutableSet.builder();
 
-        long currentMillis = System.currentTimeMillis();
-
         ImmutableSet<String> routeNames;
-        if (selectedBusPredictions == Selection.Mode.VEHICLE_LOCATIONS_ONE ||
-				selectedBusPredictions == Selection.Mode.BUS_PREDICTIONS_ONE) {
-            String routeName = routeConfig.getRouteName();
-            if (routeNameToTransitSource.containsKey(routeName)) {
-                Long lastUpdate = lastUpdates.get(routeConfig.getRouteName());
-                if (lastUpdate == null || lastUpdate + fetchDelay < currentMillis) {
-                    builder.add(routeName);
+        switch (selectedBusPredictions) {
+            case VEHICLE_LOCATIONS_ONE:
+            case BUS_PREDICTIONS_ONE: {
+                String routeName = routeConfig.getRouteName();
+                if (routeNameToTransitSource.containsKey(routeName)) {
+                    if (cache.canUpdatePredictionForRoute(routeName)) {
+                        builder.add(routeName);
+                    }
                 }
+
+                break;
             }
-		}
-		else {
-			for (String routeName : routeNameToTransitSource.keySet()) {
-                Long lastUpdate = lastUpdates.get(routeName);
-                if (lastUpdate == null || lastUpdate + fetchDelay < currentMillis) {
-                    builder.add(routeName);
+            case VEHICLE_LOCATIONS_ALL:
+            case BUS_PREDICTIONS_ALL:
+            case BUS_PREDICTIONS_STAR: {
+                for (String routeName : routeNameToTransitSource.keySet()) {
+                    if (cache.canUpdatePredictionForRoute(routeName)) {
+                        builder.add(routeName);
+                    }
                 }
-			}
-		}
+                break;
+
+            }
+            default:
+                throw new RuntimeException("Unexpected mode");
+        }
         routeNames = builder.build();
 
         if (routeNames.size() == 0) {
             return;
-        }
-
-        for (String routeName : routeNames) {
-            lastUpdates.put(routeName, currentMillis);
         }
 
         for (String routeName : routeNames) {
@@ -206,6 +207,10 @@ public class MbtaRealtimeTransitSource implements TransitSource {
 		parser.runParse(predictionsData);
 		
 		predictionsData.close();
+
+        for (String route : routeNames) {
+            cache.updatePredictionForRoute(route);
+        }
 	}
 
 	@Override

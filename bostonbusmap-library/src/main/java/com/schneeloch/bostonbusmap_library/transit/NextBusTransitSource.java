@@ -2,15 +2,16 @@ package com.schneeloch.bostonbusmap_library.transit;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.security.interfaces.RSAPrivateCrtKey;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.xml.sax.SAXException;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 
 import com.schneeloch.bostonbusmap_library.data.BusLocation;
@@ -21,9 +22,11 @@ import com.schneeloch.bostonbusmap_library.data.Location;
 import com.schneeloch.bostonbusmap_library.data.Locations;
 import com.schneeloch.bostonbusmap_library.data.RouteConfig;
 import com.schneeloch.bostonbusmap_library.data.RoutePool;
+import com.schneeloch.bostonbusmap_library.data.RouteStopPair;
 import com.schneeloch.bostonbusmap_library.data.RouteTitles;
 import com.schneeloch.bostonbusmap_library.data.Selection;
 import com.schneeloch.bostonbusmap_library.data.StopLocation;
+import com.schneeloch.bostonbusmap_library.data.TransitSourceCache;
 import com.schneeloch.bostonbusmap_library.data.TransitSourceTitles;
 import com.schneeloch.bostonbusmap_library.data.VehicleLocations;
 import com.schneeloch.bostonbusmap_library.database.Schema;
@@ -55,20 +58,8 @@ public abstract class NextBusTransitSource implements TransitSource
 
 	private final TransitSourceTitles routeTitles;
 
-    /**
-     * stop id -> time in millis
-     */
-    private final ConcurrentHashMap<String, Long> predictionsLastUpdates;
-    /**
-     * route id -> time in millis
-     */
-    private final ConcurrentHashMap<String, Long> vehiclesLastUpdates;
-    /**
-     * Time of last transit source-wide update
-     */
-    private long wholeSourceVehicleLastUpdate;
+    private final TransitSourceCache cache;
 
-    private static final long fetchDelay = 15000;
 
 	public NextBusTransitSource(TransitSystem transitSystem, 
 			ITransitDrawables drawables, String agency, TransitSourceTitles routeTitles,
@@ -84,9 +75,7 @@ public abstract class NextBusTransitSource implements TransitSource
 		mbtaPredictionsDataUrl = "http://" + prefix + ".nextbus.com/service/publicXMLFeed?command=predictionsForMultiStops&a=" + agency;
 		
 		this.routeTitles = routeTitles;
-        predictionsLastUpdates = new ConcurrentHashMap<>();
-        vehiclesLastUpdates = new ConcurrentHashMap<>();
-        wholeSourceVehicleLastUpdate = 0;
+        cache = new TransitSourceCache();
 	}
 
 
@@ -98,129 +87,167 @@ public abstract class NextBusTransitSource implements TransitSource
         //read data from the URL
         DownloadHelper downloadHelper;
         Selection.Mode mode = selection.getMode();
-        long updateTime = System.currentTimeMillis();
-        if (mode == Selection.Mode.BUS_PREDICTIONS_ONE ||
-                mode == Selection.Mode.BUS_PREDICTIONS_STAR ||
-                mode == Selection.Mode.BUS_PREDICTIONS_ALL) {
+        switch (mode) {
+            case BUS_PREDICTIONS_ONE:
+            case BUS_PREDICTIONS_STAR:
+            case BUS_PREDICTIONS_ALL:
 
-            List<Location> locations = locationsObj.getLocations(maxStops, centerLatitude, centerLongitude, false, selection);
+                List<Location> locations = locationsObj.getLocations(maxStops, centerLatitude, centerLongitude, false, selection);
 
-            //ok, do predictions now
-            ImmutableSet<String> routes;
-            if (mode == Selection.Mode.BUS_PREDICTIONS_ONE) {
-                routes = ImmutableSet.of(routeConfig.getRouteName());
-            } else {
-                routes = ImmutableSet.of();
-            }
-            String url = getPredictionsUrl(locations, maxStops, routes, updateTime);
+                //ok, do predictions now
+                ImmutableSet<String> routes;
+                if (mode == Selection.Mode.BUS_PREDICTIONS_ONE) {
+                    routes = ImmutableSet.of(routeConfig.getRouteName());
+                } else {
+                    routes = ImmutableSet.of();
+                }
+                String url = getPredictionsUrl(locations, routes);
 
-            if (url == null) {
-                return;
-            }
+                if (url == null) {
+                    return;
+                }
 
-            downloadHelper = new DownloadHelper(url);
-        } else if (mode == Selection.Mode.VEHICLE_LOCATIONS_ONE) {
-            final String urlString = getVehicleLocationsUrl(locationsObj.getLastUpdateTime(), routeConfig.getRouteName(), updateTime);
-            vehiclesLastUpdates.put(routeConfig.getRouteName(), updateTime);
-            if (urlString == null) {
-                return;
+                downloadHelper = new DownloadHelper(url);
+                break;
+            case VEHICLE_LOCATIONS_ONE: {
+                final String urlString = getVehicleLocationsUrl(locationsObj.getLastUpdateTime(), routeConfig.getRouteName());
+                if (urlString == null) {
+                    return;
+                }
+                downloadHelper = new DownloadHelper(urlString);
+                break;
             }
-            downloadHelper = new DownloadHelper(urlString);
-        } else {
-            final String urlString = getVehicleLocationsUrl(locationsObj.getLastUpdateTime(), null, updateTime);
-            vehiclesLastUpdates.clear();
-            wholeSourceVehicleLastUpdate = updateTime;
-            if (urlString == null) {
-                return;
+            case VEHICLE_LOCATIONS_ALL: {
+                final String urlString = getVehicleLocationsUrl(locationsObj.getLastUpdateTime(), null);
+                if (urlString == null) {
+                    return;
+                }
+                downloadHelper = new DownloadHelper(urlString);
+                break;
             }
-            downloadHelper = new DownloadHelper(urlString);
+            default:
+                throw new RuntimeException("Unexpected enum");
         }
 
         downloadHelper.connect();
 
         InputStream data = downloadHelper.getResponseData();
 
-        if (mode == Selection.Mode.BUS_PREDICTIONS_ONE ||
-                mode == Selection.Mode.BUS_PREDICTIONS_ALL ||
-                mode == Selection.Mode.BUS_PREDICTIONS_STAR) {
-            //bus prediction
+        switch (mode) {
+            case BUS_PREDICTIONS_ONE:
+            case BUS_PREDICTIONS_ALL:
+            case BUS_PREDICTIONS_STAR: {
+                //bus prediction
 
-            BusPredictionsFeedParser parser = new BusPredictionsFeedParser(routePool, directions);
 
-            parser.runParse(data);
-        } else {
-            //vehicle locations
-            VehicleLocationsFeedParser parser = new VehicleLocationsFeedParser(directions, transitSystem.getRouteKeysToTitles());
-            parser.runParse(data);
+                BusPredictionsFeedParser parser = new BusPredictionsFeedParser(routePool, directions);
 
-            //get the time that this information is valid until
-            locationsObj.setLastUpdateTime(parser.getLastUpdateTime());
+                parser.runParse(data);
 
-            long lastUpdateTime = parser.getLastUpdateTime();
-            Map<VehicleLocations.Key, BusLocation> newBuses = parser.getNewBuses();
+                // set last update time for downloaded stops
+                List<Location> locations = locationsObj.getLocations(maxStops, centerLatitude, centerLongitude, false, selection);
 
-            for (BusLocation bus : newBuses.values()) {
-                bus.setLastUpdateInMillis(lastUpdateTime);
+                ImmutableSet<String> routes;
+                if (mode == Selection.Mode.BUS_PREDICTIONS_ONE) {
+                    routes = ImmutableSet.of(routeConfig.getRouteName());
+                } else {
+                    routes = ImmutableSet.of();
+                }
+                ImmutableList<RouteStopPair> pairs = getStopPairs(locations, routes);
+                for (RouteStopPair pair : pairs) {
+                    cache.updatePredictionForStop(pair);
+                }
+
+                break;
             }
+            case VEHICLE_LOCATIONS_ALL:
+            case VEHICLE_LOCATIONS_ONE:
+            {
+                //vehicle locations
+                VehicleLocationsFeedParser parser = new VehicleLocationsFeedParser(directions, transitSystem.getRouteKeysToTitles());
+                parser.runParse(data);
 
-            busMapping.update(Schema.Routes.enumagencyidBus, routeTitles.routeTags(), true, newBuses);
+                //get the time that this information is valid until
+                locationsObj.setLastUpdateTime(parser.getLastUpdateTime());
+
+                long lastUpdateTime = parser.getLastUpdateTime();
+                Map<VehicleLocations.Key, BusLocation> newBuses = parser.getNewBuses();
+
+                for (BusLocation bus : newBuses.values()) {
+                    bus.setLastUpdateInMillis(lastUpdateTime);
+                }
+
+                busMapping.update(Schema.Routes.enumagencyidBus, routeTitles.routeTags(), true, newBuses);
+
+                // now that we've succeeded, update last download times
+                if (mode == Selection.Mode.BUS_PREDICTIONS_ONE) {
+                    cache.updateVehiclesForRoute(routeConfig.getRouteName());
+                } else {
+                    cache.updateAllVehicles();
+                }
+
+                break;
+            }
+            default:
+                throw new RuntimeException("Unexpected enum");
         }
     }
 
-	protected String getPredictionsUrl(List<Location> locations, int maxStops, Collection<String> routes, long currentUpdateMillis)
-	{
-		StringBuilder urlString = new StringBuilder(mbtaPredictionsDataUrl);
+    protected ImmutableList<RouteStopPair> getStopPairs(Collection<Location> locations, Collection<String> routes) {
+        ImmutableList.Builder<RouteStopPair> builder = ImmutableList.builder();
 
-        int stopCount = 0;
-		for (Location location : locations)
-		{
-			if (location instanceof StopLocation)
-			{
-				StopLocation stopLocation = (StopLocation)location;
-				if (stopLocation.getTransitSourceType() == Schema.Routes.enumagencyidBus) {
-                    Long lastUpdate = predictionsLastUpdates.get(stopLocation.getStopTag());
+        for (Location location : locations)
+        {
+            if (location instanceof StopLocation) {
+                StopLocation stopLocation = (StopLocation) location;
+                if (stopLocation.getTransitSourceType() == Schema.Routes.enumagencyidBus) {
 
-                    if (lastUpdate == null || (lastUpdate + fetchDelay < currentUpdateMillis)) {
-                        if (routes.isEmpty() == false) {
-                            for (String route : routes) {
-                                if (stopLocation.hasRoute(route)) {
-                                    urlString.append("&stops=").append(route).append("%7C");
-                                    urlString.append("%7C").append(stopLocation.getStopTag());
-                                    predictionsLastUpdates.put(stopLocation.getStopTag(), currentUpdateMillis);
-                                    stopCount++;
+                    if (routes.isEmpty() == false) {
+                        for (String route : routes) {
+                            if (stopLocation.hasRoute(route)) {
+                                RouteStopPair pair = new RouteStopPair(route, stopLocation.getStopTag());
+                                if (cache.canUpdatePredictionForStop(pair)) {
+                                    builder.add(pair);
                                 }
                             }
-                        } else {
-                            for (String stopRoute : stopLocation.getRoutes()) {
-                                urlString.append("&stops=").append(stopRoute).append("%7C");
-                                urlString.append("%7C").append(stopLocation.getStopTag());
-                                predictionsLastUpdates.put(stopLocation.getStopTag(), currentUpdateMillis);
-                                stopCount++;
+                        }
+                    } else {
+                        for (String stopRoute : stopLocation.getRoutes()) {
+                            RouteStopPair pair = new RouteStopPair(stopRoute, stopLocation.getStopTag());
+                            if (cache.canUpdatePredictionForStop(pair)) {
+                                builder.add(pair);
                             }
                         }
                     }
-				}
-			}
-		}
+                }
+            }
+        }
+
+        return builder.build();
+    }
+
+	protected String getPredictionsUrl(Collection<Location> locations, Collection<String> routes)
+	{
+		StringBuilder urlString = new StringBuilder(mbtaPredictionsDataUrl);
 
 		//TODO: hard limit this to 150 requests
 
-        if (stopCount == 0) {
+        ImmutableList<RouteStopPair> pairs = getStopPairs(locations, routes);
+
+        if (pairs.size() == 0) {
             return null;
         }
+
+        for (RouteStopPair pair : pairs) {
+            urlString.append("&stops=").append(pair.getRoute()).append("%7C");
+            urlString.append("%7C").append(pair.getStopId());
+        }
+
 		return urlString.toString();
 	}
 
-	protected String getVehicleLocationsUrl(long time, String route, long currentUpdateMillis)
+	protected String getVehicleLocationsUrl(long time, String route)
 	{
-        Long lastUpdate;
-        if (route != null) {
-            lastUpdate = vehiclesLastUpdates.get(route);
-        }
-        else {
-            lastUpdate = wholeSourceVehicleLastUpdate;
-        }
-
         String url;
         if (route != null)
         {
@@ -231,21 +258,7 @@ public abstract class NextBusTransitSource implements TransitSource
             url = mbtaLocationsDataUrlAllRoutes + time;
         }
 
-        if (lastUpdate == null) {
-            return url;
-        }
-        else if (route == null) {
-            if (wholeSourceVehicleLastUpdate + fetchDelay < currentUpdateMillis) {
-                return url;
-            }
-        }
-        else {
-            if (vehiclesLastUpdates.get(route) + fetchDelay < currentUpdateMillis) {
-                return url;
-            }
-        }
-
-        return null;
+        return url;
 	}
 
 
