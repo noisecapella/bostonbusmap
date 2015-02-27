@@ -5,7 +5,7 @@ GTFS_DIR=$(cd gtfs/mbta; pwd)
 
 set -e
 echo "Generate Schema.java..."
-python generate_schema.py > ../src/boston/Bus/Map/database/Schema.java
+python generate_schema.py > ../bostonbusmap-library/src/main/java/com/schneeloch/bostonbusmap_library/database/Schema.java
 echo "Generating database..."
 (cd generate; python generate_database.py ../new.db "$GTFS_DIR")
 rm -f new.db.gz
