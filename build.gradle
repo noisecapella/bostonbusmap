@@ -4,7 +4,7 @@ buildscript {
         mavenCentral()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:0.12.2'
+        classpath 'com.android.tools.build:gradle:1.0.0'
     }
 }
 
@@ -22,26 +22,26 @@ repositories {
 
 
 dependencies {
-        compile group: 'com.google.guava', name: 'guava', version: '15.0'
-	compile 'com.google.code.gson:gson:2.2.4'
-	compile project(':androidmapviewballoons')
-	compile files('libs/protobuf-java-2.5.0.jar')
-	compile 'com.android.support:support-v4:19.+'
+    compile 'com.google.guava:guava:18.0'
+    compile 'com.google.code.gson:gson:2.2.4'
+    compile project(':androidmapviewballoons')
+    compile project(':bostonbusmap-library')
+    compile 'com.android.support:support-v4:19.+'
     compile 'com.google.code.findbugs:jsr305:1.3.9'
+    compile 'com.android.support:support-v4:19.+'
 }
 
 android {
-    compileSdkVersion "Google Inc.:Google APIs:19"
+    compileSdkVersion "Google Inc.:Google APIs:21"
     buildToolsVersion "20.0.0"
-
     buildTypes {
         release {
-            runProguard true
+            minifyEnabled true
             proguardFile 'proguard-project.txt'
+            debuggable false
         }
 
     }
-
     sourceSets {
         main {
             manifest.srcFile './AndroidManifest.xml'
@@ -52,14 +52,23 @@ android {
                 srcDir 'res'
             }
         }
-  }
-
-
-  lintOptions {
-      abortOnError false
-  }
-}
-if(project.hasProperty("bostonbusmap.signing")
-        && new File(project.property("bostonbusmap.signing") + ".gradle").exists()) {
-    apply from: project.property("bostonbusmap.signing") + ".gradle";
+    }
+    lintOptions {
+        abortOnError false
+    }
+    signingConfigs {
+        release {
+            release {
+                storeFile file(RELEASE_STORE_FILE)
+                storePassword RELEASE_STORE_PASSWORD
+                keyAlias RELEASE_KEY_ALIAS
+                keyPassword RELEASE_KEY_PASSWORD
+            }
+        }
+    }
+    buildTypes {
+        release {
+            signingConfig signingConfigs.release
+        }
+    }
 }
