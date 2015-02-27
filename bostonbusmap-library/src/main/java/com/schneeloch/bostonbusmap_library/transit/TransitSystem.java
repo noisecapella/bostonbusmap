@@ -320,11 +320,8 @@ public class TransitSystem implements ITransitSystem {
 	 */
 	public void startObtainAlerts(IDatabaseAgent databaseAgent) {
 		if (alertsFuture == null) {
-			// this runs the alerts code in the background,
-			// providing empty alerts until the data is ready
-			
-			alertsFuture = new AlertsFuture(databaseAgent, new MbtaAlertsParser(this));
-			
+            // toronto currently doesn't provide alerts
+
 		}
 	}
 }
