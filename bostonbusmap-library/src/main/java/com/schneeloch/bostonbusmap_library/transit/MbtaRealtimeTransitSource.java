@@ -261,8 +261,7 @@ public class MbtaRealtimeTransitSource implements TransitSource {
 	@Override
 	public int[] getTransitSourceIds() {
 		return new int[] {
-				Schema.Routes.enumagencyidSubway,
-				Schema.Routes.enumagencyidCommuterRail
+				Schema.Routes.enumagencyidSubway
 		};
 	}
 
