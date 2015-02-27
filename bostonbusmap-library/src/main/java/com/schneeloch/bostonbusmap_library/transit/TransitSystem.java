@@ -139,7 +139,7 @@ public class TransitSystem implements ITransitSystem {
 			}
 			transitSourceMap = mapBuilder.build();
 
-			transitSources = ImmutableList.of(subwayTransitSource, hubwayTransitSource,
+			transitSources = ImmutableList.of(subwayTransitSource, commuterRailTransitSource, hubwayTransitSource,
 					defaultTransitSource);
 		
 		}
