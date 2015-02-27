@@ -180,10 +180,15 @@ public abstract class NextBusTransitSource implements TransitSource
                 busMapping.update(Schema.Routes.enumagencyidBus, routeTitles.routeTags(), true, newBuses);
 
                 // now that we've succeeded, update last download times
-                if (mode == Selection.Mode.BUS_PREDICTIONS_ONE) {
-                    cache.updateVehiclesForRoute(routeConfig.getRouteName());
-                } else {
-                    cache.updateAllVehicles();
+                switch (mode) {
+                    case VEHICLE_LOCATIONS_ONE:
+                        cache.updateVehiclesForRoute(routeConfig.getRouteName());
+                        break;
+                    case VEHICLE_LOCATIONS_ALL:
+                        cache.updateAllVehicles();
+                        break;
+                    default:
+                        throw new RuntimeException("Unexpected mode");
                 }
 
                 break;
