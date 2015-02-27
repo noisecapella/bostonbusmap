@@ -129,7 +129,8 @@ public class DatabaseContentProvider extends ContentProvider {
 	public final static int FIX_LOCATIONS_8 = 48;
 	public final static int FIX_LOCATIONS_9 = 49;
     public final static int FIX_LOCATIONS_10 = 50;
-	public final static int CURRENT_DB_VERSION = FIX_LOCATIONS_10;
+    public final static int FIX_LOCATIONS_11 = 51;
+	public final static int CURRENT_DB_VERSION = FIX_LOCATIONS_11;
 
 	public static final int ALWAYS_POPULATE = 3;
 	public static final int POPULATE_IF_UPGRADE = 2;
@@ -206,7 +207,7 @@ public class DatabaseContentProvider extends ContentProvider {
 			OutputStream outputStream = null;
 			try
 			{
-				in = context.getResources().openRawResource(com.schneeloch.torontotransit.R.raw.databasegz);
+				in = context.getResources().openRawResource(boston.Bus.Map.R.raw.databasegz);
 
 				stream = new GZIPInputStream(in); 
 
