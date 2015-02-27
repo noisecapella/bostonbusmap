@@ -1,16 +1,10 @@
 package boston.Bus.Map.ui;
 
-import java.util.ArrayList;
-import java.util.Collection;
-
-import android.content.Context;
 import android.graphics.drawable.Drawable;
-import boston.Bus.Map.data.RouteTitles;
+import com.schneeloch.bostonbusmap_library.data.RouteTitles;
 import boston.Bus.Map.main.Main;
-import boston.Bus.Map.main.UpdateHandler;
 
 import com.google.android.maps.MapView;
-import com.google.android.maps.MyLocationOverlay;
 import com.google.common.collect.ImmutableMap;
 
 public class OverlayGroup {

@@ -19,74 +19,39 @@
 package boston.Bus.Map.main;
 
 import java.io.IOException;
-import java.io.PrintWriter;
-import java.io.StringWriter;
-import java.net.SocketException;
-import java.net.SocketTimeoutException;
-import java.util.ArrayList;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ConcurrentMap;
-
-import javax.xml.parsers.FactoryConfigurationError;
-import javax.xml.parsers.ParserConfigurationException;
-
-import org.apache.http.client.CircularRedirectException;
-import org.xml.sax.SAXException;
 
 
+import com.schneeloch.bostonbusmap_library.data.Location;
+import com.schneeloch.bostonbusmap_library.data.Locations;
+import com.schneeloch.bostonbusmap_library.data.Path;
+import com.schneeloch.bostonbusmap_library.data.RouteConfig;
+import com.schneeloch.bostonbusmap_library.data.RouteTitles;
+import com.schneeloch.bostonbusmap_library.data.Selection;
 
-import boston.Bus.Map.data.BusLocation;
-import boston.Bus.Map.data.Direction;
-import boston.Bus.Map.data.IntersectionLocation;
-import boston.Bus.Map.data.Location;
-import boston.Bus.Map.data.Locations;
-import boston.Bus.Map.data.Path;
-import boston.Bus.Map.data.RouteConfig;
-import boston.Bus.Map.data.RouteTitles;
-import boston.Bus.Map.data.Selection;
-import boston.Bus.Map.data.StopLocation;
 import boston.Bus.Map.data.UpdateArguments;
-import boston.Bus.Map.transit.TransitSystem;
 import boston.Bus.Map.ui.BusOverlay;
-import boston.Bus.Map.ui.LocationOverlay;
 import boston.Bus.Map.ui.ProgressMessage;
 import boston.Bus.Map.ui.RouteOverlay;
-import boston.Bus.Map.util.Constants;
-import boston.Bus.Map.util.FeedException;
-import boston.Bus.Map.util.LogUtil;
+import com.schneeloch.bostonbusmap_library.util.Constants;
+import com.schneeloch.bostonbusmap_library.util.LogUtil;
 
 import com.google.android.maps.GeoPoint;
 import com.google.android.maps.MapView;
-import com.google.android.maps.OverlayItem;
-import com.google.android.maps.Projection;
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
 import android.app.ProgressDialog;
-import android.content.Context;
 import android.content.OperationApplicationException;
-import android.graphics.Color;
-import android.graphics.ColorFilter;
-import android.graphics.Paint;
-import android.graphics.Point;
-import android.graphics.PorterDuff.Mode;
-import android.graphics.drawable.Drawable;
 
 import android.os.AsyncTask;
-import android.os.Handler;
 import android.os.RemoteException;
 import android.util.Log;
 import android.view.View;
-import android.view.WindowManager.BadTokenException;
 import android.widget.ProgressBar;
-import android.widget.TextView;
 import android.widget.Toast;
 
 /**
@@ -141,11 +106,10 @@ public abstract class UpdateAsyncTask extends AsyncTask<Object, Object, Immutabl
 	
 	/**
 	 * A type safe wrapper around execute
-	 * @param busLocations
 	 */
 	public void runUpdate()
 	{
-		execute();
+        execute();
 	}
 
 	@Override
@@ -385,13 +349,12 @@ public abstract class UpdateAsyncTask extends AsyncTask<Object, Object, Immutabl
 			final int lonIntHash = (lonInt < 0 ? -lonInt : lonInt);
 			long hash = (long)((long)latIntHash << 32) | (long)lonIntHash;
 			Integer index = points.get(hash);
-			final Context context = arguments.getContext();
 			Locations locations = arguments.getBusLocations();
 			if (null != index)
 			{
 				//two stops in one space. Just use the one overlay, and combine textboxes in an elegant manner
 				Location parent = locationsNearCenter.get(index);
-				parent.addToSnippetAndTitle(selectedRouteConfig, busLocation, routeKeysToTitles, locations, context);
+				parent.addToSnippetAndTitle(selectedRouteConfig, busLocation, routeKeysToTitles, locations);
 				
 				if (busLocation.getId() == selectedBusId)
 				{
@@ -401,7 +364,7 @@ public abstract class UpdateAsyncTask extends AsyncTask<Object, Object, Immutabl
 			}
 			else
 			{
-				busLocation.makeSnippetAndTitle(selectedRouteConfig, routeKeysToTitles, locations, context);
+				busLocation.makeSnippetAndTitle(selectedRouteConfig, routeKeysToTitles, locations);
 			
 			
 				points.put(hash, i);

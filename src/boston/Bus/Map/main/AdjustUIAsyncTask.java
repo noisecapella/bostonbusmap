@@ -1,6 +1,6 @@
 package boston.Bus.Map.main;
 
-import boston.Bus.Map.data.Selection;
+import com.schneeloch.bostonbusmap_library.data.Selection;
 import boston.Bus.Map.data.UpdateArguments;
 
 public class AdjustUIAsyncTask extends UpdateAsyncTask

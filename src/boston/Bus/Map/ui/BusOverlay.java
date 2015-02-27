@@ -20,21 +20,19 @@ package boston.Bus.Map.ui;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
 
 
-import boston.Bus.Map.data.Alert;
-import boston.Bus.Map.data.IntersectionLocation;
-import boston.Bus.Map.data.PredictionView;
-import boston.Bus.Map.data.Locations;
-import boston.Bus.Map.data.RouteTitles;
-import boston.Bus.Map.data.StopLocation;
-import boston.Bus.Map.data.TransitDrawables;
+import com.schneeloch.bostonbusmap_library.data.Alert;
+import com.schneeloch.bostonbusmap_library.data.PredictionView;
+import com.schneeloch.bostonbusmap_library.data.Locations;
+import com.schneeloch.bostonbusmap_library.data.RouteTitles;
 
-import boston.Bus.Map.data.Location;
+import com.schneeloch.bostonbusmap_library.data.Location;
 import boston.Bus.Map.main.Main;
 import boston.Bus.Map.main.UpdateHandler;
-import boston.Bus.Map.util.Constants;
+import com.schneeloch.bostonbusmap_library.transit.ITransitSystem;
+import com.schneeloch.bostonbusmap_library.transit.TransitSource;
+import com.schneeloch.bostonbusmap_library.util.Constants;
 
 import com.google.android.maps.GeoPoint;
 import com.google.android.maps.ItemizedOverlay;
@@ -42,7 +40,6 @@ import com.google.android.maps.MapView;
 import com.google.android.maps.OverlayItem;
 import com.google.android.maps.Projection;
 import com.google.common.collect.ImmutableCollection;
-import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.readystatesoftware.mapviewballoons.BalloonItemizedOverlay;
 import com.readystatesoftware.mapviewballoons.BalloonOverlayView;
@@ -56,7 +53,6 @@ import android.graphics.drawable.Drawable;
 import android.util.FloatMath;
 import android.util.Log;
 import android.view.MotionEvent;
-import android.view.View.OnClickListener;
 
 
 /**
@@ -332,7 +328,6 @@ public class BusOverlay extends BalloonItemizedOverlay<BusOverlayItem> {
 
 				if (busLocation.containsId(selectedBusId))
 				{
-					Log.e("BostonBusMap", "selectedBusId was set to index " + i + ", id=" + selectedBusId);
 					selectedBusIndex = i;
 					setFocus(createItem(i));
 					break;
@@ -409,7 +404,9 @@ public class BusOverlay extends BalloonItemizedOverlay<BusOverlayItem> {
 		{
 			Location newLocation = item.getCurrentLocation();
 
-			Drawable drawable = newLocation.getDrawable(locationsObj.getTransitSystem());
+            ITransitSystem transitSystem = locationsObj.getTransitSystem();
+            TransitSource transitSource = transitSystem.getTransitSourceByRouteType(newLocation.getTransitSourceType());
+			Drawable drawable = transitSource.getDrawables().getDrawable(newLocation);
 			item.setMarker(drawable);
 
 			boundCenterBottom(drawable);

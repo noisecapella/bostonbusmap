@@ -3,14 +3,16 @@ package boston.Bus.Map.main;
 import java.util.List;
 import java.util.Map;
 
-import com.schneeloch.torontotransit.R;
 import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 
-import boston.Bus.Map.data.IPrediction;
-import boston.Bus.Map.data.TimeBounds;
+import boston.Bus.Map.R;
+
+import com.schneeloch.bostonbusmap_library.data.IPrediction;
+import com.schneeloch.bostonbusmap_library.data.TimeBounds;
 import boston.Bus.Map.ui.TextViewBinder;
+import com.schneeloch.bostonbusmap_library.util.MoreInfoConstants;
 
 import android.app.ListActivity;
 import android.os.Bundle;
@@ -33,7 +35,6 @@ public class MoreInfo extends ListActivity {
 	public static final String titleKey = "title";
 	public static final String routeTitlesKey = "route";
 	
-	public static final String textKey = "text";
 	public static final String routeTextKey = "routeText";
 	public static final String stopIsBetaKey = "stopIsBeta";
 	
@@ -211,22 +212,14 @@ public class MoreInfo extends ListActivity {
 					if (routeTitle == null || routeTitle.equals(prediction.getRouteTitle()))
 					{
 						//data.add(prediction.generateMoreInfoMap());
-						ImmutableMap<String, Spanned> map = prediction.makeSnippetMap(this);
+						ImmutableMap<String, Spanned> map = prediction.makeSnippetMap();
 						data.add(map);
 					}
 				}
 			}
 		}
-/*		if (bounds != null) {
-			for (TimeBounds bound : bounds) {
-				if (bound != null && (routeTitle == null || bound.getRouteTitle().equals(routeTitle))) {
-					ImmutableMap<String, Spanned> map = ImmutableMap.of(MoreInfo.textKey, Html.fromHtml(bound.makeSnippet()));
-					data.add(map);
-				}
-			}
-		}*/
 		SimpleAdapter adapter = new SimpleAdapter(this, data, R.layout.moreinfo_row,
-				new String[]{textKey},
+				new String[]{MoreInfoConstants.textKey},
 				new int[] {R.id.moreinfo_text});
 		
 		adapter.setViewBinder(new TextViewBinder());

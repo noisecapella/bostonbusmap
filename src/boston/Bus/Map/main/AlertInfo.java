@@ -1,26 +1,22 @@
 package boston.Bus.Map.main;
 
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 
-import com.schneeloch.torontotransit.R;
-
-
-import boston.Bus.Map.data.Alert;
+import boston.Bus.Map.R;
+import com.schneeloch.bostonbusmap_library.data.Alert;
 import boston.Bus.Map.ui.TextViewBinder;
 import android.app.ListActivity;
-import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Parcelable;
-import android.text.Html;
 import android.text.Spanned;
 import android.widget.SimpleAdapter;
 import android.widget.TextView;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.schneeloch.bostonbusmap_library.util.AlertInfoConstants;
 
 public class AlertInfo extends ListActivity
 {
@@ -31,7 +27,6 @@ public class AlertInfo extends ListActivity
 
 	public static final String titleKey = "title";
 	public static final String routeKey = "route";
-	public static final String textKey = "text";
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -70,7 +65,7 @@ public class AlertInfo extends ListActivity
 			}
 		}
 		SimpleAdapter adapter = new SimpleAdapter(this, data, R.layout.moreinfo_row,
-				new String[]{textKey},
+				new String[]{AlertInfoConstants.textKey},
 				new int[] {R.id.moreinfo_text});
 
 		adapter.setViewBinder(new TextViewBinder());

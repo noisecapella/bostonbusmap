@@ -27,30 +27,30 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import boston.Bus.Map.data.Alert;
-import boston.Bus.Map.data.BusLocation;
-import boston.Bus.Map.data.IPrediction;
-import boston.Bus.Map.data.IntersectionLocation;
-import boston.Bus.Map.data.Location;
-import boston.Bus.Map.data.Locations;
-import boston.Bus.Map.data.RouteTitles;
-import boston.Bus.Map.data.Selection;
-import boston.Bus.Map.data.StopLocation;
-import boston.Bus.Map.data.StopPredictionView;
-import boston.Bus.Map.data.TimeBounds;
+import boston.Bus.Map.R;
+import com.schneeloch.bostonbusmap_library.data.Alert;
+import com.schneeloch.bostonbusmap_library.data.BusLocation;
+import com.schneeloch.bostonbusmap_library.data.Favorite;
+import com.schneeloch.bostonbusmap_library.data.IPrediction;
+import com.schneeloch.bostonbusmap_library.data.IntersectionLocation;
+import com.schneeloch.bostonbusmap_library.data.Location;
+import com.schneeloch.bostonbusmap_library.data.Locations;
+import com.schneeloch.bostonbusmap_library.data.RouteTitles;
+import com.schneeloch.bostonbusmap_library.data.Selection;
+import com.schneeloch.bostonbusmap_library.data.StopLocation;
+import com.schneeloch.bostonbusmap_library.data.StopPredictionView;
+import com.schneeloch.bostonbusmap_library.data.TimeBounds;
 import boston.Bus.Map.main.AlertInfo;
 import boston.Bus.Map.main.Main;
 import boston.Bus.Map.main.MoreInfo;
 import boston.Bus.Map.main.UpdateHandler;
-import boston.Bus.Map.transit.TransitSystem;
-import boston.Bus.Map.util.LogUtil;
+import com.schneeloch.bostonbusmap_library.transit.TransitSystem;
+import com.schneeloch.bostonbusmap_library.util.LogUtil;
 
-import com.google.android.maps.OverlayItem;
 import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableCollection;
 import com.google.common.collect.Lists;
 import com.readystatesoftware.mapviewballoons.BalloonOverlayView;
-import com.schneeloch.torontotransit.R;
 
 
 public class BusPopupView extends BalloonOverlayView<BusOverlayItem>
@@ -130,10 +130,14 @@ public class BusPopupView extends BalloonOverlayView<BusOverlayItem>
 				{
 					StopLocation stopLocation = (StopLocation)location;
 
-					int result;
 					try {
-						result = BusPopupView.this.locations.toggleFavorite(stopLocation);
-						favorite.setBackgroundResource(result);
+						Favorite favoriteEnum = BusPopupView.this.locations.toggleFavorite(stopLocation);
+                        if (favoriteEnum == Favorite.IsFavorite) {
+                            favorite.setBackgroundResource(R.drawable.full_star);
+                        }
+                        else {
+                            favorite.setBackgroundResource(R.drawable.empty_star);
+                        }
 					} catch (RemoteException e) {
 						LogUtil.e(e);
 					}

@@ -75,7 +75,15 @@ android:id="@+id/linearLayoutMain" android:gravity="right">
 	    android:src="@android:drawable/ic_menu_mylocation"
 	    android:id="@+id/myLocationButton"
 	    />
-	    </RelativeLayout>
+
+            <ImageButton
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/refreshButton"
+                android:layout_alignParentRight="true"
+                android:layout_alignParentTop="true"
+                android:src="@android:drawable/ic_menu_rotate" />
+        </RelativeLayout>
 	    		<RelativeLayout 
 	    android:layout_height="fill_parent"
 	    android:layout_width="fill_parent" 
