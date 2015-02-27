@@ -13,6 +13,7 @@ import com.schneeloch.bostonbusmap_library.data.RouteConfig;
 import com.schneeloch.bostonbusmap_library.data.RoutePool;
 import com.schneeloch.bostonbusmap_library.data.Selection;
 import com.schneeloch.bostonbusmap_library.data.StopLocation;
+import com.schneeloch.bostonbusmap_library.data.TransitSourceCache;
 import com.schneeloch.bostonbusmap_library.data.TransitSourceTitles;
 import com.schneeloch.bostonbusmap_library.data.VehicleLocations;
 import com.schneeloch.bostonbusmap_library.database.Schema;
@@ -39,6 +40,8 @@ public class CommuterRailTransitSource implements TransitSource {
 	private final TransitSystem transitSystem;
 	
 	public static final int COLOR = 0x940088;
+
+    private final TransitSourceCache cache;
 	
 	private final ImmutableMap<String, String> routesToUrls;
 	
@@ -67,6 +70,8 @@ public class CommuterRailTransitSource implements TransitSource {
 		urlBuilder.put("CR-Haverhill", dataUrlPrefix + 11 + predictionsUrlSuffix);
 		urlBuilder.put("CR-Newburyport", dataUrlPrefix + 12 + predictionsUrlSuffix);
 		routesToUrls = urlBuilder.build();
+
+        cache = new TransitSourceCache();
 	}
 
 	@Override
@@ -155,6 +160,11 @@ public class CommuterRailTransitSource implements TransitSource {
             Exception exception = exceptions.get(key);
             throw new FeedException("Error downloading from commuter rail route " + key + " data feed", exception);
         }
+
+        for (RefreshData refreshData : outputData) {
+            cache.updateVehiclesForRoute(refreshData.route);
+            cache.updatePredictionForRoute(refreshData.route);
+        }
 	}
 
 	private static class RefreshData {
@@ -180,8 +190,10 @@ public class CommuterRailTransitSource implements TransitSource {
 			{
 				
 				String url = routesToUrls.get(routeName);
-				
-				outputData.add(new RefreshData(url, routeName));
+
+                if (cache.canUpdatePredictionForRoute(routeName) && cache.canUpdateVehiclesForRoute(routeName)) {
+                    outputData.add(new RefreshData(url, routeName));
+                }
 				return;
 			}
 		}
@@ -202,7 +214,9 @@ public class CommuterRailTransitSource implements TransitSource {
 							if (isCommuterRail(route) && containsRoute(route, outputData) == false)
 							{
 								String url = routesToUrls.get(route);
-								outputData.add(new RefreshData(url, route));
+                                if (cache.canUpdatePredictionForRoute(route) && cache.canUpdateVehiclesForRoute(route)) {
+                                    outputData.add(new RefreshData(url, route));
+                                }
 							}
 						}
 					}
@@ -215,7 +229,9 @@ public class CommuterRailTransitSource implements TransitSource {
 						if (isCommuterRail(route) && containsRoute(route, outputData) == false)
 						{
 							String url = routesToUrls.get(route);
-							outputData.add(new RefreshData(url, route));
+                            if (cache.canUpdatePredictionForRoute(route) && cache.canUpdateVehiclesForRoute(route)) {
+                                outputData.add(new RefreshData(url, route));
+                            }
 						}
 					}
 				}
@@ -227,8 +243,10 @@ public class CommuterRailTransitSource implements TransitSource {
 				for (String route : routesToUrls.keySet())
 				{
 					String url = routesToUrls.get(route);
-					
-					outputData.add(new RefreshData(url, route));
+
+                    if (cache.canUpdatePredictionForRoute(route) && cache.canUpdateVehiclesForRoute(route)) {
+                        outputData.add(new RefreshData(url, route));
+                    }
 				}
 			}
 		}
