@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-import boston.Bus.Map.R;
 import com.schneeloch.bostonbusmap_library.data.Alert;
 import boston.Bus.Map.ui.TextViewBinder;
 import android.app.ListActivity;
@@ -17,6 +16,7 @@ import android.widget.TextView;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.schneeloch.bostonbusmap_library.util.AlertInfoConstants;
+import com.schneeloch.torontotransit.R;
 
 public class AlertInfo extends ListActivity
 {

@@ -24,7 +24,6 @@ import java.util.Collections;
 
 import java.util.List;
 
-import boston.Bus.Map.R;
 import com.schneeloch.bostonbusmap_library.data.ITransitDrawables;
 import com.schneeloch.bostonbusmap_library.data.Locations;
 
@@ -56,6 +55,7 @@ import com.google.android.maps.MapActivity;
 import com.google.android.maps.MapController;
 import com.google.android.maps.MapView;
 import com.google.common.collect.Lists;
+import com.schneeloch.torontotransit.R;
 
 import android.app.AlertDialog;
 import android.app.ProgressDialog;

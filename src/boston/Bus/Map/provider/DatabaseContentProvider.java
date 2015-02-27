@@ -207,7 +207,7 @@ public class DatabaseContentProvider extends ContentProvider {
 			OutputStream outputStream = null;
 			try
 			{
-				in = context.getResources().openRawResource(boston.Bus.Map.R.raw.databasegz);
+				in = context.getResources().openRawResource(com.schneeloch.torontotransit.R.raw.databasegz);
 
 				stream = new GZIPInputStream(in); 
 

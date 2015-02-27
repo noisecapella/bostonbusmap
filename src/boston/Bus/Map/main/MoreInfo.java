@@ -7,12 +7,11 @@ import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 
-import boston.Bus.Map.R;
-
 import com.schneeloch.bostonbusmap_library.data.IPrediction;
 import com.schneeloch.bostonbusmap_library.data.TimeBounds;
 import boston.Bus.Map.ui.TextViewBinder;
 import com.schneeloch.bostonbusmap_library.util.MoreInfoConstants;
+import com.schneeloch.torontotransit.R;
 
 import android.app.ListActivity;
 import android.os.Bundle;
