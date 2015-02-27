@@ -12,19 +12,16 @@ import org.xml.sax.SAXException;
 import com.google.android.maps.GeoPoint;
 import com.google.common.collect.ImmutableList;
 
-import android.content.Context;
 import android.content.OperationApplicationException;
 import android.os.RemoteException;
-import boston.Bus.Map.data.Location;
-import boston.Bus.Map.data.Locations;
-import boston.Bus.Map.data.RouteTitles;
-import boston.Bus.Map.data.Selection;
+import com.schneeloch.bostonbusmap_library.data.Location;
+import com.schneeloch.bostonbusmap_library.data.Locations;
+import com.schneeloch.bostonbusmap_library.data.Selection;
 import boston.Bus.Map.data.UpdateArguments;
 import boston.Bus.Map.ui.ProgressMessage;
-import boston.Bus.Map.util.Constants;
-import boston.Bus.Map.util.FeedException;
-import boston.Bus.Map.util.LogUtil;
-import boston.Bus.Map.util.StringUtil;
+import com.schneeloch.bostonbusmap_library.util.Constants;
+import com.schneeloch.bostonbusmap_library.util.FeedException;
+import com.schneeloch.bostonbusmap_library.util.LogUtil;
 
 public class RefreshAsyncTask extends UpdateAsyncTask
 {
@@ -47,8 +44,8 @@ public class RefreshAsyncTask extends UpdateAsyncTask
 			double centerLatitude = geoPoint.getLatitudeE6() * Constants.InvE6;
 			double centerLongitude = geoPoint.getLongitudeE6() * Constants.InvE6;
 
-			busLocations.refresh(arguments.getContext(), selection,
-					centerLatitude, centerLongitude, this, arguments.getOverlayGroup().getRouteOverlay().isShowLine());
+			busLocations.refresh(arguments.getDatabaseAgent(), selection,
+					centerLatitude, centerLongitude, arguments.getOverlayGroup().getRouteOverlay().isShowLine());
 			return true;
 		}
 		catch (IOException e)
@@ -85,22 +82,14 @@ public class RefreshAsyncTask extends UpdateAsyncTask
 			
 			return false;
 		}
-		catch (RuntimeException e)
-		{
-			if (e.getCause() instanceof FeedException)
-			{
-				publish(new ProgressMessage(ProgressMessage.TOAST, null, "The feed is reporting an error"));
+        catch (FeedException e) {
+            publish(new ProgressMessage(ProgressMessage.TOAST, null, e.getMessage()));
 
-				LogUtil.e(e);
-				
-				return false;
-			}
-			else
-			{
-				throw e;
-			}
-		}
-		catch (AssertionError e)
+            LogUtil.e(e);
+
+            return false;
+        }
+        catch (AssertionError e)
 		{
 			Throwable cause = e.getCause();
 			if (cause != null)

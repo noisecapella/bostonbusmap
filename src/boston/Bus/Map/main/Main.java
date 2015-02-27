@@ -18,96 +18,58 @@
     */
 package boston.Bus.Map.main;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.lang.reflect.Array;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 
 import java.util.List;
-import java.util.concurrent.ConcurrentMap;
 
-import javax.xml.parsers.FactoryConfigurationError;
-import javax.xml.parsers.ParserConfigurationException;
+import boston.Bus.Map.R;
+import com.schneeloch.bostonbusmap_library.data.ITransitDrawables;
+import com.schneeloch.bostonbusmap_library.data.Locations;
 
-import org.apache.http.impl.conn.tsccm.RouteSpecificPool;
-import org.xml.sax.SAXException;
-
-import com.schneeloch.latransit.R;
-import boston.Bus.Map.data.Direction;
-import boston.Bus.Map.data.Locations;
-
-import boston.Bus.Map.data.BusLocation;
-import boston.Bus.Map.data.IntersectionLocation;
-import boston.Bus.Map.data.RouteConfig;
-import boston.Bus.Map.data.RouteTitles;
-import boston.Bus.Map.data.Selection;
-import boston.Bus.Map.data.StopLocation;
+import com.schneeloch.bostonbusmap_library.data.IntersectionLocation;
+import com.schneeloch.bostonbusmap_library.data.RouteTitles;
+import com.schneeloch.bostonbusmap_library.data.Selection;
+import com.schneeloch.bostonbusmap_library.data.StopLocation;
 import boston.Bus.Map.data.TransitDrawables;
 import boston.Bus.Map.data.UpdateArguments;
+import boston.Bus.Map.provider.DatabaseAgent;
+import com.schneeloch.bostonbusmap_library.provider.IDatabaseAgent;
 import boston.Bus.Map.provider.TransitContentProvider;
-import boston.Bus.Map.transit.TransitSystem;
+import com.schneeloch.bostonbusmap_library.transit.ITransitSystem;
+import com.schneeloch.bostonbusmap_library.transit.TransitSystem;
 import boston.Bus.Map.tutorials.IntroTutorial;
 import boston.Bus.Map.tutorials.Tutorial;
-import boston.Bus.Map.tutorials.TutorialStep;
 import boston.Bus.Map.ui.BusOverlay;
 
 import boston.Bus.Map.ui.LocationOverlay;
 import boston.Bus.Map.ui.ModeAdapter;
 import boston.Bus.Map.ui.OverlayGroup;
-import boston.Bus.Map.ui.RouteOverlay;
-import boston.Bus.Map.util.Constants;
 import boston.Bus.Map.util.SearchHelper;
-import boston.Bus.Map.util.StringUtil;
+
+import com.schneeloch.bostonbusmap_library.util.Constants;
 
 
 import com.google.android.maps.GeoPoint;
 import com.google.android.maps.MapActivity;
 import com.google.android.maps.MapController;
 import com.google.android.maps.MapView;
-import com.google.android.maps.MyLocationOverlay;
-import com.google.android.maps.Overlay;
-import com.google.android.maps.OverlayItem;
-import com.google.common.collect.ImmutableCollection;
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.ImmutableTable;
 import com.google.common.collect.Lists;
 
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.app.SearchManager;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Resources;
-import android.database.sqlite.SQLiteDatabase;
-import android.graphics.BitmapFactory;
-import android.graphics.Point;
 import android.graphics.drawable.Drawable;
-import android.graphics.drawable.StateListDrawable;
-import android.location.Address;
-import android.location.Criteria;
-import android.location.Geocoder;
-import android.location.Location;
-import android.location.LocationManager;
-import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Message;
 
 import android.os.SystemClock;
-import android.os.Handler.Callback;
-import android.preference.PreferenceActivity;
 import android.preference.PreferenceManager;
 import android.provider.SearchRecentSuggestions;
-import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.Menu;
@@ -115,29 +77,16 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.MenuItem.OnMenuItemClickListener;
 import android.view.View.OnClickListener;
-import android.view.View.OnKeyListener;
-import android.view.View.OnTouchListener;
-import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
-import android.widget.AdapterView.OnItemClickListener;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
-import android.widget.CheckBox;
 import android.widget.EditText;
-import android.widget.Gallery;
 import android.widget.ImageButton;
-import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
-import android.widget.SimpleAdapter;
 import android.widget.Spinner;
 import android.widget.SpinnerAdapter;
-import android.widget.TextView;
-import android.widget.TextView.OnEditorActionListener;
 import android.widget.Toast;
-import android.widget.ZoomControls;
 import android.widget.AdapterView.OnItemSelectedListener;
 
 /**
@@ -187,16 +136,10 @@ public class Main extends MapActivity
 	private RouteTitles dropdownRouteKeysToTitles;
 	private AlertDialog routeChooserDialog;
 
-	private ImageButton searchButton;
+    private UpdateArguments arguments;
 
-	private UpdateArguments arguments;
-	private ImageButton myLocationButton;
-	private Button skipTutorialButton;
-	private RelativeLayout tutorialLayout;
-	private Button nextTutorialButton;
-	
-	
-	public static final int UPDATE_INTERVAL_INVALID = 9999;
+
+    public static final int UPDATE_INTERVAL_INVALID = 9999;
 	public static final int UPDATE_INTERVAL_SHORT = 15;
 	public static final int UPDATE_INTERVAL_MEDIUM = 50;
 	public static final int UPDATE_INTERVAL_LONG = 100;
@@ -222,15 +165,18 @@ public class Main extends MapActivity
         chooseAFavoriteButton = (Button)findViewById(R.id.chooseFavoriteButton);
         searchView = (EditText)findViewById(R.id.searchTextView);
         final ProgressBar progress = (ProgressBar)findViewById(R.id.progress);
-        searchButton = (ImageButton)findViewById(R.id.searchButton);
-        
-        myLocationButton = (ImageButton)findViewById(R.id.myLocationButton);
+        ImageButton searchButton = (ImageButton) findViewById(R.id.searchButton);
+
+        ImageButton myLocationButton = (ImageButton) findViewById(R.id.myLocationButton);
+        ImageButton refreshButton = (ImageButton) findViewById(R.id.refreshButton);
         myLocationButton.getBackground().setAlpha(0xbb);
-        tutorialLayout = (RelativeLayout)findViewById(R.id.mapViewTutorial);
-        skipTutorialButton = (Button)findViewById(R.id.mapViewTutorialSkipButton);
-        nextTutorialButton = (Button)findViewById(R.id.mapViewTutorialNextButton);
+        RelativeLayout tutorialLayout = (RelativeLayout) findViewById(R.id.mapViewTutorial);
+        Button skipTutorialButton = (Button) findViewById(R.id.mapViewTutorialSkipButton);
+        Button nextTutorialButton = (Button) findViewById(R.id.mapViewTutorialNextButton);
         
     	SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+
+        final IDatabaseAgent databaseAgent = new DatabaseAgent(getContentResolver());
 
     	final ProgressDialog progressDialog = new ProgressDialog(this);
 		progressDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
@@ -248,12 +194,12 @@ public class Main extends MapActivity
 		});
         
         searchButton.setOnClickListener(new OnClickListener() {
-			
-			@Override
-			public void onClick(View v) {
-				onSearchRequested();
-			}
-		});
+
+            @Override
+            public void onClick(View v) {
+                onSearchRequested();
+            }
+        });
         
         chooseAPlaceButton.setOnClickListener(new OnClickListener() {
 			
@@ -272,40 +218,49 @@ public class Main extends MapActivity
 		});
         
         myLocationButton.setOnClickListener(new OnClickListener() {
-			
-			@Override
-			public void onClick(View v) {
-	    		if (arguments != null)
-	    		{
-	    			final LocationOverlay myLocationOverlay = arguments.getOverlayGroup().getMyLocationOverlay();
-	    			if (myLocationOverlay.isMyLocationEnabled() == false)
-	    			{
-	    				myLocationOverlay.enableMyLocation();
-	    				
-	    				locationEnabled = true;
-	    				
-	    				Toast.makeText(Main.this, getString(R.string.findingCurrentLocation), Toast.LENGTH_SHORT).show();
-	    			}
-	   				myLocationOverlay.updateMapViewPosition(handler);
-	    		}
-				
-			}
-		});
+
+            @Override
+            public void onClick(View v) {
+                if (arguments != null) {
+                    final LocationOverlay myLocationOverlay = arguments.getOverlayGroup().getMyLocationOverlay();
+                    if (myLocationOverlay.isMyLocationEnabled() == false) {
+                        myLocationOverlay.enableMyLocation();
+
+                        locationEnabled = true;
+
+                        Toast.makeText(Main.this, getString(R.string.findingCurrentLocation), Toast.LENGTH_SHORT).show();
+                    }
+                    myLocationOverlay.updateMapViewPosition(handler);
+                }
+
+            }
+        });
+
+        refreshButton.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                boolean b = handler.instantRefresh();
+                if (b == false)
+                {
+                    Toast.makeText(Main.this, "Please wait 10 seconds before clicking Refresh again", Toast.LENGTH_LONG).show();
+                }
+            }
+        });
         
         skipTutorialButton.setOnClickListener(new OnClickListener() {
-			
-			@Override
-			public void onClick(View v) {
-				
-			}
-		});
+
+            @Override
+            public void onClick(View v) {
+
+            }
+        });
         
         Resources resources = getResources();
 
         // busPicture is used to initialize busOverlay, otherwise it would
         // joint the rest of the drawables in the brackets 
     	Drawable busPicture = resources.getDrawable(R.drawable.bus_statelist);
-    	final TransitSystem transitSystem = new TransitSystem();
+    	final ITransitSystem transitSystem = new TransitSystem();
         {
         	Drawable busStopUpdated = resources.getDrawable(R.drawable.busstop_statelist_updated);
         	Drawable arrow = resources.getDrawable(R.drawable.arrow);
@@ -317,21 +272,23 @@ public class Main extends MapActivity
 			Drawable busStopBike = resources.getDrawable(R.drawable.busstop_bike_statelist);
 			Drawable busStopBikeUpdated = resources.getDrawable(R.drawable.busstop_bike_statelist_updated);
 
-        	TransitDrawables busDrawables = new TransitDrawables(this, busStop,
+        	ITransitDrawables busDrawables = new TransitDrawables(this, busStop,
         			busStopUpdated, busPicture,
         			arrow, busPicture.getIntrinsicHeight() / 5, intersection);
-        	TransitDrawables subwayDrawables = new TransitDrawables(this, busStop,
+        	ITransitDrawables subwayDrawables = new TransitDrawables(this, busStop,
         			busStopUpdated, rail,
         			arrow, rail.getIntrinsicHeight() / 5, intersection);
-        	TransitDrawables commuterRailDrawables = new TransitDrawables(this, busStop,
+        	ITransitDrawables commuterRailDrawables = new TransitDrawables(this, busStop,
         			busStopUpdated, rail, arrow, rail.getIntrinsicHeight() / 5, 
         			intersection);
-			TransitDrawables hubwayDrawables = new TransitDrawables(this, busStopBike,
+			ITransitDrawables hubwayDrawables = new TransitDrawables(this, busStopBike,
 					busStopBikeUpdated, rail, arrow, rail.getIntrinsicHeight() / 5,
 					intersection);
-        	
+
+
+
         	transitSystem.setDefaultTransitSource(busDrawables, subwayDrawables, commuterRailDrawables, hubwayDrawables,
-					this);
+                    databaseAgent);
         }
         SpinnerAdapter modeSpinnerAdapter = new ModeAdapter(this, Arrays.asList(Selection.modesSupported));
 
@@ -453,12 +410,12 @@ public class Main extends MapActivity
 
         if (busLocations == null)
         {
-        	busLocations = new Locations(this, transitSystem, selection);
+        	busLocations = new Locations(databaseAgent, transitSystem, selection);
         }
 
         arguments = new UpdateArguments(progress, progressDialog,
-        		mapView, this, overlayGroup,
-        		majorHandler, busLocations, transitSystem);
+        		mapView, databaseAgent, overlayGroup,
+        		majorHandler, busLocations, transitSystem, this);
         handler = new UpdateHandler(arguments);
         overlayGroup.getBusOverlay().setUpdateable(handler);
         
@@ -815,7 +772,7 @@ public class Main extends MapActivity
 							}
 							
 							@Override
-							public boolean onClick(boston.Bus.Map.data.Location location) {
+							public boolean onClick(com.schneeloch.bostonbusmap_library.data.Location location) {
 								return onClick(BusOverlay.toGeoPoint(location));
 							}
 						});
@@ -865,6 +822,23 @@ public class Main extends MapActivity
 		//check the result
 		populateHandlerSettings();
 		handler.resume();
+
+        // workaround for bad design decisions
+        if (arguments.getProgressDialog() == null) {
+            final ProgressDialog progressDialog = new ProgressDialog(this);
+            progressDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
+            progressDialog.setCancelable(true);
+
+            arguments.setProgressDialog(progressDialog);
+        }
+
+        if (arguments.getProgress() == null) {
+            final ProgressBar progress = (ProgressBar)findViewById(R.id.progress);
+
+            arguments.setProgress(progress);
+        }
+
+
 		
     	Tutorial tutorial = new Tutorial(IntroTutorial.populate());
     	tutorial.start(this);
@@ -920,7 +894,7 @@ public class Main extends MapActivity
     	boolean showCoarseRouteLineCheckboxValue = prefs.getBoolean(getString(R.string.showCoarseRouteLineCheckbox), true); 
 
     	boolean alwaysUpdateLocationValue = prefs.getBoolean(getString(R.string.alwaysShowLocationCheckbox), true);
-    	
+
     	String intervalString = Integer.valueOf(updateInterval).toString();
     	//since the default value for this flag is true, make sure we let the preferences know of this
     	prefs.edit().
@@ -1028,7 +1002,7 @@ public class Main extends MapActivity
 			}
 
 			
-			final SearchHelper helper = new SearchHelper(this, dropdownRouteKeysToTitles, arguments, query);
+			final SearchHelper helper = new SearchHelper(this, dropdownRouteKeysToTitles, arguments, query, new DatabaseAgent(getContentResolver()));
 			helper.runSearch(new Runnable()
 			{
 				@Override

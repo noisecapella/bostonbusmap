@@ -46,16 +46,13 @@ public class LocationOverlay extends MyLocationOverlay {
 			@Override
 			public void run() {
 				mapView.getController().animateTo(getMyLocation());
-				
+
 				if (handler != null)
 				{
-					// after 1.5 seconds, tell UpdateHandler to redraw stops near our new map position
-					handler.triggerUpdate(1500);
+					// after 2.5 seconds, tell UpdateHandler to redraw stops near our new map position
+					handler.triggerRefresh(1500);
 				}
 			}
 		});
 	}
-
-
-	
 }
