@@ -31,17 +31,33 @@ public class TransitSourceCache {
         vehiclesLastUpdatesByRoute = new ConcurrentHashMap<>();
     }
 
-    public void updatePredictionForStop(RouteStopPair pair) {
-        predictionsLastUpdatesByStop.put(pair, System.currentTimeMillis());
-    }
-
     public void updateVehiclesForRoute(String route) {
         vehiclesLastUpdatesByRoute.put(route, System.currentTimeMillis());
+    }
+
+    public boolean canUpdateVehiclesForRoute(String route) {
+        long currentTime = System.currentTimeMillis();
+        Long lastUpdate = vehiclesLastUpdatesByRoute.get(route);
+        if (lastUpdate == null) {
+            return true;
+        }
+        else {
+            long lastUpdateLong = lastUpdate;
+            return currentTime > lastUpdateLong + fetchDelay;
+        }
     }
 
     public void updateAllVehicles() {
         lastVehicleWholeRefresh = System.currentTimeMillis();
         vehiclesLastUpdatesByRoute.clear();
+    }
+
+    public boolean canUpdateAllVehicles() {
+        return System.currentTimeMillis() > lastVehicleWholeRefresh + fetchDelay;
+    }
+
+    public void updatePredictionForStop(RouteStopPair pair) {
+        predictionsLastUpdatesByStop.put(pair, System.currentTimeMillis());
     }
 
     public boolean canUpdatePredictionForStop(RouteStopPair pair) {

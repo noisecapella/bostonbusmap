@@ -253,14 +253,18 @@ public abstract class NextBusTransitSource implements TransitSource
 
 	protected String getVehicleLocationsUrl(long time, String route)
 	{
-        String url;
+        String url = null;
         if (route != null)
         {
-            url = mbtaLocationsDataUrlOneRoute + time + "&r=" + route;
+            if (cache.canUpdateVehiclesForRoute(route)) {
+                url = mbtaLocationsDataUrlOneRoute + time + "&r=" + route;
+            }
         }
         else
         {
-            url = mbtaLocationsDataUrlAllRoutes + time;
+            if (cache.canUpdateAllVehicles()) {
+                url = mbtaLocationsDataUrlAllRoutes + time;
+            }
         }
 
         return url;

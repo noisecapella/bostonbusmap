@@ -138,17 +138,17 @@ public class MbtaRealtimeTransitSource implements TransitSource {
 			VehicleLocations busMapping,
 			RoutePool routePool, Directions directions, Locations locationsObj)
 			throws IOException, ParserConfigurationException, SAXException {
-		Selection.Mode selectedBusPredictions = selection.getMode();
+		Selection.Mode mode = selection.getMode();
 		List<String> routesInUrl = Lists.newArrayList();
         ImmutableSet.Builder<String> builder = ImmutableSet.builder();
 
         ImmutableSet<String> routeNames;
-        switch (selectedBusPredictions) {
+        switch (mode) {
             case VEHICLE_LOCATIONS_ONE:
             case BUS_PREDICTIONS_ONE: {
                 String routeName = routeConfig.getRouteName();
                 if (routeNameToTransitSource.containsKey(routeName)) {
-                    if (cache.canUpdatePredictionForRoute(routeName)) {
+                    if (cache.canUpdateVehiclesForRoute(routeName) && cache.canUpdatePredictionForRoute(routeName)) {
                         builder.add(routeName);
                     }
                 }
@@ -159,12 +159,11 @@ public class MbtaRealtimeTransitSource implements TransitSource {
             case BUS_PREDICTIONS_ALL:
             case BUS_PREDICTIONS_STAR: {
                 for (String routeName : routeNameToTransitSource.keySet()) {
-                    if (cache.canUpdatePredictionForRoute(routeName)) {
+                    if (cache.canUpdateVehiclesForRoute(routeName) && cache.canUpdatePredictionForRoute(routeName)) {
                         builder.add(routeName);
                     }
                 }
                 break;
-
             }
             default:
                 throw new RuntimeException("Unexpected mode");
@@ -210,6 +209,7 @@ public class MbtaRealtimeTransitSource implements TransitSource {
 
         for (String route : routeNames) {
             cache.updatePredictionForRoute(route);
+            cache.updateVehiclesForRoute(route);
         }
 	}
 
