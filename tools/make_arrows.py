@@ -45,7 +45,7 @@ def create_image(path, angle):
 
         arrow_width, arrow_height = arrow.size
 
-        for prefix in ("bus", "bus_selected", "rail", "rail_selected"):
+        for prefix in ("bus", "bus_selected", "bus_yellow", "bus_blue", "rail", "rail_selected"):
             with Image(filename=os.path.join(path, "%s.png" % prefix)) as bus:
                 cbus = bus.clone()
                 bus_width, bus_height = bus.size
