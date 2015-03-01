@@ -18,9 +18,10 @@
     */
 package boston.Bus.Map.main;
 
-import boston.Bus.Map.R;
 import boston.Bus.Map.provider.TransitContentProvider;
 import com.schneeloch.bostonbusmap_library.transit.TransitSystem;
+import com.schneeloch.latransit.R;
+
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;

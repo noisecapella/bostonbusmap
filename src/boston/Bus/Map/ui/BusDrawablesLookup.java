@@ -1,6 +1,6 @@
 package boston.Bus.Map.ui;
 
-import boston.Bus.Map.R;
+import com.schneeloch.latransit.R;
 
 /**
  * Created by schneg on 1/13/15.

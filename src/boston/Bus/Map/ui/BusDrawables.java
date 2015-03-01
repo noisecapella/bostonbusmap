@@ -1,6 +1,7 @@
 package boston.Bus.Map.ui;
 
-import boston.Bus.Map.R;
+
+import com.schneeloch.latransit.R;
 
 public class BusDrawables {
 

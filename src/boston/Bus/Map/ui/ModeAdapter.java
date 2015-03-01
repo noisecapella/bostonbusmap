@@ -2,10 +2,10 @@ package boston.Bus.Map.ui;
 
 import java.util.List;
 
-import boston.Bus.Map.R;
 import boston.Bus.Map.util.SelectionResources;
 
 import com.schneeloch.bostonbusmap_library.data.Selection;
+import com.schneeloch.latransit.R;
 
 import android.app.Activity;
 import android.graphics.drawable.Drawable;
