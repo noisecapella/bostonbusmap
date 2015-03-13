@@ -66,7 +66,7 @@ def writeTable(table):
 
 
 def main():
-    print """package boston.Bus.Map.database;
+    print """package com.schneeloch.bostonbusmap_library.database;
 
 import android.database.DatabaseUtils.InsertHelper;
 

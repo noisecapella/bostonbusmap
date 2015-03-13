@@ -11,7 +11,7 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
 
 public class VehicleLocations {
-	public static class Key {
+    public static class Key {
 		private final int transitSourceId;
         private final String routeName;
 		private final String id;
