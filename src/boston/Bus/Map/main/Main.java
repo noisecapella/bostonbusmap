@@ -420,7 +420,7 @@ public class Main extends MapActivity
         overlayGroup.getBusOverlay().setUpdateable(handler);
         
         populateHandlerSettings();
-        
+        mapView.setTraffic(handler.getShowTraffic());
         if (lastNonConfigurationInstance != null)
         {
         	updateSearchText(selection);
@@ -888,6 +888,7 @@ public class Main extends MapActivity
     	handler.setUpdateConstantlyInterval(updateInterval);
     	handler.setShowUnpredictable(prefs.getBoolean(getString(R.string.showUnpredictableBusesCheckbox), false));
     	handler.setHideHighlightCircle(prefs.getBoolean(getString(R.string.hideCircleCheckbox), false));
+        handler.setShowTraffic(prefs.getBoolean("showTraffic", false));
     	boolean allRoutesBlue = prefs.getBoolean(getString(R.string.allRoutesBlue), TransitSystem.isDefaultAllRoutesBlue());
     	handler.setAllRoutesBlue(allRoutesBlue);
     	arguments.getOverlayGroup().getRouteOverlay().setDrawLine(prefs.getBoolean(getString(R.string.showRouteLineCheckbox), false));
