@@ -33,6 +33,8 @@ def main():
                     for path_tuple in path:
                         writer.writerow([i, path_tuple[0], path_tuple[1]])
             subprocess.check_call(["Rscript", "plot_shape.R", temp_file.name, "out.png"])
+    else:
+        raise Exception("No path for route %s found" % args.route)
         
 if __name__ == "__main__":
     main()
