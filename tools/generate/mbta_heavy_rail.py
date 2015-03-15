@@ -9,7 +9,7 @@ import os.path
 import schema
 import itertools
 from collections import defaultdict
-
+from simplify_path import simplify_path
 import sqlite3
 
 class MbtaHeavyRail:
@@ -28,6 +28,7 @@ class MbtaHeavyRail:
         print("Adding shapes...")
         for shape_id, group_rows in itertools.groupby(shape_rows, lambda shape: shape["shape_id"]):
             path = [(float(row["shape_pt_lat"]), float(row["shape_pt_lon"])) for row in group_rows]
+            path = simplify_path(path)
             paths.append(path)
 
         stop_rows = itertools.chain.from_iterable(gtfs_map.find_stops_by_route(route) for route in route_ids)

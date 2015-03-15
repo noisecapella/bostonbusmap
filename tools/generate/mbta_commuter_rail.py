@@ -7,6 +7,8 @@ from gtfs_map import GtfsMap
 import itertools
 purple = 0x940088
 
+from simplify_path import simplify_path
+
 
 import sqlite3
 class MbtaCommuterRail:
@@ -46,6 +48,7 @@ class MbtaCommuterRail:
             shape_rows = list(sorted(shape_rows, key=lambda shape: shape["shape_id"]))
             for shape_id, group_rows in itertools.groupby(shape_rows, lambda shape: shape["shape_id"]):
                 path = [(float(row["shape_pt_lat"]), float(row["shape_pt_lon"])) for row in group_rows]
+                path = simplify_path(path)
                 paths.append(path)
 
             stop_rows = gtfs_map.find_stops_by_route(route_id)
