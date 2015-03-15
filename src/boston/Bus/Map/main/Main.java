@@ -420,7 +420,7 @@ public class Main extends MapActivity
         overlayGroup.getBusOverlay().setUpdateable(handler);
         
         populateHandlerSettings();
-        
+        mapView.setTraffic(handler.getShowTraffic());
         if (lastNonConfigurationInstance != null)
         {
         	updateSearchText(selection);
@@ -821,6 +821,10 @@ public class Main extends MapActivity
 		
 		//check the result
 		populateHandlerSettings();
+        MapView mapView = arguments.getMapView();
+        if (mapView != null) {
+            mapView.setTraffic(handler.getShowTraffic());
+        }
 		handler.resume();
 
         // workaround for bad design decisions
@@ -888,6 +892,8 @@ public class Main extends MapActivity
     	handler.setUpdateConstantlyInterval(updateInterval);
     	handler.setShowUnpredictable(prefs.getBoolean(getString(R.string.showUnpredictableBusesCheckbox), false));
     	handler.setHideHighlightCircle(prefs.getBoolean(getString(R.string.hideCircleCheckbox), false));
+        boolean showTraffic = prefs.getBoolean("showTraffic", false);
+        handler.setShowTraffic(showTraffic);
     	boolean allRoutesBlue = prefs.getBoolean(getString(R.string.allRoutesBlue), TransitSystem.isDefaultAllRoutesBlue());
     	handler.setAllRoutesBlue(allRoutesBlue);
     	arguments.getOverlayGroup().getRouteOverlay().setDrawLine(prefs.getBoolean(getString(R.string.showRouteLineCheckbox), false));
@@ -901,8 +907,9 @@ public class Main extends MapActivity
     		putBoolean(getString(R.string.alwaysShowLocationCheckbox), alwaysUpdateLocationValue).
     		putString(getString(R.string.updateContinuouslyInterval), intervalString).
     		putBoolean(getString(R.string.showCoarseRouteLineCheckbox), showCoarseRouteLineCheckboxValue).
-    		putBoolean(getString(R.string.allRoutesBlue), allRoutesBlue)
-    		.commit();
+    		putBoolean(getString(R.string.allRoutesBlue), allRoutesBlue).
+            putBoolean("showTraffic", showTraffic).
+    		commit();
     }
 
 	@Override
