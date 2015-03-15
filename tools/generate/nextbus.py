@@ -5,7 +5,7 @@ import time
 import xml.dom.minidom
 import schema
 import requests
-
+from simplify_path import simplify_path
 class RouteHandler(xml.sax.handler.ContentHandler):
     def __init__(self, cur, startingOrder, sharedStops):
         self.cur = cur
@@ -79,6 +79,7 @@ class RouteHandler(xml.sax.handler.ContentHandler):
             self.cur.execute(self.table.routes.insert())
         elif name == "path":
             self.inPath = False
+            self.currentPathPoints = simplify_path(currentPathPoints)
             self.paths.append(self.currentPathPoints)
                 
     

@@ -6,7 +6,7 @@ import tempfile
 import json
 import subprocess
 import csv
-
+from generate.simplify_path import simplify_path
 def main():
     parser = argparse.ArgumentParser(description="Plot a route from GTFS")
     parser.add_argument("gtfs_path")
@@ -22,6 +22,9 @@ def main():
     shape_rows = list(sorted(shape_rows, key=lambda shape: shape["shape_id"]))
     for shape_id, group_rows in itertools.groupby(shape_rows, lambda shape: shape["shape_id"]):
         path = [(float(row["shape_pt_lat"]), float(row["shape_pt_lon"])) for row in group_rows]
+        print(len(path))
+        path = simplify_path(path)
+        print(len(path))
         paths.append(path)
 
     
@@ -33,6 +36,9 @@ def main():
                     for path_tuple in path:
                         writer.writerow([i, path_tuple[0], path_tuple[1]])
             subprocess.check_call(["Rscript", "plot_shape.R", temp_file.name, "out.png"])
+        break
+    else:
+        raise Exception("No path for route %s found" % args.route)
         
 if __name__ == "__main__":
     main()
