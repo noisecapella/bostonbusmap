@@ -79,7 +79,7 @@ class RouteHandler(xml.sax.handler.ContentHandler):
             self.cur.execute(self.table.routes.insert())
         elif name == "path":
             self.inPath = False
-            self.currentPathPoints = simplify_path(currentPathPoints)
+            self.currentPathPoints = simplify_path(self.currentPathPoints)
             self.paths.append(self.currentPathPoints)
                 
     
