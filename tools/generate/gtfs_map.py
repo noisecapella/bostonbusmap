@@ -107,6 +107,8 @@ class GtfsMap(object):
         
     def _import_table(self, gtfs_path, table):
         path = os.path.join(gtfs_path, table + ".txt")
+        if not os.path.exists(path):
+            return
         with open(path) as f:
             reader = csv.reader(f)
             header = next(reader)
