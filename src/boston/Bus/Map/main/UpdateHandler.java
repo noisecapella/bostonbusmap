@@ -39,6 +39,7 @@ public class UpdateHandler extends Handler {
 	
 	private final UpdateArguments guiArguments;
 	private boolean allRoutesBlue = TransitSystem.isDefaultAllRoutesBlue();
+    private boolean showTraffic = false;
 	
 	public UpdateHandler(UpdateArguments guiArguments)
 	{
@@ -265,4 +266,12 @@ public class UpdateHandler extends Handler {
 	public void setAllRoutesBlue(boolean b) {
 		allRoutesBlue = b;
 	}
+
+    public void setShowTraffic(boolean showTraffic) {
+        this.showTraffic = showTraffic;
+    }
+
+    public boolean getShowTraffic() {
+        return showTraffic;
+    }
 }

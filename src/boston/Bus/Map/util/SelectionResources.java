@@ -1,8 +1,7 @@
 package boston.Bus.Map.util;
 
 import com.schneeloch.bostonbusmap_library.data.Selection;
-
-import boston.Bus.Map.R;
+import com.schneeloch.latransit.R;
 
 /**
  * Created by schneg on 1/11/15.

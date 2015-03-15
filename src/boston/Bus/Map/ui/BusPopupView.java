@@ -27,7 +27,6 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import boston.Bus.Map.R;
 import com.schneeloch.bostonbusmap_library.data.Alert;
 import com.schneeloch.bostonbusmap_library.data.BusLocation;
 import com.schneeloch.bostonbusmap_library.data.Favorite;
@@ -51,6 +50,7 @@ import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableCollection;
 import com.google.common.collect.Lists;
 import com.readystatesoftware.mapviewballoons.BalloonOverlayView;
+import com.schneeloch.latransit.R;
 
 
 public class BusPopupView extends BalloonOverlayView<BusOverlayItem>
