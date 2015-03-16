@@ -13,7 +13,10 @@ def shortest_distance_to_segment(point, line):
     y2 *= lon_factor
     y0 *= lon_factor
 
-    return abs((y2-y1)*x0 - (x2-x1)*y0 + x2*y1 - y2*x1) / math.sqrt((y2-y1)**2 + (x2-x1)**2)
+    try:
+        return abs((y2-y1)*x0 - (x2-x1)*y0 + x2*y1 - y2*x1) / math.sqrt((y2-y1)**2 + (x2-x1)**2)
+    except ZeroDivisionError:
+        return 9999999
 
 def simplify_path(path):
     # adapted from http://en.wikipedia.org/wiki/Ramer%E2%80%93Douglas%E2%80%93Peucker_algorithm
