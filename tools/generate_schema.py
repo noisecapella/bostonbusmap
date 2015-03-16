@@ -28,8 +28,32 @@ def writeTable(table):
 
         if "values" in column:
             print
+            print(indent2 + "public enum SourceId {")
+            first = True
             for value, valueName in column["values"].iteritems():
-                print indent2 + "public static final int enum" + column["tag"] + str(valueName) + " = " + str(value) + ";"
+                if first:
+                    first = False
+                else:
+                    print(",")
+                print indent3 + str(valueName) + "(" + str(value) + ")",
+            print(";")
+            print(indent3 + "private final int value;")
+            print(indent3 + "SourceId(int value) {")
+            print(indent3 + "    this.value = value;")
+            print(indent3 + "}")
+            print(indent3 + "public int getValue() {")
+            print(indent3 + "    return value;")
+            print(indent3 + "}")
+            print(indent3 + "public static SourceId fromValue(int value) {")
+            print(indent3 + "    ")
+            for value, valueName in column["values"].iteritems():
+                print indent3 + "    if (value == " + str(value) + ") {"
+                print indent3 + "        return " + str(valueName) + ";"
+                print indent3 + "    }"
+            print(indent3 + "    throw new RuntimeException(\"Unknown value \" + value);")
+            print(indent3 + "}")
+            print(indent2 + "}")
+            print
     print
 
     print indent2 + "public static final String dropSql = \"DROP TABLE IF EXISTS " + table.tablename + "\";";

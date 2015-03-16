@@ -112,21 +112,21 @@ public class TransitSystem implements ITransitSystem {
 		{
 			routeTitles = databaseAgent.getRouteTitles();
 
-			TransitSourceTitles busTransitRoutes = routeTitles.getMappingForSource(Schema.Routes.enumagencyidBus);
-			TransitSourceTitles hubwayTransitRoutes = routeTitles.getMappingForSource(Schema.Routes.enumagencyidHubway);
+			TransitSourceTitles busTransitRoutes = routeTitles.getMappingForSource(Schema.Routes.SourceId.Bus);
+			TransitSourceTitles hubwayTransitRoutes = routeTitles.getMappingForSource(Schema.Routes.SourceId.Hubway);
 			
 			defaultTransitSource = new BusTransitSource(this, busDrawables, busTransitRoutes, routeTitles);
 			
 			ImmutableMap.Builder<String, TransitSource> mapBuilder = ImmutableMap.builder();
 			MbtaRealtimeTransitSource subwayTransitSource = new MbtaRealtimeTransitSource(
 					subwayDrawables,
-					routeTitles.getMappingForSources(new int[] {Schema.Routes.enumagencyidSubway}), this);
+					routeTitles.getMappingForSources(new Schema.Routes.SourceId[] {Schema.Routes.SourceId.Subway}), this);
 			for (String route : subwayTransitSource.getRouteTitles().routeTags()) {
 				mapBuilder.put(route, subwayTransitSource);
 			}
 
             CommuterRailTransitSource commuterRailTransitSource = new CommuterRailTransitSource(commuterRailDrawables,
-                    routeTitles.getMappingForSource(Schema.Routes.enumagencyidCommuterRail), this);
+                    routeTitles.getMappingForSource(Schema.Routes.SourceId.CommuterRail), this);
             for (String route : commuterRailTransitSource.getRouteTitles().routeTags()) {
                 mapBuilder.put(route, commuterRailTransitSource);
             }
@@ -320,9 +320,9 @@ public class TransitSystem implements ITransitSystem {
 		return true;
 	}
 
-	public TransitSource getTransitSourceByRouteType(int routeType) {
+	public TransitSource getTransitSourceByRouteType(Schema.Routes.SourceId routeType) {
 		for (TransitSource source : transitSources) {
-			for (int otherRouteType : source.getTransitSourceIds()) {
+			for (Schema.Routes.SourceId otherRouteType : source.getTransitSourceIds()) {
 				if (routeType == otherRouteType) {
 					return source;
 				}

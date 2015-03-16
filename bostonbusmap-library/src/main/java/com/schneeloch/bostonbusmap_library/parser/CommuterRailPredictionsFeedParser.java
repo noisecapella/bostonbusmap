@@ -128,7 +128,7 @@ public class CommuterRailPredictionsFeedParser
 							lon, trip, timestampMillis, timestampMillis,
 							headingString, true, dirTag, routeName, directions,
 							routeTitle);
-                    newLocations.put(new VehicleLocations.Key(Schema.Routes.enumagencyidCommuterRail, routeName, trip), location);
+                    newLocations.put(new VehicleLocations.Key(Schema.Routes.SourceId.CommuterRail, routeName, trip), location);
 				}
 			}
 			
@@ -161,7 +161,7 @@ public class CommuterRailPredictionsFeedParser
 				}
 			}
 		}
-        busMapping.update(Schema.Routes.enumagencyidCommuterRail, ImmutableSet.of(routeName), false, newLocations);
+        busMapping.update(Schema.Routes.SourceId.CommuterRail, ImmutableSet.of(routeName), false, newLocations);
 
 		return pairs;
 	}
