@@ -125,6 +125,8 @@ class GtfsMap(object):
 
     def _create_table(self, gtfs_path, table, types):
         path = os.path.join(gtfs_path, table + ".txt")
+        if not os.path.exists(path):
+            return
         with open(path) as f:
             reader = csv.reader(f)
             columns = next(reader)

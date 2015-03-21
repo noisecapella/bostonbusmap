@@ -314,8 +314,8 @@ public class StopLocation implements Location
 	}
 	
 	@Override
-	public int getTransitSourceType() {
-		return Schema.Routes.enumagencyidBus;
+	public Schema.Routes.SourceId getTransitSourceType() {
+		return Schema.Routes.SourceId.Bus;
 	}
 
 	public boolean supportsBusPredictionsAllMode() {

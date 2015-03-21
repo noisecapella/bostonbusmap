@@ -98,7 +98,7 @@ public class MbtaRealtimePredictionsParser {
                                     String routeTitle = this.routeKeysToTitles.getTitle(routeName);
 
                                     String id;
-                                    if (MbtaRealtimeTransitSource.routeNameToTransitSource.get(routeName) == Schema.Routes.enumagencyidCommuterRail) {
+                                    if (MbtaRealtimeTransitSource.routeNameToTransitSource.get(routeName) == Schema.Routes.SourceId.CommuterRail) {
                                         id = tripName;
                                     }
                                     else {

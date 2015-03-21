@@ -26,8 +26,8 @@ public class HubwayStopLocation extends StopLocation {
 	}
 
 	@Override
-	public int getTransitSourceType() {
-		return Schema.Routes.enumagencyidHubway;
+	public Schema.Routes.SourceId getTransitSourceType() {
+		return Schema.Routes.SourceId.Hubway;
 	}
 
 	@Override
