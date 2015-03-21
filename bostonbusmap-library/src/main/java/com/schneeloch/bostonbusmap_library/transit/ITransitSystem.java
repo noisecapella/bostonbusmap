@@ -16,6 +16,7 @@ import com.schneeloch.bostonbusmap_library.data.RouteTitles;
 import com.schneeloch.bostonbusmap_library.data.Selection;
 import com.schneeloch.bostonbusmap_library.data.StopLocation;
 import com.schneeloch.bostonbusmap_library.data.VehicleLocations;
+import com.schneeloch.bostonbusmap_library.database.Schema;
 import com.schneeloch.bostonbusmap_library.provider.IDatabaseAgent;
 
 public interface ITransitSystem {
@@ -50,5 +51,5 @@ public interface ITransitSystem {
 
     public void startObtainAlerts(IDatabaseAgent databaseAgent);
 
-    TransitSource getTransitSourceByRouteType(int routeType);
+    TransitSource getTransitSourceByRouteType(Schema.Routes.SourceId routeType);
 }

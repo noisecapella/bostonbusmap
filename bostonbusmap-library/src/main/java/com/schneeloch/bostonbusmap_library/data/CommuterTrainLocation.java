@@ -27,8 +27,8 @@ public class CommuterTrainLocation extends BusLocation {
 	}
 	
 	@Override
-	public int getTransitSourceType() {
-		return Schema.Routes.enumagencyidCommuterRail;
+	public Schema.Routes.SourceId getTransitSourceType() {
+		return Schema.Routes.SourceId.CommuterRail;
 	}
 	
 	@Override

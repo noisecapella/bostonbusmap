@@ -3,6 +3,7 @@ package com.schneeloch.bostonbusmap_library.data;
 import com.google.common.collect.ImmutableCollection;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import com.schneeloch.bostonbusmap_library.database.Schema;
 
 public interface Location {
 
@@ -65,7 +66,7 @@ public interface Location {
 	 * TODO: one day this might support stops on multiple transit sources
 	 * @return
 	 */
-	int getTransitSourceType();
+	Schema.Routes.SourceId getTransitSourceType();
 
     boolean isUpdated();
 }

@@ -829,13 +829,13 @@ public class DatabaseAgent implements IDatabaseAgent {
             cursor.moveToFirst();
 
             ImmutableBiMap.Builder<String, String> builder = ImmutableBiMap.builder();
-            ImmutableMap.Builder<String, Integer> agencyIdMap = ImmutableMap.builder();
+            ImmutableMap.Builder<String, Schema.Routes.SourceId> agencyIdMap = ImmutableMap.builder();
             while (cursor.isAfterLast() == false) {
                 String route = cursor.getString(0);
                 String routetitle = cursor.getString(1);
                 int agencyid = cursor.getInt(2);
 
-                agencyIdMap.put(route, agencyid);
+                agencyIdMap.put(route, Schema.Routes.SourceId.fromValue(agencyid));
                 builder.put(route, routetitle);
                 cursor.moveToNext();
             }

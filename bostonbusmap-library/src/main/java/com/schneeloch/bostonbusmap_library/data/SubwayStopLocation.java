@@ -27,8 +27,8 @@ public class SubwayStopLocation extends StopLocation {
 	}
 
 	@Override
-	public int getTransitSourceType() {
-		return Schema.Routes.enumagencyidSubway;
+	public Schema.Routes.SourceId getTransitSourceType() {
+		return Schema.Routes.SourceId.Subway;
 	}
 
 	@Override

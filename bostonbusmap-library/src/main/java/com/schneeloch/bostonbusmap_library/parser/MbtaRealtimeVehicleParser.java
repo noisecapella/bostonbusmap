@@ -66,7 +66,7 @@ public class MbtaRealtimeVehicleParser {
         for (Mode mode : root.mode) {
             for (Route route : mode.route) {
                 String routeName;
-                int transitSourceId;
+                Schema.Routes.SourceId transitSourceId;
                 if (MbtaRealtimeTransitSource.gtfsNameToRouteName.containsKey(route.route_id)) {
                     routeName = MbtaRealtimeTransitSource.gtfsNameToRouteName.get(route.route_id);
                     transitSourceId = MbtaRealtimeTransitSource.routeNameToTransitSource.get(routeName);
@@ -103,7 +103,7 @@ public class MbtaRealtimeVehicleParser {
                             directionsObj.add(newDirectionId, directionObj);
 
                             BusLocation location;
-                            if (transitSourceId == Schema.Routes.enumagencyidCommuterRail) {
+                            if (transitSourceId == Schema.Routes.SourceId.CommuterRail) {
                                 location = new CommuterTrainLocation(latitude, longitude, tripName,
                                         lastFeedUpdateInMillis, timestamp, bearing, true,
                                         newDirectionId, routeName, directionsObj, routeTitle);
@@ -121,7 +121,7 @@ public class MbtaRealtimeVehicleParser {
             }
         }
 
-        busMapping.update(Schema.Routes.enumagencyidCommuterRail, routeNames, false, newCommuterRailVehicles);
-        busMapping.update(Schema.Routes.enumagencyidSubway, routeNames, false, newSubwayVehicles);
+        busMapping.update(Schema.Routes.SourceId.CommuterRail, routeNames, false, newCommuterRailVehicles);
+        busMapping.update(Schema.Routes.SourceId.Subway, routeNames, false, newSubwayVehicles);
 	}
 }

@@ -250,10 +250,36 @@ public class Schema {
         public static final String agencyidColumn = "agencyid";
         public static final String agencyidColumnOnTable = "routes.agencyid";
 
-        public static final int enumagencyidSubway = 1;
-        public static final int enumagencyidCommuterRail = 2;
-        public static final int enumagencyidBus = 3;
-        public static final int enumagencyidHubway = 50;
+        public enum SourceId {
+            Subway(1) ,
+            CommuterRail(2) ,
+            Bus(3) ,
+            Hubway(50) ;
+            private final int value;
+            SourceId(int value) {
+                this.value = value;
+            }
+            public int getValue() {
+                return value;
+            }
+            public static SourceId fromValue(int value) {
+                
+                if (value == 1) {
+                    return Subway;
+                }
+                if (value == 2) {
+                    return CommuterRail;
+                }
+                if (value == 3) {
+                    return Bus;
+                }
+                if (value == 50) {
+                    return Hubway;
+                }
+                throw new RuntimeException("Unknown value " + value);
+            }
+        }
+
         public static final int routetitleIndex = 7;
         public static final String routetitleColumn = "routetitle";
         public static final String routetitleColumnOnTable = "routes.routetitle";
