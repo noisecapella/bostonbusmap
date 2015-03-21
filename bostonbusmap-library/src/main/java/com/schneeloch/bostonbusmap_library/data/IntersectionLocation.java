@@ -8,6 +8,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
 
+import com.schneeloch.bostonbusmap_library.database.Schema;
 import com.schneeloch.bostonbusmap_library.math.Geometry;
 
 public class IntersectionLocation implements Location {
@@ -172,8 +173,8 @@ public class IntersectionLocation implements Location {
 	}
 	
 	@Override
-	public int getTransitSourceType() {
-		return -1;
+	public Schema.Routes.SourceId getTransitSourceType() {
+		return null;
 	}
 
     @Override

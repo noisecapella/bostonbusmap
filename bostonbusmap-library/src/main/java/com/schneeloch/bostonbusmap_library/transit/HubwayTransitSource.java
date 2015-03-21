@@ -143,8 +143,8 @@ public class HubwayTransitSource implements TransitSource {
 	}
 
 	@Override
-	public int[] getTransitSourceIds() {
-		return new int[] {Schema.Routes.enumagencyidHubway};
+	public Schema.Routes.SourceId[] getTransitSourceIds() {
+		return new Schema.Routes.SourceId[] {Schema.Routes.SourceId.Hubway};
 	}
 
 	@Override

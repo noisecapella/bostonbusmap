@@ -11,16 +11,18 @@ import com.google.common.collect.ImmutableMultimap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.ImmutableTable;
 
+import javax.xml.transform.Source;
+
 public class Alerts implements IAlerts {
 	private final ImmutableMultimap<String, Alert> alertsByRoute;
 	private final ImmutableMultimap<String, Alert> alertsByStop;
-	private final ImmutableMultimap<Integer, Alert> alertsByRouteType;
+	private final ImmutableMultimap<Schema.Routes.SourceId, Alert> alertsByRouteType;
 	private final ImmutableMultimap<String, Alert> alertsByCommuterRailTripId;
 	private final ImmutableList<Alert> systemWideAlerts;
 	
 	private Alerts(ImmutableMultimap<String, Alert> alertsByRoute, 
 			ImmutableMultimap<String, Alert> alertsByStop,
-			ImmutableMultimap<Integer, Alert> alertsByRouteType,
+			ImmutableMultimap<Schema.Routes.SourceId, Alert> alertsByRouteType,
 			ImmutableMultimap<String, Alert> alertsByCommuterRailTripId,
 			ImmutableList<Alert> systemWideAlerts) {
 		this.alertsByRoute = alertsByRoute;
@@ -33,7 +35,7 @@ public class Alerts implements IAlerts {
 	public static class Builder {
 		private final ImmutableMultimap.Builder<String, Alert> alertsByRoute;
 		private final ImmutableMultimap.Builder<String, Alert> alertsByStop;
-		private final ImmutableMultimap.Builder<Integer, Alert> alertsByRouteType;
+		private final ImmutableMultimap.Builder<Schema.Routes.SourceId, Alert> alertsByRouteType;
 		private final ImmutableMultimap.Builder<String, Alert> alertsByCommuterRailTripId;
 		private final ImmutableList.Builder<Alert> systemWideAlerts;
 		
@@ -49,7 +51,7 @@ public class Alerts implements IAlerts {
 			this.alertsByRoute.put(route, alert);
 		}
 		
-		public void addAlertForRouteType(int routeType, Alert alert) {
+		public void addAlertForRouteType(Schema.Routes.SourceId routeType, Alert alert) {
 			this.alertsByRouteType.put(routeType, alert);
 		}
 		
@@ -89,7 +91,7 @@ public class Alerts implements IAlerts {
 		ImmutableCollection.Builder<Alert> ret = ImmutableList.builder();
 		ret.addAll(systemWideAlerts);
 		ret.addAll(alertsByCommuterRailTripId.get(tripId));
-		ret.addAll(alertsByRouteType.get(Schema.Routes.enumagencyidCommuterRail));
+		ret.addAll(alertsByRouteType.get(Schema.Routes.SourceId.CommuterRail));
 		ret.addAll(alertsByRoute.get(routeId));
 		return ret.build();
 	}
@@ -99,7 +101,7 @@ public class Alerts implements IAlerts {
 	 */
 	@Override
 	public ImmutableCollection<Alert> getAlertsByRoute(String routeName,
-			int routeType) {
+			Schema.Routes.SourceId routeType) {
 		ImmutableCollection.Builder<Alert> ret = ImmutableList.builder();
 		ret.addAll(systemWideAlerts);
 		ret.addAll(alertsByRouteType.get(routeType));
@@ -112,7 +114,7 @@ public class Alerts implements IAlerts {
 	 */
 	@Override
 	public ImmutableCollection<Alert> getAlertsByRouteSetAndStop(
-			Collection<String> routes, String tag, int routeType) {
+			Collection<String> routes, String tag, Schema.Routes.SourceId routeType) {
 		ImmutableCollection.Builder<Alert> ret = ImmutableList.builder();
 		ret.addAll(systemWideAlerts);
 		ImmutableCollection<Alert> routeTypeAlerts = alertsByRouteType.get(routeType);
