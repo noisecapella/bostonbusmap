@@ -117,8 +117,8 @@ public class TransitSystem implements ITransitSystem {
 		{
 			routeTitles = databaseAgent.getRouteTitles();
 
-			TransitSourceTitles busTransitRoutes = routeTitles.getMappingForSource(Schema.Routes.enumagencyidBus);
-			TransitSourceTitles hubwayTransitRoutes = routeTitles.getMappingForSource(Schema.Routes.enumagencyidHubway);
+			TransitSourceTitles busTransitRoutes = routeTitles.getMappingForSource(Schema.Routes.SourceId.Bus);
+			TransitSourceTitles hubwayTransitRoutes = routeTitles.getMappingForSource(Schema.Routes.SourceId.Hubway);
 			
 			defaultTransitSource = new LABusTransitSource(this, busDrawables, busTransitRoutes, routeTitles);
 			
@@ -303,9 +303,9 @@ public class TransitSystem implements ITransitSystem {
 		return true;
 	}
 
-	public TransitSource getTransitSourceByRouteType(int routeType) {
+	public TransitSource getTransitSourceByRouteType(Schema.Routes.SourceId routeType) {
 		for (TransitSource source : transitSources) {
-			for (int otherRouteType : source.getTransitSourceIds()) {
+			for (Schema.Routes.SourceId otherRouteType : source.getTransitSourceIds()) {
 				if (routeType == otherRouteType) {
 					return source;
 				}

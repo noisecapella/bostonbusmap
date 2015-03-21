@@ -16,6 +16,7 @@ import com.schneeloch.bostonbusmap_library.data.Selection;
 import com.schneeloch.bostonbusmap_library.data.StopLocation;
 import com.schneeloch.bostonbusmap_library.data.TransitSourceTitles;
 import com.schneeloch.bostonbusmap_library.data.VehicleLocations;
+import com.schneeloch.bostonbusmap_library.database.Schema;
 
 public interface TransitSource {
 
@@ -42,10 +43,7 @@ public interface TransitSource {
 	 */
 	int getLoadOrder();
 
-	/**
-	 * Returns corresponding values in Schema.Routes.enumagency*
-	 */
-	int[] getTransitSourceIds();
+	Schema.Routes.SourceId[] getTransitSourceIds();
 
 	/**
 	 * Do we need to look at the Schema.Subway table to get branch

@@ -21,6 +21,7 @@ import com.schneeloch.bostonbusmap_library.data.Alerts;
 import com.schneeloch.bostonbusmap_library.data.IAlerts;
 import com.schneeloch.bostonbusmap_library.data.RouteTitles;
 import com.schneeloch.bostonbusmap_library.data.StopLocation;
+import com.schneeloch.bostonbusmap_library.database.Schema;
 import com.schneeloch.bostonbusmap_library.provider.IDatabaseAgent;
 import com.schneeloch.bostonbusmap_library.transit.ITransitSystem;
 import com.schneeloch.bostonbusmap_library.transit.TransitSource;
@@ -85,7 +86,7 @@ public class MbtaAlertsParser implements IAlertsParser {
 			// a stop on one route vs the same stop on another
 			ImmutableList.Builder<String> stopsBuilder = ImmutableList.builder();
 			List<String> routes = Lists.newArrayList();
-			List<Integer> sources = Lists.newArrayList();
+			List<Schema.Routes.SourceId> sources = Lists.newArrayList();
 			List<String> commuterRailTripIds = Lists.newArrayList();
 			boolean isSystemWide = false;
 			for (EntitySelector selector : alert.getInformedEntityList()) {
@@ -116,7 +117,7 @@ public class MbtaAlertsParser implements IAlertsParser {
 					routes.add(routeId);
 				}
 				else if (selector.hasRouteType()) {
-					int routeType = selector.getRouteType();
+					Schema.Routes.SourceId routeType = Schema.Routes.SourceId.fromValue(selector.getRouteType());
 					sources.add(routeType);
 				}
 				else
@@ -149,7 +150,7 @@ public class MbtaAlertsParser implements IAlertsParser {
 						description);
 				builder.addAlertForCommuterRailTrip(commuterRailTripId, commuterRailAlert);
 			}
-			for (Integer routeType : sources) {
+			for (Schema.Routes.SourceId routeType : sources) {
 				TransitSource source = transitSystem.getTransitSourceByRouteType(routeType);
 				if (source != null) {
 					String sourceDescription = source.getDescription();

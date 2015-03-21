@@ -177,7 +177,7 @@ public abstract class NextBusTransitSource implements TransitSource
                     bus.setLastUpdateInMillis(lastUpdateTime);
                 }
 
-                busMapping.update(Schema.Routes.enumagencyidBus, routeTitles.routeTags(), true, newBuses);
+                busMapping.update(Schema.Routes.SourceId.Bus, routeTitles.routeTags(), true, newBuses);
 
                 // now that we've succeeded, update last download times
                 switch (mode) {
@@ -205,7 +205,7 @@ public abstract class NextBusTransitSource implements TransitSource
         {
             if (location instanceof StopLocation) {
                 StopLocation stopLocation = (StopLocation) location;
-                if (stopLocation.getTransitSourceType() == Schema.Routes.enumagencyidBus) {
+                if (stopLocation.getTransitSourceType() == Schema.Routes.SourceId.Bus) {
 
                     if (routes.isEmpty() == false) {
                         for (String route : routes) {
@@ -308,8 +308,8 @@ public abstract class NextBusTransitSource implements TransitSource
 	}
 	
 	@Override
-	public int[] getTransitSourceIds() {
-		return new int[] {Schema.Routes.enumagencyidBus};
+	public Schema.Routes.SourceId[] getTransitSourceIds() {
+		return new Schema.Routes.SourceId[] {Schema.Routes.SourceId.Bus};
 	}
 	
 	@Override
