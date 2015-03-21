@@ -13,6 +13,7 @@ import com.google.common.collect.Iterables;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.Multimaps;
+import com.schneeloch.bostonbusmap_library.database.Schema;
 
 /**
  * Convenience class to handle mapping routes to route titles
@@ -22,11 +23,11 @@ import com.google.common.collect.Multimaps;
 public class RouteTitles extends TransitSourceTitles
 {
 	private final ImmutableMap<String, Integer> tagToIndex;
-	private final ImmutableMap<Integer, TransitSourceTitles> transitSourceMaps;
-	private final ImmutableMap<String, Integer> transitSourceIds;
+	private final ImmutableMap<Schema.Routes.SourceId, TransitSourceTitles> transitSourceMaps;
+	private final ImmutableMap<String, Schema.Routes.SourceId> transitSourceIds;
 	
 	public RouteTitles(ImmutableBiMap<String, String> map, 
-			ImmutableMap<String, Integer> transitSourceIds) {
+			ImmutableMap<String, Schema.Routes.SourceId> transitSourceIds) {
 		super(map);
 
 		ImmutableMap.Builder<String, Integer> builder = ImmutableMap.builder();
@@ -37,12 +38,12 @@ public class RouteTitles extends TransitSourceTitles
 		}
 		tagToIndex = builder.build();
 
-		Map<Integer, ImmutableBiMap.Builder<String, String>> transitSourceBuilder 
+		Map<Schema.Routes.SourceId, ImmutableBiMap.Builder<String, String>> transitSourceBuilder
 				= Maps.newHashMap();
 		
 		for (String name : map.keySet()) {
 			String title = map.get(name);
-			int transitSourceId = transitSourceIds.get(name);
+			Schema.Routes.SourceId transitSourceId = transitSourceIds.get(name);
 
 			ImmutableBiMap.Builder<String, String> miniBuilder;
 			if (transitSourceBuilder.containsKey(transitSourceId) == false) {
@@ -56,8 +57,8 @@ public class RouteTitles extends TransitSourceTitles
 			miniBuilder.put(name, title);
 		}
 
-		Map<Integer, TransitSourceTitles> transitionMap = Maps.newHashMap();
-		for (int transitSourceId : transitSourceBuilder.keySet()) {
+		Map<Schema.Routes.SourceId, TransitSourceTitles> transitionMap = Maps.newHashMap();
+		for (Schema.Routes.SourceId transitSourceId : transitSourceBuilder.keySet()) {
 			ImmutableBiMap.Builder<String, String> value = transitSourceBuilder.get(transitSourceId);
 
 			TransitSourceTitles transitSourceTitles = new TransitSourceTitles(value.build());
@@ -88,10 +89,10 @@ public class RouteTitles extends TransitSourceTitles
 	}
 
 	public TransitSourceTitles getMappingForSources(
-			int[] transitSourceIds) {
+			Schema.Routes.SourceId[] transitSourceIds) {
 		ImmutableBiMap.Builder<String, String> builder = ImmutableBiMap.builder();
 		
-		for (int id : transitSourceIds) {
+		for (Schema.Routes.SourceId id : transitSourceIds) {
 			TransitSourceTitles titles = transitSourceMaps.get(id);
 			builder.putAll(titles.map);
 		}
@@ -99,11 +100,11 @@ public class RouteTitles extends TransitSourceTitles
 		return new TransitSourceTitles(builder.build());
 	}
 
-	public TransitSourceTitles getMappingForSource(int transitSourceId) {
+	public TransitSourceTitles getMappingForSource(Schema.Routes.SourceId transitSourceId) {
 		return transitSourceMaps.get(transitSourceId);
 	}
 	
-	public int getTransitSourceId(String routeName) {
+	public Schema.Routes.SourceId getTransitSourceId(String routeName) {
 		return transitSourceIds.get(routeName);
 	}
 

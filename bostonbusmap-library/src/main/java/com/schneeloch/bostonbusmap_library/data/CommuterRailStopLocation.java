@@ -4,6 +4,8 @@ import com.schneeloch.bostonbusmap_library.database.Schema;
 
 import com.google.common.collect.ImmutableSet;
 
+import javax.xml.transform.Source;
+
 public class CommuterRailStopLocation extends SubwayStopLocation {
 
 	protected CommuterRailStopLocation(CommuterRailBuilder build) {
@@ -25,7 +27,7 @@ public class CommuterRailStopLocation extends SubwayStopLocation {
 	}
 	
 	@Override
-	public int getTransitSourceType() {
-		return Schema.Routes.enumagencyidCommuterRail;
+	public Schema.Routes.SourceId getTransitSourceType() {
+		return Schema.Routes.SourceId.CommuterRail;
 	}
 }

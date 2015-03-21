@@ -129,7 +129,7 @@ public class TransitDrawables implements ITransitDrawables {
         }
         else if (locationType == LocationType.Vehicle) {
             boolean isRail = true;
-            if (location.getTransitSourceType() == Schema.Routes.enumagencyidBus) {
+            if (location.getTransitSourceType() == Schema.Routes.SourceId.Bus) {
                 isRail = false;
             }
             return context.getResources().getDrawable(BusDrawablesLookup.getIdFromAngle(location.getHeading(), false, isRail));

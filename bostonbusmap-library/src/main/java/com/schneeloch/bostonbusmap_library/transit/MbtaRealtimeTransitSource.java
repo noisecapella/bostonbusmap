@@ -45,7 +45,7 @@ public class MbtaRealtimeTransitSource implements TransitSource {
 	
 	public static final ImmutableMap<String, String> gtfsNameToRouteName;
 	public static final ImmutableMultimap<String, String> routeNameToGtfsName;
-	public static final ImmutableMap<String, Integer> routeNameToTransitSource;
+	public static final ImmutableMap<String, Schema.Routes.SourceId> routeNameToTransitSource;
 
     private final TransitSourceCache cache;
 
@@ -67,7 +67,7 @@ public class MbtaRealtimeTransitSource implements TransitSource {
 
 		// workaround for the quick and dirty way things are done in this app
 		// TODO: fix local names to match field names
-		ImmutableMap.Builder<String, Integer> routeToTransitSourceIdBuilder =
+		ImmutableMap.Builder<String, Schema.Routes.SourceId> routeToTransitSourceIdBuilder =
 				ImmutableMap.builder();
 		
 		ImmutableMap.Builder<String, String> gtfsNameToRouteNameBuilder =
@@ -109,14 +109,14 @@ public class MbtaRealtimeTransitSource implements TransitSource {
 				"CR-Newburyport"
 		};
 
-		routeToTransitSourceIdBuilder.put(greenRoute, Schema.Routes.enumagencyidSubway);
-		routeToTransitSourceIdBuilder.put(redRoute, Schema.Routes.enumagencyidSubway);
-		routeToTransitSourceIdBuilder.put(orangeRoute, Schema.Routes.enumagencyidSubway);
-		routeToTransitSourceIdBuilder.put(blueRoute, Schema.Routes.enumagencyidSubway);
+		routeToTransitSourceIdBuilder.put(greenRoute, Schema.Routes.SourceId.Subway);
+		routeToTransitSourceIdBuilder.put(redRoute, Schema.Routes.SourceId.Subway);
+		routeToTransitSourceIdBuilder.put(orangeRoute, Schema.Routes.SourceId.Subway);
+		routeToTransitSourceIdBuilder.put(blueRoute, Schema.Routes.SourceId.Subway);
 		
 		for (String commuterRailRoute : commuterRailRoutes) {
 			gtfsNameToRouteNameBuilder.put(commuterRailRoute, commuterRailRoute);
-			routeToTransitSourceIdBuilder.put(commuterRailRoute, Schema.Routes.enumagencyidCommuterRail);
+			routeToTransitSourceIdBuilder.put(commuterRailRoute, Schema.Routes.SourceId.CommuterRail);
 		}
 
 		gtfsNameToRouteName = gtfsNameToRouteNameBuilder.build();
@@ -231,13 +231,13 @@ public class MbtaRealtimeTransitSource implements TransitSource {
 	@Override
 	public StopLocation createStop(float latitude, float longitude,
 			String stopTag, String stopTitle, String route) {
-        int transitSourceId = routeNameToTransitSource.get(route);
+        Schema.Routes.SourceId transitSourceId = routeNameToTransitSource.get(route);
         StopLocation stop;
-        if (transitSourceId == Schema.Routes.enumagencyidSubway) {
+        if (transitSourceId == Schema.Routes.SourceId.Subway) {
             stop = new SubwayStopLocation.SubwayBuilder(latitude,
                     longitude, stopTag, stopTitle).build();
         }
-        else if (transitSourceId == Schema.Routes.enumagencyidCommuterRail) {
+        else if (transitSourceId == Schema.Routes.SourceId.CommuterRail) {
             stop = new CommuterRailStopLocation.CommuterRailBuilder(latitude, longitude, stopTag, stopTitle).build();
         }
         else {
@@ -259,10 +259,10 @@ public class MbtaRealtimeTransitSource implements TransitSource {
 	}
 
 	@Override
-	public int[] getTransitSourceIds() {
-		return new int[] {
-				Schema.Routes.enumagencyidSubway
-		};
+	public Schema.Routes.SourceId[] getTransitSourceIds() {
+		return new Schema.Routes.SourceId[] {
+                Schema.Routes.SourceId.Subway
+        };
 	}
 
 	@Override

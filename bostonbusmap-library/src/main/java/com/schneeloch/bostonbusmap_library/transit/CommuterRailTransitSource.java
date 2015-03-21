@@ -317,8 +317,8 @@ public class CommuterRailTransitSource implements TransitSource {
 	}
 
     @Override
-    public int[] getTransitSourceIds() {
-        return new int[] {Schema.Routes.enumagencyidCommuterRail};
+    public Schema.Routes.SourceId[] getTransitSourceIds() {
+        return new Schema.Routes.SourceId[] {Schema.Routes.SourceId.CommuterRail};
     }
 
     @Override

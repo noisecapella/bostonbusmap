@@ -9,14 +9,17 @@ import com.google.common.base.Objects;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
+import com.schneeloch.bostonbusmap_library.database.Schema;
+
+import javax.xml.transform.Source;
 
 public class VehicleLocations {
     public static class Key {
-		private final int transitSourceId;
+		private final Schema.Routes.SourceId transitSourceId;
         private final String routeName;
 		private final String id;
 		
-		public Key(int transitSourceId, String routeName, String id) {
+		public Key(Schema.Routes.SourceId transitSourceId, String routeName, String id) {
 			this.transitSourceId = transitSourceId;
             this.routeName = routeName;
 			this.id = id;
@@ -41,7 +44,7 @@ public class VehicleLocations {
 	
 	private final ConcurrentHashMap<Key, BusLocation> locations = new ConcurrentHashMap<Key, BusLocation>();
 
-    public void update(int transitSourceId, ImmutableSet<String> routeNames, boolean incremental, Map<Key, BusLocation> newItems) {
+    public void update(Schema.Routes.SourceId transitSourceId, ImmutableSet<String> routeNames, boolean incremental, Map<Key, BusLocation> newItems) {
         Set<VehicleLocations.Key> toRemove = Sets.newHashSet();
 
         for (VehicleLocations.Key key : locations.keySet()) {
