@@ -130,7 +130,8 @@ public class DatabaseContentProvider extends ContentProvider {
 	public final static int FIX_LOCATIONS_9 = 49;
     public final static int FIX_LOCATIONS_10 = 50;
     public final static int FIX_LOCATIONS_11 = 51;
-	public final static int CURRENT_DB_VERSION = FIX_LOCATIONS_11;
+	public final static int FIX_LOCATIONS_12 = 52;
+	public final static int CURRENT_DB_VERSION = FIX_LOCATIONS_12;
 
 	public static final int ALWAYS_POPULATE = 3;
 	public static final int POPULATE_IF_UPGRADE = 2;
