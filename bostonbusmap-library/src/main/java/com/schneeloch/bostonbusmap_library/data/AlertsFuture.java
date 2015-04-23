@@ -37,7 +37,7 @@ public class AlertsFuture
 						AlertsFuture.this.alerts = alerts;
 					}
 				}
-				catch (IOException e) {
+				catch (Throwable e) {
 					LogUtil.e(e);
 				}
 			}
