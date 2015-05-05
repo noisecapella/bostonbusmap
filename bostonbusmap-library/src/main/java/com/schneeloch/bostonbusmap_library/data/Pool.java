@@ -38,6 +38,10 @@ public abstract class Pool<K, V> {
 		return pool.values();
 	}
 
+	public boolean keyInPool(K key) {
+		return pool.containsKey(key);
+	}
+
 	public V get(K key) throws IOException {
 		if (pool.containsKey(key)) {
 			return pool.get(key);
