@@ -200,8 +200,8 @@ public final class Locations
 			Collection<StopLocation> stops = routeMapping.getClosestStops(centerLatitude, centerLongitude, maxLocations);
 
 			// HACK: hubway stops are often only in memory, not in database
-			if (routeMapping.keyInPool("hubway")) {
-				newLocations.addAll(routeMapping.get("hubway").getStops());
+			if (routeMapping.keyInPool("Hubway")) {
+				newLocations.addAll(routeMapping.get("Hubway").getStops());
 			}
 
 			for (StopLocation stop : stops)
