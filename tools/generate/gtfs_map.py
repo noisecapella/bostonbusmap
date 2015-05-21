@@ -147,6 +147,9 @@ class GtfsMap(object):
     def _query(self, query, parameters):
         return (dict(row) for row in self._db.execute(query, parameters))
 
+    def find_routes_by_id(self, id):
+        return self._query("SELECT * FROM routes WHERE route_id = ?", (id,))
+
     def find_routes_by_name(self, name):
         return self._query("SELECT * FROM routes WHERE route_long_name = ? OR route_short_name = ?", (name, name))
 
