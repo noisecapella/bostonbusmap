@@ -140,6 +140,7 @@ public class DatabaseContentProvider extends ContentProvider {
 	public final static int HUBWAY_16 = 65;
 	public final static int HUBWAY_17 = 66;
 	public final static int HUBWAY_18 = 67;
+	public final static int HUBWAY_19 = 68;
 	public final static int CURRENT_DB_VERSION = HUBWAY_18;
 
 	public static final int ALWAYS_POPULATE = 3;
