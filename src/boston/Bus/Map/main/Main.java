@@ -70,6 +70,7 @@ import android.os.Bundle;
 import android.os.SystemClock;
 import android.preference.PreferenceManager;
 import android.provider.SearchRecentSuggestions;
+import android.support.v4.widget.DrawerLayout;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.Menu;
@@ -79,9 +80,11 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.Spinner;
@@ -136,6 +139,9 @@ public class Main extends MapActivity
 	private RouteTitles dropdownRouteKeysToTitles;
 	private AlertDialog routeChooserDialog;
 
+    private ListView drawerList;
+    private DrawerLayout drawerLayout;
+
     private UpdateArguments arguments;
 
 
@@ -148,7 +154,23 @@ public class Main extends MapActivity
 	public static final String ROUTE_KEY = "route";
 	public static final String STOP_KEY = "stop";
 	public static final String MODE_KEY = "mode";
-	
+
+    private final static int DRAWER_INTERSECTIONS_MENU_ITEM_POS = 0;
+    private final static int DRAWER_CHOOSE_STOP_POS = 1;
+    private final static int DRAWER_CENTER_ON_CITY_POS = 2;
+    private final static int DRAWER_ROUTES_POS = 3;
+    private final static int DRAWER_REFRESH_POS = 4;
+    private final static int DRAWER_SETTINGS_POS = 5;
+    private static final String[] drawerOptions = new String[6];
+    static {
+        drawerOptions[DRAWER_INTERSECTIONS_MENU_ITEM_POS] = "Places";
+        drawerOptions[DRAWER_CHOOSE_STOP_POS] = "Favorite Stops";
+        drawerOptions[DRAWER_CENTER_ON_CITY_POS] = "Center on Boston";
+        drawerOptions[DRAWER_ROUTES_POS] = "Routes";
+        drawerOptions[DRAWER_REFRESH_POS] = "Refresh";
+        drawerOptions[DRAWER_SETTINGS_POS] = "Settings";
+    }
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -173,7 +195,21 @@ public class Main extends MapActivity
         RelativeLayout tutorialLayout = (RelativeLayout) findViewById(R.id.mapViewTutorial);
         Button skipTutorialButton = (Button) findViewById(R.id.mapViewTutorialSkipButton);
         Button nextTutorialButton = (Button) findViewById(R.id.mapViewTutorialNextButton);
-        
+
+        // TODO: find a better place for this
+
+        drawerLayout = (DrawerLayout)findViewById(R.id.drawer_layout);
+        drawerList = (ListView)findViewById(R.id.left_drawer);
+        drawerList.setAdapter(new ArrayAdapter<String>(this,
+                R.layout.drawer_list_item,
+                drawerOptions));
+        drawerList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                selectMenuItem(position);
+            }
+        });
+
     	SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
 
         final IDatabaseAgent databaseAgent = new DatabaseAgent(getContentResolver());
@@ -503,6 +539,7 @@ public class Main extends MapActivity
 			intent.setData(null);
 		}
 
+
 	}
 		
 	/**
@@ -611,7 +648,7 @@ public class Main extends MapActivity
 		
 		super.onDestroy();
 	}
-	
+
 	@Override
     public boolean onOptionsItemSelected(MenuItem item)
     {
@@ -629,7 +666,7 @@ public class Main extends MapActivity
     		startActivity(new Intent(this, Preferences.class));
     		break;
     	case R.id.centerOnBostonMenuItem:
-    	
+
     		if (arguments != null)
     		{
     			GeoPoint point = new GeoPoint(TransitSystem.getCenterLatAsInt(), TransitSystem.getCenterLonAsInt());
@@ -637,26 +674,26 @@ public class Main extends MapActivity
     			handler.triggerUpdate(1500);
     		}
     		break;
-    	
-    	
-    	
+
+
+
     	case R.id.chooseRoute:
     		routeChooserDialog.show();
-    		
+
     		break;
-    		
+
     	case R.id.intersectionsMenuItem:
     		showIntersectionsDialog();
     		break;
-    	
-    		
+
+
     	/*case R.id.getDirectionsMenuItem:
     		{
     			// this activity starts with an Intent with an empty Bundle, which indicates
     			// all fields are blank
     			startActivityForResult(new Intent(this, GetDirectionsDialog.class), GetDirectionsDialog.GETDIRECTIONS_REQUEST_CODE);
     		}
-    		
+
     		break;
     		*/
     	case R.id.chooseStop:
@@ -666,7 +703,47 @@ public class Main extends MapActivity
     	return true;
     }
 
-    
+    private void selectMenuItem(int selection) {
+        //when the menu button is clicked, a menu comes up
+        switch (selection)
+        {
+            case DRAWER_REFRESH_POS:
+                boolean b = handler.instantRefresh();
+                if (b == false)
+                {
+                    Toast.makeText(this, "Please wait 10 seconds before clicking Refresh again", Toast.LENGTH_LONG).show();
+                }
+                break;
+            case DRAWER_SETTINGS_POS:
+                startActivity(new Intent(this, Preferences.class));
+                break;
+            case DRAWER_CENTER_ON_CITY_POS:
+
+                if (arguments != null)
+                {
+                    GeoPoint point = new GeoPoint(TransitSystem.getCenterLatAsInt(), TransitSystem.getCenterLonAsInt());
+                    arguments.getMapView().getController().animateTo(point);
+                    handler.triggerUpdate(1500);
+                }
+                break;
+            case DRAWER_ROUTES_POS:
+                routeChooserDialog.show();
+
+                break;
+
+            case DRAWER_INTERSECTIONS_MENU_ITEM_POS:
+                showIntersectionsDialog();
+                break;
+
+
+            case DRAWER_CHOOSE_STOP_POS:
+                showChooseStopDialog();
+                break;
+            default:
+                throw new RuntimeException("Unable to find selection " + selection);
+        }
+    }
+
     private void showChooseStopDialog() {
 		if (arguments != null)
 		{
@@ -796,7 +873,7 @@ public class Main extends MapActivity
 
         return true;
     }
-    
+
 	@Override
 	protected boolean isRouteDisplayed() {
 		//TODO: what exactly should we return here? 
