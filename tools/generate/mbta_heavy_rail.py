@@ -13,16 +13,14 @@ from simplify_path import simplify_path
 import sqlite3
 
 class MbtaHeavyRail:
-    def write_sql(self, cur, startorder, route, gtfs_map):
-        supported_route_description = route + " Line"
-        route_rows = list(gtfs_map.find_routes_by_name(supported_route_description))
-        route_ids = set([route_row["route_id"] for route_row in route_rows])
+    def write_sql(self, cur, startorder, route_ids, as_route, gtfs_map):
+        route_rows = [list(gtfs_map.find_routes_by_id(route_id))[0] for route_id in route_ids]
         route_color = [route_row["route_color"] for route_row in route_rows][0]
 
         shape_rows = itertools.chain.from_iterable((gtfs_map.find_shapes_by_route(item) for item in route_ids))
 
         # this stores a list of list of lat, lon pairs
-        print("Appending paths for %s" % supported_route_description)
+        print("Appending paths for %s" % as_route)
         paths = []
         shape_rows = list(sorted(shape_rows, key=lambda shape: shape["shape_id"]))
         print("Adding shapes...")
@@ -36,11 +34,11 @@ class MbtaHeavyRail:
 
         pathblob = schema.Box(paths).get_blob_string()
     
-        print("Inserting route information for %s" % supported_route_description)
+        print("Inserting route information for %s" % as_route)
         # insert route information
         obj = schema.getSchemaAsObject()
-        obj.routes.route.value = route
-        obj.routes.routetitle.value = route
+        obj.routes.route.value = as_route
+        obj.routes.routetitle.value = as_route
         obj.routes.color.value = int("0x%s" % route_color, 0)
         obj.routes.oppositecolor.value = int("0x%s" % route_color, 0)
         obj.routes.listorder.value = startorder
@@ -59,25 +57,25 @@ class MbtaHeavyRail:
                 obj.stops.lon.value = float(stop_row["stop_lon"])
                 cur.execute(obj.stops.insert())
 
-                obj.stopmapping.route.value = route
+                obj.stopmapping.route.value = as_route
                 obj.stopmapping.tag.value = stop_row["stop_id"]
                 cur.execute(obj.stopmapping.insert())
 
                 stop_ids.add(stop_id)
 
-        print("Done for %s" % supported_route_description)
+        print("Done for %s" % as_route)
         return (1)
 
     def generate(self, conn, startorder, gtfs_map):
 
-        count = 0
         cur = conn.cursor()
-        for route in ["Red", "Orange", "Blue", "Green"]:
-
-            count += self.write_sql(cur, startorder + count, route, gtfs_map)
+        startorder += self.write_sql(cur, startorder, ["Red"], "Red", gtfs_map) 
+        startorder += self.write_sql(cur, startorder, ["Orange"], "Orange", gtfs_map) 
+        startorder += self.write_sql(cur, startorder, ["Blue"], "Blue", gtfs_map) 
+        startorder += self.write_sql(cur, startorder, ["Green-B", "Green-C", "Green-D", "Green-E"], "Green", gtfs_map) 
 
         conn.commit()
         cur.close()
-        return (count + startorder)
+        return startorder
 
 
