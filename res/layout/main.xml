@@ -1,80 +1,86 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-	android:layout_width="wrap_content" android:layout_height="wrap_content"
-	android:padding="3dp" android:background="#000000">
-	<RelativeLayout android:layout_width="fill_parent" android:layout_height="wrap_content"
-android:id="@+id/linearLayoutMain" android:gravity="right">
+<android.support.v4.widget.DrawerLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/drawer_layout"
+    android:layout_width="match_parent" android:layout_height="match_parent">
+    <FrameLayout
+        android:id="@+id/content_frame"
+        android:layout_width="match_parent" android:layout_height="match_parent">
+        <RelativeLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" android:padding="3dp" android:background="#000000">
+        <RelativeLayout android:layout_width="fill_parent" android:layout_height="wrap_content"
+            android:id="@+id/linearLayoutMain" android:gravity="right">
 
-	<Spinner android:id="@+id/predictionsOrLocations"
-		
-		android:layout_height="wrap_content" android:layout_width="wrap_content"
-		 android:background="@android:drawable/btn_default"
-		 android:layout_alignParentRight="true"
-		></Spinner>
-	<Button android:id="@+id/chooseAPlaceButton" android:layout_height="wrap_content"
-	    android:layout_width="wrap_content" android:layout_toLeftOf="@+id/predictionsOrLocations"
-		android:background="@android:drawable/btn_default"
-	android:text="..."
-		
-/>
-	    	    
-		<Button android:id="@+id/chooseFavoriteButton" android:layout_height="wrap_content"
-	    android:layout_width="wrap_content" android:layout_toLeftOf="@+id/chooseAPlaceButton"
-	    android:background="@android:drawable/btn_default"
-	    android:text="..."
-	    />
-		
-		
-    <ProgressBar android:id="@+id/progress"
-	android:layout_width="wrap_content" android:layout_height="wrap_content"
-	
-	android:indeterminateOnly="true" android:indeterminate="true"
-	android:layout_toLeftOf="@+id/chooseFavoriteButton"
-	 />
+            <Spinner android:id="@+id/predictionsOrLocations"
+
+                android:layout_height="wrap_content" android:layout_width="wrap_content"
+                android:background="@android:drawable/btn_default"
+                android:layout_alignParentRight="true"
+                ></Spinner>
+            <Button android:id="@+id/chooseAPlaceButton" android:layout_height="wrap_content"
+                android:layout_width="wrap_content" android:layout_toLeftOf="@+id/predictionsOrLocations"
+                android:background="@android:drawable/btn_default"
+                android:text="..."
+
+                />
+
+            <Button android:id="@+id/chooseFavoriteButton" android:layout_height="wrap_content"
+                android:layout_width="wrap_content" android:layout_toLeftOf="@+id/chooseAPlaceButton"
+                android:background="@android:drawable/btn_default"
+                android:text="..."
+                />
 
 
-	<TableLayout android:layout_width="wrap_content" android:layout_height="wrap_content"
-	android:id="@+id/linearLayoutMainSmall" android:layout_toLeftOf="@+id/progress"
-	android:layout_alignParentLeft="true"
-	android:shrinkColumns="0"
-	>
-	<TableRow>
-	<EditText android:layout_width="wrap_content" android:id="@+id/searchTextView"
-		android:hint="@string/searchHint" android:inputType="textNoSuggestions"
-		android:imeActionId="1" android:imeOptions="actionGo"
-		android:focusable="false" android:focusableInTouchMode="false"
-		android:layout_height="wrap_content" android:textSize="16sp"
-		
-		android:ellipsize="end" 
-		></EditText>
-		<ImageButton android:layout_width="wrap_content"
-			android:layout_height="wrap_content" android:id="@+id/searchButton"
-			android:src="@drawable/ic_btn_search"
-			
-			android:contentDescription="@string/search"
-			></ImageButton>
-		</TableRow>
-		</TableLayout>
-</RelativeLayout>
+            <ProgressBar android:id="@+id/progress"
+                android:layout_width="wrap_content" android:layout_height="wrap_content"
 
-	<com.google.android.maps.MapView
-		android:id="@+id/mapview" android:layout_width="fill_parent"
-		android:layout_height="fill_parent" android:clickable="true"
-		android:layout_alignParentBottom="true"
-		android:layout_below="@+id/linearLayoutMain"
-		
-		android:apiKey="04_mZq9Q_5sL2pltlDIYof4iIQimS_U5YPnRafg"
-		 />
-		<RelativeLayout 
-	    android:layout_height="fill_parent"
-	    android:layout_width="fill_parent" 
-	    android:id="@+id/mapViewOverlayButtons"
-	    android:layout_alignParentBottom="true"
-	    android:layout_below="@+id/linearLayoutMain">
-	<ImageButton android:layout_width="wrap_content" android:layout_height="wrap_content"
-	    android:src="@android:drawable/ic_menu_mylocation"
-	    android:id="@+id/myLocationButton"
-	    />
+                android:indeterminateOnly="true" android:indeterminate="true"
+                android:layout_toLeftOf="@+id/chooseFavoriteButton"
+                />
+
+
+            <TableLayout android:layout_width="wrap_content" android:layout_height="wrap_content"
+                android:id="@+id/linearLayoutMainSmall" android:layout_toLeftOf="@+id/progress"
+                android:layout_alignParentLeft="true"
+                android:shrinkColumns="0"
+                >
+                <TableRow>
+                    <EditText android:layout_width="wrap_content" android:id="@+id/searchTextView"
+                        android:hint="@string/searchHint" android:inputType="textNoSuggestions"
+                        android:imeActionId="1" android:imeOptions="actionGo"
+                        android:focusable="false" android:focusableInTouchMode="false"
+                        android:layout_height="wrap_content" android:textSize="16sp"
+
+                        android:ellipsize="end"
+                        ></EditText>
+                    <ImageButton android:layout_width="wrap_content"
+                        android:layout_height="wrap_content" android:id="@+id/searchButton"
+                        android:src="@drawable/ic_btn_search"
+
+                        android:contentDescription="@string/search"
+                        ></ImageButton>
+                </TableRow>
+            </TableLayout>
+        </RelativeLayout>
+
+        <com.google.android.maps.MapView
+            android:id="@+id/mapview" android:layout_width="fill_parent"
+            android:layout_height="fill_parent" android:clickable="true"
+            android:layout_alignParentBottom="true"
+            android:layout_below="@+id/linearLayoutMain"
+
+            android:apiKey="04_mZq9Q_5sL2pltlDIYof4iIQimS_U5YPnRafg"
+            />
+        <RelativeLayout
+            android:layout_height="fill_parent"
+            android:layout_width="fill_parent"
+            android:id="@+id/mapViewOverlayButtons"
+            android:layout_alignParentBottom="true"
+            android:layout_below="@+id/linearLayoutMain">
+            <ImageButton android:layout_width="wrap_content" android:layout_height="wrap_content"
+                android:src="@android:drawable/ic_menu_mylocation"
+                android:id="@+id/myLocationButton"
+                />
 
             <ImageButton
                 android:layout_width="wrap_content"
@@ -84,53 +90,65 @@ android:id="@+id/linearLayoutMain" android:gravity="right">
                 android:layout_alignParentTop="true"
                 android:src="@android:drawable/ic_menu_rotate" />
         </RelativeLayout>
-	    		<RelativeLayout 
-	    android:layout_height="fill_parent"
-	    android:layout_width="fill_parent" 
-	    android:id="@+id/mapViewTutorial"
-	    android:visibility="gone"
-	    android:layout_alignParentBottom="true"
-	    android:layout_below="@+id/linearLayoutMain"
-	    android:gravity="center">
+        <RelativeLayout
+            android:layout_height="fill_parent"
+            android:layout_width="fill_parent"
+            android:id="@+id/mapViewTutorial"
+            android:visibility="gone"
+            android:layout_alignParentBottom="true"
+            android:layout_below="@+id/linearLayoutMain"
+            android:gravity="center">
 
-	<RelativeLayout
-	    android:layout_width="300dp"
-	    android:layout_height="wrap_content"
-	    android:padding="20dp"
-	    android:background="@drawable/tooltip"
-	    
-	     >
+            <RelativeLayout
+                android:layout_width="300dp"
+                android:layout_height="wrap_content"
+                android:padding="20dp"
+                android:background="@drawable/tooltip"
 
-	<TextView
-	    android:id="@+id/mapViewTutorialText"
-	    android:layout_width="fill_parent"
-	    android:layout_height="wrap_content"
-	    android:text="Hello, world!"
-	    android:textColor="@android:color/black" 
-	    />
+                >
 
-	<Button android:layout_height="wrap_content"
-	    android:layout_width="wrap_content"
-	    android:text="Next" 
-		android:id="@+id/mapViewTutorialNextButton"
-	    android:layout_alignParentRight="true" 
-	    android:layout_below="@+id/mapViewTutorialText"/>
-		<Button android:layout_height="wrap_content"
-	    android:layout_width="wrap_content"
-	    android:layout_alignParentLeft="true"
-	    android:text="Skip" 
-	    android:layout_below="@+id/mapViewTutorialText"
-	    android:id="@+id/mapViewTutorialSkipButton"
-	    />
-		</RelativeLayout>
-	
-		</RelativeLayout>
-		
-	<!-- debug key: 0UeumldxhB0bPpe6UgModFrG5tLPAwclzgqJhRg -->
-	<!-- release key: 04_mZq9Q_5sL2pltlDIYof4iIQimS_U5YPnRafg -->
+                <TextView
+                    android:id="@+id/mapViewTutorialText"
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Hello, world!"
+                    android:textColor="@android:color/black"
+                    />
+
+                <Button android:layout_height="wrap_content"
+                    android:layout_width="wrap_content"
+                    android:text="Next"
+                    android:id="@+id/mapViewTutorialNextButton"
+                    android:layout_alignParentRight="true"
+                    android:layout_below="@+id/mapViewTutorialText"/>
+                <Button android:layout_height="wrap_content"
+                    android:layout_width="wrap_content"
+                    android:layout_alignParentLeft="true"
+                    android:text="Skip"
+                    android:layout_below="@+id/mapViewTutorialText"
+                    android:id="@+id/mapViewTutorialSkipButton"
+                    />
+            </RelativeLayout>
+
+        </RelativeLayout>
+
+        <!-- debug key: 0UeumldxhB0bPpe6UgModFrG5tLPAwclzgqJhRg -->
+        <!-- release key: 04_mZq9Q_5sL2pltlDIYof4iIQimS_U5YPnRafg -->
 
 
-<!-- 
-		android:text="asjdwijfoiewjfoiewjfoiewjfoiewjfoiewjfoiewj" -->
+        <!--
+                android:text="asjdwijfoiewjfoiewjfoiewjfoiewjfoiewjfoiewj" -->
+        </RelativeLayout>
+    </FrameLayout>
 
-</RelativeLayout>
+
+    <ListView android:id="@+id/left_drawer"
+        android:layout_width="240dp"
+        android:layout_height="match_parent"
+        android:layout_gravity="start"
+        android:choiceMode="singleChoice"
+        android:divider="@android:color/transparent"
+        android:dividerHeight="0dp"
+        android:background="#111"/>
+
+</android.support.v4.widget.DrawerLayout>
