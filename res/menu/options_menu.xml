@@ -1,16 +1,19 @@
-<menu xmlns:android="http://schemas.android.com/apk/res/android"><item android:id="@+id/intersectionsMenuItem" android:title="@string/places"></item><item android:icon="@android:drawable/ic_menu_more" android:title="@string/chooseStop" android:id="@+id/chooseStop"></item><item android:id="@+id/centerOnBostonMenuItem" android:title="@string/bostonsLocation"
-	 android:icon="@android:drawable/ic_menu_mylocation">
-	</item>
-	
-	<item android:id="@+id/settingsMenuItem" android:title="@string/settings"
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+  <item android:id="@+id/intersectionsMenuItem" android:title="@string/places"></item>
+  <item android:icon="@android:drawable/ic_menu_more" android:title="@string/chooseStop" android:id="@+id/chooseStop"></item>
+  <item android:id="@+id/centerOnBostonMenuItem" android:title="@string/bostonsLocation"
+	android:icon="@android:drawable/ic_menu_mylocation">
+  </item>
+  
+  <item android:id="@+id/settingsMenuItem" android:title="@string/settings"
 	android:icon="@android:drawable/ic_menu_preferences">
-	</item><!-- 
-	<item android:id="@+id/getDirectionsMenuItem" android:title="@string/getDirections"
-	> 
-	</item>-->
-<item android:id="@+id/chooseRoute" android:title="@string/chooseRoute" android:icon="@android:drawable/ic_menu_more"></item>
-<item android:id="@+id/refreshItem" android:title="@string/refresh"
-android:icon="@android:drawable/ic_menu_rotate"></item>
+  </item><!-- 
+	      <item android:id="@+id/getDirectionsMenuItem" android:title="@string/getDirections"
+	      > 
+	      </item>-->
+  <item android:id="@+id/chooseRoute" android:title="@string/chooseRoute" android:icon="@android:drawable/ic_menu_more"></item>
+  <item android:id="@+id/refreshItem" android:title="@string/refresh"
+	android:icon="@android:drawable/ic_menu_rotate"></item>
 
 
 
