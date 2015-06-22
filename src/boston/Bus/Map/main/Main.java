@@ -26,6 +26,7 @@ import java.util.List;
 
 import boston.Bus.Map.R;
 
+import com.actionbarsherlock.app.SherlockMapActivity;
 import com.schneeloch.bostonbusmap_library.data.ITransitDrawables;
 import com.schneeloch.bostonbusmap_library.data.Locations;
 
@@ -98,7 +99,7 @@ import android.widget.AdapterView.OnItemSelectedListener;
  * The main activity
  *
  */
-public class Main extends MapActivity
+public class Main extends SherlockMapActivity
 {
 	private static final String selectedRouteIndexKey = "selectedRouteIndex";
 	private static final String selectedBusPredictionsKey = "selectedBusPredictions";
