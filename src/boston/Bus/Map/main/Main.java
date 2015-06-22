@@ -25,6 +25,8 @@ import java.util.Collections;
 import java.util.List;
 
 import boston.Bus.Map.R;
+
+import com.actionbarsherlock.app.SherlockMapActivity;
 import com.schneeloch.bostonbusmap_library.data.ITransitDrawables;
 import com.schneeloch.bostonbusmap_library.data.Locations;
 
@@ -79,6 +81,7 @@ import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.Window;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -96,7 +99,7 @@ import android.widget.AdapterView.OnItemSelectedListener;
  * The main activity
  *
  */
-public class Main extends MapActivity
+public class Main extends SherlockMapActivity
 {
 	private static final String selectedRouteIndexKey = "selectedRouteIndex";
 	private static final String selectedBusPredictionsKey = "selectedBusPredictions";
@@ -175,7 +178,7 @@ public class Main extends MapActivity
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
-        
+
         firstRunMode = true;
         
         TransitSystem.setDefaultTimeFormat(this);
@@ -649,60 +652,6 @@ public class Main extends MapActivity
 		super.onDestroy();
 	}
 
-	@Override
-    public boolean onOptionsItemSelected(MenuItem item)
-    {
-    	//when the menu button is clicked, a menu comes up
-    	switch (item.getItemId())
-    	{
-    	case R.id.refreshItem:
-    		boolean b = handler.instantRefresh();
-    		if (b == false)
-    		{
-    			Toast.makeText(this, "Please wait 10 seconds before clicking Refresh again", Toast.LENGTH_LONG).show();
-    		}
-    		break;
-    	case R.id.settingsMenuItem:
-    		startActivity(new Intent(this, Preferences.class));
-    		break;
-    	case R.id.centerOnBostonMenuItem:
-
-    		if (arguments != null)
-    		{
-    			GeoPoint point = new GeoPoint(TransitSystem.getCenterLatAsInt(), TransitSystem.getCenterLonAsInt());
-    			arguments.getMapView().getController().animateTo(point);
-    			handler.triggerUpdate(1500);
-    		}
-    		break;
-
-
-
-    	case R.id.chooseRoute:
-    		routeChooserDialog.show();
-
-    		break;
-
-    	case R.id.intersectionsMenuItem:
-    		showIntersectionsDialog();
-    		break;
-
-
-    	/*case R.id.getDirectionsMenuItem:
-    		{
-    			// this activity starts with an Intent with an empty Bundle, which indicates
-    			// all fields are blank
-    			startActivityForResult(new Intent(this, GetDirectionsDialog.class), GetDirectionsDialog.GETDIRECTIONS_REQUEST_CODE);
-    		}
-
-    		break;
-    		*/
-    	case R.id.chooseStop:
-    		showChooseStopDialog();
-    		break;
-    	}
-    	return true;
-    }
-
     private void selectMenuItem(int selection) {
         //when the menu button is clicked, a menu comes up
         switch (selection)
@@ -864,15 +813,6 @@ public class Main extends MapActivity
 
 		}
 	}
-
-	@Override
-    public boolean onCreateOptionsMenu(Menu menu)
-    {
-    	MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.options_menu, menu);
-
-        return true;
-    }
 
 	@Override
 	protected boolean isRouteDisplayed() {
