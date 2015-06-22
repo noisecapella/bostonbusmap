@@ -99,7 +99,6 @@
     <orderEntry type="library" exported="" name="actionbarsherlock-4.4.0" level="project" />
     <orderEntry type="library" exported="" name="gson-2.3" level="project" />
     <orderEntry type="library" exported="" name="guava-18.0" level="project" />
-    <orderEntry type="module" module-name="SherlockNavigationDrawer" exported="" />
     <orderEntry type="module" module-name="androidmapviewballoons" exported="" />
     <orderEntry type="module" module-name="bostonbusmap-library" exported="" />
   </component>

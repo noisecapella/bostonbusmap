@@ -26,6 +26,7 @@ import java.util.List;
 
 import boston.Bus.Map.R;
 
+import com.actionbarsherlock.app.ActionBar;
 import com.actionbarsherlock.app.SherlockMapActivity;
 import com.schneeloch.bostonbusmap_library.data.ITransitDrawables;
 import com.schneeloch.bostonbusmap_library.data.Locations;
@@ -213,6 +214,10 @@ public class Main extends SherlockMapActivity
                 drawerLayout.closeDrawer(drawerList);
             }
         });
+        final ActionBar actionBar = getSupportActionBar();
+        actionBar.setDisplayHomeAsUpEnabled(true);
+        actionBar.setHomeButtonEnabled(true);
+
 
     	SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
 
