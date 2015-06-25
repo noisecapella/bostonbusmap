@@ -979,10 +979,6 @@ public class Main extends MapActivity
 		else if (arguments != null)
 		{
 			final MapView mapView = arguments.getMapView();
-			if (keyCode == KeyEvent.KEYCODE_MENU)
-			{
-				return super.onKeyUp(keyCode, event);
-			}
 			handler.triggerUpdate(250);
 			
 			if (keyCode == KeyEvent.KEYCODE_DPAD_CENTER)
