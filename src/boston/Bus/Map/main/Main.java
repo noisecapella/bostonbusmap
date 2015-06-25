@@ -26,8 +26,6 @@ import java.util.List;
 
 import boston.Bus.Map.R;
 
-import com.actionbarsherlock.app.ActionBar;
-import com.actionbarsherlock.app.SherlockMapActivity;
 import com.schneeloch.bostonbusmap_library.data.ITransitDrawables;
 import com.schneeloch.bostonbusmap_library.data.Locations;
 
@@ -73,6 +71,7 @@ import android.os.Bundle;
 import android.os.SystemClock;
 import android.preference.PreferenceManager;
 import android.provider.SearchRecentSuggestions;
+import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.util.Log;
 import android.view.KeyEvent;
@@ -100,7 +99,7 @@ import android.widget.AdapterView.OnItemSelectedListener;
  * The main activity
  *
  */
-public class Main extends SherlockMapActivity
+public class Main extends MapActivity
 {
 	private static final String selectedRouteIndexKey = "selectedRouteIndex";
 	private static final String selectedBusPredictionsKey = "selectedBusPredictions";
@@ -201,7 +200,6 @@ public class Main extends SherlockMapActivity
         Button nextTutorialButton = (Button) findViewById(R.id.mapViewTutorialNextButton);
 
         // TODO: find a better place for this
-
         drawerLayout = (DrawerLayout)findViewById(R.id.drawer_layout);
         drawerList = (ListView)findViewById(R.id.left_drawer);
         drawerList.setAdapter(new ArrayAdapter<String>(this,
@@ -214,9 +212,19 @@ public class Main extends SherlockMapActivity
                 drawerLayout.closeDrawer(drawerList);
             }
         });
-        final ActionBar actionBar = getSupportActionBar();
-        actionBar.setDisplayHomeAsUpEnabled(true);
-        actionBar.setHomeButtonEnabled(true);
+
+        ImageButton drawerButton = (ImageButton)findViewById(R.id.drawerButton);
+        drawerButton.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (drawerLayout.isDrawerOpen(GravityCompat.END)) {
+                    drawerLayout.closeDrawer(GravityCompat.END);
+                }
+                else {
+                    drawerLayout.openDrawer(GravityCompat.END);
+                }
+            }
+        });
 
 
     	SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
