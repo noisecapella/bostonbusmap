@@ -162,15 +162,13 @@ public class Main extends MapActivity
     private final static int DRAWER_CHOOSE_STOP_POS = 1;
     private final static int DRAWER_CENTER_ON_CITY_POS = 2;
     private final static int DRAWER_ROUTES_POS = 3;
-    private final static int DRAWER_REFRESH_POS = 4;
-    private final static int DRAWER_SETTINGS_POS = 5;
+    private final static int DRAWER_SETTINGS_POS = 4;
     private static final String[] drawerOptions = new String[6];
     static {
         drawerOptions[DRAWER_INTERSECTIONS_MENU_ITEM_POS] = "Places";
         drawerOptions[DRAWER_CHOOSE_STOP_POS] = "Favorite Stops";
         drawerOptions[DRAWER_CENTER_ON_CITY_POS] = "Center on Boston";
         drawerOptions[DRAWER_ROUTES_POS] = "Routes";
-        drawerOptions[DRAWER_REFRESH_POS] = "Refresh";
         drawerOptions[DRAWER_SETTINGS_POS] = "Settings";
     }
 
@@ -670,13 +668,6 @@ public class Main extends MapActivity
         //when the menu button is clicked, a menu comes up
         switch (selection)
         {
-            case DRAWER_REFRESH_POS:
-                boolean b = handler.instantRefresh();
-                if (b == false)
-                {
-                    Toast.makeText(this, "Please wait 10 seconds before clicking Refresh again", Toast.LENGTH_LONG).show();
-                }
-                break;
             case DRAWER_SETTINGS_POS:
                 startActivity(new Intent(this, Preferences.class));
                 break;
