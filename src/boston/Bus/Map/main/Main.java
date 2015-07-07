@@ -168,7 +168,7 @@ public class Main extends MapActivity
     static {
         drawerOptions[DRAWER_INTERSECTIONS_MENU_ITEM_POS] = "Places";
         drawerOptions[DRAWER_CHOOSE_STOP_POS] = "Favorite Stops";
-        drawerOptions[DRAWER_CENTER_ON_CITY_POS] = "Center on Boston";
+        drawerOptions[DRAWER_CENTER_ON_CITY_POS] = "Center on Los Angeles";
         drawerOptions[DRAWER_ROUTES_POS] = "Routes";
         drawerOptions[DRAWER_SETTINGS_POS] = "Settings";
     }
