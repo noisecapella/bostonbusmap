@@ -163,7 +163,7 @@ public class Main extends MapActivity
     private final static int DRAWER_CENTER_ON_CITY_POS = 2;
     private final static int DRAWER_ROUTES_POS = 3;
     private final static int DRAWER_SETTINGS_POS = 4;
-    private static final String[] drawerOptions = new String[6];
+    private static final String[] drawerOptions = new String[5];
     static {
         drawerOptions[DRAWER_INTERSECTIONS_MENU_ITEM_POS] = "Places";
         drawerOptions[DRAWER_CHOOSE_STOP_POS] = "Favorite Stops";
