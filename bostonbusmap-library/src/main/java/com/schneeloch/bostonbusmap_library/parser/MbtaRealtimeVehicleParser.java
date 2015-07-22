@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.io.Reader;
 import java.util.Map;
 
+import com.google.common.base.Optional;
 import com.schneeloch.bostonbusmap_library.parser.gson.MbtaRealtimeRoot;
 import com.schneeloch.bostonbusmap_library.parser.gson.Mode;
 import com.schneeloch.bostonbusmap_library.parser.gson.Route;
@@ -92,7 +93,13 @@ public class MbtaRealtimeVehicleParser {
                             float latitude = Float.parseFloat(trip.vehicle.vehicle_lat);
                             float longitude = Float.parseFloat(trip.vehicle.vehicle_lon);
                             long timestamp = Long.parseLong(trip.vehicle.vehicle_timestamp);
-                            String bearing = trip.vehicle.vehicle_bearing;
+                            Optional<Integer> bearing;
+                            if (trip.vehicle.vehicle_bearing != null) {
+                                bearing = Optional.of(Integer.parseInt(trip.vehicle.vehicle_bearing));
+                            }
+                            else {
+                                bearing = Optional.absent();
+                            }
 
                             VehicleLocations.Key key = new VehicleLocations.Key(transitSourceId, routeName, id);
 

@@ -10,6 +10,7 @@ import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
 
+import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
 
@@ -77,7 +78,15 @@ public class VehicleLocationsFeedParser extends DefaultHandler
 			String id = getAttribute(idKey, attributes);
 			String route = getAttribute(routeTagKey, attributes);
 			int seconds = Integer.parseInt(getAttribute(secsSinceReportKey, attributes));
-			String heading = getAttribute(headingKey, attributes);
+			String headingString = getAttribute(headingKey, attributes);
+            Optional<Integer> heading;
+            if (headingString == null) {
+                heading = Optional.absent();
+            }
+            else {
+                heading = Optional.of(Integer.parseInt(headingString));
+            }
+
 			boolean predictable = Boolean.parseBoolean(getAttribute(predictableKey, attributes)); 
 			String dirTag = getAttribute(dirTagKey, attributes);
 			

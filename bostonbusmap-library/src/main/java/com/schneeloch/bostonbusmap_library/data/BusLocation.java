@@ -1,5 +1,6 @@
 package com.schneeloch.bostonbusmap_library.data;
 
+import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableCollection;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -64,7 +65,7 @@ public class BusLocation implements Location {
 	/**
 	 * What is the heading mentioned for the bus?
 	 */
-	private String heading;
+	private Optional<Integer> heading;
 
 	/**
 	 * Does the bus behave predictably?
@@ -89,7 +90,7 @@ public class BusLocation implements Location {
 	public static final int NO_HEADING = -1;
 
 	public BusLocation(float latitude, float longitude, String id,
-			long lastFeedUpdateInMillis, long lastUpdateInMillis, String heading, boolean predictable,
+			long lastFeedUpdateInMillis, long lastUpdateInMillis, Optional<Integer> heading, boolean predictable,
 			String dirTag,
 			String routeName, Directions directions, String routeTitle) {
 		this.latitude = (float) (latitude * Geometry.degreesToRadians);
@@ -99,6 +100,9 @@ public class BusLocation implements Location {
 		this.busId = id;
 		this.lastUpdateInMillis = lastUpdateInMillis;
 		this.lastFeedUpdateInMillis = lastFeedUpdateInMillis;
+        if (heading == null) {
+            throw new RuntimeException("heading must not be null");
+        }
 		this.heading = heading;
 		this.predictable = predictable;
 		this.dirTag = dirTag;
@@ -108,7 +112,7 @@ public class BusLocation implements Location {
 	}
 
 	public boolean hasHeading() {
-		if (predictable && heading != null) {
+		if (predictable && heading.isPresent()) {
 			return (getHeading() >= 0);
 		} else {
 			if (distanceFromLastY == 0 && distanceFromLastX == 0) {
@@ -120,8 +124,8 @@ public class BusLocation implements Location {
 	}
 
 	public int getHeading() {
-		if (predictable && heading != null) {
-			return Integer.parseInt(heading);
+		if (predictable && heading.isPresent()) {
+			return heading.get();
 		} else {
 			// TODO: this repeats code from getDirection(), make a method to
 			// reuse code
@@ -242,12 +246,9 @@ public class BusLocation implements Location {
 			snippet += "<br />Estimated direction: " + direction;
 		}
 
-		if (predictable && heading != null) {
-			snippet += "<br />Heading: " + heading + " deg ("
-					+ convertHeadingToCardinal(Integer.parseInt(heading)) + ")";
-		} else {
-			// TODO: how should we say this?
-			// title += "\nUnpredictable";
+		if (predictable && heading.isPresent()) {
+			snippet += "<br />Heading: " + heading.get() + " deg ("
+					+ convertHeadingToCardinal(heading.get()) + ")";
 		}
 
 		return snippet;
