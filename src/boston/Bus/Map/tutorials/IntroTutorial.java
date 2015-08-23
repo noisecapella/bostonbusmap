@@ -78,26 +78,6 @@ public class IntroTutorial {
 			
 		});
 		steps.add(new TutorialStep() {
-			
-			@Override
-			public int getTextResource() {
-				return R.string.tutorialStep3;
-			}
-			
-			@Override
-			public void setup(Main parent) {
-				ImageButton button = (ImageButton) parent.findViewById(R.id.myLocationButton);
-				addHighlight(button);
-			}
-			
-			@Override
-			public void teardown(Main parent) {
-				ImageButton button = (ImageButton) parent.findViewById(R.id.myLocationButton);
-				removeHighlight(button);
-			}
-			
-		});
-		steps.add(new TutorialStep() {
 			@Override
 			public int getTextResource() {
 				return R.string.tutorialStep4;
