@@ -26,8 +26,8 @@ public class TransitDrawables implements ITransitDrawables {
 	private final int stop;
 	private final int stopUpdated;
 
-	public TransitDrawables(int stop, int stopUpdated,
-                            int intersection) {
+	public TransitDrawables(int intersection, int stop,
+                            int stopUpdated) {
 		this.stop = stop;
 		this.stopUpdated = stopUpdated;
 		this.intersection = intersection;

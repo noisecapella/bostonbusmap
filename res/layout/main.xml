@@ -85,16 +85,11 @@
             android:id="@+id/mapViewOverlayButtons"
             android:layout_alignParentBottom="true"
             android:layout_below="@+id/linearLayoutMain">
-            <ImageButton android:layout_width="wrap_content" android:layout_height="wrap_content"
-                android:src="@android:drawable/ic_menu_mylocation"
-                android:id="@+id/myLocationButton"
-                />
-
             <ImageButton
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:id="@+id/refreshButton"
-                android:layout_alignParentRight="true"
+                android:layout_alignParentLeft="true"
                 android:layout_alignParentTop="true"
                 android:src="@android:drawable/ic_menu_rotate" />
         </RelativeLayout>

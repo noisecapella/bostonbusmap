@@ -197,12 +197,8 @@ public class Main extends AbstractMapActivity
         final ProgressBar progress = (ProgressBar)findViewById(R.id.progress);
         ImageButton searchButton = (ImageButton) findViewById(R.id.searchButton);
 
-        ImageButton myLocationButton = (ImageButton) findViewById(R.id.myLocationButton);
         ImageButton refreshButton = (ImageButton) findViewById(R.id.refreshButton);
-        myLocationButton.getBackground().setAlpha(0xbb);
-        RelativeLayout tutorialLayout = (RelativeLayout) findViewById(R.id.mapViewTutorial);
         Button skipTutorialButton = (Button) findViewById(R.id.mapViewTutorialSkipButton);
-        Button nextTutorialButton = (Button) findViewById(R.id.mapViewTutorialNextButton);
 
         // TODO: find a better place for this
         drawerLayout = (DrawerLayout)findViewById(R.id.drawer_layout);
