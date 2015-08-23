@@ -331,4 +331,9 @@ public class StopLocation implements Location
     public boolean isUpdated() {
         return recentlyUpdated;
     }
+
+    @Override
+    public boolean needsUpdating() {
+        return true;
+    }
 }

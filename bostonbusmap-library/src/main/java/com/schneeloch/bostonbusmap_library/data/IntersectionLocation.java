@@ -184,6 +184,11 @@ public class IntersectionLocation implements Location {
     }
 
     @Override
+    public boolean needsUpdating() {
+        return false;
+    }
+
+    @Override
     public LocationType getLocationType() {
         return LocationType.Intersection;
     }
