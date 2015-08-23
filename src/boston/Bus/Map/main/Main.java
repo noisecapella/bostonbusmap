@@ -311,18 +311,14 @@ public class Main extends AbstractMapActivity
 			Drawable busStopBike = resources.getDrawable(R.drawable.busstop_bike_statelist);
 			Drawable busStopBikeUpdated = resources.getDrawable(R.drawable.busstop_bike_statelist_updated);
 
-        	ITransitDrawables busDrawables = new TransitDrawables(this, busStop,
-        			busStopUpdated, busPicture,
-        			arrow, busPicture.getIntrinsicHeight() / 5, intersection);
-        	ITransitDrawables subwayDrawables = new TransitDrawables(this, busStop,
-        			busStopUpdated, rail,
-        			arrow, rail.getIntrinsicHeight() / 5, intersection);
-        	ITransitDrawables commuterRailDrawables = new TransitDrawables(this, busStop,
-        			busStopUpdated, rail, arrow, rail.getIntrinsicHeight() / 5, 
-        			intersection);
-			ITransitDrawables hubwayDrawables = new TransitDrawables(this, busStopBike,
-					busStopBikeUpdated, rail, arrow, rail.getIntrinsicHeight() / 5,
-					intersection);
+        	ITransitDrawables busDrawables = new TransitDrawables(R.drawable.busstop_intersect, R.drawable.busstop,
+        			R.drawable.busstop_updated);
+        	ITransitDrawables subwayDrawables = new TransitDrawables(R.drawable.busstop_intersect, R.drawable.busstop,
+                    R.drawable.busstop_updated);
+        	ITransitDrawables commuterRailDrawables = new TransitDrawables(R.drawable.busstop_intersect, R.drawable.busstop,
+                    R.drawable.busstop_updated);
+			ITransitDrawables hubwayDrawables = new TransitDrawables(R.drawable.busstop_intersect, R.drawable.busstop_bike,
+                    R.drawable.busstop_bike_updated);
 
 
 

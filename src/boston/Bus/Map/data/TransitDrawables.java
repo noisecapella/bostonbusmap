@@ -1,10 +1,14 @@
 package boston.Bus.Map.data;
 
 import android.content.Context;
+import android.content.res.Resources;
+import android.graphics.BitmapFactory;
 import android.graphics.drawable.Drawable;
 import android.util.SparseArray;
 
 import com.google.android.gms.maps.model.BitmapDescriptor;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
+import com.google.common.collect.ImmutableMap;
 import com.schneeloch.bostonbusmap_library.data.ITransitDrawables;
 import com.schneeloch.bostonbusmap_library.data.Location;
 import com.schneeloch.bostonbusmap_library.data.LocationType;
@@ -18,49 +22,30 @@ import boston.Bus.Map.ui.BusDrawablesLookup;
  *
  */
 public class TransitDrawables implements ITransitDrawables {
-	private final Context context;
-	private final Drawable intersection;
-	private final Drawable arrow;
-	private final int arrowTopDiff;
-	private final Drawable stop;
-	private final Drawable stopUpdated;
-	private final Drawable vehicle;
+	private final int intersection;
+	private final int stop;
+	private final int stopUpdated;
 
-    public static ITransitDrawables busDrawables;
-    public static ITransitDrawables commuterRailDrawables;
-    public static ITransitDrawables hubwayDrawables;
-    public static ITransitDrawables subwayDrawables;
-
-	private final SparseArray<Drawable> vehicles = new SparseArray<Drawable>();
-	
-	private static final int[][] validStates = new int[][] {
-		new int[]{android.R.attr.state_focused}, new int[0]
-	};
-	
-	public TransitDrawables(Context context, Drawable stop, Drawable stopUpdated, Drawable vehicle,
-			Drawable arrow, int arrowTop, Drawable intersection) {
+	public TransitDrawables(int stop, int stopUpdated,
+                            int intersection) {
 		this.stop = stop;
 		this.stopUpdated = stopUpdated;
-		this.vehicle = vehicle;
-		this.arrow = arrow;
-		this.arrowTopDiff = arrowTop;
 		this.intersection = intersection;
-		this.context = context;
 	}
 
     @Override
-    public Object getBitmapDescriptor(Location location, boolean isSelected) {
+    public BitmapDescriptor getBitmapDescriptor(Location location, boolean isSelected) {
         LocationType locationType = location.getLocationType();
         boolean isUpdated = location.isUpdated();
         if (locationType == LocationType.Intersection) {
-            return intersection;
+            return BitmapDescriptorFactory.fromResource(intersection);
         }
         else if (locationType == LocationType.Stop) {
             if (isUpdated) {
-                return stopUpdated;
+                return BitmapDescriptorFactory.fromResource(stopUpdated);
             }
             else {
-                return stop;
+                return BitmapDescriptorFactory.fromResource(stop);
             }
         }
         else if (locationType == LocationType.Vehicle) {
@@ -68,7 +53,7 @@ public class TransitDrawables implements ITransitDrawables {
             if (location.getTransitSourceType() == Schema.Routes.SourceId.Bus) {
                 isRail = false;
             }
-            return context.getResources().getDrawable(BusDrawablesLookup.getIdFromAngle(location.getHeading(), false, isRail));
+            return BitmapDescriptorFactory.fromResource(BusDrawablesLookup.getIdFromAngle(location.getHeading(), false, isRail));
         }
         else {
             throw new RuntimeException("Unexpected location type");

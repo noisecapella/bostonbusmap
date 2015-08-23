@@ -255,7 +255,7 @@ public class MapManager implements OnMapClickListener, OnMarkerClickListener, On
             else
             {
                 ITransitDrawables transitDrawables = transitSystem.getTransitSourceByRouteType(location.getTransitSourceType()).getDrawables();
-                BitmapDescriptor icon = (BitmapDescriptor)transitDrawables.getBitmapDescriptor(location, false);
+                BitmapDescriptor icon = transitDrawables.getBitmapDescriptor(location, false);
                 LatLng latlng = new LatLng(location.getLatitudeAsDegrees(), location.getLongitudeAsDegrees());
                 MarkerOptions options = new MarkerOptions()
                         .icon(icon)
