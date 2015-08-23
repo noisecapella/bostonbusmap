@@ -52,7 +52,7 @@ public class BusDrawables {
         R.drawable.bus_352
         };
 
-    public static final int[] bus_selectedLookup = new int[] {
+    public static final int[] busSelectedLookup = new int[] {
          R.drawable.bus_selected_0,
         R.drawable.bus_selected_8,
         R.drawable.bus_selected_16,
@@ -148,7 +148,7 @@ public class BusDrawables {
         R.drawable.rail_352
         };
 
-    public static final int[] rail_selectedLookup = new int[] {
+    public static final int[] railSelectedLookup = new int[] {
          R.drawable.rail_selected_0,
         R.drawable.rail_selected_8,
         R.drawable.rail_selected_16,

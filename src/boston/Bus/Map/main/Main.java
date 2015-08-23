@@ -376,42 +376,6 @@ public class Main extends AbstractMapActivity
         Selection selection;
         Object lastNonConfigurationInstance = getLastNonConfigurationInstance();
         Locations busLocations = null;
-        if (lastNonConfigurationInstance != null)
-        {
-        	CurrentState currentState = (CurrentState)lastNonConfigurationInstance;
-        	currentState.restoreWidgets();
-        	
-        	if (currentState.getLocationEnabled())
-        	{
-        		locationEnabled = true;
-        	}
-        	
-        	final UpdateArguments otherArguments = currentState.getUpdateArguments();
-        	
-        	if (otherArguments != null) {
-        		busLocations = otherArguments.getBusLocations();
-            	selection = busLocations.getSelection();
-        	}
-        	else
-        	{
-        		selection = new Selection(Selection.Mode.VEHICLE_LOCATIONS_ALL, null);
-        	}
-
-        	lastUpdateTime = currentState.getLastUpdateTime();
-        	previousUpdateConstantlyInterval = currentState.getUpdateConstantlyInterval();
-        	progress.setVisibility(currentState.getProgressState() ? View.VISIBLE : View.INVISIBLE);
-        	
-        	
-        	if (otherArguments != null) {
-            	majorHandler = otherArguments.getMajorHandler();
-        	}
-        	//continue posting status updates on new textView
-        	if (majorHandler != null)
-        	{
-        		majorHandler.setProgress(progress, progressDialog);
-        	}
-        }
-        else
         {
         	locationEnabled = prefs.getBoolean(getString(R.string.alwaysShowLocationCheckbox), true);
             int selectedRouteIndex = prefs.getInt(selectedRouteIndexKey, 0);
@@ -443,7 +407,7 @@ public class Main extends AbstractMapActivity
         handler = new UpdateHandler(arguments);
         manager.setHandler(handler);
 
-        PopupAdapter popupAdapter = new PopupAdapter(this, handler, busLocations, dropdownRouteKeysToTitles, manager);
+        PopupAdapter popupAdapter = new PopupAdapter(this, manager);
         map.setInfoWindowAdapter(popupAdapter);
 
         populateHandlerSettings();
