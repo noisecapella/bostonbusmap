@@ -79,118 +79,117 @@ public class MbtaAlertsParser implements IAlertsParser {
 
 		String alertsUrl = TransitSystem.ALERTS_URL;
 		DownloadHelper downloadHelper = new DownloadHelper(alertsUrl);
-		downloadHelper.connect();
-		InputStream data = downloadHelper.getResponseData();
-		
-		FeedMessage message = FeedMessage.parseFrom(data);
-		for (FeedEntity entity : message.getEntityList()) {
-			GtfsRealtime.Alert alert = entity.getAlert();
-			//TODO: handle active_period, cause, effect
-			
-			
-			//TODO: we don't handle trip-specific alerts yet
-			//TODO: currently it doesn't discriminate alerts for 
-			// a stop on one route vs the same stop on another
-			ImmutableList.Builder<String> stopsBuilder = ImmutableList.builder();
-			List<String> routes = Lists.newArrayList();
-			List<Schema.Routes.SourceId> sources = Lists.newArrayList();
-			List<String> commuterRailTripIds = Lists.newArrayList();
-			boolean isSystemWide = false;
-			for (EntitySelector selector : alert.getInformedEntityList()) {
-				// this should be a logical AND inside an EntitySelector
-				// and logical OR between EntitySelectors. This is a little
-				// looser than that, but shouldn't cause any harm
-				
-				if (selector.hasTrip() && selector.getTrip().hasTripId()) {
-					// this is a hack since it relies on the commuter rail
-					// GTFS trip id having a similar id as the train number
-					// which isn't true for subway or bus
-					
-					String tripId = selector.getTrip().getTripId();
-					if (tripId.startsWith("CR-")) {
-						String[] pieces = tripId.split("-");
-						commuterRailTripIds.add(pieces[pieces.length - 1]);
-					}
-				}
-				
-				if (selector.hasStopId()) {
-					String stopId = selector.getStopId();
-					stopsBuilder.add(stopId);
-				}
-				else if (selector.hasRouteId()) {
-					String gtfsRouteId = selector.getRouteId();
-					String routeId = translateGtfsRoute(gtfsRouteId);
-					
-					routes.add(routeId);
-				}
-				else if (selector.hasRouteType()) {
-                    int routeTypeVal = selector.getRouteType();
-                    if (validRouteTypes.contains(routeTypeVal)) {
-                        sources.add(Schema.Routes.SourceId.fromValue(routeTypeVal));
+        try {
+            InputStream data = downloadHelper.getResponseData();
+
+            FeedMessage message = FeedMessage.parseFrom(data);
+            for (FeedEntity entity : message.getEntityList()) {
+                GtfsRealtime.Alert alert = entity.getAlert();
+                //TODO: handle active_period, cause, effect
+
+
+                //TODO: we don't handle trip-specific alerts yet
+                //TODO: currently it doesn't discriminate alerts for
+                // a stop on one route vs the same stop on another
+                ImmutableList.Builder<String> stopsBuilder = ImmutableList.builder();
+                List<String> routes = Lists.newArrayList();
+                List<Schema.Routes.SourceId> sources = Lists.newArrayList();
+                List<String> commuterRailTripIds = Lists.newArrayList();
+                boolean isSystemWide = false;
+                for (EntitySelector selector : alert.getInformedEntityList()) {
+                    // this should be a logical AND inside an EntitySelector
+                    // and logical OR between EntitySelectors. This is a little
+                    // looser than that, but shouldn't cause any harm
+
+                    if (selector.hasTrip() && selector.getTrip().hasTripId()) {
+                        // this is a hack since it relies on the commuter rail
+                        // GTFS trip id having a similar id as the train number
+                        // which isn't true for subway or bus
+
+                        String tripId = selector.getTrip().getTripId();
+                        if (tripId.startsWith("CR-")) {
+                            String[] pieces = tripId.split("-");
+                            commuterRailTripIds.add(pieces[pieces.length - 1]);
+                        }
                     }
-				}
-				else
-				{
-					isSystemWide = true;
-				}
-			}
-			ImmutableList<String> stops = stopsBuilder.build();
-			
-			String description = "";
-            if (alert.hasHeaderText() &&
-                    alert.getHeaderText().getTranslationCount() > 0) {
-                Translation translation = alert.getHeaderText().getTranslation(0);
-                description += translation.getText();
+
+                    if (selector.hasStopId()) {
+                        String stopId = selector.getStopId();
+                        stopsBuilder.add(stopId);
+                    } else if (selector.hasRouteId()) {
+                        String gtfsRouteId = selector.getRouteId();
+                        String routeId = translateGtfsRoute(gtfsRouteId);
+
+                        routes.add(routeId);
+                    } else if (selector.hasRouteType()) {
+                        int routeTypeVal = selector.getRouteType();
+                        if (validRouteTypes.contains(routeTypeVal)) {
+                            sources.add(Schema.Routes.SourceId.fromValue(routeTypeVal));
+                        }
+                    } else {
+                        isSystemWide = true;
+                    }
+                }
+                ImmutableList<String> stops = stopsBuilder.build();
+
+                String description = "";
+                if (alert.hasHeaderText() &&
+                        alert.getHeaderText().getTranslationCount() > 0) {
+                    Translation translation = alert.getHeaderText().getTranslation(0);
+                    description += translation.getText();
+                }
+                if (alert.hasDescriptionText() &&
+                        alert.getDescriptionText().getTranslationCount() > 0) {
+                    Translation translation = alert.getDescriptionText().getTranslation(0);
+                    description += "\n\n" + translation.getText();
+                }
+
+                // now construct alert and add for each stop, route, and systemwide
+                if (isSystemWide) {
+                    Alert systemWideAlert = new Alert(now, "Systemwide",
+                            description);
+                    builder.addSystemWideAlert(systemWideAlert);
+                }
+                for (String commuterRailTripId : commuterRailTripIds) {
+                    Alert commuterRailAlert = new Alert(now, "Commuter Rail Trip " + commuterRailTripId,
+                            description);
+                    builder.addAlertForCommuterRailTrip(commuterRailTripId, commuterRailAlert);
+                }
+                for (Schema.Routes.SourceId routeType : sources) {
+                    TransitSource source = transitSystem.getTransitSourceByRouteType(routeType);
+                    if (source != null) {
+                        String sourceDescription = source.getDescription();
+                        Alert routeTypeAlert = new Alert(now, "All " + sourceDescription,
+                                description);
+                        builder.addAlertForRouteType(routeType, routeTypeAlert);
+                    }
+                }
+                for (String route : routes) {
+                    String routeTitle = routeTitles.getTitle(route);
+                    Alert routeAlert = new Alert(now, "Route " + routeTitle, description);
+                    builder.addAlertForRoute(route, routeAlert);
+                }
+
+                ConcurrentMap<String, StopLocation> stopMapping = Maps.newConcurrentMap();
+                databaseAgent.getStops(stops,
+                        transitSystem, stopMapping);
+                for (String stop : stops) {
+                    String stopTitle = stop;
+                    StopLocation stopLocation = stopMapping.get(stop);
+                    if (stopLocation != null) {
+                        stopTitle = stopLocation.getTitle();
+                    }
+                    Alert stopAlert = new Alert(now, "Stop " + stopTitle, description);
+                    builder.addAlertForStop(stop, stopAlert);
+                }
             }
-			if (alert.hasDescriptionText() &&
-				alert.getDescriptionText().getTranslationCount() > 0) {
-					Translation translation = alert.getDescriptionText().getTranslation(0);
-					description += "\n\n" + translation.getText();
-			}
 
-			// now construct alert and add for each stop, route, and systemwide
-			if (isSystemWide) {
-				Alert systemWideAlert = new Alert(now, "Systemwide",
-						description);
-				builder.addSystemWideAlert(systemWideAlert);
-			}
-			for (String commuterRailTripId : commuterRailTripIds) {
-				Alert commuterRailAlert = new Alert(now, "Commuter Rail Trip " + commuterRailTripId,
-						description);
-				builder.addAlertForCommuterRailTrip(commuterRailTripId, commuterRailAlert);
-			}
-			for (Schema.Routes.SourceId routeType : sources) {
-				TransitSource source = transitSystem.getTransitSourceByRouteType(routeType);
-				if (source != null) {
-					String sourceDescription = source.getDescription();
-					Alert routeTypeAlert = new Alert(now, "All " + sourceDescription,
-							description);
-					builder.addAlertForRouteType(routeType, routeTypeAlert);
-				}
-			}
-			for (String route : routes) {
-				String routeTitle = routeTitles.getTitle(route);
-				Alert routeAlert = new Alert(now, "Route " + routeTitle, description);
-				builder.addAlertForRoute(route, routeAlert);
-			}
 
-			ConcurrentMap<String, StopLocation> stopMapping = Maps.newConcurrentMap();
-			databaseAgent.getStops(stops,
-					transitSystem, stopMapping);
-			for (String stop : stops) {
-				String stopTitle = stop;
-				StopLocation stopLocation = stopMapping.get(stop);
-				if (stopLocation != null) {
-					stopTitle = stopLocation.getTitle();
-				}
-				Alert stopAlert = new Alert(now, "Stop " + stopTitle, description);
-				builder.addAlertForStop(stop, stopAlert);
-			}
-		}
-		
-		
-		
-		return builder.build();
+            return builder.build();
+        }
+        finally {
+            downloadHelper.disconnect();
+        }
 	}
 
 	/**

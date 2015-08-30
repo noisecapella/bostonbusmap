@@ -130,72 +130,74 @@ public abstract class NextBusTransitSource implements TransitSource
                 throw new RuntimeException("Unexpected enum");
         }
 
-        downloadHelper.connect();
+        try {
+            InputStream data = downloadHelper.getResponseData();
 
-        InputStream data = downloadHelper.getResponseData();
-
-        switch (mode) {
-            case BUS_PREDICTIONS_ONE:
-            case BUS_PREDICTIONS_ALL:
-            case BUS_PREDICTIONS_STAR: {
-                //bus prediction
+            switch (mode) {
+                case BUS_PREDICTIONS_ONE:
+                case BUS_PREDICTIONS_ALL:
+                case BUS_PREDICTIONS_STAR: {
+                    //bus prediction
 
 
-                BusPredictionsFeedParser parser = new BusPredictionsFeedParser(routePool, directions);
+                    BusPredictionsFeedParser parser = new BusPredictionsFeedParser(routePool, directions);
 
-                parser.runParse(data);
+                    parser.runParse(data);
 
-                // set last update time for downloaded stops
-                List<Location> locations = locationsObj.getLocations(maxStops, centerLatitude, centerLongitude, false, selection);
+                    // set last update time for downloaded stops
+                    List<Location> locations = locationsObj.getLocations(maxStops, centerLatitude, centerLongitude, false, selection);
 
-                ImmutableSet<String> routes;
-                if (mode == Selection.Mode.BUS_PREDICTIONS_ONE) {
-                    routes = ImmutableSet.of(routeConfig.getRouteName());
-                } else {
-                    routes = ImmutableSet.of();
+                    ImmutableSet<String> routes;
+                    if (mode == Selection.Mode.BUS_PREDICTIONS_ONE) {
+                        routes = ImmutableSet.of(routeConfig.getRouteName());
+                    } else {
+                        routes = ImmutableSet.of();
+                    }
+                    ImmutableList<RouteStopPair> pairs = getStopPairs(locations, routes);
+                    for (RouteStopPair pair : pairs) {
+                        cache.updatePredictionForStop(pair);
+                    }
+
+                    break;
                 }
-                ImmutableList<RouteStopPair> pairs = getStopPairs(locations, routes);
-                for (RouteStopPair pair : pairs) {
-                    cache.updatePredictionForStop(pair);
-                }
+                case VEHICLE_LOCATIONS_ALL:
+                case VEHICLE_LOCATIONS_ONE: {
+                    //vehicle locations
+                    VehicleLocationsFeedParser parser = new VehicleLocationsFeedParser(directions, transitSystem.getRouteKeysToTitles());
+                    parser.runParse(data);
 
-                break;
+                    //get the time that this information is valid until
+                    locationsObj.setLastUpdateTime(parser.getLastUpdateTime());
+
+                    long lastUpdateTime = parser.getLastUpdateTime();
+                    Map<VehicleLocations.Key, BusLocation> newBuses = parser.getNewBuses();
+
+                    for (BusLocation bus : newBuses.values()) {
+                        bus.setLastUpdateInMillis(lastUpdateTime);
+                    }
+
+                    busMapping.update(Schema.Routes.SourceId.Bus, routeTitles.routeTags(), true, newBuses);
+
+                    // now that we've succeeded, update last download times
+                    switch (mode) {
+                        case VEHICLE_LOCATIONS_ONE:
+                            cache.updateVehiclesForRoute(routeConfig.getRouteName());
+                            break;
+                        case VEHICLE_LOCATIONS_ALL:
+                            cache.updateAllVehicles();
+                            break;
+                        default:
+                            throw new RuntimeException("Unexpected mode");
+                    }
+
+                    break;
+                }
+                default:
+                    throw new RuntimeException("Unexpected enum");
             }
-            case VEHICLE_LOCATIONS_ALL:
-            case VEHICLE_LOCATIONS_ONE:
-            {
-                //vehicle locations
-                VehicleLocationsFeedParser parser = new VehicleLocationsFeedParser(directions, transitSystem.getRouteKeysToTitles());
-                parser.runParse(data);
-
-                //get the time that this information is valid until
-                locationsObj.setLastUpdateTime(parser.getLastUpdateTime());
-
-                long lastUpdateTime = parser.getLastUpdateTime();
-                Map<VehicleLocations.Key, BusLocation> newBuses = parser.getNewBuses();
-
-                for (BusLocation bus : newBuses.values()) {
-                    bus.setLastUpdateInMillis(lastUpdateTime);
-                }
-
-                busMapping.update(Schema.Routes.SourceId.Bus, routeTitles.routeTags(), true, newBuses);
-
-                // now that we've succeeded, update last download times
-                switch (mode) {
-                    case VEHICLE_LOCATIONS_ONE:
-                        cache.updateVehiclesForRoute(routeConfig.getRouteName());
-                        break;
-                    case VEHICLE_LOCATIONS_ALL:
-                        cache.updateAllVehicles();
-                        break;
-                    default:
-                        throw new RuntimeException("Unexpected mode");
-                }
-
-                break;
-            }
-            default:
-                throw new RuntimeException("Unexpected enum");
+        }
+        finally {
+            downloadHelper.disconnect();
         }
     }
 
