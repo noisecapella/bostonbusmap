@@ -22,15 +22,21 @@ import boston.Bus.Map.ui.BusDrawablesLookup;
  *
  */
 public class TransitDrawables implements ITransitDrawables {
-	private final int intersection;
-	private final int stop;
-	private final int stopUpdated;
+    private final int intersection;
+    private final int intersectionSelected;
+    private final int stop;
+    private final int stopSelected;
+    private final int stopUpdated;
+	private final int stopUpdatedSelected;
 
-	public TransitDrawables(int intersection, int stop,
-                            int stopUpdated) {
+	public TransitDrawables(int intersection, int intersectionSelected, int stop, int stopSelected,
+                            int stopUpdated, int stopUpdatedSelected) {
 		this.stop = stop;
+        this.stopSelected = stopSelected;
 		this.stopUpdated = stopUpdated;
+        this.stopUpdatedSelected = stopUpdatedSelected;
 		this.intersection = intersection;
+        this.intersectionSelected = intersectionSelected;
 	}
 
     @Override
@@ -53,7 +59,7 @@ public class TransitDrawables implements ITransitDrawables {
             if (location.getTransitSourceType() == Schema.Routes.SourceId.Bus) {
                 isRail = false;
             }
-            return BitmapDescriptorFactory.fromResource(BusDrawablesLookup.getIdFromAngle(location.getHeading(), false, isRail));
+            return BitmapDescriptorFactory.fromResource(BusDrawablesLookup.getIdFromAngle(location.getHeading(), isSelected, isRail));
         }
         else {
             throw new RuntimeException("Unexpected location type");

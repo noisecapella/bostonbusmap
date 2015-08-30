@@ -334,6 +334,6 @@ public class StopLocation implements Location
 
     @Override
     public boolean needsUpdating() {
-        return true;
+        return false;
     }
 }

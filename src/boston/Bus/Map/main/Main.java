@@ -290,31 +290,28 @@ public class Main extends AbstractMapActivity
             }
         });
         
-        Resources resources = getResources();
-
-        // busPicture is used to initialize busOverlay, otherwise it would
-        // joint the rest of the drawables in the brackets 
-    	Drawable busPicture = resources.getDrawable(R.drawable.bus_statelist);
     	final ITransitSystem transitSystem = new TransitSystem();
         {
-        	Drawable busStopUpdated = resources.getDrawable(R.drawable.busstop_statelist_updated);
-        	Drawable arrow = resources.getDrawable(R.drawable.arrow);
-        	Drawable tooltip = resources.getDrawable(R.drawable.tooltip);
-        	Drawable rail = resources.getDrawable(R.drawable.rail_statelist);
-        	Drawable intersection = resources.getDrawable(R.drawable.busstop_intersect_statelist);
-        
-        	Drawable busStop = resources.getDrawable(R.drawable.busstop_statelist);
-			Drawable busStopBike = resources.getDrawable(R.drawable.busstop_bike_statelist);
-			Drawable busStopBikeUpdated = resources.getDrawable(R.drawable.busstop_bike_statelist_updated);
-
-        	ITransitDrawables busDrawables = new TransitDrawables(R.drawable.busstop_intersect, R.drawable.busstop,
-        			R.drawable.busstop_updated);
-        	ITransitDrawables subwayDrawables = new TransitDrawables(R.drawable.busstop_intersect, R.drawable.busstop,
-                    R.drawable.busstop_updated);
-        	ITransitDrawables commuterRailDrawables = new TransitDrawables(R.drawable.busstop_intersect, R.drawable.busstop,
-                    R.drawable.busstop_updated);
-			ITransitDrawables hubwayDrawables = new TransitDrawables(R.drawable.busstop_intersect, R.drawable.busstop_bike,
-                    R.drawable.busstop_bike_updated);
+        	ITransitDrawables busDrawables = new TransitDrawables(
+                    R.drawable.busstop_intersect, R.drawable.busstop_intersect_selected,
+                    R.drawable.busstop, R.drawable.busstop_selected,
+        			R.drawable.busstop_updated, R.drawable.busstop_selected
+            );
+        	ITransitDrawables subwayDrawables = new TransitDrawables(
+                    R.drawable.busstop_intersect, R.drawable.busstop_intersect_selected,
+                    R.drawable.busstop, R.drawable.busstop_selected,
+                    R.drawable.busstop_updated, R.drawable.busstop_selected
+            );
+        	ITransitDrawables commuterRailDrawables = new TransitDrawables(
+                    R.drawable.busstop_intersect, R.drawable.busstop_intersect_selected,
+                    R.drawable.busstop, R.drawable.busstop_selected,
+                    R.drawable.busstop_updated, R.drawable.busstop_selected
+            );
+			ITransitDrawables hubwayDrawables = new TransitDrawables(
+                    R.drawable.busstop_intersect, R.drawable.busstop_intersect_selected,
+                    R.drawable.busstop_bike, R.drawable.busstop_bike_selected,
+                    R.drawable.busstop_bike_updated, R.drawable.busstop_bike_selected
+            );
 
 
 
@@ -411,7 +408,7 @@ public class Main extends AbstractMapActivity
         map.setInfoWindowAdapter(popupAdapter);
 
         populateHandlerSettings();
-        // TODO: setTraffic support
+
         map.setTrafficEnabled(handler.getShowTraffic());
         if (lastNonConfigurationInstance != null)
         {
@@ -424,9 +421,7 @@ public class Main extends AbstractMapActivity
             int centerLon = prefs.getInt(centerLonKey, Integer.MAX_VALUE);
             int zoomLevel = prefs.getInt(zoomLevelKey, Integer.MAX_VALUE);
             setMode(selection.getMode(), true, false);
-            // TODO: setSelectedBusId
-            //manager.setSelectedBusId(selection.get)
-            
+
         	updateSearchText(selection);
 
             if (centerLat != Integer.MAX_VALUE && centerLon != Integer.MAX_VALUE && zoomLevel != Integer.MAX_VALUE)
@@ -683,17 +678,56 @@ public class Main extends AbstractMapActivity
 			builder.setTitle(getString(R.string.places));
 			builder.setItems(titlesArray, new DialogInterface.OnClickListener() {
 
-				@Override
-				public void onClick(DialogInterface dialog, int which) {
-					if (which == 0) {
-						Toast.makeText(Main.this, "Tap a spot on the map to create a place", Toast.LENGTH_LONG).show();
-                        // TODO
-					}
-					else if (which >= 1 && which < titlesArray.length) {
-						setNewIntersection(titlesArray[which]);
-					}
-				}
-			});
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    if (which == 0) {
+                        Toast.makeText(Main.this, "Tap a spot on the map to create a place", Toast.LENGTH_LONG).show();
+                        arguments.getOverlayGroup().setNextClickListener(new GoogleMap.OnMapClickListener() {
+                            @Override
+                            public void onMapClick(final LatLng latLng) {
+                                AlertDialog.Builder builder = new AlertDialog.Builder(Main.this);
+                                builder.setTitle("New place name");
+
+                                final EditText textView = new EditText(Main.this);
+                                textView.setHint("Place name (ie, Home or Work)");
+                                builder.setView(textView);
+                                builder.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+
+                                    @Override
+                                    public void onClick(DialogInterface dialog, int which) {
+                                        String newName = textView.getText().toString();
+                                        if (newName.length() == 0) {
+                                            Toast.makeText(Main.this, "Place name cannot be empty", Toast.LENGTH_LONG).show();
+                                        } else {
+                                            float latitudeAsDegrees = (float)latLng.latitude;
+                                            float longitudeAsDegrees = (float)latLng.longitude;
+                                            IntersectionLocation.Builder builder = new IntersectionLocation.Builder(newName, latitudeAsDegrees, longitudeAsDegrees);
+                                            Locations locations = arguments.getBusLocations();
+
+                                            locations.addIntersection(builder);
+                                            Toast.makeText(Main.this, "New place created!", Toast.LENGTH_LONG).show();
+                                            setNewIntersection(newName);
+                                        }
+                                        dialog.dismiss();
+                                    }
+                                });
+
+                                builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+
+                                    @Override
+                                    public void onClick(DialogInterface dialog, int which) {
+                                        dialog.dismiss();
+                                    }
+                                });
+
+                                builder.create().show();
+                            }
+                        });
+                    } else if (which >= 1 && which < titlesArray.length) {
+                        setNewIntersection(titlesArray[which]);
+                    }
+                }
+            });
 			AlertDialog stopChooserDialog = builder.create();
 			stopChooserDialog.show();
 
@@ -764,8 +798,6 @@ public class Main extends AbstractMapActivity
             putBoolean("showTraffic", showTraffic).
     		commit();
     }
-
-    // TODO: onRetain...
 
 	private int getUpdateInterval(SharedPreferences prefs) {
 		String intervalString = prefs.getString(getString(R.string.updateContinuouslyInterval), "");

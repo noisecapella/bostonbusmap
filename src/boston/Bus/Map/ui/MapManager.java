@@ -37,6 +37,7 @@ import com.google.common.collect.HashBiMap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
+import com.schneeloch.bostonbusmap_library.data.BusLocation;
 import com.schneeloch.bostonbusmap_library.data.ITransitDrawables;
 import com.schneeloch.bostonbusmap_library.data.Location;
 import com.schneeloch.bostonbusmap_library.data.Locations;
@@ -84,6 +85,8 @@ public class MapManager implements OnMapClickListener, OnMarkerClickListener, On
 
     @Override
     public boolean onMarkerClick(Marker marker) {
+        showSelectedMarker(false);
+
         String markerId = marker.getId();
         Integer id = markerIdToLocationId.get(markerId);
         if (id == null) {
@@ -96,11 +99,35 @@ public class MapManager implements OnMapClickListener, OnMarkerClickListener, On
 
         marker.showInfoWindow();
 
+        showSelectedMarker(true);
+
         return true;
+    }
+
+    private void showSelectedMarker(boolean selected) {
+        Location location = locationIdToLocation.get(selectedLocationId);
+        if (location == null) {
+            return;
+        }
+        ITransitDrawables transitDrawables = transitSystem.getTransitSourceByRouteType(location.getTransitSourceType()).getDrawables();
+
+        String markerId = markerIdToLocationId.inverse().get(selectedLocationId);
+        if (markerId == null) {
+            return;
+        }
+        Marker marker = markers.get(markerId);
+        if (marker == null) {
+            return;
+        }
+
+        BitmapDescriptor icon = transitDrawables.getBitmapDescriptor(location, selected);
+        marker.setIcon(icon);
     }
 
     @Override
     public void onMapClick(LatLng latlng) {
+        showSelectedMarker(false);
+
         selectedLocationId = NOT_SELECTED;
 
         if (nextTapListener != null) {
@@ -247,8 +274,23 @@ public class MapManager implements OnMapClickListener, OnMarkerClickListener, On
         toRemove.addAll(locationIdToLocation.keySet());
         for (Location location : locations) {
             toRemove.remove(location.getId());
+
+            // this all assumes that the only thing that changes a marker is its heading
+            // for vehicles (which implies stops and places don't ever change markers)
             Location oldLocation = locationIdToLocation.get(location.getId());
-            if (oldLocation != null && oldLocation.needsUpdating() == false) {
+            boolean reuseMarker = false;
+            if (oldLocation != null) {
+                if (!oldLocation.hasHeading()) {
+                    reuseMarker = true;
+                }
+                else if (oldLocation.getHeading() == location.getHeading() &&
+                        oldLocation.getLatitudeAsDegrees() == location.getLatitudeAsDegrees() &&
+                        oldLocation.getLongitudeAsDegrees() == location.getLongitudeAsDegrees()) {
+                    reuseMarker = true;
+                }
+            }
+
+            if (reuseMarker) {
                 // replace with new location, leave marker
                 locationIdToLocation.put(location.getId(), location);
             }
