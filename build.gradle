@@ -31,7 +31,7 @@ dependencies {
 }
 
 android {
-    compileSdkVersion "Google Inc.:Google APIs:21"
+    compileSdkVersion "Google Inc.:Google APIs:23"
     buildToolsVersion "20.0.0"
     buildTypes {
         release {
