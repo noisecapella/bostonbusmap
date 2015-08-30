@@ -408,6 +408,11 @@ public class BusLocation implements Location {
         return false;
     }
 
+    @Override
+    public boolean needsUpdating() {
+        return true;
+    }
+
     protected ImmutableCollection<Alert> getAlerts(IAlerts alerts) {
 		return alerts.getAlertsByRoute(routeName, getTransitSourceType());
 	}

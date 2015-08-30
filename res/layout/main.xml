@@ -1,7 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.v4.widget.DrawerLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<com.sothree.slidinguppanel.SlidingUpPanelLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:sothree="http://schemas.android.com/apk/res-auto"
+    android:layout_height="match_parent"
+    android:layout_width="match_parent"
+    android:gravity="bottom"
+    sothree:umanoPanelHeight="68dp"
+    sothree:umanoShadowHeight="4dp">
+<android.support.v4.widget.DrawerLayout
     android:id="@+id/drawer_layout"
-    android:layout_width="match_parent" android:layout_height="match_parent">
+    android:layout_width="match_parent" android:layout_height="match_parent"
+    android:gravity="center">
     <FrameLayout
         android:id="@+id/content_frame"
         android:layout_width="match_parent" android:layout_height="match_parent">
@@ -72,30 +81,24 @@
             </TableLayout>
         </RelativeLayout>
 
-        <com.google.android.maps.MapView
-            android:id="@+id/mapview" android:layout_width="fill_parent"
-            android:layout_height="fill_parent" android:clickable="true"
-            android:layout_alignParentBottom="true"
-            android:layout_below="@+id/linearLayoutMain"
-
-            android:apiKey="04_mZq9Q_5sL2pltlDIYof4iIQimS_U5YPnRafg"
-            />
+            <fragment class="com.google.android.gms.maps.SupportMapFragment"
+                      android:layout_alignParentBottom="true"
+                      android:layout_height="fill_parent"
+                      android:layout_width="fill_parent"
+                      android:layout_below="@id/linearLayoutMain"
+                      android:id="@+id/map"
+                      />
         <RelativeLayout
             android:layout_height="fill_parent"
             android:layout_width="fill_parent"
             android:id="@+id/mapViewOverlayButtons"
             android:layout_alignParentBottom="true"
             android:layout_below="@+id/linearLayoutMain">
-            <ImageButton android:layout_width="wrap_content" android:layout_height="wrap_content"
-                android:src="@android:drawable/ic_menu_mylocation"
-                android:id="@+id/myLocationButton"
-                />
-
             <ImageButton
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:id="@+id/refreshButton"
-                android:layout_alignParentRight="true"
+                android:layout_alignParentLeft="true"
                 android:layout_alignParentTop="true"
                 android:src="@android:drawable/ic_menu_rotate" />
         </RelativeLayout>
@@ -159,5 +162,11 @@
         android:divider="@android:color/transparent"
         android:dividerHeight="0dp"
         android:background="#99222222"/>
-
 </android.support.v4.widget.DrawerLayout>
+    <LinearLayout android:text="Hello!"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent"
+                  android:orientation="horizontal"
+                  android:id="@+id/bottom_panel"
+        />
+</com.sothree.slidinguppanel.SlidingUpPanelLayout>

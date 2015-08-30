@@ -9,6 +9,7 @@ import javax.xml.parsers.ParserConfigurationException;
 
 import org.xml.sax.SAXException;
 
+import com.google.android.gms.maps.model.LatLng;
 import com.google.android.maps.GeoPoint;
 import com.google.common.collect.ImmutableList;
 
@@ -40,12 +41,10 @@ public class RefreshAsyncTask extends UpdateAsyncTask
 			Locations busLocations = arguments.getBusLocations();
 			publish(new ProgressMessage(ProgressMessage.PROGRESS_SPINNER_ON, null, null));
 			
-			GeoPoint geoPoint = currentMapCenter;
-			double centerLatitude = geoPoint.getLatitudeE6() * Constants.InvE6;
-			double centerLongitude = geoPoint.getLongitudeE6() * Constants.InvE6;
+			LatLng geoPoint = currentMapCenter;
 
 			busLocations.refresh(arguments.getDatabaseAgent(), selection,
-					centerLatitude, centerLongitude, arguments.getOverlayGroup().getRouteOverlay().isShowLine());
+					geoPoint.latitude, geoPoint.longitude, arguments.getOverlayGroup().isShowLine());
 			return true;
 		}
 		catch (IOException e)

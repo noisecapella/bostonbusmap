@@ -5,8 +5,6 @@ import com.schneeloch.bostonbusmap_library.data.RouteTitles;
 
 import boston.Bus.Map.data.UpdateArguments;
 
-import boston.Bus.Map.ui.OverlayGroup;
-
 import com.google.android.maps.MapView;
 
 /**
@@ -58,17 +56,4 @@ public class CurrentState {
 	public boolean getLocationEnabled() {
 		return locationEnabled;
 	}
-
-	/**
-	 * Might be unnecessary to clone, but there shouldn't be a big performance penalty
-	 * @param context
-	 * @param mapView
-	 * @param dropdownRouteKeysToTitles
-	 * @return
-	 */
-	public OverlayGroup cloneOverlays(Main context, MapView mapView,
-			RouteTitles dropdownRouteKeysToTitles) {
-		return updateArguments.getOverlayGroup().cloneOverlays(context, mapView, dropdownRouteKeysToTitles);
-	}
-	
 }

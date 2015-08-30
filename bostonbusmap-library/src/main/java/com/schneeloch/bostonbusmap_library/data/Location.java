@@ -69,4 +69,6 @@ public interface Location {
 	Schema.Routes.SourceId getTransitSourceType();
 
     boolean isUpdated();
+
+    boolean needsUpdating();
 }

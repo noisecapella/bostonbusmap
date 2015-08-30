@@ -1,21 +1,19 @@
 package boston.Bus.Map.data;
 
 import android.content.Context;
-import android.graphics.Bitmap;
-import android.graphics.Canvas;
-import android.graphics.Rect;
-import android.graphics.drawable.BitmapDrawable;
+import android.content.res.Resources;
+import android.graphics.BitmapFactory;
 import android.graphics.drawable.Drawable;
-import android.graphics.drawable.StateListDrawable;
 import android.util.SparseArray;
 
-import com.schneeloch.bostonbusmap_library.data.BusLocation;
+import com.google.android.gms.maps.model.BitmapDescriptor;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
+import com.google.common.collect.ImmutableMap;
 import com.schneeloch.bostonbusmap_library.data.ITransitDrawables;
 import com.schneeloch.bostonbusmap_library.data.Location;
 import com.schneeloch.bostonbusmap_library.data.LocationType;
 import com.schneeloch.bostonbusmap_library.database.Schema;
 
-import boston.Bus.Map.ui.BusDrawables;
 import boston.Bus.Map.ui.BusDrawablesLookup;
 
 /**
@@ -24,107 +22,36 @@ import boston.Bus.Map.ui.BusDrawablesLookup;
  *
  */
 public class TransitDrawables implements ITransitDrawables {
-	private final Context context;
-	private final Drawable intersection;
-	private final Drawable arrow;
-	private final int arrowTopDiff;
-	private final Drawable stop;
-	private final Drawable stopUpdated;
-	private final Drawable vehicle;
+    private final int intersection;
+    private final int intersectionSelected;
+    private final int stop;
+    private final int stopSelected;
+    private final int stopUpdated;
+	private final int stopUpdatedSelected;
 
-    public static ITransitDrawables busDrawables;
-    public static ITransitDrawables commuterRailDrawables;
-    public static ITransitDrawables hubwayDrawables;
-    public static ITransitDrawables subwayDrawables;
-
-	private final SparseArray<Drawable> vehicles = new SparseArray<Drawable>();
-	
-	private static final int[][] validStates = new int[][] {
-		new int[]{android.R.attr.state_focused}, new int[0]
-	};
-	
-	public TransitDrawables(Context context, Drawable stop, Drawable stopUpdated, Drawable vehicle,
-			Drawable arrow, int arrowTop, Drawable intersection) {
+	public TransitDrawables(int intersection, int intersectionSelected, int stop, int stopSelected,
+                            int stopUpdated, int stopUpdatedSelected) {
 		this.stop = stop;
+        this.stopSelected = stopSelected;
 		this.stopUpdated = stopUpdated;
-		this.vehicle = vehicle;
-		this.arrow = arrow;
-		this.arrowTopDiff = arrowTop;
+        this.stopUpdatedSelected = stopUpdatedSelected;
 		this.intersection = intersection;
-		this.context = context;
+        this.intersectionSelected = intersectionSelected;
 	}
-
-	@Override
-    public Drawable getVehicle(int heading) {
-		Drawable drawable = vehicles.get(heading);
-		if (drawable == null) {
-			drawable = createBusDrawable(heading);
-			vehicles.put(heading, drawable);
-		}
-		return drawable;
-	}
-
-	private Drawable createBusDrawable(int heading) {
-		//NOTE: 0, 0 is the bottom center point of the bus icon
-		
-		StateListDrawable stateListDrawable = new StateListDrawable();
-		for (int[] state : validStates) {
-			Bitmap bitmap = Bitmap.createBitmap(vehicle.getIntrinsicWidth(),
-					vehicle.getIntrinsicHeight(), Bitmap.Config.ARGB_8888);
-			Canvas canvas = new Canvas(bitmap);
-			//first draw the bus
-			vehicle.setState(state);
-			vehicle.setBounds(0, 0, canvas.getWidth(), canvas.getHeight());
-			vehicle.draw(canvas);
-
-			//then draw arrow
-			if (arrow != null && heading != BusLocation.NO_HEADING)
-			{
-				//put the arrow in the bus window
-
-				int arrowLeft = vehicle.getIntrinsicWidth()/2 - (arrow.getIntrinsicWidth() * 6 / 10 / 2);
-				int arrowTop = arrowTopDiff;
-
-				//NOTE: use integer division when possible. This code is frequently executed
-				int arrowWidth = (arrow.getIntrinsicWidth() * 6) / 10;  
-				int arrowHeight = (arrow.getIntrinsicHeight() * 6) / 10;
-				int arrowRight = arrowLeft + arrowWidth;
-				int arrowBottom = arrowTop + arrowHeight;
-
-				arrow.setBounds(arrowLeft, arrowTop, arrowRight, arrowBottom);
-
-				canvas.save();
-				//set rotation pivot at the center of the arrow image
-				canvas.rotate(heading, arrowLeft + arrowWidth/2, arrowTop + arrowHeight / 2);
-
-				Rect rect = arrow.getBounds();
-				arrow.draw(canvas);
-				arrow.setBounds(rect);
-
-				canvas.restore();
-
-			}
-			BitmapDrawable bitmapDrawable = new BitmapDrawable(context.getResources(), bitmap);
-			stateListDrawable.addState(state, bitmapDrawable);
-		}
-		
-		return stateListDrawable;
-	}
-
 
     @Override
-    public Drawable getDrawable(Location location) {
+    public BitmapDescriptor getBitmapDescriptor(Location location, boolean isSelected) {
         LocationType locationType = location.getLocationType();
         boolean isUpdated = location.isUpdated();
         if (locationType == LocationType.Intersection) {
-            return intersection;
+            return BitmapDescriptorFactory.fromResource(intersection);
         }
         else if (locationType == LocationType.Stop) {
             if (isUpdated) {
-                return stopUpdated;
+                return BitmapDescriptorFactory.fromResource(stopUpdated);
             }
             else {
-                return stop;
+                return BitmapDescriptorFactory.fromResource(stop);
             }
         }
         else if (locationType == LocationType.Vehicle) {
@@ -132,7 +59,7 @@ public class TransitDrawables implements ITransitDrawables {
             if (location.getTransitSourceType() == Schema.Routes.SourceId.Bus) {
                 isRail = false;
             }
-            return context.getResources().getDrawable(BusDrawablesLookup.getIdFromAngle(location.getHeading(), false, isRail));
+            return BitmapDescriptorFactory.fromResource(BusDrawablesLookup.getIdFromAngle(location.getHeading(), isSelected, isRail));
         }
         else {
             throw new RuntimeException("Unexpected location type");

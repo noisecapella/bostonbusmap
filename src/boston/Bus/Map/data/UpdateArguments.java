@@ -2,10 +2,12 @@ package boston.Bus.Map.data;
 
 import boston.Bus.Map.main.RefreshAsyncTask;
 
+import com.google.android.gms.maps.GoogleMap;
 import com.schneeloch.bostonbusmap_library.data.Locations;
 import com.schneeloch.bostonbusmap_library.provider.IDatabaseAgent;
 import com.schneeloch.bostonbusmap_library.transit.ITransitSystem;
-import boston.Bus.Map.ui.OverlayGroup;
+
+import boston.Bus.Map.ui.MapManager;
 
 import com.google.android.maps.MapView;
 
@@ -16,24 +18,24 @@ import android.widget.ProgressBar;
 public class UpdateArguments {
 	private ProgressBar progress;
 	private ProgressDialog progressDialog;
-	private MapView mapView;
+	private GoogleMap mapView;
 	private IDatabaseAgent databaseAgent;
-	private OverlayGroup overlayGroup;
+	private MapManager overlayGroup;
 	private RefreshAsyncTask majorHandler;
 	private Locations busLocations;
 	private ITransitSystem transitSystem;
     private Context context;
 	
 	public UpdateArguments(ProgressBar progress,
-			ProgressDialog progressDialog, MapView mapView, IDatabaseAgent databaseAgent,
-			OverlayGroup overlayGroup, RefreshAsyncTask majorHandler,
+			ProgressDialog progressDialog, GoogleMap mapView, IDatabaseAgent databaseAgent,
+			MapManager mapManager, RefreshAsyncTask majorHandler,
 			Locations busLocations,
             ITransitSystem transitSystem, Context context) {
 		this.progress = progress;
 		this.progressDialog = progressDialog;
 		this.mapView = mapView;
 		this.databaseAgent = databaseAgent;
-		this.overlayGroup = overlayGroup;
+		this.overlayGroup = mapManager;
 		this.majorHandler = majorHandler;
 		this.busLocations = busLocations;
 		this.transitSystem = transitSystem;
@@ -60,7 +62,7 @@ public class UpdateArguments {
 		this.progressDialog = progressDialog;
 	}
 	
-	public MapView getMapView() {
+	public GoogleMap getMapView() {
 		return mapView;
 	}
 
@@ -84,7 +86,7 @@ public class UpdateArguments {
 		return transitSystem;
 	}
 
-	public OverlayGroup getOverlayGroup() {
+	public MapManager getOverlayGroup() {
 		return overlayGroup;
 	}
 
