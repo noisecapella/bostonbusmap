@@ -50,7 +50,6 @@ import android.graphics.Paint;
 import android.graphics.Point;
 import android.graphics.Paint.Style;
 import android.graphics.drawable.Drawable;
-import android.util.FloatMath;
 import android.util.Log;
 import android.view.MotionEvent;
 
@@ -272,7 +271,7 @@ public class BusOverlay extends BalloonItemizedOverlay<BusOverlayItem> {
 			}
 		
 			//draw a circle showing which buses are currently displayed
-			float radius = FloatMath.sqrt(lastDistance);
+			float radius = (float)Math.sqrt(lastDistance);
 
 			canvas.drawCircle(circleCenterX, circleCenterY, radius, paint);
 		}

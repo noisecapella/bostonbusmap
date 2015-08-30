@@ -78,30 +78,31 @@ public class HubwayTransitSource implements TransitSource {
 
                 RouteConfig hubwayRouteConfig = routePool.get(routeTag);
                 DownloadHelper downloadHelper = new DownloadHelper(dataUrl);
+                try {
+                    InputStream stream = downloadHelper.getResponseData();
 
-                downloadHelper.connect();
+                    HubwayParser parser = new HubwayParser(hubwayRouteConfig);
+                    parser.runParse(stream);
+                    List<PredictionStopLocationPair> pairs = parser.getPairs();
 
+                    for (PredictionStopLocationPair pair : pairs) {
+                        pair.stopLocation.clearPredictions(null);
+                        pair.stopLocation.addPrediction(pair.prediction);
+                    }
 
-                InputStream stream = downloadHelper.getResponseData();
+                    ImmutableMap.Builder<String, StopLocation> builder = ImmutableMap.builder();
+                    for (PredictionStopLocationPair pair : pairs) {
+                        StopLocation stop = pair.stopLocation;
+                        builder.put(stop.getStopTag(), stop);
+                    }
+                    ImmutableMap<String, StopLocation> stops = builder.build();
+                    hubwayRouteConfig.replaceStops(stops);
 
-                HubwayParser parser = new HubwayParser(hubwayRouteConfig);
-                parser.runParse(stream);
-                List<PredictionStopLocationPair> pairs = parser.getPairs();
-
-                for (PredictionStopLocationPair pair : pairs) {
-                    pair.stopLocation.clearPredictions(null);
-                    pair.stopLocation.addPrediction(pair.prediction);
+                    cache.updateAllPredictions();
                 }
-
-                ImmutableMap.Builder<String, StopLocation> builder = ImmutableMap.builder();
-                for (PredictionStopLocationPair pair : pairs) {
-                    StopLocation stop = pair.stopLocation;
-                    builder.put(stop.getStopTag(), stop);
+                finally {
+                    downloadHelper.disconnect();
                 }
-                ImmutableMap<String, StopLocation> stops = builder.build();
-                hubwayRouteConfig.replaceStops(stops);
-
-                cache.updateAllPredictions();
 
                 break;
             default:

@@ -121,24 +121,24 @@ public class CommuterRailTransitSource implements TransitSource {
                     try {
                         String url = outputRow.url;
                         DownloadHelper downloadHelper = new DownloadHelper(url);
+                        try {
+                            InputStream stream = downloadHelper.getResponseData();
+                            InputStreamReader data = new InputStreamReader(stream);
+                            //StringReader data = new StringReader(hardcodedData);
 
-                        downloadHelper.connect();
+                            //bus prediction
 
+                            String route = outputRow.route;
+                            RouteConfig railRouteConfig = routePool.get(route);
+                            CommuterRailPredictionsFeedParser parser = new CommuterRailPredictionsFeedParser(railRouteConfig, directions,
+                                    busMapping, locationsObj.getRouteTitles());
 
-
-                        InputStream stream = downloadHelper.getResponseData();
-                        InputStreamReader data = new InputStreamReader(stream);
-                        //StringReader data = new StringReader(hardcodedData);
-
-                        //bus prediction
-
-                        String route = outputRow.route;
-                        RouteConfig railRouteConfig = routePool.get(route);
-                        CommuterRailPredictionsFeedParser parser = new CommuterRailPredictionsFeedParser(railRouteConfig, directions,
-                                busMapping, locationsObj.getRouteTitles());
-
-                        parser.runParse(data);
-                        data.close();
+                            parser.runParse(data);
+                            data.close();
+                        }
+                        finally {
+                            downloadHelper.disconnect();
+                        }
                     } catch (Exception e) {
                         exceptions.put(outputRow.route, e);
                     }
