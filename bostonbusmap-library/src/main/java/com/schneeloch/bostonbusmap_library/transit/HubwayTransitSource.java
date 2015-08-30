@@ -43,6 +43,8 @@ public class HubwayTransitSource implements TransitSource {
 
     private final TransitSourceCache cache;
 
+    private static Schema.Routes.SourceId[] transitSourceIds = new Schema.Routes.SourceId[] {Schema.Routes.SourceId.Hubway};
+
 	public HubwayTransitSource(ITransitDrawables drawables, TransitSourceTitles routeTitles,
 							   TransitSystem transitSystem) {
 
@@ -144,7 +146,7 @@ public class HubwayTransitSource implements TransitSource {
 
 	@Override
 	public Schema.Routes.SourceId[] getTransitSourceIds() {
-		return new Schema.Routes.SourceId[] {Schema.Routes.SourceId.Hubway};
+		return transitSourceIds;
 	}
 
 	@Override

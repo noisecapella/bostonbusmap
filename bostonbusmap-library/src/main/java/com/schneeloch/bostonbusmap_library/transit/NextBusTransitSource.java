@@ -60,6 +60,7 @@ public abstract class NextBusTransitSource implements TransitSource
 
     private final TransitSourceCache cache;
 
+    private final Schema.Routes.SourceId[] transitSourceIds = new Schema.Routes.SourceId[] {Schema.Routes.SourceId.Bus};
 
 	public NextBusTransitSource(TransitSystem transitSystem, 
 			ITransitDrawables drawables, String agency, TransitSourceTitles routeTitles,
@@ -309,7 +310,7 @@ public abstract class NextBusTransitSource implements TransitSource
 	
 	@Override
 	public Schema.Routes.SourceId[] getTransitSourceIds() {
-		return new Schema.Routes.SourceId[] {Schema.Routes.SourceId.Bus};
+		return transitSourceIds;
 	}
 	
 	@Override
