@@ -182,26 +182,30 @@ public class MbtaRealtimeTransitSource implements TransitSource {
 		String predictionsUrl = dataUrlPrefix + "predictionsbyroutes?api_key=" + apiKey + "&format=json&include_service_alerts=false&routes=" + routesString;
 
 		DownloadHelper vehiclesDownloadHelper = new DownloadHelper(vehiclesUrl);
-			
-		vehiclesDownloadHelper.connect();
-			
-		InputStream vehicleStream = vehiclesDownloadHelper.getResponseData();
-		InputStreamReader vehicleData = new InputStreamReader(vehicleStream);
+        try {
+            InputStream vehicleStream = vehiclesDownloadHelper.getResponseData();
+            InputStreamReader vehicleData = new InputStreamReader(vehicleStream);
 
-		MbtaRealtimeVehicleParser vehicleParser = new MbtaRealtimeVehicleParser(routeTitles, busMapping, directions, routeNames);
-		vehicleParser.runParse(vehicleData);
+            MbtaRealtimeVehicleParser vehicleParser = new MbtaRealtimeVehicleParser(routeTitles, busMapping, directions, routeNames);
+            vehicleParser.runParse(vehicleData);
+        }
+        finally {
+            vehiclesDownloadHelper.disconnect();
+        }
 		
 		DownloadHelper predictionsDownloadHelper = new DownloadHelper(predictionsUrl);
-		
-		predictionsDownloadHelper.connect();
-			
-		InputStream predictionsStream = predictionsDownloadHelper.getResponseData();
-		InputStreamReader predictionsData = new InputStreamReader(predictionsStream);
+        try {
+            InputStream predictionsStream = predictionsDownloadHelper.getResponseData();
+            InputStreamReader predictionsData = new InputStreamReader(predictionsStream);
 
-		MbtaRealtimePredictionsParser parser = new MbtaRealtimePredictionsParser(routeNames, routePool, routeTitles);
-		parser.runParse(predictionsData);
-		
-		predictionsData.close();
+            MbtaRealtimePredictionsParser parser = new MbtaRealtimePredictionsParser(routeNames, routePool, routeTitles);
+            parser.runParse(predictionsData);
+
+            predictionsData.close();
+        }
+        finally {
+            predictionsDownloadHelper.disconnect();
+        }
 
         for (String route : routeNames) {
             cache.updatePredictionForRoute(route);
