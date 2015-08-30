@@ -44,6 +44,8 @@ public class CommuterRailTransitSource implements TransitSource {
     private final TransitSourceCache cache;
 	
 	private final ImmutableMap<String, String> routesToUrls;
+
+    private static Schema.Routes.SourceId[] transitSourceIds = new Schema.Routes.SourceId[] {Schema.Routes.SourceId.CommuterRail};
 	
 	public CommuterRailTransitSource(ITransitDrawables drawables,
 			TransitSourceTitles routeTitles,
@@ -318,7 +320,7 @@ public class CommuterRailTransitSource implements TransitSource {
 
     @Override
     public Schema.Routes.SourceId[] getTransitSourceIds() {
-        return new Schema.Routes.SourceId[] {Schema.Routes.SourceId.CommuterRail};
+        return transitSourceIds;
     }
 
     @Override
