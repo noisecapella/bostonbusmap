@@ -98,6 +98,7 @@ import android.widget.SpinnerAdapter;
 import android.widget.Toast;
 import android.widget.AdapterView.OnItemSelectedListener;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.sothree.slidinguppanel.SlidingUpPanelLayout;
 
 /**
  * The main activity
@@ -408,6 +409,8 @@ public class Main extends AbstractMapActivity
         map.setInfoWindowAdapter(popupAdapter);
 
         populateHandlerSettings();
+        SlidingUpPanelLayout panelLayout = (SlidingUpPanelLayout) findViewById(R.id.sliding_up_panel);
+        panelLayout.setPanelState(SlidingUpPanelLayout.PanelState.COLLAPSED);
 
         map.setTrafficEnabled(handler.getShowTraffic());
         if (lastNonConfigurationInstance != null)
