@@ -1,22 +1,6 @@
 package boston.Bus.Map.ui;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import android.app.AlertDialog;
-import android.content.Context;
-import android.content.DialogInterface;
-import android.content.DialogInterface.OnClickListener;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.graphics.Canvas;
 import android.graphics.Color;
-import android.graphics.drawable.Drawable;
-import android.widget.Toast;
-import boston.Bus.Map.main.Main;
-import boston.Bus.Map.main.UpdateHandler;
 
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.GoogleMap.OnCameraChangeListener;
@@ -24,27 +8,30 @@ import com.google.android.gms.maps.GoogleMap.OnInfoWindowClickListener;
 import com.google.android.gms.maps.GoogleMap.OnMapClickListener;
 import com.google.android.gms.maps.GoogleMap.OnMarkerClickListener;
 import com.google.android.gms.maps.model.BitmapDescriptor;
-import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.CameraPosition;
+import com.google.android.gms.maps.model.Circle;
+import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
-import com.google.android.maps.GeoPoint;
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
-import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
-import com.schneeloch.bostonbusmap_library.data.BusLocation;
 import com.schneeloch.bostonbusmap_library.data.ITransitDrawables;
 import com.schneeloch.bostonbusmap_library.data.Location;
-import com.schneeloch.bostonbusmap_library.data.Locations;
 import com.schneeloch.bostonbusmap_library.data.Path;
-import com.schneeloch.bostonbusmap_library.data.RouteTitles;
+import com.schneeloch.bostonbusmap_library.math.Geometry;
 import com.schneeloch.bostonbusmap_library.transit.ITransitSystem;
 import com.schneeloch.bostonbusmap_library.util.LogUtil;
+
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import boston.Bus.Map.main.UpdateHandler;
 
 public class MapManager implements OnMapClickListener, OnMarkerClickListener, OnInfoWindowClickListener,
         OnCameraChangeListener {
@@ -71,6 +58,7 @@ public class MapManager implements OnMapClickListener, OnMarkerClickListener, On
     private boolean drawLine;
 
     private boolean firstRun = true;
+    private Circle circle;
 
     public MapManager(GoogleMap map,
                       ITransitSystem transitSystem) {
@@ -141,8 +129,14 @@ public class MapManager implements OnMapClickListener, OnMarkerClickListener, On
     }
 
     public void setDrawHighlightCircle(boolean drawCircle) {
-        // TODO
-
+        if (circle != null) {
+            if (drawCircle) {
+                circle.setVisible(true);
+            }
+            else {
+                circle.setVisible(false);
+            }
+        }
     }
 
     public void setAllRoutesBlue(boolean allRoutesBlue) {
@@ -260,7 +254,7 @@ public class MapManager implements OnMapClickListener, OnMarkerClickListener, On
         this.drawLine = drawLine;
     }
 
-    public void updateNewLocations(List<Location> locations, int newSelection) {
+    public void updateNewLocations(List<Location> locations, int newSelection, LatLng newCenter) {
         if (firstRun) {
             // map may contain old markers and route lines if it was retained
             map.clear();
@@ -269,6 +263,9 @@ public class MapManager implements OnMapClickListener, OnMarkerClickListener, On
             firstRun = false;
         }
 
+        if (circle != null) {
+            circle.remove();
+        }
         boolean selectionMade = false;
         Set<Integer> toRemove = Sets.newHashSet();
         toRemove.addAll(locationIdToLocation.keySet());
@@ -341,6 +338,36 @@ public class MapManager implements OnMapClickListener, OnMarkerClickListener, On
                 setSelectedBusId(NOT_SELECTED);
             }
         }
+
+        double radius = 0;
+        Location lastLocation = null;
+        if (locations.size() > 0) {
+            lastLocation = locations.get(locations.size() - 1);
+        }
+        LatLng firstLocation = null;
+        if (locations.size() > 0) {
+            Location firstLocationObject = locations.get(0);
+            firstLocation = new LatLng(
+                    firstLocationObject.getLatitudeAsDegrees(),
+                    firstLocationObject.getLongitudeAsDegrees()
+            );
+        }
+        if (lastLocation != null) {
+            radius = Geometry.computeDistanceInMiles(
+                    firstLocation.latitude * Geometry.degreesToRadians,
+                    firstLocation.longitude * Geometry.degreesToRadians,
+                    lastLocation.getLatitudeAsDegrees() * Geometry.degreesToRadians,
+                    lastLocation.getLongitudeAsDegrees() * Geometry.degreesToRadians
+            )
+            * Geometry.milesToMeters;
+        }
+
+        circle = map.addCircle(new CircleOptions()
+                        .strokeColor(0x99000099)
+                        .center(firstLocation)
+                        .radius(radius)
+                        .visible(true)
+        );
     }
 
     public Location getLocationFromMarkerId(String id) {

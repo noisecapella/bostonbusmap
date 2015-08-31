@@ -73,7 +73,7 @@ public class StopLocation implements Location
 		return Geometry.computeCompareDistance(latitude, longitude, centerLatitude, centerLongitude);
 	}
 
-	public float distanceFromInMiles(double latitudeAsRads,
+	public double distanceFromInMiles(double latitudeAsRads,
 			double longitudeAsRads) {
 		return Geometry.computeDistanceInMiles(latitude, longitude, latitudeAsRads, longitudeAsRads);
 	}

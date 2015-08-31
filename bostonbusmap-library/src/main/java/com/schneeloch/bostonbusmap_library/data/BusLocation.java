@@ -162,7 +162,7 @@ public class BusLocation implements Location {
 	}
 
 	@Override
-	public float distanceFromInMiles(double centerLatAsRadians,
+	public double distanceFromInMiles(double centerLatAsRadians,
 			double centerLonAsRadians) {
 		return Geometry.computeDistanceInMiles(latitude, longitude, centerLatAsRadians, centerLonAsRadians);
 	}
