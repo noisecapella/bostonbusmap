@@ -6,7 +6,9 @@
     android:layout_width="match_parent"
     android:gravity="bottom"
     sothree:umanoPanelHeight="68dp"
-    sothree:umanoShadowHeight="4dp">
+    sothree:umanoShadowHeight="4dp"
+    android:id="@+id/sliding_up_panel"
+    >
 <android.support.v4.widget.DrawerLayout
     android:id="@+id/drawer_layout"
     android:layout_width="match_parent" android:layout_height="match_parent"
@@ -163,7 +165,7 @@
         android:dividerHeight="0dp"
         android:background="#99222222"/>
 </android.support.v4.widget.DrawerLayout>
-    <LinearLayout android:text="Hello!"
+    <LinearLayout
               android:layout_width="match_parent"
               android:layout_height="match_parent"
                   android:orientation="horizontal"
