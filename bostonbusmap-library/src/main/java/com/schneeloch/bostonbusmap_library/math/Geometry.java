@@ -21,8 +21,9 @@ public class Geometry {
 	public static final double radiansToDegrees = 180.0 / java.lang.Math.PI;
 
 	private static final double InvPITimes180 = (1.0 / Math.PI) * 180;
-	
-	/**
+    public static final double milesToMeters = 1609.34;
+
+    /**
 	 * For testing only
 	 * 
 	 * @param lat1
@@ -99,7 +100,7 @@ public class Geometry {
 	 * @param lng2
 	 * @return
 	 */
-	public static float computeDistanceInMiles(float lat1, float lng1,
+	public static double computeDistanceInMiles(double lat1, double lng1,
 			double lat2, double lng2) {
 		double earthRadius = 3958.75;
 		double dLat = lat2-lat1;
@@ -111,7 +112,7 @@ public class Geometry {
 		double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
 		double dist = earthRadius * c;
 
-		return (float)dist;
+		return dist;
 	}
 
 
