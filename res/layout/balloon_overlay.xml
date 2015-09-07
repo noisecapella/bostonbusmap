@@ -7,68 +7,17 @@
                 android:paddingRight="10dip"
     >
 
-    <ImageView android:layout_width="wrap_content"
-               android:layout_height="wrap_content" android:id="@+id/balloon_item_favorite"
-               android:layout_alignParentRight="true"
-               android:contentDescription="Mark stop as favorite"></ImageView>
     <TextView android:layout_height="wrap_content"
               android:layout_width="wrap_content" android:id="@+id/balloon_item_title"
-              android:textSize="15dip"
+              android:textSize="20dip"
               android:textColor="#FF000000" android:bufferType="spannable"
-              android:layout_toLeftOf="@+id/balloon_item_favorite"
               android:layout_alignParentLeft="true"></TextView>
-
-    <LinearLayout android:layout_width="wrap_content" android:layout_height="wrap_content"
-                  android:layout_alignParentRight="true"
-                  android:layout_below="@+id/balloon_item_favorite"
-                  android:orientation="vertical"
-                  android:id="@+id/balloon_item_sidebar"
-        >
-        <TextView android:layout_width="wrap_content"
-                  android:layout_height="wrap_content" android:id="@+id/balloon_item_moreinfo"
-                  android:bufferType="spannable"
-
-                  android:layout_marginTop="20dip" android:paddingTop="20dip"
-                  android:paddingLeft="5dip" android:paddingBottom="10dip"></TextView>
-
-        <TextView android:layout_width="wrap_content"
-                  android:layout_height="wrap_content" android:id="@+id/balloon_item_alerts"
-                  android:bufferType="spannable"
-
-                  android:layout_marginTop="10dip" android:paddingTop="10dip"
-                  android:paddingLeft="5dip" android:paddingBottom="10dip">
-
-        </TextView>
-
-        <TextView android:layout_width="wrap_content"
-                  android:layout_height="wrap_content" android:id="@+id/balloon_item_report"
-                  android:bufferType="spannable"
-                  android:layout_marginTop="10dip" android:paddingTop="5dip"
-                  android:paddingLeft="5dip" android:paddingBottom="10dip"></TextView>
-        <TextView android:layout_width="wrap_content"
-                  android:layout_height="wrap_content" android:id="@+id/balloon_item_edit"
-                  android:bufferType="spannable"
-                  android:layout_marginTop="10dip" android:paddingTop="5dip"
-                  android:paddingLeft="5dip" android:paddingBottom="10dip"></TextView>
-        <TextView android:layout_width="wrap_content"
-                  android:layout_height="wrap_content" android:id="@+id/balloon_item_delete"
-                  android:bufferType="spannable"
-                  android:layout_marginTop="10dip" android:paddingTop="5dip"
-                  android:paddingLeft="5dip" android:paddingBottom="10dip"></TextView>
-        <TextView android:layout_width="wrap_content"
-                  android:layout_height="wrap_content" android:id="@+id/balloon_item_nearby_routes"
-                  android:bufferType="spannable"
-                  android:layout_marginTop="10dip" android:paddingTop="5dip"
-                  android:paddingLeft="5dip" android:paddingBottom="10dip"></TextView>
-    </LinearLayout>
-
 
     <TextView android:layout_height="wrap_content"
               android:layout_width="wrap_content" android:id="@+id/balloon_item_snippet"
-              android:textSize="12dip"
+              android:textSize="15dip"
               android:textColor="#FF000000" android:bufferType="spannable"
               android:layout_below="@+id/balloon_item_title"
-              android:layout_toLeftOf="@+id/balloon_item_sidebar"
               android:layout_alignLeft="@+id/balloon_item_title"
         ></TextView>
 
