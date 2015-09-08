@@ -21,4 +21,9 @@ public class AdjustUIAsyncTask extends UpdateAsyncTask
 	protected boolean areUpdatesSilenced() {
 		return true;
 	}
+
+    @Override
+    protected boolean forceNewMarker() {
+        return false;
+    }
 }

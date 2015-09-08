@@ -372,7 +372,7 @@ public abstract class UpdateAsyncTask extends AsyncTask<Object, Object, Immutabl
 
 		// we need to do this here because addLocation creates PredictionViews, which needs
 		// to happen after makeSnippetAndTitle and addToSnippetAndTitle
-        manager.updateNewLocations(busesToDisplay, newSelectedBusId, newCenter);
+        manager.updateNewLocations(busesToDisplay, newSelectedBusId, newCenter, forceNewMarker());
 		//busOverlay.refreshBalloons();
 		
 
@@ -381,7 +381,9 @@ public abstract class UpdateAsyncTask extends AsyncTask<Object, Object, Immutabl
 			handler.triggerUpdate();
 		}
 	}
-	
+
+    protected abstract boolean forceNewMarker();
+
 	/**
 	 * public method exposing protected publishProgress()
 	 * @param msg

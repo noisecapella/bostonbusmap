@@ -377,7 +377,7 @@ public class MapManager implements OnMapClickListener, OnMarkerClickListener,
      * @param newSelection
      * @param newCenter
      */
-    public void updateNewLocations(List<Location> locations, int newSelection, LatLng newCenter) {
+    public void updateNewLocations(List<Location> locations, int newSelection, LatLng newCenter, boolean forceNewMarker) {
         if (firstRun) {
             // map may contain old markers and route lines if it was retained
             map.clear();
@@ -408,7 +408,7 @@ public class MapManager implements OnMapClickListener, OnMarkerClickListener,
                 }
             }
 
-            if (reuseMarker) {
+            if (reuseMarker && !forceNewMarker) {
                 // replace with new location, leave marker
                 locationIdToLocation.put(location.getId(), location);
             }
