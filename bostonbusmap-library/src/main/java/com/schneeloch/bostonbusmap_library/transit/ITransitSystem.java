@@ -52,4 +52,6 @@ public interface ITransitSystem {
     public void startObtainAlerts(IDatabaseAgent databaseAgent);
 
     TransitSource getTransitSourceByRouteType(Schema.Routes.SourceId routeType);
+
+    String getFeedbackUrl();
 }

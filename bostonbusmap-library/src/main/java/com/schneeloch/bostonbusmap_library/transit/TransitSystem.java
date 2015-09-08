@@ -344,4 +344,8 @@ public class TransitSystem implements ITransitSystem {
 			
 		}
 	}
+
+    public String getFeedbackUrl() {
+        return "http://www.mbta.com/customer_support/feedback/";
+    }
 }

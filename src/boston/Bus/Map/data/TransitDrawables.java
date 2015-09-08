@@ -44,14 +44,28 @@ public class TransitDrawables implements ITransitDrawables {
         LocationType locationType = location.getLocationType();
         boolean isUpdated = location.isUpdated();
         if (locationType == LocationType.Intersection) {
-            return BitmapDescriptorFactory.fromResource(intersection);
-        }
-        else if (locationType == LocationType.Stop) {
-            if (isUpdated) {
-                return BitmapDescriptorFactory.fromResource(stopUpdated);
+            if (isSelected) {
+                return BitmapDescriptorFactory.fromResource(intersectionSelected);
             }
             else {
-                return BitmapDescriptorFactory.fromResource(stop);
+                return BitmapDescriptorFactory.fromResource(intersection);
+            }
+        }
+        else if (locationType == LocationType.Stop) {
+            if (isSelected) {
+                if (isUpdated) {
+                    return BitmapDescriptorFactory.fromResource(stopUpdatedSelected);
+                }
+                else {
+                    return BitmapDescriptorFactory.fromResource(stopSelected);
+                }
+            }
+            else {
+                if (isUpdated) {
+                    return BitmapDescriptorFactory.fromResource(stopUpdated);
+                } else {
+                    return BitmapDescriptorFactory.fromResource(stop);
+                }
             }
         }
         else if (locationType == LocationType.Vehicle) {

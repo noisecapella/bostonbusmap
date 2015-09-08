@@ -90,6 +90,8 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
@@ -98,7 +100,6 @@ import android.widget.SpinnerAdapter;
 import android.widget.Toast;
 import android.widget.AdapterView.OnItemSelectedListener;
 import com.google.android.gms.maps.SupportMapFragment;
-import com.sothree.slidinguppanel.SlidingUpPanelLayout;
 
 /**
  * The main activity
@@ -372,7 +373,6 @@ public class Main extends AbstractMapActivity
         RefreshAsyncTask majorHandler = null;
         
         Selection selection;
-        Object lastNonConfigurationInstance = getLastNonConfigurationInstance();
         Locations busLocations = null;
         {
         	locationEnabled = prefs.getBoolean(getString(R.string.alwaysShowLocationCheckbox), true);
@@ -397,7 +397,11 @@ public class Main extends AbstractMapActivity
         	busLocations = new Locations(databaseAgent, transitSystem, selection);
         }
 
-        MapManager manager = new MapManager(map, transitSystem);
+        Button reportButton = (Button)findViewById(R.id.report_problem_button);
+        Button moreInfoButton = (Button)findViewById(R.id.moreinfo_button);
+        LinearLayout buttonsLayout = (LinearLayout)findViewById(R.id.buttons_layout);
+        buttonsLayout.setVisibility(View.GONE);
+        MapManager manager = new MapManager(this, map, transitSystem, busLocations, reportButton, moreInfoButton, buttonsLayout);
 
         arguments = new UpdateArguments(progress, progressDialog,
         		map, databaseAgent, manager,
@@ -409,16 +413,9 @@ public class Main extends AbstractMapActivity
         map.setInfoWindowAdapter(popupAdapter);
 
         populateHandlerSettings();
-        SlidingUpPanelLayout panelLayout = (SlidingUpPanelLayout) findViewById(R.id.sliding_up_panel);
-        panelLayout.setPanelState(SlidingUpPanelLayout.PanelState.COLLAPSED);
 
         map.setTrafficEnabled(handler.getShowTraffic());
-        if (lastNonConfigurationInstance != null)
-        {
-        	updateSearchText(selection);
-        	setMode(selection.getMode(), true, false);
-        }
-        else
+
         {
             int centerLat = prefs.getInt(centerLatKey, Integer.MAX_VALUE);
             int centerLon = prefs.getInt(centerLonKey, Integer.MAX_VALUE);
@@ -946,8 +943,6 @@ public class Main extends AbstractMapActivity
 		final int id = stopLocation.getId();
 		handler.triggerUpdateThenSelect(id);
 
-		
-		
 		if (routePosition != -1)
 		{
 			//should always happen, but we just ignore this if something went wrong

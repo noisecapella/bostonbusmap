@@ -5,6 +5,7 @@ import android.text.Html;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup.LayoutParams;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.google.android.gms.maps.GoogleMap.InfoWindowAdapter;
@@ -25,6 +26,7 @@ public class PopupAdapter implements InfoWindowAdapter {
     private TextView title;
     private TextView snippet;
     private MapManager manager;
+    private ImageView favorite;
 
     /**
      * The view we create for the popup which may get reused
@@ -54,6 +56,7 @@ public class PopupAdapter implements InfoWindowAdapter {
             layoutView.setBackgroundResource(R.drawable.tooltip);
             title = (TextView) layoutView.findViewById(R.id.balloon_item_title);
             snippet = (TextView) layoutView.findViewById(R.id.balloon_item_snippet);
+            favorite = (ImageView) layoutView.findViewById(R.id.balloon_item_favorite);
 
             popupView = parent;
         }
@@ -80,6 +83,13 @@ public class PopupAdapter implements InfoWindowAdapter {
         }
         snippet.setText(Html.fromHtml(predictionView.getSnippet()));
         title.setText(Html.fromHtml(predictionView.getSnippetTitle()));
+
+        if (location != null && location.isFavorite()) {
+            favorite.setImageResource(R.drawable.full_star);
+        }
+        else {
+            favorite.setImageResource(R.drawable.empty_star);
+        }
     }
 
 }
