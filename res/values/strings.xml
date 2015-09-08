@@ -79,4 +79,5 @@ Are any enabled (like GPS) in your system settings?</string>
 <string name="tutorialStep8">You can define places by clicking \'Places\' in the menu. Places allow you to quickly jump between different parts of the map.</string>
 <string name="tutorialStep9">Please send me an email if you have any questions! bostonbusmap@gmail.com</string>
     <string name="no_maps">Unable to find Google Maps</string>
+    <string name="favoriteButton">Favorite button</string>
 </resources>

@@ -1,174 +1,227 @@
 <?xml version="1.0" encoding="utf-8"?>
-<com.sothree.slidinguppanel.SlidingUpPanelLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:sothree="http://schemas.android.com/apk/res-auto"
-    android:layout_height="match_parent"
-    android:layout_width="match_parent"
-    android:gravity="bottom"
-    sothree:umanoPanelHeight="68dp"
-    sothree:umanoShadowHeight="4dp"
-    android:id="@+id/sliding_up_panel"
-    >
 <android.support.v4.widget.DrawerLayout
+    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/drawer_layout"
-    android:layout_width="match_parent" android:layout_height="match_parent"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="fill_parent"
     android:gravity="center">
+
     <FrameLayout
         android:id="@+id/content_frame"
-        android:layout_width="match_parent" android:layout_height="match_parent">
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
         <RelativeLayout
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content" android:padding="3dp" android:background="#000000">
-        <RelativeLayout android:layout_width="fill_parent" android:layout_height="wrap_content"
-            android:id="@+id/linearLayoutMain" android:gravity="right">
-
-            <ImageButton
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignParentLeft="true"
-                android:id="@+id/drawerButton"
-                android:background="@drawable/appicon"
-                />
-
-
-            <Spinner android:id="@+id/predictionsOrLocations"
-
-                android:layout_height="wrap_content" android:layout_width="wrap_content"
-                android:background="@android:drawable/btn_default"
-                android:layout_alignParentRight="true"
-                ></Spinner>
-            <Button android:id="@+id/chooseAPlaceButton" android:layout_height="wrap_content"
-                android:layout_width="wrap_content" android:layout_toLeftOf="@+id/predictionsOrLocations"
-                android:background="@android:drawable/btn_default"
-                android:text="..."
-
-                />
-
-            <Button android:id="@+id/chooseFavoriteButton" android:layout_height="wrap_content"
-                android:layout_width="wrap_content" android:layout_toLeftOf="@+id/chooseAPlaceButton"
-                android:background="@android:drawable/btn_default"
-                android:text="..."
-                />
-
-
-            <ProgressBar android:id="@+id/progress"
-                android:layout_width="wrap_content" android:layout_height="wrap_content"
-
-                android:indeterminateOnly="true" android:indeterminate="true"
-                android:layout_toLeftOf="@+id/chooseFavoriteButton"
-                />
-
-
-            <TableLayout android:layout_width="wrap_content" android:layout_height="wrap_content"
-                android:id="@+id/linearLayoutMainSmall" android:layout_toLeftOf="@+id/progress"
-                android:layout_toRightOf="@+id/drawerButton"
-                android:shrinkColumns="0"
-                >
-                <TableRow>
-                    <EditText android:layout_width="wrap_content" android:id="@+id/searchTextView"
-                        android:hint="@string/searchHint" android:inputType="textNoSuggestions"
-                        android:imeActionId="1" android:imeOptions="actionGo"
-                        android:focusable="false" android:focusableInTouchMode="false"
-                        android:layout_height="wrap_content" android:textSize="16sp"
-
-                        android:ellipsize="end"
-                        ></EditText>
-                    <ImageButton android:layout_width="wrap_content"
-                        android:layout_height="wrap_content" android:id="@+id/searchButton"
-                        android:src="@drawable/ic_btn_search"
-
-                        android:contentDescription="@string/search"
-                        ></ImageButton>
-                </TableRow>
-            </TableLayout>
-        </RelativeLayout>
-
-            <fragment class="com.google.android.gms.maps.SupportMapFragment"
-                      android:layout_alignParentBottom="true"
-                      android:layout_height="fill_parent"
-                      android:layout_width="fill_parent"
-                      android:layout_below="@id/linearLayoutMain"
-                      android:id="@+id/map"
-                      />
-        <RelativeLayout
-            android:layout_height="fill_parent"
-            android:layout_width="fill_parent"
-            android:id="@+id/mapViewOverlayButtons"
-            android:layout_alignParentBottom="true"
-            android:layout_below="@+id/linearLayoutMain">
-            <ImageButton
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:id="@+id/refreshButton"
-                android:layout_alignParentLeft="true"
-                android:layout_alignParentTop="true"
-                android:src="@android:drawable/ic_menu_rotate" />
-        </RelativeLayout>
-        <RelativeLayout
-            android:layout_height="fill_parent"
-            android:layout_width="fill_parent"
-            android:id="@+id/mapViewTutorial"
-            android:visibility="gone"
-            android:layout_alignParentBottom="true"
-            android:layout_below="@+id/linearLayoutMain"
-            android:gravity="center">
+            android:layout_height="wrap_content"
+            android:background="#000000"
+            android:padding="3dp">
 
             <RelativeLayout
-                android:layout_width="300dp"
+                android:id="@+id/linearLayoutMain"
+                android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
-                android:padding="20dp"
-                android:background="@drawable/tooltip"
+                android:gravity="right">
 
-                >
-
-                <TextView
-                    android:id="@+id/mapViewTutorialText"
-                    android:layout_width="fill_parent"
+                <ImageButton
+                    android:id="@+id/drawerButton"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Hello, world!"
-                    android:textColor="@android:color/black"
+                    android:layout_alignParentLeft="true"
+                    android:background="@drawable/appicon"
                     />
 
-                <Button android:layout_height="wrap_content"
+
+                <Spinner
+                    android:id="@+id/predictionsOrLocations"
+
                     android:layout_width="wrap_content"
-                    android:text="Next"
-                    android:id="@+id/mapViewTutorialNextButton"
+                    android:layout_height="wrap_content"
                     android:layout_alignParentRight="true"
-                    android:layout_below="@+id/mapViewTutorialText"/>
-                <Button android:layout_height="wrap_content"
+                    android:background="@android:drawable/btn_default"
+                    ></Spinner>
+
+                <Button
+                    android:id="@+id/chooseAPlaceButton"
                     android:layout_width="wrap_content"
-                    android:layout_alignParentLeft="true"
-                    android:text="Skip"
-                    android:layout_below="@+id/mapViewTutorialText"
-                    android:id="@+id/mapViewTutorialSkipButton"
+                    android:layout_height="wrap_content"
+                    android:layout_toLeftOf="@+id/predictionsOrLocations"
+                    android:background="@android:drawable/btn_default"
+                    android:text="..."
+
                     />
+
+                <Button
+                    android:id="@+id/chooseFavoriteButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_toLeftOf="@+id/chooseAPlaceButton"
+                    android:background="@android:drawable/btn_default"
+                    android:text="..."
+                    />
+
+
+                <ProgressBar
+                    android:id="@+id/progress"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+
+                    android:layout_toLeftOf="@+id/chooseFavoriteButton"
+                    android:indeterminate="true"
+                    android:indeterminateOnly="true"
+                    />
+
+
+                <TableLayout
+                    android:id="@+id/linearLayoutMainSmall"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_toLeftOf="@+id/progress"
+                    android:layout_toRightOf="@+id/drawerButton"
+                    android:shrinkColumns="0"
+                    >
+
+                    <TableRow>
+
+                        <EditText
+                            android:id="@+id/searchTextView"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:ellipsize="end"
+                            android:focusable="false"
+                            android:focusableInTouchMode="false"
+                            android:hint="@string/searchHint"
+                            android:imeActionId="1"
+                            android:imeOptions="actionGo"
+                            android:inputType="textNoSuggestions"
+
+                            android:textSize="16sp"
+                            ></EditText>
+
+                        <ImageButton
+                            android:id="@+id/searchButton"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:contentDescription="@string/search"
+
+                            android:src="@drawable/ic_btn_search"
+                            ></ImageButton>
+                    </TableRow>
+                </TableLayout>
             </RelativeLayout>
 
-        </RelativeLayout>
+            <fragment
+                android:id="@+id/map"
+                class="com.google.android.gms.maps.SupportMapFragment"
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent"
+                android:layout_alignParentBottom="true"
+                android:layout_below="@id/linearLayoutMain"
 
-        <!-- debug key: 0UeumldxhB0bPpe6UgModFrG5tLPAwclzgqJhRg -->
-        <!-- release key: 04_mZq9Q_5sL2pltlDIYof4iIQimS_U5YPnRafg -->
+                tools:layout="@layout/abc_screen_simple"/>
+
+            <RelativeLayout
+                android:id="@+id/mapViewOverlayButtons"
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent"
+                android:layout_alignParentBottom="true"
+                android:layout_below="@+id/linearLayoutMain">
+
+                <ImageButton
+                    android:id="@+id/refreshButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentLeft="true"
+                    android:layout_alignParentTop="true"
+                    android:src="@android:drawable/ic_menu_rotate"/>
+            </RelativeLayout>
+
+            <RelativeLayout
+                android:id="@+id/mapViewTutorial"
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent"
+                android:layout_alignParentBottom="true"
+                android:layout_below="@+id/linearLayoutMain"
+                android:gravity="center"
+                android:visibility="gone">
+
+                <RelativeLayout
+                    android:layout_width="300dp"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/tooltip"
+                    android:padding="20dp"
+
+                    >
+
+                    <TextView
+                        android:id="@+id/mapViewTutorialText"
+                        android:layout_width="fill_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Hello, world!"
+                        android:textColor="@android:color/black"
+                        />
+
+                    <Button
+                        android:id="@+id/mapViewTutorialNextButton"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentRight="true"
+                        android:layout_below="@+id/mapViewTutorialText"
+                        android:text="Next"/>
+
+                    <Button
+                        android:id="@+id/mapViewTutorialSkipButton"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentLeft="true"
+                        android:layout_below="@+id/mapViewTutorialText"
+                        android:text="Skip"
+                        />
+                </RelativeLayout>
+
+            </RelativeLayout>
+
+            <!-- debug key: 0UeumldxhB0bPpe6UgModFrG5tLPAwclzgqJhRg -->
+            <!-- release key: 04_mZq9Q_5sL2pltlDIYof4iIQimS_U5YPnRafg -->
 
 
-        <!--
-                android:text="asjdwijfoiewjfoiewjfoiewjfoiewjfoiewjfoiewj" -->
+            <!--
+                    android:text="asjdwijfoiewjfoiewjfoiewjfoiewjfoiewjfoiewj" -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_alignParentBottom="true"
+                android:paddingBottom="20dp"
+                android:paddingEnd="20dp"
+                android:paddingStart="20dp"
+                android:id="@+id/buttons_layout"
+                >
+                <Button
+                    android:layout_height="wrap_content"
+                    android:layout_width="wrap_content"
+                    android:text="More info"
+                    android:id="@+id/moreinfo_button"
+                    />
+                <Button
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Report problem"
+                    android:id="@+id/report_problem_button"
+                    />
+
+            </LinearLayout>
         </RelativeLayout>
     </FrameLayout>
 
 
-    <ListView android:id="@+id/left_drawer"
+    <ListView
+        android:id="@+id/left_drawer"
         android:layout_width="180dp"
         android:layout_height="match_parent"
         android:layout_gravity="end"
+        android:background="#99222222"
         android:choiceMode="singleChoice"
         android:divider="@android:color/transparent"
-        android:dividerHeight="0dp"
-        android:background="#99222222"/>
+        android:dividerHeight="0dp"/>
 </android.support.v4.widget.DrawerLayout>
-    <LinearLayout
-              android:layout_width="match_parent"
-              android:layout_height="match_parent"
-                  android:orientation="horizontal"
-                  android:id="@+id/bottom_panel"
-        />
-</com.sothree.slidinguppanel.SlidingUpPanelLayout>

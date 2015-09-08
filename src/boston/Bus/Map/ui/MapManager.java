@@ -1,12 +1,19 @@
 package boston.Bus.Map.ui;
 
-import android.graphics.Color;
+import android.content.Context;
+import android.content.Intent;
+import android.net.Uri;
+import android.os.RemoteException;
+import android.view.View;
+import android.widget.Button;
+import android.widget.ImageButton;
+import android.widget.LinearLayout;
 
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.GoogleMap.OnCameraChangeListener;
-import com.google.android.gms.maps.GoogleMap.OnInfoWindowClickListener;
 import com.google.android.gms.maps.GoogleMap.OnMapClickListener;
 import com.google.android.gms.maps.GoogleMap.OnMarkerClickListener;
+import com.google.android.gms.maps.GoogleMap.OnInfoWindowClickListener;
 import com.google.android.gms.maps.model.BitmapDescriptor;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.Circle;
@@ -20,27 +27,39 @@ import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
+import com.schneeloch.bostonbusmap_library.data.Favorite;
+import com.schneeloch.bostonbusmap_library.data.IPrediction;
 import com.schneeloch.bostonbusmap_library.data.ITransitDrawables;
 import com.schneeloch.bostonbusmap_library.data.Location;
+import com.schneeloch.bostonbusmap_library.data.Locations;
 import com.schneeloch.bostonbusmap_library.data.Path;
+import com.schneeloch.bostonbusmap_library.data.RouteTitles;
+import com.schneeloch.bostonbusmap_library.data.StopLocation;
+import com.schneeloch.bostonbusmap_library.data.StopPredictionView;
+import com.schneeloch.bostonbusmap_library.data.TimeBounds;
 import com.schneeloch.bostonbusmap_library.math.Geometry;
 import com.schneeloch.bostonbusmap_library.transit.ITransitSystem;
 import com.schneeloch.bostonbusmap_library.util.LogUtil;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import boston.Bus.Map.main.MoreInfo;
 import boston.Bus.Map.main.UpdateHandler;
 
-public class MapManager implements OnMapClickListener, OnMarkerClickListener, OnInfoWindowClickListener,
-        OnCameraChangeListener {
+public class MapManager implements OnMapClickListener, OnMarkerClickListener,
+        OnCameraChangeListener, OnInfoWindowClickListener {
     private final GoogleMap map;
     public static final int NOT_SELECTED = -1;
 
     private final Map<String, Marker> markers = Maps.newHashMap();
     private final BiMap<String, Integer> markerIdToLocationId = HashBiMap.create();
     private final Map<Integer, Location> locationIdToLocation = Maps.newHashMap();
+    private final Button reportButton;
+    private final Button moreInfoButton;
+    private final LinearLayout buttonsLayout;
     private int selectedLocationId = NOT_SELECTED;
 
     private OnMapClickListener nextTapListener;
@@ -48,6 +67,7 @@ public class MapManager implements OnMapClickListener, OnMarkerClickListener, On
 
     private final Map<String, PolylineGroup> polylines = Maps.newHashMap();
     private final ITransitSystem transitSystem;
+    private final Locations locations;
 
     /**
      * This should be set in constructor but we need to instantiate this object
@@ -59,69 +79,149 @@ public class MapManager implements OnMapClickListener, OnMarkerClickListener, On
 
     private boolean firstRun = true;
     private Circle circle;
+    private final Context context;
 
-    public MapManager(GoogleMap map,
-                      ITransitSystem transitSystem) {
+    public MapManager(Context context, GoogleMap map,
+                      ITransitSystem transitSystem, Locations locations, Button reportButton, Button moreInfoButton, LinearLayout buttonsLayout) {
+        this.context = context;
         this.map = map;
         this.transitSystem = transitSystem;
+        this.moreInfoButton = moreInfoButton;
+        this.reportButton = reportButton;
+        this.buttonsLayout = buttonsLayout;
+        this.locations = locations;
 
         map.setOnMapClickListener(this);
         map.setOnMarkerClickListener(this);
-        map.setOnInfoWindowClickListener(this);
         map.setOnCameraChangeListener(this);
+        map.setOnInfoWindowClickListener(this);
     }
 
     @Override
     public boolean onMarkerClick(Marker marker) {
-        showSelectedMarker(false);
-
         String markerId = marker.getId();
         Integer id = markerIdToLocationId.get(markerId);
+        int newLocationid;
         if (id == null) {
-            selectedLocationId = NOT_SELECTED;
+            newLocationid = NOT_SELECTED;
         }
         else
         {
-            selectedLocationId = id;
+            newLocationid = id;
         }
 
-        marker.showInfoWindow();
-
-        showSelectedMarker(true);
+        setSelectedBusId(newLocationid);
 
         return true;
     }
 
-    private void showSelectedMarker(boolean selected) {
-        Location location = locationIdToLocation.get(selectedLocationId);
-        if (location == null) {
-            return;
-        }
-        ITransitDrawables transitDrawables = transitSystem.getTransitSourceByRouteType(location.getTransitSourceType()).getDrawables();
+    private void updateMarkerAndButtons(int oldSelectedId, int newSelectedId) {
+        LogUtil.i("old, new: " + oldSelectedId + ", " + newSelectedId);
+        // hide old marker if applicable
+        String oldMarkerId = markerIdToLocationId.inverse().get(oldSelectedId);
+        Marker oldMarker = markers.get(oldMarkerId);
 
-        String markerId = markerIdToLocationId.inverse().get(selectedLocationId);
-        if (markerId == null) {
-            return;
-        }
-        Marker marker = markers.get(markerId);
-        if (marker == null) {
-            return;
+        String newMarkerId = markerIdToLocationId.inverse().get(newSelectedId);
+        Marker newMarker = markers.get(newMarkerId);
+
+        if (oldMarker != null) {
+            // handle old marker
+            if (newMarker == null || oldMarker != newMarker) {
+                // hide old marker
+                Location oldLocation = locationIdToLocation.get(oldSelectedId);
+
+                // since they are different markers hide the old one
+                oldMarker.hideInfoWindow();
+                ITransitDrawables transitDrawables = transitSystem.getTransitSourceByRouteType(
+                        oldLocation.getTransitSourceType()).getDrawables();
+
+                BitmapDescriptor icon = transitDrawables.getBitmapDescriptor(oldLocation, false);
+                oldMarker.setIcon(icon);
+            }
+            // else, select the same stop
+            // this is probably the typical case since it happens every time a refresh happens
         }
 
-        BitmapDescriptor icon = transitDrawables.getBitmapDescriptor(location, selected);
-        marker.setIcon(icon);
+        if (newMarker != null) {
+            final Location newLocation = locationIdToLocation.get(newSelectedId);
+            // we are selecting a new marker
+            ITransitDrawables transitDrawables = transitSystem.getTransitSourceByRouteType(
+                    newLocation.getTransitSourceType()).getDrawables();
+
+            BitmapDescriptor icon = transitDrawables.getBitmapDescriptor(newLocation, true);
+            newMarker.setIcon(icon);
+            newMarker.showInfoWindow();
+
+            buttonsLayout.setVisibility(View.VISIBLE);
+
+            moreInfoButton.setVisibility(View.VISIBLE);
+            moreInfoButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    //user shouldn't be able to click this if this is a BusLocation, but just in case...
+                    if (newLocation instanceof StopLocation) {
+                        RouteTitles routeKeysToTitles = transitSystem.getRouteKeysToTitles();
+
+                        StopLocation stopLocation = (StopLocation) newLocation;
+                        Intent intent = new Intent(context, MoreInfo.class);
+
+                        StopPredictionView predictionView = (StopPredictionView) stopLocation.getPredictionView();
+                        IPrediction[] predictionArray = predictionView.getPredictions();
+                        if (predictionArray != null) {
+                            intent.putExtra(MoreInfo.predictionsKey, predictionArray);
+                        }
+
+                        try {
+                            TimeBounds[] bounds = new TimeBounds[predictionView.getRouteTitles().length];
+                            int i = 0;
+                            for (String routeTitle : predictionView.getRouteTitles()) {
+                                String routeKey = routeKeysToTitles.getKey(routeTitle);
+                                bounds[i] = locations.getRoute(routeKey).getTimeBounds();
+                                i++;
+                            }
+                            intent.putExtra(MoreInfo.boundKey, bounds);
+                        } catch (IOException e) {
+                            throw new RuntimeException(e);
+                        }
+
+                        String[] combinedTitles = predictionView.getTitles();
+                        intent.putExtra(MoreInfo.titleKey, combinedTitles);
+
+                        String[] combinedRoutes = predictionView.getRouteTitles();
+                        intent.putExtra(MoreInfo.routeTitlesKey, combinedRoutes);
+
+                        String combinedStops = predictionView.getStops();
+                        intent.putExtra(MoreInfo.stopsKey, combinedStops);
+
+                        intent.putExtra(MoreInfo.stopIsBetaKey, stopLocation.isBeta());
+
+                        context.startActivity(intent);
+                    }
+                }
+            });
+
+            reportButton.setVisibility(View.VISIBLE);
+            reportButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Intent intent = new Intent(Intent.ACTION_VIEW);
+                    intent.setData(Uri.parse(transitSystem.getFeedbackUrl()));
+                    context.startActivity(intent);
+                }
+            });
+
+        }
     }
 
     @Override
     public void onMapClick(LatLng latlng) {
-        showSelectedMarker(false);
-
-        selectedLocationId = NOT_SELECTED;
+        setSelectedBusId(NOT_SELECTED);
 
         if (nextTapListener != null) {
             nextTapListener.onMapClick(latlng);
             nextTapListener = null;
         }
+
     }
 
     public void setNextClickListener(OnMapClickListener onMapClickListener) {
@@ -175,13 +275,13 @@ public class MapManager implements OnMapClickListener, OnMarkerClickListener, On
 
     private int getColor(Path path) {
         if (allRoutesBlue) {
-            return 0x99000099;
+            return 0x66000099;
         }
         else
         {
             int pathColor = path.getColor();
             pathColor &= 0xffffff; //remove alpha component
-            pathColor |= 0x99000000; //add alpha component
+            pathColor |= 0x66000000; //add alpha component
             return pathColor;
         }
     }
@@ -203,7 +303,7 @@ public class MapManager implements OnMapClickListener, OnMarkerClickListener, On
                 latlngs[j] = new LatLng(lat, lon);
             }
             PolylineOptions options = new PolylineOptions()
-                    .width(3f)
+                    .width(12f)
                     .color(color)
                     .visible(drawLine)
                     .add(latlngs);
@@ -220,17 +320,22 @@ public class MapManager implements OnMapClickListener, OnMarkerClickListener, On
     }
 
     public boolean setSelectedBusId(int newSelectedBusId) {
-        selectedLocationId = newSelectedBusId;
+        int oldSelectedId = selectedLocationId;
 
         boolean success = false;
         String markerId = markerIdToLocationId.inverse().get(newSelectedBusId);
         if (markerId != null) {
             Marker marker = markers.get(markerId);
             if (marker != null) {
-                marker.showInfoWindow();
                 success = true;
             }
         }
+
+        if (!success) {
+            newSelectedBusId = NOT_SELECTED;
+        }
+        selectedLocationId = newSelectedBusId;
+        updateMarkerAndButtons(oldSelectedId, newSelectedBusId);
 
         return success;
     }
@@ -254,6 +359,12 @@ public class MapManager implements OnMapClickListener, OnMarkerClickListener, On
         this.drawLine = drawLine;
     }
 
+    /**
+     * NOTE: must run in UI thread
+     * @param locations
+     * @param newSelection
+     * @param newCenter
+     */
     public void updateNewLocations(List<Location> locations, int newSelection, LatLng newCenter) {
         if (firstRun) {
             // map may contain old markers and route lines if it was retained
@@ -267,10 +378,11 @@ public class MapManager implements OnMapClickListener, OnMarkerClickListener, On
             circle.remove();
         }
         boolean selectionMade = false;
-        Set<Integer> toRemove = Sets.newHashSet();
-        toRemove.addAll(locationIdToLocation.keySet());
+        Set<Integer> locationIdsToRemove = Sets.newHashSet();
+        Set<Integer> locationIdsForNewMarkers = Sets.newHashSet();
+        locationIdsToRemove.addAll(locationIdToLocation.keySet());
         for (Location location : locations) {
-            toRemove.remove(location.getId());
+            locationIdsToRemove.remove(location.getId());
 
             // this all assumes that the only thing that changes a marker is its heading
             // for vehicles (which implies stops and places don't ever change markers)
@@ -293,6 +405,7 @@ public class MapManager implements OnMapClickListener, OnMarkerClickListener, On
             }
             else
             {
+                locationIdsForNewMarkers.add(location.getId());
                 ITransitDrawables transitDrawables = transitSystem.getTransitSourceByRouteType(location.getTransitSourceType()).getDrawables();
                 BitmapDescriptor icon = transitDrawables.getBitmapDescriptor(location, false);
                 LatLng latlng = new LatLng(location.getLatitudeAsDegrees(), location.getLongitudeAsDegrees());
@@ -313,16 +426,10 @@ public class MapManager implements OnMapClickListener, OnMarkerClickListener, On
                 markers.put(marker.getId(), marker);
                 markerIdToLocationId.put(marker.getId(), location.getId());
                 locationIdToLocation.put(location.getId(), location);
-
-                if (selectedLocationId == location.getId() && selectedLocationId == newSelection) {
-                    // no need to call setSelectedBusId
-                    marker.showInfoWindow();
-                    selectionMade = true;
-                }
             }
         }
 
-        for (Integer removeId : toRemove) {
+        for (Integer removeId : locationIdsToRemove) {
             String markerId = markerIdToLocationId.inverse().get(removeId);
             locationIdToLocation.remove(removeId);
             markerIdToLocationId.remove(markerId);
@@ -352,7 +459,7 @@ public class MapManager implements OnMapClickListener, OnMarkerClickListener, On
                     firstLocationObject.getLongitudeAsDegrees()
             );
         }
-        if (lastLocation != null) {
+        if (firstLocation != null && lastLocation != null) {
             radius = Geometry.computeDistanceInMiles(
                     firstLocation.latitude * Geometry.degreesToRadians,
                     firstLocation.longitude * Geometry.degreesToRadians,
@@ -386,14 +493,38 @@ public class MapManager implements OnMapClickListener, OnMarkerClickListener, On
     }
 
     @Override
-    public void onInfoWindowClick(final Marker marker) {
-        LogUtil.i("onInfoWindowClick");
-    }
-
-    @Override
     public void onCameraChange(CameraPosition position) {
         if (handler != null) {
             handler.triggerUpdate();
+        }
+    }
+
+    @Override
+    public void onInfoWindowClick(Marker marker) {
+        LogUtil.i("click info window");
+        String markerId = marker.getId();
+        Integer id = markerIdToLocationId.get(markerId);
+        int newLocationid;
+        if (id == null) {
+            return;
+        }
+        else
+        {
+            newLocationid = id;
+        }
+
+        Location location = locationIdToLocation.get(newLocationid);
+        if (location == null || !(location instanceof StopLocation)) {
+            return;
+        }
+        StopLocation stopLocation = (StopLocation)location;
+
+        try {
+            locations.toggleFavorite(stopLocation);
+            marker.showInfoWindow();
+        }
+        catch (RemoteException e) {
+            LogUtil.e(e);
         }
     }
 }
