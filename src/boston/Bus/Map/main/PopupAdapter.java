@@ -22,7 +22,7 @@ import boston.Bus.Map.R;
 import boston.Bus.Map.ui.MapManager;
 
 public class PopupAdapter implements InfoWindowAdapter {
-    private static final int MAX_WIDTH = 480;
+    private static final int MAX_WIDTH = 360;
     private final Main main;
     private TextView title;
     private TextView snippet;
