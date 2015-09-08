@@ -40,7 +40,7 @@ public class Geometry {
 				((1.0f - Math.cos(lon1 - lon2)) * 0.5f));
 		return dist * (float)radiusOfEarthInMiles;
 	}
-	
+
 	/**
 	 * Returns a compare distance, or a distance which is distorted for efficiency sake but comparisons are always correct 
 	 * 
