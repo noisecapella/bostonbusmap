@@ -25,6 +25,7 @@ import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.schneeloch.bostonbusmap_library.data.Favorite;
@@ -40,6 +41,8 @@ import com.schneeloch.bostonbusmap_library.data.TimeBounds;
 import com.schneeloch.bostonbusmap_library.math.Geometry;
 import com.schneeloch.bostonbusmap_library.transit.ITransitSystem;
 import com.schneeloch.bostonbusmap_library.util.LogUtil;
+
+import org.nayuki.Point;
 
 import java.io.IOException;
 import java.util.List;
@@ -80,6 +83,7 @@ public class MapManager implements OnMapClickListener, OnMarkerClickListener,
     private boolean firstRun = true;
     private Circle circle;
     private final Context context;
+    private boolean drawHighlightedCircle;
 
     public MapManager(Context context, GoogleMap map,
                       ITransitSystem transitSystem, Locations locations, Button reportButton, Button moreInfoButton, LinearLayout buttonsLayout) {
@@ -137,6 +141,8 @@ public class MapManager implements OnMapClickListener, OnMarkerClickListener,
 
                 BitmapDescriptor icon = transitDrawables.getBitmapDescriptor(oldLocation, false);
                 oldMarker.setIcon(icon);
+
+                buttonsLayout.setVisibility(View.GONE);
             }
             // else, select the same stop
             // this is probably the typical case since it happens every time a refresh happens
@@ -154,7 +160,12 @@ public class MapManager implements OnMapClickListener, OnMarkerClickListener,
 
             buttonsLayout.setVisibility(View.VISIBLE);
 
-            moreInfoButton.setVisibility(View.VISIBLE);
+            if (newLocation instanceof StopLocation) {
+                moreInfoButton.setVisibility(View.VISIBLE);
+            }
+            else {
+                moreInfoButton.setVisibility(View.GONE);
+            }
             moreInfoButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -237,6 +248,7 @@ public class MapManager implements OnMapClickListener, OnMarkerClickListener,
                 circle.setVisible(false);
             }
         }
+        this.drawHighlightedCircle = drawCircle;
     }
 
     public void setAllRoutesBlue(boolean allRoutesBlue) {
@@ -374,9 +386,6 @@ public class MapManager implements OnMapClickListener, OnMarkerClickListener,
             firstRun = false;
         }
 
-        if (circle != null) {
-            circle.remove();
-        }
         boolean selectionMade = false;
         Set<Integer> locationIdsToRemove = Sets.newHashSet();
         Set<Integer> locationIdsForNewMarkers = Sets.newHashSet();
@@ -446,35 +455,19 @@ public class MapManager implements OnMapClickListener, OnMarkerClickListener,
             }
         }
 
-        double radius = 0;
-        Location lastLocation = null;
+        List<Point> points = Lists.newArrayListWithCapacity(locations.size());
+        double lonFactor = 0;
         if (locations.size() > 0) {
-            lastLocation = locations.get(locations.size() - 1);
+            Location firstLocation = locations.get(0);
+            lonFactor = Math.cos(firstLocation.getLatitudeAsDegrees() * Geometry.degreesToRadians);
         }
-        LatLng firstLocation = null;
-        if (locations.size() > 0) {
-            Location firstLocationObject = locations.get(0);
-            firstLocation = new LatLng(
-                    firstLocationObject.getLatitudeAsDegrees(),
-                    firstLocationObject.getLongitudeAsDegrees()
-            );
-        }
-        if (firstLocation != null && lastLocation != null) {
-            radius = Geometry.computeDistanceInMiles(
-                    firstLocation.latitude * Geometry.degreesToRadians,
-                    firstLocation.longitude * Geometry.degreesToRadians,
-                    lastLocation.getLatitudeAsDegrees() * Geometry.degreesToRadians,
-                    lastLocation.getLongitudeAsDegrees() * Geometry.degreesToRadians
-            )
-            * Geometry.milesToMeters;
+        for (Location location : locations) {
+            points.add(new Point(location.getLatitudeAsDegrees(), location.getLongitudeAsDegrees() * lonFactor));
         }
 
-        circle = map.addCircle(new CircleOptions()
-                        .strokeColor(0x99000099)
-                        .center(firstLocation)
-                        .radius(radius)
-                        .visible(true)
-        );
+        if (circle != null) {
+            circle.setVisible(false);
+        }
     }
 
     public Location getLocationFromMarkerId(String id) {
