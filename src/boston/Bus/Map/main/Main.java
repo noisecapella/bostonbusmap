@@ -485,7 +485,11 @@ public class Main extends AbstractMapActivity
 			intent.setData(null);
 		}
 
-
+        Object currentStateObj = getLastCustomNonConfigurationInstance();
+        if (currentStateObj != null) {
+            CurrentState currentState = (CurrentState)currentStateObj;
+            manager.setFirstRunSelectionId(currentState.getSelectedId());
+        }
 	}
 		
 	/**
@@ -699,8 +703,8 @@ public class Main extends AbstractMapActivity
                                         if (newName.length() == 0) {
                                             Toast.makeText(Main.this, "Place name cannot be empty", Toast.LENGTH_LONG).show();
                                         } else {
-                                            float latitudeAsDegrees = (float)latLng.latitude;
-                                            float longitudeAsDegrees = (float)latLng.longitude;
+                                            float latitudeAsDegrees = (float) latLng.latitude;
+                                            float longitudeAsDegrees = (float) latLng.longitude;
                                             IntersectionLocation.Builder builder = new IntersectionLocation.Builder(newName, latitudeAsDegrees, longitudeAsDegrees);
                                             Locations locations = arguments.getBusLocations();
 
@@ -734,7 +738,17 @@ public class Main extends AbstractMapActivity
 		}
 	}
 
-	@Override
+    @Override
+    public Object onRetainCustomNonConfigurationInstance() {
+        if (arguments != null) {
+            return new CurrentState(arguments.getOverlayGroup().getSelectedBusId());
+        }
+        else {
+            return null;
+        }
+    }
+
+    @Override
 	protected void onResume() {
 		super.onResume();
 

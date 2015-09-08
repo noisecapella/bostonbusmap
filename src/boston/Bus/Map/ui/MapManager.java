@@ -81,6 +81,7 @@ public class MapManager implements OnMapClickListener, OnMarkerClickListener,
     private boolean drawLine;
 
     private boolean firstRun = true;
+    private int firstRunSelectionId = NOT_SELECTED;
     private Circle circle;
     private final Context context;
     private boolean drawHighlightedCircle;
@@ -383,6 +384,10 @@ public class MapManager implements OnMapClickListener, OnMarkerClickListener,
             map.clear();
             polylines.clear();
 
+            if (firstRunSelectionId != NOT_SELECTED) {
+                newSelection = firstRunSelectionId;
+            }
+
             firstRun = false;
         }
 
@@ -519,5 +524,9 @@ public class MapManager implements OnMapClickListener, OnMarkerClickListener,
         catch (RemoteException e) {
             LogUtil.e(e);
         }
+    }
+
+    public void setFirstRunSelectionId(int firstRunSelectionId) {
+        this.firstRunSelectionId = firstRunSelectionId;
     }
 }
