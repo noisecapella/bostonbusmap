@@ -153,4 +153,9 @@ public class RefreshAsyncTask extends UpdateAsyncTask
 		
 		super.postExecute(locationsNearCenter);
 	}
+
+    @Override
+    protected boolean forceNewMarker() {
+        return true;
+    }
 }
