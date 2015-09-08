@@ -16,6 +16,7 @@ import com.schneeloch.bostonbusmap_library.data.Alert;
 import com.schneeloch.bostonbusmap_library.data.Location;
 import com.schneeloch.bostonbusmap_library.data.PredictionView;
 import com.schneeloch.bostonbusmap_library.data.SimplePredictionView;
+import com.schneeloch.bostonbusmap_library.data.StopLocation;
 
 import boston.Bus.Map.R;
 import boston.Bus.Map.ui.MapManager;
@@ -84,11 +85,16 @@ public class PopupAdapter implements InfoWindowAdapter {
         snippet.setText(Html.fromHtml(predictionView.getSnippet()));
         title.setText(Html.fromHtml(predictionView.getSnippetTitle()));
 
-        if (location != null && location.isFavorite()) {
-            favorite.setImageResource(R.drawable.full_star);
+        if (location != null && location instanceof StopLocation) {
+            favorite.setVisibility(View.VISIBLE);
+            if (location.isFavorite()) {
+                favorite.setImageResource(R.drawable.full_star);
+            } else {
+                favorite.setImageResource(R.drawable.empty_star);
+            }
         }
         else {
-            favorite.setImageResource(R.drawable.empty_star);
+            favorite.setVisibility(View.GONE);
         }
     }
 

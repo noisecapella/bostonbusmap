@@ -141,6 +141,8 @@ public class MapManager implements OnMapClickListener, OnMarkerClickListener,
 
                 BitmapDescriptor icon = transitDrawables.getBitmapDescriptor(oldLocation, false);
                 oldMarker.setIcon(icon);
+
+                buttonsLayout.setVisibility(View.GONE);
             }
             // else, select the same stop
             // this is probably the typical case since it happens every time a refresh happens
@@ -158,7 +160,12 @@ public class MapManager implements OnMapClickListener, OnMarkerClickListener,
 
             buttonsLayout.setVisibility(View.VISIBLE);
 
-            moreInfoButton.setVisibility(View.VISIBLE);
+            if (newLocation instanceof StopLocation) {
+                moreInfoButton.setVisibility(View.VISIBLE);
+            }
+            else {
+                moreInfoButton.setVisibility(View.GONE);
+            }
             moreInfoButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
