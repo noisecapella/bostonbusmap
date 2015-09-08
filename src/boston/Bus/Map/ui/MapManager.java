@@ -465,40 +465,8 @@ public class MapManager implements OnMapClickListener, OnMarkerClickListener,
             points.add(new Point(location.getLatitudeAsDegrees(), location.getLongitudeAsDegrees() * lonFactor));
         }
 
-        if (points.size() >= 2) {
-            org.nayuki.Circle enclosingCircle = org.nayuki.smallestenclosingcircle.makeCircle(points);
-
-            double firstLat = enclosingCircle.c.x;
-            double firstLon = enclosingCircle.c.y / lonFactor;
-            double lastLat = enclosingCircle.c.x + enclosingCircle.r;
-            double lastLon = enclosingCircle.c.y / lonFactor;
-
-            double radius = Geometry.computeDistanceInMiles(
-                    firstLat * Geometry.degreesToRadians,
-                    firstLon * Geometry.degreesToRadians,
-                    lastLat * Geometry.degreesToRadians,
-                    lastLon * Geometry.degreesToRadians
-            )
-                    * Geometry.milesToMeters;
-            LatLng center = new LatLng(firstLat, firstLon);
-
-            if (circle == null) {
-                circle = map.addCircle(new CircleOptions()
-                        .strokeColor(0x66000099)
-                        .center(center)
-                        .radius(radius)
-                        .visible(drawHighlightedCircle));
-            }
-            else {
-                circle.setCenter(center);
-                circle.setRadius(radius);
-                circle.setVisible(drawHighlightedCircle);
-            }
-        }
-        else {
-            if (circle != null) {
-                circle.setVisible(false);
-            }
+        if (circle != null) {
+            circle.setVisible(false);
         }
     }
 
