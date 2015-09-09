@@ -27,8 +27,11 @@ import java.util.List;
 import boston.Bus.Map.R;
 
 import com.commonsware.android.mapsv2.popups.AbstractMapActivity;
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.GoogleApiAvailability;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.LatLng;
 import com.schneeloch.bostonbusmap_library.data.ITransitDrawables;
 import com.schneeloch.bostonbusmap_library.data.Locations;
@@ -62,6 +65,7 @@ import com.google.common.collect.Lists;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.app.SearchManager;
 import android.content.DialogInterface;
@@ -183,6 +187,10 @@ public class Main extends AbstractMapActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
 
+        if (!readyToGo(true)) {
+            return;
+        }
+
         firstRunMode = true;
         
         TransitSystem.setDefaultTimeFormat(this);
@@ -190,304 +198,295 @@ public class Main extends AbstractMapActivity
         //get widgets
         SupportMapFragment fragment = (SupportMapFragment)getSupportFragmentManager().findFragmentById(R.id.map);
         fragment.setRetainInstance(true);
-        final GoogleMap map = fragment.getMap();
-
-        toggleButton = (Spinner)findViewById(R.id.predictionsOrLocations);
-        chooseAPlaceButton = (Button)findViewById(R.id.chooseAPlaceButton);
-        chooseAFavoriteButton = (Button)findViewById(R.id.chooseFavoriteButton);
-        searchView = (EditText)findViewById(R.id.searchTextView);
-        final ProgressBar progress = (ProgressBar)findViewById(R.id.progress);
-        ImageButton searchButton = (ImageButton) findViewById(R.id.searchButton);
-
-        ImageButton refreshButton = (ImageButton) findViewById(R.id.refreshButton);
-        Button skipTutorialButton = (Button) findViewById(R.id.mapViewTutorialSkipButton);
-
-        // TODO: find a better place for this
-        drawerLayout = (DrawerLayout)findViewById(R.id.drawer_layout);
-        drawerList = (ListView)findViewById(R.id.left_drawer);
-        drawerList.setAdapter(new ArrayAdapter<String>(this,
-                R.layout.drawer_list_item,
-                drawerOptions));
-        drawerList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+        fragment.getMapAsync(new OnMapReadyCallback() {
             @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                selectMenuItem(position);
-                drawerLayout.closeDrawer(drawerList);
-            }
-        });
+            public void onMapReady(GoogleMap map) {
 
-        ImageButton drawerButton = (ImageButton)findViewById(R.id.drawerButton);
-        drawerButton.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (drawerLayout.isDrawerOpen(GravityCompat.END)) {
-                    drawerLayout.closeDrawer(GravityCompat.END);
-                }
-                else {
-                    drawerLayout.openDrawer(GravityCompat.END);
-                }
-            }
-        });
+                toggleButton = (Spinner) findViewById(R.id.predictionsOrLocations);
+                chooseAPlaceButton = (Button) findViewById(R.id.chooseAPlaceButton);
+                chooseAFavoriteButton = (Button) findViewById(R.id.chooseFavoriteButton);
+                searchView = (EditText) findViewById(R.id.searchTextView);
+                final ProgressBar progress = (ProgressBar) findViewById(R.id.progress);
+                ImageButton searchButton = (ImageButton) findViewById(R.id.searchButton);
+
+                ImageButton refreshButton = (ImageButton) findViewById(R.id.refreshButton);
+                Button skipTutorialButton = (Button) findViewById(R.id.mapViewTutorialSkipButton);
+
+                // TODO: find a better place for this
+                drawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
+                drawerList = (ListView) findViewById(R.id.left_drawer);
+                drawerList.setAdapter(new ArrayAdapter<String>(Main.this,
+                        R.layout.drawer_list_item,
+                        drawerOptions));
+                drawerList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                    @Override
+                    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                        selectMenuItem(position);
+                        drawerLayout.closeDrawer(drawerList);
+                    }
+                });
+
+                ImageButton drawerButton = (ImageButton) findViewById(R.id.drawerButton);
+                drawerButton.setOnClickListener(new OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        if (drawerLayout.isDrawerOpen(GravityCompat.END)) {
+                            drawerLayout.closeDrawer(GravityCompat.END);
+                        } else {
+                            drawerLayout.openDrawer(GravityCompat.END);
+                        }
+                    }
+                });
 
 
-    	SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+                SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(Main.this);
 
-        final IDatabaseAgent databaseAgent = new DatabaseAgent(getContentResolver());
+                final IDatabaseAgent databaseAgent = new DatabaseAgent(getContentResolver());
 
-    	final ProgressDialog progressDialog = new ProgressDialog(this);
-		progressDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
-		progressDialog.setCancelable(true);
+                final ProgressDialog progressDialog = new ProgressDialog(Main.this);
+                progressDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
+                progressDialog.setCancelable(true);
 
-        
-        progress.setVisibility(View.INVISIBLE);
-        
-        searchView.setOnClickListener(new OnClickListener() {
-			
-			@Override
-			public void onClick(View v) {
-				onSearchRequested();
-			}
-		});
-        
-        searchButton.setOnClickListener(new OnClickListener() {
 
-            @Override
-            public void onClick(View v) {
-                onSearchRequested();
-            }
-        });
-        
-        chooseAPlaceButton.setOnClickListener(new OnClickListener() {
-			
-			@Override
-			public void onClick(View v) {
-				showIntersectionsDialog();
-			}
-		});
-        
-        chooseAFavoriteButton.setOnClickListener(new OnClickListener() {
-			
-			@Override
-			public void onClick(View v) {
-				showChooseStopDialog();
-			}
-		});
-        
-        refreshButton.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                boolean b = handler.instantRefresh();
-                if (b == false)
+                progress.setVisibility(View.INVISIBLE);
+
+                searchView.setOnClickListener(new OnClickListener() {
+
+                    @Override
+                    public void onClick(View v) {
+                        onSearchRequested();
+                    }
+                });
+
+                searchButton.setOnClickListener(new OnClickListener() {
+
+                    @Override
+                    public void onClick(View v) {
+                        onSearchRequested();
+                    }
+                });
+
+                chooseAPlaceButton.setOnClickListener(new OnClickListener() {
+
+                    @Override
+                    public void onClick(View v) {
+                        showIntersectionsDialog();
+                    }
+                });
+
+                chooseAFavoriteButton.setOnClickListener(new OnClickListener() {
+
+                    @Override
+                    public void onClick(View v) {
+                        showChooseStopDialog();
+                    }
+                });
+
+                refreshButton.setOnClickListener(new OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        boolean b = handler.instantRefresh();
+                        if (b == false) {
+                            Toast.makeText(Main.this, "Please wait 10 seconds before clicking Refresh again", Toast.LENGTH_LONG).show();
+                        }
+                    }
+                });
+
+                skipTutorialButton.setOnClickListener(new OnClickListener() {
+
+                    @Override
+                    public void onClick(View v) {
+
+                    }
+                });
+
+                final ITransitSystem transitSystem = new TransitSystem();
                 {
-                    Toast.makeText(Main.this, "Please wait 10 seconds before clicking Refresh again", Toast.LENGTH_LONG).show();
+                    ITransitDrawables busDrawables = new TransitDrawables(
+                            R.drawable.busstop_intersect, R.drawable.busstop_intersect_selected,
+                            R.drawable.busstop, R.drawable.busstop_selected,
+                            R.drawable.busstop_updated, R.drawable.busstop_selected
+                    );
+                    ITransitDrawables subwayDrawables = new TransitDrawables(
+                            R.drawable.busstop_intersect, R.drawable.busstop_intersect_selected,
+                            R.drawable.busstop, R.drawable.busstop_selected,
+                            R.drawable.busstop_updated, R.drawable.busstop_selected
+                    );
+                    ITransitDrawables commuterRailDrawables = new TransitDrawables(
+                            R.drawable.busstop_intersect, R.drawable.busstop_intersect_selected,
+                            R.drawable.busstop, R.drawable.busstop_selected,
+                            R.drawable.busstop_updated, R.drawable.busstop_selected
+                    );
+                    ITransitDrawables hubwayDrawables = new TransitDrawables(
+                            R.drawable.busstop_intersect, R.drawable.busstop_intersect_selected,
+                            R.drawable.busstop_bike, R.drawable.busstop_bike_selected,
+                            R.drawable.busstop_bike_updated, R.drawable.busstop_bike_selected
+                    );
+
+
+                    transitSystem.setDefaultTransitSource(busDrawables, subwayDrawables, commuterRailDrawables, hubwayDrawables,
+                            databaseAgent);
+                }
+                SpinnerAdapter modeSpinnerAdapter = new ModeAdapter(Main.this, Arrays.asList(Selection.modesSupported));
+
+                toggleButton.setOnItemSelectedListener(new OnItemSelectedListener() {
+
+                    @Override
+                    public void onItemSelected(AdapterView<?> parent, View view,
+                                               int position, long id) {
+                        if (firstRunMode) {
+                            firstRunMode = false;
+                        } else if (arguments != null && handler != null) {
+                            if (position >= 0 && position < Selection.modesSupported.length) {
+                                setMode(Selection.modesSupported[position], false, true);
+                            }
+                        }
+                    }
+
+                    @Override
+                    public void onNothingSelected(AdapterView<?> arg0) {
+                        //do nothing
+                    }
+
+
+                });
+
+                toggleButton.setAdapter(modeSpinnerAdapter);
+
+
+                dropdownRouteKeysToTitles = transitSystem.getRouteKeysToTitles();
+
+                {
+                    String[] routeTitles = dropdownRouteKeysToTitles.titleArray();
+
+                    AlertDialog.Builder builder = new AlertDialog.Builder(Main.this);
+                    builder.setTitle(getString(R.string.chooseRouteInBuilder));
+                    builder.setItems(routeTitles, new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int item) {
+                            setNewRoute(item, true);
+                        }
+                    });
+                    routeChooserDialog = builder.create();
+                }
+
+                //get the busLocations variable if it already exists. We need to do that step here since handler
+                long lastUpdateTime = 0;
+                int previousUpdateConstantlyInterval = UPDATE_INTERVAL_NONE;
+
+                RefreshAsyncTask majorHandler = null;
+
+                Selection selection;
+                Locations busLocations = null;
+                {
+                    locationEnabled = prefs.getBoolean(getString(R.string.alwaysShowLocationCheckbox), true);
+                    int selectedRouteIndex = prefs.getInt(selectedRouteIndexKey, 0);
+                    int modeInt = prefs.getInt(selectedBusPredictionsKey, Selection.Mode.BUS_PREDICTIONS_ALL.modeInt);
+                    selection = new Selection(Selection.Mode.VEHICLE_LOCATIONS_ALL, null);
+                    for (Selection.Mode mode : Selection.Mode.values()) {
+                        if (mode.modeInt == modeInt) {
+                            String route = dropdownRouteKeysToTitles.getTagUsingIndex(selectedRouteIndex);
+                            selection = new Selection(mode, route);
+                            break;
+                        }
+                    }
+                }
+
+                //final boolean showIntroScreen = prefs.getBoolean(introScreenKey, true);
+                //only show this screen once
+                //prefs.edit().putBoolean(introScreenKey, false).commit();
+
+                if (busLocations == null) {
+                    busLocations = new Locations(databaseAgent, transitSystem, selection);
+                }
+
+                Button reportButton = (Button) findViewById(R.id.report_problem_button);
+                Button moreInfoButton = (Button) findViewById(R.id.moreinfo_button);
+                MapManager manager = new MapManager(Main.this, map, transitSystem, busLocations, reportButton, moreInfoButton);
+
+                arguments = new UpdateArguments(progress, progressDialog,
+                        map, databaseAgent, manager,
+                        majorHandler, busLocations, transitSystem, Main.this);
+                handler = new UpdateHandler(arguments);
+                manager.setHandler(handler);
+
+                PopupAdapter popupAdapter = new PopupAdapter(Main.this, manager);
+                map.setInfoWindowAdapter(popupAdapter);
+
+                populateHandlerSettings();
+
+                map.setTrafficEnabled(handler.getShowTraffic());
+
+                {
+                    int centerLat = prefs.getInt(centerLatKey, Integer.MAX_VALUE);
+                    int centerLon = prefs.getInt(centerLonKey, Integer.MAX_VALUE);
+                    int zoomLevel = prefs.getInt(zoomLevelKey, Integer.MAX_VALUE);
+                    setMode(selection.getMode(), true, false);
+
+                    updateSearchText(selection);
+
+                    if (centerLat != Integer.MAX_VALUE && centerLon != Integer.MAX_VALUE && zoomLevel != Integer.MAX_VALUE) {
+                        LatLng latLng = new LatLng(centerLat * Constants.InvE6, centerLon * Constants.InvE6);
+                        map.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, zoomLevel));
+                    } else {
+                        LatLng latLng = new LatLng(TransitSystem.getCenterLat(), TransitSystem.getCenterLon());
+                        //move maps widget to center of transit network
+                        map.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 14));
+                    }
+                    //make the textView blank
+                }
+
+                handler.setLastUpdateTime(lastUpdateTime);
+
+                //show all icons if there are any
+                handler.triggerUpdate();
+                if (handler.getUpdateConstantlyInterval() != UPDATE_INTERVAL_NONE &&
+                        previousUpdateConstantlyInterval == UPDATE_INTERVAL_NONE) {
+                    handler.instantRefresh();
+                }
+
+
+                //enable plus/minus zoom buttons in map
+                map.getUiSettings().setZoomControlsEnabled(true);
+
+                // if app is started with selection information, use it
+                Intent intent = getIntent();
+                if (intent != null) {
+                    Bundle bundle = intent.getExtras();
+                    if (bundle != null) {
+                        String route = bundle.getString(ROUTE_KEY);
+                        String stop = bundle.getString(STOP_KEY);
+                        String modeString = bundle.getString(MODE_KEY);
+                        Selection.Mode modeInt = Selection.Mode.BUS_PREDICTIONS_ALL;
+                        if (modeString != null) {
+                            for (Selection.Mode mode : Selection.Mode.values()) {
+                                if (modeString.equals(mode.modeString)) {
+                                    modeInt = mode;
+                                    break;
+                                }
+                            }
+                        }
+
+                        if (route != null && stop != null) {
+                            setNewStop(route, stop);
+                            setMode(modeInt, true, true);
+                        } else if (route != null) {
+                            int routePosition = dropdownRouteKeysToTitles.getIndexForTag(route);
+                            setNewRoute(routePosition, false);
+                            setMode(modeInt, true, true);
+                        }
+                    }
+
+                    // from http://stackoverflow.com/questions/13372326/how-to-get-getintent-to-return-null-after-activity-called-with-an-intent-set
+                    intent.setData(null);
+                }
+
+                Object currentStateObj = getLastCustomNonConfigurationInstance();
+                if (currentStateObj != null) {
+                    CurrentState currentState = (CurrentState) currentStateObj;
+                    manager.setFirstRunSelectionId(currentState.getSelectedId());
                 }
             }
         });
-        
-        skipTutorialButton.setOnClickListener(new OnClickListener() {
-
-            @Override
-            public void onClick(View v) {
-
-            }
-        });
-        
-    	final ITransitSystem transitSystem = new TransitSystem();
-        {
-        	ITransitDrawables busDrawables = new TransitDrawables(
-                    R.drawable.busstop_intersect, R.drawable.busstop_intersect_selected,
-                    R.drawable.busstop, R.drawable.busstop_selected,
-        			R.drawable.busstop_updated, R.drawable.busstop_selected
-            );
-        	ITransitDrawables subwayDrawables = new TransitDrawables(
-                    R.drawable.busstop_intersect, R.drawable.busstop_intersect_selected,
-                    R.drawable.busstop, R.drawable.busstop_selected,
-                    R.drawable.busstop_updated, R.drawable.busstop_selected
-            );
-        	ITransitDrawables commuterRailDrawables = new TransitDrawables(
-                    R.drawable.busstop_intersect, R.drawable.busstop_intersect_selected,
-                    R.drawable.busstop, R.drawable.busstop_selected,
-                    R.drawable.busstop_updated, R.drawable.busstop_selected
-            );
-			ITransitDrawables hubwayDrawables = new TransitDrawables(
-                    R.drawable.busstop_intersect, R.drawable.busstop_intersect_selected,
-                    R.drawable.busstop_bike, R.drawable.busstop_bike_selected,
-                    R.drawable.busstop_bike_updated, R.drawable.busstop_bike_selected
-            );
-
-
-
-        	transitSystem.setDefaultTransitSource(busDrawables, subwayDrawables, commuterRailDrawables, hubwayDrawables,
-                    databaseAgent);
-        }
-        SpinnerAdapter modeSpinnerAdapter = new ModeAdapter(this, Arrays.asList(Selection.modesSupported));
-
-        toggleButton.setOnItemSelectedListener(new OnItemSelectedListener() {
-
-			@Override
-			public void onItemSelected(AdapterView<?> parent, View view,
-					int position, long id) {
-				if (firstRunMode)
-				{
-					firstRunMode = false;
-				}
-				else if (arguments != null && handler != null)
-				{
-					if (position >= 0 && position < Selection.modesSupported.length)
-					{
-						setMode(Selection.modesSupported[position], false, true);
-					}
-				}
-			}
-
-			@Override
-			public void onNothingSelected(AdapterView<?> arg0) {
-				//do nothing
-			}
-			
-
-		});
-
-        toggleButton.setAdapter(modeSpinnerAdapter);
-
-        
-        dropdownRouteKeysToTitles = transitSystem.getRouteKeysToTitles();
-        
-        {
-            String[] routeTitles = dropdownRouteKeysToTitles.titleArray();
-            
-        	AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        	builder.setTitle(getString(R.string.chooseRouteInBuilder));
-        	builder.setItems(routeTitles, new DialogInterface.OnClickListener() {
-        		public void onClick(DialogInterface dialog, int item) {
-        			setNewRoute(item, true);
-        		}
-        	});
-        	routeChooserDialog = builder.create();
-        }
-		
-        //get the busLocations variable if it already exists. We need to do that step here since handler
-        long lastUpdateTime = 0;
-        int previousUpdateConstantlyInterval = UPDATE_INTERVAL_NONE;
-
-        RefreshAsyncTask majorHandler = null;
-        
-        Selection selection;
-        Locations busLocations = null;
-        {
-        	locationEnabled = prefs.getBoolean(getString(R.string.alwaysShowLocationCheckbox), true);
-            int selectedRouteIndex = prefs.getInt(selectedRouteIndexKey, 0);
-            int modeInt = prefs.getInt(selectedBusPredictionsKey, Selection.Mode.BUS_PREDICTIONS_ALL.modeInt);
-			selection = new Selection(Selection.Mode.VEHICLE_LOCATIONS_ALL, null);
-			for (Selection.Mode mode : Selection.Mode.values()) {
-				if (mode.modeInt == modeInt) {
-					String route = dropdownRouteKeysToTitles.getTagUsingIndex(selectedRouteIndex);
-					selection = new Selection(mode, route);
-					break;
-				}
-			}
-        }
-
-        //final boolean showIntroScreen = prefs.getBoolean(introScreenKey, true);
-    	//only show this screen once
-    	//prefs.edit().putBoolean(introScreenKey, false).commit();
-
-        if (busLocations == null)
-        {
-        	busLocations = new Locations(databaseAgent, transitSystem, selection);
-        }
-
-        Button reportButton = (Button)findViewById(R.id.report_problem_button);
-        Button moreInfoButton = (Button)findViewById(R.id.moreinfo_button);
-        MapManager manager = new MapManager(this, map, transitSystem, busLocations, reportButton, moreInfoButton);
-
-        arguments = new UpdateArguments(progress, progressDialog,
-        		map, databaseAgent, manager,
-        		majorHandler, busLocations, transitSystem, this);
-        handler = new UpdateHandler(arguments);
-        manager.setHandler(handler);
-
-        PopupAdapter popupAdapter = new PopupAdapter(this, manager);
-        map.setInfoWindowAdapter(popupAdapter);
-
-        populateHandlerSettings();
-
-        map.setTrafficEnabled(handler.getShowTraffic());
-
-        {
-            int centerLat = prefs.getInt(centerLatKey, Integer.MAX_VALUE);
-            int centerLon = prefs.getInt(centerLonKey, Integer.MAX_VALUE);
-            int zoomLevel = prefs.getInt(zoomLevelKey, Integer.MAX_VALUE);
-            setMode(selection.getMode(), true, false);
-
-        	updateSearchText(selection);
-
-            if (centerLat != Integer.MAX_VALUE && centerLon != Integer.MAX_VALUE && zoomLevel != Integer.MAX_VALUE)
-            {
-                LatLng latLng = new LatLng(centerLat * Constants.InvE6, centerLon * Constants.InvE6);
-                map.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, zoomLevel));
-            }
-            else
-            {
-                LatLng latLng = new LatLng(TransitSystem.getCenterLat(), TransitSystem.getCenterLon());
-                //move maps widget to center of transit network
-                map.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 14));
-            }
-        	//make the textView blank
-        }
-        
-        handler.setLastUpdateTime(lastUpdateTime);
-
-        //show all icons if there are any
-    	handler.triggerUpdate();
-        if (handler.getUpdateConstantlyInterval() != UPDATE_INTERVAL_NONE &&
-        		previousUpdateConstantlyInterval == UPDATE_INTERVAL_NONE)
-        {
-        	handler.instantRefresh();
-        }
-
-        
-    	//enable plus/minus zoom buttons in map
-        map.getUiSettings().setZoomControlsEnabled(true);
-
-		// if app is started with selection information, use it
-		Intent intent = getIntent();
-		if (intent != null) {
-			Bundle bundle = intent.getExtras();
-			if (bundle != null) {
-				String route = bundle.getString(ROUTE_KEY);
-				String stop = bundle.getString(STOP_KEY);
-				String modeString = bundle.getString(MODE_KEY);
-				Selection.Mode modeInt = Selection.Mode.BUS_PREDICTIONS_ALL;
-				if (modeString != null) {
-					for (Selection.Mode mode : Selection.Mode.values()) {
-						if (modeString.equals(mode.modeString)) {
-							modeInt = mode;
-							break;
-						}
-					}
-				}
-
-				if (route != null && stop != null) {
-					setNewStop(route, stop);
-					setMode(modeInt, true, true);
-				}
-				else if (route != null) {
-					int routePosition = dropdownRouteKeysToTitles.getIndexForTag(route);
-					setNewRoute(routePosition, false);
-					setMode(modeInt, true, true);
-				}
-			}
-
-			// from http://stackoverflow.com/questions/13372326/how-to-get-getintent-to-return-null-after-activity-called-with-an-intent-set
-			intent.setData(null);
-		}
-
-        Object currentStateObj = getLastCustomNonConfigurationInstance();
-        if (currentStateObj != null) {
-            CurrentState currentState = (CurrentState)currentStateObj;
-            manager.setFirstRunSelectionId(currentState.getSelectedId());
-        }
 	}
 		
 	/**
@@ -749,6 +748,10 @@ public class Main extends AbstractMapActivity
     @Override
 	protected void onResume() {
 		super.onResume();
+
+        if (!readyToGo(false)) {
+            return;
+        }
 
 		if (locationEnabled && arguments != null)
 		{
