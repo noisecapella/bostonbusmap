@@ -790,12 +790,12 @@ public class Main extends AbstractMapActivity
     	int updateInterval = getUpdateInterval(prefs);
     	handler.setUpdateConstantlyInterval(updateInterval);
     	handler.setShowUnpredictable(prefs.getBoolean(getString(R.string.showUnpredictableBusesCheckbox), false));
-    	handler.setHideHighlightCircle(prefs.getBoolean(getString(R.string.hideCircleCheckbox), false));
+    	handler.setHideHighlightCircle(prefs.getBoolean(getString(R.string.hideCircleCheckbox), true));
         boolean showTraffic = prefs.getBoolean("showTraffic", false);
         handler.setShowTraffic(showTraffic);
     	boolean allRoutesBlue = prefs.getBoolean(getString(R.string.allRoutesBlue), TransitSystem.isDefaultAllRoutesBlue());
     	handler.setAllRoutesBlue(allRoutesBlue);
-    	arguments.getOverlayGroup().setDrawLine(prefs.getBoolean(getString(R.string.showRouteLineCheckbox), false));
+    	arguments.getOverlayGroup().setDrawLine(prefs.getBoolean("showRouteLineCheckbox2", true));
     	boolean showCoarseRouteLineCheckboxValue = prefs.getBoolean(getString(R.string.showCoarseRouteLineCheckbox), true); 
 
     	boolean alwaysUpdateLocationValue = prefs.getBoolean(getString(R.string.alwaysShowLocationCheckbox), true);
