@@ -54,7 +54,7 @@ public class IntroTutorial {
 			
 			@Override
 			public void teardown(Main parent) {
-				View button = parent.findViewById(R.id.drawer_layout);
+				View button = parent.findViewById(R.id.drawerButton);
                 removeHighlight(button);
 			}
 			

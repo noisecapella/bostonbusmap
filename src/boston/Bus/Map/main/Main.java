@@ -745,41 +745,44 @@ public class Main extends AbstractMapActivity
 	protected void onResume() {
 		super.onResume();
 
-		if (locationEnabled && arguments != null)
-		{
-			arguments.getMapView().setMyLocationEnabled(true);
-		}
-		
-		//check the result
-		populateHandlerSettings();
-        GoogleMap mapView = arguments.getMapView();
-        if (mapView != null) {
-            arguments.getMapView().setTrafficEnabled(handler.getShowTraffic());
+        if (arguments != null && handler != null) {
+            if (locationEnabled) {
+                arguments.getMapView().setMyLocationEnabled(true);
+            }
+
+            //check the result
+            populateHandlerSettings();
+            GoogleMap mapView = arguments.getMapView();
+            if (mapView != null) {
+                arguments.getMapView().setTrafficEnabled(handler.getShowTraffic());
+            }
+            handler.resume();
+
+            // workaround for bad design decisions
+            if (arguments.getProgressDialog() == null) {
+                final ProgressDialog progressDialog = new ProgressDialog(this);
+                progressDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
+                progressDialog.setCancelable(true);
+
+                arguments.setProgressDialog(progressDialog);
+            }
+
+            if (arguments.getProgress() == null) {
+                final ProgressBar progress = (ProgressBar) findViewById(R.id.progress);
+
+                arguments.setProgress(progress);
+            }
+
         }
-		handler.resume();
-
-        // workaround for bad design decisions
-        if (arguments.getProgressDialog() == null) {
-            final ProgressDialog progressDialog = new ProgressDialog(this);
-            progressDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
-            progressDialog.setCancelable(true);
-
-            arguments.setProgressDialog(progressDialog);
-        }
-
-        if (arguments.getProgress() == null) {
-            final ProgressBar progress = (ProgressBar)findViewById(R.id.progress);
-
-            arguments.setProgress(progress);
-        }
-
-
 		
     	Tutorial tutorial = new Tutorial(IntroTutorial.populate());
     	tutorial.start(this);
 	}
 
     private void populateHandlerSettings() {
+        if (handler == null || arguments == null) {
+            return;
+        }
     	SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
     	
     	int updateInterval = getUpdateInterval(prefs);
