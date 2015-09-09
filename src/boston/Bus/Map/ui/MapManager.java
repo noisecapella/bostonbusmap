@@ -8,6 +8,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.GoogleMap.OnCameraChangeListener;
@@ -62,7 +63,6 @@ public class MapManager implements OnMapClickListener, OnMarkerClickListener,
     private final Map<Integer, Location> locationIdToLocation = Maps.newHashMap();
     private final Button reportButton;
     private final Button moreInfoButton;
-    private final LinearLayout buttonsLayout;
     private int selectedLocationId = NOT_SELECTED;
 
     private OnMapClickListener nextTapListener;
@@ -87,13 +87,12 @@ public class MapManager implements OnMapClickListener, OnMarkerClickListener,
     private boolean drawHighlightedCircle;
 
     public MapManager(Context context, GoogleMap map,
-                      ITransitSystem transitSystem, Locations locations, Button reportButton, Button moreInfoButton, LinearLayout buttonsLayout) {
+                      ITransitSystem transitSystem, Locations locations, Button reportButton, Button moreInfoButton) {
         this.context = context;
         this.map = map;
         this.transitSystem = transitSystem;
         this.moreInfoButton = moreInfoButton;
         this.reportButton = reportButton;
-        this.buttonsLayout = buttonsLayout;
         this.locations = locations;
 
         map.setOnMapClickListener(this);
@@ -143,7 +142,8 @@ public class MapManager implements OnMapClickListener, OnMarkerClickListener,
                 BitmapDescriptor icon = transitDrawables.getBitmapDescriptor(oldLocation, false);
                 oldMarker.setIcon(icon);
 
-                buttonsLayout.setVisibility(View.GONE);
+                moreInfoButton.setVisibility(View.GONE);
+                reportButton.setVisibility(View.GONE);
             }
             // else, select the same stop
             // this is probably the typical case since it happens every time a refresh happens
@@ -158,8 +158,6 @@ public class MapManager implements OnMapClickListener, OnMarkerClickListener,
             BitmapDescriptor icon = transitDrawables.getBitmapDescriptor(newLocation, true);
             newMarker.setIcon(icon);
             newMarker.showInfoWindow();
-
-            buttonsLayout.setVisibility(View.VISIBLE);
 
             if (newLocation instanceof StopLocation) {
                 moreInfoButton.setVisibility(View.VISIBLE);

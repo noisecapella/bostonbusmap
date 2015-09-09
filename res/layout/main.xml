@@ -122,22 +122,6 @@
                 tools:layout="@layout/abc_screen_simple"/>
 
             <RelativeLayout
-                android:id="@+id/mapViewOverlayButtons"
-                android:layout_width="fill_parent"
-                android:layout_height="fill_parent"
-                android:layout_alignParentBottom="true"
-                android:layout_below="@+id/linearLayoutMain">
-
-                <ImageButton
-                    android:id="@+id/refreshButton"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_alignParentLeft="true"
-                    android:layout_alignParentTop="true"
-                    android:src="@android:drawable/ic_menu_rotate"/>
-            </RelativeLayout>
-
-            <RelativeLayout
                 android:id="@+id/mapViewTutorial"
                 android:layout_width="fill_parent"
                 android:layout_height="fill_parent"
@@ -188,7 +172,7 @@
 
             <!--
                     android:text="asjdwijfoiewjfoiewjfoiewjfoiewjfoiewjfoiewj" -->
-            <LinearLayout
+            <RelativeLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_alignParentBottom="true"
@@ -197,20 +181,30 @@
                 android:paddingStart="20dp"
                 android:id="@+id/buttons_layout"
                 >
+                <ImageButton
+                    android:id="@+id/refreshButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentLeft="true"
+                    android:src="@android:drawable/ic_menu_rotate"/>
                 <Button
                     android:layout_height="wrap_content"
                     android:layout_width="wrap_content"
                     android:text="More info"
                     android:id="@+id/moreinfo_button"
+                    android:visibility="gone"
+                    android:layout_toRightOf="@+id/refreshButton"
                     />
                 <Button
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Report problem"
+                    android:layout_toRightOf="@+id/moreinfo_button"
                     android:id="@+id/report_problem_button"
+                    android:visibility="gone"
                     />
 
-            </LinearLayout>
+            </RelativeLayout>
         </RelativeLayout>
     </FrameLayout>
 

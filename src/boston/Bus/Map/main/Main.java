@@ -377,7 +377,7 @@ public class Main extends AbstractMapActivity
         {
         	locationEnabled = prefs.getBoolean(getString(R.string.alwaysShowLocationCheckbox), true);
             int selectedRouteIndex = prefs.getInt(selectedRouteIndexKey, 0);
-            int modeInt = prefs.getInt(selectedBusPredictionsKey, Selection.Mode.BUS_PREDICTIONS_ONE.modeInt);
+            int modeInt = prefs.getInt(selectedBusPredictionsKey, Selection.Mode.BUS_PREDICTIONS_ALL.modeInt);
 			selection = new Selection(Selection.Mode.VEHICLE_LOCATIONS_ALL, null);
 			for (Selection.Mode mode : Selection.Mode.values()) {
 				if (mode.modeInt == modeInt) {
@@ -399,9 +399,7 @@ public class Main extends AbstractMapActivity
 
         Button reportButton = (Button)findViewById(R.id.report_problem_button);
         Button moreInfoButton = (Button)findViewById(R.id.moreinfo_button);
-        LinearLayout buttonsLayout = (LinearLayout)findViewById(R.id.buttons_layout);
-        buttonsLayout.setVisibility(View.GONE);
-        MapManager manager = new MapManager(this, map, transitSystem, busLocations, reportButton, moreInfoButton, buttonsLayout);
+        MapManager manager = new MapManager(this, map, transitSystem, busLocations, reportButton, moreInfoButton);
 
         arguments = new UpdateArguments(progress, progressDialog,
         		map, databaseAgent, manager,
@@ -559,7 +557,7 @@ public class Main extends AbstractMapActivity
     		editor.putInt(centerLatKey, (int)(point.latitude * Constants.E6));
     		editor.putInt(centerLonKey, (int)(point.longitude * Constants.E6));
     		editor.putInt(zoomLevelKey, (int)mapView.getCameraPosition().zoom);
-    		editor.commit();
+    		editor.apply();
     	}
     	
 		
@@ -792,12 +790,12 @@ public class Main extends AbstractMapActivity
     	int updateInterval = getUpdateInterval(prefs);
     	handler.setUpdateConstantlyInterval(updateInterval);
     	handler.setShowUnpredictable(prefs.getBoolean(getString(R.string.showUnpredictableBusesCheckbox), false));
-    	handler.setHideHighlightCircle(prefs.getBoolean(getString(R.string.hideCircleCheckbox), false));
+    	handler.setHideHighlightCircle(prefs.getBoolean(getString(R.string.hideCircleCheckbox), true));
         boolean showTraffic = prefs.getBoolean("showTraffic", false);
         handler.setShowTraffic(showTraffic);
     	boolean allRoutesBlue = prefs.getBoolean(getString(R.string.allRoutesBlue), TransitSystem.isDefaultAllRoutesBlue());
     	handler.setAllRoutesBlue(allRoutesBlue);
-    	arguments.getOverlayGroup().setDrawLine(prefs.getBoolean(getString(R.string.showRouteLineCheckbox), false));
+    	arguments.getOverlayGroup().setDrawLine(prefs.getBoolean("showRouteLineCheckbox2", true));
     	boolean showCoarseRouteLineCheckboxValue = prefs.getBoolean(getString(R.string.showCoarseRouteLineCheckbox), true); 
 
     	boolean alwaysUpdateLocationValue = prefs.getBoolean(getString(R.string.alwaysShowLocationCheckbox), true);
