@@ -399,9 +399,7 @@ public class Main extends AbstractMapActivity
 
         Button reportButton = (Button)findViewById(R.id.report_problem_button);
         Button moreInfoButton = (Button)findViewById(R.id.moreinfo_button);
-        LinearLayout buttonsLayout = (LinearLayout)findViewById(R.id.buttons_layout);
-        buttonsLayout.setVisibility(View.GONE);
-        MapManager manager = new MapManager(this, map, transitSystem, busLocations, reportButton, moreInfoButton, buttonsLayout);
+        MapManager manager = new MapManager(this, map, transitSystem, busLocations, reportButton, moreInfoButton);
 
         arguments = new UpdateArguments(progress, progressDialog,
         		map, databaseAgent, manager,
