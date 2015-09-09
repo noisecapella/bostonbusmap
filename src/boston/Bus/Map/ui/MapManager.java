@@ -460,10 +460,10 @@ public class MapManager implements OnMapClickListener, OnMarkerClickListener,
             {
                 locationIdsForNewMarkers.add(location.getId());
                 ITransitDrawables transitDrawables = transitSystem.getTransitSourceByRouteType(location.getTransitSourceType()).getDrawables();
-                BitmapDescriptor icon = transitDrawables.getBitmapDescriptor(location, false);
+                int icon = transitDrawables.getBitmapDescriptor(location, false);
                 LatLng latlng = new LatLng(location.getLatitudeAsDegrees(), location.getLongitudeAsDegrees());
                 MarkerOptions options = new MarkerOptions()
-                        .icon(icon)
+                        .icon(BitmapDescriptorFactory.fromResource(icon))
                         .position(latlng);
 
                 String oldMarkerId = markerIdToLocationId.inverse().get(location.getId());
