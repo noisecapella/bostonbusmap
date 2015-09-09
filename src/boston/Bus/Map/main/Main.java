@@ -557,7 +557,7 @@ public class Main extends AbstractMapActivity
     		editor.putInt(centerLatKey, (int)(point.latitude * Constants.E6));
     		editor.putInt(centerLonKey, (int)(point.longitude * Constants.E6));
     		editor.putInt(zoomLevelKey, (int)mapView.getCameraPosition().zoom);
-    		editor.commit();
+    		editor.apply();
     	}
     	
 		
