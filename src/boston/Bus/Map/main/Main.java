@@ -377,7 +377,7 @@ public class Main extends AbstractMapActivity
         {
         	locationEnabled = prefs.getBoolean(getString(R.string.alwaysShowLocationCheckbox), true);
             int selectedRouteIndex = prefs.getInt(selectedRouteIndexKey, 0);
-            int modeInt = prefs.getInt(selectedBusPredictionsKey, Selection.Mode.BUS_PREDICTIONS_ONE.modeInt);
+            int modeInt = prefs.getInt(selectedBusPredictionsKey, Selection.Mode.BUS_PREDICTIONS_ALL.modeInt);
 			selection = new Selection(Selection.Mode.VEHICLE_LOCATIONS_ALL, null);
 			for (Selection.Mode mode : Selection.Mode.values()) {
 				if (mode.modeInt == modeInt) {
