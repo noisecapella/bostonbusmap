@@ -187,10 +187,6 @@ public class Main extends AbstractMapActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
 
-        if (!readyToGo(true)) {
-            return;
-        }
-
         firstRunMode = true;
         
         TransitSystem.setDefaultTimeFormat(this);
@@ -748,10 +744,6 @@ public class Main extends AbstractMapActivity
     @Override
 	protected void onResume() {
 		super.onResume();
-
-        if (!readyToGo(false)) {
-            return;
-        }
 
 		if (locationEnabled && arguments != null)
 		{
