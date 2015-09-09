@@ -37,35 +37,6 @@ import boston.Bus.Map.R;
 public class AbstractMapActivity extends FragmentActivity {
     protected static final String TAG_ERROR_DIALOG_FRAGMENT="errorDialog";
 
-    // TODO: legal notice
-    protected boolean readyToGo(boolean displayError) {
-        GoogleApiAvailability apiAvailability = GoogleApiAvailability.getInstance();
-        int status = apiAvailability.isGooglePlayServicesAvailable(this);
-
-        if (status == ConnectionResult.SUCCESS) {
-            if (getVersionFromPackageManager(this) >= 2) {
-                return(true);
-            }
-            else {
-                if (displayError) {
-                    Toast.makeText(this, R.string.no_maps, Toast.LENGTH_LONG).show();
-                }
-            }
-        }
-        else if (GooglePlayServicesUtil.isUserRecoverableError(status)) {
-            if (displayError) {
-                apiAvailability.getErrorDialog(this, status, 0).show();
-            }
-        }
-        else {
-            if (displayError) {
-                Toast.makeText(this, R.string.no_maps, Toast.LENGTH_LONG).show();
-            }
-        }
-
-        return(false);
-    }
-
     // following from
     // https://android.googlesource.com/platform/cts/+/master/tests/tests/graphics/src/android/opengl/cts/OpenGlEsVersionTest.java
 
