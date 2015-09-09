@@ -334,8 +334,8 @@ public class BusLocation implements Location {
 	}
 
 	@Override
-	public boolean isFavorite() {
-		return false;
+	public Favorite isFavorite() {
+		return Favorite.IsNotFavorite;
 	}
 
 	/**

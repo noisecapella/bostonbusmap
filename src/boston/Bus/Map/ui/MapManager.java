@@ -6,9 +6,6 @@ import android.net.Uri;
 import android.os.RemoteException;
 import android.view.View;
 import android.widget.Button;
-import android.widget.ImageButton;
-import android.widget.LinearLayout;
-import android.widget.RelativeLayout;
 
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.GoogleMap.OnCameraChangeListener;
@@ -16,9 +13,9 @@ import com.google.android.gms.maps.GoogleMap.OnMapClickListener;
 import com.google.android.gms.maps.GoogleMap.OnMarkerClickListener;
 import com.google.android.gms.maps.GoogleMap.OnInfoWindowClickListener;
 import com.google.android.gms.maps.model.BitmapDescriptor;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.Circle;
-import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
@@ -35,6 +32,7 @@ import com.schneeloch.bostonbusmap_library.data.ITransitDrawables;
 import com.schneeloch.bostonbusmap_library.data.Location;
 import com.schneeloch.bostonbusmap_library.data.Locations;
 import com.schneeloch.bostonbusmap_library.data.Path;
+import com.schneeloch.bostonbusmap_library.data.PredictionView;
 import com.schneeloch.bostonbusmap_library.data.RouteTitles;
 import com.schneeloch.bostonbusmap_library.data.StopLocation;
 import com.schneeloch.bostonbusmap_library.data.StopPredictionView;
@@ -61,6 +59,9 @@ public class MapManager implements OnMapClickListener, OnMarkerClickListener,
     private final Map<String, Marker> markers = Maps.newHashMap();
     private final BiMap<String, Integer> markerIdToLocationId = HashBiMap.create();
     private final Map<Integer, Location> locationIdToLocation = Maps.newHashMap();
+    private final Map<String, Integer> markerIdToResourceId = Maps.newHashMap();
+    private final Map<String, PredictionView> markerIdToPredictionView = Maps.newHashMap();
+    private final Map<String, Favorite> markerIdToFavorite = Maps.newHashMap();
     private final Button reportButton;
     private final Button moreInfoButton;
     private int selectedLocationId = NOT_SELECTED;
@@ -119,6 +120,44 @@ public class MapManager implements OnMapClickListener, OnMarkerClickListener,
         return true;
     }
 
+    private void setMarker(String markerId, int icon) {
+        Integer previousIcon = markerIdToResourceId.get(markerId);
+        if (previousIcon == null || previousIcon != icon) {
+            Marker marker = markers.get(markerId);
+            if (marker == null) {
+                return;
+            }
+            marker.setIcon(BitmapDescriptorFactory.fromResource(icon));
+            markerIdToResourceId.put(markerId, icon);
+        }
+    }
+
+    private void updateInfo(String markerId) {
+        Integer locationId = markerIdToLocationId.get(markerId);
+        if (locationId == null) {
+            return;
+        }
+        Location location = locationIdToLocation.get(locationId);
+        if (location == null) {
+            return;
+        }
+        PredictionView predictionView = location.getPredictionView();
+        PredictionView previousPredictionView = markerIdToPredictionView.get(markerId);
+        Favorite favorite = markerIdToFavorite.get(markerId);
+        if (previousPredictionView == null || previousPredictionView != predictionView ||
+                favorite == null || favorite != location.isFavorite()) {
+            Marker marker = markers.get(markerId);
+            if (marker == null) {
+                return;
+            }
+
+            marker.showInfoWindow();
+            markerIdToFavorite.put(markerId, favorite);
+            markerIdToPredictionView.put(markerId, predictionView);
+        }
+
+    }
+
     private void updateMarkerAndButtons(int oldSelectedId, int newSelectedId) {
         LogUtil.i("old, new: " + oldSelectedId + ", " + newSelectedId);
         // hide old marker if applicable
@@ -136,11 +175,12 @@ public class MapManager implements OnMapClickListener, OnMarkerClickListener,
 
                 // since they are different markers hide the old one
                 oldMarker.hideInfoWindow();
+                markerIdToPredictionView.remove(oldMarkerId);
                 ITransitDrawables transitDrawables = transitSystem.getTransitSourceByRouteType(
                         oldLocation.getTransitSourceType()).getDrawables();
 
-                BitmapDescriptor icon = transitDrawables.getBitmapDescriptor(oldLocation, false);
-                oldMarker.setIcon(icon);
+                int icon = transitDrawables.getBitmapDescriptor(oldLocation, false);
+                setMarker(oldMarkerId, icon);
 
                 moreInfoButton.setVisibility(View.GONE);
                 reportButton.setVisibility(View.GONE);
@@ -155,9 +195,10 @@ public class MapManager implements OnMapClickListener, OnMarkerClickListener,
             ITransitDrawables transitDrawables = transitSystem.getTransitSourceByRouteType(
                     newLocation.getTransitSourceType()).getDrawables();
 
-            BitmapDescriptor icon = transitDrawables.getBitmapDescriptor(newLocation, true);
-            newMarker.setIcon(icon);
-            newMarker.showInfoWindow();
+            int icon = transitDrawables.getBitmapDescriptor(newLocation, true);
+            setMarker(newMarkerId, icon);
+            updateInfo(newMarkerId);
+
 
             if (newLocation instanceof StopLocation) {
                 moreInfoButton.setVisibility(View.VISIBLE);
@@ -517,7 +558,7 @@ public class MapManager implements OnMapClickListener, OnMarkerClickListener,
 
         try {
             locations.toggleFavorite(stopLocation);
-            marker.showInfoWindow();
+            updateInfo(markerId);
         }
         catch (RemoteException e) {
             LogUtil.e(e);

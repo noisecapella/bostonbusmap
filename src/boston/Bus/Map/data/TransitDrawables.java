@@ -40,31 +40,31 @@ public class TransitDrawables implements ITransitDrawables {
 	}
 
     @Override
-    public BitmapDescriptor getBitmapDescriptor(Location location, boolean isSelected) {
+    public int getBitmapDescriptor(Location location, boolean isSelected) {
         LocationType locationType = location.getLocationType();
         boolean isUpdated = location.isUpdated();
         if (locationType == LocationType.Intersection) {
             if (isSelected) {
-                return BitmapDescriptorFactory.fromResource(intersectionSelected);
+                return intersectionSelected;
             }
             else {
-                return BitmapDescriptorFactory.fromResource(intersection);
+                return intersection;
             }
         }
         else if (locationType == LocationType.Stop) {
             if (isSelected) {
                 if (isUpdated) {
-                    return BitmapDescriptorFactory.fromResource(stopUpdatedSelected);
+                    return stopUpdatedSelected;
                 }
                 else {
-                    return BitmapDescriptorFactory.fromResource(stopSelected);
+                    return stopSelected;
                 }
             }
             else {
                 if (isUpdated) {
-                    return BitmapDescriptorFactory.fromResource(stopUpdated);
+                    return stopUpdated;
                 } else {
-                    return BitmapDescriptorFactory.fromResource(stop);
+                    return stop;
                 }
             }
         }
@@ -73,7 +73,7 @@ public class TransitDrawables implements ITransitDrawables {
             if (location.getTransitSourceType() == Schema.Routes.SourceId.Bus) {
                 isRail = false;
             }
-            return BitmapDescriptorFactory.fromResource(BusDrawablesLookup.getIdFromAngle(location.getHeading(), isSelected, isRail));
+            return BusDrawablesLookup.getIdFromAngle(location.getHeading(), isSelected, isRail);
         }
         else {
             throw new RuntimeException("Unexpected location type");
