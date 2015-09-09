@@ -30,7 +30,7 @@ public interface Location {
 
 	double distanceFromInMiles(double centerLatAsRadians, double centerLonAsRadians);
 	
-	boolean isFavorite();
+	Favorite isFavorite();
 
 	/**
 	 * Prepare the textbox text and store it in the class

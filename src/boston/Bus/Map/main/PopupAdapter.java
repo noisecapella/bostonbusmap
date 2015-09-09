@@ -13,6 +13,7 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.common.collect.ImmutableList;
 import com.readystatesoftware.mapviewballoons.LimitLinearLayout;
 import com.schneeloch.bostonbusmap_library.data.Alert;
+import com.schneeloch.bostonbusmap_library.data.Favorite;
 import com.schneeloch.bostonbusmap_library.data.Location;
 import com.schneeloch.bostonbusmap_library.data.PredictionView;
 import com.schneeloch.bostonbusmap_library.data.SimplePredictionView;
@@ -87,7 +88,7 @@ public class PopupAdapter implements InfoWindowAdapter {
 
         if (location != null && location instanceof StopLocation) {
             favorite.setVisibility(View.VISIBLE);
-            if (location.isFavorite()) {
+            if (location.isFavorite() == Favorite.IsFavorite) {
                 favorite.setImageResource(R.drawable.full_star);
             } else {
                 favorite.setImageResource(R.drawable.empty_star);
