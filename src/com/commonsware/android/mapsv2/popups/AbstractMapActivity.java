@@ -28,6 +28,8 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
 import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.ErrorDialogFragment;
+import com.google.android.gms.common.GoogleApiAvailability;
 import com.google.android.gms.common.GooglePlayServicesUtil;
 
 import boston.Bus.Map.R;
@@ -36,61 +38,32 @@ public class AbstractMapActivity extends FragmentActivity {
     protected static final String TAG_ERROR_DIALOG_FRAGMENT="errorDialog";
 
     // TODO: legal notice
-    protected boolean readyToGo() {
-        int status=
-                GooglePlayServicesUtil.isGooglePlayServicesAvailable(this);
+    protected boolean readyToGo(boolean displayError) {
+        GoogleApiAvailability apiAvailability = GoogleApiAvailability.getInstance();
+        int status = apiAvailability.isGooglePlayServicesAvailable(this);
 
         if (status == ConnectionResult.SUCCESS) {
             if (getVersionFromPackageManager(this) >= 2) {
                 return(true);
             }
             else {
-                Toast.makeText(this, R.string.no_maps, Toast.LENGTH_LONG).show();
-                finish();
+                if (displayError) {
+                    Toast.makeText(this, R.string.no_maps, Toast.LENGTH_LONG).show();
+                }
             }
         }
         else if (GooglePlayServicesUtil.isUserRecoverableError(status)) {
-            ErrorDialogFragment.newInstance(status)
-                    .show(getFragmentManager(),
-                            TAG_ERROR_DIALOG_FRAGMENT);
+            if (displayError) {
+                apiAvailability.getErrorDialog(this, status, 0).show();
+            }
         }
         else {
-            Toast.makeText(this, R.string.no_maps, Toast.LENGTH_LONG).show();
-            finish();
+            if (displayError) {
+                Toast.makeText(this, R.string.no_maps, Toast.LENGTH_LONG).show();
+            }
         }
 
         return(false);
-    }
-
-    public static class ErrorDialogFragment extends DialogFragment {
-        static final String ARG_STATUS="status";
-
-        static ErrorDialogFragment newInstance(int status) {
-            Bundle args=new Bundle();
-
-            args.putInt(ARG_STATUS, status);
-
-            ErrorDialogFragment result=new ErrorDialogFragment();
-
-            result.setArguments(args);
-
-            return(result);
-        }
-
-        @Override
-        public Dialog onCreateDialog(Bundle savedInstanceState) {
-            Bundle args=getArguments();
-
-            return GooglePlayServicesUtil.getErrorDialog(args.getInt(ARG_STATUS),
-                    getActivity(), 0);
-        }
-
-        @Override
-        public void onDismiss(DialogInterface dlg) {
-            if (getActivity() != null) {
-                getActivity().finish();
-            }
-        }
     }
 
     // following from
