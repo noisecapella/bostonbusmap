@@ -38,7 +38,7 @@ android {
         release {
             minifyEnabled true
             proguardFile 'proguard-project.txt'
-            debuggable true
+            debuggable false
         }
 
     }
