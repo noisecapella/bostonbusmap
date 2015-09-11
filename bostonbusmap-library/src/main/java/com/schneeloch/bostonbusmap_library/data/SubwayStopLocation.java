@@ -33,6 +33,6 @@ public class SubwayStopLocation extends StopLocation {
 
 	@Override
 	public boolean supportsBusPredictionsAllMode() {
-		return false;
+		return true;
 	}
 }
