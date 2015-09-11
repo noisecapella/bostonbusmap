@@ -288,14 +288,6 @@ public class Main extends AbstractMapActivity
                     }
                 });
 
-                skipTutorialButton.setOnClickListener(new OnClickListener() {
-
-                    @Override
-                    public void onClick(View v) {
-
-                    }
-                });
-
                 final ITransitSystem transitSystem = new TransitSystem();
                 {
                     ITransitDrawables busDrawables = new TransitDrawables(
