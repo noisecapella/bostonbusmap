@@ -181,15 +181,16 @@ public class MapManager implements OnMapClickListener, OnMarkerClickListener,
 
                 int icon = transitDrawables.getBitmapDescriptor(oldLocation, false);
                 setMarker(oldMarkerId, icon);
-
-                moreInfoButton.setVisibility(View.GONE);
-                reportButton.setVisibility(View.GONE);
             }
             // else, select the same stop
             // this is probably the typical case since it happens every time a refresh happens
         }
 
-        if (newMarker != null) {
+        if (newMarker == null) {
+            moreInfoButton.setVisibility(View.GONE);
+            reportButton.setVisibility(View.GONE);
+        }
+        else {
             final Location newLocation = locationIdToLocation.get(newSelectedId);
             // we are selecting a new marker
             ITransitDrawables transitDrawables = transitSystem.getTransitSourceByRouteType(
