@@ -110,12 +110,10 @@ public class MbtaRealtimeTransitSource implements TransitSource {
 		routeToTransitSourceIdBuilder.put(orangeRoute, Schema.Routes.SourceId.Subway);
 		routeToTransitSourceIdBuilder.put(blueRoute, Schema.Routes.SourceId.Subway);
 
-		/*
-		TODO: disabled because this functionality is provided by CommuterRailTransitSource
 		for (String commuterRailRoute : commuterRailRoutes) {
 			gtfsNameToRouteNameBuilder.put(commuterRailRoute, commuterRailRoute);
 			routeToTransitSourceIdBuilder.put(commuterRailRoute, Schema.Routes.SourceId.CommuterRail);
-		}*/
+		}
 
 		gtfsNameToRouteName = gtfsNameToRouteNameBuilder.build();
 		
@@ -243,7 +241,7 @@ public class MbtaRealtimeTransitSource implements TransitSource {
             stop = new CommuterRailStopLocation.CommuterRailBuilder(latitude, longitude, stopTag, stopTitle).build();
         }
         else {
-            stop = new StopLocation.Builder(latitude, longitude, stopTag, stopTitle).build();
+            throw new RuntimeException("Unexpected transit source");
         }
 		stop.addRoute(route);
 		return stop;
