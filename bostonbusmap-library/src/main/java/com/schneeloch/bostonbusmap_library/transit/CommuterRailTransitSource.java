@@ -318,7 +318,7 @@ public class CommuterRailTransitSource implements TransitSource {
 
     @Override
     public Schema.Routes.SourceId[] getTransitSourceIds() {
-        return new Schema.Routes.SourceId[] {Schema.Routes.SourceId.CommuterRail};
+        return new Schema.Routes.SourceId[] {};
     }
 
     @Override

@@ -231,7 +231,7 @@ public class MbtaRealtimeTransitSource implements TransitSource {
             stop = new CommuterRailStopLocation.CommuterRailBuilder(latitude, longitude, stopTag, stopTitle).build();
         }
         else {
-            throw new RuntimeException("Unexpected transit source " + transitSourceId);
+            stop = new StopLocation.Builder(latitude, longitude, stopTag, stopTitle).build();
         }
 		stop.addRoute(route);
 		return stop;
@@ -251,7 +251,9 @@ public class MbtaRealtimeTransitSource implements TransitSource {
 	@Override
 	public Schema.Routes.SourceId[] getTransitSourceIds() {
 		return new Schema.Routes.SourceId[] {
-                Schema.Routes.SourceId.Subway
+                Schema.Routes.SourceId.Bus,
+                Schema.Routes.SourceId.Subway,
+                Schema.Routes.SourceId.CommuterRail
         };
 	}
 

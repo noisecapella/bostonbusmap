@@ -309,7 +309,7 @@ public abstract class NextBusTransitSource implements TransitSource
 	
 	@Override
 	public Schema.Routes.SourceId[] getTransitSourceIds() {
-		return new Schema.Routes.SourceId[] {Schema.Routes.SourceId.Bus};
+		return new Schema.Routes.SourceId[] {};
 	}
 	
 	@Override
