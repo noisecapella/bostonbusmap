@@ -262,11 +262,7 @@ public class MbtaRealtimeTransitSource implements TransitSource {
 
 	@Override
 	public Schema.Routes.SourceId[] getTransitSourceIds() {
-<<<<<<< HEAD
-		return transitSourceIds;
-=======
         return transitSourceIds;
->>>>>>> maps-v2-second-try
 	}
 
 	@Override
