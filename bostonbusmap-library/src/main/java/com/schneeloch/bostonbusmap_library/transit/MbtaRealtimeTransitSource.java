@@ -50,8 +50,9 @@ public class MbtaRealtimeTransitSource implements TransitSource {
     private final TransitSourceCache cache;
 
     private static final Schema.Routes.SourceId[] transitSourceIds = new Schema.Routes.SourceId[] {
-        Schema.Routes.SourceId.Subway,
-        Schema.Routes.SourceId.CommuterRail
+            Schema.Routes.SourceId.Bus,
+            Schema.Routes.SourceId.Subway,
+            Schema.Routes.SourceId.CommuterRail
     };
 
 	public MbtaRealtimeTransitSource(ITransitDrawables drawables,
@@ -242,7 +243,7 @@ public class MbtaRealtimeTransitSource implements TransitSource {
             stop = new CommuterRailStopLocation.CommuterRailBuilder(latitude, longitude, stopTag, stopTitle).build();
         }
         else {
-            throw new RuntimeException("Unexpected transit source " + transitSourceId);
+            stop = new StopLocation.Builder(latitude, longitude, stopTag, stopTitle).build();
         }
 		stop.addRoute(route);
 		return stop;
@@ -261,7 +262,11 @@ public class MbtaRealtimeTransitSource implements TransitSource {
 
 	@Override
 	public Schema.Routes.SourceId[] getTransitSourceIds() {
+<<<<<<< HEAD
 		return transitSourceIds;
+=======
+        return transitSourceIds;
+>>>>>>> maps-v2-second-try
 	}
 
 	@Override
