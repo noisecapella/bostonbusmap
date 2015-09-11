@@ -14,6 +14,7 @@ import org.xml.sax.SAXException;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 
+import com.google.common.collect.Lists;
 import com.schneeloch.bostonbusmap_library.data.BusLocation;
 import com.schneeloch.bostonbusmap_library.data.Directions;
 import com.schneeloch.bostonbusmap_library.data.IAlerts;
@@ -93,7 +94,12 @@ public abstract class NextBusTransitSource implements TransitSource
             case BUS_PREDICTIONS_STAR:
             case BUS_PREDICTIONS_ALL:
 
-                List<Location> locations = locationsObj.getLocations(maxStops, centerLatitude, centerLongitude, false, selection);
+                List<Location> locations = Lists.newArrayList();
+                for (Location location : locationsObj.getLocations(maxStops, centerLatitude, centerLongitude, false, selection)) {
+                    if (location.getTransitSourceType() == Schema.Routes.SourceId.Bus) {
+                        locations.add(location);
+                    }
+                }
 
                 //ok, do predictions now
                 ImmutableSet<String> routes;
