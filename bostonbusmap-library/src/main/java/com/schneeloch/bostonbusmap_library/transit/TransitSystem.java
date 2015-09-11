@@ -120,17 +120,11 @@ public class TransitSystem implements ITransitSystem {
 			ImmutableMap.Builder<String, TransitSource> mapBuilder = ImmutableMap.builder();
 			MbtaRealtimeTransitSource subwayTransitSource = new MbtaRealtimeTransitSource(
 					subwayDrawables,
-					routeTitles.getMappingForSources(new Schema.Routes.SourceId[] {Schema.Routes.SourceId.Subway}), this);
+					routeTitles.getMappingForSources(new Schema.Routes.SourceId[] {Schema.Routes.SourceId.Subway, Schema.Routes.SourceId.CommuterRail}), this);
 			for (String route : subwayTransitSource.getRouteTitles().routeTags()) {
 				mapBuilder.put(route, subwayTransitSource);
 			}
 
-            CommuterRailTransitSource commuterRailTransitSource = new CommuterRailTransitSource(commuterRailDrawables,
-                    routeTitles.getMappingForSource(Schema.Routes.SourceId.CommuterRail), this);
-            for (String route : commuterRailTransitSource.getRouteTitles().routeTags()) {
-                mapBuilder.put(route, commuterRailTransitSource);
-            }
-			
 			HubwayTransitSource hubwayTransitSource = new HubwayTransitSource(hubwayDrawables, hubwayTransitRoutes,
 					this);
 
@@ -139,7 +133,7 @@ public class TransitSystem implements ITransitSystem {
 			}
 			transitSourceMap = mapBuilder.build();
 
-			transitSources = ImmutableList.of(subwayTransitSource, commuterRailTransitSource, hubwayTransitSource,
+			transitSources = ImmutableList.of(subwayTransitSource, hubwayTransitSource,
 					defaultTransitSource);
 		
 		}
