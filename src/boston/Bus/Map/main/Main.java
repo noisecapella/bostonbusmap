@@ -379,10 +379,6 @@ public class Main extends AbstractMapActivity
                     }
                 }
 
-                //final boolean showIntroScreen = prefs.getBoolean(introScreenKey, true);
-                //only show this screen once
-                //prefs.edit().putBoolean(introScreenKey, false).commit();
-
                 if (busLocations == null) {
                     busLocations = new Locations(databaseAgent, transitSystem, selection);
                 }
@@ -779,14 +775,11 @@ public class Main extends AbstractMapActivity
     	
     	int updateInterval = getUpdateInterval(prefs);
     	handler.setUpdateConstantlyInterval(updateInterval);
-    	handler.setShowUnpredictable(prefs.getBoolean(getString(R.string.showUnpredictableBusesCheckbox), false));
-    	handler.setHideHighlightCircle(prefs.getBoolean(getString(R.string.hideCircleCheckbox), true));
         boolean showTraffic = prefs.getBoolean("showTraffic", false);
         handler.setShowTraffic(showTraffic);
     	boolean allRoutesBlue = prefs.getBoolean(getString(R.string.allRoutesBlue), TransitSystem.isDefaultAllRoutesBlue());
     	handler.setAllRoutesBlue(allRoutesBlue);
     	arguments.getOverlayGroup().setDrawLine(prefs.getBoolean("showRouteLineCheckbox2", true));
-    	boolean showCoarseRouteLineCheckboxValue = prefs.getBoolean(getString(R.string.showCoarseRouteLineCheckbox), true); 
 
     	boolean alwaysUpdateLocationValue = prefs.getBoolean(getString(R.string.alwaysShowLocationCheckbox), true);
 
@@ -795,10 +788,10 @@ public class Main extends AbstractMapActivity
     	prefs.edit().
     		putBoolean(getString(R.string.alwaysShowLocationCheckbox), alwaysUpdateLocationValue).
     		putString(getString(R.string.updateContinuouslyInterval), intervalString).
-    		putBoolean(getString(R.string.showCoarseRouteLineCheckbox), showCoarseRouteLineCheckboxValue).
+            putBoolean("showRouteLineCheckbox2", arguments.getOverlayGroup().isShowLine()).
     		putBoolean(getString(R.string.allRoutesBlue), allRoutesBlue).
             putBoolean("showTraffic", showTraffic).
-    		commit();
+    		apply();
     }
 
 	private int getUpdateInterval(SharedPreferences prefs) {
