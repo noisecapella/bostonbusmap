@@ -199,7 +199,7 @@
                 <Button
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Report problem"
+                    android:text="@string/reportproblem"
                     android:layout_toRightOf="@+id/moreinfo_button"
                     android:id="@+id/report_problem_button"
                     android:visibility="gone"
