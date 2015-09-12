@@ -1,7 +1,12 @@
 package boston.Bus.Map.ui;
 
+import android.app.AlertDialog;
+import android.text.ClipboardManager;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.RemoteException;
 import android.view.View;
@@ -21,11 +26,13 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
+import com.google.common.base.Joiner;
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
+import com.schneeloch.bostonbusmap_library.data.BusLocation;
 import com.schneeloch.bostonbusmap_library.data.Favorite;
 import com.schneeloch.bostonbusmap_library.data.IPrediction;
 import com.schneeloch.bostonbusmap_library.data.ITransitDrawables;
@@ -34,19 +41,23 @@ import com.schneeloch.bostonbusmap_library.data.Locations;
 import com.schneeloch.bostonbusmap_library.data.Path;
 import com.schneeloch.bostonbusmap_library.data.PredictionView;
 import com.schneeloch.bostonbusmap_library.data.RouteTitles;
+import com.schneeloch.bostonbusmap_library.data.Selection;
 import com.schneeloch.bostonbusmap_library.data.StopLocation;
 import com.schneeloch.bostonbusmap_library.data.StopPredictionView;
 import com.schneeloch.bostonbusmap_library.data.TimeBounds;
 import com.schneeloch.bostonbusmap_library.math.Geometry;
 import com.schneeloch.bostonbusmap_library.transit.ITransitSystem;
+import com.schneeloch.bostonbusmap_library.transit.TransitSystem;
 import com.schneeloch.bostonbusmap_library.util.LogUtil;
 
 import org.nayuki.Point;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentMap;
 
 import boston.Bus.Map.main.MoreInfo;
 import boston.Bus.Map.main.UpdateHandler;
@@ -159,7 +170,6 @@ public class MapManager implements OnMapClickListener, OnMarkerClickListener,
     }
 
     private void updateMarkerAndButtons(int oldSelectedId, int newSelectedId) {
-        LogUtil.i("old, new: " + oldSelectedId + ", " + newSelectedId);
         // hide old marker if applicable
         String oldMarkerId = markerIdToLocationId.inverse().get(oldSelectedId);
         Marker oldMarker = markers.get(oldMarkerId);
@@ -193,7 +203,7 @@ public class MapManager implements OnMapClickListener, OnMarkerClickListener,
         else {
             final Location newLocation = locationIdToLocation.get(newSelectedId);
             // we are selecting a new marker
-            ITransitDrawables transitDrawables = transitSystem.getTransitSourceByRouteType(
+            final ITransitDrawables transitDrawables = transitSystem.getTransitSourceByRouteType(
                     newLocation.getTransitSourceType()).getDrawables();
 
             int icon = transitDrawables.getBitmapDescriptor(newLocation, true);
@@ -256,13 +266,183 @@ public class MapManager implements OnMapClickListener, OnMarkerClickListener,
             reportButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    Intent intent = new Intent(Intent.ACTION_VIEW);
-                    intent.setData(Uri.parse(transitSystem.getFeedbackUrl()));
-                    context.startActivity(intent);
+                    AlertDialog.Builder builder = new AlertDialog.Builder(context);
+                    builder.setTitle("Who should get the error report?");
+                    builder.setItems(new String[]{
+                            TransitSystem.getAgencyName(),
+                            "App Developer"
+                    }, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            if (which == 0) {
+                                AlertDialog.Builder transitBuilder = new AlertDialog.Builder(context);
+                                transitBuilder.setTitle("");
+                                transitBuilder.setMessage("The report message has been copied to your clipboard." +
+                                        " This message contains specifics about the stop, route or vehicle" +
+                                        " that was selected when you clicked 'Report Problem'." +
+                                        " Click 'Ok' to visit their customer comment form, then you may paste " +
+                                        " this report into their textbox.");
+                                transitBuilder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialog, int which) {
+                                        dialog.dismiss();
+                                    }
+                                });
+                                transitBuilder.setPositiveButton("Visit their website", new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialog, int which) {
+                                        ClipboardManager manager = (ClipboardManager)context.getSystemService(Context.CLIPBOARD_SERVICE);
+                                        manager.setText(createEmailBody(newLocation));
+
+                                        Intent intent = new Intent(Intent.ACTION_VIEW);
+                                        intent.setData(Uri.parse(TransitSystem.getFeedbackUrl()));
+                                        context.startActivity(intent);
+                                    }
+                                });
+                                transitBuilder.create().show();
+                            }
+                            else if (which == 1) {
+                                //Intent intent = new Intent(context, ReportProblem.class);
+                                Intent intent = new Intent(android.content.Intent.ACTION_SEND);
+                                intent.setType("plain/text");
+
+                                intent.putExtra(android.content.Intent.EXTRA_EMAIL, TransitSystem.getEmails());
+                                intent.putExtra(android.content.Intent.EXTRA_SUBJECT, TransitSystem.getEmailSubject());
+
+
+                                String otherText = createEmailBody(newLocation);
+
+                                intent.putExtra(android.content.Intent.EXTRA_TEXT, otherText);
+                                context.startActivity(Intent.createChooser(intent, "Send email..."));
+                            }
+                        }
+                    });
+                    builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            dialog.dismiss();
+                        }
+                    });
+                    builder.create().show();
                 }
             });
 
         }
+    }
+
+    protected String createEmailBody(Location location)
+    {
+        Selection selection = locations.getSelection();
+        if (selection == null) {
+            selection = new Selection(null, null);
+        }
+
+        String routeTitle = selection.getRoute();
+        if (routeTitle != null) {
+            routeTitle = locations.getRouteTitle(routeTitle);
+        }
+        else
+        {
+            routeTitle = "";
+        }
+
+        StringBuilder otherText = new StringBuilder();
+        otherText.append("(This is an automatically created error report by BostonBusMap. Feel free to include any extra information before this message.)\n\n");
+        otherText.append("\n\n");
+        createInfoForAgency(location, otherText, selection.getMode(), routeTitle);
+        otherText.append("\n\n");
+        createInfoForDeveloper(otherText, selection.getMode(), routeTitle);
+
+        return otherText.toString();
+    }
+    protected void createInfoForDeveloper(StringBuilder otherText, Selection.Mode mode, String routeTitle)
+    {
+        otherText.append("There was a problem with ");
+        if (mode == Selection.Mode.BUS_PREDICTIONS_ONE) {
+            otherText.append("bus predictions on one route. ");
+        }
+        else if (mode == Selection.Mode.BUS_PREDICTIONS_STAR) {
+            otherText.append("bus predictions for favorited routes. ");
+        }
+        else if (mode == Selection.Mode.BUS_PREDICTIONS_ALL) {
+            otherText.append("bus predictions for all routes. ");
+        }
+        else if (mode == Selection.Mode.VEHICLE_LOCATIONS_ALL) {
+            otherText.append("vehicle locations on all routes. ");
+        }
+        else if (mode == Selection.Mode.VEHICLE_LOCATIONS_ONE) {
+            otherText.append("vehicle locations for one route. ");
+        } else {
+            otherText.append("something that I can't figure out. ");
+        }
+
+        try
+        {
+            PackageManager packageManager = context.getPackageManager();
+            PackageInfo packageInfo = packageManager.getPackageInfo(context.getPackageName(), 0);
+            String versionText = packageInfo.versionName;
+            otherText.append("App version: ").append(versionText).append(". ");
+        }
+        catch (PackageManager.NameNotFoundException e)
+        {
+            //don't worry about it
+        }
+        otherText.append("OS: ").append(android.os.Build.MODEL).append(". ");
+
+        otherText.append("Currently selected route is '").append(routeTitle).append("'. ");
+    }
+
+    protected void createInfoForAgency(Location location, StringBuilder ret, Selection.Mode mode, String routeTitle)
+    {
+        if (location instanceof StopLocation)
+        {
+            StopLocation stopLocation = (StopLocation)location;
+            String stopTag = stopLocation.getStopTag();
+            ConcurrentMap<String, StopLocation> stopTags = locations.getAllStopsAtStop(stopTag);
+
+            if (mode == Selection.Mode.BUS_PREDICTIONS_ONE)
+            {
+                if (stopTags.size() <= 1)
+                {
+                    ret.append("The stop id is ").append(stopTag).append(" (").append(stopLocation.getTitle()).append(")");
+                    ret.append(" on route ").append(routeTitle).append(". ");
+                }
+                else
+                {
+                    List<String> stopTagStrings = Lists.newArrayList();
+                    for (StopLocation stop : stopTags.values())
+                    {
+                        String text = stop.getStopTag() + " (" + stop.getTitle() + ")";
+                        stopTagStrings.add(text);
+                    }
+                    String stopTagsList = Joiner.on(",\n").join(stopTagStrings);
+
+                    ret.append("The stop ids are: ").append(stopTagsList).append(" on route ").append(routeTitle).append(". ");
+                }
+            }
+            else
+            {
+                ArrayList<String> pairs = Lists.newArrayList();
+                for (StopLocation stop : stopTags.values())
+                {
+                    String routesJoin = Joiner.on(", ").join(stop.getRoutes());
+                    pairs.add(stop.getStopTag() + "(" + stop.getTitle() + ") on routes " + routesJoin);
+                }
+
+                //String list = Joiner.on(",\n").join(pairs);
+                ret.append("The stop ids are: ");
+                ret.append(Joiner.on(", ").join(pairs));
+                ret.append(". ");
+            }
+        }
+        else if (location instanceof BusLocation)
+        {
+            BusLocation busLocation = (BusLocation)location;
+            String busRouteId = busLocation.getRouteId();
+            ret.append("The bus number is ").append(busLocation.getBusNumber());
+            ret.append(" on route ").append(locations.getRouteTitle(busRouteId)).append(". ");
+        }
+
     }
 
     @Override
