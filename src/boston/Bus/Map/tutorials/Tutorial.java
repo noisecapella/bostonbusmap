@@ -32,7 +32,7 @@ public class Tutorial {
 	}
 
 	private void setStep(SharedPreferences prefs, int step) {
-		prefs.edit().putInt(Main.tutorialStepKey, step).commit();
+		prefs.edit().putInt(Main.tutorialStepKey, step).apply();
 	}
 	
 	public void start(final Main parent) {

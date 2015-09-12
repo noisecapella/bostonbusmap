@@ -1,6 +1,5 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
-<ListPreference android:key="@string/updateContinuouslyInterval" android:title="@string/updateContinuously" android:entryValues="@array/updateContinuouslyValues" android:entries="@array/updateContinuouslyKeys"/><CheckBoxPreference android:key="@string/showUnpredictableBusesCheckbox" android:title="@string/showUnpredictableBuses"></CheckBoxPreference>
-<!--<CheckBoxPreference android:key="@string/hideCircleCheckbox" android:title="@string/hideBlueCircle" android:summary="@string/hideBlueCircleSummary"/>-->
+<ListPreference android:key="@string/updateContinuouslyInterval" android:title="@string/updateContinuously" android:entryValues="@array/updateContinuouslyValues" android:entries="@array/updateContinuouslyKeys"/>
 <CheckBoxPreference android:key="showTraffic" android:title="@string/showTrafficTitle" />
 <CheckBoxPreference android:title="@string/showRoutePath" android:key="showRouteLineCheckbox2" android:summary="@string/showRoutePathSummary"></CheckBoxPreference>
 <CheckBoxPreference android:title="@string/alwaysShowLocation" android:key="@string/alwaysShowLocationCheckbox" android:summary="@string/alwaysShowLocationSummary"></CheckBoxPreference>
