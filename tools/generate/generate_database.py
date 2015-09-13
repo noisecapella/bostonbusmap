@@ -18,15 +18,15 @@ statusCode = 1
 def generate(conn, gtfs_map):
     create_tables(conn)
     index = 0
-    print "Generating Hubway stops..."
+    print("Generating Hubway stops...")
     index = Hubway().generate(conn, index)
-    print "Generating commuter rail stops..."
+    print("Generating commuter rail stops...")
     index = MbtaCommuterRail().generate(conn, index, gtfs_map)
-    print "Generating heavy rail stops..."
+    print("Generating heavy rail stops...")
     index = MbtaHeavyRail().generate(conn, index, gtfs_map)
-    print "Generating NextBus stops..."
+    print("Generating NextBus stops...")
     index = NextBus("mbta").generate(conn, index)
-    print index
+    print(index)
 
 def main():
     parser = argparse.ArgumentParser()
@@ -42,7 +42,7 @@ def main():
     if not os.path.isdir(args.gtfs_path):
         raise Exception("%s is not a directory" % args.gtfs_path)
 
-    print "Reading GTFS into temporary database (this may take a few minutes)..."
+    print("Reading GTFS into temporary database (this may take a few minutes)...")
     gtfs_map = GtfsMap(args.gtfs_path)
 
     if gtfs_map.last_date < datetime.now():

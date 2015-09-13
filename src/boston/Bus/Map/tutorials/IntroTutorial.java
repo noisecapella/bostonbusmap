@@ -54,7 +54,8 @@ public class IntroTutorial {
 			
 			@Override
 			public void teardown(Main parent) {
-				
+                ImageButton button = (ImageButton) parent.findViewById(R.id.drawerButton);
+                addHighlight(button);
 			}
 			
 		});
@@ -67,8 +68,6 @@ public class IntroTutorial {
 			
 			@Override
 			public void setup(Main parent) {
-                ImageButton button = (ImageButton) parent.findViewById(R.id.drawerButton);
-                removeHighlight(button);
 			}
 			
 			@Override
