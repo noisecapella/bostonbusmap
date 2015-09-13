@@ -108,7 +108,7 @@ public class MbtaRealtimeTransitSource implements TransitSource {
 		routeToTransitSourceIdBuilder.put(redRoute, Schema.Routes.SourceId.Subway);
 		routeToTransitSourceIdBuilder.put(orangeRoute, Schema.Routes.SourceId.Subway);
 		routeToTransitSourceIdBuilder.put(blueRoute, Schema.Routes.SourceId.Subway);
-		
+
 		for (String commuterRailRoute : commuterRailRoutes) {
 			gtfsNameToRouteNameBuilder.put(commuterRailRoute, commuterRailRoute);
 			routeToTransitSourceIdBuilder.put(commuterRailRoute, Schema.Routes.SourceId.CommuterRail);
