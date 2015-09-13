@@ -17,13 +17,15 @@ class MbtaHeavyRail:
         route_rows = [list(gtfs_map.find_routes_by_id(route_id))[0] for route_id in route_ids]
         route_color = [route_row["route_color"] for route_row in route_rows][0]
 
-        shape_rows = itertools.chain.from_iterable((gtfs_map.find_shapes_by_route(item) for item in route_ids))
+        shape_rows = itertools.chain.from_iterable((gtfs_map.find_sorted_shapes_by_route(item) for item in route_ids))
 
         # this stores a list of list of lat, lon pairs
         print("Appending paths for %s" % as_route)
         paths = []
         shape_rows = list(sorted(shape_rows, key=lambda shape: shape["shape_id"]))
         print("Adding shapes...")
+
+        # todo: sorted?
         for shape_id, group_rows in itertools.groupby(shape_rows, lambda shape: shape["shape_id"]):
             path = [(float(row["shape_pt_lat"]), float(row["shape_pt_lon"])) for row in group_rows]
             path = simplify_path(path)

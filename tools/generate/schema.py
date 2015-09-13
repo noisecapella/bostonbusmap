@@ -39,10 +39,10 @@ class Box:
                 self.add_float(f)
         
     def add_int(self, x):
-        self.bytes += binascii.b2a_hex(struct.pack('>i', x))
+        self.bytes += binascii.b2a_hex(struct.pack('>i', x)).decode('utf-8')
 
     def add_float(self, f):
-        self.bytes += binascii.b2a_hex(struct.pack('>f', f))
+        self.bytes += binascii.b2a_hex(struct.pack('>f', f)).decode('utf-8')
 
     def get_blob_string(self):
         return "X'" + self.bytes + "'"
@@ -54,12 +54,12 @@ class Box:
     def from_bytes(self, b):
         counter = 0
         def unpack_int():
-            global counter
+            nonlocal counter
             ret = struct.unpack('>i', b[counter:counter+4])[0]
             counter += 4
             return ret
         def unpack_float():
-            global counter
+            nonlocal counter
             ret = struct.unpack('>f', b[counter:counter+4])[0]
             counter += 4
             return ret
@@ -213,7 +213,7 @@ class Column:
 
 def getSchemaAsObject():
     ret = Tables()
-    for tableName, table in schema.iteritems():
+    for tableName, table in schema.items():
         newTable = Table(tableName, table["primaryKeys"], table["indexes"])
         for column in table["columns"]:
             canbenull = "false"

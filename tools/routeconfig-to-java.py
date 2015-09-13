@@ -117,7 +117,7 @@ def printStopGraph(routes, f):
                 locationMap[locKey][stopTag] = True
                 stopMap[stopTag] = (stopTag, lat, lon)
                 
-    for locKey, stops in locationMap.iteritems():
+    for locKey, stops in locationMap.items():
         if len(stops) == 0:
             continue
         lat, lon = locKey
@@ -128,7 +128,7 @@ def printStopGraph(routes, f):
     f.write("        return ret;\n")
     f.write("    }\n")
 
-    for locKey, stops in locationMap.iteritems():
+    for locKey, stops in locationMap.items():
         if len(stops) == 0:
             continue
 
@@ -155,7 +155,7 @@ def printEachMakeClosestStops(locKey, stops, stopMap, f):
                     break
         f.write("        };\n")
 
-        for stop in stops.iteritems():
+        for stop in stops.items():
             stopTag, _ = stop
             f.write("        map.put(\"{0}\", arr);".format(stopTag) + "\n")
         f.write("    }\n")
