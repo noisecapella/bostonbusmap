@@ -340,9 +340,9 @@ public class MapManager implements OnMapClickListener, OnMarkerClickListener,
             else {
                 alertsButton.setVisibility(View.VISIBLE);
                 if (numAlerts == 1) {
-                    alertsButton.setText("\\u26a0 " + numAlerts + " Alert");
+                    alertsButton.setText("\u26a0 " + numAlerts + " Alert");
                 } else {
-                    alertsButton.setText("\\u26a0 " + numAlerts + " Alerts");
+                    alertsButton.setText("\u26a0 " + numAlerts + " Alerts");
                 }
             }
             alertsButton.setOnClickListener(new View.OnClickListener() {
