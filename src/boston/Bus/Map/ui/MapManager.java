@@ -29,9 +29,11 @@ import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.common.base.Joiner;
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
+import com.google.common.collect.ImmutableCollection;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
+import com.schneeloch.bostonbusmap_library.data.Alert;
 import com.schneeloch.bostonbusmap_library.data.BusLocation;
 import com.schneeloch.bostonbusmap_library.data.Favorite;
 import com.schneeloch.bostonbusmap_library.data.IPrediction;
@@ -59,6 +61,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentMap;
 
+import boston.Bus.Map.main.AlertInfo;
 import boston.Bus.Map.main.MoreInfo;
 import boston.Bus.Map.main.UpdateHandler;
 
@@ -74,6 +77,7 @@ public class MapManager implements OnMapClickListener, OnMarkerClickListener,
     private final Map<String, PredictionView> markerIdToPredictionView = Maps.newHashMap();
     private final Map<String, Favorite> markerIdToFavorite = Maps.newHashMap();
     private final Button reportButton;
+    private final Button alertsButton;
     private final Button moreInfoButton;
     private int selectedLocationId = NOT_SELECTED;
 
@@ -99,12 +103,13 @@ public class MapManager implements OnMapClickListener, OnMarkerClickListener,
     private boolean drawHighlightedCircle;
 
     public MapManager(Context context, GoogleMap map,
-                      ITransitSystem transitSystem, Locations locations, Button reportButton, Button moreInfoButton) {
+                      ITransitSystem transitSystem, Locations locations, Button reportButton, Button moreInfoButton, Button alertsButton) {
         this.context = context;
         this.map = map;
         this.transitSystem = transitSystem;
         this.moreInfoButton = moreInfoButton;
         this.reportButton = reportButton;
+        this.alertsButton = alertsButton;
         this.locations = locations;
 
         map.setOnMapClickListener(this);
@@ -199,6 +204,7 @@ public class MapManager implements OnMapClickListener, OnMarkerClickListener,
         if (newMarker == null) {
             moreInfoButton.setVisibility(View.GONE);
             reportButton.setVisibility(View.GONE);
+            alertsButton.setVisibility(View.GONE);
         }
         else {
             final Location newLocation = locationIdToLocation.get(newSelectedId);
@@ -291,7 +297,7 @@ public class MapManager implements OnMapClickListener, OnMarkerClickListener,
                                 transitBuilder.setPositiveButton("Visit their website", new DialogInterface.OnClickListener() {
                                     @Override
                                     public void onClick(DialogInterface dialog, int which) {
-                                        ClipboardManager manager = (ClipboardManager)context.getSystemService(Context.CLIPBOARD_SERVICE);
+                                        ClipboardManager manager = (ClipboardManager) context.getSystemService(Context.CLIPBOARD_SERVICE);
                                         manager.setText(createEmailBody(newLocation));
 
                                         Intent intent = new Intent(Intent.ACTION_VIEW);
@@ -300,8 +306,7 @@ public class MapManager implements OnMapClickListener, OnMarkerClickListener,
                                     }
                                 });
                                 transitBuilder.create().show();
-                            }
-                            else if (which == 1) {
+                            } else if (which == 1) {
                                 //Intent intent = new Intent(context, ReportProblem.class);
                                 Intent intent = new Intent(android.content.Intent.ACTION_SEND);
                                 intent.setType("plain/text");
@@ -327,6 +332,34 @@ public class MapManager implements OnMapClickListener, OnMarkerClickListener,
                 }
             });
 
+            final ImmutableCollection<Alert> alertsList = newLocation.getPredictionView().getAlerts();
+            int numAlerts = alertsList.size();
+            if (numAlerts == 0) {
+                alertsButton.setVisibility(View.GONE);
+            }
+            else {
+                alertsButton.setVisibility(View.VISIBLE);
+                if (numAlerts == 1) {
+                    alertsButton.setText("\\u26a0 " + numAlerts + " Alert");
+                } else {
+                    alertsButton.setText("\\u26a0 " + numAlerts + " Alerts");
+                }
+            }
+            alertsButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    final Alert[] alerts = alertsList.toArray(new Alert[0]);
+
+                    Intent intent = new Intent(context, AlertInfo.class);
+                    if (alerts != null)
+                    {
+                        intent.putExtra(AlertInfo.alertsKey, alerts);
+
+                        context.startActivity(intent);
+                    }
+
+                }
+            });
         }
     }
 
