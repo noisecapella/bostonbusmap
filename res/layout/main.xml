@@ -174,36 +174,47 @@
             <!--
                     android:text="asjdwijfoiewjfoiewjfoiewjfoiewjfoiewjfoiewj" -->
             <RelativeLayout
-                android:layout_width="match_parent"
+                android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
                 android:layout_alignParentBottom="true"
                 android:paddingBottom="20dp"
                 android:paddingEnd="20dp"
-                android:paddingStart="20dp"
-                android:id="@+id/buttons_layout"
-                >
+                android:paddingStart="20dp">
+
+                <Button
+                    android:id="@+id/alerts_button"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="\u26a0 Alerts"
+                    android:textColor="#ff0000"
+                    />
+
                 <ImageButton
                     android:id="@+id/refreshButton"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_alignParentLeft="true"
+                    android:layout_below="@+id/alerts_button"
                     android:src="@android:drawable/ic_menu_rotate"/>
+
                 <Button
-                    android:layout_height="wrap_content"
-                    android:layout_width="wrap_content"
-                    android:text="More info"
-                    android:id="@+id/moreinfo_button"
-                    android:visibility="gone"
-                    android:layout_toRightOf="@+id/refreshButton"
-                    />
-                <Button
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/reportproblem"
-                    android:layout_toRightOf="@+id/moreinfo_button"
                     android:id="@+id/report_problem_button"
-                    android:visibility="gone"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_toRightOf="@+id/refreshButton"
+                    android:layout_below="@+id/alerts_button"
+                    android:text="@string/reportproblem"
                     />
+
+                <Button
+                    android:id="@+id/moreinfo_button"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_toRightOf="@+id/report_problem_button"
+                    android:layout_below="@+id/alerts_button"
+                    android:text="More info"
+                    />
+
 
             </RelativeLayout>
         </RelativeLayout>
