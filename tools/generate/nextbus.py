@@ -102,7 +102,7 @@ class NextBus:
                                other=('&r=%s&verbose' % route_name))
 
     def generate(self, conn, index):
-        print "Downloading NextBus route data (this will take 10 or 20 minutes)..."
+        print("Downloading NextBus route data (this will take 10 or 20 minutes)...")
         routeList_data = requests.get(self.routeListUrl()).text
         routeList_dom = xml.dom.minidom.parseString(routeList_data)
 
@@ -116,7 +116,7 @@ class NextBus:
             route_title = routenode.getAttribute("title")
             routes.append(route_name)
             
-            print "Route %s..." % route_title
+            print("Route %s..." % route_title)
             try:
                 routeConfig_data = requests.get(self.routeConfigUrl(route_name)).text
             except Exception:
