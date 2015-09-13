@@ -124,7 +124,7 @@ class NextBus:
                 routeConfig_data = requests.get(self.routeConfigUrl(route_name)).text
 
             handler = RouteHandler(cur, index + count, shared_stops)
-            xml.sax.parseString(routeConfig_data, handler)
+            xml.sax.parseString(routeConfig_data.encode("utf-8"), handler)
 
             # NextBus rate limiting
             time.sleep(15)
