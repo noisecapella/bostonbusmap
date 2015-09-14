@@ -379,6 +379,10 @@ public class Main extends AbstractMapActivity
                     }
                 }
 
+                if (locationEnabled) {
+                    map.setMyLocationEnabled(true);
+                }
+
                 if (busLocations == null) {
                     busLocations = new Locations(databaseAgent, transitSystem, selection);
                 }
@@ -738,10 +742,6 @@ public class Main extends AbstractMapActivity
 		super.onResume();
 
         if (arguments != null && handler != null) {
-            if (locationEnabled) {
-                arguments.getMapView().setMyLocationEnabled(true);
-            }
-
             //check the result
             populateHandlerSettings();
             GoogleMap mapView = arguments.getMapView();
@@ -783,14 +783,15 @@ public class Main extends AbstractMapActivity
         handler.setShowTraffic(showTraffic);
     	boolean allRoutesBlue = prefs.getBoolean(getString(R.string.allRoutesBlue), TransitSystem.isDefaultAllRoutesBlue());
     	handler.setAllRoutesBlue(allRoutesBlue);
+
     	arguments.getOverlayGroup().setDrawLine(prefs.getBoolean("showRouteLineCheckbox2", true));
 
-    	boolean alwaysUpdateLocationValue = prefs.getBoolean(getString(R.string.alwaysShowLocationCheckbox), true);
+    	locationEnabled = prefs.getBoolean(getString(R.string.alwaysShowLocationCheckbox), true);
 
     	String intervalString = Integer.valueOf(updateInterval).toString();
     	//since the default value for this flag is true, make sure we let the preferences know of this
     	prefs.edit().
-    		putBoolean(getString(R.string.alwaysShowLocationCheckbox), alwaysUpdateLocationValue).
+    		putBoolean(getString(R.string.alwaysShowLocationCheckbox), locationEnabled).
     		putString(getString(R.string.updateContinuouslyInterval), intervalString).
             putBoolean("showRouteLineCheckbox2", arguments.getOverlayGroup().isShowLine()).
     		putBoolean(getString(R.string.allRoutesBlue), allRoutesBlue).
