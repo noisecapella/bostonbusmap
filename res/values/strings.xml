@@ -6,9 +6,9 @@
 <string name="runInBackgroundCheckbox">runInBackgroundKey</string>
 <string name="showUnpredictableBusesCheckbox">showUnpredictableBusesKey</string>
 <string name="allRoutesBlue">allRoutesBlue</string>
-<string name="allRoutesBlueTitle">Show blue route lines</string>
+<string name="allRoutesBlueTitle">Show blue route lines?</string>
 <string name="allRoutesBlueSummary">Use blue lines instead of data feed defaults</string>
-<string name="showTrafficTitle">Show traffic on map</string>
+<string name="showTrafficTitle">Show traffic on map?</string>
 <string name="hideCircleCheckbox">hideCircleCheckboxKey</string>
 <string name="numOverlaysPreference">numOverlaysPreference</string>
 <string name="getDirections">Get Directions</string>

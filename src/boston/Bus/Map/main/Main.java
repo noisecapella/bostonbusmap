@@ -781,10 +781,11 @@ public class Main extends AbstractMapActivity
     	boolean allRoutesBlue = prefs.getBoolean(getString(R.string.allRoutesBlue), TransitSystem.isDefaultAllRoutesBlue());
     	manager.setAllRoutesBlue(allRoutesBlue);
 
-        manager.setChangeRouteIfSelected(true);
+        boolean changeRouteIfSelected = prefs.getBoolean("showLinesOnSelected", true);
+        manager.setChangeRouteIfSelected(changeRouteIfSelected);
         manager.setAllRoutesBlue(allRoutesBlue);
 
-    	manager.setDrawLine(prefs.getBoolean("showRouteLineCheckbox2", true));
+        manager.setDrawLine(prefs.getBoolean("showRouteLineCheckbox2", true));
 
     	locationEnabled = prefs.getBoolean(getString(R.string.alwaysShowLocationCheckbox), true);
 
@@ -796,6 +797,7 @@ public class Main extends AbstractMapActivity
             putBoolean("showRouteLineCheckbox2", arguments.getOverlayGroup().isShowLine()).
     		putBoolean(getString(R.string.allRoutesBlue), allRoutesBlue).
             putBoolean("showTraffic", showTraffic).
+            putBoolean("showLinesOnSelected", changeRouteIfSelected).
     		apply();
     }
 
