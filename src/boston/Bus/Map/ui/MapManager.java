@@ -43,6 +43,7 @@ import com.schneeloch.bostonbusmap_library.data.Location;
 import com.schneeloch.bostonbusmap_library.data.Locations;
 import com.schneeloch.bostonbusmap_library.data.Path;
 import com.schneeloch.bostonbusmap_library.data.PredictionView;
+import com.schneeloch.bostonbusmap_library.data.RouteConfig;
 import com.schneeloch.bostonbusmap_library.data.RouteTitles;
 import com.schneeloch.bostonbusmap_library.data.Selection;
 import com.schneeloch.bostonbusmap_library.data.StopLocation;
@@ -158,6 +159,32 @@ public class MapManager implements OnMapClickListener, OnMarkerClickListener,
         if (location == null) {
             return;
         }
+
+        try {
+            Selection.Mode mode = locations.getSelection().getMode();
+            RouteConfig selectedRouteConfig;
+            if (mode == Selection.Mode.BUS_PREDICTIONS_STAR ||
+                    mode == Selection.Mode.BUS_PREDICTIONS_ALL) {
+                //we want this to be null. Else, the snippet drawing code would only show data for a particular route
+                selectedRouteConfig = null;
+            }
+            else {
+                selectedRouteConfig = locations.getRoute(locations.getSelection().getRoute());
+            }
+
+            location.makeSnippetAndTitle(selectedRouteConfig, locations.getRouteTitles(), locations);
+            for (Location locationNearMe : locations.getLocations(15, location.getLatitudeAsDegrees(), location.getLongitudeAsDegrees(), false, locations.getSelection())) {
+                if (locationNearMe.getId() != location.getId() &&
+                        locationNearMe.getLatitudeAsDegrees() == location.getLatitudeAsDegrees() &&
+                        locationNearMe.getLongitudeAsDegrees() == location.getLongitudeAsDegrees()) {
+                    location.addToSnippetAndTitle(selectedRouteConfig, locationNearMe, locations.getRouteTitles(), locations);
+                }
+            }
+        }
+        catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
         PredictionView predictionView = location.getPredictionView();
         PredictionView previousPredictionView = markerIdToPredictionView.get(markerId);
         Favorite favorite = markerIdToFavorite.get(markerId);
