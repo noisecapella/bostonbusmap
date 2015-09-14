@@ -1,5 +1,6 @@
 package com.schneeloch.bostonbusmap_library.data;
 
+import java.util.Collection;
 import java.util.SortedSet;
 
 import com.google.common.base.Joiner;
@@ -191,5 +192,10 @@ public class IntersectionLocation implements Location {
     @Override
     public LocationType getLocationType() {
         return LocationType.Intersection;
+    }
+
+    @Override
+    public Collection<String> getRoutes() {
+        return nearbyRoutes;
     }
 }
