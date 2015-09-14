@@ -6,9 +6,9 @@ import boston.Bus.Map.data.UpdateArguments;
 public class AdjustUIAsyncTask extends UpdateAsyncTask
 {
 	public AdjustUIAsyncTask(UpdateArguments arguments,
-			boolean doShowUnpredictable, int maxOverlays, boolean drawCircle, boolean allRoutesBlue,
+			boolean doShowUnpredictable, int maxOverlays,
 			Selection selection, UpdateHandler handler, Integer toSelect) {
-		super(arguments, doShowUnpredictable, maxOverlays, drawCircle, allRoutesBlue,
+		super(arguments, doShowUnpredictable, maxOverlays,
 				selection, handler, toSelect);
 	}
 

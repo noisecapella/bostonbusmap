@@ -5,6 +5,8 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.schneeloch.bostonbusmap_library.database.Schema;
 
+import java.util.Collection;
+
 public interface Location {
 
 	/**
@@ -71,4 +73,6 @@ public interface Location {
     boolean isUpdated();
 
     boolean needsUpdating();
+
+    Collection<String> getRoutes();
 }

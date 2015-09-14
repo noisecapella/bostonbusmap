@@ -9,6 +9,7 @@ import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.RemoteException;
+import android.util.Pair;
 import android.view.View;
 import android.widget.Button;
 
@@ -98,9 +99,8 @@ public class MapManager implements OnMapClickListener, OnMarkerClickListener,
 
     private boolean firstRun = true;
     private int firstRunSelectionId = NOT_SELECTED;
-    private Circle circle;
     private final Context context;
-    private boolean drawHighlightedCircle;
+    private boolean changeRouteIfSelected;
 
     public MapManager(Context context, GoogleMap map,
                       ITransitSystem transitSystem, Locations locations, Button reportButton, Button moreInfoButton, Button alertsButton) {
@@ -352,8 +352,7 @@ public class MapManager implements OnMapClickListener, OnMarkerClickListener,
                     final Alert[] alerts = alertsList.toArray(new Alert[0]);
 
                     Intent intent = new Intent(context, AlertInfo.class);
-                    if (alerts != null)
-                    {
+                    if (alerts != null) {
                         intent.putExtra(AlertInfo.alertsKey, alerts);
 
                         context.startActivity(intent);
@@ -494,18 +493,6 @@ public class MapManager implements OnMapClickListener, OnMarkerClickListener,
         nextTapListener = onMapClickListener;
     }
 
-    public void setDrawHighlightCircle(boolean drawCircle) {
-        if (circle != null) {
-            if (drawCircle) {
-                circle.setVisible(true);
-            }
-            else {
-                circle.setVisible(false);
-            }
-        }
-        this.drawHighlightedCircle = drawCircle;
-    }
-
     public void setAllRoutesBlue(boolean allRoutesBlue) {
         if (allRoutesBlue != this.allRoutesBlue) {
             for (PolylineGroup polylineGroup : polylines.values()) {
@@ -519,9 +506,9 @@ public class MapManager implements OnMapClickListener, OnMarkerClickListener,
         this.allRoutesBlue = allRoutesBlue;
     }
 
-    public void setPathsAndColor(Path[] paths, String route) {
+    public void setMultiplePathsAndColors(Map<String, Path[]> paths) {
         for (String otherRoute : polylines.keySet()) {
-            if (!otherRoute.equals(route)) {
+            if (!paths.containsKey(otherRoute)) {
                 PolylineGroup polylineGroup = polylines.get(otherRoute);
                 for (int i = 0; i < polylineGroup.size(); i++) {
                     polylineGroup.getPolyline(i).remove();
@@ -529,14 +516,20 @@ public class MapManager implements OnMapClickListener, OnMarkerClickListener,
             }
         }
 
-        PolylineGroup thisPolylineGroup = polylines.get(route);
-        polylines.clear();
-        if (thisPolylineGroup != null) {
-            polylines.put(route, thisPolylineGroup);
+        Map<String, PolylineGroup> tempPolylines = Maps.newHashMap();
+        for (String route : paths.keySet()) {
+            if (polylines.containsKey(route)) {
+                tempPolylines.put(route, polylines.get(route));
+            }
         }
-        else
-        {
-            addPathsAndColor(paths, route);
+        polylines.clear();
+        polylines.putAll(tempPolylines);
+
+        for (Map.Entry<String, Path[]> entry : paths.entrySet()) {
+            String route = entry.getKey();
+            if (!polylines.containsKey(route)) {
+                addPathsAndColor(entry.getValue(), route);
+            }
         }
     }
 
@@ -603,8 +596,26 @@ public class MapManager implements OnMapClickListener, OnMarkerClickListener,
         }
         selectedLocationId = newSelectedBusId;
         updateMarkerAndButtons(oldSelectedId, newSelectedBusId);
+        updateRouteLine(newSelectedBusId);
 
         return success;
+    }
+
+    private void updateRouteLine(int newSelectedBusId) {
+        Location selectedLocation = locationIdToLocation.get(newSelectedBusId);
+
+        Map<String, Path[]> pathMap = Maps.newHashMap();
+        if (changeRouteIfSelected && selectedLocation != null) {
+            for (String route : selectedLocation.getRoutes()) {
+                pathMap.put(route, locations.getPaths(route));
+            }
+        }
+        else {
+            String route = locations.getSelection().getRoute();
+            pathMap.put(route, locations.getPaths(route));
+        }
+
+        setMultiplePathsAndColors(pathMap);
     }
 
     public GoogleMap getMap() {
@@ -723,10 +734,6 @@ public class MapManager implements OnMapClickListener, OnMarkerClickListener,
         for (Location location : locations) {
             points.add(new Point(location.getLatitudeAsDegrees(), location.getLongitudeAsDegrees() * lonFactor));
         }
-
-        if (circle != null) {
-            circle.setVisible(false);
-        }
     }
 
     public Location getLocationFromMarkerId(String id) {
@@ -738,6 +745,10 @@ public class MapManager implements OnMapClickListener, OnMarkerClickListener,
         {
             return locationIdToLocation.get(locationId);
         }
+    }
+
+    public Location getSelectedLocation() {
+        return locationIdToLocation.get(selectedLocationId);
     }
 
     public void setHandler(UpdateHandler handler) {
@@ -753,7 +764,6 @@ public class MapManager implements OnMapClickListener, OnMarkerClickListener,
 
     @Override
     public void onInfoWindowClick(Marker marker) {
-        LogUtil.i("click info window");
         String markerId = marker.getId();
         Integer id = markerIdToLocationId.get(markerId);
         int newLocationid;
@@ -788,5 +798,13 @@ public class MapManager implements OnMapClickListener, OnMarkerClickListener,
     public boolean onMyLocationButtonClick() {
         handler.triggerRefresh(1500);
         return false;
+    }
+
+    public void setChangeRouteIfSelected(boolean changeRouteIfSelected) {
+        this.changeRouteIfSelected = changeRouteIfSelected;
+    }
+
+    public void setShowTraffic(boolean showTraffic) {
+        map.setTrafficEnabled(showTraffic);
     }
 }

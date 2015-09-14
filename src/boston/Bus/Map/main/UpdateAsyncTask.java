@@ -62,9 +62,7 @@ public abstract class UpdateAsyncTask extends AsyncTask<Object, Object, Immutabl
 {
 	private final boolean doShowUnpredictable;
 	private final int maxOverlays;
-	private final boolean drawCircle;
-	private final boolean allRoutesBlue;
-	
+
 	private String progressDialogTitle;
 	private String progressDialogMessage;
 	private int progressDialogMax;
@@ -85,7 +83,7 @@ public abstract class UpdateAsyncTask extends AsyncTask<Object, Object, Immutabl
 	protected final LatLng currentMapCenter;
 	
 	public UpdateAsyncTask(UpdateArguments arguments, boolean doShowUnpredictable,
-			int maxOverlays, boolean drawCircle, boolean allRoutesBlue,
+			int maxOverlays,
 			Selection selection, UpdateHandler handler, Integer toSelect)
 	{
 		super();
@@ -94,8 +92,6 @@ public abstract class UpdateAsyncTask extends AsyncTask<Object, Object, Immutabl
 		//NOTE: these should only be used in one of the UI threads
 		this.doShowUnpredictable = doShowUnpredictable;
 		this.maxOverlays = maxOverlays;
-		this.drawCircle = drawCircle;
-		this.allRoutesBlue = allRoutesBlue;
 		this.selection = selection;
 		this.handler = handler;
 		
@@ -269,47 +265,21 @@ public abstract class UpdateAsyncTask extends AsyncTask<Object, Object, Immutabl
 		//get currently selected location id, or -1 if nothing is selected
 
         MapManager manager = arguments.getOverlayGroup();
-        manager.setDrawHighlightCircle(drawCircle);
-
-        manager.setAllRoutesBlue(allRoutesBlue);
 		//routeOverlay.setDrawCoarseLine(showCoarseRouteLine);
 		
 		//get a list of lat/lon pairs which describe the route
 		Locations locationsObj = arguments.getBusLocations();
-		
-		RouteConfig selectedRouteConfig;
-		Selection.Mode mode = selection.getMode();
-		if (mode == Selection.Mode.BUS_PREDICTIONS_STAR ||
-				mode == Selection.Mode.BUS_PREDICTIONS_ALL)
-		{
-	        Path[] paths = locationsObj.getPaths(selection.getRoute());
-			//we want this to be null. Else, the snippet drawing code would only show data for a particular route
-			manager.setPathsAndColor(paths, selection.getRoute());
-			selectedRouteConfig = null;
-		}
-		else
-		{
-			Path[] paths;
-			try
-			{
-				paths = locationsObj.getPaths(selection.getRoute());
-				String route = selection.getRoute();
-				selectedRouteConfig = locationsObj.getRoute(route);
-			}
-			catch (IOException e) {
-				LogUtil.e(e);
-				selectedRouteConfig = null;
-				paths = RouteConfig.nullPaths;
-			}
-			
-			manager.setPathsAndColor(paths, selection.getRoute());
-		}
-		
 
-		
-		//we need to run populate even if there are 0 busLocations. See this link:
-		//http://groups.google.com/group/android-beginners/browse_thread/thread/6d75c084681f943e?pli=1
-		final int selectedBusId = manager != null ? manager.getSelectedBusId() : MapManager.NOT_SELECTED;
+        final int selectedBusId = manager.getSelectedBusId();
+		RouteConfig selectedRouteConfig;
+        String route = locationsObj.getSelection().getRoute();
+        try {
+            selectedRouteConfig = locationsObj.getRoute(route);
+        }
+        catch (IOException e) {
+            selectedRouteConfig = null;
+        }
+
 		//busOverlay.doPopulate();
 
 		RouteTitles routeKeysToTitles = arguments.getTransitSystem().getRouteKeysToTitles();

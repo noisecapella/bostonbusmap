@@ -410,8 +410,6 @@ public class Main extends AbstractMapActivity
 
                 populateHandlerSettings();
 
-                map.setTrafficEnabled(handler.getShowTraffic());
-
                 {
                     int centerLat = prefs.getInt(centerLatKey, Integer.MAX_VALUE);
                     int centerLon = prefs.getInt(centerLonKey, Integer.MAX_VALUE);
@@ -746,10 +744,6 @@ public class Main extends AbstractMapActivity
         if (arguments != null && handler != null) {
             //check the result
             populateHandlerSettings();
-            GoogleMap mapView = arguments.getMapView();
-            if (mapView != null) {
-                arguments.getMapView().setTrafficEnabled(handler.getShowTraffic());
-            }
             handler.resume();
 
             // workaround for bad design decisions
@@ -782,11 +776,15 @@ public class Main extends AbstractMapActivity
     	int updateInterval = getUpdateInterval(prefs);
     	handler.setUpdateConstantlyInterval(updateInterval);
         boolean showTraffic = prefs.getBoolean("showTraffic", false);
-        handler.setShowTraffic(showTraffic);
+        MapManager manager = arguments.getOverlayGroup();
+        manager.setShowTraffic(showTraffic);
     	boolean allRoutesBlue = prefs.getBoolean(getString(R.string.allRoutesBlue), TransitSystem.isDefaultAllRoutesBlue());
-    	handler.setAllRoutesBlue(allRoutesBlue);
+    	manager.setAllRoutesBlue(allRoutesBlue);
 
-    	arguments.getOverlayGroup().setDrawLine(prefs.getBoolean("showRouteLineCheckbox2", true));
+        manager.setChangeRouteIfSelected(true);
+        manager.setAllRoutesBlue(allRoutesBlue);
+
+    	manager.setDrawLine(prefs.getBoolean("showRouteLineCheckbox2", true));
 
     	locationEnabled = prefs.getBoolean(getString(R.string.alwaysShowLocationCheckbox), true);
 

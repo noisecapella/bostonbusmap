@@ -11,6 +11,8 @@ import com.schneeloch.bostonbusmap_library.database.Schema;
 import com.schneeloch.bostonbusmap_library.math.Geometry;
 import com.schneeloch.bostonbusmap_library.transit.ITransitSystem;
 
+import java.util.Collection;
+
 /**
  * This class stores information about the bus. This information is mostly taken
  * from the feed
@@ -420,5 +422,10 @@ public class BusLocation implements Location {
     @Override
     public LocationType getLocationType() {
         return LocationType.Vehicle;
+    }
+
+    @Override
+    public Collection<String> getRoutes() {
+        return ImmutableList.of(routeName);
     }
 }
