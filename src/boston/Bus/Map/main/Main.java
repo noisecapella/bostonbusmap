@@ -75,6 +75,7 @@ import android.content.res.Resources;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 
+import android.os.PersistableBundle;
 import android.os.SystemClock;
 import android.preference.PreferenceManager;
 import android.provider.SearchRecentSuggestions;
@@ -104,6 +105,7 @@ import android.widget.SpinnerAdapter;
 import android.widget.Toast;
 import android.widget.AdapterView.OnItemSelectedListener;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.schneeloch.bostonbusmap_library.util.LogUtil;
 
 /**
  * The main activity
@@ -167,6 +169,8 @@ public class Main extends AbstractMapActivity
 	public static final String ROUTE_KEY = "route";
 	public static final String STOP_KEY = "stop";
 	public static final String MODE_KEY = "mode";
+
+    protected int firstRunSelectedId = MapManager.NOT_SELECTED;
 
     private final static int DRAWER_INTERSECTIONS_MENU_ITEM_POS = 0;
     private final static int DRAWER_CHOOSE_STOP_POS = 1;
@@ -472,11 +476,7 @@ public class Main extends AbstractMapActivity
                     intent.setData(null);
                 }
 
-                Object currentStateObj = getLastCustomNonConfigurationInstance();
-                if (currentStateObj != null) {
-                    CurrentState currentState = (CurrentState) currentStateObj;
-                    manager.setFirstRunSelectionId(currentState.getSelectedId());
-                }
+                manager.setFirstRunSelectionId(firstRunSelectedId);
             }
         });
 	}
@@ -728,13 +728,15 @@ public class Main extends AbstractMapActivity
 	}
 
     @Override
-    public Object onRetainCustomNonConfigurationInstance() {
+    public void onSaveInstanceState(Bundle outState) {
         if (arguments != null) {
-            return new CurrentState(arguments.getOverlayGroup().getSelectedBusId());
+            outState.putInt("selectedId", arguments.getOverlayGroup().getSelectedBusId());
         }
-        else {
-            return null;
-        }
+    }
+
+    @Override
+    protected void onRestoreInstanceState(Bundle savedInstanceState) {
+        firstRunSelectedId = savedInstanceState.getInt("selectedId");
     }
 
     @Override
