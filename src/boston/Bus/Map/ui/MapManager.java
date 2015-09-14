@@ -380,7 +380,7 @@ public class MapManager implements OnMapClickListener, OnMarkerClickListener,
         }
 
         StringBuilder otherText = new StringBuilder();
-        otherText.append("(This is an automatically created error report by BostonBusMap. Feel free to include any extra information before this message.)\n\n");
+        otherText.append("(This is an automatically generated error report by BostonBusMap which includes information about the state of the app when the error report was created. Feel free to include any extra information before this message.)\n\n");
         otherText.append("\n\n");
         createInfoForAgency(location, otherText, selection.getMode(), routeTitle);
         otherText.append("\n\n");
