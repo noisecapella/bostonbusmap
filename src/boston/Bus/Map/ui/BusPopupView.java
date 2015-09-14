@@ -505,7 +505,7 @@ public class BusPopupView extends BalloonOverlayView<BusOverlayItem>
 		}
 		
 		StringBuilder otherText = new StringBuilder();
-		otherText.append("(What is the problem?\nAdd any other info you want at the beginning or end of this message, and click send.)\n\n");
+		otherText.append("(This is an automatically generated message from BostonBusMap with information about the state of the app at the time of the error report.\nFeel free to add any other info you want before this message.)\n\n");
 		otherText.append("\n\n");
 		createInfoForAgency(context, otherText, selection.getMode(), routeTitle);
 		otherText.append("\n\n");
