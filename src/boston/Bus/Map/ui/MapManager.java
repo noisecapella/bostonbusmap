@@ -66,7 +66,7 @@ import boston.Bus.Map.main.MoreInfo;
 import boston.Bus.Map.main.UpdateHandler;
 
 public class MapManager implements OnMapClickListener, OnMarkerClickListener,
-        OnCameraChangeListener, OnInfoWindowClickListener {
+        OnCameraChangeListener, OnInfoWindowClickListener, GoogleMap.OnMyLocationButtonClickListener {
     private final GoogleMap map;
     public static final int NOT_SELECTED = -1;
 
@@ -116,6 +116,7 @@ public class MapManager implements OnMapClickListener, OnMarkerClickListener,
         map.setOnMarkerClickListener(this);
         map.setOnCameraChangeListener(this);
         map.setOnInfoWindowClickListener(this);
+        map.setOnMyLocationButtonClickListener(this);
     }
 
     @Override
@@ -781,5 +782,11 @@ public class MapManager implements OnMapClickListener, OnMarkerClickListener,
 
     public void setFirstRunSelectionId(int firstRunSelectionId) {
         this.firstRunSelectionId = firstRunSelectionId;
+    }
+
+    @Override
+    public boolean onMyLocationButtonClick() {
+        handler.triggerRefresh(1500);
+        return false;
     }
 }
