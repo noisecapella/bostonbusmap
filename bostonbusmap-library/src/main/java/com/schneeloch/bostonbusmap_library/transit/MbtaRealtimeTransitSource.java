@@ -150,9 +150,13 @@ public class MbtaRealtimeTransitSource implements TransitSource {
             case VEHICLE_LOCATIONS_ONE:
             {
                 DownloadHelper helper = new DownloadHelper(vehicleGtfsRealtimeUrl);
-                helper.connect();
-                GtfsRealtimeVehicleParser parser = new GtfsRealtimeVehicleParser();
-                parser.parse(helper.getResponseData(), busMapping, routeNameToTransitSource, this);
+                try {
+                    GtfsRealtimeVehicleParser parser = new GtfsRealtimeVehicleParser();
+                    parser.parse(helper.getResponseData(), busMapping, routeNameToTransitSource, this, directions);
+                }
+                finally {
+                    helper.disconnect();
+                }
             }
                 break;
             case BUS_PREDICTIONS_ALL:
