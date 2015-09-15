@@ -44,7 +44,7 @@ public class MbtaRealtimeTransitSource implements TransitSource {
 	private static final String dataUrlPrefix = "http://realtime.mbta.com/developer/api/v2/";
 	private static final String apiKey = "gmozilm-CkSCh8CE53wvsw";
 
-    private static final String vehicleGtfsRealtimeUrl = "http://23.21.118.89/Gtfsrt/VehiclePositions.pb";
+    private static final String vehicleGtfsRealtimeUrl = "http://developer.mbta.com/lib/GTRTFS/Alerts/VehiclePositions.pb";
 
 	private final ITransitDrawables drawables;
 	private final TransitSourceTitles routeTitles;
