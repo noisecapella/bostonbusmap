@@ -1,5 +1,6 @@
 package com.schneeloch.bostonbusmap_library.transit;
 
+import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableMap;
 
 import org.xml.sax.SAXException;
@@ -11,6 +12,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import javax.xml.parsers.ParserConfigurationException;
 
+import com.schneeloch.bostonbusmap_library.data.BusLocation;
 import com.schneeloch.bostonbusmap_library.data.Directions;
 import com.schneeloch.bostonbusmap_library.data.HubwayStopLocation;
 import com.schneeloch.bostonbusmap_library.data.IAlerts;
@@ -135,7 +137,12 @@ public class HubwayTransitSource implements TransitSource {
 		return stop;
 	}
 
-	@Override
+    @Override
+    public BusLocation createVehicleLocation(float latitude, float longitude, String id, long lastFeedUpdateInMillis, Optional<Integer> heading, String routeName, String headsign) {
+        throw new RuntimeException("Cannot create hubway location");
+    }
+
+    @Override
 	public TransitSourceTitles getRouteTitles() {
 		return routeTitles;
 	}
