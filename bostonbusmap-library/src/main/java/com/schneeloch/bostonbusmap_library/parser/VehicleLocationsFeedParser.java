@@ -85,13 +85,12 @@ public class VehicleLocationsFeedParser extends DefaultHandler
                 heading = Optional.of(Integer.parseInt(headingString));
             }
 
-			boolean predictable = Boolean.parseBoolean(getAttribute(predictableKey, attributes));
 			String dirTag = getAttribute(dirTagKey, attributes);
 			
 			long lastFeedUpdate = System.currentTimeMillis() - (seconds * 1000);
 			
 			BusLocation newBusLocation = new BusLocation(lat, lon, id, lastFeedUpdate,
-					heading, route, directions.getDirection(dirTag));
+					heading, route, directions.getTitleAndName(dirTag));
 
 			VehicleLocations.Key key = new VehicleLocations.Key(Schema.Routes.SourceId.Bus, route, id);
 
