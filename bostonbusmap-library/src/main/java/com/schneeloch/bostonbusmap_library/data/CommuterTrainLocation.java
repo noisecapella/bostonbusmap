@@ -21,11 +21,6 @@ public class CommuterTrainLocation extends BusLocation {
 	}
 	
 	@Override
-	public boolean isDisappearAfterRefresh() {
-		return true;
-	}
-	
-	@Override
 	public Schema.Routes.SourceId getTransitSourceType() {
 		return Schema.Routes.SourceId.CommuterRail;
 	}
