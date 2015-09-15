@@ -90,22 +90,6 @@ public class BusLocation implements Location {
 		}
 	}
 
-	/**
-	 * 
-	 * @return a String describing the direction of the bus, or "" if it can't
-	 *         be calculated. For example: E (90 deg)
-	 */
-	public String getDirection() {
-		if (heading.isPresent()) {
-            int degrees = heading.get();
-
-			return degrees + " deg (" + convertHeadingToCardinal(degrees) + ")";
-		}
-        else {
-            return "";
-        }
-	}
-
 	@Override
 	public float distanceFrom(double lat2, double lon2) {
 		return Geometry.computeCompareDistance(latitude, longitude, lat2, lon2);
@@ -156,7 +140,6 @@ public class BusLocation implements Location {
 
 		int secondsAgo = (int) (System.currentTimeMillis() - lastFeedUpdateInMillis) / 1000; 
 		snippet += "Last update: " + secondsAgo	+ " seconds ago";
-		String direction = getDirection();
 		if (heading.isPresent()) {
 			snippet += "<br />Heading: " + heading.get() + " deg ("
 					+ convertHeadingToCardinal(heading.get()) + ")";
@@ -180,7 +163,7 @@ public class BusLocation implements Location {
 			title += routeTitle;
 		}
 
-		title += headsign;
+		title += "<br/>" + headsign;
 
 		return title;
 	}
