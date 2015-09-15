@@ -11,6 +11,7 @@ import javax.xml.parsers.ParserConfigurationException;
 
 import org.xml.sax.SAXException;
 
+import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 
@@ -329,4 +330,9 @@ public abstract class NextBusTransitSource implements TransitSource
 	public String getDescription() {
 		return "Bus";
 	}
+
+    @Override
+    public BusLocation createVehicleLocation(float latitude, float longitude, String id, long lastFeedUpdateInMillis, Optional<Integer> heading, String routeName, String headsign) {
+        return new BusLocation(latitude, longitude, id, lastFeedUpdateInMillis, heading, routeName, headsign);
+    }
 }
