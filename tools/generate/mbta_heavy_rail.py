@@ -77,7 +77,7 @@ class MbtaHeavyRail:
             cur.execute(obj.directions.insert())
         
                 
-        print("Done for %s" % supported_route_description)
+        print("Done for %s" % route)
         return (1)
 
     def generate(self, conn, startorder, gtfs_map):
