@@ -171,7 +171,7 @@ public abstract class NextBusTransitSource implements TransitSource
             case VEHICLE_LOCATIONS_ONE:
             {
                 //vehicle locations
-                VehicleLocationsFeedParser parser = new VehicleLocationsFeedParser(directions, transitSystem.getRouteKeysToTitles());
+                VehicleLocationsFeedParser parser = new VehicleLocationsFeedParser(directions);
                 parser.runParse(data);
 
                 //get the time that this information is valid until
@@ -179,10 +179,6 @@ public abstract class NextBusTransitSource implements TransitSource
 
                 long lastUpdateTime = parser.getLastUpdateTime();
                 Map<VehicleLocations.Key, BusLocation> newBuses = parser.getNewBuses();
-
-                for (BusLocation bus : newBuses.values()) {
-                    bus.setLastUpdateInMillis(lastUpdateTime);
-                }
 
                 busMapping.update(Schema.Routes.SourceId.Bus, routeTitles.routeTags(), true, newBuses);
 

@@ -8,12 +8,10 @@ import com.schneeloch.bostonbusmap_library.database.Schema;
 public class CommuterTrainLocation extends BusLocation {
 
 	public CommuterTrainLocation(float latitude, float longitude, String id,
-			long lastFeedUpdateInMillis, long lastUpdateInMillis,
-			Optional<Integer> heading, boolean predictable, String dirTag,
-			String routeName, Directions directions, String routeTitle) {
-		super(latitude, longitude, id, lastFeedUpdateInMillis, lastUpdateInMillis,
-				heading, predictable, dirTag, routeName,
-				directions, routeTitle);
+                                 long lastFeedUpdateInMillis, Optional<Integer> heading,
+                                 String routeName, String headsign) {
+		super(latitude, longitude, id, lastFeedUpdateInMillis,
+				heading, routeName, headsign);
 		// TODO Auto-generated constructor stub
 	}
 

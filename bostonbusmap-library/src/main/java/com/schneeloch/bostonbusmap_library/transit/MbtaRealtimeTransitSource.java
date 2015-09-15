@@ -11,12 +11,15 @@ import javax.xml.parsers.ParserConfigurationException;
 import org.xml.sax.SAXException;
 
 import com.google.common.base.Joiner;
+import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableMultimap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 
+import com.schneeloch.bostonbusmap_library.data.BusLocation;
 import com.schneeloch.bostonbusmap_library.data.CommuterRailStopLocation;
+import com.schneeloch.bostonbusmap_library.data.CommuterTrainLocation;
 import com.schneeloch.bostonbusmap_library.data.Directions;
 import com.schneeloch.bostonbusmap_library.data.IAlerts;
 import com.schneeloch.bostonbusmap_library.data.ITransitDrawables;
@@ -26,10 +29,12 @@ import com.schneeloch.bostonbusmap_library.data.RoutePool;
 import com.schneeloch.bostonbusmap_library.data.Selection;
 import com.schneeloch.bostonbusmap_library.data.StopLocation;
 import com.schneeloch.bostonbusmap_library.data.SubwayStopLocation;
+import com.schneeloch.bostonbusmap_library.data.SubwayTrainLocation;
 import com.schneeloch.bostonbusmap_library.data.TransitSourceCache;
 import com.schneeloch.bostonbusmap_library.data.TransitSourceTitles;
 import com.schneeloch.bostonbusmap_library.data.VehicleLocations;
 import com.schneeloch.bostonbusmap_library.database.Schema;
+import com.schneeloch.bostonbusmap_library.parser.GtfsRealtimeVehicleParser;
 import com.schneeloch.bostonbusmap_library.parser.MbtaRealtimePredictionsParser;
 import com.schneeloch.bostonbusmap_library.parser.MbtaRealtimeVehicleParser;
 import com.schneeloch.bostonbusmap_library.util.DownloadHelper;
@@ -38,6 +43,8 @@ import com.schneeloch.bostonbusmap_library.util.SearchHelper;
 public class MbtaRealtimeTransitSource implements TransitSource {
 	private static final String dataUrlPrefix = "http://realtime.mbta.com/developer/api/v2/";
 	private static final String apiKey = "gmozilm-CkSCh8CE53wvsw";
+
+    private static final String vehicleGtfsRealtimeUrl = "http://23.21.118.89/Gtfsrt/VehiclePositions.pb";
 
 	private final ITransitDrawables drawables;
 	private final TransitSourceTitles routeTitles;
@@ -138,75 +145,79 @@ public class MbtaRealtimeTransitSource implements TransitSource {
 		List<String> routesInUrl = Lists.newArrayList();
         ImmutableSet.Builder<String> builder = ImmutableSet.builder();
 
-        ImmutableSet<String> routeNames;
         switch (mode) {
-            case VEHICLE_LOCATIONS_ONE:
-            case BUS_PREDICTIONS_ONE: {
-                String routeName = routeConfig.getRouteName();
-                if (routeNameToTransitSource.containsKey(routeName)) {
-                    if (cache.canUpdateVehiclesForRoute(routeName) && cache.canUpdatePredictionForRoute(routeName)) {
-                        builder.add(routeName);
-                    }
-                }
-
-                break;
-            }
             case VEHICLE_LOCATIONS_ALL:
+            case VEHICLE_LOCATIONS_ONE:
+            {
+                DownloadHelper helper = new DownloadHelper(vehicleGtfsRealtimeUrl);
+                helper.connect();
+                GtfsRealtimeVehicleParser parser = new GtfsRealtimeVehicleParser();
+                parser.parse(helper.getResponseData(), busMapping, routeNameToTransitSource, this);
+            }
+                break;
             case BUS_PREDICTIONS_ALL:
+            case BUS_PREDICTIONS_ONE:
             case BUS_PREDICTIONS_STAR: {
-                for (String routeName : routeNameToTransitSource.keySet()) {
-                    if (cache.canUpdateVehiclesForRoute(routeName) && cache.canUpdatePredictionForRoute(routeName)) {
-                        builder.add(routeName);
+                ImmutableSet<String> routeNames;
+                switch (mode) {
+                    case BUS_PREDICTIONS_ONE: {
+                        String routeName = routeConfig.getRouteName();
+                        if (routeNameToTransitSource.containsKey(routeName)) {
+                            if (cache.canUpdateVehiclesForRoute(routeName) && cache.canUpdatePredictionForRoute(routeName)) {
+                                builder.add(routeName);
+                            }
+                        }
+
+                        break;
+                    }
+                    case BUS_PREDICTIONS_ALL:
+                    case BUS_PREDICTIONS_STAR: {
+                        for (String routeName : routeNameToTransitSource.keySet()) {
+                            if (cache.canUpdateVehiclesForRoute(routeName) && cache.canUpdatePredictionForRoute(routeName)) {
+                                builder.add(routeName);
+                            }
+                        }
+                        break;
+                    }
+                    default:
+                        throw new RuntimeException("Unexpected mode");
+                }
+                routeNames = builder.build();
+
+                if (routeNames.size() == 0) {
+                    return;
+                }
+
+                for (String routeName : routeNames) {
+                    for (String gtfsRoute : routeNameToGtfsName.get(routeName)) {
+                        routesInUrl.add(gtfsRoute);
                     }
                 }
-                break;
+
+                String routesString = Joiner.on(",").join(routesInUrl);
+
+                String predictionsUrl = dataUrlPrefix + "predictionsbyroutes?api_key=" + apiKey + "&format=json&include_service_alerts=false&routes=" + routesString;
+
+                DownloadHelper predictionsDownloadHelper = new DownloadHelper(predictionsUrl);
+
+                predictionsDownloadHelper.connect();
+
+                InputStream predictionsStream = predictionsDownloadHelper.getResponseData();
+                InputStreamReader predictionsData = new InputStreamReader(predictionsStream);
+
+                MbtaRealtimePredictionsParser parser = new MbtaRealtimePredictionsParser(routeNames, routePool, routeTitles);
+                parser.runParse(predictionsData);
+
+                predictionsData.close();
+
+                for (String route : routeNames) {
+                    cache.updatePredictionForRoute(route);
+                    cache.updateVehiclesForRoute(route);
+                }
             }
-            default:
-                throw new RuntimeException("Unexpected mode");
-        }
-        routeNames = builder.build();
-
-        if (routeNames.size() == 0) {
-            return;
+            break;
         }
 
-        for (String routeName : routeNames) {
-            for (String gtfsRoute : routeNameToGtfsName.get(routeName)) {
-                routesInUrl.add(gtfsRoute);
-            }
-        }
-
-        String routesString = Joiner.on(",").join(routesInUrl);
-		 
-		String vehiclesUrl = dataUrlPrefix + "vehiclesbyroutes?api_key=" + apiKey + "&format=json&routes=" + routesString;
-		String predictionsUrl = dataUrlPrefix + "predictionsbyroutes?api_key=" + apiKey + "&format=json&include_service_alerts=false&routes=" + routesString;
-
-		DownloadHelper vehiclesDownloadHelper = new DownloadHelper(vehiclesUrl);
-			
-		vehiclesDownloadHelper.connect();
-			
-		InputStream vehicleStream = vehiclesDownloadHelper.getResponseData();
-		InputStreamReader vehicleData = new InputStreamReader(vehicleStream);
-
-		MbtaRealtimeVehicleParser vehicleParser = new MbtaRealtimeVehicleParser(routeTitles, busMapping, directions, routeNames);
-		vehicleParser.runParse(vehicleData);
-		
-		DownloadHelper predictionsDownloadHelper = new DownloadHelper(predictionsUrl);
-		
-		predictionsDownloadHelper.connect();
-			
-		InputStream predictionsStream = predictionsDownloadHelper.getResponseData();
-		InputStreamReader predictionsData = new InputStreamReader(predictionsStream);
-
-		MbtaRealtimePredictionsParser parser = new MbtaRealtimePredictionsParser(routeNames, routePool, routeTitles);
-		parser.runParse(predictionsData);
-		
-		predictionsData.close();
-
-        for (String route : routeNames) {
-            cache.updatePredictionForRoute(route);
-            cache.updateVehiclesForRoute(route);
-        }
 	}
 
 	@Override
@@ -244,7 +255,22 @@ public class MbtaRealtimeTransitSource implements TransitSource {
 
 	}
 
-	@Override
+    @Override
+    public BusLocation createVehicleLocation(float latitude, float longitude, String id, long lastFeedUpdateInMillis, Optional<Integer> heading, String routeName, String headsign) {
+        Schema.Routes.SourceId sourceId = routeNameToTransitSource.get(routeName);
+
+        if (sourceId == Schema.Routes.SourceId.CommuterRail) {
+            return new CommuterTrainLocation(latitude, longitude, id, lastFeedUpdateInMillis, heading, routeName, headsign);
+        }
+        else if (sourceId == Schema.Routes.SourceId.Subway) {
+            return new SubwayTrainLocation(latitude, longitude, id, lastFeedUpdateInMillis, heading, routeName, headsign);
+        }
+        else {
+            throw new RuntimeException("Unknown source");
+        }
+    }
+
+    @Override
 	public TransitSourceTitles getRouteTitles() {
 		return routeTitles;
 	}
