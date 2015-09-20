@@ -107,11 +107,11 @@ public class BusLocation implements Location {
 		BusLocation busLocation = (BusLocation) location;
 
 		PredictionView oldPredictionView = predictionView;
-		String snippet = oldPredictionView.getSnippet() + "<br />" +
+		String snippet = oldPredictionView.getSnippet() + "<br /><br />" +
 				busLocation.makeSnippet();
 
 		String snippetTitle;
-		snippetTitle = oldPredictionView.getSnippetTitle() + headsign;
+		snippetTitle = oldPredictionView.getSnippetTitle() + ", " + headsign;
 
 		//TODO: support alerts on multiple routes at once
 		predictionView = new SimplePredictionView(snippet, snippetTitle, snippetAlerts);

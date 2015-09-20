@@ -355,7 +355,7 @@ public class Main extends AbstractMapActivity
                     builder.setTitle(getString(R.string.chooseRouteInBuilder));
                     builder.setItems(routeTitles, new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface dialog, int item) {
-                            setNewRoute(item, true);
+                            setNewRoute(item, true, true);
                         }
                     });
                     routeChooserDialog = builder.create();
@@ -395,7 +395,7 @@ public class Main extends AbstractMapActivity
                 reportButton.setVisibility(View.GONE);
                 Button moreInfoButton = (Button) findViewById(R.id.moreinfo_button);
                 moreInfoButton.setVisibility(View.GONE);
-                Button alertsButton = (Button)findViewById(R.id.alerts_button);
+                Button alertsButton = (Button) findViewById(R.id.alerts_button);
                 alertsButton.setVisibility(View.GONE);
                 MapManager manager = new MapManager(Main.this, map, transitSystem, busLocations, reportButton, moreInfoButton, alertsButton);
 
@@ -465,7 +465,7 @@ public class Main extends AbstractMapActivity
                             setMode(modeInt, true, true);
                         } else if (route != null) {
                             int routePosition = dropdownRouteKeysToTitles.getIndexForTag(route);
-                            setNewRoute(routePosition, false);
+                            setNewRoute(routePosition, false, false);
                             setMode(modeInt, true, true);
                         }
                     }
@@ -485,9 +485,18 @@ public class Main extends AbstractMapActivity
 	private void updateSearchText(Selection selection) {
 		if (searchView != null)
 		{
-			String route = selection.getRoute();
-			String routeTitle = dropdownRouteKeysToTitles.getTitle(route);
-			searchView.setText("Route " + routeTitle);
+            if (selection.getMode() == Selection.Mode.VEHICLE_LOCATIONS_ALL ||
+                    selection.getMode() == Selection.Mode.BUS_PREDICTIONS_ALL ||
+                    selection.getMode() == Selection.Mode.BUS_PREDICTIONS_STAR) {
+                searchView.setText("");
+                searchView.setHint("Search routes");
+            }
+            else {
+                String route = selection.getRoute();
+                String routeTitle = dropdownRouteKeysToTitles.getTitle(route);
+                searchView.setText("Route " + routeTitle);
+                searchView.setHint("Search routes");
+            }
 		}
 		else
 		{
@@ -501,7 +510,7 @@ public class Main extends AbstractMapActivity
 	 * @param position
 	 * @param saveNewQuery save a search term in the search history as if user typed it in
 	 */
-	public void setNewRoute(int position, boolean saveNewQuery)
+	public void setNewRoute(int position, boolean saveNewQuery, boolean updateMode)
     {
 		if (arguments != null && handler != null)
 		{
@@ -509,9 +518,6 @@ public class Main extends AbstractMapActivity
 			Locations locations = arguments.getBusLocations();
 			Selection selection = locations.getSelection();
 			locations.setSelection(selection.withDifferentRoute(route));
-
-			handler.immediateRefresh();
-			handler.triggerUpdate();
 
 			String routeTitle = dropdownRouteKeysToTitles.getTitle(route);
 			if (routeTitle == null)
@@ -527,7 +533,20 @@ public class Main extends AbstractMapActivity
 						TransitContentProvider.MODE);
 				suggestions.saveRecentQuery("route " + routeTitle, null);
 			}
-		}
+
+            if (updateMode) {
+                if (selection.getMode() == Selection.Mode.BUS_PREDICTIONS_STAR ||
+                        selection.getMode() == Selection.Mode.BUS_PREDICTIONS_ALL) {
+                    setMode(Selection.Mode.BUS_PREDICTIONS_ONE, true, false);
+                }
+                else if (selection.getMode() == Selection.Mode.VEHICLE_LOCATIONS_ALL) {
+                    setMode(Selection.Mode.VEHICLE_LOCATIONS_ONE, true, false);
+                }
+            }
+
+            handler.immediateRefresh();
+            handler.triggerUpdate();
+        }
     }
 
 
@@ -952,7 +971,7 @@ public class Main extends AbstractMapActivity
 			if (stopLocation.getRoutes().contains(currentRoute) == false)
 			{
 				//only set it if some route which contains this stop isn't already set
-				setNewRoute(routePosition, false);
+				setNewRoute(routePosition, false, false);
 			}
 		}
 		

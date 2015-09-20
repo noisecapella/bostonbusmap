@@ -28,7 +28,7 @@ public class UpdateHandler extends Handler {
 	 */
 	private long lastUpdateTime;
 
-	private final int maxOverlays = 75;
+	private final int maxOverlays = 500;
 
 	private final int IMMEDIATE_REFRESH = 1;
 
