@@ -135,7 +135,7 @@ public class SearchHelper
 			}
 			else
 			{
-				Toast.makeText(context, "Route '" + printableQuery + "' doesn't exist. Did you mistype it?", Toast.LENGTH_LONG).show();
+				Toast.makeText(context, "Route '" + printableQuery + "' could not be found.", Toast.LENGTH_LONG).show();
 			}
 		}
 		else if (queryType == QUERY_STOP)
@@ -162,7 +162,7 @@ public class SearchHelper
 			else
 			{
 				//invalid stop id, or we just didn't parse it correctly
-				Toast.makeText(context, "Stop '" + printableQuery + "' doesn't exist. Did you mistype it?", Toast.LENGTH_LONG).show();
+				Toast.makeText(context, "Stop '" + printableQuery + "' could not be found.", Toast.LENGTH_LONG).show();
 			}
 		}
 		else
