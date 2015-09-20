@@ -173,6 +173,7 @@ public class MapManager implements OnMapClickListener, OnMarkerClickListener,
             }
 
             location.makeSnippetAndTitle(selectedRouteConfig, locations.getRouteTitles(), locations);
+            // getLocations only used here to find all locations at exact same place
             for (Location locationNearMe : locations.getLocations(15, location.getLatitudeAsDegrees(), location.getLongitudeAsDegrees(), false, locations.getSelection())) {
                 if (locationNearMe.getId() != location.getId() &&
                         locationNearMe.getLatitudeAsDegrees() == location.getLatitudeAsDegrees() &&
