@@ -58,7 +58,9 @@ public class UpdateHandler extends Handler {
 			long currentTime = System.currentTimeMillis();
 
 			int interval = getUpdateConstantlyInterval() * 1000;
-			
+
+            // schedule this before RefreshAsyncTask since that will block other threads
+            runMinorUpdateTask(null);
 			runUpdateTask();
 
 			//make updateBuses execute every 10 seconds (or whatever fetchDelay is)
@@ -86,25 +88,29 @@ public class UpdateHandler extends Handler {
 
 			//remove duplicate messages
 			removeMessages(MINOR);
-			
-			Integer toSelect = null;
-			if (msg.arg1 != 0) {
-				toSelect = msg.arg1;
-			}
-			Selection selection = guiArguments.getBusLocations().getSelection();
-			minorUpdate = new AdjustUIAsyncTask(guiArguments, getShowUnpredictable(),
-					maxOverlays,
-					selection, this, toSelect);
-			
 
-			minorUpdate.runUpdate();
-            LogUtil.i("Minor update");
-			
+            Integer toSelect = null;
+            if (msg.arg1 != 0) {
+                toSelect = msg.arg1;
+            }
+            runMinorUpdateTask(toSelect);
+
 			break;
 		}		
 	}
 
-	public void removeAllMessages() {
+    private void runMinorUpdateTask(Integer toSelect) {
+        Selection selection = guiArguments.getBusLocations().getSelection();
+        minorUpdate = new AdjustUIAsyncTask(guiArguments, getShowUnpredictable(),
+                maxOverlays,
+                selection, this, toSelect);
+
+
+        minorUpdate.runUpdate();
+        LogUtil.i("Minor update");
+    }
+
+    public void removeAllMessages() {
 		removeMessages(MAJOR);
 		removeMessages(MINOR);
 		//removeMessages(LOCATION_NOT_FOUND);
