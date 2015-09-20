@@ -84,7 +84,6 @@ public class MbtaRealtimeVehicleParser {
 
                     for (Trip trip : direction.trip) {
                         String tripHeadsign = trip.trip_headsign;
-                        String tripName = trip.trip_name;
 
                         if (trip.vehicle != null) {
                             String id = trip.vehicle.vehicle_id;
@@ -108,7 +107,7 @@ public class MbtaRealtimeVehicleParser {
                             directionsObj.add(newDirectionId, directionObj);
 
                             BusLocation location = transitSource.createVehicleLocation(latitude,
-                                    longitude, tripName, lastFeedUpdateInMillis, bearing, routeName, tripHeadsign);
+                                    longitude, id, lastFeedUpdateInMillis, bearing, routeName, tripHeadsign);
 
                             if (transitSourceId == Schema.Routes.SourceId.CommuterRail) {
                                 newCommuterRailVehicles.put(key, location);
