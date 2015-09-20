@@ -152,7 +152,7 @@ public class MbtaRealtimeTransitSource implements TransitSource {
                 DownloadHelper helper = new DownloadHelper(vehicleGtfsRealtimeUrl);
                 try {
                     GtfsRealtimeVehicleParser parser = new GtfsRealtimeVehicleParser();
-                    parser.parse(helper.getResponseData(), busMapping, routeNameToTransitSource, this, directions);
+                    parser.parse(helper.getResponseData(), busMapping, routeNameToTransitSource, gtfsNameToRouteName, this, directions);
                 }
                 finally {
                     helper.disconnect();
@@ -272,7 +272,8 @@ public class MbtaRealtimeTransitSource implements TransitSource {
             return new SubwayTrainLocation(latitude, longitude, id, lastFeedUpdateInMillis, heading, routeName, headsign);
         }
         else {
-            throw new RuntimeException("Unknown source");
+            //throw new RuntimeException("Unknown source");
+            return new BusLocation(latitude, longitude, id, lastFeedUpdateInMillis, heading, routeName, headsign);
         }
     }
 

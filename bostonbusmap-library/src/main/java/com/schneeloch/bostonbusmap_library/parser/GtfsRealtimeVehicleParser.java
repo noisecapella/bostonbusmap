@@ -2,6 +2,7 @@ package com.schneeloch.bostonbusmap_library.parser;
 
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableMultimap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Maps;
 import com.google.transit.realtime.GtfsRealtime;
@@ -22,10 +23,10 @@ import java.util.Map;
  */
 public class GtfsRealtimeVehicleParser {
 
-    public void parse(InputStream data, VehicleLocations busMapping, ImmutableMap<String, Schema.Routes.SourceId> routeNameToTransitSource, TransitSource transitSource, Directions directions) throws IOException {
+    public void parse(InputStream data, VehicleLocations busMapping, ImmutableMap<String, Schema.Routes.SourceId> routeNameToTransitSource, ImmutableMap<String, String> gtfsNameToRouteName, TransitSource transitSource, Directions directions) throws IOException {
         GtfsRealtime.FeedMessage message = GtfsRealtime.FeedMessage.parseFrom(data);
 
-        long timestamp = message.getHeader().getTimestamp();
+        long timestamp = message.getHeader().getTimestamp() * 1000;
 
         Map<VehicleLocations.Key, BusLocation> newItems = Maps.newHashMap();
 
@@ -38,10 +39,16 @@ public class GtfsRealtimeVehicleParser {
             if (tripDescriptor == null) {
                 continue;
             }
-            String route = tripDescriptor.getRouteId();
+            String route;
+            if (gtfsNameToRouteName.containsKey(tripDescriptor.getRouteId())) {
+                route = gtfsNameToRouteName.get(tripDescriptor.getRouteId());
+            }
+            else {
+                route = tripDescriptor.getRouteId();
+            }
             Schema.Routes.SourceId sourceId = routeNameToTransitSource.get(route);
             if (sourceId == null) {
-                continue;
+                sourceId = Schema.Routes.SourceId.Bus;
             }
             GtfsRealtime.VehicleDescriptor vehicleDescriptor = vehiclePosition.getVehicle();
             if (vehicleDescriptor == null) {

@@ -168,6 +168,7 @@ public abstract class NextBusTransitSource implements TransitSource
                 }
                 case VEHICLE_LOCATIONS_ALL:
                 case VEHICLE_LOCATIONS_ONE: {
+                    /*
                     //vehicle locations
                     VehicleLocationsFeedParser parser = new VehicleLocationsFeedParser(directions);
                     parser.runParse(data);
@@ -189,7 +190,7 @@ public abstract class NextBusTransitSource implements TransitSource
                             break;
                         default:
                             throw new RuntimeException("Unexpected mode");
-                    }
+                    }*/
 
                     break;
                 }

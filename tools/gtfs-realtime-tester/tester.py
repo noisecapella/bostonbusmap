@@ -8,7 +8,7 @@ from twisted.web.client import getPage
 @inlineCallbacks
 def main():
 
-    data = yield getPage("http://developer.mbta.com/lib/gtrtfs/Passages.pb")
+    data = yield getPage("http://developer.mbta.com/lib/GTRTFS/Alerts/VehiclePositions.pb")
     update = gtfs_realtime_pb2.FeedMessage()
     update.ParseFromString(data)
 
