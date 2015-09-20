@@ -59,6 +59,7 @@ import com.google.android.maps.MapView;
 import com.google.common.collect.Lists;
 
 import android.app.AlertDialog;
+import android.app.NotificationManager;
 import android.app.ProgressDialog;
 import android.app.SearchManager;
 import android.content.DialogInterface;
@@ -71,6 +72,7 @@ import android.os.Bundle;
 import android.os.SystemClock;
 import android.preference.PreferenceManager;
 import android.provider.SearchRecentSuggestions;
+import android.support.v4.app.NotificationCompat;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.util.Log;
@@ -554,6 +556,20 @@ public class Main extends MapActivity
 			intent.setData(null);
 		}
 
+        // issue warning of imminent update
+        if (prefs.getBoolean("imminentUpdateUsed", false)) {
+            NotificationCompat.Builder notificationBuilder =
+                    new NotificationCompat.Builder(this)
+                            .setSmallIcon(R.drawable.appicon)
+                            .setContentTitle("Update imminent")
+                            .setContentText("The next update will require extra permissions so it won't happen automatically. Be sure to check for it!");
+            NotificationManager notificationManager =
+                    (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+            int notificationId = 1;
+            notificationManager.notify(notificationId, notificationBuilder.build());
+
+            prefs.edit().putBoolean("imminentUpdateUsed", true).commit();
+        }
 
 	}
 		
@@ -1166,7 +1182,7 @@ public class Main extends MapActivity
 		
 		MapController controller = arguments.getMapView().getController();
 		
-		int latE6 = (int)(stopLocation.getLatitudeAsDegrees() * Constants.E6);
+		int latE6 = (int) (stopLocation.getLatitudeAsDegrees() * Constants.E6);
 		int lonE6 = (int)(stopLocation.getLongitudeAsDegrees() * Constants.E6);
 		
 		GeoPoint geoPoint = new GeoPoint(latE6, lonE6);
