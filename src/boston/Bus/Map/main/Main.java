@@ -555,22 +555,6 @@ public class Main extends MapActivity
 			// from http://stackoverflow.com/questions/13372326/how-to-get-getintent-to-return-null-after-activity-called-with-an-intent-set
 			intent.setData(null);
 		}
-
-        // issue warning of imminent update
-        if (prefs.getBoolean("imminentUpdateUsed", false)) {
-            NotificationCompat.Builder notificationBuilder =
-                    new NotificationCompat.Builder(this)
-                            .setSmallIcon(R.drawable.appicon)
-                            .setContentTitle("Update imminent")
-                            .setContentText("The next update will require extra permissions so it won't happen automatically. Be sure to check for it!");
-            NotificationManager notificationManager =
-                    (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
-            int notificationId = 1;
-            notificationManager.notify(notificationId, notificationBuilder.build());
-
-            prefs.edit().putBoolean("imminentUpdateUsed", true).commit();
-        }
-
 	}
 		
 	/**
