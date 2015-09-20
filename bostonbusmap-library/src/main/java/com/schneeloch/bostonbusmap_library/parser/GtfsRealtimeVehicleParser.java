@@ -22,10 +22,10 @@ import java.util.Map;
  */
 public class GtfsRealtimeVehicleParser {
 
-    public void parse(InputStream data, VehicleLocations busMapping, ImmutableMap<String, Schema.Routes.SourceId> routeNameToTransitSource, TransitSource transitSource, Directions directions) throws IOException {
+    public void parse(InputStream data, VehicleLocations busMapping, ImmutableMap<String, Schema.Routes.SourceId> routeNameToTransitSource, ImmutableMap<String, String> gtfsNameToRouteName, TransitSource transitSource, Directions directions) throws IOException {
         GtfsRealtime.FeedMessage message = GtfsRealtime.FeedMessage.parseFrom(data);
 
-        long timestamp = message.getHeader().getTimestamp();
+        long timestamp = message.getHeader().getTimestamp() * 1000;
 
         Map<VehicleLocations.Key, BusLocation> newItems = Maps.newHashMap();
 
@@ -38,7 +38,12 @@ public class GtfsRealtimeVehicleParser {
             if (tripDescriptor == null) {
                 continue;
             }
-            String route = tripDescriptor.getRouteId();
+            String gtfsRoute = tripDescriptor.getRouteId();
+            String route = gtfsNameToRouteName.get(gtfsRoute);
+            if (route == null) {
+                continue;
+            }
+
             Schema.Routes.SourceId sourceId = routeNameToTransitSource.get(route);
             if (sourceId == null) {
                 continue;
