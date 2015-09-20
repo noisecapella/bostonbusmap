@@ -191,6 +191,8 @@ public class MbtaRealtimeTransitSource implements TransitSource {
             InputStreamReader reader = new InputStreamReader(vehicleStream);
             MbtaRealtimeVehicleParser vehicleParser = new MbtaRealtimeVehicleParser(routeTitles, busMapping, directions, routeNames);
             vehicleParser.runParse(reader, this);
+
+            reader.close();
         }
         finally {
             vehiclesDownloadHelper.disconnect();
