@@ -152,7 +152,7 @@ public class MbtaRealtimeTransitSource implements TransitSource {
                 DownloadHelper helper = new DownloadHelper(vehicleGtfsRealtimeUrl);
                 try {
                     GtfsRealtimeVehicleParser parser = new GtfsRealtimeVehicleParser();
-                    parser.parse(helper.getResponseData(), busMapping, routeNameToTransitSource, this, directions);
+                    parser.parse(helper.getResponseData(), busMapping, routeNameToTransitSource, gtfsNameToRouteName, this, directions);
                 }
                 finally {
                     helper.disconnect();
