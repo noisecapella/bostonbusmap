@@ -128,7 +128,7 @@ public class SearchHelper
 			if (position >= 0)
 			{
 				//done!
-				context.setNewRoute(position, false);
+				context.setNewRoute(position, false, true);
 				String routeKey = dropdownRouteKeysToTitles.getTagUsingIndex(position);
 				String routeTitle = dropdownRouteKeysToTitles.getTitle(routeKey);
 				suggestionsQuery = "route " + routeTitle;

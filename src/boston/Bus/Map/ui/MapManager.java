@@ -631,13 +631,15 @@ public class MapManager implements OnMapClickListener, OnMarkerClickListener,
     private void updateRouteLine(int newSelectedBusId) {
         Location selectedLocation = locationIdToLocation.get(newSelectedBusId);
 
+        Selection.Mode mode = locations.getSelection().getMode();
+
         Map<String, Path[]> pathMap = Maps.newHashMap();
         if (changeRouteIfSelected && selectedLocation != null) {
             for (String route : selectedLocation.getRoutes()) {
                 pathMap.put(route, locations.getPaths(route));
             }
         }
-        else {
+        else if (mode == Selection.Mode.VEHICLE_LOCATIONS_ONE || mode == Selection.Mode.BUS_PREDICTIONS_ONE) {
             String route = locations.getSelection().getRoute();
             pathMap.put(route, locations.getPaths(route));
         }
