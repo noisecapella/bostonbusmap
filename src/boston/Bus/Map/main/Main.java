@@ -212,6 +212,9 @@ public class Main extends AbstractMapActivity
                 ImageButton refreshButton = (ImageButton) findViewById(R.id.refreshButton);
                 Button skipTutorialButton = (Button) findViewById(R.id.mapViewTutorialSkipButton);
 
+                Button routesButton = (Button) findViewById(R.id.routes_button);
+                routesButton.setVisibility(View.GONE);
+
                 // TODO: find a better place for this
                 drawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
                 drawerList = (ListView) findViewById(R.id.left_drawer);
@@ -397,7 +400,7 @@ public class Main extends AbstractMapActivity
                 moreInfoButton.setVisibility(View.GONE);
                 Button alertsButton = (Button) findViewById(R.id.alerts_button);
                 alertsButton.setVisibility(View.GONE);
-                MapManager manager = new MapManager(Main.this, map, transitSystem, busLocations, reportButton, moreInfoButton, alertsButton);
+                MapManager manager = new MapManager(Main.this, map, transitSystem, busLocations, reportButton, moreInfoButton, alertsButton, routesButton);
 
                 arguments = new UpdateArguments(progress, progressDialog,
                         map, databaseAgent, manager,

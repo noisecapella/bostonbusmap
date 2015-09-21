@@ -58,12 +58,16 @@ import org.nayuki.Point;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentMap;
 
+import boston.Bus.Map.R;
 import boston.Bus.Map.main.AlertInfo;
+import boston.Bus.Map.main.Main;
 import boston.Bus.Map.main.MoreInfo;
 import boston.Bus.Map.main.UpdateHandler;
 
@@ -81,6 +85,7 @@ public class MapManager implements OnMapClickListener, OnMarkerClickListener,
     private final Button reportButton;
     private final Button alertsButton;
     private final Button moreInfoButton;
+    private final Button routesButton;
     private int selectedLocationId = NOT_SELECTED;
 
     private OnMapClickListener nextTapListener;
@@ -100,17 +105,18 @@ public class MapManager implements OnMapClickListener, OnMarkerClickListener,
 
     private boolean firstRun = true;
     private int firstRunSelectionId = NOT_SELECTED;
-    private final Context context;
+    private final Main context;
     private boolean changeRouteIfSelected;
 
-    public MapManager(Context context, GoogleMap map,
-                      ITransitSystem transitSystem, Locations locations, Button reportButton, Button moreInfoButton, Button alertsButton) {
+    public MapManager(Main context, GoogleMap map,
+                      ITransitSystem transitSystem, Locations locations, Button reportButton, Button moreInfoButton, Button alertsButton, Button routesButton) {
         this.context = context;
         this.map = map;
         this.transitSystem = transitSystem;
         this.moreInfoButton = moreInfoButton;
         this.reportButton = reportButton;
         this.alertsButton = alertsButton;
+        this.routesButton = routesButton;
         this.locations = locations;
 
         map.setOnMapClickListener(this);
@@ -234,6 +240,7 @@ public class MapManager implements OnMapClickListener, OnMarkerClickListener,
             moreInfoButton.setVisibility(View.GONE);
             reportButton.setVisibility(View.GONE);
             alertsButton.setVisibility(View.GONE);
+            routesButton.setVisibility(View.GONE);
         }
         else {
             final Location newLocation = locationIdToLocation.get(newSelectedId);
@@ -388,6 +395,37 @@ public class MapManager implements OnMapClickListener, OnMarkerClickListener,
 
                 }
             });
+
+            if (newLocation instanceof StopLocation) {
+                final List<String> routeTitlesForStop = Lists.newArrayList();
+                for (String route : newLocation.getRoutes()) {
+                    routeTitlesForStop.add(locations.getTransitSystem().getRouteKeysToTitles().getTitle(route));
+                }
+                Collections.sort(routeTitlesForStop);
+                final String[] routeTitlesArray = routeTitlesForStop.toArray(new String[0]);
+                final List<String> allRouteTitles = Arrays.<String>asList(locations.getTransitSystem().getRouteKeysToTitles().titleArray());
+
+                routesButton.setVisibility(View.VISIBLE);
+                routesButton.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        AlertDialog.Builder builder = new AlertDialog.Builder(context);
+                        builder.setTitle(context.getString(R.string.chooseRouteInBuilder));
+                        builder.setItems(routeTitlesArray, new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int item) {
+                                String title = routeTitlesArray[item];
+                                int newPosition = allRouteTitles.indexOf(title);
+                                context.setNewRoute(newPosition, true, true);
+                            }
+                        });
+                        builder.create().show();
+                    }
+                });
+
+            }
+            else {
+                routesButton.setVisibility(View.GONE);
+            }
         }
     }
 

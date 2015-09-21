@@ -181,20 +181,32 @@
                 android:paddingEnd="20dp"
                 android:paddingStart="20dp">
 
-                <Button
-                    android:id="@+id/alerts_button"
+                <LinearLayout
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="\u26a0 Alerts"
-                    android:textColor="#ff0000"
-                    />
+                    android:id="@+id/top_button_layer">
+                    <Button
+                        android:id="@+id/alerts_button"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="\u26a0 Alerts"
+                        android:textColor="#ff0000"
+                        />
+                    <Button android:id="@+id/routes_button"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Select route"
+                        />
+
+
+                </LinearLayout>
 
                 <ImageButton
                     android:id="@+id/refreshButton"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_alignParentLeft="true"
-                    android:layout_below="@+id/alerts_button"
+                    android:layout_below="@+id/top_button_layer"
                     android:src="@android:drawable/ic_menu_rotate"/>
 
                 <Button
@@ -202,7 +214,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_toRightOf="@+id/refreshButton"
-                    android:layout_below="@+id/alerts_button"
+                    android:layout_below="@+id/top_button_layer"
                     android:text="@string/reportproblem"
                     />
 
@@ -211,7 +223,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_toRightOf="@+id/report_problem_button"
-                    android:layout_below="@+id/alerts_button"
+                    android:layout_below="@+id/top_button_layer"
                     android:text="More info"
                     />
 
