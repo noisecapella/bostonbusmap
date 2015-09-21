@@ -177,7 +177,8 @@ public class UpdateHandler extends Handler {
 			removeMessages(MAJOR);
 			sendEmptyMessageDelayed(MAJOR, getUpdateConstantlyInterval() * 1000);
 		}
-		
+
+        runMinorUpdateTask(null);
 		runUpdateTask();
 		return true;
 
