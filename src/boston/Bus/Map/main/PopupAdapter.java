@@ -15,6 +15,7 @@ import com.readystatesoftware.mapviewballoons.LimitLinearLayout;
 import com.schneeloch.bostonbusmap_library.data.Alert;
 import com.schneeloch.bostonbusmap_library.data.Favorite;
 import com.schneeloch.bostonbusmap_library.data.Location;
+import com.schneeloch.bostonbusmap_library.data.Locations;
 import com.schneeloch.bostonbusmap_library.data.PredictionView;
 import com.schneeloch.bostonbusmap_library.data.SimplePredictionView;
 import com.schneeloch.bostonbusmap_library.data.StopLocation;
@@ -27,7 +28,7 @@ public class PopupAdapter implements InfoWindowAdapter {
     private final Main main;
     private TextView title;
     private TextView snippet;
-    private MapManager manager;
+    private final MapManager manager;
     private ImageView favorite;
 
     /**
@@ -84,7 +85,13 @@ public class PopupAdapter implements InfoWindowAdapter {
             predictionView = new SimplePredictionView("", "", ImmutableList.<Alert>of());
         }
         snippet.setText(Html.fromHtml(predictionView.getSnippet()));
-        title.setText(Html.fromHtml(predictionView.getSnippetTitle()));
+
+        String alertsText = "";
+        if (location.getPredictionView().getAlerts().size() > 0) {
+            alertsText = "<font color='red'>\u26a0</font> ";
+        }
+
+        title.setText(Html.fromHtml(alertsText + predictionView.getSnippetTitle()));
 
         if (location != null && location instanceof StopLocation) {
             favorite.setVisibility(View.VISIBLE);
@@ -93,8 +100,7 @@ public class PopupAdapter implements InfoWindowAdapter {
             } else {
                 favorite.setImageResource(R.drawable.empty_star);
             }
-        }
-        else {
+        } else {
             favorite.setVisibility(View.GONE);
         }
     }
