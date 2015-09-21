@@ -10,15 +10,21 @@ import android.widget.TextView;
 
 import com.google.android.gms.maps.GoogleMap.InfoWindowAdapter;
 import com.google.android.gms.maps.model.Marker;
+import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Lists;
 import com.readystatesoftware.mapviewballoons.LimitLinearLayout;
 import com.schneeloch.bostonbusmap_library.data.Alert;
 import com.schneeloch.bostonbusmap_library.data.Favorite;
 import com.schneeloch.bostonbusmap_library.data.Location;
 import com.schneeloch.bostonbusmap_library.data.Locations;
 import com.schneeloch.bostonbusmap_library.data.PredictionView;
+import com.schneeloch.bostonbusmap_library.data.RouteTitles;
 import com.schneeloch.bostonbusmap_library.data.SimplePredictionView;
 import com.schneeloch.bostonbusmap_library.data.StopLocation;
+
+import java.util.Collections;
+import java.util.List;
 
 import boston.Bus.Map.R;
 import boston.Bus.Map.ui.MapManager;
@@ -30,15 +36,17 @@ public class PopupAdapter implements InfoWindowAdapter {
     private TextView snippet;
     private final MapManager manager;
     private ImageView favorite;
+    private final RouteTitles routeTitles;
 
     /**
      * The view we create for the popup which may get reused
      */
     private LimitLinearLayout popupView;
 
-    public PopupAdapter(final Main main, MapManager manager) {
+    public PopupAdapter(final Main main, MapManager manager, RouteTitles routeTitles) {
         this.main = main;
         this.manager = manager;
+        this.routeTitles = routeTitles;
     }
 
     @Override
@@ -87,13 +95,24 @@ public class PopupAdapter implements InfoWindowAdapter {
         snippet.setText(Html.fromHtml(predictionView.getSnippet()));
 
         String alertsText = "";
-        if (location.getPredictionView().getAlerts().size() > 0) {
+        if (location != null && location.getPredictionView().getAlerts().size() > 0) {
             alertsText = "<font color='red'>\u26a0</font> ";
         }
 
-        title.setText(Html.fromHtml(alertsText + predictionView.getSnippetTitle()));
+        String routesText = "";
+        if (location instanceof StopLocation) {
 
-        if (location != null && location instanceof StopLocation) {
+            List<String> routeTitlesForStop = Lists.newArrayList();
+            for (String route : location.getRoutes()) {
+                routeTitlesForStop.add(routeTitles.getTitle(route));
+            }
+            Collections.sort(routeTitlesForStop);
+            // TODO: correct sorting
+            routesText = "<br /><small>Routes: " + Joiner.on(", ").join(routeTitlesForStop) + "</small>";
+        }
+        title.setText(Html.fromHtml(alertsText + predictionView.getSnippetTitle() + routesText));
+
+        if (location instanceof StopLocation) {
             favorite.setVisibility(View.VISIBLE);
             if (location.isFavorite() == Favorite.IsFavorite) {
                 favorite.setImageResource(R.drawable.full_star);

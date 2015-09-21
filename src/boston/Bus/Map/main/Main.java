@@ -405,7 +405,7 @@ public class Main extends AbstractMapActivity
                 handler = new UpdateHandler(arguments);
                 manager.setHandler(handler);
 
-                PopupAdapter popupAdapter = new PopupAdapter(Main.this, manager);
+                PopupAdapter popupAdapter = new PopupAdapter(Main.this, manager, dropdownRouteKeysToTitles);
                 map.setInfoWindowAdapter(popupAdapter);
 
                 populateHandlerSettings();
