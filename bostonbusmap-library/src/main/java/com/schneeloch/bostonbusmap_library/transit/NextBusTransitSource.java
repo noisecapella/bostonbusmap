@@ -11,9 +11,11 @@ import javax.xml.parsers.ParserConfigurationException;
 
 import org.xml.sax.SAXException;
 
+import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 
+import com.google.common.collect.Lists;
 import com.schneeloch.bostonbusmap_library.data.BusLocation;
 import com.schneeloch.bostonbusmap_library.data.Directions;
 import com.schneeloch.bostonbusmap_library.data.IAlerts;
@@ -60,7 +62,7 @@ public abstract class NextBusTransitSource implements TransitSource
 
     private final TransitSourceCache cache;
 
-    private final Schema.Routes.SourceId[] transitSourceIds = new Schema.Routes.SourceId[] {Schema.Routes.SourceId.Bus};
+    private static final Schema.Routes.SourceId[] transitSourceIds = new Schema.Routes.SourceId[] {Schema.Routes.SourceId.Bus};
 
 	public NextBusTransitSource(TransitSystem transitSystem, 
 			ITransitDrawables drawables, String agency, TransitSourceTitles routeTitles,
@@ -93,7 +95,12 @@ public abstract class NextBusTransitSource implements TransitSource
             case BUS_PREDICTIONS_STAR:
             case BUS_PREDICTIONS_ALL:
 
-                List<Location> locations = locationsObj.getLocations(maxStops, centerLatitude, centerLongitude, false, selection);
+                List<Location> locations = Lists.newArrayList();
+                for (Location location : locationsObj.getLocations(maxStops, centerLatitude, centerLongitude, false, selection)) {
+                    if (location.getTransitSourceType() == Schema.Routes.SourceId.Bus) {
+                        locations.add(location);
+                    }
+                }
 
                 //ok, do predictions now
                 ImmutableSet<String> routes;
@@ -139,7 +146,6 @@ public abstract class NextBusTransitSource implements TransitSource
                 case BUS_PREDICTIONS_STAR: {
                     //bus prediction
 
-
                     BusPredictionsFeedParser parser = new BusPredictionsFeedParser(routePool, directions);
 
                     parser.runParse(data);
@@ -163,18 +169,13 @@ public abstract class NextBusTransitSource implements TransitSource
                 case VEHICLE_LOCATIONS_ALL:
                 case VEHICLE_LOCATIONS_ONE: {
                     //vehicle locations
-                    VehicleLocationsFeedParser parser = new VehicleLocationsFeedParser(directions, transitSystem.getRouteKeysToTitles());
+                    VehicleLocationsFeedParser parser = new VehicleLocationsFeedParser(directions);
                     parser.runParse(data);
 
                     //get the time that this information is valid until
                     locationsObj.setLastUpdateTime(parser.getLastUpdateTime());
 
-                    long lastUpdateTime = parser.getLastUpdateTime();
                     Map<VehicleLocations.Key, BusLocation> newBuses = parser.getNewBuses();
-
-                    for (BusLocation bus : newBuses.values()) {
-                        bus.setLastUpdateInMillis(lastUpdateTime);
-                    }
 
                     busMapping.update(Schema.Routes.SourceId.Bus, routeTitles.routeTags(), true, newBuses);
 
@@ -329,4 +330,9 @@ public abstract class NextBusTransitSource implements TransitSource
 	public String getDescription() {
 		return "Bus";
 	}
+
+    @Override
+    public BusLocation createVehicleLocation(float latitude, float longitude, String id, long lastFeedUpdateInMillis, Optional<Integer> heading, String routeName, String headsign) {
+        return new BusLocation(latitude, longitude, id, lastFeedUpdateInMillis, heading, routeName, headsign);
+    }
 }

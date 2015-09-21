@@ -1,9 +1,11 @@
 package com.schneeloch.bostonbusmap_library.transit;
 
+import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.schneeloch.bostonbusmap_library.data.BusLocation;
 import com.schneeloch.bostonbusmap_library.data.CommuterRailStopLocation;
+import com.schneeloch.bostonbusmap_library.data.CommuterTrainLocation;
 import com.schneeloch.bostonbusmap_library.data.Directions;
 import com.schneeloch.bostonbusmap_library.data.IAlerts;
 import com.schneeloch.bostonbusmap_library.data.ITransitDrawables;
@@ -45,8 +47,8 @@ public class CommuterRailTransitSource implements TransitSource {
 	
 	private final ImmutableMap<String, String> routesToUrls;
 
-    private static Schema.Routes.SourceId[] transitSourceIds = new Schema.Routes.SourceId[] {};
-	
+    private static final Schema.Routes.SourceId[] transitSourceIds = new Schema.Routes.SourceId[] {};
+
 	public CommuterRailTransitSource(ITransitDrawables drawables,
 			TransitSourceTitles routeTitles,
 			TransitSystem transitSystem)
@@ -313,7 +315,12 @@ public class CommuterRailTransitSource implements TransitSource {
 		return stop;
 	}
 
-	@Override
+    @Override
+    public BusLocation createVehicleLocation(float latitude, float longitude, String id, long lastFeedUpdateInMillis, Optional<Integer> heading, String routeName, String headsign) {
+        return new CommuterTrainLocation(latitude, longitude, id, lastFeedUpdateInMillis, heading, routeName, headsign);
+    }
+
+    @Override
 	public int getLoadOrder() {
 		return 3;
 	}

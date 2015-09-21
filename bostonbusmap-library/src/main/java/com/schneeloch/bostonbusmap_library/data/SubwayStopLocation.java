@@ -7,7 +7,6 @@ import com.google.common.collect.Sets;
 
 public class SubwayStopLocation extends StopLocation {
 
-	
 	protected SubwayStopLocation(SubwayBuilder builder)
 	{
 		super(builder);

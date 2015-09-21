@@ -26,13 +26,11 @@ import com.schneeloch.bostonbusmap_library.database.Schema;
 public class VehicleLocationsFeedParser extends DefaultHandler
 {
 	private final Directions directions;
-	private final RouteTitles routeKeysToTitles;
     private final Map<VehicleLocations.Key, BusLocation> newBuses = Maps.newHashMap();
 	
-	public VehicleLocationsFeedParser(Directions directions, RouteTitles routeKeysToTitles)
+	public VehicleLocationsFeedParser(Directions directions)
 	{
 		this.directions = directions;
-		this.routeKeysToTitles = routeKeysToTitles;
 	}
 	
 	public void runParse(InputStream data)
@@ -87,20 +85,14 @@ public class VehicleLocationsFeedParser extends DefaultHandler
                 heading = Optional.of(Integer.parseInt(headingString));
             }
 
-			boolean predictable = Boolean.parseBoolean(getAttribute(predictableKey, attributes)); 
 			String dirTag = getAttribute(dirTagKey, attributes);
 			
 			long lastFeedUpdate = System.currentTimeMillis() - (seconds * 1000);
 			
-			BusLocation newBusLocation = new BusLocation(lat, lon, id, lastFeedUpdate, lastUpdateTime, 
-					heading, predictable, dirTag, route, directions, routeKeysToTitles.getTitle(route));
+			BusLocation newBusLocation = new BusLocation(lat, lon, id, lastFeedUpdate,
+					heading, route, directions.getTitleAndName(dirTag));
 
 			VehicleLocations.Key key = new VehicleLocations.Key(Schema.Routes.SourceId.Bus, route, id);
-			if (busMapping.containsKey(key))
-			{
-				//calculate the direction of the bus from the current and previous locations
-				newBusLocation.movedFrom(busMapping.get(key));
-			}
 
 			newBuses.put(key, newBusLocation);
 		}

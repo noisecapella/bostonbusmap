@@ -228,7 +228,7 @@ public class RouteConfig
 		StopLocation candidate = null;
 		for (String stopTag : stopTagsToChooseFrom) {
 			StopLocation stop = stopFacade.getStops().get(stopTag);
-			float distance = Geometry.computeCompareDistanceFloat(stop.getLatitudeAsDegrees(), stop.getLongitudeAsDegrees(), otherStop.getLatitudeAsDegrees(), otherStop.getLongitudeAsDegrees());
+			float distance = Geometry.computeCompareDistance(stop.getLatitudeAsDegrees(), stop.getLongitudeAsDegrees(), otherStop.getLatitudeAsDegrees(), otherStop.getLongitudeAsDegrees());
 			if (distance < minDistance) {
 				candidate = stop;
 				minDistance = distance;

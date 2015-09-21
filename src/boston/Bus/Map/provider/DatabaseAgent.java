@@ -773,7 +773,7 @@ public class DatabaseAgent implements IDatabaseAgent {
                 float lat = (float) (builder.getLatitudeAsDegrees() * Geometry.degreesToRadians);
                 float lon = (float) (builder.getLongitudeAsDegrees() * Geometry.degreesToRadians);
                 if (filterByDistance) {
-                    float distance = stop.distanceFromInMiles(lat, lon);
+                    double distance = stop.distanceFromInMiles(lat, lon);
                     if (distance < miles) {
                         routes.addAll(stop.getRoutes());
                     }

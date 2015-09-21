@@ -90,13 +90,7 @@ public class CommuterRailPredictionsFeedParser
 		for (JsonElement element : messages) {
 			JsonObject message = element.getAsJsonObject();
 			String dirTag = message.get("Destination").getAsString();
-			Direction direction = directions.getDirection(dirTag);
-			if (direction == null) {
-				direction = new Direction(dirTag, "", routeName,
-						true);
-				directions.add(dirTag, direction);
-			}
-			
+
 			// add vehicle if exists
 			
 			String vehicle = message.get("Vehicle").getAsString();
@@ -133,9 +127,8 @@ public class CommuterRailPredictionsFeedParser
 					float lon = Float.parseFloat(longitudeString);
 
 					CommuterTrainLocation location = new CommuterTrainLocation(lat,
-							lon, trip, timestampMillis, timestampMillis,
-							heading, true, dirTag, routeName, directions,
-							routeTitle);
+							lon, trip, timestampMillis,
+							heading, routeName, dirTag);
                     newLocations.put(new VehicleLocations.Key(Schema.Routes.SourceId.CommuterRail, routeName, trip), location);
 				}
 			}
