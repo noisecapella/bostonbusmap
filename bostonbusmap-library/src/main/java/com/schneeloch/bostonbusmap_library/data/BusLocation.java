@@ -11,6 +11,8 @@ import com.schneeloch.bostonbusmap_library.database.Schema;
 import com.schneeloch.bostonbusmap_library.math.Geometry;
 import com.schneeloch.bostonbusmap_library.transit.ITransitSystem;
 
+import java.util.Collection;
+
 /**
  * This class stores information about the bus. This information is mostly taken
  * from the feed
@@ -42,118 +44,50 @@ public class BusLocation implements Location {
 	protected final String routeName;
 
 	/**
-	 * Time of last refresh of this bus object
-	 */
-	public long lastUpdateInMillis;
-
-	/**
 	 * When the feed says the information was last updated.
 	 */
-	public final long lastFeedUpdateInMillis;
-	
-	/**
-	 * Distance in miles of the bus from its previous location, in the x
-	 * dimension, squared
-	 */
-	private float distanceFromLastX;
-	/**
-	 * Distance in miles of the bus from its previous location, in the y
-	 * dimension, squared
-	 */
-	private float distanceFromLastY;
+	protected final long lastFeedUpdateInMillis;
+
+    protected final String headsign;
 
 	/**
 	 * What is the heading mentioned for the bus?
 	 */
 	private Optional<Integer> heading;
 
-	/**
-	 * Does the bus behave predictably?
-	 */
-	public final boolean predictable;
-
-	/**
-	 * Is the bus inbound, or outbound? This only makes sense if predictable is
-	 * true
-	 */
-	private final String dirTag;
-
-	private final Directions directions;
-
-	private final String routeTitle;
-
 	private SimplePredictionView predictionView = SimplePredictionView.empty();
 	
 	private ImmutableCollection<Alert> snippetAlerts = ImmutableList.of();
 	
 	private static final int LOCATIONTYPE = 1;
-	public static final int NO_HEADING = -1;
 
 	public BusLocation(float latitude, float longitude, String id,
-			long lastFeedUpdateInMillis, long lastUpdateInMillis, Optional<Integer> heading, boolean predictable,
-			String dirTag,
-			String routeName, Directions directions, String routeTitle) {
+			long lastFeedUpdateInMillis, Optional<Integer> heading,
+			String routeName, String headsign) {
 		this.latitude = (float) (latitude * Geometry.degreesToRadians);
 		this.longitude = (float) (longitude * Geometry.degreesToRadians);
 		this.latitudeAsDegrees = latitude;
 		this.longitudeAsDegrees = longitude;
 		this.busId = id;
-		this.lastUpdateInMillis = lastUpdateInMillis;
 		this.lastFeedUpdateInMillis = lastFeedUpdateInMillis;
         if (heading == null) {
             throw new RuntimeException("heading must not be null");
         }
 		this.heading = heading;
-		this.predictable = predictable;
-		this.dirTag = dirTag;
 		this.routeName = routeName;
-		this.directions = directions;
-		this.routeTitle = routeTitle;
+        this.headsign = headsign;
 	}
 
 	public boolean hasHeading() {
-		if (predictable && heading.isPresent()) {
-			return (getHeading() >= 0);
-		} else {
-			if (distanceFromLastY == 0 && distanceFromLastX == 0) {
-				return false;
-			} else {
-				return true;
-			}
-		}
+		return heading.isPresent();
 	}
 
 	public int getHeading() {
-		if (predictable && heading.isPresent()) {
+		if (heading.isPresent()) {
 			return heading.get();
 		} else {
-			// TODO: this repeats code from getDirection(), make a method to
-			// reuse code
-			int degrees = Geometry.getDegreesFromSlope(distanceFromLastY,
-					distanceFromLastX);
-			return degrees;
+            return -1;
 		}
-	}
-
-	public String getDirTag() {
-		return dirTag;
-	}
-	
-	/**
-	 * 
-	 * @return a String describing the direction of the bus, or "" if it can't
-	 *         be calculated. For example: E (90 deg)
-	 */
-	public String getDirection() {
-		if (distanceFromLastY == 0 && distanceFromLastX == 0) {
-			return "";
-		} else {
-			int degrees = Geometry.getDegreesFromSlope(distanceFromLastY,
-					distanceFromLastX);
-
-			return degrees + " deg (" + convertHeadingToCardinal(degrees) + ")";
-		}
-
 	}
 
 	@Override
@@ -162,34 +96,9 @@ public class BusLocation implements Location {
 	}
 
 	@Override
-	public float distanceFromInMiles(double centerLatAsRadians,
+	public double distanceFromInMiles(double centerLatAsRadians,
 			double centerLonAsRadians) {
 		return Geometry.computeDistanceInMiles(latitude, longitude, centerLatAsRadians, centerLonAsRadians);
-	}
-
-	public void movedFrom(float oldLatitude, float oldLongitude) {
-		if (oldLatitude == latitude && oldLongitude == longitude) {
-			// ignore
-			return;
-		}
-		distanceFromLastX = distanceFrom(latitude, oldLongitude);
-		distanceFromLastY = distanceFrom(oldLatitude, longitude);
-
-		if (oldLatitude > latitude) {
-			distanceFromLastY *= -1;
-		}
-		if (oldLongitude > longitude) {
-			distanceFromLastX *= -1;
-		}
-	}
-
-	/**
-	 * calculate the distance from the old location
-	 * 
-	 * @param oldBusLocation
-	 */
-	public void movedFrom(BusLocation oldBusLocation) {
-		movedFrom(oldBusLocation.latitude, oldBusLocation.longitude);
 	}
 
 	@Override
@@ -198,22 +107,12 @@ public class BusLocation implements Location {
 		BusLocation busLocation = (BusLocation) location;
 
 		PredictionView oldPredictionView = predictionView;
-		String snippet = oldPredictionView.getSnippet() + "<br />" +
+		String snippet = oldPredictionView.getSnippet() + "<br /><br />" +
 				busLocation.makeSnippet();
 
 		String snippetTitle;
-		if (busLocation.predictable) {
-			snippetTitle = oldPredictionView.getSnippetTitle() + makeDirection(busLocation.dirTag);
-		}
-		else
-		{
-			snippetTitle = oldPredictionView.getSnippetTitle();
-		}
+		snippetTitle = oldPredictionView.getSnippetTitle() + ", " + headsign;
 
-		// multiple headings, don't show anything to avoid confusion
-		distanceFromLastX = 0;
-		distanceFromLastY = 0;
-		
 		//TODO: support alerts on multiple routes at once
 		predictionView = new SimplePredictionView(snippet, snippetTitle, snippetAlerts);
 	}
@@ -222,7 +121,7 @@ public class BusLocation implements Location {
 	public void makeSnippetAndTitle(RouteConfig routeConfig,
 			RouteTitles routeKeysToTitles, Locations locations) {
 		String snippet = makeSnippet();
-		String snippetTitle = makeTitle();
+		String snippetTitle = makeTitle(routeKeysToTitles);
 		ITransitSystem transitSystem = locations.getTransitSystem();
 		IAlerts alerts = transitSystem.getAlerts();
 		snippetAlerts = getAlerts(alerts);
@@ -241,12 +140,7 @@ public class BusLocation implements Location {
 
 		int secondsAgo = (int) (System.currentTimeMillis() - lastFeedUpdateInMillis) / 1000; 
 		snippet += "Last update: " + secondsAgo	+ " seconds ago";
-		String direction = getDirection();
-		if (direction.length() != 0 && predictable == false) {
-			snippet += "<br />Estimated direction: " + direction;
-		}
-
-		if (predictable && heading.isPresent()) {
+		if (heading.isPresent()) {
 			snippet += "<br />Heading: " + heading.get() + " deg ("
 					+ convertHeadingToCardinal(heading.get()) + ")";
 		}
@@ -259,31 +153,19 @@ public class BusLocation implements Location {
 		return "Bus number: " + busId + "<br />";
 	}
 
-	private String makeTitle() {
+	private String makeTitle(RouteTitles routeTitles) {
 		String title = "";
 		title += "Route ";
+        String routeTitle = routeTitles.getTitle(routeName);
 		if (routeTitle == null) {
 			title += "not mentioned";
 		} else {
 			title += routeTitle;
 		}
 
-		if (predictable) {
-			title += makeDirection(dirTag);
-		}
+		title += "<br/>" + headsign;
 
 		return title;
-	}
-
-	private String makeDirection(String dirTag) {
-		String ret = "";
-
-		String directionName = directions.getTitleAndName(dirTag);
-		if (directionName != null && directionName.length() != 0) {
-			ret += "<br />" + directionName;
-		}
-
-		return ret;
 	}
 
 	/**
@@ -334,8 +216,8 @@ public class BusLocation implements Location {
 	}
 
 	@Override
-	public boolean isFavorite() {
-		return false;
+	public Favorite isFavorite() {
+		return Favorite.IsNotFavorite;
 	}
 
 	/**
@@ -347,29 +229,9 @@ public class BusLocation implements Location {
 		return routeName;
 	}
 
-	public boolean isDisappearAfterRefresh() {
-		return false;
-	}
-
-	public void movedTo(float latitudeAsDegrees, float longitudeAsDegrees) {
-		movedFrom(((float)(latitudeAsDegrees * Geometry.degreesToRadians)),
-				((float)(longitudeAsDegrees * Geometry.degreesToRadians)));
-
-		distanceFromLastX *= -1;
-		distanceFromLastY *= -1;
-	}
-
 	@Override
 	public boolean containsId(int selectedBusId) {
 		return selectedBusId == getId();
-	}
-
-	public long getLastUpdateInMillis() {
-		return lastUpdateInMillis;
-	}
-
-	public void setLastUpdateInMillis(long lastUpdateTime) {
-		this.lastUpdateInMillis = lastUpdateTime;
 	}
 
 	@Override
@@ -408,6 +270,11 @@ public class BusLocation implements Location {
         return false;
     }
 
+    @Override
+    public boolean needsUpdating() {
+        return true;
+    }
+
     protected ImmutableCollection<Alert> getAlerts(IAlerts alerts) {
 		return alerts.getAlertsByRoute(routeName, getTransitSourceType());
 	}
@@ -415,5 +282,10 @@ public class BusLocation implements Location {
     @Override
     public LocationType getLocationType() {
         return LocationType.Vehicle;
+    }
+
+    @Override
+    public Collection<String> getRoutes() {
+        return ImmutableList.of(routeName);
     }
 }

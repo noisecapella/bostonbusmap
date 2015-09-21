@@ -28,17 +28,17 @@ public class UpdateHandler extends Handler {
 	 */
 	private long lastUpdateTime;
 
-	private final int maxOverlays = 75;
+	private final int maxOverlays = 175;
 
 	private final int IMMEDIATE_REFRESH = 1;
 
 	private int updateConstantlyInterval;
 	private boolean hideHighlightCircle;
 	private boolean showUnpredictable;
+    private boolean changeRouteIfSelected;
 	private AdjustUIAsyncTask minorUpdate;
 	
 	private final UpdateArguments guiArguments;
-	private boolean allRoutesBlue = TransitSystem.isDefaultAllRoutesBlue();
     private boolean showTraffic = false;
 	
 	public UpdateHandler(UpdateArguments guiArguments)
@@ -103,7 +103,6 @@ public class UpdateHandler extends Handler {
         Selection selection = guiArguments.getBusLocations().getSelection();
         minorUpdate = new AdjustUIAsyncTask(guiArguments, getShowUnpredictable(),
                 maxOverlays,
-                hideHighlightCircle == false, allRoutesBlue,
                 selection, this, toSelect);
 
 
@@ -153,7 +152,6 @@ public class UpdateHandler extends Handler {
 		
 		Selection selection = guiArguments.getBusLocations().getSelection();
 		final RefreshAsyncTask updateAsyncTask = new RefreshAsyncTask(guiArguments, getShowUnpredictable(), maxOverlays,
-				hideHighlightCircle == false, allRoutesBlue, 
 				selection, this);
 		guiArguments.setMajorHandler(updateAsyncTask);
 
@@ -170,7 +168,7 @@ public class UpdateHandler extends Handler {
         sendEmptyMessageDelayed(MINOR, millis);
     }
 
-	public boolean instantRefresh() {
+    public boolean instantRefresh() {
 		//removeAllMessages();
 		
 		if(getUpdateConstantlyInterval() != Main.UPDATE_INTERVAL_NONE)
@@ -183,7 +181,7 @@ public class UpdateHandler extends Handler {
 		runUpdateTask();
 		return true;
 
-	}
+    }
 
 	public int getUpdateConstantlyInterval() {
 		return updateConstantlyInterval;
@@ -192,11 +190,6 @@ public class UpdateHandler extends Handler {
 	public void setUpdateConstantlyInterval(int updateConstantlyInterval)
 	{
 		this.updateConstantlyInterval = updateConstantlyInterval;
-	}
-	
-	public void setHideHighlightCircle(boolean b)
-	{
-		hideHighlightCircle = b;
 	}
 	
 	public void setLastUpdateTime(long lastUpdateTime) {
@@ -267,17 +260,4 @@ public class UpdateHandler extends Handler {
 			minorUpdate.nullifyProgress();
 		}
 	}
-
-
-	public void setAllRoutesBlue(boolean b) {
-		allRoutesBlue = b;
-	}
-
-    public void setShowTraffic(boolean showTraffic) {
-        this.showTraffic = showTraffic;
-    }
-
-    public boolean getShowTraffic() {
-        return showTraffic;
-    }
 }

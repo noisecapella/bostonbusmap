@@ -150,24 +150,16 @@ public final class Locations
 			{
 				for (BusLocation busLocation : busMapping.values())
 				{
-					if (busLocation.predictable == true)
-					{
-						if (mode == Selection.Mode.VEHICLE_LOCATIONS_ONE)
-						{
-							if (selectedRoute != null && selectedRoute.equals(busLocation.getRouteId()))
-							{
-								newLocations.add(busLocation);
-							}
-						}
-						else if (mode == Selection.Mode.VEHICLE_LOCATIONS_ALL) {
-							newLocations.add(busLocation);
-						}
-						else
-						{
-							throw new RuntimeException("selectedBusPredictions is invalid");
-						}
-					}
-				}
+                    if (mode == Selection.Mode.VEHICLE_LOCATIONS_ONE) {
+                        if (selectedRoute != null && selectedRoute.equals(busLocation.getRouteId())) {
+                            newLocations.add(busLocation);
+                        }
+                    } else if (mode == Selection.Mode.VEHICLE_LOCATIONS_ALL) {
+                        newLocations.add(busLocation);
+                    } else {
+                        throw new RuntimeException("selectedBusPredictions is invalid");
+                    }
+                }
 			}
 			else
 			{
@@ -296,7 +288,7 @@ public final class Locations
 	public void setLastUpdateTime(long lastUpdateTime) {
 		this.lastUpdateTime = lastUpdateTime;
 	}
-	
+
 	public long getLastUpdateTime()
 	{
 		return lastUpdateTime;

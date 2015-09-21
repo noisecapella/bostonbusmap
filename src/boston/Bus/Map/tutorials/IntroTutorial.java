@@ -48,14 +48,14 @@ public class IntroTutorial {
 			
 			@Override
 			public void setup(Main parent) {
-                ImageButton button = (ImageButton) parent.findViewById(R.id.drawerButton);
+                View button = parent.findViewById(R.id.drawerButton);
                 addHighlight(button);
 			}
 			
 			@Override
 			public void teardown(Main parent) {
-                ImageButton button = (ImageButton) parent.findViewById(R.id.drawerButton);
-                addHighlight(button);
+				View button = parent.findViewById(R.id.drawerButton);
+                removeHighlight(button);
 			}
 			
 		});
@@ -73,26 +73,6 @@ public class IntroTutorial {
 			@Override
 			public void teardown(Main parent) {
 				
-			}
-			
-		});
-		steps.add(new TutorialStep() {
-			
-			@Override
-			public int getTextResource() {
-				return R.string.tutorialStep3;
-			}
-			
-			@Override
-			public void setup(Main parent) {
-				ImageButton button = (ImageButton) parent.findViewById(R.id.myLocationButton);
-				addHighlight(button);
-			}
-			
-			@Override
-			public void teardown(Main parent) {
-				ImageButton button = (ImageButton) parent.findViewById(R.id.myLocationButton);
-				removeHighlight(button);
 			}
 			
 		});
@@ -144,7 +124,7 @@ public class IntroTutorial {
 			
 			@Override
 			public void setup(Main parent) {
-				parent.setNewStop("77", "2311");
+
 			}
 			
 			@Override
@@ -162,24 +142,6 @@ public class IntroTutorial {
 			
 			@Override
 			public void setup(Main parent) {
-			}
-			
-			@Override
-			public void teardown(Main parent) {
-				
-			}
-			
-		});
-		steps.add(new TutorialStep() {
-			
-			@Override
-			public int getTextResource() {
-				return R.string.tutorialStep8;
-			}
-			
-			@Override
-			public void setup(Main parent) {
-				
 			}
 			
 			@Override
