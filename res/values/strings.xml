@@ -70,7 +70,7 @@ Are any enabled (like GPS) in your system settings?</string>
     <string name="endingPoint">Ending point</string>
     <string name="places">Places</string>
     <string name="intersection_stops">Stops and predictions that\ncross through a point on the map</string>
-    <string name="tutorialStep1">Hi! This tutorial will go over the basic features of the app. If you want to go through it again, it\'s available under \'Settings\' in the menu. The menu is accessed by pressing the menu key on older devices, or by touching the button with three dots on newer devices.</string>
+    <string name="tutorialStep1">Hi! This tutorial will go over the basic features of the app. If you want to go through it again, it\'s available under \'Settings\' in the menu. The menu is accessed by pressing the bus icon in the upper left.</string>
 <string name="tutorialStep2">This app does two main things: vehicle locations and transit predictions. This information is provided free of charge by the Los Angeles Metro. Apps like this one would not be possible without their time and effort.</string>
 <string name="tutorialStep3">This button will center the map over your current location.</string>
 <string name="tutorialStep4">This field shows your current route. You may type in a new route to change your current route, or you can select it using \'Routes\' from the menu.</string>

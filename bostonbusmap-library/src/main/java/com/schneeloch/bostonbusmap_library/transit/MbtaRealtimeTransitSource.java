@@ -73,26 +73,16 @@ public class MbtaRealtimeTransitSource implements TransitSource {
 		ImmutableMap.Builder<String, String> gtfsNameToRouteNameBuilder =
 				ImmutableMap.builder();
 		
-		gtfsNameToRouteNameBuilder.put("810_", greenRoute);
-		gtfsNameToRouteNameBuilder.put("813_", greenRoute);
-		gtfsNameToRouteNameBuilder.put("823_", greenRoute);
-		gtfsNameToRouteNameBuilder.put("830_", greenRoute);
-		gtfsNameToRouteNameBuilder.put("831_", greenRoute);
-		gtfsNameToRouteNameBuilder.put("840_", greenRoute);
-		gtfsNameToRouteNameBuilder.put("842_", greenRoute);
-		gtfsNameToRouteNameBuilder.put("851_", greenRoute);
-		gtfsNameToRouteNameBuilder.put("852_", greenRoute);
-		gtfsNameToRouteNameBuilder.put("880_", greenRoute);
-		gtfsNameToRouteNameBuilder.put("882_", greenRoute);
+		gtfsNameToRouteNameBuilder.put("Green-B", greenRoute);
+        gtfsNameToRouteNameBuilder.put("Green-C", greenRoute);
+        gtfsNameToRouteNameBuilder.put("Green-D", greenRoute);
+        gtfsNameToRouteNameBuilder.put("Green-E", greenRoute);
 
-		gtfsNameToRouteNameBuilder.put("931_", redRoute);
-		gtfsNameToRouteNameBuilder.put("933_", redRoute);
+		gtfsNameToRouteNameBuilder.put("Red", redRoute);
 
-		gtfsNameToRouteNameBuilder.put("903_", orangeRoute);
-		gtfsNameToRouteNameBuilder.put("913_", orangeRoute);
+		gtfsNameToRouteNameBuilder.put("Orange", orangeRoute);
 		
-		gtfsNameToRouteNameBuilder.put("946_", blueRoute);
-		gtfsNameToRouteNameBuilder.put("948_", blueRoute);
+		gtfsNameToRouteNameBuilder.put("Blue", blueRoute);
 
 		String[] commuterRailRoutes = new String[] {
 				"CR-Greenbush",

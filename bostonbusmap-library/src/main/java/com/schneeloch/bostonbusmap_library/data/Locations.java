@@ -198,6 +198,12 @@ public final class Locations
 		else if (mode == Selection.Mode.BUS_PREDICTIONS_ALL)
 		{
 			Collection<StopLocation> stops = routeMapping.getClosestStops(centerLatitude, centerLongitude, maxLocations);
+
+			// HACK: hubway stops are often only in memory, not in database
+			if (routeMapping.keyInPool("Hubway")) {
+				newLocations.addAll(routeMapping.get("Hubway").getStops());
+			}
+
 			for (StopLocation stop : stops)
 			{
 				if (stop.supportsBusPredictionsAllMode())

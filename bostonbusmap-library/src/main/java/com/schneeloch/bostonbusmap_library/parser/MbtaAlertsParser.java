@@ -4,12 +4,14 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Date;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.ConcurrentMap;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 import com.google.transit.realtime.GtfsRealtime;
 import com.google.transit.realtime.GtfsRealtime.EntitySelector;
 import com.google.transit.realtime.GtfsRealtime.FeedEntity;
@@ -69,7 +71,12 @@ public class MbtaAlertsParser implements IAlertsParser {
 		Alerts.Builder builder = Alerts.builder();
 		
 		Date now = new Date();
-		
+
+        Set<Integer> validRouteTypes = Sets.newHashSet();
+        for (Schema.Routes.SourceId value : Schema.Routes.SourceId.values()) {
+            validRouteTypes.add(value.getValue());
+        }
+
 		String alertsUrl = TransitSystem.ALERTS_URL;
 		DownloadHelper downloadHelper = new DownloadHelper(alertsUrl);
 		downloadHelper.connect();
@@ -117,8 +124,10 @@ public class MbtaAlertsParser implements IAlertsParser {
 					routes.add(routeId);
 				}
 				else if (selector.hasRouteType()) {
-					Schema.Routes.SourceId routeType = Schema.Routes.SourceId.fromValue(selector.getRouteType());
-					sources.add(routeType);
+                    int routeTypeVal = selector.getRouteType();
+                    if (validRouteTypes.contains(routeTypeVal)) {
+                        sources.add(Schema.Routes.SourceId.fromValue(routeTypeVal));
+                    }
 				}
 				else
 				{
