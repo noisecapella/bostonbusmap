@@ -400,7 +400,14 @@ public class Main extends AbstractMapActivity
                 moreInfoButton.setVisibility(View.GONE);
                 Button alertsButton = (Button) findViewById(R.id.alerts_button);
                 alertsButton.setVisibility(View.GONE);
-                MapManager manager = new MapManager(Main.this, map, transitSystem, busLocations, reportButton, moreInfoButton, alertsButton, routesButton);
+                Button editButton = (Button)findViewById(R.id.edit_button);
+                editButton.setVisibility(View.GONE);
+                Button deleteButton = (Button)findViewById(R.id.delete_button);
+                deleteButton.setVisibility(View.GONE);
+
+                MapManager manager = new MapManager(Main.this, map, transitSystem,
+                        busLocations, reportButton, moreInfoButton, alertsButton, routesButton,
+                        editButton, deleteButton);
 
                 arguments = new UpdateArguments(progress, progressDialog,
                         map, databaseAgent, manager,

@@ -12,6 +12,8 @@ import android.os.RemoteException;
 import android.util.Pair;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
+import android.widget.Toast;
 
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.GoogleMap.OnCameraChangeListener;
@@ -39,6 +41,7 @@ import com.schneeloch.bostonbusmap_library.data.BusLocation;
 import com.schneeloch.bostonbusmap_library.data.Favorite;
 import com.schneeloch.bostonbusmap_library.data.IPrediction;
 import com.schneeloch.bostonbusmap_library.data.ITransitDrawables;
+import com.schneeloch.bostonbusmap_library.data.IntersectionLocation;
 import com.schneeloch.bostonbusmap_library.data.Location;
 import com.schneeloch.bostonbusmap_library.data.Locations;
 import com.schneeloch.bostonbusmap_library.data.Path;
@@ -86,6 +89,8 @@ public class MapManager implements OnMapClickListener, OnMarkerClickListener,
     private final Button alertsButton;
     private final Button moreInfoButton;
     private final Button routesButton;
+    private final Button editButton;
+    private final Button deleteButton;
     private int selectedLocationId = NOT_SELECTED;
 
     private OnMapClickListener nextTapListener;
@@ -109,7 +114,9 @@ public class MapManager implements OnMapClickListener, OnMarkerClickListener,
     private boolean changeRouteIfSelected;
 
     public MapManager(Main context, GoogleMap map,
-                      ITransitSystem transitSystem, Locations locations, Button reportButton, Button moreInfoButton, Button alertsButton, Button routesButton) {
+                      ITransitSystem transitSystem, Locations locations,
+                      Button reportButton, Button moreInfoButton, Button alertsButton, Button routesButton,
+                      Button editButton, Button deleteButton) {
         this.context = context;
         this.map = map;
         this.transitSystem = transitSystem;
@@ -117,6 +124,8 @@ public class MapManager implements OnMapClickListener, OnMarkerClickListener,
         this.reportButton = reportButton;
         this.alertsButton = alertsButton;
         this.routesButton = routesButton;
+        this.editButton = editButton;
+        this.deleteButton = deleteButton;
         this.locations = locations;
 
         map.setOnMapClickListener(this);
@@ -241,190 +250,281 @@ public class MapManager implements OnMapClickListener, OnMarkerClickListener,
             reportButton.setVisibility(View.GONE);
             alertsButton.setVisibility(View.GONE);
             routesButton.setVisibility(View.GONE);
+            editButton.setVisibility(View.GONE);
+            deleteButton.setVisibility(View.GONE);
         }
         else {
             final Location newLocation = locationIdToLocation.get(newSelectedId);
-            // we are selecting a new marker
-            final ITransitDrawables transitDrawables = transitSystem.getTransitSourceByRouteType(
-                    newLocation.getTransitSourceType()).getDrawables();
-
-            int icon = transitDrawables.getBitmapDescriptor(newLocation, true);
-            setMarker(newMarkerId, icon);
-            updateInfo(newMarkerId);
-
-
-            if (newLocation instanceof StopLocation) {
-                moreInfoButton.setVisibility(View.VISIBLE);
-            }
-            else {
+            if (newLocation == null) {
                 moreInfoButton.setVisibility(View.GONE);
-            }
-            moreInfoButton.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    //user shouldn't be able to click this if this is a BusLocation, but just in case...
-                    if (newLocation instanceof StopLocation) {
-                        RouteTitles routeKeysToTitles = transitSystem.getRouteKeysToTitles();
+                reportButton.setVisibility(View.GONE);
+                alertsButton.setVisibility(View.GONE);
+                routesButton.setVisibility(View.GONE);
+                editButton.setVisibility(View.GONE);
+                deleteButton.setVisibility(View.GONE);
 
-                        StopLocation stopLocation = (StopLocation) newLocation;
-                        Intent intent = new Intent(context, MoreInfo.class);
+            } else {
+                // we are selecting a new marker
+                final ITransitDrawables transitDrawables = transitSystem.getTransitSourceByRouteType(
+                        newLocation.getTransitSourceType()).getDrawables();
 
-                        StopPredictionView predictionView = (StopPredictionView) stopLocation.getPredictionView();
-                        IPrediction[] predictionArray = predictionView.getPredictions();
-                        if (predictionArray != null) {
-                            intent.putExtra(MoreInfo.predictionsKey, predictionArray);
-                        }
+                int icon = transitDrawables.getBitmapDescriptor(newLocation, true);
+                setMarker(newMarkerId, icon);
+                updateInfo(newMarkerId);
 
-                        try {
-                            TimeBounds[] bounds = new TimeBounds[predictionView.getRouteTitles().length];
-                            int i = 0;
-                            for (String routeTitle : predictionView.getRouteTitles()) {
-                                String routeKey = routeKeysToTitles.getKey(routeTitle);
-                                bounds[i] = locations.getRoute(routeKey).getTimeBounds();
-                                i++;
+
+                if (newLocation instanceof StopLocation) {
+                    moreInfoButton.setVisibility(View.VISIBLE);
+                } else {
+                    moreInfoButton.setVisibility(View.GONE);
+                }
+                moreInfoButton.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        //user shouldn't be able to click this if this is a BusLocation, but just in case...
+                        if (newLocation instanceof StopLocation) {
+                            RouteTitles routeKeysToTitles = transitSystem.getRouteKeysToTitles();
+
+                            StopLocation stopLocation = (StopLocation) newLocation;
+                            Intent intent = new Intent(context, MoreInfo.class);
+
+                            StopPredictionView predictionView = (StopPredictionView) stopLocation.getPredictionView();
+                            IPrediction[] predictionArray = predictionView.getPredictions();
+                            if (predictionArray != null) {
+                                intent.putExtra(MoreInfo.predictionsKey, predictionArray);
                             }
-                            intent.putExtra(MoreInfo.boundKey, bounds);
-                        } catch (IOException e) {
-                            throw new RuntimeException(e);
+
+                            try {
+                                TimeBounds[] bounds = new TimeBounds[predictionView.getRouteTitles().length];
+                                int i = 0;
+                                for (String routeTitle : predictionView.getRouteTitles()) {
+                                    String routeKey = routeKeysToTitles.getKey(routeTitle);
+                                    bounds[i] = locations.getRoute(routeKey).getTimeBounds();
+                                    i++;
+                                }
+                                intent.putExtra(MoreInfo.boundKey, bounds);
+                            } catch (IOException e) {
+                                throw new RuntimeException(e);
+                            }
+
+                            String[] combinedTitles = predictionView.getTitles();
+                            intent.putExtra(MoreInfo.titleKey, combinedTitles);
+
+                            String[] combinedRoutes = predictionView.getRouteTitles();
+                            intent.putExtra(MoreInfo.routeTitlesKey, combinedRoutes);
+
+                            String combinedStops = predictionView.getStops();
+                            intent.putExtra(MoreInfo.stopsKey, combinedStops);
+
+                            intent.putExtra(MoreInfo.stopIsBetaKey, stopLocation.isBeta());
+
+                            context.startActivity(intent);
                         }
+                    }
+                });
 
-                        String[] combinedTitles = predictionView.getTitles();
-                        intent.putExtra(MoreInfo.titleKey, combinedTitles);
+                if (newLocation.hasReportProblem()) {
+                    reportButton.setVisibility(View.VISIBLE);
+                    reportButton.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            AlertDialog.Builder builder = new AlertDialog.Builder(context);
+                            builder.setTitle("Who should get the error report?");
+                            builder.setItems(new String[]{
+                                    TransitSystem.getAgencyName(),
+                                    "App Developer"
+                            }, new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    if (which == 0) {
+                                        AlertDialog.Builder transitBuilder = new AlertDialog.Builder(context);
+                                        transitBuilder.setTitle("");
+                                        transitBuilder.setMessage("The report message has been copied to your clipboard." +
+                                                " This message contains specifics about the stop, route or vehicle" +
+                                                " that was selected when you clicked 'Report Problem'." +
+                                                " Click 'Ok' to visit their customer comment form, then you may paste " +
+                                                " this report into their textbox.");
+                                        transitBuilder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                                            @Override
+                                            public void onClick(DialogInterface dialog, int which) {
+                                                dialog.dismiss();
+                                            }
+                                        });
+                                        transitBuilder.setPositiveButton("Visit their website", new DialogInterface.OnClickListener() {
+                                            @Override
+                                            public void onClick(DialogInterface dialog, int which) {
+                                                ClipboardManager manager = (ClipboardManager) context.getSystemService(Context.CLIPBOARD_SERVICE);
+                                                manager.setText(createEmailBody(newLocation));
 
-                        String[] combinedRoutes = predictionView.getRouteTitles();
-                        intent.putExtra(MoreInfo.routeTitlesKey, combinedRoutes);
+                                                Intent intent = new Intent(Intent.ACTION_VIEW);
+                                                intent.setData(Uri.parse(TransitSystem.getFeedbackUrl()));
+                                                context.startActivity(intent);
+                                            }
+                                        });
+                                        transitBuilder.create().show();
+                                    } else if (which == 1) {
+                                        //Intent intent = new Intent(context, ReportProblem.class);
+                                        Intent intent = new Intent(android.content.Intent.ACTION_SEND);
+                                        intent.setType("plain/text");
 
-                        String combinedStops = predictionView.getStops();
-                        intent.putExtra(MoreInfo.stopsKey, combinedStops);
+                                        intent.putExtra(android.content.Intent.EXTRA_EMAIL, TransitSystem.getEmails());
+                                        intent.putExtra(android.content.Intent.EXTRA_SUBJECT, TransitSystem.getEmailSubject());
 
-                        intent.putExtra(MoreInfo.stopIsBetaKey, stopLocation.isBeta());
 
-                        context.startActivity(intent);
+                                        String otherText = createEmailBody(newLocation);
+
+                                        intent.putExtra(android.content.Intent.EXTRA_TEXT, otherText);
+                                        context.startActivity(Intent.createChooser(intent, "Send email..."));
+                                    }
+                                }
+                            });
+                            builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    dialog.dismiss();
+                                }
+                            });
+                            builder.create().show();
+                        }
+                    });
+                } else {
+                    reportButton.setVisibility(View.GONE);
+                }
+
+                final ImmutableCollection<Alert> alertsList = newLocation.getPredictionView().getAlerts();
+                int numAlerts = alertsList.size();
+                if (numAlerts == 0) {
+                    alertsButton.setVisibility(View.GONE);
+                } else {
+                    alertsButton.setVisibility(View.VISIBLE);
+                    if (numAlerts == 1) {
+                        alertsButton.setText("\u26a0 " + numAlerts + " Alert");
+                    } else {
+                        alertsButton.setText("\u26a0 " + numAlerts + " Alerts");
                     }
                 }
-            });
+                alertsButton.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        final Alert[] alerts = alertsList.toArray(new Alert[0]);
 
-            reportButton.setVisibility(View.VISIBLE);
-            reportButton.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    AlertDialog.Builder builder = new AlertDialog.Builder(context);
-                    builder.setTitle("Who should get the error report?");
-                    builder.setItems(new String[]{
-                            TransitSystem.getAgencyName(),
-                            "App Developer"
-                    }, new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            if (which == 0) {
-                                AlertDialog.Builder transitBuilder = new AlertDialog.Builder(context);
-                                transitBuilder.setTitle("");
-                                transitBuilder.setMessage("The report message has been copied to your clipboard." +
-                                        " This message contains specifics about the stop, route or vehicle" +
-                                        " that was selected when you clicked 'Report Problem'." +
-                                        " Click 'Ok' to visit their customer comment form, then you may paste " +
-                                        " this report into their textbox.");
-                                transitBuilder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-                                    @Override
-                                    public void onClick(DialogInterface dialog, int which) {
-                                        dialog.dismiss();
-                                    }
-                                });
-                                transitBuilder.setPositiveButton("Visit their website", new DialogInterface.OnClickListener() {
-                                    @Override
-                                    public void onClick(DialogInterface dialog, int which) {
-                                        ClipboardManager manager = (ClipboardManager) context.getSystemService(Context.CLIPBOARD_SERVICE);
-                                        manager.setText(createEmailBody(newLocation));
-
-                                        Intent intent = new Intent(Intent.ACTION_VIEW);
-                                        intent.setData(Uri.parse(TransitSystem.getFeedbackUrl()));
-                                        context.startActivity(intent);
-                                    }
-                                });
-                                transitBuilder.create().show();
-                            } else if (which == 1) {
-                                //Intent intent = new Intent(context, ReportProblem.class);
-                                Intent intent = new Intent(android.content.Intent.ACTION_SEND);
-                                intent.setType("plain/text");
-
-                                intent.putExtra(android.content.Intent.EXTRA_EMAIL, TransitSystem.getEmails());
-                                intent.putExtra(android.content.Intent.EXTRA_SUBJECT, TransitSystem.getEmailSubject());
-
-
-                                String otherText = createEmailBody(newLocation);
-
-                                intent.putExtra(android.content.Intent.EXTRA_TEXT, otherText);
-                                context.startActivity(Intent.createChooser(intent, "Send email..."));
-                            }
-                        }
-                    });
-                    builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            dialog.dismiss();
-                        }
-                    });
-                    builder.create().show();
-                }
-            });
-
-            final ImmutableCollection<Alert> alertsList = newLocation.getPredictionView().getAlerts();
-            int numAlerts = alertsList.size();
-            if (numAlerts == 0) {
-                alertsButton.setVisibility(View.GONE);
-            }
-            else {
-                alertsButton.setVisibility(View.VISIBLE);
-                if (numAlerts == 1) {
-                    alertsButton.setText("\u26a0 " + numAlerts + " Alert");
-                } else {
-                    alertsButton.setText("\u26a0 " + numAlerts + " Alerts");
-                }
-            }
-            alertsButton.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    final Alert[] alerts = alertsList.toArray(new Alert[0]);
-
-                    Intent intent = new Intent(context, AlertInfo.class);
-                    if (alerts != null) {
+                        Intent intent = new Intent(context, AlertInfo.class);
                         intent.putExtra(AlertInfo.alertsKey, alerts);
 
                         context.startActivity(intent);
                     }
-
-                }
-            });
-
-            if (newLocation instanceof StopLocation) {
-                final List<String> routeTitlesForStop = Lists.newArrayList();
-                for (String route : newLocation.getRoutes()) {
-                    routeTitlesForStop.add(locations.getTransitSystem().getRouteKeysToTitles().getTitle(route));
-                }
-                Collections.sort(routeTitlesForStop);
-                final String[] routeTitlesArray = routeTitlesForStop.toArray(new String[0]);
-                final List<String> allRouteTitles = Arrays.<String>asList(locations.getTransitSystem().getRouteKeysToTitles().titleArray());
-
-                routesButton.setVisibility(View.VISIBLE);
-                routesButton.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        AlertDialog.Builder builder = new AlertDialog.Builder(context);
-                        builder.setTitle(context.getString(R.string.chooseRouteInBuilder));
-                        builder.setItems(routeTitlesArray, new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int item) {
-                                String title = routeTitlesArray[item];
-                                int newPosition = allRouteTitles.indexOf(title);
-                                context.setNewRoute(newPosition, true, true);
-                            }
-                        });
-                        builder.create().show();
-                    }
                 });
 
-            }
-            else {
-                routesButton.setVisibility(View.GONE);
+                if (newLocation instanceof StopLocation || newLocation instanceof IntersectionLocation) {
+                    final List<String> routeTitlesForStop = Lists.newArrayList();
+                    for (String route : newLocation.getRoutes()) {
+                        routeTitlesForStop.add(locations.getTransitSystem().getRouteKeysToTitles().getTitle(route));
+                    }
+                    Collections.sort(routeTitlesForStop);
+                    final String[] routeTitlesArray = routeTitlesForStop.toArray(new String[0]);
+                    final List<String> allRouteTitles = Arrays.asList(locations.getTransitSystem().getRouteKeysToTitles().titleArray());
+
+                    routesButton.setVisibility(View.VISIBLE);
+                    if (newLocation instanceof StopLocation) {
+                        routesButton.setText("Routes for stop");
+                    }
+                    else {
+                        routesButton.setText("Routes nearby");
+                    }
+                    routesButton.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            AlertDialog.Builder builder = new AlertDialog.Builder(context);
+                            builder.setTitle(context.getString(R.string.chooseRouteInBuilder));
+                            builder.setItems(routeTitlesArray, new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface dialog, int item) {
+                                    String title = routeTitlesArray[item];
+                                    int newPosition = allRouteTitles.indexOf(title);
+                                    context.setNewRoute(newPosition, true, true);
+                                }
+                            });
+                            builder.create().show();
+                        }
+                    });
+
+                } else {
+                    routesButton.setVisibility(View.GONE);
+                }
+
+                if (newLocation instanceof IntersectionLocation) {
+                    editButton.setVisibility(View.VISIBLE);
+                    editButton.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            IntersectionLocation intersectionLocation = (IntersectionLocation) newLocation;
+
+                            AlertDialog.Builder builder = new AlertDialog.Builder(context);
+                            builder.setTitle("Edit place name");
+
+                            final EditText textView = new EditText(context);
+                            textView.setHint("Place name (ie, Home)");
+                            final String oldName = intersectionLocation.getName();
+                            textView.setText(oldName);
+                            builder.setView(textView);
+                            builder.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    String newName = textView.getText().toString();
+                                    if (newName.length() == 0) {
+                                        Toast.makeText(context, "Place name cannot be empty", Toast.LENGTH_LONG).show();
+                                    } else {
+                                        locations.editIntersection(oldName, newName);
+                                        handler.triggerUpdate();
+                                    }
+                                    dialog.dismiss();
+                                }
+                            });
+
+                            builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    dialog.dismiss();
+                                }
+                            });
+
+                            builder.create().show();
+                        }
+                    });
+                    deleteButton.setVisibility(View.VISIBLE);
+                    deleteButton.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            AlertDialog.Builder builder = new AlertDialog.Builder(context);
+                            builder.setTitle("Delete Place");
+                            builder.setMessage("Are you sure?");
+                            builder.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    IntersectionLocation intersection = (IntersectionLocation)newLocation;
+                                    locations.removeIntersection(intersection.getName());
+                                    handler.triggerUpdate();
+                                    dialog.dismiss();
+                                }
+                            });
+                            builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    dialog.dismiss();
+                                }
+                            });
+                            builder.create().show();
+
+                        }
+                    });
+                }
+                else {
+                    editButton.setVisibility(View.GONE);
+                    deleteButton.setVisibility(View.GONE);
+                }
             }
         }
     }
