@@ -75,26 +75,28 @@ public class VehicleLocationsFeedParser extends DefaultHandler
 			float lon = Float.parseFloat(getAttribute(lonKey, attributes));
 			String id = getAttribute(idKey, attributes);
 			String route = getAttribute(routeTagKey, attributes);
-			int seconds = Integer.parseInt(getAttribute(secsSinceReportKey, attributes));
-			String headingString = getAttribute(headingKey, attributes);
-            Optional<Integer> heading;
-            if (headingString == null) {
-                heading = Optional.absent();
+            boolean predictable = Boolean.parseBoolean(getAttribute(predictableKey, attributes));
+            if (predictable) {
+                int seconds = Integer.parseInt(getAttribute(secsSinceReportKey, attributes));
+                String headingString = getAttribute(headingKey, attributes);
+                Optional<Integer> heading;
+                if (headingString == null) {
+                    heading = Optional.absent();
+                } else {
+                    heading = Optional.of(Integer.parseInt(headingString));
+                }
+
+                String dirTag = getAttribute(dirTagKey, attributes);
+
+                long lastFeedUpdate = System.currentTimeMillis() - (seconds * 1000);
+
+                BusLocation newBusLocation = new BusLocation(lat, lon, id, lastFeedUpdate,
+                        heading, route, directions.getTitleAndName(dirTag));
+
+                VehicleLocations.Key key = new VehicleLocations.Key(Schema.Routes.SourceId.Bus, route, id);
+
+                newBuses.put(key, newBusLocation);
             }
-            else {
-                heading = Optional.of(Integer.parseInt(headingString));
-            }
-
-			String dirTag = getAttribute(dirTagKey, attributes);
-			
-			long lastFeedUpdate = System.currentTimeMillis() - (seconds * 1000);
-			
-			BusLocation newBusLocation = new BusLocation(lat, lon, id, lastFeedUpdate,
-					heading, route, directions.getTitleAndName(dirTag));
-
-			VehicleLocations.Key key = new VehicleLocations.Key(Schema.Routes.SourceId.Bus, route, id);
-
-			newBuses.put(key, newBusLocation);
 		}
 		else if (localName.equals(lastTimeKey))
 		{
