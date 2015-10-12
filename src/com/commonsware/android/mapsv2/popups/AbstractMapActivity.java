@@ -32,7 +32,7 @@ import com.google.android.gms.common.ErrorDialogFragment;
 import com.google.android.gms.common.GoogleApiAvailability;
 import com.google.android.gms.common.GooglePlayServicesUtil;
 
-import boston.Bus.Map.R;
+import com.schneeloch.latransit.R;
 
 public class AbstractMapActivity extends FragmentActivity {
     protected static final String TAG_ERROR_DIALOG_FRAGMENT="errorDialog";

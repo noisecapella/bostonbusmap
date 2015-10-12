@@ -68,7 +68,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentMap;
 
-import boston.Bus.Map.R;
+import com.schneeloch.latransit.R;
 import boston.Bus.Map.main.AlertInfo;
 import boston.Bus.Map.main.Main;
 import boston.Bus.Map.main.MoreInfo;

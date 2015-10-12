@@ -52,13 +52,12 @@ public class TransitSystem implements ITransitSystem {
 	
 	private static final String website = "http://www.terribleinformation.org/george/bostonbusmap";
 	
-	private static final String[] emails = new String[]{"bostonbusmap@gmail.com"};
-	private static final String emailSubject = "Los AngelBus error report";
-
     /**
      * Unimplemented for Los Angelbus
      */
 	public static String ALERTS_URL = null;
+    private AlertsFuture alertsFuture = null;
+
 	private static final String[] emails = new String[]{"bostonbusmap@gmail.com"};
 	private static final String emailSubject = "Los Angelbus error report";
     private static final String feedbackUrl = "http://webapps2.metro.net/customercomments/";

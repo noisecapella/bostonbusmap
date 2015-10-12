@@ -26,7 +26,7 @@ import com.schneeloch.bostonbusmap_library.data.StopLocation;
 import java.util.Collections;
 import java.util.List;
 
-import boston.Bus.Map.R;
+import com.schneeloch.latransit.R;
 import boston.Bus.Map.ui.MapManager;
 
 public class PopupAdapter implements InfoWindowAdapter {

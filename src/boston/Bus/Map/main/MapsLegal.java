@@ -7,7 +7,7 @@ import android.widget.TextView;
 
 import com.google.android.gms.common.GoogleApiAvailability;
 
-import boston.Bus.Map.R;
+import com.schneeloch.latransit.R;
 
 /**
  * Created by georgeandroid on 9/7/15.
