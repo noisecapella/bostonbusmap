@@ -48,7 +48,7 @@ def main():
     args = parser.parse_args()
 
     if not os.path.isdir(args.gtfs_path):
-        print "gtfs_path must be a directory"
+        print("gtfs_path must be a directory")
         exit(-1)
 
     route_path = os.path.join(args.gtfs_path, "routes.txt")

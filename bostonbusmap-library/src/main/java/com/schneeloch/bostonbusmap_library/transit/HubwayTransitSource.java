@@ -1,5 +1,6 @@
 package com.schneeloch.bostonbusmap_library.transit;
 
+import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableMap;
 
 import org.xml.sax.SAXException;
@@ -11,6 +12,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import javax.xml.parsers.ParserConfigurationException;
 
+import com.schneeloch.bostonbusmap_library.data.BusLocation;
 import com.schneeloch.bostonbusmap_library.data.Directions;
 import com.schneeloch.bostonbusmap_library.data.HubwayStopLocation;
 import com.schneeloch.bostonbusmap_library.data.IAlerts;
@@ -42,6 +44,8 @@ public class HubwayTransitSource implements TransitSource {
 	private final ITransitSystem transitSystem;
 
     private final TransitSourceCache cache;
+
+    private static Schema.Routes.SourceId[] transitSourceIds = new Schema.Routes.SourceId[] {Schema.Routes.SourceId.Hubway};
 
 	public HubwayTransitSource(ITransitDrawables drawables, TransitSourceTitles routeTitles,
 							   TransitSystem transitSystem) {
@@ -76,30 +80,31 @@ public class HubwayTransitSource implements TransitSource {
 
                 RouteConfig hubwayRouteConfig = routePool.get(routeTag);
                 DownloadHelper downloadHelper = new DownloadHelper(dataUrl);
+                try {
+                    InputStream stream = downloadHelper.getResponseData();
 
-                downloadHelper.connect();
+                    HubwayParser parser = new HubwayParser(hubwayRouteConfig);
+                    parser.runParse(stream);
+                    List<PredictionStopLocationPair> pairs = parser.getPairs();
 
+                    for (PredictionStopLocationPair pair : pairs) {
+                        pair.stopLocation.clearPredictions(null);
+                        pair.stopLocation.addPrediction(pair.prediction);
+                    }
 
-                InputStream stream = downloadHelper.getResponseData();
+                    ImmutableMap.Builder<String, StopLocation> builder = ImmutableMap.builder();
+                    for (PredictionStopLocationPair pair : pairs) {
+                        StopLocation stop = pair.stopLocation;
+                        builder.put(stop.getStopTag(), stop);
+                    }
+                    ImmutableMap<String, StopLocation> stops = builder.build();
+                    hubwayRouteConfig.replaceStops(stops);
 
-                HubwayParser parser = new HubwayParser(hubwayRouteConfig);
-                parser.runParse(stream);
-                List<PredictionStopLocationPair> pairs = parser.getPairs();
-
-                for (PredictionStopLocationPair pair : pairs) {
-                    pair.stopLocation.clearPredictions(null);
-                    pair.stopLocation.addPrediction(pair.prediction);
+                    cache.updateAllPredictions();
                 }
-
-                ImmutableMap.Builder<String, StopLocation> builder = ImmutableMap.builder();
-                for (PredictionStopLocationPair pair : pairs) {
-                    StopLocation stop = pair.stopLocation;
-                    builder.put(stop.getStopTag(), stop);
+                finally {
+                    downloadHelper.disconnect();
                 }
-                ImmutableMap<String, StopLocation> stops = builder.build();
-                hubwayRouteConfig.replaceStops(stops);
-
-                cache.updateAllPredictions();
 
                 break;
             default:
@@ -132,7 +137,12 @@ public class HubwayTransitSource implements TransitSource {
 		return stop;
 	}
 
-	@Override
+    @Override
+    public BusLocation createVehicleLocation(float latitude, float longitude, String id, long lastFeedUpdateInMillis, Optional<Integer> heading, String routeName, String headsign) {
+        throw new RuntimeException("Cannot create hubway location");
+    }
+
+    @Override
 	public TransitSourceTitles getRouteTitles() {
 		return routeTitles;
 	}
@@ -144,7 +154,7 @@ public class HubwayTransitSource implements TransitSource {
 
 	@Override
 	public Schema.Routes.SourceId[] getTransitSourceIds() {
-		return new Schema.Routes.SourceId[] {Schema.Routes.SourceId.Hubway};
+		return transitSourceIds;
 	}
 
 	@Override

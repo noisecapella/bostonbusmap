@@ -1,5 +1,6 @@
 package com.schneeloch.bostonbusmap_library.data;
 
+import java.util.Collection;
 import java.util.SortedSet;
 
 import com.google.common.base.Joiner;
@@ -108,14 +109,14 @@ public class IntersectionLocation implements Location {
 	}
 
 	@Override
-	public float distanceFromInMiles(double centerLatAsRadians,
+	public double distanceFromInMiles(double centerLatAsRadians,
 			double centerLonAsRadians) {
 		return Geometry.computeDistanceInMiles(latitude, longitude, centerLatAsRadians, centerLonAsRadians);
 	}
 	
 	@Override
-	public boolean isFavorite() {
-		return false;
+	public Favorite isFavorite() {
+		return Favorite.IsNotFavorite;
 	}
 
 	@Override
@@ -184,7 +185,17 @@ public class IntersectionLocation implements Location {
     }
 
     @Override
+    public boolean needsUpdating() {
+        return false;
+    }
+
+    @Override
     public LocationType getLocationType() {
         return LocationType.Intersection;
+    }
+
+    @Override
+    public Collection<String> getRoutes() {
+        return nearbyRoutes;
     }
 }

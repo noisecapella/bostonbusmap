@@ -7,20 +7,33 @@ import com.schneeloch.latransit.R;
  */
 public class BusDrawablesLookup {
     public static int getIdFromAngle(int angle, boolean isSelected, boolean isRail) {
-        angle += (360 / BusDrawables.bus_selectedLookup.length) / 2;
+        angle += (360 / BusDrawables.busSelectedLookup.length) / 2;
         angle = angle % 360;
 
-        if (!isRail) {
-            if (angle < 0 || angle >= 360) {
-                return R.drawable.bus_statelist_0;
+        if (isSelected) {
+            if (!isRail) {
+                if (angle < 0 || angle >= 360) {
+                    return R.drawable.bus_selected_0;
+                }
+                return BusDrawables.busSelectedLookup[angle / 8];
+            } else {
+                if (angle < 0 || angle >= 360) {
+                    return R.drawable.rail_selected_0;
+                }
+                return BusDrawables.railSelectedLookup[angle / 8];
             }
-            return BusDrawables.bus_selectedLookup[angle / 8];
-        }
-        else {
-            if (angle < 0 || angle >= 360) {
-                return R.drawable.rail_statelist_0;
+        } else {
+            if (!isRail) {
+                if (angle < 0 || angle >= 360) {
+                    return R.drawable.bus_0;
+                }
+                return BusDrawables.busLookup[angle / 8];
+            } else {
+                if (angle < 0 || angle >= 360) {
+                    return R.drawable.rail_selected_0;
+                }
+                return BusDrawables.railLookup[angle / 8];
             }
-            return BusDrawables.rail_selectedLookup[angle / 8];
         }
     }
 

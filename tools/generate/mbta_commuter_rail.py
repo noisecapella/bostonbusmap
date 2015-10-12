@@ -41,11 +41,10 @@ class MbtaCommuterRail:
             trip_rows = gtfs_map.find_trips_by_route(route_id)
             trip_ids = set([trip["trip_id"] for trip in trip_rows])
 
-            shape_rows = gtfs_map.find_shapes_by_route(route_id)
+            shape_rows = gtfs_map.find_sorted_shapes_by_route(route_id)
 
             # this stores a list of list of lat, lon pairs
             paths = []
-            shape_rows = list(sorted(shape_rows, key=lambda shape: shape["shape_id"]))
             for shape_id, group_rows in itertools.groupby(shape_rows, lambda shape: shape["shape_id"]):
                 path = [(float(row["shape_pt_lat"]), float(row["shape_pt_lon"])) for row in group_rows]
                 path = simplify_path(path)
@@ -81,6 +80,14 @@ class MbtaCommuterRail:
                 obj.stopmapping.tag.value = stop_row["stop_id"]
                 cur.execute(obj.stopmapping.insert())
 
+        print("Adding directions...")
+        for trip_row in gtfs_map.find_trips_by_route(route_id):
+            obj.directions.dirTag.value = trip_row["trip_id"]
+            obj.directions.dirTitleKey.value = trip_row["trip_headsign"]
+            obj.directions.dirRouteKey.value = route_id
+            obj.directions.dirNameKey.value = ""
+            obj.directions.useAsUI.value = 1
+            cur.execute(obj.directions.insert())
         return len(route_rows)
             
     def generate(self, conn, startorder, gtfs_map):

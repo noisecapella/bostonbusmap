@@ -59,19 +59,21 @@ public class TransitSystem implements ITransitSystem {
      * Unimplemented for Los Angelbus
      */
 	public static String ALERTS_URL = null;
+	private static final String[] emails = new String[]{"bostonbusmap@gmail.com"};
+	private static final String emailSubject = "Los Angelbus error report";
+    private static final String feedbackUrl = "http://webapps2.metro.net/customercomments/";
 
 	private static final boolean showRunNumber = false;
 
 	private RouteTitles routeTitles;
 	
-	/**
-	 * This will be null when alerts haven't been read yet
-	 */
-	private AlertsFuture alertsFuture;
-	
+
 	public static double getCenterLat() {
-		return laLatitude;
-	}
+        return laLatitude;
+    }
+
+    private static final String agencyName = "MBTA";
+
 
 	public static double getCenterLon() {
 		return laLongitude;
@@ -102,8 +104,12 @@ public class TransitSystem implements ITransitSystem {
 	 * Be careful with this; this stays around forever since it's static
 	 */
 	private TransitSource defaultTransitSource;
-	
-	/**
+
+    public static String getAgencyName() {
+        return agencyName;
+    }
+
+    /**
 	 * Only call this on the UI thread!
 	 * @param busDrawables
 	 * @param subwayDrawables
@@ -118,8 +124,7 @@ public class TransitSystem implements ITransitSystem {
 			routeTitles = databaseAgent.getRouteTitles();
 
 			TransitSourceTitles busTransitRoutes = routeTitles.getMappingForSource(Schema.Routes.SourceId.Bus);
-			TransitSourceTitles hubwayTransitRoutes = routeTitles.getMappingForSource(Schema.Routes.SourceId.Hubway);
-			
+
 			defaultTransitSource = new LABusTransitSource(this, busDrawables, busTransitRoutes, routeTitles);
 			
 			ImmutableMap.Builder<String, TransitSource> mapBuilder = ImmutableMap.builder();
@@ -324,4 +329,8 @@ public class TransitSystem implements ITransitSystem {
 
 		}
 	}
+
+    public static String getFeedbackUrl() {
+        return feedbackUrl;
+    }
 }

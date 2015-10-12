@@ -65,7 +65,7 @@ public class StopPredictionViewImpl extends StopPredictionView {
 		this.alerts = alerts;
 		StringBuilder ret = new StringBuilder();
 		if (isBeta) {
-			ret.append("<font color='red' size='1'>Commuter rail predictions are experimental</font><br />");
+			ret.append("<font color='red'>Green line rail predictions are not yet supported<br />Only vehicle locations for above ground trains are available</font><br />");
 		}
 
 		try

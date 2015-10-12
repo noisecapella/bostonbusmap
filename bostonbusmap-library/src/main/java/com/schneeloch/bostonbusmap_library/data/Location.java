@@ -5,6 +5,8 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.schneeloch.bostonbusmap_library.database.Schema;
 
+import java.util.Collection;
+
 public interface Location {
 
 	/**
@@ -28,9 +30,9 @@ public interface Location {
 	 */
 	float distanceFrom(double centerLatitudeAsRadians, double centerLongitudeAsRadians);
 
-	float distanceFromInMiles(double centerLatAsRadians, double centerLonAsRadians);
+	double distanceFromInMiles(double centerLatAsRadians, double centerLonAsRadians);
 	
-	boolean isFavorite();
+	Favorite isFavorite();
 
 	/**
 	 * Prepare the textbox text and store it in the class
@@ -69,4 +71,8 @@ public interface Location {
 	Schema.Routes.SourceId getTransitSourceType();
 
     boolean isUpdated();
+
+    boolean needsUpdating();
+
+    Collection<String> getRoutes();
 }

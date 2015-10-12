@@ -10,6 +10,7 @@ import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
 
+import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
 
@@ -25,13 +26,11 @@ import com.schneeloch.bostonbusmap_library.database.Schema;
 public class VehicleLocationsFeedParser extends DefaultHandler
 {
 	private final Directions directions;
-	private final RouteTitles routeKeysToTitles;
     private final Map<VehicleLocations.Key, BusLocation> newBuses = Maps.newHashMap();
 	
-	public VehicleLocationsFeedParser(Directions directions, RouteTitles routeKeysToTitles)
+	public VehicleLocationsFeedParser(Directions directions)
 	{
 		this.directions = directions;
-		this.routeKeysToTitles = routeKeysToTitles;
 	}
 	
 	public void runParse(InputStream data)
@@ -76,24 +75,28 @@ public class VehicleLocationsFeedParser extends DefaultHandler
 			float lon = Float.parseFloat(getAttribute(lonKey, attributes));
 			String id = getAttribute(idKey, attributes);
 			String route = getAttribute(routeTagKey, attributes);
-			int seconds = Integer.parseInt(getAttribute(secsSinceReportKey, attributes));
-			String heading = getAttribute(headingKey, attributes);
-			boolean predictable = Boolean.parseBoolean(getAttribute(predictableKey, attributes)); 
-			String dirTag = getAttribute(dirTagKey, attributes);
-			
-			long lastFeedUpdate = System.currentTimeMillis() - (seconds * 1000);
-			
-			BusLocation newBusLocation = new BusLocation(lat, lon, id, lastFeedUpdate, lastUpdateTime, 
-					heading, predictable, dirTag, route, directions, routeKeysToTitles.getTitle(route));
+            boolean predictable = Boolean.parseBoolean(getAttribute(predictableKey, attributes));
+            if (predictable) {
+                int seconds = Integer.parseInt(getAttribute(secsSinceReportKey, attributes));
+                String headingString = getAttribute(headingKey, attributes);
+                Optional<Integer> heading;
+                if (headingString == null) {
+                    heading = Optional.absent();
+                } else {
+                    heading = Optional.of(Integer.parseInt(headingString));
+                }
 
-			VehicleLocations.Key key = new VehicleLocations.Key(Schema.Routes.SourceId.Bus, route, id);
-			if (busMapping.containsKey(key))
-			{
-				//calculate the direction of the bus from the current and previous locations
-				newBusLocation.movedFrom(busMapping.get(key));
-			}
+                String dirTag = getAttribute(dirTagKey, attributes);
 
-			newBuses.put(key, newBusLocation);
+                long lastFeedUpdate = System.currentTimeMillis() - (seconds * 1000);
+
+                BusLocation newBusLocation = new BusLocation(lat, lon, id, lastFeedUpdate,
+                        heading, route, directions.getTitleAndName(dirTag));
+
+                VehicleLocations.Key key = new VehicleLocations.Key(Schema.Routes.SourceId.Bus, route, id);
+
+                newBuses.put(key, newBusLocation);
+            }
 		}
 		else if (localName.equals(lastTimeKey))
 		{

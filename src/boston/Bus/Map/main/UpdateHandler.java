@@ -28,17 +28,17 @@ public class UpdateHandler extends Handler {
 	 */
 	private long lastUpdateTime;
 
-	private final int maxOverlays = 75;
+	private final int maxOverlays = 175;
 
 	private final int IMMEDIATE_REFRESH = 1;
 
 	private int updateConstantlyInterval;
 	private boolean hideHighlightCircle;
 	private boolean showUnpredictable;
+    private boolean changeRouteIfSelected;
 	private AdjustUIAsyncTask minorUpdate;
 	
 	private final UpdateArguments guiArguments;
-	private boolean allRoutesBlue = TransitSystem.isDefaultAllRoutesBlue();
     private boolean showTraffic = false;
 	
 	public UpdateHandler(UpdateArguments guiArguments)
@@ -58,7 +58,9 @@ public class UpdateHandler extends Handler {
 			long currentTime = System.currentTimeMillis();
 
 			int interval = getUpdateConstantlyInterval() * 1000;
-			
+
+            // schedule this before RefreshAsyncTask since that will block other threads
+            runMinorUpdateTask(null);
 			runUpdateTask();
 
 			//make updateBuses execute every 10 seconds (or whatever fetchDelay is)
@@ -86,26 +88,29 @@ public class UpdateHandler extends Handler {
 
 			//remove duplicate messages
 			removeMessages(MINOR);
-			
-			Integer toSelect = null;
-			if (msg.arg1 != 0) {
-				toSelect = msg.arg1;
-			}
-			Selection selection = guiArguments.getBusLocations().getSelection();
-			minorUpdate = new AdjustUIAsyncTask(guiArguments, getShowUnpredictable(),
-					maxOverlays,
-					hideHighlightCircle == false, allRoutesBlue,
-					selection, this, toSelect);
-			
 
-			minorUpdate.runUpdate();
-            LogUtil.i("Minor update");
-			
+            Integer toSelect = null;
+            if (msg.arg1 != 0) {
+                toSelect = msg.arg1;
+            }
+            runMinorUpdateTask(toSelect);
+
 			break;
 		}		
 	}
 
-	public void removeAllMessages() {
+    private void runMinorUpdateTask(Integer toSelect) {
+        Selection selection = guiArguments.getBusLocations().getSelection();
+        minorUpdate = new AdjustUIAsyncTask(guiArguments, getShowUnpredictable(),
+                maxOverlays,
+                selection, this, toSelect);
+
+
+        minorUpdate.runUpdate();
+        LogUtil.i("Minor update");
+    }
+
+    public void removeAllMessages() {
 		removeMessages(MAJOR);
 		removeMessages(MINOR);
 		//removeMessages(LOCATION_NOT_FOUND);
@@ -147,7 +152,6 @@ public class UpdateHandler extends Handler {
 		
 		Selection selection = guiArguments.getBusLocations().getSelection();
 		final RefreshAsyncTask updateAsyncTask = new RefreshAsyncTask(guiArguments, getShowUnpredictable(), maxOverlays,
-				hideHighlightCircle == false, allRoutesBlue, 
 				selection, this);
 		guiArguments.setMajorHandler(updateAsyncTask);
 
@@ -164,7 +168,7 @@ public class UpdateHandler extends Handler {
         sendEmptyMessageDelayed(MINOR, millis);
     }
 
-	public boolean instantRefresh() {
+    public boolean instantRefresh() {
 		//removeAllMessages();
 		
 		if(getUpdateConstantlyInterval() != Main.UPDATE_INTERVAL_NONE)
@@ -173,11 +177,12 @@ public class UpdateHandler extends Handler {
 			removeMessages(MAJOR);
 			sendEmptyMessageDelayed(MAJOR, getUpdateConstantlyInterval() * 1000);
 		}
-		
+
+        runMinorUpdateTask(null);
 		runUpdateTask();
 		return true;
 
-	}
+    }
 
 	public int getUpdateConstantlyInterval() {
 		return updateConstantlyInterval;
@@ -186,11 +191,6 @@ public class UpdateHandler extends Handler {
 	public void setUpdateConstantlyInterval(int updateConstantlyInterval)
 	{
 		this.updateConstantlyInterval = updateConstantlyInterval;
-	}
-	
-	public void setHideHighlightCircle(boolean b)
-	{
-		hideHighlightCircle = b;
 	}
 	
 	public void setLastUpdateTime(long lastUpdateTime) {
@@ -261,17 +261,4 @@ public class UpdateHandler extends Handler {
 			minorUpdate.nullifyProgress();
 		}
 	}
-
-
-	public void setAllRoutesBlue(boolean b) {
-		allRoutesBlue = b;
-	}
-
-    public void setShowTraffic(boolean showTraffic) {
-        this.showTraffic = showTraffic;
-    }
-
-    public boolean getShowTraffic() {
-        return showTraffic;
-    }
 }

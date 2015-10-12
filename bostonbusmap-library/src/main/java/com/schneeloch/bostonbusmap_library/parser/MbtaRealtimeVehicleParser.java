@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.io.Reader;
 import java.util.Map;
 
+import com.google.common.base.Optional;
 import com.schneeloch.bostonbusmap_library.parser.gson.MbtaRealtimeRoot;
 import com.schneeloch.bostonbusmap_library.parser.gson.Mode;
 import com.schneeloch.bostonbusmap_library.parser.gson.Route;
@@ -20,6 +21,7 @@ import com.schneeloch.bostonbusmap_library.data.VehicleLocations;
 import com.schneeloch.bostonbusmap_library.data.VehicleLocations.Key;
 import com.schneeloch.bostonbusmap_library.database.Schema;
 import com.schneeloch.bostonbusmap_library.transit.MbtaRealtimeTransitSource;
+import com.schneeloch.bostonbusmap_library.transit.TransitSource;
 import com.schneeloch.bostonbusmap_library.util.LogUtil;
 
 import com.google.common.collect.ImmutableSet;
@@ -49,14 +51,14 @@ public class MbtaRealtimeVehicleParser {
 		this.lastFeedUpdateInMillis = System.currentTimeMillis();
 	}
 	
-	public void runParse(Reader data) throws IOException {
+	public void runParse(Reader data, TransitSource transitSource) throws IOException {
 		BufferedReader bufferedReader = new BufferedReader(data, 2048);
 
         MbtaRealtimeRoot root = new Gson().fromJson(bufferedReader, MbtaRealtimeRoot.class);
-		parseTree(root);
+		parseTree(root, transitSource);
 	}
 	
-	private void parseTree(MbtaRealtimeRoot root) {
+	private void parseTree(MbtaRealtimeRoot root, TransitSource transitSource) {
         if (root.mode == null) {
             return;
         }
@@ -82,7 +84,6 @@ public class MbtaRealtimeVehicleParser {
 
                     for (Trip trip : direction.trip) {
                         String tripHeadsign = trip.trip_headsign;
-                        String tripName = trip.trip_name;
 
                         if (trip.vehicle != null) {
                             String id = trip.vehicle.vehicle_id;
@@ -91,28 +92,27 @@ public class MbtaRealtimeVehicleParser {
                             }
                             float latitude = Float.parseFloat(trip.vehicle.vehicle_lat);
                             float longitude = Float.parseFloat(trip.vehicle.vehicle_lon);
-                            long timestamp = Long.parseLong(trip.vehicle.vehicle_timestamp);
-                            String bearing = trip.vehicle.vehicle_bearing;
+                            Optional<Integer> bearing;
+                            if (trip.vehicle.vehicle_bearing != null) {
+                                bearing = Optional.of(Integer.parseInt(trip.vehicle.vehicle_bearing));
+                            }
+                            else {
+                                bearing = Optional.absent();
+                            }
 
                             VehicleLocations.Key key = new VehicleLocations.Key(transitSourceId, routeName, id);
-
-                            String routeTitle = routeKeysToTitles.getTitle(routeName);
 
                             Direction directionObj = new Direction(tripHeadsign, directionId, routeName, true);
                             String newDirectionId = directionId + "_" + tripHeadsign;
                             directionsObj.add(newDirectionId, directionObj);
 
-                            BusLocation location;
+                            BusLocation location = transitSource.createVehicleLocation(latitude,
+                                    longitude, id, lastFeedUpdateInMillis, bearing, routeName, tripHeadsign);
+
                             if (transitSourceId == Schema.Routes.SourceId.CommuterRail) {
-                                location = new CommuterTrainLocation(latitude, longitude, tripName,
-                                        lastFeedUpdateInMillis, timestamp, bearing, true,
-                                        newDirectionId, routeName, directionsObj, routeTitle);
                                 newCommuterRailVehicles.put(key, location);
                             }
                             else {
-                                location = new SubwayTrainLocation(latitude, longitude, id,
-                                        lastFeedUpdateInMillis, timestamp, bearing, true,
-                                        newDirectionId, routeName, directionsObj, routeTitle);
                                 newSubwayVehicles.put(key, location);
                             }
                         }

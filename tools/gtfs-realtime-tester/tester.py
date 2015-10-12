@@ -12,7 +12,7 @@ def main():
     update = gtfs_realtime_pb2.FeedMessage()
     update.ParseFromString(data)
 
-    print update
+    print(update)
 
     reactor.stop()
 
