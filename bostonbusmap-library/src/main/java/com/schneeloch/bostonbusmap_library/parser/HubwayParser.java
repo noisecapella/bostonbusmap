@@ -10,6 +10,7 @@ import org.xml.sax.helpers.DefaultHandler;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.HashMap;
 import java.util.List;
 
 import javax.xml.parsers.ParserConfigurationException;
@@ -45,6 +46,8 @@ public class HubwayParser extends DefaultHandler {
     private float latitude;
     private float longitude;
 	private String name;
+
+    private final HashMap<String, StopLocation> lookup = new HashMap<String, StopLocation>();
 
 	private final StringBuilder chars = new StringBuilder();
 

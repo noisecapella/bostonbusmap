@@ -251,10 +251,14 @@ public class Schema {
         public static final String agencyidColumnOnTable = "routes.agencyid";
 
         public enum SourceId {
-            Subway(1) ,
-            CommuterRail(2) ,
-            Bus(3) ,
-            Hubway(50) ;
+            Subway(1)
+,
+            CommuterRail(2)
+,
+            Bus(3)
+,
+            Hubway(50)
+;
             private final int value;
             SourceId(int value) {
                 this.value = value;

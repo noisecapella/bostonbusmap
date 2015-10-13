@@ -25,7 +25,7 @@ public class StopLocation implements Location
 	
 	private Predictions predictions;
 	
-	private boolean isFavorite;
+	private Favorite isFavorite;
 	protected boolean recentlyUpdated;
 
 	
@@ -73,7 +73,7 @@ public class StopLocation implements Location
 		return Geometry.computeCompareDistance(latitude, longitude, centerLatitude, centerLongitude);
 	}
 
-	public float distanceFromInMiles(double latitudeAsRads,
+	public double distanceFromInMiles(double latitudeAsRads,
 			double longitudeAsRads) {
 		return Geometry.computeDistanceInMiles(latitude, longitude, latitudeAsRads, longitudeAsRads);
 	}
@@ -182,19 +182,20 @@ public class StopLocation implements Location
 		return title;
 	}
 
-	public void setFavorite(boolean b)
+	public void setFavorite(Favorite b)
 	{
 		isFavorite = b;
 	}
 	
 	@Override
-	public boolean isFavorite() {
+	public Favorite isFavorite() {
 		return isFavorite;
 	}
 	/**
 	 * The list of routes that owns the StopLocation. NOTE: this is not in any particular order
 	 * @return
 	 */
+    @Override
 	public Collection<String> getRoutes() {
 		return routes.getRoutes();
 	}
@@ -331,5 +332,10 @@ public class StopLocation implements Location
     @Override
     public boolean isUpdated() {
         return recentlyUpdated;
+    }
+
+    @Override
+    public boolean needsUpdating() {
+        return false;
     }
 }

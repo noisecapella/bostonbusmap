@@ -7,7 +7,6 @@ import com.google.common.collect.Sets;
 
 public class SubwayStopLocation extends StopLocation {
 
-	
 	protected SubwayStopLocation(SubwayBuilder builder)
 	{
 		super(builder);
@@ -33,6 +32,6 @@ public class SubwayStopLocation extends StopLocation {
 
 	@Override
 	public boolean supportsBusPredictionsAllMode() {
-		return false;
+		return true;
 	}
 }

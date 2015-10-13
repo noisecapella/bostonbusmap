@@ -53,9 +53,10 @@ public class TransitSystem implements ITransitSystem {
 	private static final String website = "http://www.terribleinformation.org/george/bostonbusmap";
 	
 	private static final String[] emails = new String[]{"bostonbusmap@gmail.com"};
-	private static final String emailSubject = "Toronto Transit error report";
 
 	private static final boolean showRunNumber = true;
+    private static final String emailSubject = "TorontoBusMap error report";
+    private static final String feedbackUrl = "https://www.ttc.ca/Customer_Service/Compliments_Complaints_Suggestions/index.jsp";
 
     /**
      * Unimplemented for Toronto
@@ -68,10 +69,13 @@ public class TransitSystem implements ITransitSystem {
 	 * This will be null when alerts haven't been read yet
 	 */
 	private AlertsFuture alertsFuture;
-	
+
 	public static double getCenterLat() {
 		return torontoLatitude;
-	}
+    }
+
+    private static final String agencyName = "TTC";
+
 
 	public static double getCenterLon() {
 		return torontoLongitude;
@@ -102,8 +106,12 @@ public class TransitSystem implements ITransitSystem {
 	 * Be careful with this; this stays around forever since it's static
 	 */
 	private TransitSource defaultTransitSource;
-	
-	/**
+
+    public static String getAgencyName() {
+        return agencyName;
+    }
+
+    /**
 	 * Only call this on the UI thread!
 	 * @param busDrawables
 	 * @param subwayDrawables
@@ -127,17 +135,11 @@ public class TransitSystem implements ITransitSystem {
             /*
 			MbtaRealtimeTransitSource subwayTransitSource = new MbtaRealtimeTransitSource(
 					subwayDrawables,
-					routeTitles.getMappingForSources(new Schema.Routes.SourceId[] {Schema.Routes.SourceId.Subway}), this);
+                    routeTitles.getMappingForSources(new Schema.Routes.SourceId[]{Schema.Routes.SourceId.Subway, Schema.Routes.SourceId.CommuterRail}), this);
 			for (String route : subwayTransitSource.getRouteTitles().routeTags()) {
 				mapBuilder.put(route, subwayTransitSource);
 			}
 
-            CommuterRailTransitSource commuterRailTransitSource = new CommuterRailTransitSource(commuterRailDrawables,
-                    routeTitles.getMappingForSource(Schema.Routes.SourceId.CommuterRail), this);
-            for (String route : commuterRailTransitSource.getRouteTitles().routeTags()) {
-                mapBuilder.put(route, commuterRailTransitSource);
-            }
-			
 			HubwayTransitSource hubwayTransitSource = new HubwayTransitSource(hubwayDrawables, hubwayTransitRoutes,
 					this);
             */
@@ -342,4 +344,8 @@ public class TransitSystem implements ITransitSystem {
 
 		}
 	}
+
+    public static String getFeedbackUrl() {
+        return feedbackUrl;
+    }
 }

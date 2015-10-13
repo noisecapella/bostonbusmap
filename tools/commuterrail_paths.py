@@ -58,10 +58,10 @@ def main():
     gtfs_map = GtfsMap(args.gtfs_path)
     paths = calculate_path(args.route, gtfs_map, args.stationorder_csv)
 
-    print "id,lat,lon"
+    print("id,lat,lon")
     for i, path in enumerate(paths):
         for lat, lon in path:
-            print "%d,%f,%f" % (i, lat, lon)
+            print("%d,%f,%f" % (i, lat, lon))
 
 if __name__ == "__main__":
     main()

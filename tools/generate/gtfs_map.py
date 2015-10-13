@@ -133,7 +133,7 @@ class GtfsMap(object):
             
             for column in columns:
                 if column not in types:
-                    print ("Type for column not found: %s" % column)
+                    print("Type for column not found: %s" % column)
                     type = "TEXT"
                 else:
                     type = types[column]
@@ -147,11 +147,21 @@ class GtfsMap(object):
     def _query(self, query, parameters):
         return (dict(row) for row in self._db.execute(query, parameters))
 
+    def find_routes_by_id(self, id):
+        return self._query("SELECT * FROM routes WHERE route_id = ?", (id,))
+
     def find_routes_by_name(self, name):
         return self._query("SELECT * FROM routes WHERE route_long_name = ? OR route_short_name = ?", (name, name))
 
     def find_shapes_by_route(self, route):
         return self._query("SELECT DISTINCT shapes.* FROM shapes JOIN trips ON shapes.shape_id = trips.shape_id WHERE route_id = ?", (route,))
+
+    def find_sorted_shapes_by_route(self, route):
+        shape_rows = self.find_shapes_by_route(route)
+        return sorted(shape_rows, key=lambda shape: (shape["shape_id"], int(shape["shape_pt_sequence"])))
+
+    def find_shapes_by_shape(self, shape):
+        return self._query("SELECT DISTINCT shapes.* FROM shapes WHERE shape_id = ?", (shape,))
 
     def find_routes_by_route_type(self, route_type):
         return self._query("SELECT routes.* FROM routes WHERE route_type = ?", (route_type,))

@@ -158,7 +158,8 @@ public class MoreInfo extends ListActivity {
 		
 		if (stopIsBeta)
 		{
-			titleText2.append("</b><br /><font color='red'>Commuter rail predictions are experimental</font><b>");
+            titleText2.append("</b><br /><font color='red'>Green line rail predictions are not yet supported<br />Only vehicle locations for above ground trains are available</font><b>");
+
 		}
 		
 		title1.setText(Html.fromHtml("<b>" + titleText1 + "</b>"));

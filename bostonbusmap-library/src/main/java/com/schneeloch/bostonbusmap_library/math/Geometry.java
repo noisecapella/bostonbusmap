@@ -1,7 +1,5 @@
 package com.schneeloch.bostonbusmap_library.math;
 
-import android.util.FloatMath;
-
 /**
  * All non-specific math stuff used to calculate angles and distances should go in here
  * @author schneg
@@ -23,8 +21,9 @@ public class Geometry {
 	public static final double radiansToDegrees = 180.0 / java.lang.Math.PI;
 
 	private static final double InvPITimes180 = (1.0 / Math.PI) * 180;
-	
-	/**
+    public static final double milesToMeters = 1609.34;
+
+    /**
 	 * For testing only
 	 * 
 	 * @param lat1
@@ -37,11 +36,11 @@ public class Geometry {
 	{
 		//great circle distance
 		//double dist = Math.acos(Math.sin(lat1) * Math.sin(lat2) + Math.cos(lat1) * Math.cos(lat2) * Math.cos(lon2 - lon1));
-		float dist = (((1.0f - FloatMath.cos(lat1 - lat2)) * 0.5f) + FloatMath.cos(lat1) * FloatMath.cos(lat2) * 
-				((1.0f - FloatMath.cos(lon1 - lon2)) * 0.5f)); 
+		float dist = (float)(((1.0f - Math.cos(lat1 - lat2)) * 0.5f) + Math.cos(lat1) * Math.cos(lat2) *
+				((1.0f - Math.cos(lon1 - lon2)) * 0.5f));
 		return dist * (float)radiusOfEarthInMiles;
 	}
-	
+
 	/**
 	 * Returns a compare distance, or a distance which is distorted for efficiency sake but comparisons are always correct 
 	 * 
@@ -70,7 +69,7 @@ public class Geometry {
 	/**
 	 * Convert from radians starting east and going counterclockwise, to a degree direction starting north and going clockwise
 	 * 
-	 * @param thetaBackup direction in radians, where east is 0 and going counterclockwise
+	 * @param thetaAsRadians direction in radians, where east is 0 and going counterclockwise
 	 * @return a descriptive String showing the direction (for example: E (90 deg))
 	 */
 	public static int mathRadiansToDegrees(double thetaAsRadians)
@@ -96,12 +95,12 @@ public class Geometry {
 	 * From http://stackoverflow.com/questions/120283/working-with-latitude-longitude-values-in-java
 	 * All params are in radians
 	 * @param lat1
-	 * @param lon1
+	 * @param lng1
 	 * @param lat2
-	 * @param lon2
+	 * @param lng2
 	 * @return
 	 */
-	public static float computeDistanceInMiles(float lat1, float lng1,
+	public static double computeDistanceInMiles(double lat1, double lng1,
 			double lat2, double lng2) {
 		double earthRadius = 3958.75;
 		double dLat = lat2-lat1;
@@ -113,7 +112,7 @@ public class Geometry {
 		double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
 		double dist = earthRadius * c;
 
-		return (float)dist;
+		return dist;
 	}
 
 
