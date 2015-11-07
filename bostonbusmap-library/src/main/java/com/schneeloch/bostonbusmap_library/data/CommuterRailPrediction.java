@@ -151,4 +151,13 @@ public class CommuterRailPrediction extends TimePrediction implements Parcelable
 			return prediction;
 		}
 	};
+
+    @Override
+    public void addVehicleAndRoute(StringBuilder builder) {
+        builder.append("Route <b>").append(routeTitle).append("</b>");
+        if (vehicleId != null)
+        {
+            builder.append("<br /><b>").append(vehicleId).append("</b>");
+        }
+    }
 }
