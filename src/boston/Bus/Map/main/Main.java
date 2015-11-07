@@ -27,8 +27,6 @@ import java.util.List;
 import boston.Bus.Map.R;
 
 import com.commonsware.android.mapsv2.popups.AbstractMapActivity;
-import com.google.android.gms.common.ConnectionResult;
-import com.google.android.gms.common.GoogleApiAvailability;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
