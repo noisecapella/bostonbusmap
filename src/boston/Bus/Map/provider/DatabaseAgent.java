@@ -32,6 +32,7 @@ import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.CopyOnWriteArraySet;
 
 import com.schneeloch.bostonbusmap_library.data.Direction;
+import com.schneeloch.bostonbusmap_library.data.Favorite;
 import com.schneeloch.bostonbusmap_library.data.IntersectionLocation;
 import com.schneeloch.bostonbusmap_library.data.Path;
 import com.schneeloch.bostonbusmap_library.data.RouteConfig;
@@ -142,8 +143,8 @@ public class DatabaseAgent implements IDatabaseAgent {
 
 
     @Override
-    public void saveFavorite(Collection<String> allStopTagsAtLocation, boolean isFavorite) throws RemoteException {
-        if (isFavorite)
+    public void saveFavorite(Collection<String> allStopTagsAtLocation, Favorite isFavorite) throws RemoteException {
+        if (isFavorite == Favorite.IsFavorite)
         {
             storeFavorite(allStopTagsAtLocation);
         }
@@ -518,7 +519,10 @@ public class DatabaseAgent implements IDatabaseAgent {
             ImmutableList.Builder<StopLocation> builder = ImmutableList.builder();
             for (String stopTag : stopTagsInAll)
             {
-                builder.add(sharedStops.get(stopTag));
+                StopLocation stop = sharedStops.get(stopTag);
+                if (stop != null) {
+                    builder.add(stop);
+                }
             }
 
             return builder.build();

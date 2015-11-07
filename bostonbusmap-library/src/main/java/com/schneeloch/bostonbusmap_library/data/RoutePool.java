@@ -151,19 +151,19 @@ public class RoutePool extends Pool<String, RouteConfig> {
 		return ret.toArray(new StopLocation[0]);
 	}
 
-	public boolean isFavorite(StopLocation location)
+	public Favorite isFavorite(StopLocation location)
 	{
-		return favoriteStops.contains(location.getStopTag());
+		return favoriteStops.contains(location.getStopTag()) ? Favorite.IsFavorite : Favorite.IsNotFavorite;
 	}
 	
-	public Favorite setFavorite(StopLocation location, boolean isFavorite) throws RemoteException {
+	public Favorite setFavorite(StopLocation location, Favorite isFavorite) throws RemoteException {
 		Collection<String> stopTags = databaseAgent.getAllStopTagsAtLocation(location.getStopTag());
 
         databaseAgent.saveFavorite(stopTags, isFavorite);
 		favoriteStops.clear();
 		populateFavorites();
 		
-		if (isFavorite == false)
+		if (isFavorite == Favorite.IsNotFavorite)
 		{
 			//make sure setFavorite(false) is called for each stop
 			for (String tag : stopTags)
@@ -176,7 +176,7 @@ public class RoutePool extends Pool<String, RouteConfig> {
 			}
 		}
 		
-		return isFavorite ? Favorite.IsFavorite : Favorite.IsNotFavorite;
+		return isFavorite;
 	}
 
 	public boolean addIntersection(IntersectionLocation.Builder build) {
@@ -291,10 +291,31 @@ public class RoutePool extends Pool<String, RouteConfig> {
 	}
 
     public void replaceStops(String route, ImmutableMap<String, StopLocation> stops) throws IOException {
-        sharedStops.clear();
+        ImmutableMap.Builder<String, StopLocation> builder = ImmutableMap.builder();
+
+        for (Map.Entry<String, StopLocation> entry : stops.entrySet()) {
+            if (sharedStops.containsKey(entry.getKey())) {
+                // sharedStops.put(entry.getKey(), entry.getValue());
+                StopLocation sharedStop = sharedStops.get(entry.getKey());
+                if (sharedStop.getLatitudeAsDegrees() == entry.getValue().getLatitudeAsDegrees() &&
+                        sharedStop.getLongitudeAsDegrees() == entry.getValue().getLongitudeAsDegrees()) {
+                    // leave it alone
+                }
+                else {
+                    sharedStops.put(entry.getKey(), entry.getValue());
+                    builder.put(entry);
+                }
+            }
+        }
+
+        ImmutableMap<String, StopLocation> toReplace = builder.build();
+
+        for (Map.Entry<String, StopLocation> entry : toReplace.entrySet()) {
+            entry.getValue().setFavorite(isFavorite(entry.getValue()));
+        }
 
         RouteConfig routeConfig = get(route);
-        routeConfig.replaceStops(stops);
-        databaseAgent.replaceStops(stops.values());
+        routeConfig.replaceStops(toReplace);
+        databaseAgent.replaceStops(toReplace.values());
     }
 }
