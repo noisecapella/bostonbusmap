@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 
-import com.google.common.base.Objects;
+import com.google.common.base.MoreObjects;
 import com.google.common.collect.ImmutableCollection;
 
 import com.schneeloch.bostonbusmap_library.annotations.KeepSorted;
@@ -263,7 +263,7 @@ public class StopLocation implements Location
 	
 	@Override
 	public String toString() {
-		return Objects.toStringHelper(this).add("id", tag).toString();
+		return MoreObjects.toStringHelper(this).add("id", tag).toString();
 	}
 
 	/**
