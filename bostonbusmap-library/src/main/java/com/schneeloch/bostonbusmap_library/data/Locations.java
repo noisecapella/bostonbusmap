@@ -30,7 +30,9 @@ import javax.xml.parsers.ParserConfigurationException;
 
 import org.xml.sax.SAXException;
 
+import com.google.common.collect.ImmutableCollection;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 
 
@@ -391,4 +393,8 @@ public final class Locations
 	public ITransitSystem getTransitSystem() {
 		return routeMapping.getTransitSystem();
 	}
+
+    public void replaceStops(String route, ImmutableMap<String, StopLocation> values) throws IOException {
+        routeMapping.replaceStops(route, values);
+    }
 }

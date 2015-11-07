@@ -12,6 +12,7 @@ import android.os.RemoteException;
 import android.provider.BaseColumns;
 import android.util.Log;
 
+import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableBiMap;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -791,6 +792,65 @@ public class DatabaseAgent implements IDatabaseAgent {
             intersections.put(key, builder.build(transitSystem.getRouteKeysToTitles()));
         }
 
+    }
+
+    @Override
+    public void replaceStops(Collection<StopLocation> stops) {
+        if (stops.size() == 0) {
+            return;
+        }
+
+        List<String> stopIds = Lists.newArrayList();
+        for (StopLocation stop : stops) {
+            stopIds.add(stop.getStopTag());
+        }
+
+        // delete any existing stops
+        String[] selectArray;
+
+        String[] questionMarks = new String[stops.size()];
+        for (int i = 0; i < stops.size(); i++) {
+            questionMarks[i] = "?";
+        }
+        selectArray = stopIds.toArray(new String[0]);
+
+        String inClause = " IN (" + Joiner.on(',').join(questionMarks) + ")";
+
+        resolver.delete(DatabaseContentProvider.STOPS_URI,
+                Schema.Stops.tagColumnOnTable + inClause,
+                selectArray);
+
+        resolver.delete(DatabaseContentProvider.STOPS_ROUTES_URI,
+                Schema.Stopmapping.tagColumnOnTable + inClause,
+                selectArray);
+        resolver.delete(DatabaseContentProvider.DIRECTIONS_STOPS_URI,
+                Schema.DirectionsStops.tagColumnOnTable + inClause,
+                selectArray);
+
+        List<ContentValues> stopsToInsert = Lists.newArrayList();
+        List<ContentValues> stopRoutesToInsert = Lists.newArrayList();
+
+        for (StopLocation stop : stops) {
+            ContentValues stopValues = new ContentValues();
+            stopValues.put(Schema.Stops.tagColumn, stop.getStopTag());
+            stopValues.put(Schema.Stops.titleColumn, stop.getTitle());
+            stopValues.put(Schema.Stops.latColumn, stop.getLatitudeAsDegrees());
+            stopValues.put(Schema.Stops.lonColumn, stop.getLongitudeAsDegrees());
+            stopsToInsert.add(stopValues);
+
+            for (String route : stop.getRoutes()) {
+                ContentValues stopRouteValues = new ContentValues();
+                stopRouteValues.put(Schema.Stopmapping.routeColumn, route);
+                stopRouteValues.put(Schema.Stopmapping.tagColumn, stop.getStopTag());
+                stopRoutesToInsert.add(stopRouteValues);
+            }
+
+            // TODO: directions. This was originally written for Hubway which doesn't use this
+            // table
+        }
+
+        resolver.bulkInsert(DatabaseContentProvider.STOPS_URI, stopsToInsert.toArray(new ContentValues[0]));
+        resolver.bulkInsert(DatabaseContentProvider.STOPS_ROUTES_URI, stopRoutesToInsert.toArray(new ContentValues[0]));
     }
 
     /**
