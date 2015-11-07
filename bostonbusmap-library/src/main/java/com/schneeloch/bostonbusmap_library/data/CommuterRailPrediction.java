@@ -84,11 +84,11 @@ public class CommuterRailPrediction extends TimePrediction implements Parcelable
 		}
 		else
 		{
-			builder.append("Line <b>").append(routeTitle).append("</b>");
-			if (vehicleId != null)
-			{
-				builder.append(", Train <b>").append(vehicleId).append("</b>");
-			}
+            builder.append("Route <b>").append(routeTitle).append("</b>");
+            if (vehicleId != null)
+            {
+                builder.append("<br /><b>").append(vehicleId).append("</b>");
+            }
 
 			if (direction != null)
 			{
@@ -151,13 +151,4 @@ public class CommuterRailPrediction extends TimePrediction implements Parcelable
 			return prediction;
 		}
 	};
-
-    @Override
-    public void addVehicleAndRoute(StringBuilder builder) {
-        builder.append("Route <b>").append(routeTitle).append("</b>");
-        if (vehicleId != null)
-        {
-            builder.append("<br /><b>").append(vehicleId).append("</b>");
-        }
-    }
 }
