@@ -85,8 +85,9 @@ public class MbtaRealtimeVehicleParser {
                         String tripHeadsign = trip.trip_headsign;
                         String tripName = trip.trip_name;
 
+                        String tripName = trip.trip_name;
                         if (trip.vehicle != null) {
-                            String id = trip.vehicle.vehicle_id;
+                            String vehicleId = trip.vehicle.vehicle_id;
                             if (trip.vehicle.vehicle_lat == null || trip.vehicle.vehicle_lon == null) {
                                 continue;
                             }
@@ -99,6 +100,14 @@ public class MbtaRealtimeVehicleParser {
                             }
                             else {
                                 bearing = Optional.absent();
+                            }
+
+                            String id;
+                            if (MbtaRealtimeTransitSource.routeNameToTransitSource.get(routeName) == Schema.Routes.SourceId.CommuterRail) {
+                                id = tripName;
+                            }
+                            else {
+                                id = vehicleId;
                             }
 
                             VehicleLocations.Key key = new VehicleLocations.Key(transitSourceId, routeName, id);
