@@ -98,27 +98,30 @@ public class MbtaRealtimePredictionsParser {
 
                                 if (stop.sch_arr_dt != null && isCommuterRail) {
                                     // Show scheduled time and delay
-                                    long scheduledArrival = Long.parseLong(stop.sch_arr_dt);
+                                    long scheduledArrivalMillis = Long.parseLong(stop.sch_arr_dt) * 1000;
 
+                                    long arrivalTimeMillis;
                                     if (stop.pre_dt != null) {
                                         long arrivalTimeSeconds = Long.parseLong(stop.pre_dt);
-                                        long arrivalTimeMillis = arrivalTimeSeconds * 1000;
-
-                                        int lateness = (int)(arrivalTimeMillis - scheduledArrival) / 1000;
-                                        if (lateness < 0) {
-                                            lateness = 0;
-                                        }
-
-                                        TimePrediction prediction = new CommuterRailPrediction(arrivalTimeMillis,
-                                                tripName, directionName, routeName,
-                                                routeTitle, false,
-                                                lateness > 5*60, lateness, "", stopId,
-                                                CommuterRailPrediction.Flag.Arr
-                                        );
-
-                                        PredictionStopLocationPair pair = new PredictionStopLocationPair(prediction, stopLocation);
-                                        pairs.add(pair);
+                                        arrivalTimeMillis = arrivalTimeSeconds * 1000;
                                     }
+                                    else {
+                                        arrivalTimeMillis = scheduledArrivalMillis;
+                                    }
+                                    int lateness = (int)(arrivalTimeMillis - scheduledArrivalMillis) / 1000;
+                                    if (lateness < 0) {
+                                        lateness = 0;
+                                    }
+
+                                    TimePrediction prediction = new CommuterRailPrediction(arrivalTimeMillis,
+                                            tripName, directionName, routeName,
+                                            routeTitle, false,
+                                            lateness > 5*60, lateness, "", stopId,
+                                            CommuterRailPrediction.Flag.Arr
+                                    );
+
+                                    PredictionStopLocationPair pair = new PredictionStopLocationPair(prediction, stopLocation);
+                                    pairs.add(pair);
                                 } else if (stop.pre_dt != null) {
                                     long arrivalTimeSeconds = Long.parseLong(stop.pre_dt);
                                     long arrivalTimeMillis = arrivalTimeSeconds * 1000;
