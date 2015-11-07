@@ -286,8 +286,10 @@ public final class Locations
 	
 	public Favorite toggleFavorite(StopLocation location) throws RemoteException
 	{
-		boolean isFavorite = routeMapping.isFavorite(location);
-		return routeMapping.setFavorite(location, !isFavorite);
+		Favorite isFavorite = routeMapping.isFavorite(location);
+        Favorite isNotFavorite = isFavorite == Favorite.IsFavorite ? Favorite.IsNotFavorite : Favorite.IsFavorite;
+
+		return routeMapping.setFavorite(location, isNotFavorite);
 	}
 
 	public boolean addIntersection(IntersectionLocation.Builder builder) {

@@ -15,6 +15,7 @@ import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.CopyOnWriteArraySet;
 
 import com.schneeloch.bostonbusmap_library.data.Direction;
+import com.schneeloch.bostonbusmap_library.data.Favorite;
 import com.schneeloch.bostonbusmap_library.data.IntersectionLocation;
 import com.schneeloch.bostonbusmap_library.data.RouteConfig;
 import com.schneeloch.bostonbusmap_library.data.RouteTitles;
@@ -30,7 +31,7 @@ public interface IDatabaseAgent {
 
     ImmutableList<String> getAllStopTagsAtLocation(String stopTag);
 
-    void saveFavorite(Collection<String> allStopTagsAtLocation, boolean isFavorite) throws RemoteException;
+    void saveFavorite(Collection<String> allStopTagsAtLocation, Favorite isFavorite) throws RemoteException;
 
     RouteConfig getRoute(String routeToUpdate,
                          ConcurrentMap<String, StopLocation> sharedStops,
