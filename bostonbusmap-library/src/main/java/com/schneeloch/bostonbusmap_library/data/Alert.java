@@ -5,11 +5,13 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Set;
 
 import com.google.common.base.Joiner;
 import com.google.common.base.Objects;
 import com.google.common.collect.ComparisonChain;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 import com.schneeloch.bostonbusmap_library.util.AlertInfoConstants;
 
 import android.os.Parcel;
@@ -71,16 +73,13 @@ public class Alert implements Parcelable, Comparable<Alert>
 			return "";
 		}
 
-		List<String> titles = Lists.newArrayList();
-		for (Alert alert : alerts) {
+		Set<String> titles = Sets.newTreeSet();
+        for (Alert alert : alerts) {
 			String title = alert.getTitle();
 			if (title != null && title.length() != 0) {
-				titles.add(title);
+                titles.add(title);
 			}
 		}
-
-		// TODO: make this sort more logically
-		Collections.sort(titles);
 
 		builder.append("<b>").append(Joiner.on("<br />").join(titles)).append("</b><br />");
 
