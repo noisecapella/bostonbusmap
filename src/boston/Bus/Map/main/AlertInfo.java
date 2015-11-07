@@ -1,8 +1,11 @@
 package boston.Bus.Map.main;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import boston.Bus.Map.R;
 import com.schneeloch.bostonbusmap_library.data.Alert;
@@ -11,6 +14,7 @@ import android.app.ListActivity;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.text.Spanned;
+import android.util.Pair;
 import android.widget.SimpleAdapter;
 import android.widget.TextView;
 
@@ -38,9 +42,10 @@ public class AlertInfo extends ListActivity
 
 
 
-		alerts = (Parcelable[])extras.getParcelableArray(alertsKey);
+		alerts = extras.getParcelableArray(alertsKey);
 
-		ArrayList<HashMap<String, Spanned>> data = Lists.newArrayList();
+        List<Map.Entry<String, List<Alert>>> pairs = Lists.newArrayList();
+
 		if (alerts != null)
 		{
 			HashMap<String, List<Alert>> commonAlerts = Maps.newHashMap();
@@ -58,12 +63,25 @@ public class AlertInfo extends ListActivity
 				}
 			}
 
-			for (String description : commonAlerts.keySet()) {
-				List<Alert> alertList = commonAlerts.get(description);
-				HashMap<String, Spanned> map = Alert.makeSnippetMap(alertList);
-				data.add(map);
-			}
+            for (Map.Entry<String, List<Alert>> entry : commonAlerts.entrySet()) {
+                pairs.add(entry);
+            }
+
+            Collections.sort(pairs, new Comparator<Map.Entry<String, List<Alert>>>() {
+                @Override
+                public int compare(Map.Entry<String, List<Alert>> lhs, Map.Entry<String, List<Alert>> rhs) {
+                    return lhs.getKey().toLowerCase().compareTo(rhs.getKey().toLowerCase());
+                }
+            });
+
 		}
+
+        ArrayList<Map<String, Spanned>> data = Lists.newArrayList();
+        for (Map.Entry<String, List<Alert>> entry : pairs) {
+            List<Alert> alertList = entry.getValue();
+            Map<String, Spanned> map = Alert.makeSnippetMap(alertList);
+            data.add(map);
+        }
 		SimpleAdapter adapter = new SimpleAdapter(this, data, R.layout.moreinfo_row,
 				new String[]{AlertInfoConstants.textKey},
 				new int[] {R.id.moreinfo_text});
