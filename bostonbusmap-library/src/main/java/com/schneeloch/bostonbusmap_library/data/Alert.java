@@ -5,11 +5,13 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import com.google.common.base.Joiner;
 import com.google.common.base.Objects;
 import com.google.common.collect.ComparisonChain;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.schneeloch.bostonbusmap_library.util.AlertInfoConstants;
@@ -50,15 +52,11 @@ public class Alert implements Parcelable, Comparable<Alert>
 		return description;
 	}
 
-	public static HashMap<String, Spanned> makeSnippetMap(List<Alert> alerts)
+	public static Map<String, Spanned> makeSnippetMap(List<Alert> alerts)
 	{
-		HashMap<String, Spanned> map = new HashMap<String, Spanned>();
-		
 		String ret = Alert.makeSnippet(alerts);
 		
-		map.put(AlertInfoConstants.textKey, Html.fromHtml(ret));
-		
-		return map;
+		return ImmutableMap.of(AlertInfoConstants.textKey, Html.fromHtml(ret));
 	}
 
 	/**
