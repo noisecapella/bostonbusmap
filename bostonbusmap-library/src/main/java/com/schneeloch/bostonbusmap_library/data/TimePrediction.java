@@ -71,7 +71,7 @@ public class TimePrediction implements IPrediction
         builder.append("Route <b>").append(routeTitle).append("</b>");
         if (vehicleId != null)
         {
-            builder.append("<br /><b>").append(vehicleId).append("</b>");
+            builder.append(", Vehicle <b>").append(vehicleId).append("</b>");
         }
 
 		if (!StringUtil.isEmpty(block) && showRunNumber) {
