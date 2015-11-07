@@ -27,6 +27,7 @@ public class StopLocation implements Location
 	
 	private boolean isFavorite;
 	protected boolean recentlyUpdated;
+    protected boolean everUpdated;
 
 	
 	/**
@@ -47,6 +48,10 @@ public class StopLocation implements Location
 		this.tag = builder.tag;
 		this.title = builder.title;
 	}
+
+    public boolean wasEverUpdated() {
+        return everUpdated;
+    }
 
     public static class Builder {
 		private final float latitudeAsDegrees;
@@ -164,6 +169,7 @@ public class StopLocation implements Location
 		}
 		
 		recentlyUpdated = true;
+        everUpdated = true;
 	}
 	
 	public void addPrediction(IPrediction prediction)
