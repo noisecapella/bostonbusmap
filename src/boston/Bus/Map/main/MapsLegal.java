@@ -5,7 +5,7 @@ import android.os.Bundle;
 import android.text.method.ScrollingMovementMethod;
 import android.widget.TextView;
 
-import com.google.android.gms.common.GoogleApiAvailability;
+import com.google.android.gms.common.GooglePlayServicesUtil;
 
 import boston.Bus.Map.R;
 
@@ -19,7 +19,7 @@ public class MapsLegal extends Activity {
         setContentView(R.layout.maps_legal);
 
         TextView legalText = (TextView)findViewById(R.id.legal_text_view);
-        String licenseInfo = GoogleApiAvailability.getInstance().getOpenSourceSoftwareLicenseInfo(this);
+        String licenseInfo = GooglePlayServicesUtil.getOpenSourceSoftwareLicenseInfo(this);
         legalText.setText(licenseInfo);
         legalText.setMovementMethod(new ScrollingMovementMethod());
     }
