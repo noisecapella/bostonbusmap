@@ -132,6 +132,9 @@ public class StopPredictionViewImpl extends StopPredictionView {
             if (hasUpdated) {
                 ret.append("No predictions for this stop");
             }
+            else {
+                ret.append("No information received yet for this stop");
+            }
             return;
 		}
 
