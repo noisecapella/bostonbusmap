@@ -112,6 +112,7 @@ public class MapManager implements OnMapClickListener, OnMarkerClickListener,
     private int firstRunSelectionId = NOT_SELECTED;
     private final Main context;
     private boolean changeRouteIfSelected;
+    private boolean alwaysFocusRoute;
 
     public MapManager(Main context, GoogleMap map,
                       ITransitSystem transitSystem, Locations locations,
@@ -773,6 +774,10 @@ public class MapManager implements OnMapClickListener, OnMarkerClickListener,
         Selection.Mode mode = locations.getSelection().getMode();
 
         Map<String, Path[]> pathMap = Maps.newHashMap();
+        if (alwaysFocusRoute) {
+            String route = locations.getSelection().getRoute();
+            pathMap.put(route, locations.getPaths(route));
+        }
         if (changeRouteIfSelected && selectedLocation != null) {
             for (String route : selectedLocation.getRoutes()) {
                 pathMap.put(route, locations.getPaths(route));
@@ -974,5 +979,13 @@ public class MapManager implements OnMapClickListener, OnMarkerClickListener,
 
     public void setShowTraffic(boolean showTraffic) {
         map.setTrafficEnabled(showTraffic);
+    }
+
+    public void setAlwaysFocusRoute(boolean alwaysFocusRoute) {
+        this.alwaysFocusRoute = alwaysFocusRoute;
+    }
+
+    public boolean isAlwaysFocusRoute() {
+        return alwaysFocusRoute;
     }
 }
