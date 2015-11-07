@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -56,6 +57,8 @@ public interface IDatabaseAgent {
             ConcurrentMap<String, IntersectionLocation> intersections,
             ITransitSystem transitSystem, ConcurrentMap<String, StopLocation> sharedStops,
             float miles, boolean filterByDistance);
+
+    void replaceStops(Collection<StopLocation> stops);
 
     boolean addIntersection(IntersectionLocation.Builder build, TransitSourceTitles routeTitles);
 
