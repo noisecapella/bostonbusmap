@@ -11,7 +11,9 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.CopyOnWriteArraySet;
 
+import com.google.common.collect.ImmutableCollection;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 
@@ -287,4 +289,12 @@ public class RoutePool extends Pool<String, RouteConfig> {
 	public ITransitSystem getTransitSystem() {
 		return transitSystem;
 	}
+
+    public void replaceStops(String route, ImmutableMap<String, StopLocation> stops) throws IOException {
+        sharedStops.clear();
+
+        RouteConfig routeConfig = get(route);
+        routeConfig.replaceStops(stops);
+        databaseAgent.replaceStops(stops.values());
+    }
 }
