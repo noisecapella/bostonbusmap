@@ -14,8 +14,6 @@ import com.schneeloch.bostonbusmap_library.transit.ITransitSystem;
 
 public class StopLocation implements Location
 {
-	private final float latitude;
-	private final float longitude;
 	private final float latitudeAsDegrees;
 	private final float longitudeAsDegrees;
 	
@@ -43,8 +41,6 @@ public class StopLocation implements Location
 	{
 		this.latitudeAsDegrees = builder.latitudeAsDegrees;
 		this.longitudeAsDegrees = builder.longitudeAsDegrees;
-		this.latitude = (float) (latitudeAsDegrees * Geometry.degreesToRadians);
-		this.longitude = (float) (longitudeAsDegrees * Geometry.degreesToRadians);
 		this.tag = builder.tag;
 		this.title = builder.title;
 	}
@@ -75,11 +71,15 @@ public class StopLocation implements Location
 	@Override
 	public float distanceFrom(double centerLatitude, double centerLongitude)
 	{
+        float latitude = (float) (latitudeAsDegrees * Geometry.degreesToRadians);
+        float longitude = (float) (longitudeAsDegrees * Geometry.degreesToRadians);
 		return Geometry.computeCompareDistance(latitude, longitude, centerLatitude, centerLongitude);
 	}
 
 	public float distanceFromInMiles(double latitudeAsRads,
 			double longitudeAsRads) {
+        float latitude = (float) (latitudeAsDegrees * Geometry.degreesToRadians);
+        float longitude = (float) (longitudeAsDegrees * Geometry.degreesToRadians);
 		return Geometry.computeDistanceInMiles(latitude, longitude, latitudeAsRads, longitudeAsRads);
 	}
 
