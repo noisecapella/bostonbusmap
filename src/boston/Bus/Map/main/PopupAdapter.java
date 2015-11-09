@@ -73,16 +73,23 @@ public class PopupAdapter implements InfoWindowAdapter {
         }
 
         String id = marker.getId();
-        Location location = manager.getLocationFromMarkerId(id);
-        populateView(location);
+        ImmutableList<Location> group = manager.getLocationFromMarkerId(id);
+        populateView(group);
         return popupView;
     }
     protected Context getContext() {
         return main;
     }
 
-    private void populateView(Location location) {
+    private void populateView(ImmutableList<Location> group) {
         //NOTE: originally this was going to be an actual link, but we can't click it on the popup except through its onclick listener
+        Location location;
+        if (group != null) {
+            location = group.get(0);
+        }
+        else {
+            location = null;
+        }
 
         PredictionView predictionView;
         if (location != null) {

@@ -1,6 +1,7 @@
 package com.schneeloch.bostonbusmap_library.transit;
 
 import com.google.common.base.Optional;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.schneeloch.bostonbusmap_library.data.BusLocation;
@@ -93,7 +94,7 @@ public class CommuterRailTransitSource implements TransitSource {
         switch (selectedBusPredictions) {
             case BUS_PREDICTIONS_ONE:
             case VEHICLE_LOCATIONS_ONE: {
-                List<Location> locations = locationsObj.getLocations(maxStops, centerLatitude, centerLongitude, false, selection);
+                ImmutableList<ImmutableList<Location>> locations = locationsObj.getLocations(maxStops, centerLatitude, centerLongitude, false, selection);
 
                 //ok, do predictions now
                 getPredictionsUrl(locations, maxStops, routeConfig.getRouteName(), outputData, selectedBusPredictions);
@@ -102,7 +103,7 @@ public class CommuterRailTransitSource implements TransitSource {
             case BUS_PREDICTIONS_ALL:
             case VEHICLE_LOCATIONS_ALL:
             case BUS_PREDICTIONS_STAR: {
-                List<Location> locations = locationsObj.getLocations(maxStops, centerLatitude, centerLongitude, false, selection);
+                ImmutableList<ImmutableList<Location>> locations = locationsObj.getLocations(maxStops, centerLatitude, centerLongitude, false, selection);
 
                 getPredictionsUrl(locations, maxStops, null, outputData, selectedBusPredictions);
 
@@ -181,7 +182,7 @@ public class CommuterRailTransitSource implements TransitSource {
 		}
 	}
 	
-	private void getPredictionsUrl(List<Location> locations, int maxStops,
+	private void getPredictionsUrl(ImmutableList<ImmutableList<Location>> locationGroups, int maxStops,
 			String routeName, List<RefreshData> outputData, Selection.Mode mode)
 	{
 		//http://developer.mbta.com/lib/RTCR/RailLine_1.csv
@@ -206,39 +207,34 @@ public class CommuterRailTransitSource implements TransitSource {
 			if (mode == Selection.Mode.BUS_PREDICTIONS_STAR)
 			{
 				//ok, let's look at the locations and see what we can get
-				for (Location location : locations)
-				{
-					if (location instanceof StopLocation)
-					{
-						StopLocation stopLocation = (StopLocation)location;
+                for (ImmutableList<Location> group : locationGroups) {
+                    for (Location location : group) {
+                        if (location instanceof StopLocation) {
+                            StopLocation stopLocation = (StopLocation) location;
 
 
-						for (String route : stopLocation.getRoutes())
-						{
-							if (isCommuterRail(route) && containsRoute(route, outputData) == false)
-							{
-								String url = routesToUrls.get(route);
+                            for (String route : stopLocation.getRoutes()) {
+                                if (isCommuterRail(route) && containsRoute(route, outputData) == false) {
+                                    String url = routesToUrls.get(route);
+                                    if (cache.canUpdatePredictionForRoute(route) && cache.canUpdateVehiclesForRoute(route)) {
+                                        outputData.add(new RefreshData(url, route));
+                                    }
+                                }
+                            }
+                        } else if (location instanceof BusLocation) {
+                            //bus location
+                            BusLocation busLocation = (BusLocation) location;
+                            String route = busLocation.getRouteId();
+
+                            if (isCommuterRail(route) && containsRoute(route, outputData) == false) {
+                                String url = routesToUrls.get(route);
                                 if (cache.canUpdatePredictionForRoute(route) && cache.canUpdateVehiclesForRoute(route)) {
                                     outputData.add(new RefreshData(url, route));
                                 }
-							}
-						}
-					}
-					else if (location instanceof BusLocation)
-					{
-						//bus location
-						BusLocation busLocation = (BusLocation)location;
-						String route = busLocation.getRouteId();
-
-						if (isCommuterRail(route) && containsRoute(route, outputData) == false)
-						{
-							String url = routesToUrls.get(route);
-                            if (cache.canUpdatePredictionForRoute(route) && cache.canUpdateVehiclesForRoute(route)) {
-                                outputData.add(new RefreshData(url, route));
                             }
-						}
-					}
-				}
+                        }
+                    }
+                }
 			}
 			else
 			{

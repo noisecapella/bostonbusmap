@@ -32,6 +32,9 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.LatLng;
 import com.schneeloch.bostonbusmap_library.data.BusLocation;
+import com.google.common.base.Optional;
+import com.google.common.collect.ImmutableList;
+import com.schneeloch.bostonbusmap_library.data.GroupKey;
 import com.schneeloch.bostonbusmap_library.data.ITransitDrawables;
 import com.schneeloch.bostonbusmap_library.data.Locations;
 
@@ -173,8 +176,6 @@ public class Main extends AbstractMapActivity
 	public static final String ROUTE_KEY = "route";
 	public static final String STOP_KEY = "stop";
 	public static final String MODE_KEY = "mode";
-
-    protected int firstRunSelectedId = MapManager.NOT_SELECTED;
 
     private final static int DRAWER_INTERSECTIONS_MENU_ITEM_POS = 0;
     private final static int DRAWER_CHOOSE_STOP_POS = 1;
@@ -491,8 +492,6 @@ public class Main extends AbstractMapActivity
                     // from http://stackoverflow.com/questions/13372326/how-to-get-getintent-to-return-null-after-activity-called-with-an-intent-set
                     intent.setData(null);
                 }
-
-                manager.setFirstRunSelectionId(firstRunSelectedId);
             }
         });
 	}
@@ -659,14 +658,14 @@ public class Main extends AbstractMapActivity
     private void showChooseStopDialog() {
 		if (arguments != null)
 		{
-			StopLocation[] favoriteStops = arguments.getBusLocations().getCurrentFavorites();
+			ImmutableList<StopLocation> favoriteStops = arguments.getBusLocations().getCurrentFavorites();
 			
-			final StopLocation[] stops = StopLocation.consolidateStops(favoriteStops);
+			final ImmutableList<StopLocation> stops = StopLocation.consolidateStops(favoriteStops);
 
-			String[] titles = new String[stops.length];
-			for (int i = 0; i < stops.length; i++)
+			String[] titles = new String[stops.size()];
+			for (int i = 0; i < stops.size(); i++)
 			{
-				StopLocation stop = stops[i];
+				StopLocation stop = stops.get(i);
 				String routeTag = stop.getFirstRoute();
 				String routeTitle = arguments.getBusLocations().getRouteTitle(routeTag);
 				String title = stop.getTitle() + " (route " + routeTitle + ")";
@@ -679,9 +678,9 @@ public class Main extends AbstractMapActivity
 
 				@Override
 				public void onClick(DialogInterface dialog, int which) {
-					if (which >= 0 && which < stops.length)
+					if (which >= 0 && which < stops.size())
 					{
-						StopLocation stop = stops[which];
+						StopLocation stop = stops.get(which);
 						
 						String route = stop.getFirstRoute();
 						setNewStop(route, stop.getStopTag());
@@ -766,18 +765,6 @@ public class Main extends AbstractMapActivity
 
 		}
 	}
-
-    @Override
-    public void onSaveInstanceState(Bundle outState) {
-        if (arguments != null) {
-            outState.putInt("selectedId", arguments.getOverlayGroup().getSelectedBusId());
-        }
-    }
-
-    @Override
-    protected void onRestoreInstanceState(Bundle savedInstanceState) {
-        firstRunSelectedId = savedInstanceState.getInt("selectedId");
-    }
 
     @Override
 	protected void onResume() {
@@ -965,7 +952,7 @@ public class Main extends AbstractMapActivity
                 arguments.getMapView().moveCamera(CameraUpdateFactory.newLatLng(latlng));
                 arguments.getMapView().moveCamera(CameraUpdateFactory.scrollBy(0, -100));
 
-				handler.triggerUpdateThenSelect(newLocation.getId());
+				handler.triggerUpdateThenSelect(Optional.of(new GroupKey(newLocation)));
 			}
 			
 		}
@@ -986,8 +973,7 @@ public class Main extends AbstractMapActivity
 			return;
 		}
 		
-		final int id = stopLocation.getId();
-		handler.triggerUpdateThenSelect(id);
+		handler.triggerUpdateThenSelect(Optional.of(new GroupKey(stopLocation)));
 
 		if (route != null)
 		{
