@@ -15,6 +15,7 @@ import javax.xml.parsers.ParserConfigurationException;
 
 import org.xml.sax.SAXException;
 
+import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 
@@ -281,10 +282,10 @@ public class TransitSystem implements ITransitSystem {
 	@Override
 	public StopLocation createStop(float latitude, float longitude,
 			String stopTag, String stopTitle,
-			String route) {
+			String route, Optional<String> parent) {
 		TransitSource source = getTransitSource(route);
 		
-		return source.createStop(latitude, longitude, stopTag, stopTitle, route);
+		return source.createStop(latitude, longitude, stopTag, stopTitle, route, parent);
 	}
 
 	@Override

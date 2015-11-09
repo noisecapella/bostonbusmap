@@ -7,7 +7,7 @@ import schema
 import requests
 from simplify_path import simplify_path
 class RouteHandler(xml.sax.handler.ContentHandler):
-    def __init__(self, cur, startingOrder, sharedStops):
+    def __init__(self, cur, startingOrder, sharedStops, gtfs_map):
         self.cur = cur
 
         self.currentDirection = None
@@ -17,12 +17,20 @@ class RouteHandler(xml.sax.handler.ContentHandler):
         self.startingOrder = startingOrder
         self.inPath = False
         self.paths = []
+        self.gtfs_map = gtfs_map
+
+        self.gtfs_stops = {}
 
     def startElement(self, name, attributes):
         table = self.table
         if name == "route":
             route = attributes["tag"]
             self.currentRoute = route
+
+            for stop_row in self.gtfs_map.find_stops_by_route(route):
+                self.gtfs_stops[stop_row["stop_id"]] = stop_row
+                    
+            
             table.routes.route.value = attributes["tag"]
             table.routes.routetitle.value = attributes["title"]
             table.routes.color.value = int(attributes["color"], 16)
@@ -39,15 +47,18 @@ class RouteHandler(xml.sax.handler.ContentHandler):
                     table.stops.lat.value = attributes["lat"]
                     table.stops.lon.value = attributes["lon"]
                     table.stops.title.value = attributes["title"]
+
+                    stop_id = tag.split("_")[0]
+                    if stop_id not in self.gtfs_stops:
+                        print("WARNING: tag {tag} not in GTFS".format(tag=tag))
+                        parent = ""
+                    else:
+                        parent = self.gtfs_stops[stop_id]["parent_station"]
+                    table.stops.parent.value = parent
                     self.cur.execute(table.stops.insert())
                 table.stopmapping.route.value = self.currentRoute
                 table.stopmapping.tag.value = tag
                 self.cur.execute(table.stopmapping.insert())
-            else:
-                pass
-                #table.directionsStops.dirTag.value = self.currentDirection
-                #table.directionsStops.tag.value = tag
-                #self.cur.execute(table.directionsStops.insert())
                 
         elif name == "direction": #band attributes["useForUI"] == "true":
             dirTag = attributes["tag"]
@@ -101,7 +112,7 @@ class NextBus:
                                command = 'routeConfig',
                                other=('&r=%s&verbose' % route_name))
 
-    def generate(self, conn, index):
+    def generate(self, conn, index, gtfs_map):
         print("Downloading NextBus route data (this will take 10 or 20 minutes)...")
         routeList_data = requests.get(self.routeListUrl()).text
         routeList_dom = xml.dom.minidom.parseString(routeList_data)
@@ -123,11 +134,11 @@ class NextBus:
                 # try one more time
                 routeConfig_data = requests.get(self.routeConfigUrl(route_name)).text
 
-            handler = RouteHandler(cur, index + count, shared_stops)
+            handler = RouteHandler(cur, index + count, shared_stops, gtfs_map)
             xml.sax.parseString(routeConfig_data.encode("utf-8"), handler)
 
             # NextBus rate limiting
-            time.sleep(15)
+            time.sleep(3)
             count += 1
 
 

@@ -25,7 +25,7 @@ def generate(conn, gtfs_map):
     print("Generating heavy rail stops...")
     index = MbtaHeavyRail().generate(conn, index, gtfs_map)
     print("Generating NextBus stops...")
-    index = NextBus("mbta").generate(conn, index)
+    index = NextBus("mbta").generate(conn, index, gtfs_map)
     print(index)
 
 def main():

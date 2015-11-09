@@ -306,9 +306,9 @@ public class CommuterRailTransitSource implements TransitSource {
 	@Override
 	public CommuterRailStopLocation createStop(float latitude, float longitude,
 			String stopTag, String stopTitle,
-			String route) {
+			String route, Optional<String> parent) {
 		CommuterRailStopLocation stop = new CommuterRailStopLocation.CommuterRailBuilder(
-				latitude, longitude, stopTag, stopTitle).build();
+				latitude, longitude, stopTag, stopTitle, parent).build();
 		stop.addRoute(route);
 		return stop;
 	}
