@@ -1,5 +1,6 @@
 package com.schneeloch.bostonbusmap_library.data;
 
+import com.google.common.base.Optional;
 import com.schneeloch.bostonbusmap_library.database.Schema;
 
 /**
@@ -14,9 +15,9 @@ public class HubwayStopLocation extends StopLocation {
 	public static class HubwayBuilder extends Builder {
 		public HubwayBuilder(float latitudeAsDegrees,
 								   float longitudeAsDegrees, String tag,
-								   String title) {
+								   String title, Optional<String> parent) {
 			super (latitudeAsDegrees, longitudeAsDegrees, tag,
-					title);
+					title, parent);
 		}
 
 		@Override

@@ -59,6 +59,7 @@ class MbtaHeavyRail:
                 obj.stops.title.value = stop_row["stop_name"]
                 obj.stops.lat.value = float(stop_row["stop_lat"])
                 obj.stops.lon.value = float(stop_row["stop_lon"])
+                obj.stops.parent.value = stop_row["parent_station"]
                 cur.execute(obj.stops.insert())
 
                 obj.stopmapping.route.value = route

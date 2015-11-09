@@ -359,7 +359,7 @@ public class Schema {
     public static class Stops {
         public static final String table = "stops"; 
         public static final String[] columns = new String[] {
-            "tag", "lat", "lon", "title"
+            "tag", "lat", "lon", "title", "parent"
         };
 
         public static final int tagIndex = 1;
@@ -374,32 +374,38 @@ public class Schema {
         public static final int titleIndex = 4;
         public static final String titleColumn = "title";
         public static final String titleColumnOnTable = "stops.title";
+        public static final int parentIndex = 5;
+        public static final String parentColumn = "parent";
+        public static final String parentColumnOnTable = "stops.parent";
 
         public static final String dropSql = "DROP TABLE IF EXISTS stops";
-        public static final String createSql = "CREATE TABLE IF NOT EXISTS stops (tag STRING PRIMARY KEY, lat FLOAT, lon FLOAT, title STRING)";
+        public static final String createSql = "CREATE TABLE IF NOT EXISTS stops (tag STRING PRIMARY KEY, lat FLOAT, lon FLOAT, title STRING, parent STRING)";
         public static class Bean {
             public final String tag;
             public final float lat;
             public final float lon;
             public final String title;
-            public Bean(String tag, float lat, float lon, String title) {
+            public final String parent;
+            public Bean(String tag, float lat, float lon, String title, String parent) {
                 this.tag = tag;
                 this.lat = lat;
                 this.lon = lon;
                 this.title = title;
+                this.parent = parent;
             }
         }
         public static void executeInsertHelper(InsertHelper helper, Collection<Bean> beans) {
             for (Bean bean : beans) {
-                executeInsertHelper(helper, bean.tag, bean.lat, bean.lon, bean.title);
+                executeInsertHelper(helper, bean.tag, bean.lat, bean.lon, bean.title, bean.parent);
             }
         }
-        public static void executeInsertHelper(InsertHelper helper, String tag, float lat, float lon, String title) {
+        public static void executeInsertHelper(InsertHelper helper, String tag, float lat, float lon, String title, String parent) {
             helper.prepareForReplace();
             helper.bind(tagIndex, tag);
             helper.bind(latIndex, lat);
             helper.bind(lonIndex, lon);
             helper.bind(titleIndex, title);
+            helper.bind(parentIndex, parent);
             helper.execute();
         }
     }
