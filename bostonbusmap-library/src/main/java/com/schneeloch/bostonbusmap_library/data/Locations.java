@@ -23,6 +23,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ConcurrentMap;
 
 import javax.xml.parsers.FactoryConfigurationError;
@@ -40,9 +42,11 @@ import android.content.OperationApplicationException;
 import android.os.RemoteException;
 import android.util.Log;
 
+import com.google.common.collect.Maps;
 import com.schneeloch.bostonbusmap_library.provider.IDatabaseAgent;
 import com.schneeloch.bostonbusmap_library.transit.ITransitSystem;
 import com.schneeloch.bostonbusmap_library.transit.TransitSource;
+import com.schneeloch.bostonbusmap_library.util.Constants;
 import com.schneeloch.bostonbusmap_library.util.FeedException;
 import com.schneeloch.bostonbusmap_library.util.LogUtil;
 
@@ -129,6 +133,61 @@ public final class Locations
 		}
 	}
 
+
+    /**
+     * Given a sorted list of locations
+     * @param locations Sorted list of locations
+     * @param maxLocations Returned list will have this many groups at most
+     * @return
+     */
+    public static ImmutableList<ImmutableList<Location>> groupLocations(
+            List<Location> locations, int maxLocations) {
+        int builderCount = 0;
+        List<List<Location>> groupsBuilder = Lists.newArrayList();
+        Map<GroupKey, List<Location>> groupMap = Maps.newHashMap();
+
+        Location lastLocation = null;
+        for (Location location : locations) {
+            GroupKey groupKey = new GroupKey(location);
+            if (lastLocation == null) {
+                List<Location> builder = Lists.newArrayList();
+                builder.add(location);
+                groupMap.put(groupKey, builder);
+
+                groupsBuilder.add(builder);
+                builderCount++;
+            }
+            else if (groupMap.containsKey(groupKey)) {
+                groupMap.get(groupKey).add(location);
+            }
+            else {
+                if (builderCount == maxLocations) {
+                    // we're over our count
+                    break;
+                }
+                List<Location> builder = Lists.newArrayList();
+                builder.add(location);
+                groupMap.put(groupKey, builder);
+
+                groupsBuilder.add(builder);
+                builderCount++;
+            }
+
+            lastLocation = location;
+        }
+
+        ImmutableList.Builder<ImmutableList<Location>> builder = ImmutableList.builder();
+        for (List<Location> locationBuilder : groupsBuilder) {
+            // HACK: This sort only establishes an absolute ordering. The code currently relies on the first item
+            // in the list being special so we have to make sure that the first item is consistent.
+            Collections.sort(locationBuilder, new LocationComparator(0, 0));
+
+            builder.add(ImmutableList.copyOf(locationBuilder));
+        }
+
+        return builder.build();
+    }
+
 	/**
 	 * Return the 20 (or whatever maxLocations is) closest buses to the center
 	 * 
@@ -138,7 +197,7 @@ public final class Locations
 	 * @return
 	 * @throws IOException 
 	 */
-	public ImmutableList<Location> getLocations(int maxLocations, double centerLatitude, double centerLongitude, 
+	public ImmutableList<ImmutableList<Location>> getLocations(int maxLocations, double centerLatitude, double centerLongitude,
 			boolean doShowUnpredictable, Selection selection) throws IOException {
 
 		ArrayList<Location> newLocations = Lists.newArrayListWithCapacity(maxLocations);
@@ -219,36 +278,9 @@ public final class Locations
 		{
 			maxLocations = newLocations.size();
 		}
-		
 
-		Collections.sort(newLocations, new LocationComparator(centerLatitude, centerLongitude));
-		
-		ImmutableList.Builder<Location> ret = ImmutableList.builder();
-		//add the first n-th locations, where n is the maximum number of icons we can display on screen without slowing things down
-		//however, we shouldn't cut two locations off where they would get combined into one icon anyway
-		int count = 0;
-		Location lastLocation = null;
-		for (Location location : newLocations)
-		{
-			if (count >= maxLocations)
-			{
-				if (lastLocation != null && 
-					lastLocation.getLatitudeAsDegrees() == location.getLatitudeAsDegrees() && 
-					lastLocation.getLongitudeAsDegrees() == location.getLongitudeAsDegrees())
-				{
-					//ok, let's add one more since it won't affect the framerate at all (and because things would get weird without it)
-				}
-				else
-				{
-					break;
-				}
-			}
-			ret.add(location);
-			count++;
-			lastLocation = location;
-		}
-		
-		return ret.build();
+        Collections.sort(newLocations, new LocationComparator(centerLatitude, centerLongitude));
+        return groupLocations(newLocations, maxLocations);
 	}
 
 	public Path[] getPaths(String route) {
@@ -284,7 +316,7 @@ public final class Locations
 	}
 
 	
-	public StopLocation[] getCurrentFavorites()
+	public ImmutableList<StopLocation> getCurrentFavorites()
 	{
 		return routeMapping.getFavoriteStops();
 	}

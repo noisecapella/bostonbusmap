@@ -10,6 +10,8 @@ public abstract class StopPredictionView extends PredictionView {
 
 	public abstract String getStops();
 
+    public abstract String getPlaces();
+
 	public abstract IPrediction[] getPredictions();
 
 	private final static StopPredictionView EMPTY = new StopPredictionView() {
@@ -28,7 +30,12 @@ public abstract class StopPredictionView extends PredictionView {
 			return "";
 		}
 
-		@Override
+        @Override
+        public String getPlaces() {
+            return "";
+        }
+
+        @Override
 		public String getSnippet() {
 			return "";
 		}

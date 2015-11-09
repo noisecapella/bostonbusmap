@@ -96,9 +96,11 @@ public abstract class NextBusTransitSource implements TransitSource
             case BUS_PREDICTIONS_ALL:
 
                 List<Location> locations = Lists.newArrayList();
-                for (Location location : locationsObj.getLocations(maxStops, centerLatitude, centerLongitude, false, selection)) {
-                    if (location.getTransitSourceType() == Schema.Routes.SourceId.Bus) {
-                        locations.add(location);
+                for (ImmutableList<Location> group : locationsObj.getLocations(maxStops, centerLatitude, centerLongitude, false, selection)) {
+                    for (Location location : group) {
+                        if (location.getTransitSourceType() == Schema.Routes.SourceId.Bus) {
+                            locations.add(location);
+                        }
                     }
                 }
 
@@ -151,7 +153,11 @@ public abstract class NextBusTransitSource implements TransitSource
                     parser.runParse(data);
 
                     // set last update time for downloaded stops
-                    List<Location> locations = locationsObj.getLocations(maxStops, centerLatitude, centerLongitude, false, selection);
+                    ImmutableList<ImmutableList<Location>> groups = locationsObj.getLocations(maxStops, centerLatitude, centerLongitude, false, selection);
+                    List<Location> locations = Lists.newArrayList();
+                    for (ImmutableList<Location> group : groups) {
+                        locations.addAll(group);
+                    }
 
                     ImmutableSet<String> routes;
                     if (mode == Selection.Mode.BUS_PREDICTIONS_ONE) {

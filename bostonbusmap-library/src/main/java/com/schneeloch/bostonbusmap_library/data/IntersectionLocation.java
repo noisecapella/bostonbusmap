@@ -4,6 +4,7 @@ import java.util.Collection;
 import java.util.SortedSet;
 
 import com.google.common.base.Joiner;
+import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableCollection;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
@@ -197,5 +198,10 @@ public class IntersectionLocation implements Location {
     @Override
     public Collection<String> getRoutes() {
         return nearbyRoutes;
+    }
+
+    @Override
+    public Optional<String> getParent() {
+        return Optional.absent();
     }
 }

@@ -184,7 +184,7 @@ public class StopLocation implements Location
 				stopLocation.getTransitSourceType());
 		
 		predictions.addToSnippetAndTitle(routeConfig, stopLocation,
-				routeKeysToTitles, stopLocation.routes, newAlerts, locations);
+                routeKeysToTitles, stopLocation.routes, newAlerts, locations);
 	}
 	
 	public String getStopTag()
@@ -274,40 +274,31 @@ public class StopLocation implements Location
 	 * @param stops
 	 * @return
 	 */
-	public static StopLocation[] consolidateStops(StopLocation[] stops) {
-		if (stops.length < 2)
+	public static ImmutableList<StopLocation> consolidateStops(ImmutableList<StopLocation> stops) {
+		if (stops.size() < 2)
 		{
 			return stops;
 		}
+
+        ImmutableList.Builder<Location> locationBuilder = ImmutableList.builder();
+        locationBuilder.addAll(stops);
 		
-		ArrayList<StopLocation> ret = new ArrayList<StopLocation>();
-		for (int i = 0; i < stops.length; i++)
-		{
-			ret.add(stops[i]);
-		}
-		
-		//make sure stops sharing a location are touching each other
-		final StopLocation firstStop = stops[0];
-		Collections.sort(ret, new LocationComparator(firstStop.getLatitudeAsDegrees(), firstStop.getLongitudeAsDegrees()));
-		
-		ArrayList<StopLocation> ret2 = new ArrayList<StopLocation>(stops.length);
-		StopLocation prev = null;
-		for (StopLocation stop : ret)
-		{
-			if (prev != null && prev.getLatitudeAsDegrees() == stop.getLatitudeAsDegrees() &&
-					prev.getLongitudeAsDegrees() == stop.getLongitudeAsDegrees())
-			{
-				//skip
-			}
-			else
-			{
-				ret2.add(stop);
-			}
-			
-			prev = stop;
-		}
-		
-		return ret2.toArray(new StopLocation[0]);
+        ImmutableList<ImmutableList<Location>> groups = Locations.groupLocations(locationBuilder.build(), 1);
+
+        if (groups.size() == 0) {
+            return ImmutableList.of();
+        }
+
+        ImmutableList<Location> group = groups.get(0);
+        ImmutableList.Builder<StopLocation> builder = ImmutableList.builder();
+
+        for (Location location : group) {
+            if (location instanceof StopLocation) {
+                builder.add((StopLocation)location);
+            }
+        }
+
+        return builder.build();
 	}
 	
 	@Override
@@ -400,5 +391,10 @@ public class StopLocation implements Location
                 (int)(longitudeAsDegrees * Constants.E6) == (int)(other.longitudeAsDegrees * Constants.E6) &&
                 getTransitSourceType() == other.getTransitSourceType() &&
                 parent.equals(other.parent);
+    }
+
+    @Override
+    public Optional<String> getParent() {
+        return parent;
     }
 }
