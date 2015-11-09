@@ -85,63 +85,195 @@ def getIntFromBool(boolString):
         return 0
             
 
-schema = {"directions" : {"columns":[
-            {"tag" : "dirTag", "type": "String"},
-            {"tag": "dirNameKey", "type": "String"},
-            {"tag": "dirTitleKey", "type": "String", "canbenull" : "true"},
-            {"tag": "dirRouteKey", "type": "String"},
-            {"tag": "useAsUI", "type": "int"}],
-                          "primaryKeys" : ["dirTag"],
-                          "indexes" : []},
-          "directionsStops" : {"columns":[
-            {"tag": "dirTag", "type": "String"},
-            {"tag": "tag", "type": "String"}],
-                               "primaryKeys" : [],
-                               "indexes" : []},
-          "favorites" : {"columns":[ #NOTE: this is a different database
-            {"tag" : "tag", "type" : "String"}],
-                         "primaryKeys" : ["tag"],
-                         "indexes" : []},
-          "routes" : {"columns":[
-            {"tag": "route", "type" : "String"},
-            {"tag": "color", "type": "int"},
-            {"tag": "oppositecolor", "type": "int"},
-            {"tag": "pathblob", "type": "byte[]"},
-            {"tag": "listorder", "type" :"int"},
-            {"tag": "agencyid", "type" : "int", 
-             "values" : {CommuterRailAgencyId:"CommuterRail",
-                         BusAgencyId : "Bus",
-                         SubwayAgencyId : "Subway",
-                         HubwayAgencyId : "Hubway"}},
-            {"tag": "routetitle", "type": "String"}],
-                      "primaryKeys" : ["route"],
-                          "indexes" : []},
-          "stopmapping" : {"columns":[
-              {"tag": "route", "type": "String"},
-              {"tag": "tag", "type": "String"}],
-                           "primaryKeys" : ["route", "tag"],
-                           "indexes" : ["route", "tag"]},
-          "stops" : {"columns":[
-            {"tag": "tag", "type": "String"},
-            {"tag": "lat", "type": "float"},
-            {"tag": "lon", "type": "float"},
-            {"tag": "title", "type": "String"}], 
-                     "primaryKeys" : ["tag"],
-                     "indexes" : []},
-          "locations" : {"columns":[
-            {"tag" : "lat", "type" : "float"},
-            {"tag" : "lon", "type" : "float"},
-            {"tag" : "name", "type" : "String"}],
-                         "primaryKeys" : ["name"],
-                         "indexes" : []},
-          "bounds" : {"columns":[
-            {"tag" : "route", "type" : "String"},
-            {"tag" : "weekdays", "type" : "int"},
-            {"tag" : "start", "type" : "int"},
-            {"tag" : "stop", "type" : "int"}],
-                      "primaryKeys" : [],
-                      "indexes" : []}
-          }
+schema = {
+    "bounds": {
+        "columns": [
+            {
+                "tag": "route",
+                "type": "String"
+            },
+            {
+                "tag": "weekdays",
+                "type": "int"
+            },
+            {
+                "tag": "start",
+                "type": "int"
+            },
+            {
+                "tag": "stop",
+                "type": "int"
+            }
+        ],
+        "indexes": [],
+        "primaryKeys": []
+    },
+    "directions": {
+        "columns": [
+            {
+                "tag": "dirTag",
+                "type": "String"
+            },
+            {
+                "tag": "dirNameKey",
+                "type": "String"
+            },
+            {
+                "canbenull": "true",
+                "tag": "dirTitleKey",
+                "type": "String"
+            },
+            {
+                "tag": "dirRouteKey",
+                "type": "String"
+            },
+            {
+                "tag": "useAsUI",
+                "type": "int"
+            }
+        ],
+        "indexes": [],
+        "primaryKeys": [
+            "dirTag"
+        ]
+    },
+    "directionsStops": {
+        "columns": [
+            {
+                "tag": "dirTag",
+                "type": "String"
+            },
+            {
+                "tag": "tag",
+                "type": "String"
+            }
+        ],
+        "indexes": [],
+        "primaryKeys": []
+    },
+    "favorites": {
+        "columns": [
+            {
+                "tag": "tag",
+                "type": "String"
+            }
+        ],
+        "indexes": [],
+        "primaryKeys": [
+            "tag"
+        ]
+    },
+    "locations": {
+        "columns": [
+            {
+                "tag": "lat",
+                "type": "float"
+            },
+            {
+                "tag": "lon",
+                "type": "float"
+            },
+            {
+                "tag": "name",
+                "type": "String"
+            }
+        ],
+        "indexes": [],
+        "primaryKeys": [
+            "name"
+        ]
+    },
+    "routes": {
+        "columns": [
+            {
+                "tag": "route",
+                "type": "String"
+            },
+            {
+                "tag": "color",
+                "type": "int"
+            },
+            {
+                "tag": "oppositecolor",
+                "type": "int"
+            },
+            {
+                "tag": "pathblob",
+                "type": "byte[]"
+            },
+            {
+                "tag": "listorder",
+                "type": "int"
+            },
+            {
+                "tag": "agencyid",
+                "type": "int",
+                "values": {
+                    BusAgencyId: "Bus",
+                    CommuterRailAgencyId: "CommuterRail",
+                    HubwayAgencyId: "Hubway",
+                    SubwayAgencyId: "Subway"
+                }
+            },
+            {
+                "tag": "routetitle",
+                "type": "String"
+            }
+        ],
+        "indexes": [],
+        "primaryKeys": [
+            "route"
+        ]
+    },
+    "stopmapping": {
+        "columns": [
+            {
+                "tag": "route",
+                "type": "String"
+            },
+            {
+                "tag": "tag",
+                "type": "String"
+            }
+        ],
+        "indexes": [
+            "route",
+            "tag"
+        ],
+        "primaryKeys": [
+            "route",
+            "tag"
+        ]
+    },
+    "stops": {
+        "columns": [
+            {
+                "tag": "tag",
+                "type": "String"
+            },
+            {
+                "tag": "lat",
+                "type": "float"
+            },
+            {
+                "tag": "lon",
+                "type": "float"
+            },
+            {
+                "tag": "title",
+                "type": "String"
+            },
+            {
+                "tag": "parent",
+                "type": "String"
+            }
+        ],
+        "indexes": [],
+        "primaryKeys": [
+            "tag"
+        ]
+    }
+}
 
 class Tables:
     pass
