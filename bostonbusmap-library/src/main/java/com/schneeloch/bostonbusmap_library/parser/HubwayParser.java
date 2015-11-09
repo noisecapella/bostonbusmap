@@ -2,6 +2,7 @@ package com.schneeloch.bostonbusmap_library.parser;
 
 import android.util.Xml;
 
+import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 
@@ -74,7 +75,7 @@ public class HubwayParser extends DefaultHandler {
         ImmutableMap.Builder<String, StopLocation> builder = ImmutableMap.builder();
 
         for (HubwayStopData data : hubwayStopData) {
-            HubwayStopLocation.HubwayBuilder hubwayBuilder = new HubwayStopLocation.HubwayBuilder(data.latitude, data.longitude, data.tag, data.name);
+            HubwayStopLocation.HubwayBuilder hubwayBuilder = new HubwayStopLocation.HubwayBuilder(data.latitude, data.longitude, data.tag, data.name, Optional.<String>absent());
 
             HubwayStopLocation newStop = hubwayBuilder.build();
             newStop.addRoute(routeConfig.getRouteName());
