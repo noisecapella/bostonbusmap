@@ -288,4 +288,9 @@ public class BusLocation implements Location {
     public Collection<String> getRoutes() {
         return ImmutableList.of(routeName);
     }
+
+    @Override
+    public Optional<String> getParent() {
+        return Optional.absent();
+    }
 }

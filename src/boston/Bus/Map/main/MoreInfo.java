@@ -32,6 +32,7 @@ import android.widget.TextView;
 public class MoreInfo extends ListActivity {
 	public static final String predictionsKey = "predictions";
 	public static final String stopsKey = "stops";
+    public static final String placesKey = "places";
 	
 	public static final String titleKey = "title";
     public static final String snippetTitleKey = "snippetTitle";

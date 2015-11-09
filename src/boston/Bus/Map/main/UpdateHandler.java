@@ -1,5 +1,7 @@
 package boston.Bus.Map.main;
 
+import com.google.common.base.Optional;
+import com.schneeloch.bostonbusmap_library.data.GroupKey;
 import com.schneeloch.bostonbusmap_library.data.Selection;
 import boston.Bus.Map.data.UpdateArguments;
 import com.schneeloch.bostonbusmap_library.transit.TransitSystem;
@@ -233,12 +235,12 @@ public class UpdateHandler extends Handler {
         triggerUpdate();
     }
 	
-	public void triggerUpdateThenSelect(final int id)
+	public void triggerUpdateThenSelect(final Optional<GroupKey> toSelect)
 	{
         triggerUpdateThen(new Runnable() {
             @Override
             public void run() {
-                guiArguments.getOverlayGroup().setSelectedBusId(id);
+                guiArguments.getOverlayGroup().setSelectedBusId(toSelect);
                 triggerUpdate();
             }
         });
