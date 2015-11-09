@@ -22,6 +22,7 @@ public class StopPredictionViewImpl extends StopPredictionView {
 	private final String[] titles;
 	private final String[] routeTitles;
 	private final String stops;
+    private final String places;
 	private final String snippet;
 	private final IPrediction[] predictions;
 	private final ImmutableCollection<Alert> alerts;
@@ -43,9 +44,13 @@ public class StopPredictionViewImpl extends StopPredictionView {
         int allCount = 0;
         int someCount = 0;
         int noneCount = 0;
+        SortedSet<String> places = Sets.newTreeSet();
 		for (StopLocation stop : stops) {
 			stopTitles.add(stop.getTitle());
 			stopIds.add(stop.getStopTag());
+            if (stop.getParent().isPresent()) {
+                places.add(stop.getParent().get());
+            }
 
             Updated updated = stop.wasEverUpdated(ifOnlyOneRoute);
             if (updated == Updated.All) {
@@ -110,6 +115,7 @@ public class StopPredictionViewImpl extends StopPredictionView {
 
 		
 		this.stops = Joiner.on(", ").join(stopIds);
+        this.places = Joiner.on(", ").join(places);
 		
 		this.predictions = predictions.toArray(nullPredictions);
 	}
@@ -201,7 +207,12 @@ public class StopPredictionViewImpl extends StopPredictionView {
 		return stops;
 	}
 
-	@Override
+    @Override
+    public String getPlaces() {
+        return places;
+    }
+
+    @Override
 	public String getSnippet() {
 		return snippet;
 	}

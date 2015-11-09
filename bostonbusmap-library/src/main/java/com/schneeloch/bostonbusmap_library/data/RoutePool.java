@@ -135,9 +135,9 @@ public class RoutePool extends Pool<String, RouteConfig> {
 	}
 
 
-	public StopLocation[] getFavoriteStops() {
-		ArrayList<StopLocation> ret = new ArrayList<StopLocation>(favoriteStops.size());
-		
+	public ImmutableList<StopLocation> getFavoriteStops() {
+		ImmutableList.Builder<StopLocation> ret = ImmutableList.builder();
+
 		for (String stopTag : favoriteStops)
 		{
 			StopLocation stopLocation = sharedStops.get(stopTag);
@@ -148,7 +148,7 @@ public class RoutePool extends Pool<String, RouteConfig> {
 			}
 		}
 		
-		return ret.toArray(new StopLocation[0]);
+		return ret.build();
 	}
 
 	public Favorite isFavorite(StopLocation location)
