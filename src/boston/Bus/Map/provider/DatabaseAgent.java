@@ -13,6 +13,7 @@ import android.provider.BaseColumns;
 import android.util.Log;
 
 import com.google.common.base.Joiner;
+import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableBiMap;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -216,9 +217,12 @@ public class DatabaseAgent implements IDatabaseAgent {
         }
 
         {
+            // Aiming to save memory for often repeated strings
+            Map<String, String> parentStrings = Maps.newHashMap();
+
             // get all stops, joining in stops again to get every route for every stop
             String[] projectionIn = new String[] {Schema.Stops.tagColumnOnTable, Schema.Stops.latColumn, Schema.Stops.lonColumn,
-                    Schema.Stops.titleColumn, "sm2." + Schema.Stopmapping.routeColumn};
+                    Schema.Stops.titleColumn, Schema.Stops.parentColumn, "sm2." + Schema.Stopmapping.routeColumn};
             String select = "sm1." + Schema.Stopmapping.routeColumn + "=?";
             String[] selectArray = new String[]{routeToUpdate};
 
@@ -231,7 +235,7 @@ public class DatabaseAgent implements IDatabaseAgent {
                 while (cursor.isAfterLast() == false)
                 {
                     String stopTag = cursor.getString(0);
-                    String route = cursor.getString(4);
+                    String route = cursor.getString(5);
 
                     //we need to ensure this stop is in the sharedstops and the route
                     StopLocation stop = sharedStops.get(stopTag);
@@ -253,8 +257,21 @@ public class DatabaseAgent implements IDatabaseAgent {
                             float latitude = cursor.getFloat(1);
                             float longitude = cursor.getFloat(2);
                             String stopTitle = cursor.getString(3);
+                            String parentFromCursor = cursor.getString(4);
 
-                            stop = transitSystem.createStop(latitude, longitude, stopTag, stopTitle, route);
+                            Optional<String> parent;
+                            if (parentFromCursor.length() == 0) {
+                                parent = Optional.absent();
+                            }
+                            else if (parentStrings.containsKey(parentFromCursor)) {
+                                parent = Optional.of(parentStrings.get(parentFromCursor));
+                            }
+                            else {
+                                parentStrings.put(parentFromCursor, parentFromCursor);
+                                parent = Optional.of(parentFromCursor);
+                            }
+
+                            stop = transitSystem.createStop(latitude, longitude, stopTag, stopTitle, route, parent);
 
                             routeConfigBuilder.addStop(stopTag, stop);
                         }
@@ -542,7 +559,7 @@ public class DatabaseAgent implements IDatabaseAgent {
 
         //get stop with name stopTag, joining with the subway table
         String[] projectionIn = new String[] {Schema.Stops.tagColumnOnTable, Schema.Stops.latColumn, Schema.Stops.lonColumn,
-                Schema.Stops.titleColumn, Schema.Stopmapping.routeColumnOnTable};
+                Schema.Stops.titleColumn, Schema.Stops.parentColumn, Schema.Stopmapping.routeColumnOnTable};
 
         //if size == 1, where clause is tag = ?. if size > 1, where clause is "IN (tag1, tag2, tag3...)"
         StringBuilder select;
@@ -554,6 +571,8 @@ public class DatabaseAgent implements IDatabaseAgent {
         Cursor stopCursor = null;
         try
         {
+            // for string interning
+            Map<String, String> parentStrings = Maps.newHashMap();
             stopCursor = resolver.query(DatabaseContentProvider.STOPS_LOOKUP_3_URI, projectionIn, select.toString(), selectArray, null);
 
             stopCursor.moveToFirst();
@@ -562,14 +581,26 @@ public class DatabaseAgent implements IDatabaseAgent {
             {
                 String stopTag = stopCursor.getString(0);
 
-                String route = stopCursor.getString(4);
+                String route = stopCursor.getString(5);
 
                 float lat = stopCursor.getFloat(1);
                 float lon = stopCursor.getFloat(2);
                 String title = stopCursor.getString(3);
+                String parentFromCursor = stopCursor.getString(4);
 
-                StopLocation stop = transitSystem.createStop(lat, lon, stopTag, title, route);
-                return stop;
+                Optional<String> parent;
+                if (parentFromCursor.length() == 0) {
+                    parent = Optional.absent();
+                }
+                else if (parentStrings.containsKey(parentFromCursor)) {
+                    parent = Optional.of(parentStrings.get(parentFromCursor));
+                }
+                else {
+                    parentStrings.put(parentFromCursor, parentFromCursor);
+                    parent = Optional.of(parentFromCursor);
+                }
+
+                return transitSystem.createStop(lat, lon, stopTag, title, route, parent);
             }
             else
             {
@@ -601,7 +632,7 @@ public class DatabaseAgent implements IDatabaseAgent {
 
         //get stop with name stopTag, joining with the subway table
         String[] projectionIn = new String[] {Schema.Stops.tagColumnOnTable, Schema.Stops.latColumn, Schema.Stops.lonColumn,
-                Schema.Stops.titleColumn, Schema.Stopmapping.routeColumnOnTable};
+                Schema.Stops.titleColumn, Schema.Stops.parentColumn, Schema.Stopmapping.routeColumnOnTable};
 
         //if size == 1, where clause is tag = ?. if size > 1, where clause is "IN (tag1, tag2, tag3...)"
         StringBuilder select;
@@ -641,6 +672,7 @@ public class DatabaseAgent implements IDatabaseAgent {
         Cursor stopCursor = null;
         try
         {
+            Map<String, String> parentStrings = Maps.newHashMap();
             stopCursor = resolver.query(DatabaseContentProvider.STOPS_LOOKUP_3_URI, projectionIn, select.toString(), selectArray, null);
 
             stopCursor.moveToFirst();
@@ -651,7 +683,7 @@ public class DatabaseAgent implements IDatabaseAgent {
             {
                 String stopTag = stopCursor.getString(0);
 
-                String route = stopCursor.getString(4);
+                String route = stopCursor.getString(5);
 
                 StopLocation stop = outputMapping.get(stopTag);
                 if (stop == null)
@@ -659,8 +691,21 @@ public class DatabaseAgent implements IDatabaseAgent {
                     float lat = stopCursor.getFloat(1);
                     float lon = stopCursor.getFloat(2);
                     String title = stopCursor.getString(3);
+                    String parentFromCursor = stopCursor.getString(4);
 
-                    stop = transitSystem.createStop(lat, lon, stopTag, title, route);
+                    Optional<String> parent;
+                    if (parentFromCursor.length() == 0) {
+                        parent = Optional.absent();
+                    }
+                    else if (parentStrings.containsKey(parentFromCursor)) {
+                        parent = Optional.of(parentStrings.get(parentFromCursor));
+                    }
+                    else {
+                        parentStrings.put(parentFromCursor, parentFromCursor);
+                        parent = Optional.of(parentFromCursor);
+                    }
+
+                    stop = transitSystem.createStop(lat, lon, stopTag, title, route, parent);
                     outputMapping.putIfAbsent(stopTag, stop);
                 }
                 else

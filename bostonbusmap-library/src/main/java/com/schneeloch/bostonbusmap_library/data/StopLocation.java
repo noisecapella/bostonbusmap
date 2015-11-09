@@ -5,12 +5,14 @@ import java.util.Collection;
 import java.util.Collections;
 
 import com.google.common.base.MoreObjects;
+import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableCollection;
 
 import com.schneeloch.bostonbusmap_library.annotations.KeepSorted;
 import com.schneeloch.bostonbusmap_library.database.Schema;
 import com.schneeloch.bostonbusmap_library.math.Geometry;
 import com.schneeloch.bostonbusmap_library.transit.ITransitSystem;
+import com.schneeloch.bostonbusmap_library.util.Constants;
 
 public class StopLocation implements Location
 {
@@ -27,7 +29,8 @@ public class StopLocation implements Location
 	protected boolean recentlyUpdated;
     protected boolean everUpdated;
 
-	
+    private final Optional<String> parent;
+
 	/**
 	 * A set of routes the stop belongs to
 	 */
@@ -43,6 +46,7 @@ public class StopLocation implements Location
 		this.longitudeAsDegrees = builder.longitudeAsDegrees;
 		this.tag = builder.tag;
 		this.title = builder.title;
+        this.parent = builder.parent;
 	}
 
     public boolean wasEverUpdated() {
@@ -54,13 +58,15 @@ public class StopLocation implements Location
 		private final float longitudeAsDegrees;
 		private final String tag;
 		private final String title;
+        private final Optional<String> parent;
 
-		public Builder(float latitudeAsDegrees, float longitudeAsDegrees,
-			String tag, String title) {
+        public Builder(float latitudeAsDegrees, float longitudeAsDegrees,
+			String tag, String title, Optional<String> parent) {
 			this.latitudeAsDegrees = latitudeAsDegrees;
 			this.longitudeAsDegrees = longitudeAsDegrees;
 			this.tag = tag;
 			this.title = title;
+            this.parent = parent;
 		}
 		
 		public StopLocation build() {
@@ -342,5 +348,20 @@ public class StopLocation implements Location
     @Override
     public boolean needsUpdating() {
         return false;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (!(o instanceof StopLocation)) {
+            return false;
+        }
+
+        StopLocation other = (StopLocation)o;
+        return tag.equals(other.tag) &&
+                title.equals(other.title) &&
+                (int)(latitudeAsDegrees * Constants.E6) == (int)(other.latitudeAsDegrees * Constants.E6) &&
+                (int)(longitudeAsDegrees * Constants.E6) == (int)(other.longitudeAsDegrees * Constants.E6) &&
+                getTransitSourceType() == other.getTransitSourceType() &&
+                parent.equals(other.parent);
     }
 }

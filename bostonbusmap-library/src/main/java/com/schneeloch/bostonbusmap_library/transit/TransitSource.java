@@ -35,7 +35,7 @@ public interface TransitSource {
 	ITransitDrawables getDrawables();
 
 	StopLocation createStop(float latitude, float longitude, String stopTag,
-			String stopTitle, String route);
+			String stopTitle, String route, Optional<String> parent);
 
     BusLocation createVehicleLocation(float latitude, float longitude, String id,
                                       long lastFeedUpdateInMillis, Optional<Integer> heading,

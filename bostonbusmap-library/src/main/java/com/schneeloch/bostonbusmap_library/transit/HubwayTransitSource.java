@@ -123,9 +123,9 @@ public class HubwayTransitSource implements TransitSource {
 	}
 
 	@Override
-	public StopLocation createStop(float latitude, float longitude, String stopTag, String stopTitle, String route) {
+	public StopLocation createStop(float latitude, float longitude, String stopTag, String stopTitle, String route, Optional<String> parent) {
 		HubwayStopLocation stop = new HubwayStopLocation.HubwayBuilder(latitude,
-				longitude, stopTag, stopTitle).build();
+				longitude, stopTag, stopTitle, parent).build();
 		stop.addRoute(route);
 		return stop;
 	}
