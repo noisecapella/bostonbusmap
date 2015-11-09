@@ -1,5 +1,6 @@
 package com.schneeloch.bostonbusmap_library.data;
 
+import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableCollection;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -76,5 +77,5 @@ public interface Location {
 
     Collection<String> getRoutes();
 
-
+    Optional<String> getParent();
 }

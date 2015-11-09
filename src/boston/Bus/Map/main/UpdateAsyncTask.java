@@ -25,6 +25,8 @@ import java.util.Map;
 
 
 import com.google.android.gms.maps.model.LatLng;
+import com.google.common.base.Optional;
+import com.schneeloch.bostonbusmap_library.data.GroupKey;
 import com.schneeloch.bostonbusmap_library.data.Location;
 import com.schneeloch.bostonbusmap_library.data.Locations;
 import com.schneeloch.bostonbusmap_library.data.Path;
@@ -58,7 +60,7 @@ import android.widget.Toast;
  * Handles the heavy work of downloading and parsing the XML in a separate thread from the UI.
  *
  */
-public abstract class UpdateAsyncTask extends AsyncTask<Object, Object, ImmutableList<Location>>
+public abstract class UpdateAsyncTask extends AsyncTask<Object, Object, ImmutableList<ImmutableList<Location>>>
 {
 	private final boolean doShowUnpredictable;
 	private final int maxOverlays;
@@ -76,7 +78,7 @@ public abstract class UpdateAsyncTask extends AsyncTask<Object, Object, Immutabl
 	protected final Selection selection;
 	
     private final Runnable afterUpdate;
-	
+
 	/**
 	 * The last read center of the map.
 	 */
@@ -109,7 +111,7 @@ public abstract class UpdateAsyncTask extends AsyncTask<Object, Object, Immutabl
 	}
 
 	@Override
-	protected ImmutableList<Location> doInBackground(Object... args) {
+	protected ImmutableList<ImmutableList<Location>> doInBackground(Object... args) {
 		//number of bus pictures to draw. Too many will make things slow
 		return updateBusLocations();
 	}
@@ -213,7 +215,7 @@ public abstract class UpdateAsyncTask extends AsyncTask<Object, Object, Immutabl
 	
 	protected abstract boolean areUpdatesSilenced();
 	
-	protected ImmutableList<Location> updateBusLocations()	{
+	protected ImmutableList<ImmutableList<Location>> updateBusLocations()	{
 		final Locations busLocations = arguments.getBusLocations();
 
 		try
@@ -242,7 +244,7 @@ public abstract class UpdateAsyncTask extends AsyncTask<Object, Object, Immutabl
     }
 	
 	@Override
-	protected void onPostExecute(final ImmutableList<Location> locations)
+	protected void onPostExecute(final ImmutableList<ImmutableList<Location>> locations)
 	{
 		try
 		{
@@ -254,100 +256,25 @@ public abstract class UpdateAsyncTask extends AsyncTask<Object, Object, Immutabl
 		}
 	}
 	
-	protected void postExecute(final ImmutableList<Location> locationsNearCenter)
+	protected void postExecute(final ImmutableList<ImmutableList<Location>> locationsNearCenter)
 	{
-		if (locationsNearCenter == null)
-		{
-			//we probably posted an error message already; just return
-			return;
-		}
-		
 		//get currently selected location id, or -1 if nothing is selected
 
         MapManager manager = arguments.getOverlayGroup();
 		//routeOverlay.setDrawCoarseLine(showCoarseRouteLine);
 		
 		//get a list of lat/lon pairs which describe the route
-		Locations locationsObj = arguments.getBusLocations();
+        final Optional<GroupKey> selectedBusId = manager.getSelectedBusId();
 
-        final int selectedBusId = manager.getSelectedBusId();
-		RouteConfig selectedRouteConfig;
-        String route = locationsObj.getSelection().getRoute();
-        try {
-            Selection.Mode mode = locationsObj.getSelection().getMode();
-            if (mode == Selection.Mode.BUS_PREDICTIONS_STAR ||
-                    mode == Selection.Mode.BUS_PREDICTIONS_ALL) {
-                //we want this to be null. Else, the snippet drawing code would only show data for a particular route
-                selectedRouteConfig = null;
-            }
-            else {
-                selectedRouteConfig = locationsObj.getRoute(route);
-            }
-        }
-        catch (IOException e) {
-            selectedRouteConfig = null;
-        }
-
-		//busOverlay.doPopulate();
-
-		RouteTitles routeKeysToTitles = arguments.getTransitSystem().getRouteKeysToTitles();
-		
-		//point hash to index in busLocations
-		Map<Long, Integer> points = Maps.newHashMap();
-		
 		//draw the buses on the map
-		int newSelectedBusId = selectedBusId;
-		List<Location> busesToDisplay = Lists.newArrayList();
-		
-		// first add intersection points. Not enough of these to affect performance
-		// merge stops or buses to single items if necessary
-		for (int i = 0; i < locationsNearCenter.size(); i++)
-		{
-			Location busLocation = locationsNearCenter.get(i);
-			
-			final int latInt = (int)(busLocation.getLatitudeAsDegrees() * Constants.E6);
-			final int lonInt = (int)(busLocation.getLongitudeAsDegrees() * Constants.E6);
-					
-			//make a hash to easily compare this location's position against others
-			//get around sign extension issues by making them all positive numbers
-			final int latIntHash = (latInt < 0 ? -latInt : latInt);
-			final int lonIntHash = (lonInt < 0 ? -lonInt : lonInt);
-			long hash = (long)((long)latIntHash << 32) | (long)lonIntHash;
-			Integer index = points.get(hash);
-			Locations locations = arguments.getBusLocations();
-			if (null != index)
-			{
-				//two stops in one space. Just use the one overlay, and combine textboxes in an elegant manner
-				Location parent = locationsNearCenter.get(index);
-				//parent.addToSnippetAndTitle(selectedRouteConfig, busLocation, routeKeysToTitles, locations);
-				
-				if (busLocation.getId() == selectedBusId)
-				{
-					//the thing we want to select isn't available anymore, choose the other icon
-					newSelectedBusId = parent.getId();
-				}
-			}
-			else
-			{
-				//busLocation.makeSnippetAndTitle(selectedRouteConfig, routeKeysToTitles, locations);
-			
-			
-				points.put(hash, i);
-		
-				//the title is displayed when someone taps on the icon
-				busesToDisplay.add(busLocation);
-			}
-		}
 
         LatLng newCenter = manager.getMap().getCameraPosition().target;
 
 		// we need to do this here because addLocation creates PredictionViews, which needs
 		// to happen after makeSnippetAndTitle and addToSnippetAndTitle
-        manager.updateNewLocations(busesToDisplay, newSelectedBusId, newCenter, forceNewMarker());
+        manager.updateNewLocations(locationsNearCenter, selectedBusId, newCenter, forceNewMarker());
 		//busOverlay.refreshBalloons();
 		
-
-
 		if (!newCenter.equals(currentMapCenter)) {
 			handler.triggerUpdate();
 		}

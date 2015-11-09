@@ -11,10 +11,13 @@ import org.xml.sax.SAXException;
 
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.maps.GeoPoint;
+import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
 
 import android.content.OperationApplicationException;
 import android.os.RemoteException;
+
+import com.schneeloch.bostonbusmap_library.data.GroupKey;
 import com.schneeloch.bostonbusmap_library.data.Location;
 import com.schneeloch.bostonbusmap_library.data.Locations;
 import com.schneeloch.bostonbusmap_library.data.Selection;
@@ -145,7 +148,7 @@ public class RefreshAsyncTask extends UpdateAsyncTask
 	}
 
 	@Override
-	protected void postExecute(ImmutableList<Location> locationsNearCenter) {
+	protected void postExecute(ImmutableList<ImmutableList<Location>> locationsNearCenter) {
 		if (locationsNearCenter != null && locationsNearCenter.size() == 0)
 		{
 			//no data? oh well

@@ -22,26 +22,27 @@ import com.google.android.gms.maps.GoogleMap.OnCameraChangeListener;
 import com.google.android.gms.maps.GoogleMap.OnMapClickListener;
 import com.google.android.gms.maps.GoogleMap.OnMarkerClickListener;
 import com.google.android.gms.maps.GoogleMap.OnInfoWindowClickListener;
-import com.google.android.gms.maps.model.BitmapDescriptor;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.CameraPosition;
-import com.google.android.gms.maps.model.Circle;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.common.base.Joiner;
+import com.google.common.base.Optional;
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
 import com.google.common.collect.ImmutableCollection;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.schneeloch.bostonbusmap_library.data.Alert;
 import com.schneeloch.bostonbusmap_library.data.BusLocation;
 import com.schneeloch.bostonbusmap_library.data.Favorite;
+import com.schneeloch.bostonbusmap_library.data.GroupKey;
 import com.schneeloch.bostonbusmap_library.data.IPrediction;
 import com.schneeloch.bostonbusmap_library.data.ITransitDrawables;
 import com.schneeloch.bostonbusmap_library.data.IntersectionLocation;
@@ -62,8 +63,6 @@ import com.schneeloch.bostonbusmap_library.transit.TransitSystem;
 import com.schneeloch.bostonbusmap_library.util.LogUtil;
 import com.schneeloch.bostonbusmap_library.util.MoreInfoConstants;
 
-import org.nayuki.Point;
-
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -82,11 +81,10 @@ import boston.Bus.Map.main.UpdateHandler;
 public class MapManager implements OnMapClickListener, OnMarkerClickListener,
         OnCameraChangeListener, OnInfoWindowClickListener, GoogleMap.OnMyLocationButtonClickListener {
     private final GoogleMap map;
-    public static final int NOT_SELECTED = -1;
 
     private final Map<String, Marker> markers = Maps.newHashMap();
-    private final BiMap<String, Integer> markerIdToLocationId = HashBiMap.create();
-    private final Map<Integer, Location> locationIdToLocation = Maps.newHashMap();
+    private final BiMap<String, GroupKey> markerIdToGroupKey = HashBiMap.create();
+    private final Map<GroupKey, ImmutableList<Location>> groupIdToGroup = Maps.newHashMap();
     private final Map<String, Integer> markerIdToResourceId = Maps.newHashMap();
     private final Map<String, PredictionView> markerIdToPredictionView = Maps.newHashMap();
     private final Map<String, Favorite> markerIdToFavorite = Maps.newHashMap();
@@ -97,7 +95,7 @@ public class MapManager implements OnMapClickListener, OnMarkerClickListener,
     private final Button vehiclesButton;
     private final Button editButton;
     private final Button deleteButton;
-    private int selectedLocationId = NOT_SELECTED;
+    private Optional<GroupKey> selectedGroupId = Optional.absent();
 
     private OnMapClickListener nextTapListener;
     private boolean allRoutesBlue;
@@ -115,7 +113,6 @@ public class MapManager implements OnMapClickListener, OnMarkerClickListener,
     private boolean drawLine;
 
     private boolean firstRun = true;
-    private int firstRunSelectionId = NOT_SELECTED;
     private final Main context;
     private boolean changeRouteIfSelected;
     private boolean alwaysFocusRoute;
@@ -146,14 +143,14 @@ public class MapManager implements OnMapClickListener, OnMarkerClickListener,
     @Override
     public boolean onMarkerClick(Marker marker) {
         String markerId = marker.getId();
-        Integer id = markerIdToLocationId.get(markerId);
-        int newLocationid;
+        GroupKey id = markerIdToGroupKey.get(markerId);
+        Optional<GroupKey> newLocationid;
         if (id == null) {
-            newLocationid = NOT_SELECTED;
+            newLocationid = Optional.absent();
         }
         else
         {
-            newLocationid = id;
+            newLocationid = Optional.of(id);
         }
 
         setSelectedBusId(newLocationid);
@@ -174,15 +171,19 @@ public class MapManager implements OnMapClickListener, OnMarkerClickListener,
     }
 
     private void updateInfo(String markerId) {
-        Integer locationId = markerIdToLocationId.get(markerId);
+        GroupKey locationId = markerIdToGroupKey.get(markerId);
         if (locationId == null) {
             return;
         }
-        Location location = locationIdToLocation.get(locationId);
-        if (location == null) {
+        ImmutableList<Location> group = groupIdToGroup.get(locationId);
+        if (group == null) {
+            return;
+        }
+        if (group.size() == 0) {
             return;
         }
 
+        Location firstLocation = group.get(0);
         try {
             Selection.Mode mode = locations.getSelection().getMode();
             RouteConfig selectedRouteConfig;
@@ -195,25 +196,29 @@ public class MapManager implements OnMapClickListener, OnMarkerClickListener,
                 selectedRouteConfig = locations.getRoute(locations.getSelection().getRoute());
             }
 
-            location.makeSnippetAndTitle(selectedRouteConfig, locations.getRouteTitles(), locations);
-            // getLocations only used here to find all locations at exact same place
-            for (Location locationNearMe : locations.getLocations(15, location.getLatitudeAsDegrees(), location.getLongitudeAsDegrees(), false, locations.getSelection())) {
-                if (locationNearMe.getId() != location.getId() &&
-                        locationNearMe.getLatitudeAsDegrees() == location.getLatitudeAsDegrees() &&
-                        locationNearMe.getLongitudeAsDegrees() == location.getLongitudeAsDegrees()) {
-                    location.addToSnippetAndTitle(selectedRouteConfig, locationNearMe, locations.getRouteTitles(), locations);
-                }
+            firstLocation.makeSnippetAndTitle(selectedRouteConfig, locations.getRouteTitles(), locations);
+            for (int i = 1; i < group.size(); i++) {
+                Location location = group.get(i);
+                firstLocation.addToSnippetAndTitle(selectedRouteConfig, location, locations.getRouteTitles(), locations);
             }
         }
         catch (IOException e) {
             throw new RuntimeException(e);
         }
 
-        PredictionView predictionView = location.getPredictionView();
+        Favorite newFavorite = Favorite.IsNotFavorite;
+        for (Location location : group) {
+            if (location.isFavorite() == Favorite.IsFavorite) {
+                newFavorite = Favorite.IsFavorite;
+                break;
+            }
+        }
+
+        PredictionView predictionView = firstLocation.getPredictionView();
         PredictionView previousPredictionView = markerIdToPredictionView.get(markerId);
         Favorite favorite = markerIdToFavorite.get(markerId);
         if (previousPredictionView == null || previousPredictionView != predictionView ||
-                favorite == null || favorite != location.isFavorite()) {
+                favorite == null || favorite != newFavorite) {
             Marker marker = markers.get(markerId);
             if (marker == null) {
                 return;
@@ -226,19 +231,33 @@ public class MapManager implements OnMapClickListener, OnMarkerClickListener,
 
     }
 
-    private void updateMarkerAndButtons(int oldSelectedId, int newSelectedId) {
+    private void updateMarkerAndButtons(Optional<GroupKey> oldSelectedId, Optional<GroupKey> newSelectedId) {
         // hide old marker if applicable
-        String oldMarkerId = markerIdToLocationId.inverse().get(oldSelectedId);
+        String oldMarkerId;
+        if (oldSelectedId.isPresent()) {
+            oldMarkerId = markerIdToGroupKey.inverse().get(oldSelectedId.get());
+        }
+        else {
+            oldMarkerId = null;
+        }
         Marker oldMarker = markers.get(oldMarkerId);
 
-        String newMarkerId = markerIdToLocationId.inverse().get(newSelectedId);
+        String newMarkerId;
+        if (newSelectedId.isPresent()) {
+            newMarkerId = markerIdToGroupKey.inverse().get(newSelectedId.get());
+        }
+        else {
+            newMarkerId = null;
+        }
+
         Marker newMarker = markers.get(newMarkerId);
 
         if (oldMarker != null) {
             // handle old marker
             if (newMarker == null || oldMarker != newMarker) {
                 // hide old marker
-                Location oldLocation = locationIdToLocation.get(oldSelectedId);
+                ImmutableList<Location> oldLocationGroup = groupIdToGroup.get(oldSelectedId.get());
+                Location oldLocation = oldLocationGroup.get(0);
 
                 // since they are different markers hide the old one
                 oldMarker.hideInfoWindow();
@@ -263,8 +282,14 @@ public class MapManager implements OnMapClickListener, OnMarkerClickListener,
             deleteButton.setVisibility(View.GONE);
         }
         else {
-            final Location newLocation = locationIdToLocation.get(newSelectedId);
-            if (newLocation == null) {
+            final ImmutableList<Location> newLocationGroup;
+            if (newSelectedId.isPresent()) {
+                newLocationGroup = groupIdToGroup.get(newSelectedId.get());
+            }
+            else {
+                newLocationGroup = null;
+            }
+            if (newLocationGroup == null) {
                 moreInfoButton.setVisibility(View.GONE);
                 reportButton.setVisibility(View.GONE);
                 alertsButton.setVisibility(View.GONE);
@@ -275,6 +300,7 @@ public class MapManager implements OnMapClickListener, OnMarkerClickListener,
 
             } else {
                 // we are selecting a new marker
+                final Location newLocation = newLocationGroup.get(0);
                 final ITransitDrawables transitDrawables = transitSystem.getTransitSourceByRouteType(
                         newLocation.getTransitSourceType()).getDrawables();
 
@@ -328,6 +354,9 @@ public class MapManager implements OnMapClickListener, OnMarkerClickListener,
 
                             String combinedStops = predictionView.getStops();
                             intent.putExtra(MoreInfo.stopsKey, combinedStops);
+
+                            String places = predictionView.getPlaces();
+                            intent.putExtra(MoreInfo.placesKey, places);
 
                             intent.putExtra(MoreInfo.stopIsBetaKey, stopLocation.isBeta());
 
@@ -682,12 +711,20 @@ public class MapManager implements OnMapClickListener, OnMarkerClickListener,
             String stopTag = stopLocation.getStopTag();
             ConcurrentMap<String, StopLocation> stopTags = locations.getAllStopsAtStop(stopTag);
 
+            Set<String> routeTitles = Sets.newTreeSet();
+            for (StopLocation stop : stopTags.values()) {
+                for (String route : stop.getRoutes()) {
+                    routeTitles.add(locations.getRouteTitle(route));
+                }
+            }
+            String routesJoin = Joiner.on(", ").join(routeTitles);
+
             if (mode == Selection.Mode.BUS_PREDICTIONS_ONE)
             {
                 if (stopTags.size() <= 1)
                 {
                     ret.append("The stop id is ").append(stopTag).append(" (").append(stopLocation.getTitle()).append(")");
-                    ret.append(" on route ").append(routeTitle).append(". ");
+                    ret.append(" on route(s) ").append(routesJoin).append(". ");
                 }
                 else
                 {
@@ -695,11 +732,14 @@ public class MapManager implements OnMapClickListener, OnMarkerClickListener,
                     for (StopLocation stop : stopTags.values())
                     {
                         String text = stop.getStopTag() + " (" + stop.getTitle() + ")";
+                        if (stop.getParent().isPresent()) {
+                            text += " at place " + stop.getParent().get();
+                        }
                         stopTagStrings.add(text);
                     }
                     String stopTagsList = Joiner.on(",\n").join(stopTagStrings);
 
-                    ret.append("The stop ids are: ").append(stopTagsList).append(" on route ").append(routeTitle).append(". ");
+                    ret.append("The stop ids are: ").append(stopTagsList).append(" on route(s) ").append(routesJoin).append(". ");
                 }
             }
             else
@@ -707,7 +747,6 @@ public class MapManager implements OnMapClickListener, OnMarkerClickListener,
                 ArrayList<String> pairs = Lists.newArrayList();
                 for (StopLocation stop : stopTags.values())
                 {
-                    String routesJoin = Joiner.on(", ").join(stop.getRoutes());
                     pairs.add(stop.getStopTag() + "(" + stop.getTitle() + ") on routes " + routesJoin);
                 }
 
@@ -729,7 +768,7 @@ public class MapManager implements OnMapClickListener, OnMarkerClickListener,
 
     @Override
     public void onMapClick(LatLng latlng) {
-        setSelectedBusId(NOT_SELECTED);
+        setSelectedBusId(Optional.<GroupKey>absent());
 
         if (nextTapListener != null) {
             nextTapListener.onMapClick(latlng);
@@ -824,15 +863,21 @@ public class MapManager implements OnMapClickListener, OnMarkerClickListener,
         polylines.put(route, polylineGroup);
     }
 
-    public int getSelectedBusId() {
-        return selectedLocationId;
+    public Optional<GroupKey> getSelectedBusId() {
+        return selectedGroupId;
     }
 
-    public boolean setSelectedBusId(int newSelectedBusId) {
-        int oldSelectedId = selectedLocationId;
+    public boolean setSelectedBusId(Optional<GroupKey> newSelectedBusId) {
+        Optional<GroupKey> oldSelectedId = selectedGroupId;
 
         boolean success = false;
-        String markerId = markerIdToLocationId.inverse().get(newSelectedBusId);
+        String markerId;
+        if (newSelectedBusId.isPresent()) {
+            markerId = markerIdToGroupKey.inverse().get(newSelectedBusId.get());
+        }
+        else {
+            markerId = null;
+        }
         if (markerId != null) {
             Marker marker = markers.get(markerId);
             if (marker != null) {
@@ -841,17 +886,23 @@ public class MapManager implements OnMapClickListener, OnMarkerClickListener,
         }
 
         if (!success) {
-            newSelectedBusId = NOT_SELECTED;
+            newSelectedBusId = Optional.absent();
         }
-        selectedLocationId = newSelectedBusId;
+        selectedGroupId = newSelectedBusId;
         updateMarkerAndButtons(oldSelectedId, newSelectedBusId);
         updateRouteLine(newSelectedBusId);
 
         return success;
     }
 
-    private void updateRouteLine(int newSelectedBusId) {
-        Location selectedLocation = locationIdToLocation.get(newSelectedBusId);
+    private void updateRouteLine(Optional<GroupKey> newSelectedBusId) {
+        ImmutableList<Location> selectedLocationGroup;
+        if (newSelectedBusId.isPresent()) {
+            selectedLocationGroup = groupIdToGroup.get(newSelectedBusId.get());
+        }
+        else {
+            selectedLocationGroup = null;
+        }
 
         Selection.Mode mode = locations.getSelection().getMode();
 
@@ -860,9 +911,11 @@ public class MapManager implements OnMapClickListener, OnMarkerClickListener,
             String route = locations.getSelection().getRoute();
             pathMap.put(route, locations.getPaths(route));
         }
-        if (changeRouteIfSelected && selectedLocation != null) {
-            for (String route : selectedLocation.getRoutes()) {
-                pathMap.put(route, locations.getPaths(route));
+        if (changeRouteIfSelected && selectedLocationGroup != null) {
+            for (Location selectedLocation : selectedLocationGroup) {
+                for (String route : selectedLocation.getRoutes()) {
+                    pathMap.put(route, locations.getPaths(route));
+                }
             }
         }
         else if (mode == Selection.Mode.VEHICLE_LOCATIONS_ONE || mode == Selection.Mode.BUS_PREDICTIONS_ONE) {
@@ -894,36 +947,40 @@ public class MapManager implements OnMapClickListener, OnMarkerClickListener,
 
     /**
      * NOTE: must run in UI thread
-     * @param locations
+     * @param locationGroups
      * @param newSelection
      * @param newCenter
      */
-    public void updateNewLocations(List<Location> locations, int newSelection, LatLng newCenter, boolean forceNewMarker) {
+    public void updateNewLocations(ImmutableList<ImmutableList<Location>> locationGroups, Optional<GroupKey> newSelection, LatLng newCenter, boolean forceNewMarker) {
         if (firstRun) {
             // map may contain old markers and route lines if it was retained
             map.clear();
             polylines.clear();
 
-            if (firstRunSelectionId != NOT_SELECTED) {
-                newSelection = firstRunSelectionId;
-            }
-
             firstRun = false;
         }
 
         boolean selectionMade = false;
-        Set<Integer> locationIdsToRemove = Sets.newHashSet();
-        Set<Integer> locationIdsForNewMarkers = Sets.newHashSet();
-        locationIdsToRemove.addAll(locationIdToLocation.keySet());
-        for (Location location : locations) {
-            locationIdsToRemove.remove(location.getId());
+        Set<GroupKey> groupIdsToRemove = Sets.newHashSet();
+        Set<GroupKey> groupIdsForNewMarkers = Sets.newHashSet();
+        groupIdsToRemove.addAll(groupIdToGroup.keySet());
+        for (ImmutableList<Location> locationGroup : locationGroups) {
+            Location firstLocation = locationGroup.get(0);
+            GroupKey groupKey = new GroupKey(firstLocation);
+            groupIdsToRemove.remove(groupKey);
 
             // this all assumes that the only thing that changes a marker is its heading
             // for vehicles (which implies stops and places don't ever change markers)
-            Location oldLocation = locationIdToLocation.get(location.getId());
+            ImmutableList<Location> oldLocationGroup = groupIdToGroup.get(groupKey);
             boolean reuseMarker = false;
-            if (oldLocation != null) {
-                if (!oldLocation.hasHeading()) {
+            if (oldLocationGroup != null) {
+                Location oldLocation = oldLocationGroup.get(0);
+                Location location = locationGroup.get(0);
+                if (oldLocationGroup.size() != 1 || locationGroup.size() != 1) {
+                    // Only stops can have more than one location in a group currently (hacky)
+                    reuseMarker = true;
+                }
+                else if (!oldLocation.hasHeading()) {
                     reuseMarker = true;
                 }
                 else if (oldLocation.getHeading() == location.getHeading() &&
@@ -935,21 +992,21 @@ public class MapManager implements OnMapClickListener, OnMarkerClickListener,
 
             if (reuseMarker && !forceNewMarker) {
                 // replace with new location, leave marker
-                locationIdToLocation.put(location.getId(), location);
+                groupIdToGroup.put(groupKey, locationGroup);
             }
             else
             {
-                locationIdsForNewMarkers.add(location.getId());
-                ITransitDrawables transitDrawables = transitSystem.getTransitSourceByRouteType(location.getTransitSourceType()).getDrawables();
-                int icon = transitDrawables.getBitmapDescriptor(location, false);
-                LatLng latlng = new LatLng(location.getLatitudeAsDegrees(), location.getLongitudeAsDegrees());
+                groupIdsForNewMarkers.add(groupKey);
+                ITransitDrawables transitDrawables = transitSystem.getTransitSourceByRouteType(firstLocation.getTransitSourceType()).getDrawables();
+                int icon = transitDrawables.getBitmapDescriptor(firstLocation, false);
+                LatLng latlng = new LatLng(firstLocation.getLatitudeAsDegrees(), firstLocation.getLongitudeAsDegrees());
                 MarkerOptions options = new MarkerOptions()
                         .icon(BitmapDescriptorFactory.fromResource(icon))
                         .position(latlng);
 
-                String oldMarkerId = markerIdToLocationId.inverse().get(location.getId());
+                String oldMarkerId = markerIdToGroupKey.inverse().get(groupKey);
                 if (oldMarkerId != null) {
-                    markerIdToLocationId.remove(oldMarkerId);
+                    markerIdToGroupKey.remove(oldMarkerId);
                     Marker oldMarker = markers.get(oldMarkerId);
                     markers.remove(oldMarkerId);
                     oldMarker.remove();
@@ -958,15 +1015,15 @@ public class MapManager implements OnMapClickListener, OnMarkerClickListener,
 
                 Marker marker = map.addMarker(options);
                 markers.put(marker.getId(), marker);
-                markerIdToLocationId.put(marker.getId(), location.getId());
-                locationIdToLocation.put(location.getId(), location);
+                markerIdToGroupKey.put(marker.getId(), groupKey);
+                groupIdToGroup.put(groupKey, locationGroup);
             }
         }
 
-        for (Integer removeId : locationIdsToRemove) {
-            String markerId = markerIdToLocationId.inverse().get(removeId);
-            locationIdToLocation.remove(removeId);
-            markerIdToLocationId.remove(markerId);
+        for (GroupKey removeId : groupIdsToRemove) {
+            String markerId = markerIdToGroupKey.inverse().get(removeId);
+            groupIdToGroup.remove(removeId);
+            markerIdToGroupKey.remove(markerId);
             Marker marker = markers.get(markerId);
             markers.remove(markerId);
             marker.remove();
@@ -976,10 +1033,11 @@ public class MapManager implements OnMapClickListener, OnMarkerClickListener,
             boolean success = setSelectedBusId(newSelection);
             if (!success) {
                 // set to NOT_SELECTED to avoid confusion
-                setSelectedBusId(NOT_SELECTED);
+                setSelectedBusId(Optional.<GroupKey>absent());
             }
         }
 
+        /* TODO: what was I doing here?
         List<Point> points = Lists.newArrayListWithCapacity(locations.size());
         double lonFactor = 0;
         if (locations.size() > 0) {
@@ -989,21 +1047,27 @@ public class MapManager implements OnMapClickListener, OnMarkerClickListener,
         for (Location location : locations) {
             points.add(new Point(location.getLatitudeAsDegrees(), location.getLongitudeAsDegrees() * lonFactor));
         }
+        */
     }
 
-    public Location getLocationFromMarkerId(String id) {
-        Integer locationId = markerIdToLocationId.get(id);
+    public ImmutableList<Location> getLocationFromMarkerId(String id) {
+        GroupKey locationId = markerIdToGroupKey.get(id);
         if (locationId == null) {
             return null;
         }
         else
         {
-            return locationIdToLocation.get(locationId);
+            return groupIdToGroup.get(locationId);
         }
     }
 
-    public Location getSelectedLocation() {
-        return locationIdToLocation.get(selectedLocationId);
+    public ImmutableList<Location> getSelectedLocation() {
+        if (selectedGroupId.isPresent()) {
+            return groupIdToGroup.get(selectedGroupId);
+        }
+        else {
+            return null;
+        }
     }
 
     public void setHandler(UpdateHandler handler) {
@@ -1020,33 +1084,46 @@ public class MapManager implements OnMapClickListener, OnMarkerClickListener,
     @Override
     public void onInfoWindowClick(Marker marker) {
         String markerId = marker.getId();
-        Integer id = markerIdToLocationId.get(markerId);
-        int newLocationid;
+        GroupKey id = markerIdToGroupKey.get(markerId);
+        GroupKey newLocationId;
         if (id == null) {
             return;
         }
         else
         {
-            newLocationid = id;
+            newLocationId = id;
         }
 
-        Location location = locationIdToLocation.get(newLocationid);
-        if (location == null || !(location instanceof StopLocation)) {
+        ImmutableList<Location> group = groupIdToGroup.get(newLocationId);
+        if (group == null) {
             return;
         }
-        StopLocation stopLocation = (StopLocation)location;
+
+        Favorite oldFavorite = markerIdToFavorite.get(markerId);
+        if (oldFavorite == null) {
+            oldFavorite = Favorite.IsNotFavorite;
+            for (Location location : group) {
+                if (location.isFavorite() == Favorite.IsFavorite) {
+                    oldFavorite = Favorite.IsFavorite;
+                    break;
+                }
+            }
+        }
 
         try {
-            locations.toggleFavorite(stopLocation);
+            for (Location location : group) {
+                if (location instanceof StopLocation) {
+                    StopLocation stopLocation = (StopLocation)location;
+                    if (stopLocation.isFavorite() == oldFavorite) {
+                        locations.toggleFavorite(stopLocation);
+                    }
+                }
+            }
             updateInfo(markerId);
         }
         catch (RemoteException e) {
-            LogUtil.e(e);
+            throw new RuntimeException(e);
         }
-    }
-
-    public void setFirstRunSelectionId(int firstRunSelectionId) {
-        this.firstRunSelectionId = firstRunSelectionId;
     }
 
     @Override

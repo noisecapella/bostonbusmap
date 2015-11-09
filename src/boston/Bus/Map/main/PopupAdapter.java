@@ -13,6 +13,7 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 import com.readystatesoftware.mapviewballoons.LimitLinearLayout;
 import com.schneeloch.bostonbusmap_library.data.Alert;
 import com.schneeloch.bostonbusmap_library.data.Favorite;
@@ -22,9 +23,11 @@ import com.schneeloch.bostonbusmap_library.data.PredictionView;
 import com.schneeloch.bostonbusmap_library.data.RouteTitles;
 import com.schneeloch.bostonbusmap_library.data.SimplePredictionView;
 import com.schneeloch.bostonbusmap_library.data.StopLocation;
+import com.schneeloch.bostonbusmap_library.data.StopPredictionView;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 
 import boston.Bus.Map.R;
 import boston.Bus.Map.ui.MapManager;
@@ -73,16 +76,23 @@ public class PopupAdapter implements InfoWindowAdapter {
         }
 
         String id = marker.getId();
-        Location location = manager.getLocationFromMarkerId(id);
-        populateView(location);
+        ImmutableList<Location> group = manager.getLocationFromMarkerId(id);
+        populateView(group);
         return popupView;
     }
     protected Context getContext() {
         return main;
     }
 
-    private void populateView(Location location) {
+    private void populateView(ImmutableList<Location> group) {
         //NOTE: originally this was going to be an actual link, but we can't click it on the popup except through its onclick listener
+        Location location;
+        if (group != null) {
+            location = group.get(0);
+        }
+        else {
+            location = null;
+        }
 
         PredictionView predictionView;
         if (location != null) {
@@ -101,14 +111,14 @@ public class PopupAdapter implements InfoWindowAdapter {
 
         String routesText = "";
         if (location instanceof StopLocation) {
+            if (predictionView instanceof StopPredictionView) {
+                StopPredictionView stopPredictionView = (StopPredictionView)predictionView;
 
-            List<String> routeTitlesForStop = Lists.newArrayList();
-            for (String route : location.getRoutes()) {
-                routeTitlesForStop.add(routeTitles.getTitle(route));
+                Set<String> routeTitlesForStop = Sets.newTreeSet();
+                Collections.addAll(routeTitlesForStop, stopPredictionView.getRouteTitles());
+                // TODO: correct sorting
+                routesText = "<br /><small>Routes: " + Joiner.on(", ").join(routeTitlesForStop) + "</small>";
             }
-            Collections.sort(routeTitlesForStop);
-            // TODO: correct sorting
-            routesText = "<br /><small>Routes: " + Joiner.on(", ").join(routeTitlesForStop) + "</small>";
         }
         title.setText(Html.fromHtml(alertsText + predictionView.getSnippetTitle() + routesText));
 
