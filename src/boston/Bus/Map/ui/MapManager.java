@@ -63,10 +63,7 @@ import com.schneeloch.bostonbusmap_library.transit.TransitSystem;
 import com.schneeloch.bostonbusmap_library.util.LogUtil;
 import com.schneeloch.bostonbusmap_library.util.MoreInfoConstants;
 
-import org.nayuki.Point;
-
 import java.io.IOException;
-import java.security.acl.Group;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -98,7 +95,7 @@ public class MapManager implements OnMapClickListener, OnMarkerClickListener,
     private final Button vehiclesButton;
     private final Button editButton;
     private final Button deleteButton;
-    private Optional<GroupKey> selectedLocationId = Optional.absent();
+    private Optional<GroupKey> selectedGroupId = Optional.absent();
 
     private OnMapClickListener nextTapListener;
     private boolean allRoutesBlue;
@@ -287,7 +284,7 @@ public class MapManager implements OnMapClickListener, OnMarkerClickListener,
         else {
             final ImmutableList<Location> newLocationGroup;
             if (newSelectedId.isPresent()) {
-                newLocationGroup = groupIdToGroup.get(newSelectedId);
+                newLocationGroup = groupIdToGroup.get(newSelectedId.get());
             }
             else {
                 newLocationGroup = null;
@@ -357,6 +354,9 @@ public class MapManager implements OnMapClickListener, OnMarkerClickListener,
 
                             String combinedStops = predictionView.getStops();
                             intent.putExtra(MoreInfo.stopsKey, combinedStops);
+
+                            String places = predictionView.getPlaces();
+                            intent.putExtra(MoreInfo.placesKey, places);
 
                             intent.putExtra(MoreInfo.stopIsBetaKey, stopLocation.isBeta());
 
@@ -724,6 +724,9 @@ public class MapManager implements OnMapClickListener, OnMarkerClickListener,
                     for (StopLocation stop : stopTags.values())
                     {
                         String text = stop.getStopTag() + " (" + stop.getTitle() + ")";
+                        if (stop.getParent().isPresent()) {
+                            text += " at place " + stop.getParent().get();
+                        }
                         stopTagStrings.add(text);
                     }
                     String stopTagsList = Joiner.on(",\n").join(stopTagStrings);
@@ -854,11 +857,11 @@ public class MapManager implements OnMapClickListener, OnMarkerClickListener,
     }
 
     public Optional<GroupKey> getSelectedBusId() {
-        return selectedLocationId;
+        return selectedGroupId;
     }
 
     public boolean setSelectedBusId(Optional<GroupKey> newSelectedBusId) {
-        Optional<GroupKey> oldSelectedId = selectedLocationId;
+        Optional<GroupKey> oldSelectedId = selectedGroupId;
 
         boolean success = false;
         String markerId;
@@ -878,7 +881,7 @@ public class MapManager implements OnMapClickListener, OnMarkerClickListener,
         if (!success) {
             newSelectedBusId = Optional.absent();
         }
-        selectedLocationId = newSelectedBusId;
+        selectedGroupId = newSelectedBusId;
         updateMarkerAndButtons(oldSelectedId, newSelectedBusId);
         updateRouteLine(newSelectedBusId);
 
@@ -1052,8 +1055,8 @@ public class MapManager implements OnMapClickListener, OnMarkerClickListener,
     }
 
     public ImmutableList<Location> getSelectedLocation() {
-        if (selectedLocationId.isPresent()) {
-            return groupIdToGroup.get(selectedLocationId);
+        if (selectedGroupId.isPresent()) {
+            return groupIdToGroup.get(selectedGroupId);
         }
         else {
             return null;
@@ -1084,22 +1087,35 @@ public class MapManager implements OnMapClickListener, OnMarkerClickListener,
             newLocationId = id;
         }
 
-        ImmutableList<Location> location = groupIdToGroup.get(newLocationId);
-        if (location == null) {
+        ImmutableList<Location> group = groupIdToGroup.get(newLocationId);
+        if (group == null) {
             return;
         }
-        Location firstLocation = location.get(0);
-        if (!(firstLocation instanceof StopLocation)) {
-            return;
+
+        Favorite oldFavorite = markerIdToFavorite.get(markerId);
+        if (oldFavorite == null) {
+            oldFavorite = Favorite.IsNotFavorite;
+            for (Location location : group) {
+                if (location.isFavorite() == Favorite.IsFavorite) {
+                    oldFavorite = Favorite.IsFavorite;
+                    break;
+                }
+            }
         }
-        StopLocation stopLocation = (StopLocation)firstLocation;
 
         try {
-            locations.toggleFavorite(stopLocation);
+            for (Location location : group) {
+                if (location instanceof StopLocation) {
+                    StopLocation stopLocation = (StopLocation)location;
+                    if (stopLocation.isFavorite() == oldFavorite) {
+                        locations.toggleFavorite(stopLocation);
+                    }
+                }
+            }
             updateInfo(markerId);
         }
         catch (RemoteException e) {
-            LogUtil.e(e);
+            throw new RuntimeException(e);
         }
     }
 
