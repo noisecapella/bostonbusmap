@@ -333,10 +333,10 @@ public class BusLocation implements Location {
 		return longitudeAsDegrees;
 	}
 
-	@Override
-	public boolean isFavorite() {
-		return false;
-	}
+    @Override
+    public Favorite isFavorite() {
+        return Favorite.IsNotFavorite;
+    }
 
 	/**
 	 * The route name
