@@ -71,7 +71,7 @@ public class RoutePool extends Pool<String, RouteConfig> {
 			if (stopLocation != null)
 			{
 				Log.v("BostonBusMap", "setting favorite status to true for " + stop);
-				stopLocation.setFavorite(true);
+				stopLocation.setFavorite(Favorite.IsFavorite);
 				sharedStops.put(stop, stopLocation);
 			}
 		}
@@ -171,7 +171,7 @@ public class RoutePool extends Pool<String, RouteConfig> {
 				StopLocation stop = sharedStops.get(tag);
 				if (stop != null)
 				{
-					stop.setFavorite(false);
+					stop.setFavorite(Favorite.IsNotFavorite);
 				}
 			}
 		}

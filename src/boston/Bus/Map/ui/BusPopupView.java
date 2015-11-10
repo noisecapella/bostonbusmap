@@ -520,7 +520,7 @@ public class BusPopupView extends BalloonOverlayView<BusOverlayItem>
 		//TODO: figure out a more elegant way to make the layout use these items even if they're invisible
 		if (location.hasFavorite())
 		{
-			favorite.setBackgroundResource(location.isFavorite() ? R.drawable.full_star : R.drawable.empty_star);
+			favorite.setBackgroundResource(location.isFavorite() == Favorite.IsFavorite ? R.drawable.full_star : R.drawable.empty_star);
 		}
 		else
 		{

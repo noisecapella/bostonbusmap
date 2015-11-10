@@ -25,7 +25,7 @@ public class StopLocation implements Location
 	
 	private Predictions predictions;
 	
-	private boolean isFavorite;
+	private Favorite isFavorite;
 	protected boolean recentlyUpdated;
     protected boolean everUpdated;
 
@@ -194,13 +194,13 @@ public class StopLocation implements Location
 		return title;
 	}
 
-	public void setFavorite(boolean b)
+	public void setFavorite(Favorite b)
 	{
 		isFavorite = b;
 	}
 	
 	@Override
-	public boolean isFavorite() {
+	public Favorite isFavorite() {
 		return isFavorite;
 	}
 	/**
