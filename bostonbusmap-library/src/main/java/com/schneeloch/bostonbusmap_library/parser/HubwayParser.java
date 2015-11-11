@@ -2,6 +2,8 @@ package com.schneeloch.bostonbusmap_library.parser;
 
 import android.util.Xml;
 
+import com.google.common.base.Optional;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 
 import org.xml.sax.Attributes;
@@ -12,14 +14,19 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.xml.parsers.ParserConfigurationException;
 
+import com.google.common.collect.Maps;
+import com.schneeloch.bostonbusmap_library.data.HubwayStopData;
 import com.schneeloch.bostonbusmap_library.data.HubwayStopLocation;
+import com.schneeloch.bostonbusmap_library.data.Locations;
 import com.schneeloch.bostonbusmap_library.data.PredictionStopLocationPair;
 import com.schneeloch.bostonbusmap_library.data.RouteConfig;
 import com.schneeloch.bostonbusmap_library.data.SimplePrediction;
 import com.schneeloch.bostonbusmap_library.data.StopLocation;
+import com.schneeloch.bostonbusmap_library.provider.IDatabaseAgent;
 import com.schneeloch.bostonbusmap_library.transit.HubwayTransitSource;
 
 /**
@@ -51,7 +58,7 @@ public class HubwayParser extends DefaultHandler {
 
 	private final StringBuilder chars = new StringBuilder();
 
-	private final List<PredictionStopLocationPair> pairs = Lists.newArrayList();
+	private final List<HubwayStopData> hubwayStopData = Lists.newArrayList();
 
 	public HubwayParser(RouteConfig routeConfig) {
 
@@ -64,9 +71,43 @@ public class HubwayParser extends DefaultHandler {
 
 	}
 
+    /**
+     * For Hubway we need to update the stop list here, we don't receive it ahead of time.
+     */
+    public void addMissingStops(Locations locations) throws IOException {
+        ImmutableMap.Builder<String, StopLocation> builder = ImmutableMap.builder();
+
+        for (HubwayStopData data : hubwayStopData) {
+            HubwayStopLocation.HubwayBuilder hubwayBuilder = new HubwayStopLocation.HubwayBuilder(data.latitude, data.longitude, data.tag, data.name, Optional.<String>absent());
+
+            HubwayStopLocation newStop = hubwayBuilder.build();
+            newStop.addRoute(routeConfig.getRouteName());
+            builder.put(data.tag, newStop);
+        }
+
+        ImmutableMap<String, StopLocation> stopsToReplace = builder.build();
+        locations.replaceStops(routeConfig.getRouteName(), stopsToReplace);
+    }
+
 	public List<PredictionStopLocationPair> getPairs() {
-		return pairs;
-	}
+        List<PredictionStopLocationPair> pairs = Lists.newArrayList();
+
+        for (HubwayStopData data : hubwayStopData) {
+            StopLocation stop = routeConfig.getStop(data.tag);
+
+            if (stop != null && data.name.equals(stop.getTitle())) {
+                String text = makeText(data.numberBikes, data.numberEmptyDocks, data.locked, data.installed);
+                SimplePrediction prediction = new SimplePrediction(routeConfig.getRouteName(),
+                        routeConfig.getRouteTitle(), text);
+
+
+                PredictionStopLocationPair pair = new PredictionStopLocationPair(prediction, stop);
+                pairs.add(pair);
+            }
+        }
+
+        return pairs;
+    }
 
 	@Override
 	public void startElement(String uri, String localName, String qName, Attributes attributes) throws SAXException {
@@ -122,28 +163,15 @@ public class HubwayParser extends DefaultHandler {
             latitude = Float.parseFloat(string);
         }
 		else if (stationKey.equals(localName)) {
-			String text = makeText();
-			SimplePrediction prediction = new SimplePrediction(routeConfig.getRouteName(),
-					routeConfig.getRouteTitle(), text);
             String tag = HubwayTransitSource.stopTagPrefix + id;
-			StopLocation stop = routeConfig.getStop(tag);
-			if (stop != null && name.equals(stop.getTitle())) {
-				PredictionStopLocationPair pair = new PredictionStopLocationPair(prediction, stop);
-				pairs.add(pair);
-			}
-			else
-			{
-				HubwayStopLocation.HubwayBuilder builder = new HubwayStopLocation.HubwayBuilder(latitude, longitude, tag, name);
-
-                HubwayStopLocation newStop = builder.build();
-
-                PredictionStopLocationPair pair = new PredictionStopLocationPair(prediction, newStop);
-                pairs.add(pair);
-			}
+            HubwayStopData data = new HubwayStopData(
+                    tag, id, latitude, longitude, name, numberBikes, numberEmptyDocks, locked, installed
+            );
+            hubwayStopData.add(data);
 		}
 	}
 
-	private String makeText() {
+	private static String makeText(String numberBikes, String numberEmptyDocks, boolean locked, boolean installed) {
 		StringBuilder ret = new StringBuilder();
 
 		ret.append("Bikes: ").append(numberBikes).append("<br />");

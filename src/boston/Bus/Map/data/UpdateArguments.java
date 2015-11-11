@@ -25,7 +25,6 @@ public class UpdateArguments {
 	private Locations busLocations;
 	private ITransitSystem transitSystem;
     private Context context;
-    private boolean changeRouteIfSelected;
 
     public UpdateArguments(ProgressBar progress,
 			ProgressDialog progressDialog, GoogleMap mapView, IDatabaseAgent databaseAgent,
@@ -90,8 +89,4 @@ public class UpdateArguments {
 	public MapManager getOverlayGroup() {
 		return overlayGroup;
 	}
-
-    public boolean isChangeRouteIfSelected() {
-        return changeRouteIfSelected;
-    }
 }
