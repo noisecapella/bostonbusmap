@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.io.Reader;
 import java.util.List;
 
+import com.schneeloch.bostonbusmap_library.data.CommuterRailPrediction;
 import com.schneeloch.bostonbusmap_library.data.RoutePool;
 import com.schneeloch.bostonbusmap_library.database.Schema;
 import com.schneeloch.bostonbusmap_library.parser.gson.MbtaRealtimeRoot;
@@ -91,24 +92,57 @@ public class MbtaRealtimePredictionsParser {
                             StopLocation stopLocation = routeConfig.getStop(stopId);
                             if (stopLocation != null) {
                                 // TODO: make this more thorough
-                                if (stop.pre_dt != null) {
-                                    long arrivalTimeSeconds = Long.parseLong(stop.pre_dt);
-                                    long arrivalTimeMillis = arrivalTimeSeconds * 1000;
 
-                                    String routeTitle = this.routeKeysToTitles.getTitle(routeName);
+                                boolean isCommuterRail = MbtaRealtimeTransitSource.routeNameToTransitSource.get(routeName) == Schema.Routes.SourceId.CommuterRail;
+                                String routeTitle = this.routeKeysToTitles.getTitle(routeName);
 
-                                    String id;
-                                    if (MbtaRealtimeTransitSource.routeNameToTransitSource.get(routeName) == Schema.Routes.SourceId.CommuterRail) {
-                                        id = tripName;
+                                if (stop.sch_arr_dt != null && isCommuterRail) {
+                                    // Show scheduled time and delay
+                                    long scheduledArrivalMillis = Long.parseLong(stop.sch_arr_dt) * 1000;
+
+                                    long arrivalTimeMillis;
+                                    if (stop.pre_dt != null) {
+                                        long arrivalTimeSeconds = Long.parseLong(stop.pre_dt);
+                                        arrivalTimeMillis = arrivalTimeSeconds * 1000;
                                     }
                                     else {
-                                        id = vehicleId;
+                                        arrivalTimeMillis = scheduledArrivalMillis;
                                     }
-                                    TimePrediction prediction = new TimePrediction(arrivalTimeMillis, id, directionName,
-                                            routeName, routeTitle, false, false, 0, null, stopId);
+                                    int lateness = (int)(arrivalTimeMillis - scheduledArrivalMillis) / 1000;
+                                    if (lateness < 0) {
+                                        lateness = 0;
+                                    }
+
+                                    TimePrediction prediction = new CommuterRailPrediction(arrivalTimeMillis,
+                                            tripName, directionName, routeName,
+                                            routeTitle, false,
+                                            lateness > 5*60, lateness, "", stopId,
+                                            CommuterRailPrediction.Flag.Arr
+                                    );
 
                                     PredictionStopLocationPair pair = new PredictionStopLocationPair(prediction, stopLocation);
                                     pairs.add(pair);
+                                } else if (stop.pre_dt != null) {
+                                    long arrivalTimeSeconds = Long.parseLong(stop.pre_dt);
+                                    long arrivalTimeMillis = arrivalTimeSeconds * 1000;
+
+                                    TimePrediction prediction;
+                                    if (isCommuterRail) {
+                                        prediction = new CommuterRailPrediction(arrivalTimeMillis,
+                                                tripName, directionName, routeName,
+                                                routeTitle, false,
+                                                false, 0, "", stopId,
+                                                CommuterRailPrediction.Flag.Arr
+                                        );
+                                    }
+                                    else {
+                                        prediction = new TimePrediction(arrivalTimeMillis, vehicleId, directionName,
+                                                routeName, routeTitle, false, false, 0, null, stopId);
+                                    }
+
+                                    PredictionStopLocationPair pair = new PredictionStopLocationPair(prediction, stopLocation);
+                                    pairs.add(pair);
+
                                 }
                             }
                             else {

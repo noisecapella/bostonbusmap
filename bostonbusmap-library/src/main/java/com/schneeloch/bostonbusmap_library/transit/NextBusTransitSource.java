@@ -11,6 +11,7 @@ import javax.xml.parsers.ParserConfigurationException;
 
 import org.xml.sax.SAXException;
 
+import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 
@@ -60,6 +61,7 @@ public abstract class NextBusTransitSource implements TransitSource
 
     private final TransitSourceCache cache;
 
+    private final Schema.Routes.SourceId[] transitSourceIds = new Schema.Routes.SourceId[] {Schema.Routes.SourceId.Bus};
 
 	public NextBusTransitSource(TransitSystem transitSystem, 
 			ITransitDrawables drawables, String agency, TransitSourceTitles routeTitles,
@@ -129,72 +131,74 @@ public abstract class NextBusTransitSource implements TransitSource
                 throw new RuntimeException("Unexpected enum");
         }
 
-        downloadHelper.connect();
+        try {
+            InputStream data = downloadHelper.getResponseData();
 
-        InputStream data = downloadHelper.getResponseData();
-
-        switch (mode) {
-            case BUS_PREDICTIONS_ONE:
-            case BUS_PREDICTIONS_ALL:
-            case BUS_PREDICTIONS_STAR: {
-                //bus prediction
+            switch (mode) {
+                case BUS_PREDICTIONS_ONE:
+                case BUS_PREDICTIONS_ALL:
+                case BUS_PREDICTIONS_STAR: {
+                    //bus prediction
 
 
-                BusPredictionsFeedParser parser = new BusPredictionsFeedParser(routePool, directions);
+                    BusPredictionsFeedParser parser = new BusPredictionsFeedParser(routePool, directions);
 
-                parser.runParse(data);
+                    parser.runParse(data);
 
-                // set last update time for downloaded stops
-                List<Location> locations = locationsObj.getLocations(maxStops, centerLatitude, centerLongitude, false, selection);
+                    // set last update time for downloaded stops
+                    List<Location> locations = locationsObj.getLocations(maxStops, centerLatitude, centerLongitude, false, selection);
 
-                ImmutableSet<String> routes;
-                if (mode == Selection.Mode.BUS_PREDICTIONS_ONE) {
-                    routes = ImmutableSet.of(routeConfig.getRouteName());
-                } else {
-                    routes = ImmutableSet.of();
+                    ImmutableSet<String> routes;
+                    if (mode == Selection.Mode.BUS_PREDICTIONS_ONE) {
+                        routes = ImmutableSet.of(routeConfig.getRouteName());
+                    } else {
+                        routes = ImmutableSet.of();
+                    }
+                    ImmutableList<RouteStopPair> pairs = getStopPairs(locations, routes);
+                    for (RouteStopPair pair : pairs) {
+                        cache.updatePredictionForStop(pair);
+                    }
+
+                    break;
                 }
-                ImmutableList<RouteStopPair> pairs = getStopPairs(locations, routes);
-                for (RouteStopPair pair : pairs) {
-                    cache.updatePredictionForStop(pair);
-                }
+                case VEHICLE_LOCATIONS_ALL:
+                case VEHICLE_LOCATIONS_ONE: {
+                    //vehicle locations
+                    VehicleLocationsFeedParser parser = new VehicleLocationsFeedParser(directions, transitSystem.getRouteKeysToTitles());
+                    parser.runParse(data);
 
-                break;
+                    //get the time that this information is valid until
+                    locationsObj.setLastUpdateTime(parser.getLastUpdateTime());
+
+                    long lastUpdateTime = parser.getLastUpdateTime();
+                    Map<VehicleLocations.Key, BusLocation> newBuses = parser.getNewBuses();
+
+                    for (BusLocation bus : newBuses.values()) {
+                        bus.setLastUpdateInMillis(lastUpdateTime);
+                    }
+
+                    busMapping.update(Schema.Routes.SourceId.Bus, routeTitles.routeTags(), true, newBuses);
+
+                    // now that we've succeeded, update last download times
+                    switch (mode) {
+                        case VEHICLE_LOCATIONS_ONE:
+                            cache.updateVehiclesForRoute(routeConfig.getRouteName());
+                            break;
+                        case VEHICLE_LOCATIONS_ALL:
+                            cache.updateAllVehicles();
+                            break;
+                        default:
+                            throw new RuntimeException("Unexpected mode");
+                    }
+
+                    break;
+                }
+                default:
+                    throw new RuntimeException("Unexpected enum");
             }
-            case VEHICLE_LOCATIONS_ALL:
-            case VEHICLE_LOCATIONS_ONE:
-            {
-                //vehicle locations
-                VehicleLocationsFeedParser parser = new VehicleLocationsFeedParser(directions, transitSystem.getRouteKeysToTitles());
-                parser.runParse(data);
-
-                //get the time that this information is valid until
-                locationsObj.setLastUpdateTime(parser.getLastUpdateTime());
-
-                long lastUpdateTime = parser.getLastUpdateTime();
-                Map<VehicleLocations.Key, BusLocation> newBuses = parser.getNewBuses();
-
-                for (BusLocation bus : newBuses.values()) {
-                    bus.setLastUpdateInMillis(lastUpdateTime);
-                }
-
-                busMapping.update(Schema.Routes.SourceId.Bus, routeTitles.routeTags(), true, newBuses);
-
-                // now that we've succeeded, update last download times
-                switch (mode) {
-                    case VEHICLE_LOCATIONS_ONE:
-                        cache.updateVehiclesForRoute(routeConfig.getRouteName());
-                        break;
-                    case VEHICLE_LOCATIONS_ALL:
-                        cache.updateAllVehicles();
-                        break;
-                    default:
-                        throw new RuntimeException("Unexpected mode");
-                }
-
-                break;
-            }
-            default:
-                throw new RuntimeException("Unexpected enum");
+        }
+        finally {
+            downloadHelper.disconnect();
         }
     }
 
@@ -279,9 +283,9 @@ public abstract class NextBusTransitSource implements TransitSource
 
 	@Override
 	public StopLocation createStop(float lat, float lon, String stopTag,
-			String title, String route)
+			String title, String route, Optional<String> parent)
 	{
-		StopLocation stop = new StopLocation.Builder(lat, lon, stopTag, title).build();
+		StopLocation stop = new StopLocation.Builder(lat, lon, stopTag, title, parent).build();
 		stop.addRoute(route);
 		return stop;
 	}
@@ -309,7 +313,7 @@ public abstract class NextBusTransitSource implements TransitSource
 	
 	@Override
 	public Schema.Routes.SourceId[] getTransitSourceIds() {
-		return new Schema.Routes.SourceId[] {Schema.Routes.SourceId.Bus};
+		return transitSourceIds;
 	}
 	
 	@Override

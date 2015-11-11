@@ -60,6 +60,7 @@ import com.google.common.collect.Lists;
 import com.schneeloch.latransit.R;
 
 import android.app.AlertDialog;
+import android.app.NotificationManager;
 import android.app.ProgressDialog;
 import android.app.SearchManager;
 import android.content.DialogInterface;
@@ -72,6 +73,7 @@ import android.os.Bundle;
 import android.os.SystemClock;
 import android.preference.PreferenceManager;
 import android.provider.SearchRecentSuggestions;
+import android.support.v4.app.NotificationCompat;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.util.Log;
@@ -445,7 +447,7 @@ public class Main extends MapActivity
         	
         	locationEnabled = prefs.getBoolean(getString(R.string.alwaysShowLocationCheckbox), true);
             int selectedRouteIndex = prefs.getInt(selectedRouteIndexKey, 0);
-            int modeInt = prefs.getInt(selectedBusPredictionsKey, Selection.Mode.BUS_PREDICTIONS_ONE.modeInt);
+            int modeInt = prefs.getInt(selectedBusPredictionsKey, Selection.Mode.BUS_PREDICTIONS_ALL.modeInt);
 			selection = new Selection(Selection.Mode.VEHICLE_LOCATIONS_ALL, null);
 			for (Selection.Mode mode : Selection.Mode.values()) {
 				if (mode.modeInt == modeInt) {
@@ -554,8 +556,6 @@ public class Main extends MapActivity
 			// from http://stackoverflow.com/questions/13372326/how-to-get-getintent-to-return-null-after-activity-called-with-an-intent-set
 			intent.setData(null);
 		}
-
-
 	}
 		
 	/**
@@ -1167,7 +1167,7 @@ public class Main extends MapActivity
 		
 		MapController controller = arguments.getMapView().getController();
 		
-		int latE6 = (int)(stopLocation.getLatitudeAsDegrees() * Constants.E6);
+		int latE6 = (int) (stopLocation.getLatitudeAsDegrees() * Constants.E6);
 		int lonE6 = (int)(stopLocation.getLongitudeAsDegrees() * Constants.E6);
 		
 		GeoPoint geoPoint = new GeoPoint(latE6, lonE6);

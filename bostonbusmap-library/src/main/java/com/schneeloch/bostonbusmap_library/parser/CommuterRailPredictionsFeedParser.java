@@ -1,6 +1,7 @@
 package com.schneeloch.bostonbusmap_library.parser;
 
 
+import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -119,6 +120,13 @@ public class CommuterRailPredictionsFeedParser
 				String latitudeString = message.get("Latitude").getAsString();
 				String longitudeString = message.get("Longitude").getAsString();
 				String headingString = message.get("Heading").getAsString();
+                Optional<Integer> heading;
+                if (headingString == null || headingString.length() == 0) {
+                    heading = Optional.absent();
+                }
+                else {
+                    heading = Optional.of(Integer.parseInt(headingString));
+                }
 				
 				if (longitudeString.length() != 0 && latitudeString.length() != 0) {
 					float lat = Float.parseFloat(latitudeString);
@@ -126,7 +134,7 @@ public class CommuterRailPredictionsFeedParser
 
 					CommuterTrainLocation location = new CommuterTrainLocation(lat,
 							lon, trip, timestampMillis, timestampMillis,
-							headingString, true, dirTag, routeName, directions,
+							heading, true, dirTag, routeName, directions,
 							routeTitle);
                     newLocations.put(new VehicleLocations.Key(Schema.Routes.SourceId.CommuterRail, routeName, trip), location);
 				}

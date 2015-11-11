@@ -1,5 +1,6 @@
 package com.schneeloch.bostonbusmap_library.data;
 
+import com.google.common.base.Optional;
 import com.schneeloch.bostonbusmap_library.database.Schema;
 
 import com.google.common.collect.ImmutableSet;
@@ -16,8 +17,8 @@ public class SubwayStopLocation extends StopLocation {
 	public static class SubwayBuilder extends Builder {
 		public SubwayBuilder(float latitudeAsDegrees,
 				float longitudeAsDegrees, String tag,
-				String title) {
-			super(latitudeAsDegrees, longitudeAsDegrees, tag, title);
+				String title, Optional<String> parent) {
+			super(latitudeAsDegrees, longitudeAsDegrees, tag, title, parent);
 		}
 		
 		@Override
@@ -33,6 +34,6 @@ public class SubwayStopLocation extends StopLocation {
 
 	@Override
 	public boolean supportsBusPredictionsAllMode() {
-		return false;
+		return true;
 	}
 }

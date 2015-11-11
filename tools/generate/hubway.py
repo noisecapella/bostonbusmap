@@ -32,6 +32,7 @@ class Hubway:
             obj.stops.title.value = str(station_node.getElementsByTagName("name")[0].firstChild.nodeValue)
             obj.stops.lat.value = float(station_node.getElementsByTagName("lat")[0].firstChild.nodeValue)
             obj.stops.lon.value = float(station_node.getElementsByTagName("long")[0].firstChild.nodeValue)
+            obj.stops.parent.value = ""
             cur.execute(obj.stops.insert())
 
             obj.stopmapping.route.value = "Hubway"

@@ -13,7 +13,9 @@ import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
 
+import android.net.Uri;
 import android.os.RemoteException;
+import android.text.ClipboardManager;
 import android.text.Html;
 import android.text.Spanned;
 import android.util.Log;
@@ -200,19 +202,65 @@ public class BusPopupView extends BalloonOverlayView<BusOverlayItem>
 			
 			@Override
 			public void onClick(View v) {
-				//Intent intent = new Intent(context, ReportProblem.class);
-				Intent intent = new Intent(android.content.Intent.ACTION_SEND);
-				intent.setType("plain/text");
-				
-				intent.putExtra(android.content.Intent.EXTRA_EMAIL, TransitSystem.getEmails());
-				intent.putExtra(android.content.Intent.EXTRA_SUBJECT, TransitSystem.getEmailSubject());
+                AlertDialog.Builder builder = new AlertDialog.Builder(context);
+                builder.setTitle("Who should get the error report?");
+                builder.setItems(new String[]{
+                        TransitSystem.getAgencyName(),
+                        "App Developer"
+                }, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        if (which == 0) {
+                            AlertDialog.Builder transitBuilder = new AlertDialog.Builder(context);
+                            transitBuilder.setTitle("");
+                            transitBuilder.setMessage("The report message has been copied to your clipboard." +
+                                    " This message contains specifics about the stop, route or vehicle" +
+                                    " that was selected when you clicked 'Report Problem'." +
+                                    " Click 'Ok' to visit their customer comment form, then you may paste " +
+                                    " this report into their textbox.");
+                            transitBuilder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    dialog.dismiss();
+                                }
+                            });
+                            transitBuilder.setPositiveButton("Visit their website", new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    ClipboardManager manager = (ClipboardManager) context.getSystemService(Context.CLIPBOARD_SERVICE);
+                                    manager.setText(createEmailBody(context));
 
-				
-				String otherText = createEmailBody(context);
+                                    Intent intent = new Intent(Intent.ACTION_VIEW);
+                                    intent.setData(Uri.parse(TransitSystem.getFeedbackUrl()));
+                                    context.startActivity(intent);
+                                }
+                            });
+                            transitBuilder.create().show();
+                        } else if (which == 1) {
+                            //Intent intent = new Intent(context, ReportProblem.class);
+                            Intent intent = new Intent(android.content.Intent.ACTION_SEND);
+                            intent.setType("plain/text");
 
-				intent.putExtra(android.content.Intent.EXTRA_TEXT, otherText);
-				context.startActivity(Intent.createChooser(intent, "Send email..."));
-			}
+                            intent.putExtra(android.content.Intent.EXTRA_EMAIL, TransitSystem.getEmails());
+                            intent.putExtra(android.content.Intent.EXTRA_SUBJECT, TransitSystem.getEmailSubject());
+
+
+                            String otherText = createEmailBody(context);
+
+                            intent.putExtra(android.content.Intent.EXTRA_TEXT, otherText);
+                            context.startActivity(Intent.createChooser(intent, "Send email..."));
+                        }
+                    }
+                });
+                builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                    }
+                });
+                builder.create().show();
+
+            }
 		});
 		
 		alertsTextView.setOnClickListener(new OnClickListener() {
@@ -456,7 +504,7 @@ public class BusPopupView extends BalloonOverlayView<BusOverlayItem>
 		}
 		
 		StringBuilder otherText = new StringBuilder();
-		otherText.append("(What is the problem?\nAdd any other info you want at the beginning or end of this message, and click send.)\n\n");
+		otherText.append("(This is an automatically generated message from BostonBusMap with information about the state of the app at the time of the error report.\nFeel free to add any other info you want before this message.)\n\n");
 		otherText.append("\n\n");
 		createInfoForAgency(context, otherText, selection.getMode(), routeTitle);
 		otherText.append("\n\n");
@@ -471,7 +519,7 @@ public class BusPopupView extends BalloonOverlayView<BusOverlayItem>
 		//TODO: figure out a more elegant way to make the layout use these items even if they're invisible
 		if (location.hasFavorite())
 		{
-			favorite.setBackgroundResource(location.isFavorite() ? R.drawable.full_star : R.drawable.empty_star);
+			favorite.setBackgroundResource(location.isFavorite() == Favorite.IsFavorite ? R.drawable.full_star : R.drawable.empty_star);
 		}
 		else
 		{

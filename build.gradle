@@ -4,7 +4,7 @@ buildscript {
         mavenCentral()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:1.2.3'
+        classpath 'com.android.tools.build:gradle:1.3.0'
     }
 }
 
@@ -26,13 +26,13 @@ dependencies {
     compile 'com.google.code.gson:gson:2.3'
     compile project(':androidmapviewballoons')
     compile project(':bostonbusmap-library')
-    compile 'com.android.support:support-v4:21.0.3'
+    compile 'com.android.support:support-v4:23+'
     compile 'com.google.code.findbugs:jsr305:1.3.9'
 }
 
 android {
-    compileSdkVersion "Google Inc.:Google APIs:21"
-    buildToolsVersion "20.0.0"
+    compileSdkVersion "Google Inc.:Google APIs:23"
+    buildToolsVersion "23.0.2"
     buildTypes {
         release {
             minifyEnabled true

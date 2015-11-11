@@ -15,6 +15,7 @@ import javax.xml.parsers.ParserConfigurationException;
 
 import org.xml.sax.SAXException;
 
+import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 
@@ -59,6 +60,7 @@ public class TransitSystem implements ITransitSystem {
      * Unimplemented for Los Angelbus
      */
 	public static String ALERTS_URL = null;
+    private static final String feedbackUrl = "http://webapps2.metro.net/customercomments/";
 
 	private static final boolean showRunNumber = false;
 
@@ -68,7 +70,8 @@ public class TransitSystem implements ITransitSystem {
 	 * This will be null when alerts haven't been read yet
 	 */
 	private AlertsFuture alertsFuture;
-	
+    private static final String agencyName = "Los Angeles Metro";
+
 	public static double getCenterLat() {
 		return laLatitude;
 	}
@@ -102,8 +105,12 @@ public class TransitSystem implements ITransitSystem {
 	 * Be careful with this; this stays around forever since it's static
 	 */
 	private TransitSource defaultTransitSource;
-	
-	/**
+
+    public static String getAgencyName() {
+        return agencyName;
+    }
+
+    /**
 	 * Only call this on the UI thread!
 	 * @param busDrawables
 	 * @param subwayDrawables
@@ -118,8 +125,7 @@ public class TransitSystem implements ITransitSystem {
 			routeTitles = databaseAgent.getRouteTitles();
 
 			TransitSourceTitles busTransitRoutes = routeTitles.getMappingForSource(Schema.Routes.SourceId.Bus);
-			TransitSourceTitles hubwayTransitRoutes = routeTitles.getMappingForSource(Schema.Routes.SourceId.Hubway);
-			
+
 			defaultTransitSource = new LABusTransitSource(this, busDrawables, busTransitRoutes, routeTitles);
 			
 			ImmutableMap.Builder<String, TransitSource> mapBuilder = ImmutableMap.builder();
@@ -264,10 +270,10 @@ public class TransitSystem implements ITransitSystem {
 	@Override
 	public StopLocation createStop(float latitude, float longitude,
 			String stopTag, String stopTitle,
-			String route) {
+			String route, Optional<String> parent) {
 		TransitSource source = getTransitSource(route);
 		
-		return source.createStop(latitude, longitude, stopTag, stopTitle, route);
+		return source.createStop(latitude, longitude, stopTag, stopTitle, route, parent);
 	}
 
 	@Override
@@ -324,4 +330,8 @@ public class TransitSystem implements ITransitSystem {
 
 		}
 	}
+
+    public static String getFeedbackUrl() {
+        return feedbackUrl;
+    }
 }

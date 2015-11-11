@@ -19,8 +19,8 @@ def generate(conn, gtfs_map):
     create_tables(conn)
     index = 0
     print "Generating NextBus stops..."
-    index = NextBus("lametro").generate(conn, index)
-    print index
+    index = NextBus("lametro").generate(conn, index, gtfs_map)
+    print(index)
 
 def main():
     parser = argparse.ArgumentParser()
@@ -36,7 +36,7 @@ def main():
     if not os.path.isdir(args.gtfs_path):
         raise Exception("%s is not a directory" % args.gtfs_path)
 
-    print "Reading GTFS into temporary database (this may take a few minutes)..."
+    print("Reading GTFS into temporary database (this may take a few minutes)...")
     gtfs_map = GtfsMap(args.gtfs_path)
 
     if gtfs_map.last_date < datetime.now():

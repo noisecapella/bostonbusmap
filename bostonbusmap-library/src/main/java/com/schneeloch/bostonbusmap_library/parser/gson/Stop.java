@@ -8,4 +8,5 @@ public class Stop {
     public String stop_name;
     public String pre_away;
     public String pre_dt;
+    public String sch_arr_dt;
 }

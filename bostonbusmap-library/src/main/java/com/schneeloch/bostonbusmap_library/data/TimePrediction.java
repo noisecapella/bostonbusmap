@@ -68,11 +68,11 @@ public class TimePrediction implements IPrediction
 			return;
 		}
 
-		builder.append("Route <b>").append(routeTitle).append("</b>");
-		if (vehicleId != null)
-		{
-			builder.append(", Vehicle <b>").append(vehicleId).append("</b>");
-		}
+        builder.append("Route <b>").append(routeTitle).append("</b>");
+        if (vehicleId != null)
+        {
+            builder.append(", Vehicle <b>").append(vehicleId).append("</b>");
+        }
 
 		if (!StringUtil.isEmpty(block) && showRunNumber) {
 			builder.append("<br />Run number <b>").append(block).append("</b>");
@@ -250,5 +250,13 @@ public class TimePrediction implements IPrediction
     @Override
     public boolean isInvalid() {
         return getMinutes() < 0;
+    }
+
+    public void addVehicleAndRoute(StringBuilder builder) {
+        builder.append("Route <b>").append(routeTitle).append("</b>");
+        if (vehicleId != null)
+        {
+            builder.append(", Vehicle <b>").append(vehicleId).append("</b>");
+        }
     }
 }

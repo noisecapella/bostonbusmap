@@ -5,6 +5,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
+import com.google.common.collect.ImmutableCollection;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
