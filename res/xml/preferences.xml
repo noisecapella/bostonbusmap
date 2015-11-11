@@ -4,6 +4,7 @@
 <CheckBoxPreference android:title="@string/showRoutePath" android:key="showRouteLineCheckbox2" android:summary="@string/showRoutePathSummary"></CheckBoxPreference>
 <CheckBoxPreference android:title="@string/alwaysShowLocation" android:key="@string/alwaysShowLocationCheckbox" android:summary="@string/alwaysShowLocationSummary"></CheckBoxPreference>
 <CheckBoxPreference android:title="Show lines on selection?" android:summary="Shows route lines for selected stop or vehicle" android:key="showLinesOnSelected"/>
+    <CheckBoxPreference android:title="Always focus on route?" android:summary="Shows selected route and line for all modes" android:key="alwaysFocusRoute" />
 <CheckBoxPreference android:title="@string/allRoutesBlueTitle" android:key="@string/allRoutesBlue" android:summary="@string/allRoutesBlueSummary"></CheckBoxPreference>
 <Preference android:summary="Clears recent search history for this app" android:title="Clear search history" android:key="clearHistory"></Preference>
 <Preference android:summary="" android:title="Show tutorial" android:key="showTutorial"></Preference>

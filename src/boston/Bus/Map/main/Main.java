@@ -27,8 +27,6 @@ import java.util.List;
 import com.schneeloch.torontotransit.R;
 
 import com.commonsware.android.mapsv2.popups.AbstractMapActivity;
-import com.google.android.gms.common.ConnectionResult;
-import com.google.android.gms.common.GoogleApiAvailability;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
@@ -499,7 +497,13 @@ public class Main extends AbstractMapActivity
 	private void updateSearchText(Selection selection) {
 		if (searchView != null)
 		{
-            if (selection.getMode() == Selection.Mode.VEHICLE_LOCATIONS_ALL ||
+            if (arguments != null && arguments.getOverlayGroup().isAlwaysFocusRoute()) {
+                String route = selection.getRoute();
+                String routeTitle = dropdownRouteKeysToTitles.getTitle(route);
+                searchView.setText("Route " + routeTitle);
+                searchView.setHint("Search routes");
+            }
+            else if (selection.getMode() == Selection.Mode.VEHICLE_LOCATIONS_ALL ||
                     selection.getMode() == Selection.Mode.BUS_PREDICTIONS_ALL ||
                     selection.getMode() == Selection.Mode.BUS_PREDICTIONS_STAR) {
                 searchView.setText("");
@@ -777,6 +781,7 @@ public class Main extends AbstractMapActivity
         if (arguments != null && handler != null) {
             //check the result
             populateHandlerSettings();
+            updateSearchText(arguments.getBusLocations().getSelection());
             handler.resume();
 
             // workaround for bad design decisions
@@ -816,6 +821,10 @@ public class Main extends AbstractMapActivity
 
         boolean changeRouteIfSelected = prefs.getBoolean("showLinesOnSelected", true);
         manager.setChangeRouteIfSelected(changeRouteIfSelected);
+
+        boolean alwaysFocusRoute = prefs.getBoolean("alwaysFocusRoute", false);
+        manager.setAlwaysFocusRoute(alwaysFocusRoute);
+
         manager.setAllRoutesBlue(allRoutesBlue);
 
         manager.setDrawLine(prefs.getBoolean("showRouteLineCheckbox2", true));

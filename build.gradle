@@ -33,7 +33,7 @@ dependencies {
 
 android {
     compileSdkVersion "Google Inc.:Google APIs:23"
-    buildToolsVersion "20.0.0"
+    buildToolsVersion "23.0.2"
     buildTypes {
         release {
             minifyEnabled true

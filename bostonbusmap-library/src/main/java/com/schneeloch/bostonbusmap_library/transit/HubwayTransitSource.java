@@ -85,20 +85,13 @@ public class HubwayTransitSource implements TransitSource {
 
                     HubwayParser parser = new HubwayParser(hubwayRouteConfig);
                     parser.runParse(stream);
+                    parser.addMissingStops(locationsObj);
                     List<PredictionStopLocationPair> pairs = parser.getPairs();
 
                     for (PredictionStopLocationPair pair : pairs) {
                         pair.stopLocation.clearPredictions(null);
                         pair.stopLocation.addPrediction(pair.prediction);
                     }
-
-                    ImmutableMap.Builder<String, StopLocation> builder = ImmutableMap.builder();
-                    for (PredictionStopLocationPair pair : pairs) {
-                        StopLocation stop = pair.stopLocation;
-                        builder.put(stop.getStopTag(), stop);
-                    }
-                    ImmutableMap<String, StopLocation> stops = builder.build();
-                    hubwayRouteConfig.replaceStops(stops);
 
                     cache.updateAllPredictions();
                 }
@@ -130,9 +123,9 @@ public class HubwayTransitSource implements TransitSource {
 	}
 
 	@Override
-	public StopLocation createStop(float latitude, float longitude, String stopTag, String stopTitle, String route) {
+	public StopLocation createStop(float latitude, float longitude, String stopTag, String stopTitle, String route, Optional<String> parent) {
 		HubwayStopLocation stop = new HubwayStopLocation.HubwayBuilder(latitude,
-				longitude, stopTag, stopTitle).build();
+				longitude, stopTag, stopTitle, parent).build();
 		stop.addRoute(route);
 		return stop;
 	}

@@ -234,15 +234,15 @@ public class MbtaRealtimeTransitSource implements TransitSource {
 
 	@Override
 	public StopLocation createStop(float latitude, float longitude,
-			String stopTag, String stopTitle, String route) {
+			String stopTag, String stopTitle, String route, Optional<String> parent) {
         Schema.Routes.SourceId transitSourceId = routeNameToTransitSource.get(route);
         StopLocation stop;
         if (transitSourceId == Schema.Routes.SourceId.Subway) {
             stop = new SubwayStopLocation.SubwayBuilder(latitude,
-                    longitude, stopTag, stopTitle).build();
+                    longitude, stopTag, stopTitle, parent).build();
         }
         else if (transitSourceId == Schema.Routes.SourceId.CommuterRail) {
-            stop = new CommuterRailStopLocation.CommuterRailBuilder(latitude, longitude, stopTag, stopTitle).build();
+            stop = new CommuterRailStopLocation.CommuterRailBuilder(latitude, longitude, stopTag, stopTitle, parent).build();
         }
         else {
             throw new RuntimeException("Unexpected transit source");

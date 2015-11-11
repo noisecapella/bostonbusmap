@@ -19,7 +19,7 @@ def generate(conn, gtfs_map):
     create_tables(conn)
     index = 0
     print("Generating NextBus stops...")
-    index = NextBus("ttc").generate(conn, index)
+    index = NextBus("ttc").generate(conn, index, gtfs_map)
     print(index)
 
 def main():

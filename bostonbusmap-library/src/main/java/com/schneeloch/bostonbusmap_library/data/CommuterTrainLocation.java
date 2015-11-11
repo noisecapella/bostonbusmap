@@ -17,7 +17,7 @@ public class CommuterTrainLocation extends BusLocation {
 
 	@Override
 	protected String getBusNumberMessage() {
-		return "Train number: " + busId + "<br />\n";
+		return "Trip: " + busId + "<br />\n";
 	}
 	
 	@Override
