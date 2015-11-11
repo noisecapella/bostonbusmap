@@ -11,6 +11,7 @@ import javax.xml.parsers.ParserConfigurationException;
 import org.xml.sax.SAXException;
 
 import com.google.common.base.Joiner;
+import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableMultimap;
 import com.google.common.collect.ImmutableSet;
@@ -48,6 +49,11 @@ public class MbtaRealtimeTransitSource implements TransitSource {
 	public static final ImmutableMap<String, Schema.Routes.SourceId> routeNameToTransitSource;
 
     private final TransitSourceCache cache;
+
+    private static final Schema.Routes.SourceId[] transitSourceIds = new Schema.Routes.SourceId[] {
+        Schema.Routes.SourceId.Subway,
+        Schema.Routes.SourceId.CommuterRail
+    };
 
 	public MbtaRealtimeTransitSource(ITransitDrawables drawables,
 			TransitSourceTitles routeTitles,
@@ -103,7 +109,7 @@ public class MbtaRealtimeTransitSource implements TransitSource {
 		routeToTransitSourceIdBuilder.put(redRoute, Schema.Routes.SourceId.Subway);
 		routeToTransitSourceIdBuilder.put(orangeRoute, Schema.Routes.SourceId.Subway);
 		routeToTransitSourceIdBuilder.put(blueRoute, Schema.Routes.SourceId.Subway);
-		
+
 		for (String commuterRailRoute : commuterRailRoutes) {
 			gtfsNameToRouteNameBuilder.put(commuterRailRoute, commuterRailRoute);
 			routeToTransitSourceIdBuilder.put(commuterRailRoute, Schema.Routes.SourceId.CommuterRail);
@@ -176,26 +182,30 @@ public class MbtaRealtimeTransitSource implements TransitSource {
 		String predictionsUrl = dataUrlPrefix + "predictionsbyroutes?api_key=" + apiKey + "&format=json&include_service_alerts=false&routes=" + routesString;
 
 		DownloadHelper vehiclesDownloadHelper = new DownloadHelper(vehiclesUrl);
-			
-		vehiclesDownloadHelper.connect();
-			
-		InputStream vehicleStream = vehiclesDownloadHelper.getResponseData();
-		InputStreamReader vehicleData = new InputStreamReader(vehicleStream);
+        try {
+            InputStream vehicleStream = vehiclesDownloadHelper.getResponseData();
+            InputStreamReader vehicleData = new InputStreamReader(vehicleStream);
 
-		MbtaRealtimeVehicleParser vehicleParser = new MbtaRealtimeVehicleParser(routeTitles, busMapping, directions, routeNames);
-		vehicleParser.runParse(vehicleData);
+            MbtaRealtimeVehicleParser vehicleParser = new MbtaRealtimeVehicleParser(routeTitles, busMapping, directions, routeNames);
+            vehicleParser.runParse(vehicleData);
+        }
+        finally {
+            vehiclesDownloadHelper.disconnect();
+        }
 		
 		DownloadHelper predictionsDownloadHelper = new DownloadHelper(predictionsUrl);
-		
-		predictionsDownloadHelper.connect();
-			
-		InputStream predictionsStream = predictionsDownloadHelper.getResponseData();
-		InputStreamReader predictionsData = new InputStreamReader(predictionsStream);
+        try {
+            InputStream predictionsStream = predictionsDownloadHelper.getResponseData();
+            InputStreamReader predictionsData = new InputStreamReader(predictionsStream);
 
-		MbtaRealtimePredictionsParser parser = new MbtaRealtimePredictionsParser(routeNames, routePool, routeTitles);
-		parser.runParse(predictionsData);
-		
-		predictionsData.close();
+            MbtaRealtimePredictionsParser parser = new MbtaRealtimePredictionsParser(routeNames, routePool, routeTitles);
+            parser.runParse(predictionsData);
+
+            predictionsData.close();
+        }
+        finally {
+            predictionsDownloadHelper.disconnect();
+        }
 
         for (String route : routeNames) {
             cache.updatePredictionForRoute(route);
@@ -220,15 +230,15 @@ public class MbtaRealtimeTransitSource implements TransitSource {
 
 	@Override
 	public StopLocation createStop(float latitude, float longitude,
-			String stopTag, String stopTitle, String route) {
+			String stopTag, String stopTitle, String route, Optional<String> parent) {
         Schema.Routes.SourceId transitSourceId = routeNameToTransitSource.get(route);
         StopLocation stop;
         if (transitSourceId == Schema.Routes.SourceId.Subway) {
             stop = new SubwayStopLocation.SubwayBuilder(latitude,
-                    longitude, stopTag, stopTitle).build();
+                    longitude, stopTag, stopTitle, parent).build();
         }
         else if (transitSourceId == Schema.Routes.SourceId.CommuterRail) {
-            stop = new CommuterRailStopLocation.CommuterRailBuilder(latitude, longitude, stopTag, stopTitle).build();
+            stop = new CommuterRailStopLocation.CommuterRailBuilder(latitude, longitude, stopTag, stopTitle, parent).build();
         }
         else {
             throw new RuntimeException("Unexpected transit source " + transitSourceId);
@@ -250,9 +260,7 @@ public class MbtaRealtimeTransitSource implements TransitSource {
 
 	@Override
 	public Schema.Routes.SourceId[] getTransitSourceIds() {
-		return new Schema.Routes.SourceId[] {
-                Schema.Routes.SourceId.Subway
-        };
+		return transitSourceIds;
 	}
 
 	@Override

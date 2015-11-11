@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.io.Reader;
 import java.util.Map;
 
+import com.google.common.base.Optional;
 import com.schneeloch.bostonbusmap_library.parser.gson.MbtaRealtimeRoot;
 import com.schneeloch.bostonbusmap_library.parser.gson.Mode;
 import com.schneeloch.bostonbusmap_library.parser.gson.Route;
@@ -85,14 +86,28 @@ public class MbtaRealtimeVehicleParser {
                         String tripName = trip.trip_name;
 
                         if (trip.vehicle != null) {
-                            String id = trip.vehicle.vehicle_id;
+                            String vehicleId = trip.vehicle.vehicle_id;
                             if (trip.vehicle.vehicle_lat == null || trip.vehicle.vehicle_lon == null) {
                                 continue;
                             }
                             float latitude = Float.parseFloat(trip.vehicle.vehicle_lat);
                             float longitude = Float.parseFloat(trip.vehicle.vehicle_lon);
                             long timestamp = Long.parseLong(trip.vehicle.vehicle_timestamp);
-                            String bearing = trip.vehicle.vehicle_bearing;
+                            Optional<Integer> bearing;
+                            if (trip.vehicle.vehicle_bearing != null) {
+                                bearing = Optional.of(Integer.parseInt(trip.vehicle.vehicle_bearing));
+                            }
+                            else {
+                                bearing = Optional.absent();
+                            }
+
+                            String id;
+                            if (MbtaRealtimeTransitSource.routeNameToTransitSource.get(routeName) == Schema.Routes.SourceId.CommuterRail) {
+                                id = tripName;
+                            }
+                            else {
+                                id = vehicleId;
+                            }
 
                             VehicleLocations.Key key = new VehicleLocations.Key(transitSourceId, routeName, id);
 

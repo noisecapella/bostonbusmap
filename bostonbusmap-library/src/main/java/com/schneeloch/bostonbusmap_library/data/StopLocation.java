@@ -4,18 +4,18 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 
-import com.google.common.base.Objects;
+import com.google.common.base.MoreObjects;
+import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableCollection;
 
 import com.schneeloch.bostonbusmap_library.annotations.KeepSorted;
 import com.schneeloch.bostonbusmap_library.database.Schema;
 import com.schneeloch.bostonbusmap_library.math.Geometry;
 import com.schneeloch.bostonbusmap_library.transit.ITransitSystem;
+import com.schneeloch.bostonbusmap_library.util.Constants;
 
 public class StopLocation implements Location
 {
-	private final float latitude;
-	private final float longitude;
 	private final float latitudeAsDegrees;
 	private final float longitudeAsDegrees;
 	
@@ -25,10 +25,12 @@ public class StopLocation implements Location
 	
 	private Predictions predictions;
 	
-	private boolean isFavorite;
+	private Favorite isFavorite;
 	protected boolean recentlyUpdated;
+    protected boolean everUpdated;
 
-	
+    private final Optional<String> parent;
+
 	/**
 	 * A set of routes the stop belongs to
 	 */
@@ -42,24 +44,29 @@ public class StopLocation implements Location
 	{
 		this.latitudeAsDegrees = builder.latitudeAsDegrees;
 		this.longitudeAsDegrees = builder.longitudeAsDegrees;
-		this.latitude = (float) (latitudeAsDegrees * Geometry.degreesToRadians);
-		this.longitude = (float) (longitudeAsDegrees * Geometry.degreesToRadians);
 		this.tag = builder.tag;
 		this.title = builder.title;
+        this.parent = builder.parent;
 	}
+
+    public boolean wasEverUpdated() {
+        return everUpdated;
+    }
 
     public static class Builder {
 		private final float latitudeAsDegrees;
 		private final float longitudeAsDegrees;
 		private final String tag;
 		private final String title;
+        private final Optional<String> parent;
 
-		public Builder(float latitudeAsDegrees, float longitudeAsDegrees,
-			String tag, String title) {
+        public Builder(float latitudeAsDegrees, float longitudeAsDegrees,
+			String tag, String title, Optional<String> parent) {
 			this.latitudeAsDegrees = latitudeAsDegrees;
 			this.longitudeAsDegrees = longitudeAsDegrees;
 			this.tag = tag;
 			this.title = title;
+            this.parent = parent;
 		}
 		
 		public StopLocation build() {
@@ -70,11 +77,15 @@ public class StopLocation implements Location
 	@Override
 	public float distanceFrom(double centerLatitude, double centerLongitude)
 	{
+        float latitude = (float) (latitudeAsDegrees * Geometry.degreesToRadians);
+        float longitude = (float) (longitudeAsDegrees * Geometry.degreesToRadians);
 		return Geometry.computeCompareDistance(latitude, longitude, centerLatitude, centerLongitude);
 	}
 
 	public float distanceFromInMiles(double latitudeAsRads,
 			double longitudeAsRads) {
+        float latitude = (float) (latitudeAsDegrees * Geometry.degreesToRadians);
+        float longitude = (float) (longitudeAsDegrees * Geometry.degreesToRadians);
 		return Geometry.computeDistanceInMiles(latitude, longitude, latitudeAsRads, longitudeAsRads);
 	}
 
@@ -164,6 +175,7 @@ public class StopLocation implements Location
 		}
 		
 		recentlyUpdated = true;
+        everUpdated = true;
 	}
 	
 	public void addPrediction(IPrediction prediction)
@@ -182,13 +194,13 @@ public class StopLocation implements Location
 		return title;
 	}
 
-	public void setFavorite(boolean b)
+	public void setFavorite(Favorite b)
 	{
 		isFavorite = b;
 	}
 	
 	@Override
-	public boolean isFavorite() {
+	public Favorite isFavorite() {
 		return isFavorite;
 	}
 	/**
@@ -262,7 +274,7 @@ public class StopLocation implements Location
 	
 	@Override
 	public String toString() {
-		return Objects.toStringHelper(this).add("id", tag).toString();
+		return MoreObjects.toStringHelper(this).add("id", tag).toString();
 	}
 
 	/**
@@ -331,5 +343,20 @@ public class StopLocation implements Location
     @Override
     public boolean isUpdated() {
         return recentlyUpdated;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (!(o instanceof StopLocation)) {
+            return false;
+        }
+
+        StopLocation other = (StopLocation)o;
+        return tag.equals(other.tag) &&
+                title.equals(other.title) &&
+                (int)(latitudeAsDegrees * Constants.E6) == (int)(other.latitudeAsDegrees * Constants.E6) &&
+                (int)(longitudeAsDegrees * Constants.E6) == (int)(other.longitudeAsDegrees * Constants.E6) &&
+                getTransitSourceType() == other.getTransitSourceType() &&
+                parent.equals(other.parent);
     }
 }

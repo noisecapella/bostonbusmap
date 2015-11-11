@@ -6,6 +6,8 @@ import javax.xml.parsers.ParserConfigurationException;
 
 import org.xml.sax.SAXException;
 
+import com.google.common.base.Optional;
+import com.schneeloch.bostonbusmap_library.data.BusLocation;
 import com.schneeloch.bostonbusmap_library.data.Directions;
 import com.schneeloch.bostonbusmap_library.data.IAlerts;
 import com.schneeloch.bostonbusmap_library.data.ITransitDrawables;
@@ -33,8 +35,8 @@ public interface TransitSource {
 	ITransitDrawables getDrawables();
 
 	StopLocation createStop(float latitude, float longitude, String stopTag,
-			String stopTitle, String route);
-	
+			String stopTitle, String route, Optional<String> parent);
+
 	TransitSourceTitles getRouteTitles();
 	
 	/**

@@ -83,8 +83,6 @@ def main():
             
             calendar[service_id] = (int(monday), int(tuesday), int(wednesday), int(thursday), int(friday), int(saturday), int(sunday))
 
-    #print calendar
-        
     trip_intervals = {}
 
 
@@ -121,8 +119,7 @@ def main():
                     trip_intervals[key] = (departure, arrival)
 
         obj = schema.getSchemaAsObject()
-        for key, intervals in trip_intervals.iteritems():
-            #print repr(key) + ", " + repr(intervals)
+        for key, intervals in trip_intervals.items():
             route, days = key
             begin, end = intervals
             obj.bounds.route.value = route

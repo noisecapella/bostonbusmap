@@ -1,5 +1,6 @@
 package com.schneeloch.bostonbusmap_library.transit;
 
+import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.schneeloch.bostonbusmap_library.data.BusLocation;
@@ -44,6 +45,8 @@ public class CommuterRailTransitSource implements TransitSource {
     private final TransitSourceCache cache;
 	
 	private final ImmutableMap<String, String> routesToUrls;
+
+    private static Schema.Routes.SourceId[] transitSourceIds = new Schema.Routes.SourceId[] {};
 	
 	public CommuterRailTransitSource(ITransitDrawables drawables,
 			TransitSourceTitles routeTitles,
@@ -119,24 +122,24 @@ public class CommuterRailTransitSource implements TransitSource {
                     try {
                         String url = outputRow.url;
                         DownloadHelper downloadHelper = new DownloadHelper(url);
+                        try {
+                            InputStream stream = downloadHelper.getResponseData();
+                            InputStreamReader data = new InputStreamReader(stream);
+                            //StringReader data = new StringReader(hardcodedData);
 
-                        downloadHelper.connect();
+                            //bus prediction
 
+                            String route = outputRow.route;
+                            RouteConfig railRouteConfig = routePool.get(route);
+                            CommuterRailPredictionsFeedParser parser = new CommuterRailPredictionsFeedParser(railRouteConfig, directions,
+                                    busMapping, locationsObj.getRouteTitles());
 
-
-                        InputStream stream = downloadHelper.getResponseData();
-                        InputStreamReader data = new InputStreamReader(stream);
-                        //StringReader data = new StringReader(hardcodedData);
-
-                        //bus prediction
-
-                        String route = outputRow.route;
-                        RouteConfig railRouteConfig = routePool.get(route);
-                        CommuterRailPredictionsFeedParser parser = new CommuterRailPredictionsFeedParser(railRouteConfig, directions,
-                                busMapping, locationsObj.getRouteTitles());
-
-                        parser.runParse(data);
-                        data.close();
+                            parser.runParse(data);
+                            data.close();
+                        }
+                        finally {
+                            downloadHelper.disconnect();
+                        }
                     } catch (Exception e) {
                         exceptions.put(outputRow.route, e);
                     }
@@ -304,9 +307,9 @@ public class CommuterRailTransitSource implements TransitSource {
 	@Override
 	public CommuterRailStopLocation createStop(float latitude, float longitude,
 			String stopTag, String stopTitle,
-			String route) {
+			String route, Optional<String> parent) {
 		CommuterRailStopLocation stop = new CommuterRailStopLocation.CommuterRailBuilder(
-				latitude, longitude, stopTag, stopTitle).build();
+				latitude, longitude, stopTag, stopTitle, parent).build();
 		stop.addRoute(route);
 		return stop;
 	}
@@ -318,7 +321,7 @@ public class CommuterRailTransitSource implements TransitSource {
 
     @Override
     public Schema.Routes.SourceId[] getTransitSourceIds() {
-        return new Schema.Routes.SourceId[] {Schema.Routes.SourceId.CommuterRail};
+        return transitSourceIds;
     }
 
     @Override

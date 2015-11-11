@@ -25,7 +25,7 @@ public class StopPredictionViewImpl extends StopPredictionView {
 	private final String snippet;
 	private final IPrediction[] predictions;
 	private final ImmutableCollection<Alert> alerts;
-	
+
 	/**
 	 * Note that this makes defensive copies of all containers. It doesn't use ImmutableList
 	 * because Parcelables use arrays when transferring data
@@ -40,9 +40,14 @@ public class StopPredictionViewImpl extends StopPredictionView {
 			Locations locations) {
 		Set<String> stopTitles = Sets.newTreeSet();
 		SortedSet<String> stopIds = Sets.newTreeSet();
+        boolean hasUpdated = false;
 		for (StopLocation stop : stops) {
 			stopTitles.add(stop.getTitle());
 			stopIds.add(stop.getStopTag());
+
+            if (stop.wasEverUpdated()) {
+                hasUpdated = true;
+            }
 		}
 
 		boolean isBeta = false;
@@ -90,7 +95,7 @@ public class StopPredictionViewImpl extends StopPredictionView {
 			LogUtil.e(e);
 		}
 
-		makeSnippet(ifOnlyOneRoute, predictions, ret);
+		makeSnippet(ifOnlyOneRoute, predictions, hasUpdated, ret);
 		
 		snippet = ret.toString();
 
@@ -120,10 +125,17 @@ public class StopPredictionViewImpl extends StopPredictionView {
 
 	private static void makeSnippet(RouteConfig routeConfig,
 			Collection<IPrediction> predictions,
+            boolean hasUpdated,
 			StringBuilder ret)
 	{
 		if (predictions == null || predictions.isEmpty()) {
-			return;
+            if (hasUpdated) {
+                ret.append("No predictions for this stop");
+            }
+            else {
+                ret.append("No information received yet for this stop");
+            }
+            return;
 		}
 
 		final int max = 3;

@@ -1,5 +1,6 @@
 package com.schneeloch.bostonbusmap_library.transit;
 
+import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableMap;
 
 import org.xml.sax.SAXException;
@@ -43,6 +44,8 @@ public class HubwayTransitSource implements TransitSource {
 
     private final TransitSourceCache cache;
 
+    private static Schema.Routes.SourceId[] transitSourceIds = new Schema.Routes.SourceId[] {Schema.Routes.SourceId.Hubway};
+
 	public HubwayTransitSource(ITransitDrawables drawables, TransitSourceTitles routeTitles,
 							   TransitSystem transitSystem) {
 
@@ -76,30 +79,24 @@ public class HubwayTransitSource implements TransitSource {
 
                 RouteConfig hubwayRouteConfig = routePool.get(routeTag);
                 DownloadHelper downloadHelper = new DownloadHelper(dataUrl);
+                try {
+                    InputStream stream = downloadHelper.getResponseData();
 
-                downloadHelper.connect();
+                    HubwayParser parser = new HubwayParser(hubwayRouteConfig);
+                    parser.runParse(stream);
+                    parser.addMissingStops(locationsObj);
+                    List<PredictionStopLocationPair> pairs = parser.getPairs();
 
+                    for (PredictionStopLocationPair pair : pairs) {
+                        pair.stopLocation.clearPredictions(null);
+                        pair.stopLocation.addPrediction(pair.prediction);
+                    }
 
-                InputStream stream = downloadHelper.getResponseData();
-
-                HubwayParser parser = new HubwayParser(hubwayRouteConfig);
-                parser.runParse(stream);
-                List<PredictionStopLocationPair> pairs = parser.getPairs();
-
-                for (PredictionStopLocationPair pair : pairs) {
-                    pair.stopLocation.clearPredictions(null);
-                    pair.stopLocation.addPrediction(pair.prediction);
+                    cache.updateAllPredictions();
                 }
-
-                ImmutableMap.Builder<String, StopLocation> builder = ImmutableMap.builder();
-                for (PredictionStopLocationPair pair : pairs) {
-                    StopLocation stop = pair.stopLocation;
-                    builder.put(stop.getStopTag(), stop);
+                finally {
+                    downloadHelper.disconnect();
                 }
-                ImmutableMap<String, StopLocation> stops = builder.build();
-                hubwayRouteConfig.replaceStops(stops);
-
-                cache.updateAllPredictions();
 
                 break;
             default:
@@ -125,9 +122,9 @@ public class HubwayTransitSource implements TransitSource {
 	}
 
 	@Override
-	public StopLocation createStop(float latitude, float longitude, String stopTag, String stopTitle, String route) {
+	public StopLocation createStop(float latitude, float longitude, String stopTag, String stopTitle, String route, Optional<String> parent) {
 		HubwayStopLocation stop = new HubwayStopLocation.HubwayBuilder(latitude,
-				longitude, stopTag, stopTitle).build();
+				longitude, stopTag, stopTitle, parent).build();
 		stop.addRoute(route);
 		return stop;
 	}
@@ -144,7 +141,7 @@ public class HubwayTransitSource implements TransitSource {
 
 	@Override
 	public Schema.Routes.SourceId[] getTransitSourceIds() {
-		return new Schema.Routes.SourceId[] {Schema.Routes.SourceId.Hubway};
+		return transitSourceIds;
 	}
 
 	@Override
