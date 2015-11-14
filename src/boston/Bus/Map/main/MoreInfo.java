@@ -21,6 +21,8 @@ import android.text.Html;
 import android.text.Spanned;
 import android.util.Log;
 import android.view.View;
+import android.view.ViewGroup;
+import android.view.Window;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.ArrayAdapter;
@@ -33,6 +35,7 @@ public class MoreInfo extends ListActivity {
 	public static final String stopsKey = "stops";
 	
 	public static final String titleKey = "title";
+    public static final String snippetTitleKey = "snippetTitle";
 	public static final String routeTitlesKey = "route";
 	
 	public static final String routeTextKey = "routeText";
@@ -55,13 +58,14 @@ public class MoreInfo extends ListActivity {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		
+
 		setContentView(R.layout.moreinfo);
-		
-		
+
+        getWindow().setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
 		final Bundle extras = getIntent().getExtras();
-		
-		
+
+        setTitle(extras.getString(snippetTitleKey));
+
 		
 		{
 			Parcelable[] parcelables = extras.getParcelableArray(predictionsKey);
@@ -124,7 +128,7 @@ public class MoreInfo extends ListActivity {
 
 			@Override
 			public void onNothingSelected(AdapterView<?> parent) {
-				//leave the state the way it is
+                //leave the state the way it is
 			}
 		});
 
@@ -145,26 +149,15 @@ public class MoreInfo extends ListActivity {
 				titleText1.append("<br />");
 			}
 		}
-		
+
 		StringBuilder titleText2 = new StringBuilder();
 		String stopTags = extras.getString(stopsKey);
-		if (routeTitles != null)
-		{
-			titleText2.append("<br />Stop ids: ").append(stopTags);
-			String routesText = Joiner.on(", ").join(routeTitles);
-			
-			titleText2.append("<br />Routes: ").append(routesText);
-			
-		}
-		
-		if (stopIsBeta)
-		{
-			titleText2.append("</b><br /><font color='red'>Commuter rail predictions are experimental</font><b>");
-		}
-		
-		title1.setText(Html.fromHtml("<b>" + titleText1 + "</b>"));
-		title2.setText(Html.fromHtml("<b>" + titleText2 + "</b>"));
-		
+
+        titleText2.append("<br />Stop ids: ").append(stopTags);
+        titleText2.append("<br />");
+
+        title1.setText(Html.fromHtml(titleText1.toString()));
+		title2.setText(Html.fromHtml(titleText2.toString()));
 	}
 
 	private void refreshRouteAdapter()
@@ -223,7 +216,7 @@ public class MoreInfo extends ListActivity {
 				new int[] {R.id.moreinfo_text});
 		
 		adapter.setViewBinder(new TextViewBinder());
-		
+
 		setListAdapter(adapter);
 		
 	}

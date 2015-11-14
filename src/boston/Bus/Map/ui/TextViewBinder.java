@@ -7,6 +7,9 @@ import android.view.View;
 import android.widget.SimpleAdapter.ViewBinder;
 import android.widget.TextView;
 
+/**
+ * This exists to allow ListViews to use Spanned data instead of unmarked text
+ */
 public class TextViewBinder implements ViewBinder
 {
 	public TextViewBinder() {
@@ -19,7 +22,6 @@ public class TextViewBinder implements ViewBinder
 		Spanned spanned = (Spanned)data;
 		
 		textView.setText(spanned);
-		textView.setTextColor(Color.WHITE);
 		return true;
 	}
 	
