@@ -24,12 +24,12 @@ public class RouteSet {
 		routes = Lists.newArrayList();
 	}
 	
-	public synchronized Collection<String> getRoutes() {
+	public synchronized ImmutableList<String> getRoutes() {
 		if (!immutable) {
 			routes = ImmutableList.copyOf(routes);
 			immutable = true;
 		}
-		return routes;
+		return (ImmutableList<String>)routes;
 	}
 
 	public synchronized void addRoute(String route) {
