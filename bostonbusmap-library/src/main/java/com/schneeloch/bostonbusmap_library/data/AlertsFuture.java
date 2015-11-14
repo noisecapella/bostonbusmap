@@ -28,7 +28,7 @@ public class AlertsFuture
 
     private final long creationTime;
 
-	public AlertsFuture(final IDatabaseAgent databaseAgent, final IAlertsParser parser) {
+	public AlertsFuture(final IDatabaseAgent databaseAgent, final IAlertsParser parser, final Runnable runnable) {
 		Thread thread = new Thread() {
 			@Override
 			public void run() {
@@ -38,6 +38,9 @@ public class AlertsFuture
 					synchronized (lock) {
 						AlertsFuture.this.alerts = alerts;
 					}
+                    if (runnable != null) {
+                        runnable.run();
+                    }
 				}
 				catch (Throwable e) {
 					LogUtil.e(e);

@@ -43,7 +43,13 @@ public class RefreshAsyncTask extends UpdateAsyncTask
 			LatLng geoPoint = currentMapCenter;
 
 			busLocations.refresh(arguments.getDatabaseAgent(), selection,
-					geoPoint.latitude, geoPoint.longitude, arguments.getOverlayGroup().isShowLine());
+                    geoPoint.latitude, geoPoint.longitude, arguments.getOverlayGroup().isShowLine(), new Runnable() {
+                        @Override
+                        public void run() {
+                            // Something was updated in the future and we want to trigger another UI update
+                            handler.triggerUpdate();
+                        }
+                    });
 			return true;
 		}
 		catch (IOException e)

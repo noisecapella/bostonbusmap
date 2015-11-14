@@ -336,19 +336,18 @@ public class TransitSystem implements ITransitSystem {
 	 * This downloads alerts in a background thread. If alerts are
 	 * not available when getAlerts() is called, empty alerts are returned
 	 */
-	public void startObtainAlerts(IDatabaseAgent databaseAgent) {
+	public void startObtainAlerts(IDatabaseAgent databaseAgent, Runnable runnable) {
         final long oneMinuteInMillis = 1000 * 60;
 
 		if (alertsFuture == null) {
 			// this runs the alerts code in the background,
 			// providing empty alerts until the data is ready
 			
-			alertsFuture = new AlertsFuture(databaseAgent, new MbtaAlertsParser(this));
-			
+			alertsFuture = new AlertsFuture(databaseAgent, new MbtaAlertsParser(this), runnable);
 		}
         else if (alertsFuture.getCreationTime() + oneMinuteInMillis < System.currentTimeMillis()) {
             // refresh alerts
-            alertsFuture = new AlertsFuture(databaseAgent, new MbtaAlertsParser(this));
+            alertsFuture = new AlertsFuture(databaseAgent, new MbtaAlertsParser(this), runnable);
         }
 	}
 
