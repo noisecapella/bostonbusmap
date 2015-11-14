@@ -8,6 +8,8 @@ import java.util.List;
 import java.util.Map;
 
 import boston.Bus.Map.R;
+
+import com.google.common.base.Joiner;
 import com.schneeloch.bostonbusmap_library.data.Alert;
 import boston.Bus.Map.ui.TextViewBinder;
 import android.app.ListActivity;
@@ -15,6 +17,7 @@ import android.os.Bundle;
 import android.os.Parcelable;
 import android.text.Spanned;
 import android.util.Pair;
+import android.view.Window;
 import android.widget.SimpleAdapter;
 import android.widget.TextView;
 
@@ -29,6 +32,7 @@ public class AlertInfo extends ListActivity
 	private TextView title;
 	public static final String alertsKey = "alerts";
 
+    public static final String snippetTitleKey = "snippetTitle";
 	public static final String titleKey = "title";
 	public static final String routeKey = "route";
 
@@ -40,7 +44,7 @@ public class AlertInfo extends ListActivity
 
 		Bundle extras = getIntent().getExtras();
 
-
+        setTitle(extras.getString(snippetTitleKey));
 
 		alerts = extras.getParcelableArray(alertsKey);
 

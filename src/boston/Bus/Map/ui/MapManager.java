@@ -289,6 +289,9 @@ public class MapManager implements OnMapClickListener, OnMarkerClickListener,
                             StopLocation stopLocation = (StopLocation) newLocation;
                             Intent intent = new Intent(context, MoreInfo.class);
 
+                            intent.putExtra(AlertInfo.snippetTitleKey, newLocation.getPredictionView().getSnippetTitle());
+
+
                             StopPredictionView predictionView = (StopPredictionView) stopLocation.getPredictionView();
                             IPrediction[] predictionArray = predictionView.getPredictions();
                             if (predictionArray != null) {
@@ -411,6 +414,8 @@ public class MapManager implements OnMapClickListener, OnMarkerClickListener,
 
                         Intent intent = new Intent(context, AlertInfo.class);
                         intent.putExtra(AlertInfo.alertsKey, alerts);
+
+                        intent.putExtra(AlertInfo.snippetTitleKey, newLocation.getPredictionView().getSnippetTitle());
 
                         context.startActivity(intent);
                     }
