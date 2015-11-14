@@ -40,24 +40,36 @@ public class StopPredictionViewImpl extends StopPredictionView {
 			Locations locations) {
 		Set<String> stopTitles = Sets.newTreeSet();
 		SortedSet<String> stopIds = Sets.newTreeSet();
-        boolean hasUpdated = false;
+        int allCount = 0;
+        int someCount = 0;
+        int noneCount = 0;
 		for (StopLocation stop : stops) {
 			stopTitles.add(stop.getTitle());
 			stopIds.add(stop.getStopTag());
 
-            if (stop.wasEverUpdated()) {
-                hasUpdated = true;
+            Updated updated = stop.wasEverUpdated(ifOnlyOneRoute);
+            if (updated == Updated.All) {
+                allCount++;
+            }
+            else if (updated == Updated.Some) {
+                someCount++;
+            }
+            else if (updated == Updated.None) {
+                noneCount++;
             }
 		}
 
-		boolean isBeta = false;
-		for (StopLocation stop : stops) {
-			if (stop.isBeta()) {
-				isBeta = true;
-				break;
-			}
-		}
-		
+        Updated updated;
+        if (noneCount > 0 && allCount == 0 && someCount == 0) {
+            updated = Updated.None;
+        }
+        else if (allCount > 0 && noneCount == 0 && someCount == 0) {
+            updated = Updated.All;
+        }
+        else {
+            updated = Updated.Some;
+        }
+
 		snippetTitle = makeSnippetTitle(stopTitles);
 		SortedSet<String> routeTitles = Sets.newTreeSet(new RouteTitleComparator());
 		for (String tag : routeTags) {
@@ -69,9 +81,6 @@ public class StopPredictionViewImpl extends StopPredictionView {
 		this.titles = stopTitles.toArray(nullStrings);
 		this.alerts = alerts;
 		StringBuilder ret = new StringBuilder();
-		if (isBeta) {
-			ret.append("<font color='red' size='1'>Commuter rail predictions are experimental</font><br />");
-		}
 
 		try
 		{
@@ -95,7 +104,7 @@ public class StopPredictionViewImpl extends StopPredictionView {
 			LogUtil.e(e);
 		}
 
-		makeSnippet(ifOnlyOneRoute, predictions, hasUpdated, ret);
+		makeSnippet(ifOnlyOneRoute, predictions, updated, ret);
 		
 		snippet = ret.toString();
 
@@ -125,15 +134,18 @@ public class StopPredictionViewImpl extends StopPredictionView {
 
 	private static void makeSnippet(RouteConfig routeConfig,
 			Collection<IPrediction> predictions,
-            boolean hasUpdated,
+            Updated hasUpdated,
 			StringBuilder ret)
 	{
 		if (predictions == null || predictions.isEmpty()) {
-            if (hasUpdated) {
+            if (hasUpdated == Updated.All) {
                 ret.append("No predictions for this stop");
             }
-            else {
+            else if (hasUpdated == Updated.None) {
                 ret.append("No information received yet for this stop");
+            }
+            else if (hasUpdated == Updated.Some) {
+                ret.append("Some information not received yet for this stop");
             }
             return;
 		}
