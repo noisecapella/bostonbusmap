@@ -44,7 +44,7 @@ public class AlertInfo extends ListActivity
 
 		Bundle extras = getIntent().getExtras();
 
-        setTitle(extras.getString(snippetTitleKey));
+        setTitle("Alerts for " + extras.getString(snippetTitleKey));
 
 		alerts = extras.getParcelableArray(alertsKey);
 
