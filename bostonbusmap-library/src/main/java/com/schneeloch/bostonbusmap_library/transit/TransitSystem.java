@@ -337,6 +337,8 @@ public class TransitSystem implements ITransitSystem {
 	 * not available when getAlerts() is called, empty alerts are returned
 	 */
 	public void startObtainAlerts(IDatabaseAgent databaseAgent) {
+        final long oneMinuteInMillis = 1000 * 60;
+
 		if (alertsFuture == null) {
 			// this runs the alerts code in the background,
 			// providing empty alerts until the data is ready
@@ -344,6 +346,10 @@ public class TransitSystem implements ITransitSystem {
 			alertsFuture = new AlertsFuture(databaseAgent, new MbtaAlertsParser(this));
 			
 		}
+        else if (alertsFuture.getCreationTime() + oneMinuteInMillis < System.currentTimeMillis()) {
+            // refresh alerts
+            alertsFuture = new AlertsFuture(databaseAgent, new MbtaAlertsParser(this));
+        }
 	}
 
     public static String getFeedbackUrl() {
