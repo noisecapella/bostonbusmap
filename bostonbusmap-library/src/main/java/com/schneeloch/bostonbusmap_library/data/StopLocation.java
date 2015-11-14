@@ -8,6 +8,7 @@ import com.google.common.base.MoreObjects;
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableCollection;
 
+import com.google.common.collect.ImmutableList;
 import com.schneeloch.bostonbusmap_library.annotations.KeepSorted;
 import com.schneeloch.bostonbusmap_library.database.Schema;
 import com.schneeloch.bostonbusmap_library.math.Geometry;
@@ -27,7 +28,10 @@ public class StopLocation implements Location
 	
 	private Favorite isFavorite;
 	protected boolean recentlyUpdated;
-    protected boolean everUpdated;
+    /**
+     * If route is in here, the stop has been updated for that route
+     */
+    protected ImmutableList<String> everUpdated = ImmutableList.of();
 
     private final Optional<String> parent;
 
@@ -49,8 +53,27 @@ public class StopLocation implements Location
         this.parent = builder.parent;
 	}
 
-    public boolean wasEverUpdated() {
-        return everUpdated;
+    public Updated wasEverUpdated(RouteConfig routeConfig) {
+        if (routeConfig != null) {
+            return everUpdated.contains(routeConfig.getRouteName()) ? Updated.All : Updated.None;
+        }
+        else {
+            int updatedCount = 0;
+            for (String route : routes.getRoutes()) {
+                if (everUpdated.contains(route)) {
+                    updatedCount++;
+                }
+            }
+            if (updatedCount == routes.getRoutes().size()) {
+                return Updated.All;
+            }
+            else if (updatedCount == 0) {
+                return Updated.None;
+            }
+            else {
+                return Updated.Some;
+            }
+        }
     }
 
     public static class Builder {
@@ -175,7 +198,12 @@ public class StopLocation implements Location
 		}
 		
 		recentlyUpdated = true;
-        everUpdated = true;
+        if (routeConfig != null) {
+            everUpdated = ImmutableList.of(routeConfig.getRouteName());
+        }
+        else {
+            everUpdated = routes.getRoutes();
+        }
 	}
 	
 	public void addPrediction(IPrediction prediction)

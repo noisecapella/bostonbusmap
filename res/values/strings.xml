@@ -56,8 +56,8 @@ Are any enabled (like GPS) in your system settings?</string>
     <string name="stops_and_predictions_on_one_route">Stops and predictions on one route</string>
     <string name="favorite_stops">Favorite stops</string>
     <string name="updateContinuouslyInterval">UpdateContinuouslyInterval</string>
-    <string name="thereAreNoAlerts">There are currently no alerts</string>
-    <string name="thereAreCurrentlyNoPredictions">There are currently no predictions for this stop</string>
+    <string name="thereAreNoAlerts">There are currently no alerts or alerts have not been downloaded yet.</string>
+    <string name="thereAreCurrentlyNoPredictions">There are currently no predictions for this stop or predictions have not been downloaded yet.</string>
     <string name="chooseMode">Choose Mode</string>
     <string name="modeOption">Mode Option</string>
     <string name="bus_directions">Vehicles by direction</string>
