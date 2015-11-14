@@ -176,7 +176,7 @@ public class MoreInfo extends ListActivity {
 			}
 			for (String routeTitle : routeTitles)
 			{
-				adapter.add("Route " + routeTitle);
+				adapter.add(routeTitle);
 			}
 		}
 		
