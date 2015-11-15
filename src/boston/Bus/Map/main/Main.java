@@ -1012,7 +1012,20 @@ public class Main extends AbstractMapActivity
         if (location != null) {
 
             final int id = location.getId();
-            handler.triggerUpdateThenSelect(id);
+            handler.triggerUpdateThen(new Runnable() {
+                @Override
+                public void run() {
+                    arguments.getOverlayGroup().setSelectedBusId(id);
+                    handler.triggerUpdateThen(new Runnable() {
+                        @Override
+                        public void run() {
+                            if (arguments.getOverlayGroup().getSelectedBusId() == MapManager.NOT_SELECTED) {
+                                Toast.makeText(Main.this, "Unable to locate vehicle to highlight", Toast.LENGTH_LONG).show();
+                            }
+                        }
+                    });
+                }
+            });
 
             LatLng latlng = new LatLng(location.getLatitudeAsDegrees(), location.getLongitudeAsDegrees());
             arguments.getMapView().moveCamera(CameraUpdateFactory.newLatLng(latlng));
