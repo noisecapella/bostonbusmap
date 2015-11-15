@@ -26,6 +26,7 @@ public class RouteSet {
 	
 	public synchronized ImmutableList<String> getRoutes() {
 		if (!immutable) {
+            Collections.sort(routes);
 			routes = ImmutableList.copyOf(routes);
 			immutable = true;
 		}
@@ -41,16 +42,14 @@ public class RouteSet {
 			immutable = false;
 		}
 		routes.add(route);
-		Collections.sort(routes);
 	}
 
 	public synchronized String getFirstRoute() {
-		return Iterables.getFirst(routes, "");
+		return Iterables.getFirst(getRoutes(), "");
 	}
 
 	public synchronized boolean hasRoute(String route) {
-		int insertionPoint = Collections.binarySearch(routes, route);
-		return insertionPoint >= 0;
+        return routes.contains(route);
 	}
 	
 
