@@ -50,7 +50,7 @@ public interface ITransitSystem {
 
 	IAlerts getAlerts();
 
-    public void startObtainAlerts(IDatabaseAgent databaseAgent);
+    public void startObtainAlerts(IDatabaseAgent databaseAgent, Runnable runnable);
 
     TransitSource getTransitSourceByRouteType(Schema.Routes.SourceId routeType);
 }

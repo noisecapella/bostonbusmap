@@ -177,7 +177,7 @@ public class TimePrediction implements IPrediction
 
 	public int getMinutes()
 	{
-		return calcMinutes(arrivalTimeMillis);
+		return calcMinutes(arrivalTimeMillis) + (lateness / 60);
 	}
 
 	@Override

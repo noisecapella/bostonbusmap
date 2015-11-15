@@ -26,7 +26,9 @@ public class AlertsFuture
 	
 	private final Object lock = new Object();
 
-	public AlertsFuture(final IDatabaseAgent databaseAgent, final IAlertsParser parser) {
+    private final long creationTime;
+
+	public AlertsFuture(final IDatabaseAgent databaseAgent, final IAlertsParser parser, final Runnable runnable) {
 		Thread thread = new Thread() {
 			@Override
 			public void run() {
@@ -36,6 +38,9 @@ public class AlertsFuture
 					synchronized (lock) {
 						AlertsFuture.this.alerts = alerts;
 					}
+                    if (runnable != null) {
+                        runnable.run();
+                    }
 				}
 				catch (Throwable e) {
 					LogUtil.e(e);
@@ -43,8 +48,14 @@ public class AlertsFuture
 			}
 		};
 		thread.start();
+
+        creationTime = System.currentTimeMillis();
 	}
-	
+
+    public long getCreationTime() {
+        return creationTime;
+    }
+
 	public  IAlerts getAlerts() {
 		synchronized (lock) {
 			return alerts;

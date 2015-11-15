@@ -324,11 +324,10 @@ public class TransitSystem implements ITransitSystem {
 	 * This downloads alerts in a background thread. If alerts are
 	 * not available when getAlerts() is called, empty alerts are returned
 	 */
-	public void startObtainAlerts(IDatabaseAgent databaseAgent) {
-		if (alertsFuture == null) {
-            // toronto currently doesn't provide alerts
+	public void startObtainAlerts(IDatabaseAgent databaseAgent, Runnable runnable) {
+        final long oneMinuteInMillis = 1000 * 60;
 
-		}
+        // TorontoBusMap currently doesn't provide alerts
 	}
 
     public static String getFeedbackUrl() {

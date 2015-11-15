@@ -113,7 +113,7 @@ public class MbtaRealtimePredictionsParser {
                                         lateness = 0;
                                     }
 
-                                    TimePrediction prediction = new CommuterRailPrediction(arrivalTimeMillis,
+                                    TimePrediction prediction = new CommuterRailPrediction(scheduledArrivalMillis,
                                             tripName, directionName, routeName,
                                             routeTitle, false,
                                             lateness > 5*60, lateness, "", stopId,
