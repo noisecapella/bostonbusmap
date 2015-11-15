@@ -9,10 +9,12 @@ import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.RemoteException;
+import android.text.Spanned;
 import android.util.Pair;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.SimpleAdapter;
 import android.widget.Toast;
 
 import com.google.android.gms.maps.GoogleMap;
@@ -33,6 +35,7 @@ import com.google.common.base.Joiner;
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
 import com.google.common.collect.ImmutableCollection;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
@@ -57,6 +60,7 @@ import com.schneeloch.bostonbusmap_library.math.Geometry;
 import com.schneeloch.bostonbusmap_library.transit.ITransitSystem;
 import com.schneeloch.bostonbusmap_library.transit.TransitSystem;
 import com.schneeloch.bostonbusmap_library.util.LogUtil;
+import com.schneeloch.bostonbusmap_library.util.MoreInfoConstants;
 
 import org.nayuki.Point;
 
@@ -472,35 +476,48 @@ public class MapManager implements OnMapClickListener, OnMarkerClickListener,
                         vehiclesButton.setOnClickListener(new View.OnClickListener() {
                             @Override
                             public void onClick(View v) {
-                                final Map<String, RouteConfig> vehicleIds = Maps.newTreeMap();
+                                final Set<String> vehiclesUsed = Sets.newHashSet();
+                                final List<Pair<String, TimePrediction>> vehicleIds = Lists.newArrayList();
 
                                 for (IPrediction prediction : stopPredictionView.getPredictions()) {
                                     if (prediction instanceof TimePrediction) {
                                         TimePrediction timePrediction = (TimePrediction) prediction;
                                         String vehicleId = timePrediction.getVehicleId();
-                                        if (vehicleId != null) {
-                                            String route = timePrediction.getRouteName();
-                                            RouteConfig routeConfig;
-                                            try {
-                                                routeConfig = locations.getRoute(route);
-                                            } catch (IOException e) {
-                                                throw new RuntimeException(e);
+                                        if (vehicleId != null && !prediction.isInvalid()) {
+                                            if (!vehiclesUsed.contains(vehicleId)) {
+                                                vehicleIds.add(new Pair<>(vehicleId, timePrediction));
+                                                vehiclesUsed.add(vehicleId);
                                             }
-
-                                            vehicleIds.put(vehicleId, routeConfig);
                                         }
                                     }
                                 }
 
-                                final String[] vehicleIdsArray = vehicleIds.keySet().toArray(new String[vehicleIds.size()]);
-
                                 AlertDialog.Builder builder = new AlertDialog.Builder(context);
                                 builder.setTitle(context.getString(R.string.chooseVehicleInBuilder));
-                                builder.setItems(vehicleIdsArray, new DialogInterface.OnClickListener() {
-                                    public void onClick(DialogInterface dialog, int item) {
-                                        final String vehicleId = vehicleIdsArray[item];
 
-                                        final RouteConfig routeConfig = vehicleIds.get(vehicleId);
+                                List<ImmutableMap<String, Spanned>> data = Lists.newArrayList();
+                                for (Pair<String, TimePrediction> pair : vehicleIds) {
+                                    ImmutableMap<String, Spanned> map = pair.second.makeSnippetMap();
+                                    data.add(map);
+                                }
+                                SimpleAdapter adapter = new SimpleAdapter(context, data, R.layout.moreinfo_row,
+                                        new String[]{MoreInfoConstants.textKey},
+                                        new int[]{R.id.moreinfo_text});
+                                adapter.setViewBinder(new TextViewBinder());
+                                builder.setAdapter(adapter, new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialog, int item) {
+                                        final String vehicleId = vehicleIds.get(item).first;
+                                        final TimePrediction timePrediction = vehicleIds.get(item).second;
+
+                                        String route = timePrediction.getRouteName();
+                                        final RouteConfig routeConfig;
+                                        try {
+                                            routeConfig = locations.getRoute(route);
+                                        } catch (IOException e) {
+                                            throw new RuntimeException(e);
+                                        }
+
                                         context.setNewRoute(routeConfig.getRouteName(), false, false);
                                         context.setMode(Selection.Mode.VEHICLE_LOCATIONS_ONE, true, false);
                                         handler.triggerRefreshThen(new Runnable() {
