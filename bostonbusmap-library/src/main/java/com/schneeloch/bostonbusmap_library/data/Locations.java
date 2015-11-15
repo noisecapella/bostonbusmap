@@ -96,7 +96,7 @@ public final class Locations
 	 */
 	public void refresh(IDatabaseAgent databaseAgent, Selection selection,
 			double centerLatitude, double centerLongitude,
-			boolean showRoute) throws SAXException, IOException,
+			boolean showRoute, Runnable refreshRunnable) throws SAXException, IOException,
 			ParserConfigurationException, FactoryConfigurationError, RemoteException, OperationApplicationException 
 	{
 		final int maxStops = 15;
@@ -104,7 +104,7 @@ public final class Locations
 		//see if route overlays need to be downloaded
 		String routeToUpdate = selection.getRoute();
 		RouteConfig routeConfig = routeMapping.get(routeToUpdate);
-		transitSystem.startObtainAlerts(databaseAgent);
+		transitSystem.startObtainAlerts(databaseAgent, refreshRunnable);
 
 		Selection.Mode mode = selection.getMode();
 		if (mode == Selection.Mode.BUS_PREDICTIONS_ALL ||
@@ -385,5 +385,9 @@ public final class Locations
 
     public void replaceStops(String route, ImmutableMap<String, StopLocation> values) throws IOException {
         routeMapping.replaceStops(route, values);
+    }
+
+    public VehicleLocations getVehicleLocations() {
+        return busMapping;
     }
 }

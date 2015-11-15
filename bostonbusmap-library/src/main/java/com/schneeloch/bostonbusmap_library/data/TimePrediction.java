@@ -177,8 +177,12 @@ public class TimePrediction implements IPrediction
 
 	public int getMinutes()
 	{
-		return calcMinutes(arrivalTimeMillis);
+		return calcMinutes(arrivalTimeMillis) + (lateness / 60);
 	}
+
+    public String getVehicleId() {
+        return vehicleId;
+    }
 
 	@Override
 	public int describeContents() {

@@ -4,15 +4,18 @@
   android:layout_width="wrap_content"
   android:layout_height="fill_parent"
   android:orientation="vertical"
-  android:background="@android:color/black"
+  android:background="@android:color/white"
+  android:padding="20dp"
 >
 <TextView android:id="@+id/alert_title"
 	android:layout_width="fill_parent"
   android:layout_height="wrap_content"
   android:bufferType="spannable"
+          android:textColor="@android:color/black"
   android:text=""></TextView>
   <ListView android:id="@android:id/list"
   android:layout_width="fill_parent"
+            android:divider="@android:color/white"
   android:layout_height="wrap_content"></ListView>
   <TextView android:id="@android:id/empty"
   android:layout_width="fill_parent"
