@@ -166,6 +166,9 @@ class GtfsMap(object):
     def find_routes_by_route_type(self, route_type):
         return self._query("SELECT routes.* FROM routes WHERE route_type = ?", (route_type,))
 
+    def find_all_stops(self):
+        return self._query("SELECT stops.* FROM stops")
+
     def find_stops_by_route(self, route):
         # not entirely sure why I need to do this in two different steps
         # you would think the stop -> stop_times join would be efficient enough
