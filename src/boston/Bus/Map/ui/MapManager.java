@@ -461,8 +461,17 @@ public class MapManager implements OnMapClickListener, OnMarkerClickListener,
 
                 if (newLocation instanceof StopLocation || newLocation instanceof IntersectionLocation) {
                     final List<String> routeTitlesForStop = Lists.newArrayList();
-                    for (String route : newLocation.getRoutes()) {
-                        routeTitlesForStop.add(locations.getTransitSystem().getRouteKeysToTitles().getTitle(route));
+                    PredictionView predictionView = newLocation.getPredictionView();
+                    if (predictionView instanceof StopPredictionView) {
+                        StopPredictionView stopPredictionView = (StopPredictionView)predictionView;
+                        for (String routeTitle : stopPredictionView.getRouteTitles()) {
+                            routeTitlesForStop.add(routeTitle);
+                        }
+                    }
+                    else {
+                        for (String route : newLocation.getRoutes()) {
+                            routeTitlesForStop.add(locations.getRouteTitle(route));
+                        }
                     }
                     Collections.sort(routeTitlesForStop);
                     final String[] routeTitlesArray = routeTitlesForStop.toArray(new String[0]);
@@ -615,7 +624,7 @@ public class MapManager implements OnMapClickListener, OnMarkerClickListener,
 
                                 @Override
                                 public void onClick(DialogInterface dialog, int which) {
-                                    IntersectionLocation intersection = (IntersectionLocation)newLocation;
+                                    IntersectionLocation intersection = (IntersectionLocation) newLocation;
                                     locations.removeIntersection(intersection.getName());
                                     handler.triggerUpdate();
                                     dialog.dismiss();
