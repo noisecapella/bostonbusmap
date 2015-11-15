@@ -10,6 +10,7 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
+import com.schneeloch.bostonbusmap_library.database.Schema;
 import com.schneeloch.bostonbusmap_library.math.Geometry;
 import com.schneeloch.bostonbusmap_library.transit.TransitSource;
 import com.schneeloch.bostonbusmap_library.transit.TransitSystem;
@@ -24,7 +25,7 @@ public class RouteConfig
 	private final String route;
 	private final String routeTitle;
 	private final int listorder;
-	private final int transitSourceId;
+	private final Schema.Routes.SourceId transitSourceId;
 	
 	private final int color;
 	private final int oppositeColor;
@@ -74,18 +75,18 @@ public class RouteConfig
 		private final Map<String, StopLocation> stops = Maps.newHashMap();
 		private final List<Path> paths = Lists.newArrayList();
 		private final int listorder;
-		private final int transitSourceId;
+		private final Schema.Routes.SourceId transitSourceId;
 		private final TimeBounds.Builder timeBounds = TimeBounds.builder();
 		
 		public Builder(String route, String routeTitle, int color, int oppositeColor,
-				TransitSource transitSource, int listorder, int transitSourceId) {
+				TransitSource transitSource, int listorder, Schema.Routes.SourceId transitSourceId) {
 			this(route, routeTitle, color, oppositeColor,
 					transitSource, listorder, transitSourceId, Box.emptyBox());
 		}
 		
 		public Builder(String route, String routeTitle, int color, int oppositeColor,
 				TransitSource transitSource, 
-				int listorder, int transitSourceId, IBox serializedPath) {
+				int listorder, Schema.Routes.SourceId transitSourceId, IBox serializedPath) {
 			this.route = route;
 			this.routeTitle = routeTitle;
 			this.color = color;
@@ -237,7 +238,7 @@ public class RouteConfig
 		return candidate.getStopTag();
 	}
 
-	public int getTransitSourceId() {
+	public Schema.Routes.SourceId getTransitSourceId() {
 		return transitSourceId;
 	}
 	

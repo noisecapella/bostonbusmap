@@ -123,13 +123,12 @@ public class SearchHelper
 		final ITransitSystem transitSystem = arguments.getTransitSystem();
 		if (queryType == QUERY_NONE || queryType == QUERY_ROUTE)
 		{
-			int position = getAsRoute(indexingQuery, lowercaseQuery);
+			String routeKey = getAsRoute(indexingQuery, lowercaseQuery);
 
-			if (position >= 0)
+			if (routeKey != null)
 			{
 				//done!
-				context.setNewRoute(position, false, true);
-				String routeKey = dropdownRouteKeysToTitles.getTagUsingIndex(position);
+				context.setNewRoute(routeKey, false, true);
 				String routeTitle = dropdownRouteKeysToTitles.getTitle(routeKey);
 				suggestionsQuery = "route " + routeTitle;
 			}
@@ -174,17 +173,9 @@ public class SearchHelper
 		onFinish.run();
 	}
 
-	private int getAsRoute(String indexingQuery, String lowercaseQuery)
+	private String getAsRoute(String indexingQuery, String lowercaseQuery)
 	{
-		String route = arguments.getTransitSystem().searchForRoute(indexingQuery, lowercaseQuery);
-		if (route != null)
-		{
-			return dropdownRouteKeysToTitles.getIndexForTag(route);
-		}
-		else
-		{
-			return -1;
-		}
+		return arguments.getTransitSystem().searchForRoute(indexingQuery, lowercaseQuery);
 	}
 
 	public String getSuggestionsQuery()

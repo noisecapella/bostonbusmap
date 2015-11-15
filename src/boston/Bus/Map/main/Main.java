@@ -31,6 +31,7 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.LatLng;
+import com.schneeloch.bostonbusmap_library.data.BusLocation;
 import com.schneeloch.bostonbusmap_library.data.ITransitDrawables;
 import com.schneeloch.bostonbusmap_library.data.Locations;
 
@@ -41,6 +42,9 @@ import com.schneeloch.bostonbusmap_library.data.StopLocation;
 import boston.Bus.Map.data.TransitDrawables;
 import boston.Bus.Map.data.UpdateArguments;
 import boston.Bus.Map.provider.DatabaseAgent;
+
+import com.schneeloch.bostonbusmap_library.data.VehicleLocations;
+import com.schneeloch.bostonbusmap_library.database.Schema;
 import com.schneeloch.bostonbusmap_library.provider.IDatabaseAgent;
 import boston.Bus.Map.provider.TransitContentProvider;
 import com.schneeloch.bostonbusmap_library.transit.ITransitSystem;
@@ -216,6 +220,9 @@ public class Main extends AbstractMapActivity
                 Button routesButton = (Button) findViewById(R.id.routes_button);
                 routesButton.setVisibility(View.GONE);
 
+                Button vehiclesButton = (Button)findViewById(R.id.vehicles_button);
+                vehiclesButton.setVisibility(View.GONE);
+
                 // TODO: find a better place for this
                 drawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
                 drawerList = (ListView) findViewById(R.id.left_drawer);
@@ -359,7 +366,8 @@ public class Main extends AbstractMapActivity
                     builder.setTitle(getString(R.string.chooseRouteInBuilder));
                     builder.setItems(routeTitles, new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface dialog, int item) {
-                            setNewRoute(item, true, true);
+                            String route = dropdownRouteKeysToTitles.getTagUsingIndex(item);
+                            setNewRoute(route, true, true);
                         }
                     });
                     routeChooserDialog = builder.create();
@@ -409,7 +417,7 @@ public class Main extends AbstractMapActivity
 
                 MapManager manager = new MapManager(Main.this, map, transitSystem,
                         busLocations, reportButton, moreInfoButton, alertsButton, routesButton,
-                        editButton, deleteButton);
+                        vehiclesButton, editButton, deleteButton);
 
                 arguments = new UpdateArguments(progress, progressDialog,
                         map, databaseAgent, manager,
@@ -476,8 +484,7 @@ public class Main extends AbstractMapActivity
                             setNewStop(route, stop);
                             setMode(modeInt, true, true);
                         } else if (route != null) {
-                            int routePosition = dropdownRouteKeysToTitles.getIndexForTag(route);
-                            setNewRoute(routePosition, false, false);
+                            setNewRoute(route, false, false);
                             setMode(modeInt, true, true);
                         }
                     }
@@ -525,14 +532,13 @@ public class Main extends AbstractMapActivity
 	/**
 	 * This should be called only by SearchHelper 
 	 * 
-	 * @param position
+	 * @param route
 	 * @param saveNewQuery save a search term in the search history as if user typed it in
 	 */
-	public void setNewRoute(int position, boolean saveNewQuery, boolean updateMode)
+	public void setNewRoute(String route, boolean saveNewQuery, boolean updateMode)
     {
 		if (arguments != null && handler != null)
 		{
-			String route = dropdownRouteKeysToTitles.getTagUsingIndex(position);
 			Locations locations = arguments.getBusLocations();
 			Selection selection = locations.getSelection();
 			locations.setSelection(selection.withDifferentRoute(route));
@@ -981,20 +987,15 @@ public class Main extends AbstractMapActivity
 			return;
 		}
 		
-		int routePosition = dropdownRouteKeysToTitles.getIndexForTag(route);
-		
-		
 		final int id = stopLocation.getId();
 		handler.triggerUpdateThenSelect(id);
 
-		if (routePosition != -1)
+		if (route != null)
 		{
-			//should always happen, but we just ignore this if something went wrong
-			String currentRoute = dropdownRouteKeysToTitles.getTagUsingIndex(routePosition);
-			if (stopLocation.getRoutes().contains(currentRoute) == false)
+			if (stopLocation.getRoutes().contains(route) == false)
 			{
 				//only set it if some route which contains this stop isn't already set
-				setNewRoute(routePosition, false, false);
+				setNewRoute(route, false, false);
 			}
 		}
 		
@@ -1004,4 +1005,35 @@ public class Main extends AbstractMapActivity
         arguments.getMapView().moveCamera(CameraUpdateFactory.newLatLng(latlng));
         arguments.getMapView().moveCamera(CameraUpdateFactory.scrollBy(0, -100));
 	}
+
+    public void highlightVehicle(String vehicleId, String route, Schema.Routes.SourceId sourceId) {
+        VehicleLocations vehicleLocations = arguments.getBusLocations().getVehicleLocations();
+        VehicleLocations.Key key = new VehicleLocations.Key(sourceId, route, vehicleId);
+        BusLocation location = vehicleLocations.get(key);
+        if (location != null) {
+
+            final int id = location.getId();
+            handler.triggerUpdateThen(new Runnable() {
+                @Override
+                public void run() {
+                    arguments.getOverlayGroup().setSelectedBusId(id);
+                    handler.triggerUpdateThen(new Runnable() {
+                        @Override
+                        public void run() {
+                            if (arguments.getOverlayGroup().getSelectedBusId() == MapManager.NOT_SELECTED) {
+                                Toast.makeText(Main.this, "Unable to locate vehicle to highlight", Toast.LENGTH_LONG).show();
+                            }
+                        }
+                    });
+                }
+            });
+
+            LatLng latlng = new LatLng(location.getLatitudeAsDegrees(), location.getLongitudeAsDegrees());
+            arguments.getMapView().moveCamera(CameraUpdateFactory.newLatLng(latlng));
+            arguments.getMapView().moveCamera(CameraUpdateFactory.scrollBy(0, -100));
+        }
+        else {
+            Toast.makeText(Main.this, "Unable to locate vehicle to highlight", Toast.LENGTH_LONG).show();
+        }
+    }
 }

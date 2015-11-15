@@ -1,5 +1,6 @@
 package boston.Bus.Map.data;
 
+import boston.Bus.Map.main.Main;
 import boston.Bus.Map.main.RefreshAsyncTask;
 
 import com.google.android.gms.maps.GoogleMap;
@@ -24,13 +25,13 @@ public class UpdateArguments {
 	private RefreshAsyncTask majorHandler;
 	private Locations busLocations;
 	private ITransitSystem transitSystem;
-    private Context context;
+    private Main context;
 
     public UpdateArguments(ProgressBar progress,
 			ProgressDialog progressDialog, GoogleMap mapView, IDatabaseAgent databaseAgent,
 			MapManager mapManager, RefreshAsyncTask majorHandler,
 			Locations busLocations,
-            ITransitSystem transitSystem, Context context) {
+            ITransitSystem transitSystem, Main context) {
 		this.progress = progress;
 		this.progressDialog = progressDialog;
 		this.mapView = mapView;
@@ -50,7 +51,7 @@ public class UpdateArguments {
 		return progressDialog;
 	}
 
-    public Context getContext() {
+    public Main getContext() {
         return context;
     }
 

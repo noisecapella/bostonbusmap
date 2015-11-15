@@ -12,6 +12,8 @@ import com.schneeloch.bostonbusmap_library.util.LogUtil;
 import android.os.Handler;
 import android.os.Message;
 
+import java.util.concurrent.ConcurrentLinkedQueue;
+
 public class UpdateHandler extends Handler {
 	/**
 	 * An update which refreshes from the internet
@@ -40,7 +42,10 @@ public class UpdateHandler extends Handler {
 	
 	private final UpdateArguments guiArguments;
     private boolean showTraffic = false;
-	
+
+    private final ConcurrentLinkedQueue<Runnable> afterRefresh = new ConcurrentLinkedQueue<>();
+    private final ConcurrentLinkedQueue<Runnable> afterUpdate = new ConcurrentLinkedQueue<>();
+
 	public UpdateHandler(UpdateArguments guiArguments)
 	{
 		this.guiArguments = guiArguments;
@@ -53,14 +58,13 @@ public class UpdateHandler extends Handler {
 		switch (msg.what)
 		{
 		case MAJOR:
-            LogUtil.i("MAJOR");
 			//remove duplicates
 			long currentTime = System.currentTimeMillis();
 
 			int interval = getUpdateConstantlyInterval() * 1000;
 
             // schedule this before RefreshAsyncTask since that will block other threads
-            runMinorUpdateTask(null);
+            runMinorUpdateTask();
 			runUpdateTask();
 
 			//make updateBuses execute every 10 seconds (or whatever fetchDelay is)
@@ -74,7 +78,6 @@ public class UpdateHandler extends Handler {
 
 			break;
 		case MINOR:
-            LogUtil.i("MINOR");
 			//don't do two updates at once
 			if (minorUpdate != null)
 			{
@@ -89,25 +92,20 @@ public class UpdateHandler extends Handler {
 			//remove duplicate messages
 			removeMessages(MINOR);
 
-            Integer toSelect = null;
-            if (msg.arg1 != 0) {
-                toSelect = msg.arg1;
-            }
-            runMinorUpdateTask(toSelect);
+            runMinorUpdateTask();
 
 			break;
 		}		
 	}
 
-    private void runMinorUpdateTask(Integer toSelect) {
+    private void runMinorUpdateTask() {
         Selection selection = guiArguments.getBusLocations().getSelection();
         minorUpdate = new AdjustUIAsyncTask(guiArguments, getShowUnpredictable(),
                 maxOverlays,
-                selection, this, toSelect);
+                selection, this, afterUpdate.poll());
 
 
         minorUpdate.runUpdate();
-        LogUtil.i("Minor update");
     }
 
     public void removeAllMessages() {
@@ -151,11 +149,11 @@ public class UpdateHandler extends Handler {
 		}
 		
 		Selection selection = guiArguments.getBusLocations().getSelection();
-		final RefreshAsyncTask updateAsyncTask = new RefreshAsyncTask(guiArguments, getShowUnpredictable(), maxOverlays,
-				selection, this);
+		final RefreshAsyncTask updateAsyncTask = new RefreshAsyncTask(
+                guiArguments, getShowUnpredictable(), maxOverlays,
+				selection, this, afterRefresh.poll()
+        );
 		guiArguments.setMajorHandler(updateAsyncTask);
-
-        LogUtil.i("major update");
 
         updateAsyncTask.runUpdate();
 		
@@ -168,6 +166,12 @@ public class UpdateHandler extends Handler {
         sendEmptyMessageDelayed(MINOR, millis);
     }
 
+    public void triggerRefreshThen(Runnable runnable) {
+        afterRefresh.add(runnable);
+        triggerRefresh(0);
+    }
+
+
     public boolean instantRefresh() {
 		//removeAllMessages();
 		
@@ -178,7 +182,7 @@ public class UpdateHandler extends Handler {
 			sendEmptyMessageDelayed(MAJOR, getUpdateConstantlyInterval() * 1000);
 		}
 
-        runMinorUpdateTask(null);
+        runMinorUpdateTask();
 		runUpdateTask();
 		return true;
 
@@ -222,13 +226,22 @@ public class UpdateHandler extends Handler {
 		sendEmptyMessage(MINOR);
 		
 	}
+
+    public void triggerUpdateThen(Runnable runnable) {
+        afterUpdate.add(runnable);
+
+        triggerUpdate();
+    }
 	
-	public void triggerUpdateThenSelect(int id)
+	public void triggerUpdateThenSelect(final int id)
 	{
-		Message msg = new Message();
-		msg.arg1 = id;
-		msg.what = MINOR;
-		sendMessage(msg);
+        triggerUpdateThen(new Runnable() {
+            @Override
+            public void run() {
+                guiArguments.getOverlayGroup().setSelectedBusId(id);
+                triggerUpdate();
+            }
+        });
 	}
 
 	public void resume() {
@@ -261,4 +274,5 @@ public class UpdateHandler extends Handler {
 			minorUpdate.nullifyProgress();
 		}
 	}
+
 }
