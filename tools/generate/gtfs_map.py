@@ -167,7 +167,7 @@ class GtfsMap(object):
         return self._query("SELECT routes.* FROM routes WHERE route_type = ?", (route_type,))
 
     def find_all_stops(self):
-        return self._query("SELECT stops.* FROM stops")
+        return self._query("SELECT stops.* FROM stops", ())
 
     def find_stops_by_route(self, route):
         # not entirely sure why I need to do this in two different steps
