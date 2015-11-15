@@ -159,6 +159,7 @@ public class BusPopupView extends BalloonOverlayView<BusOverlayItem>
 				{
 					StopLocation stopLocation = (StopLocation)location;
 					Intent intent = new Intent(context, MoreInfo.class);
+                    intent.putExtra(MoreInfo.snippetTitleKey, location.getPredictionView().getSnippetTitle());
 
 					StopPredictionView predictionView = (StopPredictionView)stopLocation.getPredictionView();
 					IPrediction[] predictionArray = predictionView.getPredictions();
@@ -273,6 +274,7 @@ public class BusPopupView extends BalloonOverlayView<BusOverlayItem>
 				if (alerts != null)
 				{
 					intent.putExtra(AlertInfo.alertsKey, alerts);
+                    intent.putExtra(AlertInfo.snippetTitleKey, location.getPredictionView().getSnippetTitle());
 					
 					context.startActivity(intent);
 				}
