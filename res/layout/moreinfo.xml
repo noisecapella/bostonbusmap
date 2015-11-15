@@ -1,27 +1,35 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
 	android:layout_width="fill_parent" android:layout_height="fill_parent"
-	android:orientation="vertical" android:background="@android:color/black">
+              android:background="@android:color/white"
+	android:orientation="vertical"
+    android:padding="20dp"
+    >
 	<LinearLayout android:layout_width="fill_parent"
 		android:layout_height="wrap_content" android:orientation="vertical" android:gravity="right">
 		<Spinner android:layout_height="wrap_content"
-			android:layout_width="wrap_content" android:id="@+id/moreinfo_route_spinner"
+			android:layout_width="match_parent" android:id="@+id/moreinfo_route_spinner"
 			></Spinner>
 	</LinearLayout>
 	<TextView android:bufferType="spannable"
 		android:layout_height="wrap_content" android:layout_width="fill_parent"
 		android:id="@+id/moreinfo_title1"
+              android:textColor="@android:color/black"
 		></TextView>
 	<TextView android:id="@+id/moreinfo_title2"
 		android:layout_width="wrap_content" android:layout_height="wrap_content"
+              android:textColor="@android:color/black"
 		android:bufferType="spannable"
 		></TextView>
 			
 
 	<ListView android:id="@android:id/list" android:layout_width="fill_parent"
+              android:background="@android:color/white"
+              android:divider="@android:color/white"
 		android:layout_height="wrap_content"></ListView>
 	<TextView android:id="@android:id/empty" android:layout_width="fill_parent"
 		android:layout_height="wrap_content"
+              android:textColor="@android:color/black"
 		android:text="@string/thereAreCurrentlyNoPredictions"
 		></TextView>
 </LinearLayout>
