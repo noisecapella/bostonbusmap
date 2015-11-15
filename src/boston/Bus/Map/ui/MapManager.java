@@ -460,20 +460,15 @@ public class MapManager implements OnMapClickListener, OnMarkerClickListener,
                 });
 
                 if (newLocation instanceof StopLocation || newLocation instanceof IntersectionLocation) {
-                    final List<String> routeTitlesForStop = Lists.newArrayList();
+                    final Set<String> routeTitlesForStop = Sets.newTreeSet();
                     PredictionView predictionView = newLocation.getPredictionView();
+                    for (String route : newLocation.getRoutes()) {
+                        routeTitlesForStop.add(locations.getRouteTitle(route));
+                    }
                     if (predictionView instanceof StopPredictionView) {
                         StopPredictionView stopPredictionView = (StopPredictionView)predictionView;
-                        for (String routeTitle : stopPredictionView.getRouteTitles()) {
-                            routeTitlesForStop.add(routeTitle);
-                        }
+                        Collections.addAll(routeTitlesForStop, stopPredictionView.getRouteTitles());
                     }
-                    else {
-                        for (String route : newLocation.getRoutes()) {
-                            routeTitlesForStop.add(locations.getRouteTitle(route));
-                        }
-                    }
-                    Collections.sort(routeTitlesForStop);
                     final String[] routeTitlesArray = routeTitlesForStop.toArray(new String[0]);
 
                     routesButton.setVisibility(View.VISIBLE);
