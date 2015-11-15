@@ -28,7 +28,7 @@ public class StopLocation implements Location
 	
 	private Predictions predictions;
 	
-	private Favorite isFavorite;
+	private Favorite isFavorite = Favorite.IsNotFavorite;
 	protected boolean recentlyUpdated;
     /**
      * If route is in here, the stop has been updated for that route
