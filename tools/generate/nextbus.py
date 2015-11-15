@@ -27,7 +27,7 @@ class RouteHandler(xml.sax.handler.ContentHandler):
             route = attributes["tag"]
             self.currentRoute = route
 
-            for stop_row in self.gtfs_map.find_stops_by_route(route):
+            for stop_row in self.gtfs_map.find_all_stops():
                 # Probably some overwriting here but the parent stations shouldn't change
                 self.parent_stations[stop_row["stop_id"]] = stop_row["parent_station"]
                     
