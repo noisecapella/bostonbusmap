@@ -28,9 +28,9 @@ public class RefreshAsyncTask extends UpdateAsyncTask
 {
 	public RefreshAsyncTask(UpdateArguments arguments,
 			boolean doShowUnpredictable, int maxOverlays,
-			Selection selection, UpdateHandler handler) {
+			Selection selection, UpdateHandler handler, Runnable afterUpdate) {
 		super(arguments, doShowUnpredictable, maxOverlays,
-				selection, handler, null);
+				selection, handler, afterUpdate, null);
 	}
 
 	@Override

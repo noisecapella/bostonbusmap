@@ -76,6 +76,8 @@ public abstract class UpdateAsyncTask extends AsyncTask<Object, Object, Immutabl
 	protected final Selection selection;
 	
 	private final Integer toSelect;
+
+    private final Runnable afterUpdate;
 	
 	/**
 	 * The last read center of the map.
@@ -84,7 +86,7 @@ public abstract class UpdateAsyncTask extends AsyncTask<Object, Object, Immutabl
 	
 	public UpdateAsyncTask(UpdateArguments arguments, boolean doShowUnpredictable,
 			int maxOverlays,
-			Selection selection, UpdateHandler handler, Integer toSelect)
+			Selection selection, UpdateHandler handler, Runnable afterUpdate, Integer toSelect)
 	{
 		super();
 		
@@ -96,7 +98,8 @@ public abstract class UpdateAsyncTask extends AsyncTask<Object, Object, Immutabl
 		this.handler = handler;
 		
 		currentMapCenter = arguments.getMapView().getCameraPosition().target;
-		
+
+        this.afterUpdate = afterUpdate;
 		this.toSelect = toSelect;
 	}
 	
@@ -358,6 +361,10 @@ public abstract class UpdateAsyncTask extends AsyncTask<Object, Object, Immutabl
 		if (!newCenter.equals(currentMapCenter)) {
 			handler.triggerUpdate();
 		}
+
+        if (afterUpdate != null) {
+            afterUpdate.run();
+        }
 	}
 
     protected abstract boolean forceNewMarker();

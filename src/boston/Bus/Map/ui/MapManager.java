@@ -52,6 +52,7 @@ import com.schneeloch.bostonbusmap_library.data.Selection;
 import com.schneeloch.bostonbusmap_library.data.StopLocation;
 import com.schneeloch.bostonbusmap_library.data.StopPredictionView;
 import com.schneeloch.bostonbusmap_library.data.TimeBounds;
+import com.schneeloch.bostonbusmap_library.data.TimePrediction;
 import com.schneeloch.bostonbusmap_library.math.Geometry;
 import com.schneeloch.bostonbusmap_library.transit.ITransitSystem;
 import com.schneeloch.bostonbusmap_library.transit.TransitSystem;
@@ -89,6 +90,7 @@ public class MapManager implements OnMapClickListener, OnMarkerClickListener,
     private final Button alertsButton;
     private final Button moreInfoButton;
     private final Button routesButton;
+    private final Button vehiclesButton;
     private final Button editButton;
     private final Button deleteButton;
     private int selectedLocationId = NOT_SELECTED;
@@ -117,7 +119,7 @@ public class MapManager implements OnMapClickListener, OnMarkerClickListener,
     public MapManager(Main context, GoogleMap map,
                       ITransitSystem transitSystem, Locations locations,
                       Button reportButton, Button moreInfoButton, Button alertsButton, Button routesButton,
-                      Button editButton, Button deleteButton) {
+                      Button vehiclesButton, Button editButton, Button deleteButton) {
         this.context = context;
         this.map = map;
         this.transitSystem = transitSystem;
@@ -125,6 +127,7 @@ public class MapManager implements OnMapClickListener, OnMarkerClickListener,
         this.reportButton = reportButton;
         this.alertsButton = alertsButton;
         this.routesButton = routesButton;
+        this.vehiclesButton = vehiclesButton;
         this.editButton = editButton;
         this.deleteButton = deleteButton;
         this.locations = locations;
@@ -251,6 +254,7 @@ public class MapManager implements OnMapClickListener, OnMarkerClickListener,
             reportButton.setVisibility(View.GONE);
             alertsButton.setVisibility(View.GONE);
             routesButton.setVisibility(View.GONE);
+            vehiclesButton.setVisibility(View.GONE);
             editButton.setVisibility(View.GONE);
             deleteButton.setVisibility(View.GONE);
         }
@@ -261,6 +265,7 @@ public class MapManager implements OnMapClickListener, OnMarkerClickListener,
                 reportButton.setVisibility(View.GONE);
                 alertsButton.setVisibility(View.GONE);
                 routesButton.setVisibility(View.GONE);
+                vehiclesButton.setVisibility(View.GONE);
                 editButton.setVisibility(View.GONE);
                 deleteButton.setVisibility(View.GONE);
 
@@ -445,8 +450,8 @@ public class MapManager implements OnMapClickListener, OnMarkerClickListener,
                             builder.setItems(routeTitlesArray, new DialogInterface.OnClickListener() {
                                 public void onClick(DialogInterface dialog, int item) {
                                     String title = routeTitlesArray[item];
-                                    int newPosition = allRouteTitles.indexOf(title);
-                                    context.setNewRoute(newPosition, true, true);
+                                    String route = transitSystem.getRouteKeysToTitles().getKey(title);
+                                    context.setNewRoute(route, true, true);
                                 }
                             });
                             builder.create().show();
@@ -455,6 +460,62 @@ public class MapManager implements OnMapClickListener, OnMarkerClickListener,
 
                 } else {
                     routesButton.setVisibility(View.GONE);
+                }
+
+                if (newLocation instanceof StopLocation &&
+                        transitSystem.hasVehicles(newLocation.getTransitSourceType())) {
+                    final StopLocation stopLocation = (StopLocation) newLocation;
+                    PredictionView predictionView = stopLocation.getPredictions().getPredictionView();
+                    if (predictionView instanceof StopPredictionView) {
+                        final StopPredictionView stopPredictionView = (StopPredictionView) predictionView;
+                        vehiclesButton.setVisibility(View.VISIBLE);
+
+                        vehiclesButton.setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                final Map<String, RouteConfig> vehicleIds = Maps.newTreeMap();
+
+                                for (IPrediction prediction : stopPredictionView.getPredictions()) {
+                                    if (prediction instanceof TimePrediction) {
+                                        TimePrediction timePrediction = (TimePrediction) prediction;
+                                        String vehicleId = timePrediction.getVehicleId();
+                                        if (vehicleId != null) {
+                                            String route = timePrediction.getRouteName();
+                                            RouteConfig routeConfig;
+                                            try {
+                                                routeConfig = locations.getRoute(route);
+                                            } catch (IOException e) {
+                                                throw new RuntimeException(e);
+                                            }
+
+                                            vehicleIds.put(vehicleId, routeConfig);
+                                        }
+                                    }
+                                }
+
+                                final String[] vehicleIdsArray = vehicleIds.keySet().toArray(new String[vehicleIds.size()]);
+
+                                AlertDialog.Builder builder = new AlertDialog.Builder(context);
+                                builder.setTitle(context.getString(R.string.chooseVehicleInBuilder));
+                                builder.setItems(vehicleIdsArray, new DialogInterface.OnClickListener() {
+                                    public void onClick(DialogInterface dialog, int item) {
+                                        final String vehicleId = vehicleIdsArray[item];
+
+                                        final RouteConfig routeConfig = vehicleIds.get(vehicleId);
+                                        context.setNewRoute(routeConfig.getRouteName(), false, false);
+                                        context.setMode(Selection.Mode.VEHICLE_LOCATIONS_ONE, true, false);
+                                        handler.triggerRefreshThen(new Runnable() {
+                                            @Override
+                                            public void run() {
+                                                context.highlightVehicle(vehicleId, routeConfig.getRouteName(), routeConfig.getTransitSourceId());
+                                            }
+                                        });
+                                    }
+                                });
+                                builder.create().show();
+                            }
+                        });
+                    }
                 }
 
                 if (newLocation instanceof IntersectionLocation) {

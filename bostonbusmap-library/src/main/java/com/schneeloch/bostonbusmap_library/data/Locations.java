@@ -386,4 +386,8 @@ public final class Locations
     public void replaceStops(String route, ImmutableMap<String, StopLocation> values) throws IOException {
         routeMapping.replaceStops(route, values);
     }
+
+    public VehicleLocations getVehicleLocations() {
+        return busMapping;
+    }
 }

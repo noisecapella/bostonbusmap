@@ -45,6 +45,7 @@ Are any enabled (like GPS) in your system settings?</string>
 <string name="chooseStop">Favorite Stops</string>
 <string name="chooseStopInBuilder">Choose a stop</string>
 <string name="chooseRouteInBuilder">Choose a route</string>
+    <string name="chooseVehicleInBuilder">Choose a vehicle</string>
 <string name="noalerts">No Alerts</string>
 
     <string name="alwaysShowLocation">Always show location?</string>
