@@ -64,7 +64,7 @@ public class MoreInfo extends ListActivity {
         getWindow().setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
 		final Bundle extras = getIntent().getExtras();
 
-        setTitle(extras.getString(snippetTitleKey));
+        setTitle(Html.fromHtml(extras.getString(snippetTitleKey)));
 
 		
 		{
