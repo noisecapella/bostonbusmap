@@ -350,8 +350,7 @@ public class StopLocation implements Location
 
 	@Override
 	public boolean hasReportProblem() {
-		// false for toronto
-		return false;
+		return true;
 	}
 	
 	@Override
