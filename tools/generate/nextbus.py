@@ -19,7 +19,7 @@ class RouteHandler(xml.sax.handler.ContentHandler):
         self.paths = []
         self.gtfs_map = gtfs_map
 
-        self.gtfs_stops = {}
+        self.parent_stations = {}
 
     def startElement(self, name, attributes):
         table = self.table
@@ -28,7 +28,8 @@ class RouteHandler(xml.sax.handler.ContentHandler):
             self.currentRoute = route
 
             for stop_row in self.gtfs_map.find_stops_by_route(route):
-                self.gtfs_stops[stop_row["stop_id"]] = stop_row
+                # Probably some overwriting here but the parent stations shouldn't change
+                self.parent_stations[stop_row["stop_id"]] = stop_row["parent_station"]
                     
             
             table.routes.route.value = attributes["tag"]
@@ -49,11 +50,11 @@ class RouteHandler(xml.sax.handler.ContentHandler):
                     table.stops.title.value = attributes["title"]
 
                     stop_id = tag.split("_")[0]
-                    if stop_id not in self.gtfs_stops:
+                    if stop_id not in self.parent_stations:
                         print("WARNING: tag {tag} not in GTFS".format(tag=tag))
                         parent = ""
                     else:
-                        parent = self.gtfs_stops[stop_id]["parent_station"]
+                        parent = self.parent_stations[stop_id]
                     table.stops.parent.value = parent
                     self.cur.execute(table.stops.insert())
                 table.stopmapping.route.value = self.currentRoute
