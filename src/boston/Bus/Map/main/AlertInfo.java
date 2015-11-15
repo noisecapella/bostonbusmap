@@ -15,6 +15,7 @@ import boston.Bus.Map.ui.TextViewBinder;
 import android.app.ListActivity;
 import android.os.Bundle;
 import android.os.Parcelable;
+import android.text.Html;
 import android.text.Spanned;
 import android.util.Pair;
 import android.view.Window;
@@ -44,7 +45,7 @@ public class AlertInfo extends ListActivity
 
 		Bundle extras = getIntent().getExtras();
 
-        setTitle("Alerts for " + extras.getString(snippetTitleKey));
+        setTitle("Alerts for " + Html.fromHtml(extras.getString(snippetTitleKey)));
 
 		alerts = extras.getParcelableArray(alertsKey);
 
