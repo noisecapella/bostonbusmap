@@ -994,18 +994,17 @@ public class Main extends AbstractMapActivity
     public void highlightVehicle(String vehicleId, String route, Schema.Routes.SourceId sourceId) {
         VehicleLocations vehicleLocations = arguments.getBusLocations().getVehicleLocations();
         VehicleLocations.Key key = new VehicleLocations.Key(sourceId, route, vehicleId);
-        BusLocation location = vehicleLocations.get(key);
+        final BusLocation location = vehicleLocations.get(key);
         if (location != null) {
 
-            final int id = location.getId();
             handler.triggerUpdateThen(new Runnable() {
                 @Override
                 public void run() {
-                    arguments.getOverlayGroup().setSelectedBusId(id);
+                    arguments.getOverlayGroup().setSelectedBusId(Optional.of(new GroupKey(location)));
                     handler.triggerUpdateThen(new Runnable() {
                         @Override
                         public void run() {
-                            if (arguments.getOverlayGroup().getSelectedBusId() == MapManager.NOT_SELECTED) {
+                            if (!arguments.getOverlayGroup().getSelectedBusId().isPresent()) {
                                 Toast.makeText(Main.this, "Unable to locate vehicle to highlight", Toast.LENGTH_LONG).show();
                             }
                         }
