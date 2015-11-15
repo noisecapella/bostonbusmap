@@ -3,12 +3,14 @@ package com.schneeloch.bostonbusmap_library.data;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
 
 import com.google.common.base.MoreObjects;
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableCollection;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Lists;
 import com.schneeloch.bostonbusmap_library.annotations.KeepSorted;
 import com.schneeloch.bostonbusmap_library.database.Schema;
 import com.schneeloch.bostonbusmap_library.math.Geometry;
@@ -199,7 +201,14 @@ public class StopLocation implements Location
 		
 		recentlyUpdated = true;
         if (routeConfig != null) {
-            everUpdated = ImmutableList.of(routeConfig.getRouteName());
+            if (!everUpdated.contains(routeConfig.getRouteName())) {
+                List<String> everUpdatedCopy = Lists.newArrayList(everUpdated);
+                // Defensive check since we aren't using synchronize here
+                if (!everUpdatedCopy.contains(routeConfig.getRouteName())) {
+                    everUpdatedCopy.add(routeConfig.getRouteName());
+                }
+                everUpdated = ImmutableList.copyOf(everUpdatedCopy);
+            }
         }
         else {
             everUpdated = routes.getRoutes();
