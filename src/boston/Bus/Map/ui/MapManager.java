@@ -405,7 +405,7 @@ public class MapManager implements OnMapClickListener, OnMarkerClickListener,
                 }
 
                 final ImmutableCollection<Alert> alertsList = newLocation.getPredictionView().getAlerts();
-                int numAlerts = alertsList.size();
+                int numAlerts = Alert.groupAlerts(alertsList).size();
                 if (numAlerts == 0) {
                     alertsButton.setVisibility(View.GONE);
                 } else {

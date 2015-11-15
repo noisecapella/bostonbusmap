@@ -1,7 +1,9 @@
 package com.schneeloch.bostonbusmap_library.data;
 
 import java.util.Calendar;
+import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -13,6 +15,7 @@ import com.google.common.base.Objects;
 import com.google.common.collect.ComparisonChain;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.schneeloch.bostonbusmap_library.util.AlertInfoConstants;
 
@@ -166,4 +169,32 @@ public class Alert implements Parcelable, Comparable<Alert>
 			return false;
 		}
 	}
+
+    public static List<List<Alert>> groupAlerts(Collection<Alert> alerts) {
+        HashMap<String, List<Alert>> commonAlerts = Maps.newHashMap();
+
+        for (Alert alert : alerts)
+        {
+            if (commonAlerts.containsKey(alert.getDescription()) == false) {
+                List<Alert> alertList = Lists.newArrayList();
+                commonAlerts.put(alert.getDescription(), alertList);
+            }
+            commonAlerts.get(alert.getDescription()).add(alert);
+        }
+
+        List<List<Alert>> alertGroups = Lists.newArrayList();
+        for (Map.Entry<String, List<Alert>> entry : commonAlerts.entrySet()) {
+            alertGroups.add(entry.getValue());
+        }
+
+        Collections.sort(alertGroups, new Comparator<List<Alert>>() {
+            @Override
+            public int compare(List<Alert> lhs, List<Alert> rhs) {
+                String lhsDescription = lhs.get(0).getDescription();
+                String rhsDescription = rhs.get(0).getDescription();
+                return lhsDescription.compareTo(rhsDescription);
+            }
+        });
+        return alertGroups;
+    }
 }
