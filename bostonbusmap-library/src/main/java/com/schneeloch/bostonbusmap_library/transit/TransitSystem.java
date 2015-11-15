@@ -322,7 +322,7 @@ public class TransitSystem implements ITransitSystem {
 	}
 
 	public static boolean hasReportProblem() {
-		return false;
+		return true;
 	}
 
 	public TransitSource getTransitSourceByRouteType(Schema.Routes.SourceId routeType) {
