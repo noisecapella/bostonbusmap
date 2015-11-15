@@ -75,8 +75,6 @@ public abstract class UpdateAsyncTask extends AsyncTask<Object, Object, Immutabl
 	
 	protected final Selection selection;
 	
-	private final Integer toSelect;
-
     private final Runnable afterUpdate;
 	
 	/**
@@ -86,7 +84,7 @@ public abstract class UpdateAsyncTask extends AsyncTask<Object, Object, Immutabl
 	
 	public UpdateAsyncTask(UpdateArguments arguments, boolean doShowUnpredictable,
 			int maxOverlays,
-			Selection selection, UpdateHandler handler, Runnable afterUpdate, Integer toSelect)
+			Selection selection, UpdateHandler handler, Runnable afterUpdate)
 	{
 		super();
 		
@@ -100,7 +98,6 @@ public abstract class UpdateAsyncTask extends AsyncTask<Object, Object, Immutabl
 		currentMapCenter = arguments.getMapView().getCameraPosition().target;
 
         this.afterUpdate = afterUpdate;
-		this.toSelect = toSelect;
 	}
 	
 	/**
@@ -299,14 +296,7 @@ public abstract class UpdateAsyncTask extends AsyncTask<Object, Object, Immutabl
 		Map<Long, Integer> points = Maps.newHashMap();
 		
 		//draw the buses on the map
-		int newSelectedBusId;
-		if (toSelect != null) {
-			newSelectedBusId = toSelect;
-		}
-		else
-		{
-			newSelectedBusId = selectedBusId;
-		}
+		int newSelectedBusId = selectedBusId;
 		List<Location> busesToDisplay = Lists.newArrayList();
 		
 		// first add intersection points. Not enough of these to affect performance

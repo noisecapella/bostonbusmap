@@ -433,7 +433,6 @@ public class MapManager implements OnMapClickListener, OnMarkerClickListener,
                     }
                     Collections.sort(routeTitlesForStop);
                     final String[] routeTitlesArray = routeTitlesForStop.toArray(new String[0]);
-                    final List<String> allRouteTitles = Arrays.asList(locations.getTransitSystem().getRouteKeysToTitles().titleArray());
 
                     routesButton.setVisibility(View.VISIBLE);
                     if (newLocation instanceof StopLocation) {

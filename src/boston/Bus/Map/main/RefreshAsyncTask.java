@@ -30,7 +30,7 @@ public class RefreshAsyncTask extends UpdateAsyncTask
 			boolean doShowUnpredictable, int maxOverlays,
 			Selection selection, UpdateHandler handler, Runnable afterUpdate) {
 		super(arguments, doShowUnpredictable, maxOverlays,
-				selection, handler, afterUpdate, null);
+				selection, handler, afterUpdate);
 	}
 
 	@Override
