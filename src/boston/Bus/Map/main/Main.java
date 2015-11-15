@@ -1031,5 +1031,8 @@ public class Main extends AbstractMapActivity
             arguments.getMapView().moveCamera(CameraUpdateFactory.newLatLng(latlng));
             arguments.getMapView().moveCamera(CameraUpdateFactory.scrollBy(0, -100));
         }
+        else {
+            Toast.makeText(Main.this, "Unable to locate vehicle to highlight", Toast.LENGTH_LONG).show();
+        }
     }
 }
