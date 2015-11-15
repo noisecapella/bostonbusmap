@@ -194,10 +194,12 @@ public class DatabaseAgent implements IDatabaseAgent {
                         int listorder = cursor.getInt(4);
                         int transitSourceId = cursor.getInt(5);
 
+                        Schema.Routes.SourceId sourceId = Schema.Routes.SourceId.fromValue(transitSourceId);
+
                         Box pathsBlobBox = new Box(pathsBlob, DatabaseContentProvider.CURRENT_DB_VERSION);
 
                         routeConfigBuilder = new RouteConfig.Builder(routeToUpdate, routeTitle,
-                                color, oppositeColor, source, listorder, transitSourceId, pathsBlobBox);
+                                color, oppositeColor, source, listorder, sourceId, pathsBlobBox);
                     }
                     if (!cursor.isNull(6)) {
                         int weekdays = cursor.getInt(6);

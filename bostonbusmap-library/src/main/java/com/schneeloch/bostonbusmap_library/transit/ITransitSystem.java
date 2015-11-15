@@ -53,4 +53,11 @@ public interface ITransitSystem {
     public void startObtainAlerts(IDatabaseAgent databaseAgent, Runnable runnable);
 
     TransitSource getTransitSourceByRouteType(Schema.Routes.SourceId routeType);
+
+    /**
+     * Do we know anything about vehicles for a particular transit source type
+     * @param transitSourceType
+     * @return
+     */
+    boolean hasVehicles(Schema.Routes.SourceId transitSourceType);
 }

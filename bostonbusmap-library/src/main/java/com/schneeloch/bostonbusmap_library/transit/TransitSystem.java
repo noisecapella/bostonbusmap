@@ -12,6 +12,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.FutureTask;
 
 import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.Source;
 
 import org.xml.sax.SAXException;
 
@@ -353,5 +354,13 @@ public class TransitSystem implements ITransitSystem {
 
     public static String getFeedbackUrl() {
         return feedbackUrl;
+    }
+
+    @Override
+    public boolean hasVehicles(Schema.Routes.SourceId transitSourceType) {
+        if (transitSourceType == Schema.Routes.SourceId.Hubway) {
+            return false;
+        }
+        return true;
     }
 }

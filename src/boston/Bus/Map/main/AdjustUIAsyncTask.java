@@ -7,9 +7,9 @@ public class AdjustUIAsyncTask extends UpdateAsyncTask
 {
 	public AdjustUIAsyncTask(UpdateArguments arguments,
 			boolean doShowUnpredictable, int maxOverlays,
-			Selection selection, UpdateHandler handler, Integer toSelect) {
+			Selection selection, UpdateHandler handler, Runnable afterUpdate, Integer toSelect) {
 		super(arguments, doShowUnpredictable, maxOverlays,
-				selection, handler, toSelect);
+				selection, handler, afterUpdate, toSelect);
 	}
 
 	@Override

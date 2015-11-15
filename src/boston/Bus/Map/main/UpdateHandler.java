@@ -12,6 +12,8 @@ import com.schneeloch.bostonbusmap_library.util.LogUtil;
 import android.os.Handler;
 import android.os.Message;
 
+import java.util.concurrent.ConcurrentLinkedQueue;
+
 public class UpdateHandler extends Handler {
 	/**
 	 * An update which refreshes from the internet
@@ -40,6 +42,8 @@ public class UpdateHandler extends Handler {
 	
 	private final UpdateArguments guiArguments;
     private boolean showTraffic = false;
+
+    private final ConcurrentLinkedQueue<Runnable> afterRefresh = new ConcurrentLinkedQueue<>();
 	
 	public UpdateHandler(UpdateArguments guiArguments)
 	{
@@ -103,7 +107,7 @@ public class UpdateHandler extends Handler {
         Selection selection = guiArguments.getBusLocations().getSelection();
         minorUpdate = new AdjustUIAsyncTask(guiArguments, getShowUnpredictable(),
                 maxOverlays,
-                selection, this, toSelect);
+                selection, this, null, toSelect);
 
 
         minorUpdate.runUpdate();
@@ -152,7 +156,15 @@ public class UpdateHandler extends Handler {
 		
 		Selection selection = guiArguments.getBusLocations().getSelection();
 		final RefreshAsyncTask updateAsyncTask = new RefreshAsyncTask(guiArguments, getShowUnpredictable(), maxOverlays,
-				selection, this);
+				selection, this, new Runnable() {
+            @Override
+            public void run() {
+                Runnable runnable = afterRefresh.poll();
+                if (runnable != null) {
+                    runnable.run();
+                }
+            }
+        });
 		guiArguments.setMajorHandler(updateAsyncTask);
 
         LogUtil.i("major update");
@@ -167,6 +179,11 @@ public class UpdateHandler extends Handler {
         removeMessages(MINOR);
         sendEmptyMessageDelayed(MINOR, millis);
     }
+
+    public void triggerRefreshThen(Runnable runnable) {
+        afterRefresh.add(runnable);
+    }
+
 
     public boolean instantRefresh() {
 		//removeAllMessages();
@@ -261,4 +278,5 @@ public class UpdateHandler extends Handler {
 			minorUpdate.nullifyProgress();
 		}
 	}
+
 }
