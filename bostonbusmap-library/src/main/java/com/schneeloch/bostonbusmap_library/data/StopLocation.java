@@ -269,38 +269,6 @@ public class StopLocation implements Location
 		}
 	}
 
-	/**
-	 * Only list stops once if they share the same location
-	 * @param stops
-	 * @return
-	 */
-	public static ImmutableList<StopLocation> consolidateStops(ImmutableList<StopLocation> stops) {
-		if (stops.size() < 2)
-		{
-			return stops;
-		}
-
-        ImmutableList.Builder<Location> locationBuilder = ImmutableList.builder();
-        locationBuilder.addAll(stops);
-		
-        ImmutableList<ImmutableList<Location>> groups = Locations.groupLocations(locationBuilder.build(), 1);
-
-        if (groups.size() == 0) {
-            return ImmutableList.of();
-        }
-
-        ImmutableList<Location> group = groups.get(0);
-        ImmutableList.Builder<StopLocation> builder = ImmutableList.builder();
-
-        for (Location location : group) {
-            if (location instanceof StopLocation) {
-                builder.add((StopLocation)location);
-            }
-        }
-
-        return builder.build();
-	}
-	
 	@Override
 	public String toString() {
 		return MoreObjects.toStringHelper(this).add("id", tag).toString();

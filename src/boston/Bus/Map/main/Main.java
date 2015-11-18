@@ -36,6 +36,7 @@ import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
 import com.schneeloch.bostonbusmap_library.data.GroupKey;
 import com.schneeloch.bostonbusmap_library.data.ITransitDrawables;
+import com.schneeloch.bostonbusmap_library.data.Location;
 import com.schneeloch.bostonbusmap_library.data.Locations;
 
 import com.schneeloch.bostonbusmap_library.data.IntersectionLocation;
@@ -660,35 +661,48 @@ public class Main extends AbstractMapActivity
 		if (arguments != null)
 		{
 			ImmutableList<StopLocation> favoriteStops = arguments.getBusLocations().getCurrentFavorites();
+            ImmutableList.Builder<Location> locationBuilder = ImmutableList.builder();
+            locationBuilder.addAll(favoriteStops);
 			
-			final ImmutableList<StopLocation> stops = StopLocation.consolidateStops(favoriteStops);
+			final ImmutableList<ImmutableList<Location>> groups = Locations.groupLocations(locationBuilder.build(), favoriteStops.size());
 
-			String[] titles = new String[stops.size()];
-			for (int i = 0; i < stops.size(); i++)
+			String[] titles = new String[groups.size()];
+			for (int i = 0; i < groups.size(); i++)
 			{
-				StopLocation stop = stops.get(i);
-				String routeTag = stop.getFirstRoute();
-				String routeTitle = arguments.getBusLocations().getRouteTitle(routeTag);
-				String title = stop.getTitle() + " (route " + routeTitle + ")";
-				titles[i] = title;
+				ImmutableList<Location> stops = groups.get(i);
+                int routeCount = 0;
+                for (Location location : stops) {
+                    StopLocation stop = (StopLocation)location;
+                    routeCount += stop.getRoutes().size();
+                }
+
+                StopLocation stop = (StopLocation)groups.get(i).get(0);
+                String routeTag = stop.getFirstRoute();
+                String routeTitle = arguments.getBusLocations().getRouteTitle(routeTag);
+                String title;
+                if (routeCount > 1) {
+                    title = stop.getTitle() + " (route " + routeTitle + ", ...)";
+                } else {
+                    title = stop.getTitle() + " (route " + routeTitle + ")";
+                }
+                titles[i] = title;
 			}
 			
 			AlertDialog.Builder builder = new AlertDialog.Builder(this);
 			builder.setTitle(getString(R.string.chooseStopInBuilder));
 			builder.setItems(titles, new DialogInterface.OnClickListener() {
 
-				@Override
-				public void onClick(DialogInterface dialog, int which) {
-					if (which >= 0 && which < stops.size())
-					{
-						StopLocation stop = stops.get(which);
-						
-						String route = stop.getFirstRoute();
-						setNewStop(route, stop.getStopTag());
-						setMode(Selection.Mode.BUS_PREDICTIONS_STAR, true, true);
-					}
-				}
-			});
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    if (which >= 0 && which < groups.size()) {
+                        StopLocation stop = (StopLocation)groups.get(which).get(0);
+
+                        String route = stop.getFirstRoute();
+                        setNewStop(route, stop.getStopTag());
+                        setMode(Selection.Mode.BUS_PREDICTIONS_STAR, true, true);
+                    }
+                }
+            });
 			AlertDialog stopChooserDialog = builder.create();
 			stopChooserDialog.show();
 		}
