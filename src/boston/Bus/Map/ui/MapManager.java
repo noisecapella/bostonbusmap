@@ -561,6 +561,13 @@ public class MapManager implements OnMapClickListener, OnMarkerClickListener,
                             }
                         });
                     }
+                    else {
+                        // shouldn't happen
+                        vehiclesButton.setVisibility(View.GONE);
+                    }
+                }
+                else {
+                    vehiclesButton.setVisibility(View.GONE);
                 }
 
                 if (newLocation instanceof IntersectionLocation) {
