@@ -696,7 +696,7 @@ public class DatabaseAgent implements IDatabaseAgent {
                     String parentFromCursor = stopCursor.getString(4);
 
                     Optional<String> parent;
-                    if (parentFromCursor.length() == 0) {
+                    if (parentFromCursor == null || parentFromCursor.length() == 0) {
                         parent = Optional.absent();
                     }
                     else if (parentStrings.containsKey(parentFromCursor)) {
