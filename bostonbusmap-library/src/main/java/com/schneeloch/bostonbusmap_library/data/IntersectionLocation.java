@@ -15,7 +15,7 @@ import com.schneeloch.bostonbusmap_library.math.Geometry;
 
 public class IntersectionLocation implements Location {
 	/**
-	 * Used for getId
+	 * Used for makeGroupKey
 	 */
 	private static final int LOCATIONTYPE = 5;
 	
@@ -79,8 +79,8 @@ public class IntersectionLocation implements Location {
 	}
 	
 	@Override
-	public int getId() {
-		return (name.hashCode() & 0xffffff) | LOCATIONTYPE << 24;
+	public GroupKey makeGroupKey() {
+		return new StationaryGroupKey(this);
 	}
 
 	@Override
@@ -130,11 +130,6 @@ public class IntersectionLocation implements Location {
 	public void addToSnippetAndTitle(RouteConfig routeConfig,
 			Location location, RouteTitles routeKeysToTitles, Locations locations) {
 		// do nothing
-	}
-
-	@Override
-	public boolean containsId(int selectedBusId) {
-		return getId() == selectedBusId;
 	}
 
 	@Override

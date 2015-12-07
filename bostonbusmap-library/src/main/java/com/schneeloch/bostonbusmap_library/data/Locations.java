@@ -32,7 +32,6 @@ import javax.xml.parsers.ParserConfigurationException;
 
 import org.xml.sax.SAXException;
 
-import com.google.common.collect.ImmutableCollection;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
@@ -148,7 +147,7 @@ public final class Locations
 
         Location lastLocation = null;
         for (Location location : locations) {
-            GroupKey groupKey = new GroupKey(location);
+            GroupKey groupKey = location.makeGroupKey();
             if (lastLocation == null) {
                 List<Location> builder = Lists.newArrayList();
                 builder.add(location);

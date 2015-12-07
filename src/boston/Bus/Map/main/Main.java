@@ -63,57 +63,35 @@ import boston.Bus.Map.util.SearchHelper;
 import com.schneeloch.bostonbusmap_library.util.Constants;
 
 
-import com.google.android.maps.GeoPoint;
-import com.google.android.maps.MapActivity;
-import com.google.android.maps.MapController;
-import com.google.android.maps.MapView;
 import com.google.common.collect.Lists;
 
-import android.app.Activity;
 import android.app.AlertDialog;
-import android.app.NotificationManager;
-import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.app.SearchManager;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.res.Resources;
-import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 
-import android.os.PersistableBundle;
-import android.os.SystemClock;
 import android.preference.PreferenceManager;
 import android.provider.SearchRecentSuggestions;
-import android.support.v4.app.NotificationCompat;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.util.Log;
-import android.view.KeyEvent;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.view.Window;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
-import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.ProgressBar;
-import android.widget.RelativeLayout;
 import android.widget.Spinner;
 import android.widget.SpinnerAdapter;
 import android.widget.Toast;
 import android.widget.AdapterView.OnItemSelectedListener;
 import com.google.android.gms.maps.SupportMapFragment;
-import com.schneeloch.bostonbusmap_library.util.LogUtil;
 
 /**
  * The main activity
@@ -966,7 +944,7 @@ public class Main extends AbstractMapActivity
                 arguments.getMapView().moveCamera(CameraUpdateFactory.newLatLng(latlng));
                 arguments.getMapView().moveCamera(CameraUpdateFactory.scrollBy(0, -100));
 
-				handler.triggerUpdateThenSelect(Optional.of(new GroupKey(newLocation)));
+				handler.triggerUpdateThenSelect(Optional.of(newLocation.makeGroupKey()));
 			}
 			
 		}
@@ -987,7 +965,7 @@ public class Main extends AbstractMapActivity
 			return;
 		}
 		
-		handler.triggerUpdateThenSelect(Optional.of(new GroupKey(stopLocation)));
+		handler.triggerUpdateThenSelect(Optional.of(stopLocation.makeGroupKey()));
 
 		if (route != null)
 		{
@@ -1014,7 +992,7 @@ public class Main extends AbstractMapActivity
             handler.triggerUpdateThen(new Runnable() {
                 @Override
                 public void run() {
-                    arguments.getOverlayGroup().setSelectedBusId(Optional.of(new GroupKey(location)));
+                    arguments.getOverlayGroup().setSelectedBusId(Optional.of(location.makeGroupKey()));
                     handler.triggerUpdateThen(new Runnable() {
                         @Override
                         public void run() {
