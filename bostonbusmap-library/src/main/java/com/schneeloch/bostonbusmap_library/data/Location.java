@@ -14,7 +14,7 @@ public interface Location {
 	 * Some unique value for the location
 	 * @return
 	 */
-	int getId();
+	GroupKey makeGroupKey();
 
     LocationType getLocationType();
 
@@ -48,13 +48,6 @@ public interface Location {
 	 */
 	void addToSnippetAndTitle(RouteConfig routeConfig, Location location, RouteTitles routeKeysToTitles, Locations locations);
 
-	/**
-	 * Does this location match the given id?
-	 * @param selectedBusId
-	 * @return
-	 */
-	boolean containsId(int selectedBusId);
-	
 	PredictionView getPredictionView();
 
 	boolean hasMoreInfo();

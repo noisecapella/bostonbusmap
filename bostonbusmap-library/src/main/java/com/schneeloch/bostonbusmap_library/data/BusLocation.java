@@ -194,8 +194,8 @@ public class BusLocation implements Location {
 	}
 
 	@Override
-	public int getId() {
-		return (busId.hashCode() & 0xffffff) | LOCATIONTYPE << 24;
+	public GroupKey makeGroupKey() {
+		return new VehicleLocations.Key(getTransitSourceType(), routeName, busId);
 	}
 
 	public String getBusNumber()
@@ -227,11 +227,6 @@ public class BusLocation implements Location {
 	 */
 	public String getRouteId() {
 		return routeName;
-	}
-
-	@Override
-	public boolean containsId(int selectedBusId) {
-		return selectedBusId == getId();
 	}
 
 	@Override

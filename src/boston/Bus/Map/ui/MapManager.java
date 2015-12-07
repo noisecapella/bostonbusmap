@@ -57,15 +57,12 @@ import com.schneeloch.bostonbusmap_library.data.StopLocation;
 import com.schneeloch.bostonbusmap_library.data.StopPredictionView;
 import com.schneeloch.bostonbusmap_library.data.TimeBounds;
 import com.schneeloch.bostonbusmap_library.data.TimePrediction;
-import com.schneeloch.bostonbusmap_library.math.Geometry;
 import com.schneeloch.bostonbusmap_library.transit.ITransitSystem;
 import com.schneeloch.bostonbusmap_library.transit.TransitSystem;
-import com.schneeloch.bostonbusmap_library.util.LogUtil;
 import com.schneeloch.bostonbusmap_library.util.MoreInfoConstants;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -973,7 +970,7 @@ public class MapManager implements OnMapClickListener, OnMarkerClickListener,
         groupIdsToRemove.addAll(groupIdToGroup.keySet());
         for (ImmutableList<Location> locationGroup : locationGroups) {
             Location firstLocation = locationGroup.get(0);
-            GroupKey groupKey = new GroupKey(firstLocation);
+            GroupKey groupKey = firstLocation.makeGroupKey();
             groupIdsToRemove.remove(groupKey);
 
             // this all assumes that the only thing that changes a marker is its heading

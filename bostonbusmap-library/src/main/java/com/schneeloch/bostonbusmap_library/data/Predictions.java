@@ -138,21 +138,6 @@ public class Predictions
 		}
 	}
 
-	public boolean containsId(int selectedBusId)
-	{
-		synchronized (modificationLock) {
-			for (StopLocation stop : allStops)
-			{
-				if (stop.getId() == selectedBusId)
-				{
-					return true;
-				}
-			}
-			
-		}
-		return false;
-	}
-
 	public PredictionView getPredictionView() {
 		synchronized (modificationLock) {
 			// in case predictionView is still being constructed
