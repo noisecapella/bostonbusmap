@@ -14,7 +14,7 @@ import com.schneeloch.bostonbusmap_library.database.Schema;
 import javax.xml.transform.Source;
 
 public class VehicleLocations {
-    public static class Key {
+    public static class Key implements GroupKey {
 		private final Schema.Routes.SourceId transitSourceId;
         private final String routeName;
 		private final String id;

@@ -32,7 +32,6 @@ import javax.xml.parsers.ParserConfigurationException;
 
 import org.xml.sax.SAXException;
 
-import com.google.common.collect.ImmutableCollection;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
@@ -46,7 +45,6 @@ import com.google.common.collect.Maps;
 import com.schneeloch.bostonbusmap_library.provider.IDatabaseAgent;
 import com.schneeloch.bostonbusmap_library.transit.ITransitSystem;
 import com.schneeloch.bostonbusmap_library.transit.TransitSource;
-import com.schneeloch.bostonbusmap_library.util.Constants;
 import com.schneeloch.bostonbusmap_library.util.FeedException;
 import com.schneeloch.bostonbusmap_library.util.LogUtil;
 
@@ -148,7 +146,7 @@ public final class Locations
 
         Location lastLocation = null;
         for (Location location : locations) {
-            GroupKey groupKey = new GroupKey(location);
+            GroupKey groupKey = location.makeGroupKey();
             if (lastLocation == null) {
                 List<Location> builder = Lists.newArrayList();
                 builder.add(location);

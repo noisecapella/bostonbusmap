@@ -125,8 +125,8 @@ public class StopLocation implements Location
 	}
 
 	@Override
-	public int getId() {
-		return (tag.hashCode() & 0xffffff) | LOCATIONTYPE << 24;
+	public GroupKey makeGroupKey() {
+		return new StationaryGroupKey(this);
 	}
 
 	@Override
@@ -253,22 +253,6 @@ public class StopLocation implements Location
 		return routes.getFirstRoute();
 	}
 	
-	@Override
-	public boolean containsId(int selectedBusId) {
-		if (getId() == selectedBusId)
-		{
-			return true;
-		}
-		else if (predictions != null)
-		{
-			return predictions.containsId(selectedBusId);
-		}
-		else
-		{
-			return false;
-		}
-	}
-
 	@Override
 	public String toString() {
 		return MoreObjects.toStringHelper(this).add("id", tag).toString();
