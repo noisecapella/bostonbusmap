@@ -262,7 +262,7 @@ public class DatabaseAgent implements IDatabaseAgent {
                             String parentFromCursor = cursor.getString(4);
 
                             Optional<String> parent;
-                            if (parentFromCursor.length() == 0) {
+                            if (StringUtil.isEmpty(parentFromCursor)) {
                                 parent = Optional.absent();
                             }
                             else if (parentStrings.containsKey(parentFromCursor)) {
