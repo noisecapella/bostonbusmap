@@ -146,7 +146,8 @@ public class DatabaseContentProvider extends ContentProvider {
 	public final static int NEW_3 = 73;
 	public final static int NEW_4 = 74;
     public final static int NEW_5 = 75;
-	public final static int CURRENT_DB_VERSION = NEW_5;
+	public final static int NEW_6 = 76;
+	public final static int CURRENT_DB_VERSION = NEW_6;
 
 	public static final int ALWAYS_POPULATE = 3;
 	public static final int POPULATE_IF_UPGRADE = 2;
