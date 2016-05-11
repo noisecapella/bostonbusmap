@@ -50,6 +50,7 @@ import android.app.ProgressDialog;
 import android.content.OperationApplicationException;
 
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.RemoteException;
 import android.util.Log;
 import android.view.View;
@@ -107,7 +108,13 @@ public abstract class UpdateAsyncTask extends AsyncTask<Object, Object, Immutabl
 	 */
 	public void runUpdate()
 	{
-        execute();
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+            // allow tasks to be run in parallel. This will allow the task which updates information
+            // to avoid blocking the task which updates positions on the map
+            executeOnExecutor(UpdateAsyncTask.THREAD_POOL_EXECUTOR);
+        } else {
+            execute();
+        }
 	}
 
 	@Override
