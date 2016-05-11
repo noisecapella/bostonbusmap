@@ -151,7 +151,7 @@
                         android:layout_height="wrap_content"
                         android:layout_alignParentRight="true"
                         android:layout_below="@+id/mapViewTutorialText"
-                        android:text="Next"/>
+                        android:text="@string/next"/>
 
                     <Button
                         android:id="@+id/mapViewTutorialSkipButton"
@@ -159,7 +159,7 @@
                         android:layout_height="wrap_content"
                         android:layout_alignParentLeft="true"
                         android:layout_below="@+id/mapViewTutorialText"
-                        android:text="Skip"
+                        android:text="@string/skip"
                         />
                 </RelativeLayout>
 
