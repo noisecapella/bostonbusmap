@@ -70,6 +70,7 @@ import com.schneeloch.bostonbusmap_library.util.Constants;
 import com.google.common.collect.Lists;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.app.SearchManager;
@@ -492,6 +493,7 @@ public class Main extends AbstractMapActivity {
         });
 	}
 
+    @SuppressLint("MissingPermission")
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         boolean requestedCoarse = false;
