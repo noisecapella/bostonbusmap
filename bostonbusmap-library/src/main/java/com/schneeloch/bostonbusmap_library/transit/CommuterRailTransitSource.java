@@ -33,6 +33,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.List;
+import java.util.Locale;
 import java.util.concurrent.ConcurrentHashMap;
 
 import javax.xml.parsers.ParserConfigurationException;
@@ -289,7 +290,7 @@ public class CommuterRailTransitSource implements TransitSource {
 				String[] pieces = title.split("/");
 				for (int i = 0; i < pieces.length; i++)
 				{
-					if (lowercaseQuery.equals(pieces[i].toLowerCase()))
+					if (lowercaseQuery.equals(pieces[i].toLowerCase(Locale.US)))
 					{
 						return route;
 					}
