@@ -79,4 +79,6 @@ Are any enabled (like GPS) in your system settings?</string>
 <string name="tutorialStep9">Please send me an email if you have any questions! bostonbusmap@gmail.com</string>
     <string name="no_maps">Unable to find Google Maps</string>
     <string name="favoriteButton">Favorite button</string>
+    <string name="next">Next</string>
+    <string name="skip">Skip</string>
 </resources>
