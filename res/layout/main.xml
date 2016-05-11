@@ -118,8 +118,7 @@
                 android:layout_height="fill_parent"
                 android:layout_alignParentBottom="true"
                 android:layout_below="@id/linearLayoutMain"
-
-                tools:layout="@layout/abc_screen_simple"/>
+                />
 
             <RelativeLayout
                 android:id="@+id/mapViewTutorial"
@@ -142,8 +141,7 @@
                         android:id="@+id/mapViewTutorialText"
                         android:layout_width="fill_parent"
                         android:layout_height="wrap_content"
-                        android:text="Hello, world!"
-                        android:textSize="20dp"
+                        android:textSize="20sp"
                         android:textColor="@android:color/black"
                         />
 
