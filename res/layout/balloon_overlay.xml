@@ -12,7 +12,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentRight="true"
-        android:contentDescription="Mark stop as favorite"></ImageView>
+        android:contentDescription="@string/mark_stop_as_favorite"></ImageView>
 
     <TextView android:layout_height="wrap_content"
               android:layout_width="wrap_content" android:id="@+id/balloon_item_title"
