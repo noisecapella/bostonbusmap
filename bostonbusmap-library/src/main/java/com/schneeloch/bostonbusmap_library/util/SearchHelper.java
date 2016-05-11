@@ -2,6 +2,8 @@ package com.schneeloch.bostonbusmap_library.util;
 
 import com.schneeloch.bostonbusmap_library.data.TransitSourceTitles;
 
+import java.util.Locale;
+
 /**
  * Created by schneg on 1/11/15.
  */
@@ -19,7 +21,7 @@ public class SearchHelper {
             //try the titles
             for (String route : routeKeysToTitles.routeTags()) {
                 String title = routeKeysToTitles.getTitle(route);
-                String titleWithoutSpaces = title.toLowerCase().replaceAll(" ", "");
+                String titleWithoutSpaces = title.toLowerCase(Locale.US).replaceAll(" ", "");
                 if (titleWithoutSpaces.equals(lowercaseQuery)) {
                     return route;
                 }
