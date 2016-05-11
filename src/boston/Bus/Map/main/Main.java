@@ -43,6 +43,7 @@ import com.schneeloch.bostonbusmap_library.data.IntersectionLocation;
 import com.schneeloch.bostonbusmap_library.data.RouteTitles;
 import com.schneeloch.bostonbusmap_library.data.Selection;
 import com.schneeloch.bostonbusmap_library.data.StopLocation;
+
 import boston.Bus.Map.data.TransitDrawables;
 import boston.Bus.Map.data.UpdateArguments;
 import boston.Bus.Map.provider.DatabaseAgent;
@@ -50,9 +51,12 @@ import boston.Bus.Map.provider.DatabaseAgent;
 import com.schneeloch.bostonbusmap_library.data.VehicleLocations;
 import com.schneeloch.bostonbusmap_library.database.Schema;
 import com.schneeloch.bostonbusmap_library.provider.IDatabaseAgent;
+
 import boston.Bus.Map.provider.TransitContentProvider;
+
 import com.schneeloch.bostonbusmap_library.transit.ITransitSystem;
 import com.schneeloch.bostonbusmap_library.transit.TransitSystem;
+
 import boston.Bus.Map.tutorials.IntroTutorial;
 import boston.Bus.Map.tutorials.Tutorial;
 
@@ -65,16 +69,20 @@ import com.schneeloch.bostonbusmap_library.util.Constants;
 
 import com.google.common.collect.Lists;
 
+import android.Manifest;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.app.SearchManager;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 
 import android.preference.PreferenceManager;
 import android.provider.SearchRecentSuggestions;
+import android.support.annotation.NonNull;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.util.Log;
@@ -91,54 +99,54 @@ import android.widget.Spinner;
 import android.widget.SpinnerAdapter;
 import android.widget.Toast;
 import android.widget.AdapterView.OnItemSelectedListener;
+
 import com.google.android.gms.maps.SupportMapFragment;
 
 /**
  * The main activity
  *
  */
-public class Main extends AbstractMapActivity
-{
-	private static final String selectedRouteIndexKey = "selectedRouteIndex";
-	private static final String selectedBusPredictionsKey = "selectedBusPredictions";
-	private static final String centerLatKey = "centerLat";
-	private static final String centerLonKey = "centerLon";
-	private static final String zoomLevelKey = "zoomLevel";
-	private static final String selectedIntersectionKey = "selectedIntersection";
-	//private static final String gpsAlwaysOn = "gpsAlwaysOn";
-	private static final String markUpdatedStops = "markUpdatedStops";
-	
-	private static final String introScreenKey = "introScreen";
-	
-	public static final String tutorialStepKey = "tutorialStep";
-	
-	private EditText searchView;
-	
-	/**
-	 * Used to make updateBuses run every 10 seconds or so
-	 */
-	private UpdateHandler handler;
-	
-	/**
-	 * This is used to indicate to the mode spinner to ignore the first time we set it, so we don't update every time the screen changes
-	 */
-	private boolean firstRunMode;
-	
-	/**
-	 * Is location overlay supposed to be enabled? Used mostly for onResume()
-	 */
-	private boolean locationEnabled; 
-	
-	private Spinner toggleButton;
-	
-	private Button chooseAPlaceButton;
-	private Button chooseAFavoriteButton;
-	
-	/**
-	 * The list of routes that's selectable in the routes dropdown list
-	 */
-	private RouteTitles dropdownRouteKeysToTitles;
-	private AlertDialog routeChooserDialog;
+public class Main extends AbstractMapActivity {
+    private static final String selectedRouteIndexKey = "selectedRouteIndex";
+    private static final String selectedBusPredictionsKey = "selectedBusPredictions";
+    private static final String centerLatKey = "centerLat";
+    private static final String centerLonKey = "centerLon";
+    private static final String zoomLevelKey = "zoomLevel";
+    private static final String selectedIntersectionKey = "selectedIntersection";
+    //private static final String gpsAlwaysOn = "gpsAlwaysOn";
+    private static final String markUpdatedStops = "markUpdatedStops";
+
+    private static final String introScreenKey = "introScreen";
+
+    public static final String tutorialStepKey = "tutorialStep";
+
+    private EditText searchView;
+
+    /**
+     * Used to make updateBuses run every 10 seconds or so
+     */
+    private UpdateHandler handler;
+
+    /**
+     * This is used to indicate to the mode spinner to ignore the first time we set it, so we don't update every time the screen changes
+     */
+    private boolean firstRunMode;
+
+    /**
+     * Is location overlay supposed to be enabled? Used mostly for onResume()
+     */
+    private boolean locationEnabled;
+
+    private Spinner toggleButton;
+
+    private Button chooseAPlaceButton;
+    private Button chooseAFavoriteButton;
+
+    /**
+     * The list of routes that's selectable in the routes dropdown list
+     */
+    private RouteTitles dropdownRouteKeysToTitles;
+    private AlertDialog routeChooserDialog;
 
     private ListView drawerList;
     private DrawerLayout drawerLayout;
@@ -147,14 +155,14 @@ public class Main extends AbstractMapActivity
 
 
     public static final int UPDATE_INTERVAL_INVALID = 9999;
-	public static final int UPDATE_INTERVAL_SHORT = 15;
-	public static final int UPDATE_INTERVAL_MEDIUM = 50;
-	public static final int UPDATE_INTERVAL_LONG = 100;
-	public static final int UPDATE_INTERVAL_NONE = 0;
-	
-	public static final String ROUTE_KEY = "route";
-	public static final String STOP_KEY = "stop";
-	public static final String MODE_KEY = "mode";
+    public static final int UPDATE_INTERVAL_SHORT = 15;
+    public static final int UPDATE_INTERVAL_MEDIUM = 50;
+    public static final int UPDATE_INTERVAL_LONG = 100;
+    public static final int UPDATE_INTERVAL_NONE = 0;
+
+    public static final String ROUTE_KEY = "route";
+    public static final String STOP_KEY = "stop";
+    public static final String MODE_KEY = "mode";
 
     private final static int DRAWER_INTERSECTIONS_MENU_ITEM_POS = 0;
     private final static int DRAWER_CHOOSE_STOP_POS = 1;
@@ -162,6 +170,7 @@ public class Main extends AbstractMapActivity
     private final static int DRAWER_ROUTES_POS = 3;
     private final static int DRAWER_SETTINGS_POS = 4;
     private static final String[] drawerOptions = new String[5];
+
     static {
         drawerOptions[DRAWER_INTERSECTIONS_MENU_ITEM_POS] = "Places";
         drawerOptions[DRAWER_CHOOSE_STOP_POS] = "Favorite Stops";
@@ -176,11 +185,11 @@ public class Main extends AbstractMapActivity
         setContentView(R.layout.main);
 
         firstRunMode = true;
-        
+
         TransitSystem.setDefaultTimeFormat(this);
-        
+
         //get widgets
-        SupportMapFragment fragment = (SupportMapFragment)getSupportFragmentManager().findFragmentById(R.id.map);
+        SupportMapFragment fragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
         fragment.setRetainInstance(true);
         fragment.getMapAsync(new OnMapReadyCallback() {
             @Override
@@ -199,7 +208,7 @@ public class Main extends AbstractMapActivity
                 Button routesButton = (Button) findViewById(R.id.routes_button);
                 routesButton.setVisibility(View.GONE);
 
-                Button vehiclesButton = (Button)findViewById(R.id.vehicles_button);
+                Button vehiclesButton = (Button) findViewById(R.id.vehicles_button);
                 vehiclesButton.setVisibility(View.GONE);
 
                 // TODO: find a better place for this
@@ -376,7 +385,15 @@ public class Main extends AbstractMapActivity
                 }
 
                 if (locationEnabled) {
-                    map.setMyLocationEnabled(true);
+                    if (ActivityCompat.checkSelfPermission(Main.this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
+                        ActivityCompat.checkSelfPermission(Main.this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                        ActivityCompat.requestPermissions(Main.this, new String[]{
+                            Manifest.permission.ACCESS_FINE_LOCATION,
+                            Manifest.permission.ACCESS_COARSE_LOCATION
+                        }, 0);
+                    } else {
+                        map.setMyLocationEnabled(true);
+                    }
                 }
 
                 if (busLocations == null) {
@@ -474,8 +491,38 @@ public class Main extends AbstractMapActivity
             }
         });
 	}
-		
-	/**
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        boolean requestedCoarse = false;
+        boolean requestedFine = false;
+        if (arguments == null || arguments.getMapView() == null) {
+            return;
+        }
+        GoogleMap map = arguments.getMapView();
+
+        for (int i = 0; i < permissions.length; i++) {
+            String permission = permissions[i];
+            int result = grantResults[i];
+            if (permission.equals(Manifest.permission.ACCESS_COARSE_LOCATION) && result == PackageManager.PERMISSION_GRANTED) {
+                requestedCoarse = true;
+            }
+            if (permission.equals(Manifest.permission.ACCESS_FINE_LOCATION) && result == PackageManager.PERMISSION_GRANTED) {
+                requestedFine = true;
+            }
+        }
+
+        if (requestedCoarse && requestedFine) {
+            try {
+                map.setMyLocationEnabled(true);
+            } catch (SecurityException e) {
+                // pass, should not happen
+            }
+        }
+
+    }
+
+    /**
 	 * Updates search text depending on current mode
 	 */
 	private void updateSearchText(Selection selection) {
