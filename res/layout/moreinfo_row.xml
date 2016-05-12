@@ -12,8 +12,10 @@
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:bufferType="spannable"
-        android:textSize="12dip"
-        android:text="text" >
+        android:textSize="12sp"
+        android:paddingTop="6dp"
+        android:paddingBottom="6dp"
+        >
     </TextView>
 
 </LinearLayout>

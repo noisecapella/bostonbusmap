@@ -2,6 +2,7 @@ package com.schneeloch.bostonbusmap_library.data;
 
 import java.text.DateFormat;
 import java.util.Date;
+import java.util.Locale;
 
 
 import android.os.Parcel;
@@ -51,7 +52,7 @@ public class CommuterRailPrediction extends TimePrediction implements Parcelable
 			}
 			else
 			{
-				informationType = informationType.toLowerCase();
+				informationType = informationType.toLowerCase(Locale.US);
 				for (Flag flag : Flag.values()) {
 					if (flag.name.equals(informationType)) {
 						return flag;

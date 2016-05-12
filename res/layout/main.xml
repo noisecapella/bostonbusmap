@@ -30,6 +30,7 @@
                     android:layout_height="wrap_content"
                     android:layout_alignParentLeft="true"
                     android:background="@drawable/appicon"
+                    android:contentDescription="@string/open_drawer"
                     />
 
 
@@ -48,7 +49,7 @@
                     android:layout_height="wrap_content"
                     android:layout_toLeftOf="@+id/predictionsOrLocations"
                     android:background="@android:drawable/btn_default"
-                    android:text="..."
+                    android:text="@string/ellipsis"
 
                     />
 
@@ -58,7 +59,7 @@
                     android:layout_height="wrap_content"
                     android:layout_toLeftOf="@+id/chooseAPlaceButton"
                     android:background="@android:drawable/btn_default"
-                    android:text="..."
+                    android:text="@string/ellipsis"
                     />
 
 
@@ -118,8 +119,7 @@
                 android:layout_height="fill_parent"
                 android:layout_alignParentBottom="true"
                 android:layout_below="@id/linearLayoutMain"
-
-                tools:layout="@layout/abc_screen_simple"/>
+                />
 
             <RelativeLayout
                 android:id="@+id/mapViewTutorial"
@@ -142,8 +142,7 @@
                         android:id="@+id/mapViewTutorialText"
                         android:layout_width="fill_parent"
                         android:layout_height="wrap_content"
-                        android:text="Hello, world!"
-                        android:textSize="20dp"
+                        android:textSize="20sp"
                         android:textColor="@android:color/black"
                         />
 
@@ -153,7 +152,7 @@
                         android:layout_height="wrap_content"
                         android:layout_alignParentRight="true"
                         android:layout_below="@+id/mapViewTutorialText"
-                        android:text="Next"/>
+                        android:text="@string/next"/>
 
                     <Button
                         android:id="@+id/mapViewTutorialSkipButton"
@@ -161,7 +160,7 @@
                         android:layout_height="wrap_content"
                         android:layout_alignParentLeft="true"
                         android:layout_below="@+id/mapViewTutorialText"
-                        android:text="Skip"
+                        android:text="@string/skip"
                         />
                 </RelativeLayout>
 
@@ -189,29 +188,28 @@
                         android:id="@+id/alerts_button"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="\u26a0 Alerts"
                         android:textColor="#ff0000"
                         />
                     <Button android:id="@+id/routes_button"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="Routes for stop"
+                            android:text="@string/routes_for_stop"
                         />
                     <Button android:id="@+id/vehicles_button"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="Vehicles"
+                            android:text="@string/vehicles"
                         />
 
                     <Button android:id="@+id/edit_button"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="Edit name"
+                            android:text="@string/edit_name"
                         />
                     <Button android:id="@+id/delete_button"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="Delete"
+                            android:text="@string/delete"
                         />
 
 
@@ -223,7 +221,9 @@
                     android:layout_height="wrap_content"
                     android:layout_alignParentLeft="true"
                     android:layout_below="@+id/top_button_layer"
-                    android:src="@android:drawable/ic_menu_rotate"/>
+                    android:src="@android:drawable/ic_menu_rotate"
+                    android:contentDescription="@string/refresh"
+                    />
 
                 <Button
                     android:id="@+id/report_problem_button"
@@ -240,7 +240,7 @@
                     android:layout_height="wrap_content"
                     android:layout_toRightOf="@+id/report_problem_button"
                     android:layout_below="@+id/top_button_layer"
-                    android:text="More info"
+                    android:text="@string/more_info"
                     />
 
 
