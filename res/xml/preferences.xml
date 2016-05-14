@@ -11,7 +11,7 @@
 <!--<Preference android:summary="Shows basic usage instructions" android:title="Instructions" android:key="instructions" />-->
 <Preference android:title="Google Maps License Info" android:key="showMapsLegal"></Preference>
     <Preference android:title="Email logs to developer" android:key="emailLogs"></Preference>
-    <Preference android:title="About BostonBusMap" android:key="about"></Preference>
+    <Preference android:title="About Los Angelbus" android:key="about"></Preference>
 
 
 
