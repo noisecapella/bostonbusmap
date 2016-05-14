@@ -3,11 +3,18 @@
               android:orientation="vertical"
               android:layout_width="match_parent"
               android:layout_height="match_parent">
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Legal information"
+              android:id="@+id/legal_title"
+              />
 
     <TextView
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
         android:text=""
         android:scrollbars="vertical"
+        android:layout_below="@+id/legal_title"
         android:id="@+id/legal_text_view"/>
 </RelativeLayout>
