@@ -177,11 +177,11 @@ public class DatabaseContentProvider extends ContentProvider {
 		
 		@Override
 		public SQLiteDatabase getWritableDatabase() {
-			SQLiteDatabase db = null;
+			SQLiteDatabase db;
 			
 			SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
 			int version = preferences.getInt(DATABASE_VERSION_KEY, -1);
-			if (version < CURRENT_DB_VERSION) {
+			if (version != CURRENT_DB_VERSION) {
 				try {
 					copyDatabase();
 					preferences.edit().putInt(DATABASE_VERSION_KEY, CURRENT_DB_VERSION).commit();
@@ -255,7 +255,11 @@ public class DatabaseContentProvider extends ContentProvider {
 		@Override
 		public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
 		}
-	}
+
+        @Override
+        public void onDowngrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+        }
+    }
 
 
 	private DatabaseHelper helper;
