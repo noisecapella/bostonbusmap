@@ -34,6 +34,10 @@ import android.preference.PreferenceScreen;
 import android.provider.SearchRecentSuggestions;
 import android.widget.Toast;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+
 public class Preferences extends PreferenceActivity 
 {
 
@@ -91,6 +95,31 @@ public class Preferences extends PreferenceActivity
             else if ("showMapsLegal".equals(preferenceKey)) {
                 Intent legalIntent = new Intent(this, MapsLegal.class);
                 startActivity(legalIntent);
+            }
+            else if ("emailLogs".equals(preferenceKey)) {
+                try {
+                    Process process = Runtime.getRuntime().exec("logcat -d");
+                    BufferedReader bufferedReader = new BufferedReader(
+                            new InputStreamReader(process.getInputStream()));
+
+                    StringBuilder log = new StringBuilder();
+                    String line;
+                    while ((line = bufferedReader.readLine()) != null) {
+                        log.append(line);
+                        log.append("\n");
+                    }
+                    Intent intent = new Intent(android.content.Intent.ACTION_SEND);
+                    intent.setType("plain/text");
+
+                    intent.putExtra(android.content.Intent.EXTRA_EMAIL, TransitSystem.getEmails());
+                    intent.putExtra(android.content.Intent.EXTRA_SUBJECT, "BostonBusMap LogCat Email");
+
+                    intent.putExtra(android.content.Intent.EXTRA_TEXT, log.toString());
+                    startActivity(Intent.createChooser(intent, "Send logs as email..."));
+                }
+                catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
             }
 		}
 		
