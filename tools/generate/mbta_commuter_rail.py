@@ -26,7 +26,9 @@ class MbtaCommuterRail:
             "CR-Fitchburg": 9,
             "CR-Lowell": 10,
             "CR-Haverhill": 11,
-            "CR-Newburyport": 12}
+            "CR-Newburyport": 12,
+            "CapeFlyer": 13
+        }
 
         stops_inserted = set()
 
