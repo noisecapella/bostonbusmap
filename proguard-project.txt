@@ -70,3 +70,5 @@
 -dontwarn com.google.gdata.**, com.google.common.**
 -dontwarn com.actionbarsherlock.internal.**
 -keep class com.actionbarsherlock.** {*;}
+
+-dontwarn **
