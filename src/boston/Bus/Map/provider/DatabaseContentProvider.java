@@ -130,7 +130,8 @@ public class DatabaseContentProvider extends ContentProvider {
     public final static int NEW_DB_11 = 50;
 	public final static int NEW_DB_12 = 51;
     public final static int NEW_DB_14 = 53;
-	public final static int CURRENT_DB_VERSION = NEW_DB_14;
+	public final static int NEW_DB_15 = 54;
+	public final static int CURRENT_DB_VERSION = NEW_DB_15;
 
 	public static final int ALWAYS_POPULATE = 3;
 	public static final int POPULATE_IF_UPGRADE = 2;
