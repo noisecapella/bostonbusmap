@@ -2,17 +2,17 @@ import schema
 import sqlite3
 import xml.dom.minidom
 import requests
+import json
 
 default_color = 0x6bc533
 
 class Hubway:
     def generate(self, conn, start_index):
-        url = "http://www.thehubway.com/data/stations/bikeStations.xml"
+        info_url = "https://gbfs.thehubway.com/gbfs/en/station_information.json"
 
         obj = schema.getSchemaAsObject()
 
-        data = requests.get(url).text
-        root = xml.dom.minidom.parseString(data)
+        info_data = json.loads(requests.get(info_url).text)
 
         cur = conn.cursor()
         
@@ -25,13 +25,13 @@ class Hubway:
         obj.routes.pathblob.value = schema.Box([]).get_blob_string()
         cur.execute(obj.routes.insert())
 
-        for station_node in root.getElementsByTagName("station"):
-            stop_tag = "hubway_" + str(station_node.getElementsByTagName("id")[0].firstChild.nodeValue)
+        for info in info_data['data']['stations']:
+            stop_tag = "hubway_" + str(info['station_id'])
 
             obj.stops.tag.value = stop_tag
-            obj.stops.title.value = str(station_node.getElementsByTagName("name")[0].firstChild.nodeValue)
-            obj.stops.lat.value = float(station_node.getElementsByTagName("lat")[0].firstChild.nodeValue)
-            obj.stops.lon.value = float(station_node.getElementsByTagName("long")[0].firstChild.nodeValue)
+            obj.stops.title.value = info['name']
+            obj.stops.lat.value = info['lat']
+            obj.stops.lon.value = info['lon']
             obj.stops.parent.value = ""
             cur.execute(obj.stops.insert())
 
