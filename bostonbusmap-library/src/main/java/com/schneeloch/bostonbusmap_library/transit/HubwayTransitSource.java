@@ -37,7 +37,8 @@ import com.schneeloch.bostonbusmap_library.util.SearchHelper;
 public class HubwayTransitSource implements TransitSource {
 	public static final String stopTagPrefix = "hubway_";
 	private static final String routeTag = "Hubway";
-	private static final String dataUrl = "http://www.thehubway.com/data/stations/bikeStations.xml";
+	private static final String infoUrl = "https://gbfs.thehubway.com/gbfs/en/station_information.json";
+	private static final String statusUrl = "https://gbfs.thehubway.com/gbfs/en/station_status.json";
 
 	private final ITransitDrawables drawables;
 	private final TransitSourceTitles routeTitles;
@@ -79,12 +80,14 @@ public class HubwayTransitSource implements TransitSource {
 
 
                 RouteConfig hubwayRouteConfig = routePool.get(routeTag);
-                DownloadHelper downloadHelper = new DownloadHelper(dataUrl);
+                DownloadHelper infoHelper = new DownloadHelper(infoUrl);
+				DownloadHelper statusHelper = new DownloadHelper(statusUrl);
                 try {
-                    InputStream stream = downloadHelper.getResponseData();
+                    InputStream infoStream = infoHelper.getResponseData();
+					InputStream statusStream = statusHelper.getResponseData();
 
                     HubwayParser parser = new HubwayParser(hubwayRouteConfig);
-                    parser.runParse(stream);
+                    parser.runParse(infoStream, statusStream);
                     parser.addMissingStops(locationsObj);
                     List<PredictionStopLocationPair> pairs = parser.getPairs();
 
@@ -96,7 +99,7 @@ public class HubwayTransitSource implements TransitSource {
                     cache.updateAllPredictions();
                 }
                 finally {
-                    downloadHelper.disconnect();
+                    infoHelper.disconnect();
                 }
 
                 break;
