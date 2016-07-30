@@ -109,7 +109,8 @@ public class MbtaRealtimeTransitSource implements TransitSource {
 				"CR-Fitchburg",
 				"CR-Lowell",
 				"CR-Haverhill",
-				"CR-Newburyport"
+				"CR-Newburyport",
+				"CapeFlyer",
 		};
 
 		routeToTransitSourceIdBuilder.put(greenRoute, Schema.Routes.SourceId.Subway);
