@@ -245,7 +245,7 @@ public class MbtaRealtimeTransitSource implements TransitSource {
             stop = new CommuterRailStopLocation.CommuterRailBuilder(latitude, longitude, stopTag, stopTitle, parent).build();
         }
         else {
-            throw new RuntimeException("Unexpected transit source");
+            throw new RuntimeException("Unexpected transit source: " + transitSourceId + ", stop " + stopTag + ", title " + stopTitle + ", route " + route);
         }
 		stop.addRoute(route);
 		return stop;
