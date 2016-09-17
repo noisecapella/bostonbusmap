@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
       package="com.schneeloch.latransit"
-      android:installLocation="auto" android:versionCode="130" android:versionName="5.3.16">
+      android:installLocation="auto" android:versionCode="132" android:versionName="5.3.17">
 	<!-- <supports-screens></supports-screens>-->
 	<uses-permission android:name="android.permission.INTERNET"></uses-permission>
 
