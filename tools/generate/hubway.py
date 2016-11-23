@@ -25,20 +25,6 @@ class Hubway:
         obj.routes.pathblob.value = schema.Box([]).get_blob_string()
         cur.execute(obj.routes.insert())
 
-        for info in info_data['data']['stations']:
-            stop_tag = "hubway_" + str(info['station_id'])
-
-            obj.stops.tag.value = stop_tag
-            obj.stops.title.value = info['name']
-            obj.stops.lat.value = info['lat']
-            obj.stops.lon.value = info['lon']
-            obj.stops.parent.value = ""
-            cur.execute(obj.stops.insert())
-
-            obj.stopmapping.route.value = "Hubway"
-            obj.stopmapping.tag.value = stop_tag
-            cur.execute(obj.stopmapping.insert())
-
         conn.commit()
 
         cur.close()
