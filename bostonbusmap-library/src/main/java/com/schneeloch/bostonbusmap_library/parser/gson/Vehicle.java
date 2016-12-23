@@ -9,4 +9,5 @@ public class Vehicle {
     public String vehicle_lon;
     public String vehicle_timestamp;
     public String vehicle_id;
+    public String vehicle_label;
 }
