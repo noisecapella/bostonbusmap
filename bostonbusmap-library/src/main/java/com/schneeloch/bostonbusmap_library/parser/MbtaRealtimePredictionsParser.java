@@ -76,7 +76,11 @@ public class MbtaRealtimePredictionsParser {
                     for (Trip trip : direction.trip) {
                         String vehicleId = null;
                         if (trip.vehicle != null) {
-                            vehicleId = trip.vehicle.vehicle_id;
+                            if (trip.vehicle.vehicle_label != null) {
+                                vehicleId = trip.vehicle.vehicle_label;
+                            } else if (trip.vehicle.vehicle_id != null) {
+                                vehicleId = trip.vehicle.vehicle_id;
+                            }
                         }
 
                         String directionName = trip.trip_headsign;
