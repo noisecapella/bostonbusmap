@@ -164,7 +164,6 @@ public class DatabaseContentProvider extends ContentProvider {
 	 */
 	public static class DatabaseHelper extends SQLiteOpenHelper
 	{
-		private static DatabaseHelper instance;
 		private Context context;
 
 		/**
@@ -175,20 +174,6 @@ public class DatabaseContentProvider extends ContentProvider {
 			super(context, Schema.dbName, null, CURRENT_DB_VERSION);
 
 			this.context = context;
-		}
-		
-		/**
-		 * Note that synchronized refers to the class variable, not 'this'
-		 * @param context
-		 * @return
-		 */
-		public static DatabaseHelper getInstance(Context context) {
-			synchronized (DatabaseHelper.class) {
-				if (instance == null) {
-					instance = new DatabaseHelper(context);
-				}
-				return instance; 
-			}
 		}
 		
 		@Override
@@ -425,7 +410,7 @@ public class DatabaseContentProvider extends ContentProvider {
 
 	@Override
 	public boolean onCreate() {
-		helper = DatabaseHelper.getInstance(getContext());
+		helper = new DatabaseHelper(getContext());
 		return true;
 	}
 
