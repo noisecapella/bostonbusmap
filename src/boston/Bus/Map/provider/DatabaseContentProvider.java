@@ -21,6 +21,7 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.UriMatcher;
+import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
@@ -86,78 +87,6 @@ public class DatabaseContentProvider extends ContentProvider {
 	public static final String distanceKey = "distance";
 
 	/**
-	 * The first version where we serialize as bytes, not necessarily the first db version
-	 */
-	public final static int FIRST_DB_VERSION = 5;
-	public final static int ADDED_FAVORITE_DB_VERSION = 6;
-	public final static int NEW_ROUTES_DB_VERSION = 7;	
-	public final static int ROUTE_POOL_DB_VERSION = 8;
-	public final static int STOP_LOCATIONS_STORE_ROUTE_STRINGS = 9;
-	public final static int STOP_LOCATIONS_ADD_DIRECTIONS = 10;
-	public final static int SUBWAY_VERSION = 11;
-	public final static int ADDED_PLATFORM_ORDER = 12;
-	public final static int VERBOSE_DB = 13;
-	public final static int VERBOSE_DB_2 = 14;
-	public final static int VERBOSE_DB_3 = 15;
-	public final static int VERBOSE_DB_4 = 16;
-	public final static int VERBOSE_DB_5 = 17;
-	public final static int VERBOSE_DB_6 = 18;
-	public final static int VERBOSE_DB_7 = 19;
-
-	public final static int VERBOSE_DB_8 = 20;
-	public final static int VERBOSE_DB_9 = 21;
-	public final static int VERBOSE_DB_10 = 22;
-	public final static int VERBOSE_DB_11 = 23;
-
-	public final static int VERBOSE_DBV2_1 = 24;
-	public final static int VERBOSE_DBV2_2 = 26;
-	public final static int VERBOSE_DBV2_3 = 27;
-	public final static int VERBOSE_DBV2_4 = 28;
-
-	public final static int FIRST_COPYING_DB = 37;
-	public final static int ADDING_BOUNDS = 38;
-	public final static int ADDING_BOUNDS_1 = 39;
-	public final static int ADDING_BOUNDS_2 = 42;
-	public final static int FIX_LOCATIONS = 43;
-	public final static int NEW_SUBWAY = 44;
-	public final static int NEW_CR = 45;
-	public final static int NEW_CR_2 = 46;
-	public final static int HUBWAY_1 = 50;
-	public final static int HUBWAY_2 = 51;
-	public final static int HUBWAY_3 = 52;
-	public final static int HUBWAY_4 = 53;
-	public final static int HUBWAY_5 = 54;
-	public final static int HUBWAY_6 = 55;
-    public final static int HUBWAY_7 = 56;
-	public final static int HUBWAY_8 = 57;
-    public final static int HUBWAY_9 = 58;
-    public final static int HUBWAY_10 = 59;
-	public final static int HUBWAY_11 = 60;
-	public final static int HUBWAY_12 = 61;
-	public final static int HUBWAY_13 = 62;
-	public final static int HUBWAY_14 = 63;
-	public final static int HUBWAY_15 = 64;
-	public final static int HUBWAY_16 = 65;
-	public final static int HUBWAY_17 = 66;
-	public final static int HUBWAY_18 = 67;
-	public final static int HUBWAY_19 = 68;
-	public final static int HUBWAY_20 = 69;
-	public final static int HUBWAY_21 = 70;
-	public final static int NEW_1 = 71;
-    public final static int NEW_2 = 72;
-    public final static int NEW_3 = 73;
-	public final static int NEW_4 = 74;
-	public final static int NEW_5 = 75;
-	public final static int NEW_6 = 76;
-	public final static int NEW_7 = 77;
-	public final static int NEW_8 = 78;
-	public final static int CURRENT_DB_VERSION = NEW_8;
-
-	public static final int ALWAYS_POPULATE = 3;
-	public static final int POPULATE_IF_UPGRADE = 2;
-	public static final int MAYBE = 1;
-
-	/**
 	 * Handles the database which stores route information
 	 * 
 	 * @author schneg
@@ -168,12 +97,25 @@ public class DatabaseContentProvider extends ContentProvider {
 		private static DatabaseHelper instance;
 		private Context context;
 
+        /**
+         * Get the application's version code and use it to keep track of database versions.
+         * This means the database will be assumed to have changed on each update, which will cause this
+         * database to be recreated (the favorites database should be left alone though)
+         */
+        public static int getVersionCode(Context context) {
+            try {
+                return context.getPackageManager().getPackageInfo(context.getPackageName(), 0).versionCode;
+            } catch (PackageManager.NameNotFoundException e) {
+                throw new RuntimeException(e);
+            }
+        }
+
 		/**
 		 * Don't call this, use getInstance instead
 		 * @param context
 		 */
 		private DatabaseHelper(Context context) {
-			super(context, Schema.dbName, null, CURRENT_DB_VERSION);
+			super(context, Schema.dbName, null, getVersionCode(context));
 
 			this.context = context;
 		}
@@ -203,10 +145,10 @@ public class DatabaseContentProvider extends ContentProvider {
 			
 			SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
 			int version = preferences.getInt(DATABASE_VERSION_KEY, -1);
-			if (version != CURRENT_DB_VERSION) {
+			if (version != getVersionCode(context)) {
 				try {
 					copyDatabase();
-					preferences.edit().putInt(DATABASE_VERSION_KEY, CURRENT_DB_VERSION).commit();
+					preferences.edit().putInt(DATABASE_VERSION_KEY, getVersionCode(context)).commit();
 				} catch (IOException e) {
 					LogUtil.e(e);
 					return null;
