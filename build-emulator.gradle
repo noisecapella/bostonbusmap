@@ -54,9 +54,6 @@ android {
             }
         }
     }
-    lintOptions {
-        abortOnError false
-    }
     signingConfigs {
         release {
             release {

@@ -42,7 +42,7 @@ public class FavoritesContentProvider extends ContentProvider
 	{
 
 		public FavoritesDatabaseHelper(Context context) {
-			super(context, Schema.oldDb, null, DatabaseContentProvider.CURRENT_DB_VERSION);
+			super(context, Schema.oldDb, null, DatabaseContentProvider.DatabaseHelper.getVersionCode(context));
 			
 		}
 
