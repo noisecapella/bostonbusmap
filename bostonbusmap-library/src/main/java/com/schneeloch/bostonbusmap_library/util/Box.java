@@ -28,14 +28,8 @@ public class Box implements IBox  {
 	
 	private final BiMap<String, Integer> sharedStringTable = HashBiMap.create();
 	
-	/**
-	 * The serialization version number
-	 */
-	private final int versionNumber;
-	
-	public Box(byte[] input, int versionNumber)
+	public Box(byte[] input)
 	{
-		this.versionNumber = versionNumber;
 		if (input == null)
 		{
 			innerOutputStream = new ByteArrayOutputStream();
@@ -508,14 +502,6 @@ public class Box implements IBox  {
 	}
 
 	/* (non-Javadoc)
-	 * @see com.schneeloch.bostonbusmap_library.util.IBox2#getVersionNumber()
-	 */
-	@Override
-	public int getVersionNumber() {
-		return versionNumber;
-	}
-
-	/* (non-Javadoc)
 	 * @see com.schneeloch.bostonbusmap_library.util.IBox2#writeStrings(java.util.ArrayList)
 	 */
 	@Override
@@ -712,11 +698,6 @@ public class Box implements IBox  {
 			@Override
 			public boolean isOutput() {
 				return false;
-			}
-			
-			@Override
-			public int getVersionNumber() {
-				return 0;
 			}
 			
 			@Override
