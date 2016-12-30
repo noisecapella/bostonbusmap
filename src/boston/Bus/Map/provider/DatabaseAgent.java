@@ -194,7 +194,9 @@ public class DatabaseAgent implements IDatabaseAgent {
                         int listorder = cursor.getInt(4);
                         int transitSourceId = cursor.getInt(5);
 
-                        Box pathsBlobBox = new Box(pathsBlob, DatabaseContentProvider.CURRENT_DB_VERSION);
+                        Schema.Routes.SourceId sourceId = Schema.Routes.SourceId.fromValue(transitSourceId);
+
+                        Box pathsBlobBox = new Box(pathsBlob);
 
                         routeConfigBuilder = new RouteConfig.Builder(routeToUpdate, routeTitle,
                                 color, oppositeColor, source, listorder, transitSourceId, pathsBlobBox);
