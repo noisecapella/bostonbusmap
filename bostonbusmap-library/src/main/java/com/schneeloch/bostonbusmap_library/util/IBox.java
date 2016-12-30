@@ -134,8 +134,6 @@ public interface IBox {
 
 	public abstract byte[] getBlob() throws IOException;
 
-	public abstract int getVersionNumber();
-
 	public abstract void writeStrings(ArrayList<String> routes)
 			throws IOException;
 
