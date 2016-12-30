@@ -166,7 +166,7 @@ public class Schema {
         public static final String tagColumnOnTable = "favorites.tag";
 
         public static final String dropSql = "DROP TABLE IF EXISTS favorites";
-        public static final String createSql = "CREATE TABLE IF NOT EXISTS favorites (tag STRING PRIMARY KEY)";
+        public static final String createSql = "CREATE TABLE IF NOT EXISTS favorites (tag TEXT PRIMARY KEY)";
         public static class Bean {
             public final String tag;
             public Bean(String tag) {
@@ -201,7 +201,7 @@ public class Schema {
         public static final String nameColumnOnTable = "locations.name";
 
         public static final String dropSql = "DROP TABLE IF EXISTS locations";
-        public static final String createSql = "CREATE TABLE IF NOT EXISTS locations (lat FLOAT, lon FLOAT, name STRING PRIMARY KEY)";
+        public static final String createSql = "CREATE TABLE IF NOT EXISTS locations (lat FLOAT, lon FLOAT, name TEXT PRIMARY KEY)";
         public static class Bean {
             public final float lat;
             public final float lon;

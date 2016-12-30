@@ -1,4 +1,3 @@
 1 - update version in AndroidManifest.xml
-2 - copy new routeconfig.xml to tools/
-3 - run autogenerate.sh in tools/
-4 - increment CURRENT_DB_VERSION in DatabaseContentProvider.java
+2 - run autogenerate.sh in tools/
+
