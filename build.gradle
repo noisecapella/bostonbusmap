@@ -8,18 +8,11 @@ buildscript {
     }
 }
 
-allprojects {
-    repositories {
-        mavenCentral()
-    }
-}
-
 apply plugin: 'com.android.application'
 
 repositories {
-    mavenCentral()
+    jcenter()
 }
-
 
 dependencies {
     compile 'com.google.guava:guava:18.0'
