@@ -66,14 +66,15 @@ class MbtaHeavyRail:
 
                 stop_ids.add(stop_id)
 
-        print("Adding directions...")
-        for trip_row in gtfs_map.find_trips_by_route(as_route):
-            obj.directions.dirTag.value = trip_row["trip_id"]
-            obj.directions.dirTitleKey.value = trip_row["trip_headsign"]
-            obj.directions.dirRouteKey.value = as_route
-            obj.directions.dirNameKey.value = ""
-            obj.directions.useAsUI.value = 1
-            cur.execute(obj.directions.insert())
+        for route_id in route_ids:
+            print("Adding directions for {}...".format(route_id))
+            for trip_row in gtfs_map.find_trips_by_route(route_id):
+                obj.directions.dirTag.value = trip_row["trip_id"]
+                obj.directions.dirTitleKey.value = trip_row["trip_headsign"]
+                obj.directions.dirRouteKey.value = route_id
+                obj.directions.dirNameKey.value = ""
+                obj.directions.useAsUI.value = 1
+                cur.execute(obj.directions.insert())
         
                 
         print("Done for %s" % as_route)
