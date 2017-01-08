@@ -312,7 +312,7 @@ class Column:
         self.valid_values = valid_values
 
     def sqlForColumn(self, primaryKeys):
-        type = "STRING"
+        type = "TEXT"
         if self.data_type == "float":
             type = "FLOAT"
         elif self.data_type == "byte[]":
