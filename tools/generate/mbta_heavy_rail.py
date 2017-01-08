@@ -71,7 +71,7 @@ class MbtaHeavyRail:
             for trip_row in gtfs_map.find_trips_by_route(route_id):
                 obj.directions.dirTag.value = trip_row["trip_id"]
                 obj.directions.dirTitleKey.value = trip_row["trip_headsign"]
-                obj.directions.dirRouteKey.value = route_id
+                obj.directions.dirRouteKey.value = as_route
                 obj.directions.dirNameKey.value = ""
                 obj.directions.useAsUI.value = 1
                 cur.execute(obj.directions.insert())
