@@ -83,14 +83,14 @@ class MbtaCommuterRail:
                 obj.stopmapping.tag.value = stop_row["stop_id"]
                 cur.execute(obj.stopmapping.insert())
 
-        print("Adding directions...")
-        for trip_row in gtfs_map.find_trips_by_route(route_id):
-            obj.directions.dirTag.value = trip_row["trip_id"]
-            obj.directions.dirTitleKey.value = trip_row["trip_headsign"]
-            obj.directions.dirRouteKey.value = route_id
-            obj.directions.dirNameKey.value = ""
-            obj.directions.useAsUI.value = 1
-            cur.execute(obj.directions.insert())
+            print("Adding directions... for {}".format(route_id))
+            for trip_row in gtfs_map.find_trips_by_route(route_id):
+                obj.directions.dirTag.value = trip_row["trip_id"]
+                obj.directions.dirTitleKey.value = trip_row["trip_headsign"]
+                obj.directions.dirRouteKey.value = route_id
+                obj.directions.dirNameKey.value = ""
+                obj.directions.useAsUI.value = 1
+                cur.execute(obj.directions.insert())
         return len(route_rows)
             
     def generate(self, conn, startorder, gtfs_map):
