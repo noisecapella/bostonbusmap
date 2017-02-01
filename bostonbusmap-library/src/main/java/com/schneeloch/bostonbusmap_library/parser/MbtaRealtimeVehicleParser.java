@@ -86,7 +86,12 @@ public class MbtaRealtimeVehicleParser {
                         String tripName = trip.trip_name;
 
                         if (trip.vehicle != null) {
-                            String vehicleId = trip.vehicle.vehicle_id;
+                            String vehicleId = null;
+                            if (trip.vehicle.vehicle_label != null) {
+                                vehicleId = trip.vehicle.vehicle_label;
+                            } else if (trip.vehicle.vehicle_id != null) {
+                                vehicleId = trip.vehicle.vehicle_id;
+                            }
                             if (trip.vehicle.vehicle_lat == null || trip.vehicle.vehicle_lon == null) {
                                 continue;
                             }
