@@ -1,8 +1,3 @@
-RedLine = "Red"
-OrangeLine = "Orange"
-BlueLine = "Blue"
-GreenLine = "Green"
-
 import csv
 import argparse
 import os.path
@@ -86,7 +81,8 @@ class MbtaHeavyRail:
         startorder += self.write_sql(cur, startorder, ["Red"], "Red", gtfs_map) 
         startorder += self.write_sql(cur, startorder, ["Orange"], "Orange", gtfs_map) 
         startorder += self.write_sql(cur, startorder, ["Blue"], "Blue", gtfs_map) 
-        startorder += self.write_sql(cur, startorder, ["Green-B", "Green-C", "Green-D", "Green-E"], "Green", gtfs_map) 
+        startorder += self.write_sql(cur, startorder, ["Green-B", "Green-C", "Green-D", "Green-E"], "Green", gtfs_map)
+        startorder += self.write_sql(cur, startorder, ["Mattapan"], "Mattapan", gtfs_map)
 
         conn.commit()
         cur.close()
