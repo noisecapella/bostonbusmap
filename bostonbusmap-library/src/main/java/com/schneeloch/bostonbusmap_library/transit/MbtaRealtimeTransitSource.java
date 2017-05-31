@@ -70,6 +70,7 @@ public class MbtaRealtimeTransitSource implements TransitSource {
 		String blueRoute = "Blue";
 		String orangeRoute = "Orange";
 		String redRoute = "Red";
+        String mattapanRoute = "Mattapan";
 
 		// workaround for the quick and dirty way things are done in this app
 		// TODO: fix local names to match field names
@@ -89,6 +90,8 @@ public class MbtaRealtimeTransitSource implements TransitSource {
 		gtfsNameToRouteNameBuilder.put("Orange", orangeRoute);
 		
 		gtfsNameToRouteNameBuilder.put("Blue", blueRoute);
+
+        gtfsNameToRouteNameBuilder.put("Mattapan", mattapanRoute);
 
 		String[] commuterRailRoutes = new String[] {
 				"CR-Greenbush",
@@ -110,6 +113,7 @@ public class MbtaRealtimeTransitSource implements TransitSource {
 		routeToTransitSourceIdBuilder.put(redRoute, Schema.Routes.SourceId.Subway);
 		routeToTransitSourceIdBuilder.put(orangeRoute, Schema.Routes.SourceId.Subway);
 		routeToTransitSourceIdBuilder.put(blueRoute, Schema.Routes.SourceId.Subway);
+        routeToTransitSourceIdBuilder.put(mattapanRoute, Schema.Routes.SourceId.Subway);
 
 		for (String commuterRailRoute : commuterRailRoutes) {
 			gtfsNameToRouteNameBuilder.put(commuterRailRoute, commuterRailRoute);
