@@ -144,16 +144,15 @@ public class StopPredictionViewImpl extends StopPredictionView {
             else if (hasUpdated == Updated.None) {
                 ret.append("No information received yet for this stop");
             }
-            else if (hasUpdated == Updated.Some) {
-                ret.append("Some information not received yet for this stop");
-            }
             return;
+		}
+
+		if (hasUpdated == Updated.Some) {
+			ret.append("Some information not received yet for this stop<br />");
 		}
 
 		final int max = 3;
 		int count = 0;
-
-
 
 		for (IPrediction prediction : predictions)
 		{
@@ -166,8 +165,6 @@ public class StopPredictionViewImpl extends StopPredictionView {
 			{
 				continue;
 			}
-
-
 
 			if (count != 0)
 			{
