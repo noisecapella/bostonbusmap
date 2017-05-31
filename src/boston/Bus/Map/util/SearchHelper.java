@@ -4,6 +4,7 @@ import android.util.Log;
 import android.widget.Toast;
 
 import com.schneeloch.bostonbusmap_library.data.RouteTitles;
+import com.schneeloch.bostonbusmap_library.data.Selection;
 import com.schneeloch.bostonbusmap_library.data.StopLocation;
 
 import boston.Bus.Map.data.UpdateArguments;
@@ -156,6 +157,7 @@ public class SearchHelper
 			if (stop != null)
 			{	
 				context.setNewStop(stop.getFirstRoute(), stop.getStopTag());
+				context.setMode(Selection.Mode.BUS_PREDICTIONS_ALL, true, true);
 				suggestionsQuery = "stop " + stop.getTitle();
 			}
 			else
