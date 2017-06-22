@@ -70,6 +70,9 @@ public class MbtaRealtimePredictionsParser {
                     continue;
                 }
                 RouteConfig routeConfig = routePool.get(routeName);
+                if (routeConfig == null) {
+                    LogUtil.w("Unable to find route " + routeName);
+                }
 
 
                 for (com.schneeloch.bostonbusmap_library.parser.gson.Direction direction : route.direction) {
