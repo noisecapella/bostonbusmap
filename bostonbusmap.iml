@@ -109,6 +109,6 @@
     <orderEntry type="library" exported="" name="maps-android-23" level="project" />
     <orderEntry type="library" exported="" name="usb-android-23" level="project" />
     <orderEntry type="library" exported="" name="effects-android-23" level="project" />
-    <orderEntry type="library" exported="" name="protobuf-java-3.3.0" level="project" />
+    <orderEntry type="library" exported="" name="protobuf-java-3.3.1" level="project" />
   </component>
 </module>
