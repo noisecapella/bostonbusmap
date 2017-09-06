@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
       package="boston.Bus.Map"
-      android:installLocation="auto" android:versionCode="231" android:versionName="5.4.29">
+      android:installLocation="auto" android:versionCode="233" android:versionName="5.4.30">
 	<!-- <supports-screens></supports-screens>-->
 	<uses-permission android:name="android.permission.INTERNET"></uses-permission>
 
