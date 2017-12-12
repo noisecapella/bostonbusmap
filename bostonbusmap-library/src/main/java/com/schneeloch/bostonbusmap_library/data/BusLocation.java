@@ -4,12 +4,15 @@ import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableCollection;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 
 
 import com.schneeloch.bostonbusmap_library.database.Schema;
 import com.schneeloch.bostonbusmap_library.math.Geometry;
 import com.schneeloch.bostonbusmap_library.transit.ITransitSystem;
+
+import java.util.Collection;
 
 /**
  * This class stores information about the bus. This information is mostly taken
@@ -397,11 +400,6 @@ public class BusLocation implements Location {
 		return false;
 	}
 	
-	@Override
-	public Schema.Routes.SourceId getTransitSourceType() {
-		return Schema.Routes.SourceId.Bus;
-	}
-
     @Override
     public boolean isUpdated() {
         // this is only relevant for stops
@@ -409,11 +407,25 @@ public class BusLocation implements Location {
     }
 
     protected ImmutableCollection<Alert> getAlerts(IAlerts alerts) {
-		return alerts.getAlertsByRoute(routeName, getTransitSourceType());
+		return alerts.getAlertsByRoute(routeName, Schema.Routes.SourceId.Bus);
 	}
 
     @Override
     public LocationType getLocationType() {
         return LocationType.Vehicle;
+    }
+
+    public Schema.Routes.SourceId getVehicleSourceId() {
+		return Schema.Routes.SourceId.Bus;
+	}
+
+    @Override
+    public Collection<String> getRoutes() {
+        return ImmutableList.of(routeName);
+    }
+
+    @Override
+    public Optional<String> getParent() {
+        return Optional.absent();
     }
 }

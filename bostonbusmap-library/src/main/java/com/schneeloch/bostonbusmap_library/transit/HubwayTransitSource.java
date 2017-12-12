@@ -46,8 +46,6 @@ public class HubwayTransitSource implements TransitSource {
 
     private final TransitSourceCache cache;
 
-    private static Schema.Routes.SourceId[] transitSourceIds = new Schema.Routes.SourceId[] {Schema.Routes.SourceId.Hubway};
-
 	public HubwayTransitSource(ITransitDrawables drawables, TransitSourceTitles routeTitles,
 							   TransitSystem transitSystem) {
 
@@ -144,11 +142,6 @@ public class HubwayTransitSource implements TransitSource {
 	}
 
 	@Override
-	public Schema.Routes.SourceId[] getTransitSourceIds() {
-		return transitSourceIds;
-	}
-
-	@Override
 	public boolean requiresSubwayTable() {
 		return false;
 	}
@@ -156,10 +149,5 @@ public class HubwayTransitSource implements TransitSource {
 	@Override
 	public IAlerts getAlerts() {
 		return transitSystem.getAlerts();
-	}
-
-	@Override
-	public String getDescription() {
-		return "Hubway";
 	}
 }

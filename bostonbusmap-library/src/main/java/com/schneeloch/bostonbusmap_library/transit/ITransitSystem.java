@@ -1,15 +1,21 @@
 package com.schneeloch.bostonbusmap_library.transit;
 
 import java.io.IOException;
+import java.util.Collection;
+import java.util.List;
 
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.xml.sax.SAXException;
 
 import com.google.common.base.Optional;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
 import com.schneeloch.bostonbusmap_library.data.Directions;
 import com.schneeloch.bostonbusmap_library.data.IAlerts;
 import com.schneeloch.bostonbusmap_library.data.ITransitDrawables;
+import com.schneeloch.bostonbusmap_library.data.Location;
 import com.schneeloch.bostonbusmap_library.data.Locations;
 import com.schneeloch.bostonbusmap_library.data.RouteConfig;
 import com.schneeloch.bostonbusmap_library.data.RoutePool;
@@ -52,5 +58,20 @@ public interface ITransitSystem {
 
     public void startObtainAlerts(IDatabaseAgent databaseAgent, Runnable runnable);
 
-    TransitSource getTransitSourceByRouteType(Schema.Routes.SourceId routeType);
+    /**
+     * Do we know anything about vehicles for a particular transit source type
+     * @param transitSourceType
+     * @return
+     */
+    boolean hasVehicles(Schema.Routes.SourceId transitSourceType);
+
+	ImmutableSet<Schema.Routes.SourceId> getSourceIds(Collection<String> routes);
+
+	String getTransitSourceDescription(Schema.Routes.SourceId routeType);
+
+	ITransitDrawables getDrawables(Location location);
+
+	Schema.Routes.SourceId getSourceId(String route);
+
+	ImmutableMap<String,Schema.Routes.SourceId> getSourceIdMap();
 }

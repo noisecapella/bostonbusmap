@@ -6,6 +6,7 @@ import java.util.Collection;
 import com.google.common.collect.ImmutableCollection;
 import com.google.common.collect.ImmutableList;
 
+import com.google.common.collect.ImmutableSet;
 import com.schneeloch.bostonbusmap_library.database.Schema;
 import com.schneeloch.bostonbusmap_library.parser.IAlertsParser;
 import com.schneeloch.bostonbusmap_library.provider.IDatabaseAgent;
@@ -78,7 +79,7 @@ public class AlertsFuture
 
 		@Override
 		public ImmutableCollection<Alert> getAlertsByRouteSetAndStop(
-				Collection<String> routes, String tag, Schema.Routes.SourceId routeType) {
+				Collection<String> routes, String tag, ImmutableSet<Schema.Routes.SourceId> routeTypes) {
 			return ImmutableList.of();
 		}
 		
