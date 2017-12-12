@@ -259,10 +259,13 @@ public class MapManager implements OnMapClickListener, OnMarkerClickListener,
                 // since they are different markers hide the old one
                 oldMarker.hideInfoWindow();
                 markerIdToPredictionView.remove(oldMarkerId);
-                ITransitDrawables transitDrawables = transitSystem.getTransitSourceByRouteType(
-                        oldLocation.getTransitSourceType()).getDrawables();
+                // there may be two overlapping transit source types here,
+                // for now just grab whichever one is first. They should be the same in the case of
+                // stops (except Hubway which should not overlap with any other stop)
 
-                int icon = transitDrawables.getBitmapDescriptor(oldLocation, false);
+                ITransitDrawables transitDrawables = transitSystem.getDrawables(oldLocation);
+
+                int icon = transitDrawables.getBitmapDescriptor(oldLocation, false, transitSystem.getSourceIdMap());
                 setMarker(oldMarkerId, icon);
             }
             // else, select the same stop
@@ -298,10 +301,9 @@ public class MapManager implements OnMapClickListener, OnMarkerClickListener,
             } else {
                 // we are selecting a new marker
                 final Location newLocation = newLocationGroup.get(0);
-                final ITransitDrawables transitDrawables = transitSystem.getTransitSourceByRouteType(
-                        newLocation.getTransitSourceType()).getDrawables();
+                final ITransitDrawables transitDrawables = transitSystem.getDrawables(newLocation);
 
-                int icon = transitDrawables.getBitmapDescriptor(newLocation, true);
+                int icon = transitDrawables.getBitmapDescriptor(newLocation, true, transitSystem.getSourceIdMap());
                 setMarker(newMarkerId, icon);
                 updateInfo(newMarkerId);
 
@@ -496,7 +498,11 @@ public class MapManager implements OnMapClickListener, OnMarkerClickListener,
                 }
 
                 if (newLocation instanceof StopLocation &&
-                        transitSystem.hasVehicles(newLocation.getTransitSourceType())) {
+                        transitSystem.hasVehicles(
+                                // this expects that transit sources having vehicles and those that don't
+                                // will never share stops
+                                transitSystem.getSourceId(newLocation.getRoutes().iterator().next())
+                        )) {
                     final StopLocation stopLocation = (StopLocation) newLocation;
                     PredictionView predictionView = stopLocation.getPredictions().getPredictionView();
                     if (predictionView instanceof StopPredictionView) {
@@ -1005,8 +1011,8 @@ public class MapManager implements OnMapClickListener, OnMarkerClickListener,
             else
             {
                 groupIdsForNewMarkers.add(groupKey);
-                ITransitDrawables transitDrawables = transitSystem.getTransitSourceByRouteType(firstLocation.getTransitSourceType()).getDrawables();
-                int icon = transitDrawables.getBitmapDescriptor(firstLocation, false);
+                ITransitDrawables transitDrawables = transitSystem.getDrawables(firstLocation);
+                int icon = transitDrawables.getBitmapDescriptor(firstLocation, false, transitSystem.getSourceIdMap());
                 LatLng latlng = new LatLng(firstLocation.getLatitudeAsDegrees(), firstLocation.getLongitudeAsDegrees());
                 MarkerOptions options = new MarkerOptions()
                         .icon(BitmapDescriptorFactory.fromResource(icon))
