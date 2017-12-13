@@ -27,11 +27,6 @@ public class SubwayStopLocation extends StopLocation {
 	}
 
 	@Override
-	public Schema.Routes.SourceId getTransitSourceType() {
-		return Schema.Routes.SourceId.Subway;
-	}
-
-	@Override
 	public boolean supportsBusPredictionsAllMode() {
 		return true;
 	}

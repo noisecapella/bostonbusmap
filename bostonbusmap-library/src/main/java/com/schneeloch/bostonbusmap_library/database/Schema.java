@@ -40,7 +40,7 @@ public class Schema {
         public static final String stopColumnOnTable = "bounds.stop";
 
         public static final String dropSql = "DROP TABLE IF EXISTS bounds";
-        public static final String createSql = "CREATE TABLE IF NOT EXISTS bounds (route STRING, weekdays INTEGER, start INTEGER, stop INTEGER)";
+        public static final String createSql = "CREATE TABLE IF NOT EXISTS bounds (route TEXT, weekdays INTEGER, start INTEGER, stop INTEGER)";
         public static class Bean {
             public final String route;
             public final int weekdays;
@@ -90,7 +90,7 @@ public class Schema {
         public static final String useAsUIColumnOnTable = "directions.useAsUI";
 
         public static final String dropSql = "DROP TABLE IF EXISTS directions";
-        public static final String createSql = "CREATE TABLE IF NOT EXISTS directions (dirTag STRING PRIMARY KEY, dirNameKey STRING, dirTitleKey STRING, dirRouteKey STRING, useAsUI INTEGER)";
+        public static final String createSql = "CREATE TABLE IF NOT EXISTS directions (dirTag TEXT PRIMARY KEY, dirNameKey TEXT, dirTitleKey TEXT, dirRouteKey TEXT, useAsUI INTEGER)";
         public static class Bean {
             public final String dirTag;
             public final String dirNameKey;
@@ -134,7 +134,7 @@ public class Schema {
         public static final String tagColumnOnTable = "directionsStops.tag";
 
         public static final String dropSql = "DROP TABLE IF EXISTS directionsStops";
-        public static final String createSql = "CREATE TABLE IF NOT EXISTS directionsStops (dirTag STRING, tag STRING)";
+        public static final String createSql = "CREATE TABLE IF NOT EXISTS directionsStops (dirTag TEXT, tag TEXT)";
         public static class Bean {
             public final String dirTag;
             public final String tag;
@@ -289,7 +289,7 @@ public class Schema {
         public static final String routetitleColumnOnTable = "routes.routetitle";
 
         public static final String dropSql = "DROP TABLE IF EXISTS routes";
-        public static final String createSql = "CREATE TABLE IF NOT EXISTS routes (route STRING PRIMARY KEY, color INTEGER, oppositecolor INTEGER, pathblob BLOB, listorder INTEGER, agencyid INTEGER, routetitle STRING)";
+        public static final String createSql = "CREATE TABLE IF NOT EXISTS routes (route TEXT PRIMARY KEY, color INTEGER, oppositecolor INTEGER, pathblob BLOB, listorder INTEGER, agencyid INTEGER, routetitle TEXT)";
         public static class Bean {
             public final String route;
             public final int color;
@@ -339,7 +339,7 @@ public class Schema {
         public static final String tagColumnOnTable = "stopmapping.tag";
 
         public static final String dropSql = "DROP TABLE IF EXISTS stopmapping";
-        public static final String createSql = "CREATE TABLE IF NOT EXISTS stopmapping (route STRING, tag STRING, PRIMARY KEY (route, tag))";
+        public static final String createSql = "CREATE TABLE IF NOT EXISTS stopmapping (route TEXT, tag TEXT, PRIMARY KEY (route, tag))";
         public static class Bean {
             public final String route;
             public final String tag;
@@ -383,7 +383,7 @@ public class Schema {
         public static final String parentColumnOnTable = "stops.parent";
 
         public static final String dropSql = "DROP TABLE IF EXISTS stops";
-        public static final String createSql = "CREATE TABLE IF NOT EXISTS stops (tag STRING PRIMARY KEY, lat FLOAT, lon FLOAT, title STRING, parent STRING)";
+        public static final String createSql = "CREATE TABLE IF NOT EXISTS stops (tag TEXT PRIMARY KEY, lat FLOAT, lon FLOAT, title TEXT, parent TEXT)";
         public static class Bean {
             public final String tag;
             public final float lat;

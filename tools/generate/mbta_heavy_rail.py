@@ -1,8 +1,3 @@
-RedLine = "Red"
-OrangeLine = "Orange"
-BlueLine = "Blue"
-GreenLine = "Green"
-
 import csv
 import argparse
 import os.path
@@ -13,6 +8,9 @@ from simplify_path import simplify_path
 import sqlite3
 
 class MbtaHeavyRail:
+    def __init__(self):
+        self.stop_ids = set()
+
     def write_sql(self, cur, startorder, route_ids, as_route, gtfs_map):
         route_rows = [list(gtfs_map.find_routes_by_id(route_id))[0] for route_id in route_ids]
         route_color = [route_row["route_color"] for route_row in route_rows][0]
@@ -49,10 +47,9 @@ class MbtaHeavyRail:
         cur.execute(obj.routes.insert())
 
         print("Adding stops...")
-        stop_ids = set()
         for stop_row in stop_rows:
             stop_id = stop_row["stop_id"]
-            if stop_id not in stop_ids:
+            if stop_id not in self.stop_ids:
                 obj.stops.tag.value = stop_row["stop_id"]
                 obj.stops.title.value = stop_row["stop_name"]
                 obj.stops.lat.value = float(stop_row["stop_lat"])
@@ -63,17 +60,17 @@ class MbtaHeavyRail:
                 obj.stopmapping.route.value = as_route
                 obj.stopmapping.tag.value = stop_row["stop_id"]
                 cur.execute(obj.stopmapping.insert())
+                self.stop_ids.add(stop_id)
 
-                stop_ids.add(stop_id)
-
-        print("Adding directions...")
-        for trip_row in gtfs_map.find_trips_by_route(as_route):
-            obj.directions.dirTag.value = trip_row["trip_id"]
-            obj.directions.dirTitleKey.value = trip_row["trip_headsign"]
-            obj.directions.dirRouteKey.value = as_route
-            obj.directions.dirNameKey.value = ""
-            obj.directions.useAsUI.value = 1
-            cur.execute(obj.directions.insert())
+        for route_id in route_ids:
+            print("Adding directions for {}...".format(route_id))
+            for trip_row in gtfs_map.find_trips_by_route(route_id):
+                obj.directions.dirTag.value = trip_row["trip_id"]
+                obj.directions.dirTitleKey.value = trip_row["trip_headsign"]
+                obj.directions.dirRouteKey.value = as_route
+                obj.directions.dirNameKey.value = ""
+                obj.directions.useAsUI.value = 1
+                cur.execute(obj.directions.insert())
         
                 
         print("Done for %s" % as_route)
@@ -85,7 +82,10 @@ class MbtaHeavyRail:
         startorder += self.write_sql(cur, startorder, ["Red"], "Red", gtfs_map) 
         startorder += self.write_sql(cur, startorder, ["Orange"], "Orange", gtfs_map) 
         startorder += self.write_sql(cur, startorder, ["Blue"], "Blue", gtfs_map) 
-        startorder += self.write_sql(cur, startorder, ["Green-B", "Green-C", "Green-D", "Green-E"], "Green", gtfs_map) 
+        startorder += self.write_sql(cur, startorder, ["Green-B", "Green-C", "Green-D", "Green-E"], "Green", gtfs_map)
+        startorder += self.write_sql(cur, startorder, ["Mattapan"], "Mattapan", gtfs_map)
+        startorder += self.write_sql(cur, startorder, ["712"], "712", gtfs_map)
+        startorder += self.write_sql(cur, startorder, ["713"], "713", gtfs_map)
 
         conn.commit()
         cur.close()

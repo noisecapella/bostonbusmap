@@ -4,6 +4,7 @@ import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableCollection;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 
 
@@ -195,7 +196,7 @@ public class BusLocation implements Location {
 
 	@Override
 	public GroupKey makeGroupKey() {
-		return new VehicleLocations.Key(getTransitSourceType(), routeName, busId);
+		return new VehicleLocations.Key(getVehicleSourceId(), routeName, busId);
 	}
 
 	public String getBusNumber()
@@ -254,11 +255,6 @@ public class BusLocation implements Location {
 		return false;
 	}
 	
-	@Override
-	public Schema.Routes.SourceId getTransitSourceType() {
-		return Schema.Routes.SourceId.Bus;
-	}
-
     @Override
     public boolean isUpdated() {
         // this is only relevant for stops
@@ -271,13 +267,17 @@ public class BusLocation implements Location {
     }
 
     protected ImmutableCollection<Alert> getAlerts(IAlerts alerts) {
-		return alerts.getAlertsByRoute(routeName, getTransitSourceType());
+		return alerts.getAlertsByRoute(routeName, Schema.Routes.SourceId.Bus);
 	}
 
     @Override
     public LocationType getLocationType() {
         return LocationType.Vehicle;
     }
+
+    public Schema.Routes.SourceId getVehicleSourceId() {
+		return Schema.Routes.SourceId.Bus;
+	}
 
     @Override
     public Collection<String> getRoutes() {

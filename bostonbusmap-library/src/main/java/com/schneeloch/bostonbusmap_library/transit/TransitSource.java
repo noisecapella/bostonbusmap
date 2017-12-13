@@ -49,8 +49,6 @@ public interface TransitSource {
 	 */
 	int getLoadOrder();
 
-	Schema.Routes.SourceId[] getTransitSourceIds();
-
 	/**
 	 * Do we need to look at the Schema.Subway table to get branch
 	 * and platform information?
@@ -58,6 +56,4 @@ public interface TransitSource {
 	boolean requiresSubwayTable();
 
 	IAlerts getAlerts();
-
-	String getDescription();
 }

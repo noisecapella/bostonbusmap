@@ -56,12 +56,6 @@ public class MbtaRealtimeTransitSource implements TransitSource {
 
     private final TransitSourceCache cache;
 
-    private static final Schema.Routes.SourceId[] transitSourceIds = new Schema.Routes.SourceId[] {
-            Schema.Routes.SourceId.Bus,
-            Schema.Routes.SourceId.Subway,
-            Schema.Routes.SourceId.CommuterRail
-    };
-
 	public MbtaRealtimeTransitSource(ITransitDrawables drawables,
 			TransitSourceTitles routeTitles,
 			TransitSystem transitSystem) {
@@ -77,6 +71,9 @@ public class MbtaRealtimeTransitSource implements TransitSource {
 		String blueRoute = "Blue";
 		String orangeRoute = "Orange";
 		String redRoute = "Red";
+        String mattapanRoute = "Mattapan";
+		String bus712 = "712";
+		String bus713 = "713";
 
 		// workaround for the quick and dirty way things are done in this app
 		// TODO: fix local names to match field names
@@ -96,6 +93,10 @@ public class MbtaRealtimeTransitSource implements TransitSource {
 		gtfsNameToRouteNameBuilder.put("Orange", orangeRoute);
 
 		gtfsNameToRouteNameBuilder.put("Blue", blueRoute);
+
+        gtfsNameToRouteNameBuilder.put("Mattapan", mattapanRoute);
+		gtfsNameToRouteNameBuilder.put("712", bus712);
+		gtfsNameToRouteNameBuilder.put("713", bus713);
 
 		String[] commuterRailRoutes = new String[] {
 				"CR-Greenbush",
@@ -117,6 +118,9 @@ public class MbtaRealtimeTransitSource implements TransitSource {
 		routeToTransitSourceIdBuilder.put(redRoute, Schema.Routes.SourceId.Subway);
 		routeToTransitSourceIdBuilder.put(orangeRoute, Schema.Routes.SourceId.Subway);
 		routeToTransitSourceIdBuilder.put(blueRoute, Schema.Routes.SourceId.Subway);
+        routeToTransitSourceIdBuilder.put(mattapanRoute, Schema.Routes.SourceId.Subway);
+		routeToTransitSourceIdBuilder.put(bus712, Schema.Routes.SourceId.Subway);
+		routeToTransitSourceIdBuilder.put(bus713, Schema.Routes.SourceId.Subway);
 
 		for (String commuterRailRoute : commuterRailRoutes) {
 			gtfsNameToRouteNameBuilder.put(commuterRailRoute, commuterRailRoute);
@@ -279,11 +283,6 @@ public class MbtaRealtimeTransitSource implements TransitSource {
 	}
 
 	@Override
-	public Schema.Routes.SourceId[] getTransitSourceIds() {
-        return transitSourceIds;
-	}
-
-	@Override
 	public boolean requiresSubwayTable() {
 		return false;
 	}
@@ -291,11 +290,6 @@ public class MbtaRealtimeTransitSource implements TransitSource {
 	@Override
 	public IAlerts getAlerts() {
 		return transitSystem.getAlerts();
-	}
-
-	@Override
-	public String getDescription() {
-		return "Subway";
 	}
 
 }

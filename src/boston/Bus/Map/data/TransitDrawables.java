@@ -13,6 +13,7 @@ import com.schneeloch.bostonbusmap_library.data.ITransitDrawables;
 import com.schneeloch.bostonbusmap_library.data.Location;
 import com.schneeloch.bostonbusmap_library.data.LocationType;
 import com.schneeloch.bostonbusmap_library.database.Schema;
+import com.schneeloch.bostonbusmap_library.transit.TransitSystem;
 
 import boston.Bus.Map.ui.BusDrawablesLookup;
 
@@ -40,7 +41,7 @@ public class TransitDrawables implements ITransitDrawables {
 	}
 
     @Override
-    public int getBitmapDescriptor(Location location, boolean isSelected) {
+    public int getBitmapDescriptor(Location location, boolean isSelected, ImmutableMap<String, Schema.Routes.SourceId> sourceIdMap) {
         LocationType locationType = location.getLocationType();
         boolean isUpdated = location.isUpdated();
         if (locationType == LocationType.Intersection) {
@@ -70,8 +71,11 @@ public class TransitDrawables implements ITransitDrawables {
         }
         else if (locationType == LocationType.Vehicle) {
             boolean isRail = true;
-            if (location.getTransitSourceType() == Schema.Routes.SourceId.Bus) {
-                isRail = false;
+            // there should only ever be one transit source type for a vehicle location
+            for (String route : location.getRoutes()) {
+                if (sourceIdMap.get(route) == Schema.Routes.SourceId.Bus) {
+                    isRail = false;
+                }
             }
             return BusDrawablesLookup.getIdFromAngle(location.getHeading(), isSelected, isRail);
         }

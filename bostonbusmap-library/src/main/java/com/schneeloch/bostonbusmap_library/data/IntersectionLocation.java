@@ -169,11 +169,6 @@ public class IntersectionLocation implements Location {
 		return true;
 	}
 	
-	@Override
-	public Schema.Routes.SourceId getTransitSourceType() {
-		return null;
-	}
-
     @Override
     public boolean isUpdated() {
         // only relevant for stops

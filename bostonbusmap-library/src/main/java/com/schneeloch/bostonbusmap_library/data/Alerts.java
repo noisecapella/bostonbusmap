@@ -114,11 +114,13 @@ public class Alerts implements IAlerts {
 	 */
 	@Override
 	public ImmutableCollection<Alert> getAlertsByRouteSetAndStop(
-			Collection<String> routes, String tag, Schema.Routes.SourceId routeType) {
+			Collection<String> routes, String tag, ImmutableSet<Schema.Routes.SourceId> routeTypes) {
 		ImmutableCollection.Builder<Alert> ret = ImmutableList.builder();
 		ret.addAll(systemWideAlerts);
-		ImmutableCollection<Alert> routeTypeAlerts = alertsByRouteType.get(routeType);
-		ret.addAll(routeTypeAlerts);
+		for (Schema.Routes.SourceId routeType: routeTypes) {
+			ImmutableCollection<Alert> routeTypeAlerts = alertsByRouteType.get(routeType);
+			ret.addAll(routeTypeAlerts);
+		}
 		for (String route : routes) {
 			ImmutableCollection<Alert> routeAlerts = alertsByRoute.get(route);
 			ret.addAll(routeAlerts);
