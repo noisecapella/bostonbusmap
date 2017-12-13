@@ -263,8 +263,10 @@ public abstract class NextBusTransitSource implements TransitSource
         }
 
         for (RouteStopPair pair : pairs) {
-            urlString.append("&stops=").append(pair.getRoute()).append("%7C");
-            urlString.append("%7C").append(pair.getStopId());
+            if (transitSystem.getSourceId(pair.getRoute()) == Schema.Routes.SourceId.Bus) {
+                urlString.append("&stops=").append(pair.getRoute()).append("%7C");
+                urlString.append("%7C").append(pair.getStopId());
+            }
         }
 
 		return urlString.toString();
