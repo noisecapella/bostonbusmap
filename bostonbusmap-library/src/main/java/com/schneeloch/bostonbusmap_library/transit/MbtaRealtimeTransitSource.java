@@ -50,6 +50,11 @@ public class MbtaRealtimeTransitSource implements TransitSource {
 
     private final TransitSourceCache cache;
 
+    private static final Schema.Routes.SourceId[] transitSourceIds = new Schema.Routes.SourceId[] {
+        Schema.Routes.SourceId.Subway,
+        Schema.Routes.SourceId.CommuterRail
+    };
+
 	public MbtaRealtimeTransitSource(ITransitDrawables drawables,
 			TransitSourceTitles routeTitles,
 			TransitSystem transitSystem) {
@@ -265,6 +270,11 @@ public class MbtaRealtimeTransitSource implements TransitSource {
 	}
 
 	@Override
+	public Schema.Routes.SourceId[] getTransitSourceIds() {
+		return transitSourceIds;
+	}
+
+	@Override
 	public boolean requiresSubwayTable() {
 		return false;
 	}
@@ -272,6 +282,11 @@ public class MbtaRealtimeTransitSource implements TransitSource {
 	@Override
 	public IAlerts getAlerts() {
 		return transitSystem.getAlerts();
+	}
+
+	@Override
+	public String getDescription() {
+		return "Subway";
 	}
 
 }

@@ -2,12 +2,10 @@ package com.schneeloch.bostonbusmap_library.transit;
 
 import java.io.IOException;
 import java.text.DateFormat;
-import java.util.Collection;
 import java.util.List;
 import java.util.TimeZone;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -24,13 +22,11 @@ import com.google.common.collect.ImmutableMap;
 import android.content.Context;
 import android.util.Log;
 
-import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 import com.schneeloch.bostonbusmap_library.data.AlertsFuture;
 import com.schneeloch.bostonbusmap_library.data.Directions;
 import com.schneeloch.bostonbusmap_library.data.IAlerts;
 import com.schneeloch.bostonbusmap_library.data.ITransitDrawables;
-import com.schneeloch.bostonbusmap_library.data.Location;
 import com.schneeloch.bostonbusmap_library.data.Locations;
 import com.schneeloch.bostonbusmap_library.data.RouteConfig;
 import com.schneeloch.bostonbusmap_library.data.RoutePool;
@@ -193,7 +189,7 @@ public class TransitSystem implements ITransitSystem {
                             final RoutePool routePool,
                             final Directions directions, final Locations locations) throws IOException, ParserConfigurationException, SAXException {
         List<Thread> threads = Lists.newArrayList();
-        final CopyOnWriteArrayList<Exception> exceptions = new CopyOnWriteArrayList<>();
+        final ConcurrentHashMap<String, Exception> exceptions = new ConcurrentHashMap<>();
 
 		for (final TransitSource source : transitSources)
 		{
@@ -204,7 +200,7 @@ public class TransitSystem implements ITransitSystem {
                         source.refreshData(routeConfig, selection, maxStops, centerLatitude,
                                 centerLongitude, busMapping, routePool, directions, locations);
                     } catch (Exception e) {
-                        exceptions.add(e);
+                        exceptions.put(source.getDescription(), e);
                     }
                 }
             });
@@ -223,8 +219,9 @@ public class TransitSystem implements ITransitSystem {
 
         if (exceptions.size() > 0) {
             // hopefully no more than one. We can't throw more than one exception at a time
-            Exception exception = exceptions.iterator().next();
-            throw new FeedException("Error downloading from data feed", exception);
+            String key = exceptions.keySet().iterator().next();
+            Exception exception = exceptions.get(key);
+            throw new FeedException("Error downloading from " + key + " data feed", exception);
         }
 	}
 
@@ -324,6 +321,17 @@ public class TransitSystem implements ITransitSystem {
 		return true;
 	}
 
+	public TransitSource getTransitSourceByRouteType(Schema.Routes.SourceId routeType) {
+		for (TransitSource source : transitSources) {
+			for (Schema.Routes.SourceId otherRouteType : source.getTransitSourceIds()) {
+				if (routeType == otherRouteType) {
+					return source;
+				}
+			}
+		}
+		return defaultTransitSource;
+	}
+
 	/**
 	 * This downloads alerts in a background thread. If alerts are
 	 * not available when getAlerts() is called, empty alerts are returned
@@ -346,55 +354,4 @@ public class TransitSystem implements ITransitSystem {
     public static String getFeedbackUrl() {
         return feedbackUrl;
     }
-
-    @Override
-    public boolean hasVehicles(Schema.Routes.SourceId transitSourceType) {
-        if (transitSourceType == Schema.Routes.SourceId.Hubway) {
-            return false;
-        }
-        return true;
-    }
-
-	@Override
-	public ImmutableSet<Schema.Routes.SourceId> getSourceIds(Collection<String> routes) {
-		ImmutableSet.Builder<Schema.Routes.SourceId> builder = ImmutableSet.builder();
-		for (String route: routes) {
-			Schema.Routes.SourceId sourceId = routeTitles.getTransitSourceId(route);
-			builder.add(sourceId);
-		}
-		return builder.build();
-	}
-
-	@Override
-	public String getTransitSourceDescription(Schema.Routes.SourceId routeType) {
-		if (routeType == Schema.Routes.SourceId.Bus) {
-			return "Bus";
-		} else if (routeType == Schema.Routes.SourceId.Subway) {
-			return "Subway";
-		} else if (routeType == Schema.Routes.SourceId.CommuterRail) {
-			return "Commuter Rail";
-		} else if (routeType == Schema.Routes.SourceId.Hubway) {
-			return "Hubway";
-		} else {
-			return "Transit";
-		}
-	}
-
-	@Override
-	public ITransitDrawables getDrawables(Location location) {
-		// this assumes that all routes for a given stop share the same set of drawables
-		String route = location.getRoutes().iterator().next();
-		TransitSource source = getTransitSource(route);
-		return source.getDrawables();
-	}
-
-	@Override
-	public Schema.Routes.SourceId getSourceId(String route) {
-		return routeTitles.getTransitSourceId(route);
-	}
-
-	@Override
-	public ImmutableMap<String, Schema.Routes.SourceId> getSourceIdMap() {
-		return routeTitles.getSourceIdMap();
-	}
 }

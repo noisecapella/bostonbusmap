@@ -28,11 +28,12 @@ public class CommuterTrainLocation extends BusLocation {
 	}
 	
 	@Override
-	protected ImmutableCollection<Alert> getAlerts(IAlerts alerts) {
-		return alerts.getAlertsByCommuterRailTripId(busId, routeName);
-	}
-
-	public Schema.Routes.SourceId getVehicleSourceId() {
+	public Schema.Routes.SourceId getTransitSourceType() {
 		return Schema.Routes.SourceId.CommuterRail;
 	}
+	
+	@Override
+	protected ImmutableCollection<Alert> getAlerts(IAlerts alerts) {
+		return alerts.getAlertsByCommuterRailTripId(busId, routeName);
+	}	
 }

@@ -21,8 +21,9 @@ public class SubwayTrainLocation extends BusLocation {
 	protected String getBusNumberMessage() {
 		return "Train number: " + busId + "<br />\n";
 	}
-
-	public Schema.Routes.SourceId getVehicleSourceId() {
+	
+	@Override
+	public Schema.Routes.SourceId getTransitSourceType() {
 		return Schema.Routes.SourceId.Subway;
 	}
 }

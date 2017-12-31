@@ -108,7 +108,4 @@ public class RouteTitles extends TransitSourceTitles
 		return transitSourceIds.get(routeName);
 	}
 
-	public ImmutableMap<String,Schema.Routes.SourceId> getSourceIdMap() {
-		return transitSourceIds;
-	}
 }

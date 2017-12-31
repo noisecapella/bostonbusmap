@@ -27,6 +27,11 @@ public class HubwayStopLocation extends StopLocation {
 	}
 
 	@Override
+	public Schema.Routes.SourceId getTransitSourceType() {
+		return Schema.Routes.SourceId.Hubway;
+	}
+
+	@Override
 	public boolean supportsBusPredictionsAllMode() {
 		return true;
 	}

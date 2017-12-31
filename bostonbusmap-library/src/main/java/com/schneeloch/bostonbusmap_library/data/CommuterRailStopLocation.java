@@ -26,4 +26,9 @@ public class CommuterRailStopLocation extends SubwayStopLocation {
 			return new CommuterRailStopLocation(this);
 		}
 	}
+	
+	@Override
+	public Schema.Routes.SourceId getTransitSourceType() {
+		return Schema.Routes.SourceId.CommuterRail;
+	}
 }

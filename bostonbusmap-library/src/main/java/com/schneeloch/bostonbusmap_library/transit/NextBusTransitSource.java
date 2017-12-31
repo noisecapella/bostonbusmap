@@ -61,7 +61,9 @@ public abstract class NextBusTransitSource implements TransitSource
 
     private final TransitSourceCache cache;
 
-	public NextBusTransitSource(TransitSystem transitSystem,
+    private final Schema.Routes.SourceId[] transitSourceIds = new Schema.Routes.SourceId[] {Schema.Routes.SourceId.Bus};
+
+	public NextBusTransitSource(TransitSystem transitSystem, 
 			ITransitDrawables drawables, String agency, TransitSourceTitles routeTitles,
 			RouteTitles allRouteTitles)
 	{
@@ -85,7 +87,6 @@ public abstract class NextBusTransitSource implements TransitSource
 			RoutePool routePool, Directions directions, Locations locationsObj)
 	throws IOException, ParserConfigurationException, SAXException {
         //read data from the URL
-        ITransitSystem transitSystem = locationsObj.getTransitSystem();
         DownloadHelper downloadHelper;
         Selection.Mode mode = selection.getMode();
         switch (mode) {
@@ -93,17 +94,7 @@ public abstract class NextBusTransitSource implements TransitSource
             case BUS_PREDICTIONS_STAR:
             case BUS_PREDICTIONS_ALL:
 
-                List<Location> locations = Lists.newArrayList();
-                for (ImmutableList<Location> group : locationsObj.getLocations(maxStops, centerLatitude, centerLongitude, false, selection)) {
-                    for (Location location : group) {
-                        for (String route : location.getRoutes()) {
-                            if (transitSystem.getSourceId(route) == Schema.Routes.SourceId.Bus) {
-                                locations.add(location);
-                                break;
-                            }
-                        }
-                    }
-                }
+                List<Location> locations = locationsObj.getLocations(maxStops, centerLatitude, centerLongitude, false, selection);
 
                 //ok, do predictions now
                 ImmutableSet<String> routes;
@@ -218,14 +209,7 @@ public abstract class NextBusTransitSource implements TransitSource
         {
             if (location instanceof StopLocation) {
                 StopLocation stopLocation = (StopLocation) location;
-                boolean matchesBus = false;
-                for (String route : stopLocation.getRoutes()) {
-                    if (transitSystem.getSourceId(route) == Schema.Routes.SourceId.Bus) {
-                        matchesBus = true;
-                        break;
-                    }
-                }
-                if (matchesBus) {
+                if (stopLocation.getTransitSourceType() == Schema.Routes.SourceId.Bus) {
 
                     if (routes.isEmpty() == false) {
                         for (String route : routes) {
@@ -326,7 +310,12 @@ public abstract class NextBusTransitSource implements TransitSource
 	public TransitSourceTitles getRouteTitles() {
 		return routeTitles;
 	}
-
+	
+	@Override
+	public Schema.Routes.SourceId[] getTransitSourceIds() {
+		return transitSourceIds;
+	}
+	
 	@Override
 	public boolean requiresSubwayTable() {
 		return false;
@@ -337,8 +326,8 @@ public abstract class NextBusTransitSource implements TransitSource
 		return transitSystem.getAlerts();
 	}
 	
-    @Override
-    public BusLocation createVehicleLocation(float latitude, float longitude, String id, long lastFeedUpdateInMillis, Optional<Integer> heading, String routeName, String headsign) {
-        return new BusLocation(latitude, longitude, id, lastFeedUpdateInMillis, heading, routeName, headsign);
-    }
+	@Override
+	public String getDescription() {
+		return "Bus";
+	}
 }

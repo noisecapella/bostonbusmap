@@ -10,7 +10,6 @@ import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableCollection;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 import com.schneeloch.bostonbusmap_library.annotations.KeepSorted;
 import com.schneeloch.bostonbusmap_library.database.Schema;
@@ -162,8 +161,7 @@ public class StopLocation implements Location
         ITransitSystem transitSystem = locations.getTransitSystem();
 		IAlerts alertsObj = transitSystem.getAlerts();
 		ImmutableCollection<Alert> alerts = alertsObj.getAlertsByRouteSetAndStop(
-				routes.getRoutes(), tag, locations.getTransitSystem().getSourceIds(routes.getRoutes())
-		);
+				routes.getRoutes(), tag, getTransitSourceType());
 		
 		predictions.makeSnippetAndTitle(routeConfig, routeKeysToTitles, routes, this, alerts, locations);
 	}
@@ -183,8 +181,7 @@ public class StopLocation implements Location
 		
 		ImmutableCollection<Alert> newAlerts = alertsObj.getAlertsByRouteSetAndStop(
 				stopLocation.getRoutes(), stopLocation.getStopTag(), 
-				locations.getTransitSystem().getSourceIds(stopLocation.getRoutes())
-		);
+				stopLocation.getTransitSourceType());
 		
 		predictions.addToSnippetAndTitle(routeConfig, stopLocation,
 				routeKeysToTitles, stopLocation.routes, newAlerts, locations);
@@ -365,6 +362,11 @@ public class StopLocation implements Location
 		return routes.hasRoute(route);
 	}
 	
+	@Override
+	public Schema.Routes.SourceId getTransitSourceType() {
+		return Schema.Routes.SourceId.Bus;
+	}
+
 	public boolean supportsBusPredictionsAllMode() {
 		return true;
 	}
@@ -390,6 +392,7 @@ public class StopLocation implements Location
                 title.equals(other.title) &&
                 (int)(latitudeAsDegrees * Constants.E6) == (int)(other.latitudeAsDegrees * Constants.E6) &&
                 (int)(longitudeAsDegrees * Constants.E6) == (int)(other.longitudeAsDegrees * Constants.E6) &&
+                getTransitSourceType() == other.getTransitSourceType() &&
                 parent.equals(other.parent);
     }
 }

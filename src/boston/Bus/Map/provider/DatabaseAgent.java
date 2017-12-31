@@ -223,10 +223,8 @@ public class DatabaseAgent implements IDatabaseAgent {
             Map<String, String> parentStrings = Maps.newHashMap();
 
             // get all stops, joining in stops again to get every route for every stop
-            String[] projectionIn = new String[] {
-                    Schema.Stops.tagColumnOnTable, Schema.Stops.latColumn, Schema.Stops.lonColumn,
-                    Schema.Stops.titleColumn, Schema.Stops.parentColumn, "sm2." + Schema.Stopmapping.routeColumn,
-            };
+            String[] projectionIn = new String[] {Schema.Stops.tagColumnOnTable, Schema.Stops.latColumn, Schema.Stops.lonColumn,
+                    Schema.Stops.titleColumn, Schema.Stops.parentColumn, "sm2." + Schema.Stopmapping.routeColumn};
             String select = "sm1." + Schema.Stopmapping.routeColumn + "=?";
             String[] selectArray = new String[]{routeToUpdate};
 

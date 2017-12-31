@@ -156,10 +156,13 @@ public class MbtaAlertsParser implements IAlertsParser {
                     builder.addAlertForCommuterRailTrip(commuterRailTripId, commuterRailAlert);
                 }
                 for (Schema.Routes.SourceId routeType : sources) {
-                    String sourceDescription = transitSystem.getTransitSourceDescription(routeType);
-                    Alert routeTypeAlert = new Alert(now, "All " + sourceDescription,
-                            description);
-                    builder.addAlertForRouteType(routeType, routeTypeAlert);
+                    TransitSource source = transitSystem.getTransitSourceByRouteType(routeType);
+                    if (source != null) {
+                        String sourceDescription = source.getDescription();
+                        Alert routeTypeAlert = new Alert(now, "All " + sourceDescription,
+                                description);
+                        builder.addAlertForRouteType(routeType, routeTypeAlert);
+                    }
                 }
                 for (String route : routes) {
                     String routeTitle = routeTitles.getTitle(route);
