@@ -7,20 +7,34 @@ import android.util.Log;
 
 public class LogUtil
 {
-	public static String TAG = "BostonBusMap";
-	
+	private static final String TAG = "BostonBusMap";
+
+	public static boolean print = false;
+
 	public static void e(Throwable e)
 	{
 		StringWriter writer = new StringWriter();
 		e.printStackTrace(new PrintWriter(writer));
-		Log.e(TAG, writer.toString());
+		if (print) {
+			System.out.println("Error: " + writer.toString());
+		} else {
+			Log.e(TAG, writer.toString());
+		}
 	}
 
 	public static void i(String msg) {
-		Log.i(TAG, msg);
+		if (print) {
+			System.out.println("Info: " + msg);
+		} else {
+			Log.i(TAG, msg);
+		}
 	}
 
 	public static void w(String msg) {
-		Log.w(TAG, msg);
+		if (print) {
+			System.out.println("Warning: " + msg);
+		} else {
+			Log.w(TAG, msg);
+		}
 	}
 }
