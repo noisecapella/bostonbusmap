@@ -23,6 +23,7 @@ import com.schneeloch.bostonbusmap_library.data.TransitSourceCache;
 import com.schneeloch.bostonbusmap_library.data.VehicleLocations;
 import com.schneeloch.bostonbusmap_library.database.Schema;
 import com.schneeloch.bostonbusmap_library.util.LogUtil;
+import com.schneeloch.bostonbusmap_library.util.Now;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -52,7 +53,7 @@ public class CommuterRailPredictionsFeedParser
 		this.busMapping = busMapping;
 		this.routeKeysToTitles = routeKeysToTitles;
 
-		this.currentTimeMillis = System.currentTimeMillis();
+		this.currentTimeMillis = Now.getMillis();
 	}
 
 	private void clearPredictions() throws IOException
@@ -82,7 +83,7 @@ public class CommuterRailPredictionsFeedParser
 		
 		String routeName = routeConfig.getRouteName();
 		String routeTitle = routeKeysToTitles.getTitle(routeName);
-		long nowMillis = System.currentTimeMillis();
+		long nowMillis = Now.getMillis();
 		long nowSeconds = nowMillis / 1000;
 
         Map<VehicleLocations.Key, BusLocation> newLocations = Maps.newHashMap();

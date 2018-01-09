@@ -10,6 +10,7 @@ import com.schneeloch.bostonbusmap_library.util.Constants;
 
 import com.google.android.maps.GeoPoint;
 import com.schneeloch.bostonbusmap_library.util.LogUtil;
+import com.schneeloch.bostonbusmap_library.util.Now;
 
 import android.os.Handler;
 import android.os.Message;
@@ -51,7 +52,7 @@ public class UpdateHandler extends Handler {
 	public UpdateHandler(UpdateArguments guiArguments)
 	{
 		this.guiArguments = guiArguments;
-		lastUpdateTime = System.currentTimeMillis();
+		lastUpdateTime = Now.getMillis();
 	}
 	
 	
@@ -61,7 +62,7 @@ public class UpdateHandler extends Handler {
 		{
 		case MAJOR:
 			//remove duplicates
-			long currentTime = System.currentTimeMillis();
+			long currentTime = Now.getMillis();
 
 			int interval = getUpdateConstantlyInterval() * 1000;
 
@@ -136,7 +137,7 @@ public class UpdateHandler extends Handler {
 	 */
 	private void runUpdateTask() {
 		//make sure we don't update too often
-		lastUpdateTime = System.currentTimeMillis();
+		lastUpdateTime = Now.getMillis();
 
 		//don't do two updates at once
 		if (guiArguments.getMajorHandler() != null)

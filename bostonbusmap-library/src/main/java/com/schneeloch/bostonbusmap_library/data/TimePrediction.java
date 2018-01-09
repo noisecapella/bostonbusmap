@@ -9,6 +9,7 @@ import com.google.common.collect.ImmutableMap;
 
 import com.schneeloch.bostonbusmap_library.transit.TransitSystem;
 import com.schneeloch.bostonbusmap_library.util.MoreInfoConstants;
+import com.schneeloch.bostonbusmap_library.util.Now;
 import com.schneeloch.bostonbusmap_library.util.StringUtil;
 
 import android.os.Parcel;
@@ -172,7 +173,7 @@ public class TimePrediction implements IPrediction
 
 	public static int calcMinutes(long arrivalTimeMillis)
 	{
-		return (int)(arrivalTimeMillis - System.currentTimeMillis()) / 1000 / 60;
+		return (int)(arrivalTimeMillis - Now.getMillis()) / 1000 / 60;
 	}
 
 	public int getMinutes()

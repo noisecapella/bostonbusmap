@@ -46,6 +46,7 @@ import com.schneeloch.bostonbusmap_library.provider.IDatabaseAgent;
 import com.schneeloch.bostonbusmap_library.util.Constants;
 import com.schneeloch.bostonbusmap_library.util.FeedException;
 import com.schneeloch.bostonbusmap_library.util.LogUtil;
+import com.schneeloch.bostonbusmap_library.util.Now;
 
 /**
  * Any transit-system specific stuff should go here, if possible
@@ -338,7 +339,7 @@ public class TransitSystem implements ITransitSystem {
 			
 			alertsFuture = new AlertsFuture(databaseAgent, new MbtaAlertsParser(this), runnable);
 		}
-        else if (alertsFuture.getCreationTime() + oneMinuteInMillis < System.currentTimeMillis()) {
+        else if (alertsFuture.getCreationTime() + oneMinuteInMillis < Now.getMillis()) {
             // refresh alerts
             alertsFuture = new AlertsFuture(databaseAgent, new MbtaAlertsParser(this), runnable);
         }

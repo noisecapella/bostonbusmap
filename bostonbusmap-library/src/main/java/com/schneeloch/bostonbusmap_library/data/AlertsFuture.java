@@ -11,6 +11,7 @@ import com.schneeloch.bostonbusmap_library.database.Schema;
 import com.schneeloch.bostonbusmap_library.parser.IAlertsParser;
 import com.schneeloch.bostonbusmap_library.provider.IDatabaseAgent;
 import com.schneeloch.bostonbusmap_library.util.LogUtil;
+import com.schneeloch.bostonbusmap_library.util.Now;
 
 /**
  * Gets alerts data over the internet and provides it when asked. If asked before
@@ -50,7 +51,7 @@ public class AlertsFuture
 		};
 		thread.start();
 
-        creationTime = System.currentTimeMillis();
+        creationTime = Now.getMillis();
 	}
 
     public long getCreationTime() {

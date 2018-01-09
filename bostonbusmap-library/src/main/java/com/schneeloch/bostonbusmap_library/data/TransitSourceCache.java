@@ -1,5 +1,7 @@
 package com.schneeloch.bostonbusmap_library.data;
 
+import com.schneeloch.bostonbusmap_library.util.Now;
+
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -32,11 +34,11 @@ public class TransitSourceCache {
     }
 
     public void updateVehiclesForRoute(String route) {
-        vehiclesLastUpdatesByRoute.put(route, System.currentTimeMillis());
+        vehiclesLastUpdatesByRoute.put(route, Now.getMillis());
     }
 
     public boolean canUpdateVehiclesForRoute(String route) {
-        long currentTime = System.currentTimeMillis();
+        long currentTime = Now.getMillis();
         Long lastUpdate = vehiclesLastUpdatesByRoute.get(route);
         if (lastUpdate == null) {
             return true;
@@ -48,20 +50,20 @@ public class TransitSourceCache {
     }
 
     public void updateAllVehicles() {
-        lastVehicleWholeRefresh = System.currentTimeMillis();
+        lastVehicleWholeRefresh = Now.getMillis();
         vehiclesLastUpdatesByRoute.clear();
     }
 
     public boolean canUpdateAllVehicles() {
-        return System.currentTimeMillis() > lastVehicleWholeRefresh + fetchDelay;
+        return Now.getMillis() > lastVehicleWholeRefresh + fetchDelay;
     }
 
     public void updatePredictionForStop(RouteStopPair pair) {
-        predictionsLastUpdatesByStop.put(pair, System.currentTimeMillis());
+        predictionsLastUpdatesByStop.put(pair, Now.getMillis());
     }
 
     public boolean canUpdatePredictionForStop(RouteStopPair pair) {
-        long currentTime = System.currentTimeMillis();
+        long currentTime = Now.getMillis();
         Long lastUpdate = predictionsLastUpdatesByStop.get(pair);
         if (lastUpdate == null) {
             return true;
@@ -75,16 +77,16 @@ public class TransitSourceCache {
     public void updateAllPredictions() {
         predictionsLastUpdatesByRoute.clear();
         predictionsLastUpdatesByStop.clear();
-        lastPredictionWholeRefresh = System.currentTimeMillis();
+        lastPredictionWholeRefresh = Now.getMillis();
     }
 
     public boolean canUpdateAllPredictions() {
-        long currentTime = System.currentTimeMillis();
+        long currentTime = Now.getMillis();
         return currentTime > lastPredictionWholeRefresh + fetchDelay;
     }
 
     public boolean canUpdatePredictionForRoute(String routeName) {
-        long currentTime = System.currentTimeMillis();
+        long currentTime = Now.getMillis();
         Long lastUpdate = predictionsLastUpdatesByRoute.get(routeName);
         if (lastUpdate == null) {
             return true;
@@ -96,7 +98,7 @@ public class TransitSourceCache {
     }
 
     public void updatePredictionForRoute(String route) {
-        long currentMillis = System.currentTimeMillis();
+        long currentMillis = Now.getMillis();
         predictionsLastUpdatesByRoute.put(route, currentMillis);
 
         // TODO: we should probably update stops with the same route

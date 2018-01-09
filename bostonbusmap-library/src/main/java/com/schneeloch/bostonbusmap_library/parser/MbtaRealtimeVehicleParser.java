@@ -27,6 +27,7 @@ import com.schneeloch.bostonbusmap_library.util.LogUtil;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Maps;
 import com.google.gson.Gson;
+import com.schneeloch.bostonbusmap_library.util.Now;
 
 public class MbtaRealtimeVehicleParser {
 	private final TransitSourceTitles routeKeysToTitles;
@@ -48,7 +49,7 @@ public class MbtaRealtimeVehicleParser {
 		this.directionsObj = directionsObj;
         this.routeNames = routeNames;
 		
-		this.lastFeedUpdateInMillis = System.currentTimeMillis();
+		this.lastFeedUpdateInMillis = Now.getMillis();
 	}
 	
 	public void runParse(Reader data, TransitSource transitSource) throws IOException {

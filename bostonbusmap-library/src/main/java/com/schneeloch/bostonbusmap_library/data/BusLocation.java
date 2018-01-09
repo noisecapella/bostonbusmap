@@ -11,6 +11,7 @@ import com.google.common.collect.Lists;
 import com.schneeloch.bostonbusmap_library.database.Schema;
 import com.schneeloch.bostonbusmap_library.math.Geometry;
 import com.schneeloch.bostonbusmap_library.transit.ITransitSystem;
+import com.schneeloch.bostonbusmap_library.util.Now;
 
 import java.util.Collection;
 
@@ -139,7 +140,7 @@ public class BusLocation implements Location {
 		String snippet = getBetaWarning();
 		snippet += getBusNumberMessage();
 
-		int secondsAgo = (int) (System.currentTimeMillis() - lastFeedUpdateInMillis) / 1000; 
+		int secondsAgo = (int) (Now.getMillis() - lastFeedUpdateInMillis) / 1000;
 		snippet += "Last update: " + secondsAgo	+ " seconds ago";
 		if (heading.isPresent()) {
 			snippet += "<br />Heading: " + heading.get() + " deg ("

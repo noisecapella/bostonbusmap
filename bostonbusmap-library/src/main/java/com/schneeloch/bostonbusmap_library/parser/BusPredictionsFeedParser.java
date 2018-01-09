@@ -20,6 +20,7 @@ import com.schneeloch.bostonbusmap_library.data.RouteConfig;
 import com.schneeloch.bostonbusmap_library.data.RoutePool;
 import com.schneeloch.bostonbusmap_library.data.StopLocation;
 import com.schneeloch.bostonbusmap_library.util.LogUtil;
+import com.schneeloch.bostonbusmap_library.util.Now;
 import com.schneeloch.bostonbusmap_library.util.StringUtil;
 
 public class BusPredictionsFeedParser extends DefaultHandler
@@ -52,7 +53,7 @@ public class BusPredictionsFeedParser extends DefaultHandler
 		this.stopMapping = stopMapping;
 		this.directions = directions;
 
-		this.currentTimeMillis = System.currentTimeMillis();
+		this.currentTimeMillis = Now.getMillis();
 	}
 
 	public void runParse(InputStream data) throws ParserConfigurationException, SAXException, IOException

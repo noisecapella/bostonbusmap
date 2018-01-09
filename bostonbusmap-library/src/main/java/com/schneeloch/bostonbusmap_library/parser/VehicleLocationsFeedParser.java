@@ -22,6 +22,7 @@ import com.schneeloch.bostonbusmap_library.data.Directions;
 import com.schneeloch.bostonbusmap_library.data.RouteTitles;
 import com.schneeloch.bostonbusmap_library.data.VehicleLocations;
 import com.schneeloch.bostonbusmap_library.database.Schema;
+import com.schneeloch.bostonbusmap_library.util.Now;
 
 public class VehicleLocationsFeedParser extends DefaultHandler
 {
@@ -88,7 +89,7 @@ public class VehicleLocationsFeedParser extends DefaultHandler
 
                 String dirTag = getAttribute(dirTagKey, attributes);
 
-                long lastFeedUpdate = System.currentTimeMillis() - (seconds * 1000);
+                long lastFeedUpdate = Now.getMillis() - (seconds * 1000);
 
                 BusLocation newBusLocation = new BusLocation(lat, lon, id, lastFeedUpdate,
                         heading, route, directions.getTitleAndName(dirTag));
