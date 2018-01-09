@@ -421,4 +421,15 @@ public final class Locations
     public VehicleLocations getVehicleLocations() {
         return busMapping;
     }
+
+	/**
+	 * For testing
+	 */
+	public RoutePool getRoutePool() {
+		return routeMapping;
+	}
+
+	public Directions getDirections() {
+		return directions;
+	}
 }
