@@ -1,0 +1,2948 @@
+{
+    "data": {
+        "stations": [
+            {
+                "capacity": 15,
+                "eightd_has_key_dispenser": false,
+                "lat": 42.34011512249236,
+                "lon": -71.10061883926392,
+                "name": "Colleges of the Fenway - Fenway at Avenue Louis Pasteur",
+                "region_id": 10,
+                "rental_methods": [
+                    "KEY",
+                    "CREDITCARD"
+                ],
+                "rental_url": "http://app.thehubway.com/KtpS/x7ZxSgCOTF?station_id=3",
+                "short_name": "B32006",
+                "station_id": "3"
+            },
+            {
+                "capacity": 15,
+                "eightd_has_key_dispenser": false,
+                "lat": 42.345392,
+                "lon": -71.069616,
+                "name": "Tremont St at E Berkeley St",
+                "region_id": 10,
+                "rental_methods": [
+                    "KEY",
+                    "CREDITCARD"
+                ],
+                "rental_url": "http://app.thehubway.com/KtpS/x7ZxSgCOTF?station_id=4",
+                "short_name": "C32000",
+                "station_id": "4"
+            },
+            {
+                "capacity": 15,
+                "eightd_has_key_dispenser": false,
+                "lat": 42.341814,
+                "lon": -71.090179,
+                "name": "Northeastern University - North Parking Lot",
+                "region_id": 10,
+                "rental_methods": [
+                    "KEY",
+                    "CREDITCARD"
+                ],
+                "rental_url": "http://app.thehubway.com/KtpS/x7ZxSgCOTF?station_id=5",
+                "short_name": "B32012",
+                "station_id": "5"
+            },
+            {
+                "capacity": 15,
+                "eightd_has_key_dispenser": false,
+                "lat": 42.361199417496216,
+                "lon": -71.06519486764228,
+                "name": "Cambridge St at Joy St",
+                "region_id": 10,
+                "rental_methods": [
+                    "KEY",
+                    "CREDITCARD"
+                ],
+                "rental_url": "http://app.thehubway.com/KtpS/x7ZxSgCOTF?station_id=6",
+                "short_name": "D32000",
+                "station_id": "6"
+            },
+            {
+                "capacity": 15,
+                "eightd_has_key_dispenser": false,
+                "lat": 42.352940802392325,
+                "lon": -71.04388475418091,
+                "name": "Fan Pier",
+                "region_id": 10,
+                "rental_methods": [
+                    "KEY",
+                    "CREDITCARD"
+                ],
+                "rental_url": "http://app.thehubway.com/KtpS/x7ZxSgCOTF?station_id=7",
+                "short_name": "A32000",
+                "station_id": "7"
+            },
+            {
+                "capacity": 15,
+                "eightd_has_key_dispenser": false,
+                "lat": 42.353334,
+                "lon": -71.137313,
+                "name": "Union Square - Brighton Ave at Cambridge St",
+                "region_id": 10,
+                "rental_methods": [
+                    "KEY",
+                    "CREDITCARD"
+                ],
+                "rental_url": "http://app.thehubway.com/KtpS/x7ZxSgCOTF?station_id=8",
+                "short_name": "A32001",
+                "station_id": "8"
+            },
+            {
+                "capacity": 19,
+                "eightd_has_key_dispenser": false,
+                "lat": 42.35062177153799,
+                "lon": -71.11288218766276,
+                "name": "Commonwealth Ave at Buick St",
+                "region_id": 10,
+                "rental_methods": [
+                    "KEY",
+                    "CREDITCARD"
+                ],
+                "rental_url": "http://app.thehubway.com/KtpS/x7ZxSgCOTF?station_id=9",
+                "short_name": "A32002",
+                "station_id": "9"
+            },
+            {
+                "capacity": 11,
+                "eightd_has_key_dispenser": false,
+                "lat": 42.350406,
+                "lon": -71.108279,
+                "name": "B.U. Central - 725 Comm. Ave.",
+                "region_id": 10,
+                "rental_methods": [
+                    "KEY",
+                    "CREDITCARD"
+                ],
+                "rental_url": "http://app.thehubway.com/KtpS/x7ZxSgCOTF?station_id=10",
+                "short_name": "A32003",
+                "station_id": "10"
+            },
+            {
+                "capacity": 15,
+                "eightd_has_key_dispenser": false,
+                "lat": 42.338629,
+                "lon": -71.1065,
+                "name": "Longwood Ave at Binney St",
+                "region_id": 10,
+                "rental_methods": [
+                    "KEY",
+                    "CREDITCARD"
+                ],
+                "rental_url": "http://app.thehubway.com/KtpS/x7ZxSgCOTF?station_id=11",
+                "short_name": "A32004",
+                "station_id": "11"
+            },
+            {
+                "capacity": 14,
+                "eightd_has_key_dispenser": false,
+                "lat": 42.33624444796878,
+                "lon": -71.08798563480377,
+                "name": "Ruggles T Stop - Columbus Ave at Melnea Cass Blvd",
+                "region_id": 10,
+                "rental_methods": [
+                    "KEY",
+                    "CREDITCARD"
+                ],
+                "rental_url": "http://app.thehubway.com/KtpS/x7ZxSgCOTF?station_id=12",
+                "short_name": "B32002",
+                "station_id": "12"
+            },
+            {
+                "capacity": 19,
+                "eightd_has_key_dispenser": false,
+                "lat": 42.336437,
+                "lon": -71.073089,
+                "name": "Boston Medical Center - E Concord St at Harrison Ave",
+                "region_id": 10,
+                "rental_methods": [
+                    "KEY",
+                    "CREDITCARD"
+                ],
+                "rental_url": "http://app.thehubway.com/KtpS/x7ZxSgCOTF?station_id=13",
+                "short_name": "C32002",
+                "station_id": "13"
+            },
+            {
+                "capacity": 21,
+                "eightd_has_key_dispenser": false,
+                "lat": 42.3374174845973,
+                "lon": -71.10286116600037,
+                "name": "HMS/HSPH - Avenue Louis Pasteur at Longwood Ave",
+                "region_id": 10,
+                "rental_methods": [
+                    "KEY",
+                    "CREDITCARD"
+                ],
+                "rental_url": "http://app.thehubway.com/KtpS/x7ZxSgCOTF?station_id=14",
+                "short_name": "B32003",
+                "station_id": "14"
+            },
+            {
+                "capacity": 15,
+                "eightd_has_key_dispenser": false,
+                "lat": 42.3615457081725,
+                "lon": -71.13776206970215,
+                "name": "Brighton Mills - 370 Western Ave",
+                "region_id": 10,
+                "rental_methods": [
+                    "KEY",
+                    "CREDITCARD"
+                ],
+                "rental_url": "http://app.thehubway.com/KtpS/x7ZxSgCOTF?station_id=15",
+                "short_name": "A32005",
+                "station_id": "15"
+            },
+            {
+                "capacity": 19,
+                "eightd_has_key_dispenser": true,
+                "lat": 42.34807412317439,
+                "lon": -71.07657015323639,
+                "name": "Back Bay T Stop - Dartmouth St at Stuart St",
+                "region_id": 10,
+                "rental_methods": [
+                    "KEY",
+                    "CREDITCARD"
+                ],
+                "rental_url": "http://app.thehubway.com/KtpS/x7ZxSgCOTF?station_id=16",
+                "short_name": "C32003",
+                "station_id": "16"
+            },
+            {
+                "capacity": 15,
+                "eightd_has_key_dispenser": false,
+                "lat": 42.365064,
+                "lon": -71.119233,
+                "name": "Soldiers Field Park - 111 Western Ave",
+                "region_id": 10,
+                "rental_methods": [
+                    "KEY",
+                    "CREDITCARD"
+                ],
+                "rental_url": "http://app.thehubway.com/KtpS/x7ZxSgCOTF?station_id=17",
+                "short_name": "A32006",
+                "station_id": "17"
+            },
+            {
+                "capacity": 15,
+                "eightd_has_key_dispenser": false,
+                "lat": 42.347241,
+                "lon": -71.105301,
+                "name": "Park Dr at Buswell St",
+                "region_id": 10,
+                "rental_methods": [
+                    "KEY",
+                    "CREDITCARD"
+                ],
+                "rental_url": "http://app.thehubway.com/KtpS/x7ZxSgCOTF?station_id=19",
+                "short_name": "A32008",
+                "station_id": "19"
+            },
+            {
+                "capacity": 19,
+                "eightd_has_key_dispenser": false,
+                "lat": 42.35991176110118,
+                "lon": -71.0514298081398,
+                "name": "Aquarium T Stop - 200 Atlantic Ave",
+                "region_id": 10,
+                "rental_methods": [
+                    "KEY",
+                    "CREDITCARD"
+                ],
+                "rental_url": "http://app.thehubway.com/KtpS/x7ZxSgCOTF?station_id=20",
+                "short_name": "B32004",
+                "station_id": "20"
+            },
+            {
+                "capacity": 25,
+                "eightd_has_key_dispenser": true,
+                "lat": 42.345959,
+                "lon": -71.082578,
+                "name": "Prudential Center - Belvedere St",
+                "region_id": 10,
+                "rental_methods": [
+                    "KEY",
+                    "CREDITCARD"
+                ],
+                "rental_url": "http://app.thehubway.com/KtpS/x7ZxSgCOTF?station_id=21",
+                "short_name": "C32007",
+                "station_id": "21"
+            },
+            {
+                "capacity": 47,
+                "eightd_has_key_dispenser": true,
+                "lat": 42.352175,
+                "lon": -71.055547,
+                "name": "South Station - 700 Atlantic Ave",
+                "region_id": 10,
+                "rental_methods": [
+                    "KEY",
+                    "CREDITCARD"
+                ],
+                "rental_url": "http://app.thehubway.com/KtpS/x7ZxSgCOTF?station_id=22",
+                "short_name": "A32010",
+                "station_id": "22"
+            },
+            {
+                "capacity": 20,
+                "eightd_has_key_dispenser": true,
+                "lat": 42.35892,
+                "lon": -71.057629,
+                "name": "Boston City Hall - 28 State St",
+                "region_id": 10,
+                "rental_methods": [
+                    "KEY",
+                    "CREDITCARD"
+                ],
+                "rental_url": "http://app.thehubway.com/KtpS/x7ZxSgCOTF?station_id=23",
+                "short_name": "B32008",
+                "station_id": "23"
+            },
+            {
+                "capacity": 19,
+                "eightd_has_key_dispenser": false,
+                "lat": 42.35148193460858,
+                "lon": -71.04436084628105,
+                "name": "Seaport Square - Seaport Blvd at Northern Ave",
+                "region_id": 10,
+                "rental_methods": [
+                    "KEY",
+                    "CREDITCARD"
+                ],
+                "rental_url": "http://app.thehubway.com/KtpS/x7ZxSgCOTF?station_id=24",
+                "short_name": "B32007",
+                "station_id": "24"
+            },
+            {
+                "capacity": 15,
+                "eightd_has_key_dispenser": false,
+                "lat": 42.341332,
+                "lon": -71.076847,
+                "name": "South End Library - Tremont St at W Newton St",
+                "region_id": 10,
+                "rental_methods": [
+                    "KEY",
+                    "CREDITCARD"
+                ],
+                "rental_url": "http://app.thehubway.com/KtpS/x7ZxSgCOTF?station_id=25",
+                "short_name": "A32009",
+                "station_id": "25"
+            },
+            {
+                "capacity": 15,
+                "eightd_has_key_dispenser": false,
+                "lat": 42.341522,
+                "lon": -71.068922,
+                "name": "Washington St at Waltham St",
+                "region_id": 10,
+                "rental_methods": [
+                    "KEY",
+                    "CREDITCARD"
+                ],
+                "rental_url": "http://app.thehubway.com/KtpS/x7ZxSgCOTF?station_id=26",
+                "short_name": "D32002",
+                "station_id": "26"
+            },
+            {
+                "capacity": 15,
+                "eightd_has_key_dispenser": false,
+                "lat": 42.331184,
+                "lon": -71.095171,
+                "name": "Roxbury Crossing T Stop - Columbus Ave at Tremont St",
+                "region_id": 10,
+                "rental_methods": [
+                    "KEY",
+                    "CREDITCARD"
+                ],
+                "rental_url": "http://app.thehubway.com/KtpS/x7ZxSgCOTF?station_id=27",
+                "short_name": "C32001",
+                "station_id": "27"
+            },
+            {
+                "capacity": 15,
+                "eightd_has_key_dispenser": false,
+                "lat": 42.363732,
+                "lon": -71.124565,
+                "name": "Innovation Lab - 125 Western Ave at Batten Way",
+                "region_id": 10,
+                "rental_methods": [
+                    "KEY",
+                    "CREDITCARD"
+                ],
+                "rental_url": "http://app.thehubway.com/KtpS/x7ZxSgCOTF?station_id=29",
+                "short_name": "A32011",
+                "station_id": "29"
+            },
+            {
+                "capacity": 15,
+                "eightd_has_key_dispenser": false,
+                "lat": 42.33462893055976,
+                "lon": -71.10407917767589,
+                "name": "Brigham Circle - Francis St at Huntington Ave",
+                "region_id": 10,
+                "rental_methods": [
+                    "KEY",
+                    "CREDITCARD"
+                ],
+                "rental_url": "http://app.thehubway.com/KtpS/x7ZxSgCOTF?station_id=30",
+                "short_name": "B32013",
+                "station_id": "30"
+            },
+            {
+                "capacity": 15,
+                "eightd_has_key_dispenser": true,
+                "lat": 42.34881026188269,
+                "lon": -71.04167744055303,
+                "name": "Seaport Hotel - Congress St at Seaport Ln",
+                "region_id": 10,
+                "rental_methods": [
+                    "KEY",
+                    "CREDITCARD"
+                ],
+                "rental_url": "http://app.thehubway.com/KtpS/x7ZxSgCOTF?station_id=31",
+                "short_name": "B32014",
+                "station_id": "31"
+            },
+            {
+                "capacity": 0,
+                "eightd_has_key_dispenser": false,
+                "lat": 42.34519428944095,
+                "lon": -71.1016970872879,
+                "name": "Landmark Center - Brookline Ave at Park Dr",
+                "region_id": 10,
+                "rental_methods": [
+                    "KEY",
+                    "CREDITCARD"
+                ],
+                "rental_url": "http://app.thehubway.com/KtpS/x7ZxSgCOTF?station_id=32",
+                "short_name": "B32015",
+                "station_id": "32"
+            },
+            {
+                "capacity": 15,
+                "eightd_has_key_dispenser": true,
+                "lat": 42.348706,
+                "lon": -71.097009,
+                "name": "Kenmore Square",
+                "region_id": 10,
+                "rental_methods": [
+                    "KEY",
+                    "CREDITCARD"
+                ],
+                "rental_url": "http://app.thehubway.com/KtpS/x7ZxSgCOTF?station_id=33",
+                "short_name": "B32010",
+                "station_id": "33"
+            },
+            {
+                "capacity": 15,
+                "eightd_has_key_dispenser": false,
+                "lat": 42.35581929709065,
+                "lon": -71.05887290099417,
+                "name": "Arch St at Franklin St",
+                "region_id": 10,
+                "rental_methods": [
+                    "KEY",
+                    "CREDITCARD"
+                ],
+                "rental_url": "http://app.thehubway.com/KtpS/x7ZxSgCOTF?station_id=35",
+                "short_name": "D32004",
+                "station_id": "35"
+            },
+            {
+                "capacity": 25,
+                "eightd_has_key_dispenser": true,
+                "lat": 42.34976701008725,
+                "lon": -71.07732653617859,
+                "name": "Copley Square - Dartmouth St at Boylston St",
+                "region_id": 10,
+                "rental_methods": [
+                    "KEY",
+                    "CREDITCARD"
+                ],
+                "rental_url": "http://app.thehubway.com/KtpS/x7ZxSgCOTF?station_id=36",
+                "short_name": "D32005",
+                "station_id": "36"
+            },
+            {
+                "capacity": 14,
+                "eightd_has_key_dispenser": false,
+                "lat": 42.35732921867706,
+                "lon": -71.14673539996147,
+                "name": "New Balance - 20 Guest St",
+                "region_id": 10,
+                "rental_methods": [
+                    "KEY",
+                    "CREDITCARD"
+                ],
+                "rental_url": "http://app.thehubway.com/KtpS/x7ZxSgCOTF?station_id=37",
+                "short_name": "D32001",
+                "station_id": "37"
+            },
+            {
+                "capacity": 19,
+                "eightd_has_key_dispenser": false,
+                "lat": 42.338514601785995,
+                "lon": -71.07404083013535,
+                "name": "Washington St at Rutland St",
+                "region_id": 10,
+                "rental_methods": [
+                    "KEY",
+                    "CREDITCARD"
+                ],
+                "rental_url": "http://app.thehubway.com/KtpS/x7ZxSgCOTF?station_id=39",
+                "short_name": "C32006",
+                "station_id": "39"
+            },
+            {
+                "capacity": 15,
+                "eightd_has_key_dispenser": false,
+                "lat": 42.363871,
+                "lon": -71.050877,
+                "name": "Lewis Wharf at Atlantic Ave",
+                "region_id": 10,
+                "rental_methods": [
+                    "KEY",
+                    "CREDITCARD"
+                ],
+                "rental_url": "http://app.thehubway.com/KtpS/x7ZxSgCOTF?station_id=40",
+                "short_name": "D32006",
+                "station_id": "40"
+            },
+            {
+                "capacity": 19,
+                "eightd_has_key_dispenser": true,
+                "lat": 42.352261,
+                "lon": -71.123831,
+                "name": "Packard's Corner - Commonwealth Ave at Brighton Ave",
+                "region_id": 10,
+                "rental_methods": [
+                    "KEY",
+                    "CREDITCARD"
+                ],
+                "rental_url": "http://app.thehubway.com/KtpS/x7ZxSgCOTF?station_id=41",
+                "short_name": "A32012",
+                "station_id": "41"
+            },
+            {
+                "capacity": 23,
+                "eightd_has_key_dispenser": false,
+                "lat": 42.352583438376996,
+                "lon": -71.06766249993596,
+                "name": "Boylston St at Arlington St TEMPORARY WINTER LOCATION",
+                "region_id": 10,
+                "rental_methods": [
+                    "KEY",
+                    "CREDITCARD"
+                ],
+                "rental_url": "http://app.thehubway.com/KtpS/x7ZxSgCOTF?station_id=42",
+                "short_name": "D32007",
+                "station_id": "42"
+            },
+            {
+                "capacity": 15,
+                "eightd_has_key_dispenser": true,
+                "lat": 42.357143,
+                "lon": -71.050699,
+                "name": "Rowes Wharf at Atlantic Ave",
+                "region_id": 10,
+                "rental_methods": [
+                    "KEY",
+                    "CREDITCARD"
+                ],
+                "rental_url": "http://app.thehubway.com/KtpS/x7ZxSgCOTF?station_id=43",
+                "short_name": "D32008",
+                "station_id": "43"
+            },
+            {
+                "capacity": 19,
+                "eightd_has_key_dispenser": false,
+                "lat": 42.360613,
+                "lon": -71.057452,
+                "name": "Congress St at North St",
+                "region_id": 10,
+                "rental_methods": [
+                    "KEY",
+                    "CREDITCARD"
+                ],
+                "rental_url": "http://app.thehubway.com/KtpS/x7ZxSgCOTF?station_id=44",
+                "short_name": "D32009",
+                "station_id": "44"
+            },
+            {
+                "capacity": 19,
+                "eightd_has_key_dispenser": false,
+                "lat": 42.3446808403874,
+                "lon": -71.09785348176956,
+                "name": "Yawkey Way at Boylston St.",
+                "region_id": 10,
+                "rental_methods": [
+                    "KEY",
+                    "CREDITCARD"
+                ],
+                "rental_url": "http://app.thehubway.com/KtpS/x7ZxSgCOTF?station_id=45",
+                "short_name": "B32011",
+                "station_id": "45"
+            },
+            {
+                "capacity": 19,
+                "eightd_has_key_dispenser": false,
+                "lat": 42.3436658245146,
+                "lon": -71.08582377433777,
+                "name": "Christian Science Plaza - Massachusetts Ave at Westland Ave",
+                "region_id": 10,
+                "rental_methods": [
+                    "KEY",
+                    "CREDITCARD"
+                ],
+                "rental_url": "http://app.thehubway.com/KtpS/x7ZxSgCOTF?station_id=46",
+                "short_name": "B32005",
+                "station_id": "46"
+            },
+            {
+                "capacity": 19,
+                "eightd_has_key_dispenser": true,
+                "lat": 42.362811,
+                "lon": -71.056067,
+                "name": "Cross St at Hanover St",
+                "region_id": 10,
+                "rental_methods": [
+                    "KEY",
+                    "CREDITCARD"
+                ],
+                "rental_url": "http://app.thehubway.com/KtpS/x7ZxSgCOTF?station_id=47",
+                "short_name": "D32010",
+                "station_id": "47"
+            },
+            {
+                "capacity": 19,
+                "eightd_has_key_dispenser": false,
+                "lat": 42.356755,
+                "lon": -71.055407,
+                "name": "Post Office Square - Pearl St at Milk St",
+                "region_id": 10,
+                "rental_methods": [
+                    "KEY",
+                    "CREDITCARD"
+                ],
+                "rental_url": "http://app.thehubway.com/KtpS/x7ZxSgCOTF?station_id=48",
+                "short_name": "D32012",
+                "station_id": "48"
+            },
+            {
+                "capacity": 18,
+                "eightd_has_key_dispenser": false,
+                "lat": 42.351146,
+                "lon": -71.066289,
+                "name": "Stuart St at Charles St",
+                "region_id": 10,
+                "rental_methods": [
+                    "KEY",
+                    "CREDITCARD"
+                ],
+                "rental_url": "http://app.thehubway.com/KtpS/x7ZxSgCOTF?station_id=49",
+                "short_name": "D32011",
+                "station_id": "49"
+            },
+            {
+                "capacity": 15,
+                "eightd_has_key_dispenser": true,
+                "lat": 42.3511419825475,
+                "lon": -71.07329249382019,
+                "name": "Boylston St at Berkeley St",
+                "region_id": 10,
+                "rental_methods": [
+                    "KEY",
+                    "CREDITCARD"
+                ],
+                "rental_url": "http://app.thehubway.com/KtpS/x7ZxSgCOTF?station_id=50",
+                "short_name": "D32013",
+                "station_id": "50"
+            },
+            {
+                "capacity": 15,
+                "eightd_has_key_dispenser": false,
+                "lat": 42.3350989929096,
+                "lon": -71.07903778553009,
+                "name": "Washington St at Lenox St",
+                "region_id": 10,
+                "rental_methods": [
+                    "KEY",
+                    "CREDITCARD"
+                ],
+                "rental_url": "http://app.thehubway.com/KtpS/x7ZxSgCOTF?station_id=51",
+                "short_name": "C32005",
+                "station_id": "51"
+            },
+            {
+                "capacity": 19,
+                "eightd_has_key_dispenser": true,
+                "lat": 42.348717,
+                "lon": -71.085954,
+                "name": "Newbury St at Hereford St",
+                "region_id": 10,
+                "rental_methods": [
+                    "KEY",
+                    "CREDITCARD"
+                ],
+                "rental_url": "http://app.thehubway.com/KtpS/x7ZxSgCOTF?station_id=52",
+                "short_name": "B32000",
+                "station_id": "52"
+            },
+            {
+                "capacity": 19,
+                "eightd_has_key_dispenser": false,
+                "lat": 42.35082680669095,
+                "lon": -71.0898108780384,
+                "name": "Beacon St at Massachusetts Ave",
+                "region_id": 10,
+                "rental_methods": [
+                    "KEY",
+                    "CREDITCARD"
+                ],
+                "rental_url": "http://app.thehubway.com/KtpS/x7ZxSgCOTF?station_id=53",
+                "short_name": "B32016",
+                "station_id": "53"
+            },
+            {
+                "capacity": 15,
+                "eightd_has_key_dispenser": false,
+                "lat": 42.354979,
+                "lon": -71.063348,
+                "name": "Tremont St at West St",
+                "region_id": 10,
+                "rental_methods": [
+                    "KEY",
+                    "CREDITCARD"
+                ],
+                "rental_url": "http://app.thehubway.com/KtpS/x7ZxSgCOTF?station_id=54",
+                "short_name": "D32014",
+                "station_id": "54"
+            },
+            {
+                "capacity": 15,
+                "eightd_has_key_dispenser": false,
+                "lat": 42.347265,
+                "lon": -71.088088,
+                "name": "Boylston St at Massachusetts Ave",
+                "region_id": 10,
+                "rental_methods": [
+                    "KEY",
+                    "CREDITCARD"
+                ],
+                "rental_url": "http://app.thehubway.com/KtpS/x7ZxSgCOTF?station_id=55",
+                "short_name": "B32018",
+                "station_id": "55"
+            },
+            {
+                "capacity": 14,
+                "eightd_has_key_dispenser": true,
+                "lat": 42.32854046293402,
+                "lon": -71.08416482806204,
+                "name": "Dudley Square - Dudley St at Warren St",
+                "region_id": 10,
+                "rental_methods": [
+                    "KEY",
+                    "CREDITCARD"
+                ],
+                "rental_url": "http://app.thehubway.com/KtpS/x7ZxSgCOTF?station_id=56",
+                "short_name": "B32017",
+                "station_id": "56"
+            },
+            {
+                "capacity": 14,
+                "eightd_has_key_dispenser": false,
+                "lat": 42.340542615516355,
+                "lon": -71.08138847914233,
+                "name": "Columbus Ave at Massachusetts Ave",
+                "region_id": 10,
+                "rental_methods": [
+                    "KEY",
+                    "CREDITCARD"
+                ],
+                "rental_url": "http://app.thehubway.com/KtpS/x7ZxSgCOTF?station_id=57",
+                "short_name": "C32004",
+                "station_id": "57"
+            },
+            {
+                "capacity": 15,
+                "eightd_has_key_dispenser": false,
+                "lat": 42.35554932336134,
+                "lon": -71.07284188270569,
+                "name": "Beacon St at Arlington St",
+                "region_id": 10,
+                "rental_methods": [
+                    "KEY",
+                    "CREDITCARD"
+                ],
+                "rental_url": "http://app.thehubway.com/KtpS/x7ZxSgCOTF?station_id=58",
+                "short_name": "D32017",
+                "station_id": "58"
+            },
+            {
+                "capacity": 15,
+                "eightd_has_key_dispenser": false,
+                "lat": 42.351356,
+                "lon": -71.059367,
+                "name": "Chinatown Gate Plaza",
+                "region_id": 10,
+                "rental_methods": [
+                    "KEY",
+                    "CREDITCARD"
+                ],
+                "rental_url": "http://app.thehubway.com/KtpS/x7ZxSgCOTF?station_id=59",
+                "short_name": "D32015",
+                "station_id": "59"
+            },
+            {
+                "capacity": 15,
+                "eightd_has_key_dispenser": false,
+                "lat": 42.36075761041193,
+                "lon": -71.07132909824031,
+                "name": "Charles Circle - Charles St at Cambridge St TEMPORARY WINTER LOCATION",
+                "region_id": 10,
+                "rental_methods": [
+                    "KEY",
+                    "CREDITCARD"
+                ],
+                "rental_url": "http://app.thehubway.com/KtpS/x7ZxSgCOTF?station_id=60",
+                "short_name": "D32016",
+                "station_id": "60"
+            },
+            {
+                "capacity": 19,
+                "eightd_has_key_dispenser": false,
+                "lat": 42.348762,
+                "lon": -71.082383,
+                "name": "Boylston St at Fairfield St",
+                "region_id": 10,
+                "rental_methods": [
+                    "KEY",
+                    "CREDITCARD"
+                ],
+                "rental_url": "http://app.thehubway.com/KtpS/x7ZxSgCOTF?station_id=61",
+                "short_name": "C32008",
+                "station_id": "61"
+            },
+            {
+                "capacity": 15,
+                "eightd_has_key_dispenser": false,
+                "lat": 42.344040510016356,
+                "lon": -71.05737626552582,
+                "name": "Dorchester Ave at Gillette Park",
+                "region_id": 10,
+                "rental_methods": [
+                    "KEY",
+                    "CREDITCARD"
+                ],
+                "rental_url": "http://app.thehubway.com/KtpS/x7ZxSgCOTF?station_id=63",
+                "short_name": "C32009",
+                "station_id": "63"
+            },
+            {
+                "capacity": 19,
+                "eightd_has_key_dispenser": false,
+                "lat": 42.351004495946704,
+                "lon": -71.04930013418198,
+                "name": "Congress St at Sleeper St",
+                "region_id": 10,
+                "rental_methods": [
+                    "KEY",
+                    "CREDITCARD"
+                ],
+                "rental_url": "http://app.thehubway.com/KtpS/x7ZxSgCOTF?station_id=64",
+                "short_name": "C32010",
+                "station_id": "64"
+            },
+            {
+                "capacity": 19,
+                "eightd_has_key_dispenser": false,
+                "lat": 42.347763454147454,
+                "lon": -71.0453599691391,
+                "name": "Boston Convention and Exhibition Center - Summer St at West Side Dr",
+                "region_id": 10,
+                "rental_methods": [
+                    "KEY",
+                    "CREDITCARD"
+                ],
+                "rental_url": "http://app.thehubway.com/KtpS/x7ZxSgCOTF?station_id=65",
+                "short_name": "D32018",
+                "station_id": "65"
+            },
+            {
+                "capacity": 15,
+                "eightd_has_key_dispenser": false,
+                "lat": 42.34922469338298,
+                "lon": -71.13275302578586,
+                "name": "Allston Green District - Griggs St at Commonwealth Ave TEMPORARY WINTER LOCATION",
+                "region_id": 10,
+                "rental_methods": [
+                    "KEY",
+                    "CREDITCARD"
+                ],
+                "rental_url": "http://app.thehubway.com/KtpS/x7ZxSgCOTF?station_id=66",
+                "short_name": "A32017",
+                "station_id": "66"
+            },
+            {
+                "capacity": 27,
+                "eightd_has_key_dispenser": false,
+                "lat": 42.3581,
+                "lon": -71.093198,
+                "name": "MIT at Mass Ave / Amherst St",
+                "region_id": 8,
+                "rental_methods": [
+                    "KEY",
+                    "CREDITCARD"
+                ],
+                "rental_url": "http://app.thehubway.com/KtpS/x7ZxSgCOTF?station_id=67",
+                "short_name": "M32006",
+                "station_id": "67"
+            },
+            {
+                "capacity": 19,
+                "eightd_has_key_dispenser": false,
+                "lat": 42.36507,
+                "lon": -71.1031,
+                "name": "Central Square at Mass Ave / Essex St",
+                "region_id": 8,
+                "rental_methods": [
+                    "KEY",
+                    "CREDITCARD"
+                ],
+                "rental_url": "http://app.thehubway.com/KtpS/x7ZxSgCOTF?station_id=68",
+                "short_name": "M32011",
+                "station_id": "68"
+            },
+            {
+                "capacity": 19,
+                "eightd_has_key_dispenser": false,
+                "lat": 42.341598,
+                "lon": -71.123338,
+                "name": "Coolidge Corner - Beacon St @ Centre St",
+                "region_id": 4,
+                "rental_methods": [
+                    "KEY",
+                    "CREDITCARD"
+                ],
+                "rental_url": "http://app.thehubway.com/KtpS/x7ZxSgCOTF?station_id=69",
+                "short_name": "K32001",
+                "station_id": "69"
+            },
+            {
+                "capacity": 23,
+                "eightd_has_key_dispenser": false,
+                "lat": 42.37199165408676,
+                "lon": -71.12226963043213,
+                "name": "Harvard Kennedy School at Bennett St / Eliot St",
+                "region_id": 8,
+                "rental_methods": [
+                    "KEY",
+                    "CREDITCARD"
+                ],
+                "rental_url": "http://app.thehubway.com/KtpS/x7ZxSgCOTF?station_id=70",
+                "short_name": "M32016",
+                "station_id": "70"
+            },
+            {
+                "capacity": 15,
+                "eightd_has_key_dispenser": false,
+                "lat": 42.383405,
+                "lon": -71.107593,
+                "name": "Conway Park - Somerville Avenue",
+                "region_id": 9,
+                "rental_methods": [
+                    "KEY",
+                    "CREDITCARD"
+                ],
+                "rental_url": "http://app.thehubway.com/KtpS/x7ZxSgCOTF?station_id=71",
+                "short_name": "S32004",
+                "station_id": "71"
+            },
+            {
+                "capacity": 15,
+                "eightd_has_key_dispenser": false,
+                "lat": 42.362613,
+                "lon": -71.084105,
+                "name": "One Broadway / Kendall Sq at Main St / 3rd St",
+                "region_id": 8,
+                "rental_methods": [
+                    "KEY",
+                    "CREDITCARD"
+                ],
+                "rental_url": "http://app.thehubway.com/KtpS/x7ZxSgCOTF?station_id=72",
+                "short_name": "M32003",
+                "station_id": "72"
+            },
+            {
+                "capacity": 15,
+                "eightd_has_key_dispenser": false,
+                "lat": 42.373231,
+                "lon": -71.120886,
+                "name": "Harvard Square at Brattle St / Eliot St",
+                "region_id": 8,
+                "rental_methods": [
+                    "KEY",
+                    "CREDITCARD"
+                ],
+                "rental_url": "http://app.thehubway.com/KtpS/x7ZxSgCOTF?station_id=73",
+                "short_name": "M32017",
+                "station_id": "73"
+            },
+            {
+                "capacity": 19,
+                "eightd_has_key_dispenser": false,
+                "lat": 42.373268,
+                "lon": -71.118579,
+                "name": "Harvard Square at Mass Ave/ Dunster",
+                "region_id": 8,
+                "rental_methods": [
+                    "KEY",
+                    "CREDITCARD"
+                ],
+                "rental_url": "http://app.thehubway.com/KtpS/x7ZxSgCOTF?station_id=74",
+                "short_name": "M32018",
+                "station_id": "74"
+            },
+            {
+                "capacity": 15,
+                "eightd_has_key_dispenser": false,
+                "lat": 42.36346469304347,
+                "lon": -71.10057324171066,
+                "name": "Lafayette Square at Mass Ave / Main St / Columbia St",
+                "region_id": 8,
+                "rental_methods": [
+                    "KEY",
+                    "CREDITCARD"
+                ],
+                "rental_url": "http://app.thehubway.com/KtpS/x7ZxSgCOTF?station_id=75",
+                "short_name": "M32009",
+                "station_id": "75"
+            },
+            {
+                "capacity": 17,
+                "eightd_has_key_dispenser": false,
+                "lat": 42.366426,
+                "lon": -71.105495,
+                "name": "Central Sq Post Office / Cambridge City Hall at Mass Ave / Pleasant St",
+                "region_id": 8,
+                "rental_methods": [
+                    "KEY",
+                    "CREDITCARD"
+                ],
+                "rental_url": "http://app.thehubway.com/KtpS/x7ZxSgCOTF?station_id=76",
+                "short_name": "M32012",
+                "station_id": "76"
+            },
+            {
+                "capacity": 15,
+                "eightd_has_key_dispenser": false,
+                "lat": 42.386844,
+                "lon": -71.09812,
+                "name": "Somerville City Hall",
+                "region_id": 9,
+                "rental_methods": [
+                    "KEY",
+                    "CREDITCARD"
+                ],
+                "rental_url": "http://app.thehubway.com/KtpS/x7ZxSgCOTF?station_id=77",
+                "short_name": "S32001",
+                "station_id": "77"
+            },
+            {
+                "capacity": 19,
+                "eightd_has_key_dispenser": false,
+                "lat": 42.379637,
+                "lon": -71.095319,
+                "name": "Union Square - Somerville",
+                "region_id": 9,
+                "rental_methods": [
+                    "KEY",
+                    "CREDITCARD"
+                ],
+                "rental_url": "http://app.thehubway.com/KtpS/x7ZxSgCOTF?station_id=78",
+                "short_name": "S32002",
+                "station_id": "78"
+            },
+            {
+                "capacity": 15,
+                "eightd_has_key_dispenser": false,
+                "lat": 42.37842,
+                "lon": -71.105668,
+                "name": "Beacon St at Washington / Kirkland",
+                "region_id": 9,
+                "rental_methods": [
+                    "KEY",
+                    "CREDITCARD"
+                ],
+                "rental_url": "http://app.thehubway.com/KtpS/x7ZxSgCOTF?station_id=79",
+                "short_name": "S32003",
+                "station_id": "79"
+            },
+            {
+                "capacity": 35,
+                "eightd_has_key_dispenser": false,
+                "lat": 42.3621312344991,
+                "lon": -71.09115600585936,
+                "name": "MIT Stata Center at Vassar St / Main St",
+                "region_id": 8,
+                "rental_methods": [
+                    "KEY",
+                    "CREDITCARD"
+                ],
+                "rental_url": "http://app.thehubway.com/KtpS/x7ZxSgCOTF?station_id=80",
+                "short_name": "M32005",
+                "station_id": "80"
+            },
+            {
+                "capacity": 15,
+                "eightd_has_key_dispenser": false,
+                "lat": 42.352409,
+                "lon": -71.062679,
+                "name": "Boylston St at Washington St",
+                "region_id": 10,
+                "rental_methods": [
+                    "KEY",
+                    "CREDITCARD"
+                ],
+                "rental_url": "http://app.thehubway.com/KtpS/x7ZxSgCOTF?station_id=81",
+                "short_name": "D32019",
+                "station_id": "81"
+            },
+            {
+                "capacity": 15,
+                "eightd_has_key_dispenser": false,
+                "lat": 42.338254270769454,
+                "lon": -71.13905482012342,
+                "name": "Washington Square at Washington St. / Beacon St. TEMPORARY WINTER LOCATION",
+                "region_id": 4,
+                "rental_methods": [
+                    "KEY",
+                    "CREDITCARD"
+                ],
+                "rental_url": "http://app.thehubway.com/KtpS/x7ZxSgCOTF?station_id=82",
+                "short_name": "K32002",
+                "station_id": "82"
+            },
+            {
+                "capacity": 15,
+                "eightd_has_key_dispenser": false,
+                "lat": 42.366981,
+                "lon": -71.076472,
+                "name": "CambridgeSide Galleria - CambridgeSide PL at Land Blvd",
+                "region_id": 8,
+                "rental_methods": [
+                    "KEY",
+                    "CREDITCARD"
+                ],
+                "rental_url": "http://app.thehubway.com/KtpS/x7ZxSgCOTF?station_id=84",
+                "short_name": "M32019",
+                "station_id": "84"
+            },
+            {
+                "capacity": 19,
+                "eightd_has_key_dispenser": false,
+                "lat": 42.378338,
+                "lon": -71.048927,
+                "name": "Spaulding Rehabilitation Hospital - Charlestown Navy Yard",
+                "region_id": 10,
+                "rental_methods": [
+                    "KEY",
+                    "CREDITCARD"
+                ],
+                "rental_url": "http://app.thehubway.com/KtpS/x7ZxSgCOTF?station_id=85",
+                "short_name": "D32023",
+                "station_id": "85"
+            },
+            {
+                "capacity": 15,
+                "eightd_has_key_dispenser": false,
+                "lat": 42.366621,
+                "lon": -71.114214,
+                "name": "Harvard University Housing - 115 Putnam Ave at Peabody Terrace",
+                "region_id": 8,
+                "rental_methods": [
+                    "KEY",
+                    "CREDITCARD"
+                ],
+                "rental_url": "http://app.thehubway.com/KtpS/x7ZxSgCOTF?station_id=87",
+                "short_name": "M32014",
+                "station_id": "87"
+            },
+            {
+                "capacity": 19,
+                "eightd_has_key_dispenser": false,
+                "lat": 42.374035,
+                "lon": -71.101427,
+                "name": "Inman Square at Vellucci Plaza / Hampshire St",
+                "region_id": 8,
+                "rental_methods": [
+                    "KEY",
+                    "CREDITCARD"
+                ],
+                "rental_url": "http://app.thehubway.com/KtpS/x7ZxSgCOTF?station_id=88",
+                "short_name": "M32010",
+                "station_id": "88"
+            },
+            {
+                "capacity": 19,
+                "eightd_has_key_dispenser": false,
+                "lat": 42.379011,
+                "lon": -71.119945,
+                "name": "Harvard Law School at Mass Ave / Jarvis St",
+                "region_id": 8,
+                "rental_methods": [
+                    "KEY",
+                    "CREDITCARD"
+                ],
+                "rental_url": "http://app.thehubway.com/KtpS/x7ZxSgCOTF?station_id=89",
+                "short_name": "M32020",
+                "station_id": "89"
+            },
+            {
+                "capacity": 19,
+                "eightd_has_key_dispenser": false,
+                "lat": 42.370677,
+                "lon": -71.076529,
+                "name": "Lechmere Station at Cambridge St / First St",
+                "region_id": 8,
+                "rental_methods": [
+                    "KEY",
+                    "CREDITCARD"
+                ],
+                "rental_url": "http://app.thehubway.com/KtpS/x7ZxSgCOTF?station_id=90",
+                "short_name": "M32001",
+                "station_id": "90"
+            },
+            {
+                "capacity": 19,
+                "eightd_has_key_dispenser": false,
+                "lat": 42.366277,
+                "lon": -71.09169,
+                "name": "One Kendall Square at Hampshire St / Portland St",
+                "region_id": 8,
+                "rental_methods": [
+                    "KEY",
+                    "CREDITCARD"
+                ],
+                "rental_url": "http://app.thehubway.com/KtpS/x7ZxSgCOTF?station_id=91",
+                "short_name": "M32002",
+                "station_id": "91"
+            },
+            {
+                "capacity": 19,
+                "eightd_has_key_dispenser": false,
+                "lat": 42.314507,
+                "lon": -71.041269,
+                "name": "University of Massachusetts Boston - Integrated Sciences Complex",
+                "region_id": 10,
+                "rental_methods": [
+                    "KEY",
+                    "CREDITCARD"
+                ],
+                "rental_url": "http://app.thehubway.com/KtpS/x7ZxSgCOTF?station_id=92",
+                "short_name": "C32014",
+                "station_id": "92"
+            },
+            {
+                "capacity": 15,
+                "eightd_has_key_dispenser": false,
+                "lat": 42.32033973515723,
+                "lon": -71.05118036270142,
+                "name": "JFK/UMass T Stop",
+                "region_id": 10,
+                "rental_methods": [
+                    "KEY",
+                    "CREDITCARD"
+                ],
+                "rental_url": "http://app.thehubway.com/KtpS/x7ZxSgCOTF?station_id=93",
+                "short_name": "C32013",
+                "station_id": "93"
+            },
+            {
+                "capacity": 11,
+                "eightd_has_key_dispenser": false,
+                "lat": 42.375603,
+                "lon": -71.064608,
+                "name": "Main St at Austin St",
+                "region_id": 10,
+                "rental_methods": [
+                    "KEY",
+                    "CREDITCARD"
+                ],
+                "rental_url": "http://app.thehubway.com/KtpS/x7ZxSgCOTF?station_id=94",
+                "short_name": "D32020",
+                "station_id": "94"
+            },
+            {
+                "capacity": 15,
+                "eightd_has_key_dispenser": false,
+                "lat": 42.372969,
+                "lon": -71.094445,
+                "name": "Cambridge St - at Columbia St / Webster Ave",
+                "region_id": 8,
+                "rental_methods": [
+                    "KEY",
+                    "CREDITCARD"
+                ],
+                "rental_url": "http://app.thehubway.com/KtpS/x7ZxSgCOTF?station_id=95",
+                "short_name": "M32007",
+                "station_id": "95"
+            },
+            {
+                "capacity": 19,
+                "eightd_has_key_dispenser": false,
+                "lat": 42.373379,
+                "lon": -71.111075,
+                "name": "Cambridge Main Library at Broadway / Trowbridge St",
+                "region_id": 8,
+                "rental_methods": [
+                    "KEY",
+                    "CREDITCARD"
+                ],
+                "rental_url": "http://app.thehubway.com/KtpS/x7ZxSgCOTF?station_id=96",
+                "short_name": "M32013",
+                "station_id": "96"
+            },
+            {
+                "capacity": 19,
+                "eightd_has_key_dispenser": false,
+                "lat": 42.36919031768079,
+                "lon": -71.11714124679565,
+                "name": "Harvard University River Houses at DeWolfe St / Cowperthwaite St",
+                "region_id": 8,
+                "rental_methods": [
+                    "KEY",
+                    "CREDITCARD"
+                ],
+                "rental_url": "http://app.thehubway.com/KtpS/x7ZxSgCOTF?station_id=97",
+                "short_name": "M32038",
+                "station_id": "97"
+            },
+            {
+                "capacity": 19,
+                "eightd_has_key_dispenser": false,
+                "lat": 42.371848,
+                "lon": -71.060292,
+                "name": "Warren St at Chelsea St",
+                "region_id": 10,
+                "rental_methods": [
+                    "KEY",
+                    "CREDITCARD"
+                ],
+                "rental_url": "http://app.thehubway.com/KtpS/x7ZxSgCOTF?station_id=98",
+                "short_name": "D32021",
+                "station_id": "98"
+            },
+            {
+                "capacity": 15,
+                "eightd_has_key_dispenser": false,
+                "lat": 42.385582,
+                "lon": -71.113341,
+                "name": "Wilson Square",
+                "region_id": 9,
+                "rental_methods": [
+                    "KEY",
+                    "CREDITCARD"
+                ],
+                "rental_url": "http://app.thehubway.com/KtpS/x7ZxSgCOTF?station_id=99",
+                "short_name": "S32005",
+                "station_id": "99"
+            },
+            {
+                "capacity": 25,
+                "eightd_has_key_dispenser": false,
+                "lat": 42.396969,
+                "lon": -71.123024,
+                "name": "Davis Square",
+                "region_id": 9,
+                "rental_methods": [
+                    "KEY",
+                    "CREDITCARD"
+                ],
+                "rental_url": "http://app.thehubway.com/KtpS/x7ZxSgCOTF?station_id=100",
+                "short_name": "S32006",
+                "station_id": "100"
+            },
+            {
+                "capacity": 15,
+                "eightd_has_key_dispenser": false,
+                "lat": 42.400877,
+                "lon": -71.116772,
+                "name": "Powder House Circle - Nathan Tufts Park",
+                "region_id": 9,
+                "rental_methods": [
+                    "KEY",
+                    "CREDITCARD"
+                ],
+                "rental_url": "http://app.thehubway.com/KtpS/x7ZxSgCOTF?station_id=102",
+                "short_name": "S32008",
+                "station_id": "102"
+            },
+            {
+                "capacity": 15,
+                "eightd_has_key_dispenser": false,
+                "lat": 42.346563,
+                "lon": -71.128374,
+                "name": "JFK Crossing at Harvard St. / Thorndike St.",
+                "region_id": 4,
+                "rental_methods": [
+                    "KEY",
+                    "CREDITCARD"
+                ],
+                "rental_url": "http://app.thehubway.com/KtpS/x7ZxSgCOTF?station_id=103",
+                "short_name": "K32004",
+                "station_id": "103"
+            },
+            {
+                "capacity": 19,
+                "eightd_has_key_dispenser": false,
+                "lat": 42.380287,
+                "lon": -71.125107,
+                "name": "Harvard University Radcliffe Quadrangle at Shepard St / Garden St",
+                "region_id": 8,
+                "rental_methods": [
+                    "KEY",
+                    "CREDITCARD"
+                ],
+                "rental_url": "http://app.thehubway.com/KtpS/x7ZxSgCOTF?station_id=104",
+                "short_name": "M32024",
+                "station_id": "104"
+            },
+            {
+                "capacity": 19,
+                "eightd_has_key_dispenser": false,
+                "lat": 42.357218503176526,
+                "lon": -71.1138716340065,
+                "name": "Lower Cambridgeport at Magazine St / Riverside Rd",
+                "region_id": 8,
+                "rental_methods": [
+                    "KEY",
+                    "CREDITCARD"
+                ],
+                "rental_url": "http://app.thehubway.com/KtpS/x7ZxSgCOTF?station_id=105",
+                "short_name": "M32022",
+                "station_id": "105"
+            },
+            {
+                "capacity": 19,
+                "eightd_has_key_dispenser": false,
+                "lat": 42.3625,
+                "lon": -71.08822,
+                "name": "Ames St at Main St",
+                "region_id": 8,
+                "rental_methods": [
+                    "KEY",
+                    "CREDITCARD"
+                ],
+                "rental_url": "http://app.thehubway.com/KtpS/x7ZxSgCOTF?station_id=107",
+                "short_name": "M32037",
+                "station_id": "107"
+            },
+            {
+                "capacity": 17,
+                "eightd_has_key_dispenser": false,
+                "lat": 42.377945,
+                "lon": -71.116865,
+                "name": "Harvard University / SEAS Cruft-Pierce Halls at 29 Oxford St",
+                "region_id": 8,
+                "rental_methods": [
+                    "KEY",
+                    "CREDITCARD"
+                ],
+                "rental_url": "http://app.thehubway.com/KtpS/x7ZxSgCOTF?station_id=108",
+                "short_name": "M32023",
+                "station_id": "108"
+            },
+            {
+                "capacity": 35,
+                "eightd_has_key_dispenser": false,
+                "lat": 42.36590788445084,
+                "lon": -71.06446668505669,
+                "name": "TD Garden - West End Park",
+                "region_id": 10,
+                "rental_methods": [
+                    "KEY",
+                    "CREDITCARD"
+                ],
+                "rental_url": "http://app.thehubway.com/KtpS/x7ZxSgCOTF?station_id=109",
+                "short_name": "D32022",
+                "station_id": "109"
+            },
+            {
+                "capacity": 15,
+                "eightd_has_key_dispenser": false,
+                "lat": 42.376369,
+                "lon": -71.114025,
+                "name": "Harvard University Gund Hall at Quincy St / Kirkland S",
+                "region_id": 8,
+                "rental_methods": [
+                    "KEY",
+                    "CREDITCARD"
+                ],
+                "rental_url": "http://app.thehubway.com/KtpS/x7ZxSgCOTF?station_id=110",
+                "short_name": "M32021",
+                "station_id": "110"
+            },
+            {
+                "capacity": 15,
+                "eightd_has_key_dispenser": false,
+                "lat": 42.40449,
+                "lon": -71.123413,
+                "name": "Packard Ave / Powderhouse Blvd",
+                "region_id": 9,
+                "rental_methods": [
+                    "KEY",
+                    "CREDITCARD"
+                ],
+                "rental_url": "http://app.thehubway.com/KtpS/x7ZxSgCOTF?station_id=111",
+                "short_name": "S32009",
+                "station_id": "111"
+            },
+            {
+                "capacity": 15,
+                "eightd_has_key_dispenser": false,
+                "lat": 42.406302,
+                "lon": -71.132446,
+                "name": "Clarendon Hill at Broadway",
+                "region_id": 9,
+                "rental_methods": [
+                    "KEY",
+                    "CREDITCARD"
+                ],
+                "rental_url": "http://app.thehubway.com/KtpS/x7ZxSgCOTF?station_id=112",
+                "short_name": "S32010",
+                "station_id": "112"
+            },
+            {
+                "capacity": 15,
+                "eightd_has_key_dispenser": false,
+                "lat": 42.330473650415165,
+                "lon": -71.05701684951782,
+                "name": "Andrew T Stop - Dorchester Ave at Dexter St",
+                "region_id": 10,
+                "rental_methods": [
+                    "KEY",
+                    "CREDITCARD"
+                ],
+                "rental_url": "http://app.thehubway.com/KtpS/x7ZxSgCOTF?station_id=113",
+                "short_name": "C32012",
+                "station_id": "113"
+            },
+            {
+                "capacity": 15,
+                "eightd_has_key_dispenser": false,
+                "lat": 42.402763,
+                "lon": -71.126908,
+                "name": "Teele Square at 239 Holland St",
+                "region_id": 9,
+                "rental_methods": [
+                    "KEY",
+                    "CREDITCARD"
+                ],
+                "rental_url": "http://app.thehubway.com/KtpS/x7ZxSgCOTF?station_id=114",
+                "short_name": "S32011",
+                "station_id": "114"
+            },
+            {
+                "capacity": 19,
+                "eightd_has_key_dispenser": false,
+                "lat": 42.387995,
+                "lon": -71.119084,
+                "name": "Porter Square Station",
+                "region_id": 8,
+                "rental_methods": [
+                    "KEY",
+                    "CREDITCARD"
+                ],
+                "rental_url": "http://app.thehubway.com/KtpS/x7ZxSgCOTF?station_id=115",
+                "short_name": "M32029",
+                "station_id": "115"
+            },
+            {
+                "capacity": 19,
+                "eightd_has_key_dispenser": false,
+                "lat": 42.370803,
+                "lon": -71.104412,
+                "name": "359 Broadway - Broadway at Fayette Street",
+                "region_id": 8,
+                "rental_methods": [
+                    "KEY",
+                    "CREDITCARD"
+                ],
+                "rental_url": "http://app.thehubway.com/KtpS/x7ZxSgCOTF?station_id=116",
+                "short_name": "M32026",
+                "station_id": "116"
+            },
+            {
+                "capacity": 19,
+                "eightd_has_key_dispenser": false,
+                "lat": 42.366095,
+                "lon": -71.086388,
+                "name": "Binney St / Sixth St",
+                "region_id": 8,
+                "rental_methods": [
+                    "KEY",
+                    "CREDITCARD"
+                ],
+                "rental_url": "http://app.thehubway.com/KtpS/x7ZxSgCOTF?station_id=117",
+                "short_name": "M32027",
+                "station_id": "117"
+            },
+            {
+                "capacity": 19,
+                "eightd_has_key_dispenser": false,
+                "lat": 42.397828,
+                "lon": -71.130516,
+                "name": "Linear Park - Mass. Ave. at Cameron Ave. ",
+                "region_id": 8,
+                "rental_methods": [
+                    "KEY",
+                    "CREDITCARD"
+                ],
+                "rental_url": "http://app.thehubway.com/KtpS/x7ZxSgCOTF?station_id=118",
+                "short_name": "M32025",
+                "station_id": "118"
+            },
+            {
+                "capacity": 15,
+                "eightd_has_key_dispenser": false,
+                "lat": 42.335741,
+                "lon": -71.03877,
+                "name": "South Boston Library - 646 E Broadway",
+                "region_id": 10,
+                "rental_methods": [
+                    "KEY",
+                    "CREDITCARD"
+                ],
+                "rental_url": "http://app.thehubway.com/KtpS/x7ZxSgCOTF?station_id=119",
+                "short_name": "C32017",
+                "station_id": "119"
+            },
+            {
+                "capacity": 15,
+                "eightd_has_key_dispenser": false,
+                "lat": 42.356052,
+                "lon": -71.069849,
+                "name": "Charles St and Beacon St",
+                "region_id": 10,
+                "rental_methods": [
+                    "KEY",
+                    "CREDITCARD"
+                ],
+                "rental_url": "http://app.thehubway.com/KtpS/x7ZxSgCOTF?station_id=120",
+                "short_name": "D32024",
+                "station_id": "120"
+            },
+            {
+                "capacity": 17,
+                "eightd_has_key_dispenser": false,
+                "lat": 42.335693,
+                "lon": -71.045859,
+                "name": "W Broadway at Dorchester St",
+                "region_id": 10,
+                "rental_methods": [
+                    "KEY",
+                    "CREDITCARD"
+                ],
+                "rental_url": "http://app.thehubway.com/KtpS/x7ZxSgCOTF?station_id=121",
+                "short_name": "C32016",
+                "station_id": "121"
+            },
+            {
+                "capacity": 15,
+                "eightd_has_key_dispenser": false,
+                "lat": 42.345733,
+                "lon": -71.100694,
+                "name": "Burlington Ave at Brookline Ave",
+                "region_id": 10,
+                "rental_methods": [
+                    "KEY",
+                    "CREDITCARD"
+                ],
+                "rental_url": "http://app.thehubway.com/KtpS/x7ZxSgCOTF?station_id=122",
+                "short_name": "B32020",
+                "station_id": "122"
+            },
+            {
+                "capacity": 15,
+                "eightd_has_key_dispenser": false,
+                "lat": 42.313156,
+                "lon": -71.11414,
+                "name": "JP Center",
+                "region_id": 10,
+                "rental_methods": [
+                    "KEY",
+                    "CREDITCARD"
+                ],
+                "rental_url": "http://app.thehubway.com/KtpS/x7ZxSgCOTF?station_id=123",
+                "short_name": "E32002",
+                "station_id": "123"
+            },
+            {
+                "capacity": 15,
+                "eightd_has_key_dispenser": false,
+                "lat": 42.309054,
+                "lon": -71.11543,
+                "name": "Curtis Hall - South St at Centre St",
+                "region_id": 10,
+                "rental_methods": [
+                    "KEY",
+                    "CREDITCARD"
+                ],
+                "rental_url": "http://app.thehubway.com/KtpS/x7ZxSgCOTF?station_id=124",
+                "short_name": "E32001",
+                "station_id": "124"
+            },
+            {
+                "capacity": 15,
+                "eightd_has_key_dispenser": false,
+                "lat": 42.32176525723952,
+                "lon": -71.10984160567114,
+                "name": "Hyde Square - Barbara St at Centre St",
+                "region_id": 10,
+                "rental_methods": [
+                    "KEY",
+                    "CREDITCARD"
+                ],
+                "rental_url": "http://app.thehubway.com/KtpS/x7ZxSgCOTF?station_id=125",
+                "short_name": "E32003",
+                "station_id": "125"
+            },
+            {
+                "capacity": 15,
+                "eightd_has_key_dispenser": false,
+                "lat": 42.315692,
+                "lon": -71.098634,
+                "name": "Egleston Square - Atherton St at Washington St",
+                "region_id": 10,
+                "rental_methods": [
+                    "KEY",
+                    "CREDITCARD"
+                ],
+                "rental_url": "http://app.thehubway.com/KtpS/x7ZxSgCOTF?station_id=126",
+                "short_name": "E32004",
+                "station_id": "126"
+            },
+            {
+                "capacity": 19,
+                "eightd_has_key_dispenser": false,
+                "lat": 42.320561,
+                "lon": -71.06198,
+                "name": "E Cottage St at Columbia Rd",
+                "region_id": 10,
+                "rental_methods": [
+                    "KEY",
+                    "CREDITCARD"
+                ],
+                "rental_url": "http://app.thehubway.com/KtpS/x7ZxSgCOTF?station_id=128",
+                "short_name": "C32018",
+                "station_id": "128"
+            },
+            {
+                "capacity": 3,
+                "eightd_has_key_dispenser": false,
+                "lat": 42.377022,
+                "lon": -71.056605,
+                "name": "Hayes Square - Vine St at Moulton St",
+                "region_id": 10,
+                "rental_methods": [
+                    "KEY",
+                    "CREDITCARD"
+                ],
+                "rental_url": "http://app.thehubway.com/KtpS/x7ZxSgCOTF?station_id=129",
+                "short_name": "D32026",
+                "station_id": "129"
+            },
+            {
+                "capacity": 15,
+                "eightd_has_key_dispenser": false,
+                "lat": 42.31750891943043,
+                "lon": -71.06416625906604,
+                "name": "Upham's Corner TEMPORARY WINTER LOCATION",
+                "region_id": 10,
+                "rental_methods": [
+                    "KEY",
+                    "CREDITCARD"
+                ],
+                "rental_url": "http://app.thehubway.com/KtpS/x7ZxSgCOTF?station_id=130",
+                "short_name": "C32019",
+                "station_id": "130"
+            },
+            {
+                "capacity": 18,
+                "eightd_has_key_dispenser": true,
+                "lat": 42.32293117195949,
+                "lon": -71.10014140605927,
+                "name": "Jackson Square T Stop",
+                "region_id": 10,
+                "rental_methods": [
+                    "KEY",
+                    "CREDITCARD"
+                ],
+                "rental_url": "http://app.thehubway.com/KtpS/x7ZxSgCOTF?station_id=131",
+                "short_name": "E32006",
+                "station_id": "131"
+            },
+            {
+                "capacity": 15,
+                "eightd_has_key_dispenser": false,
+                "lat": 42.310579,
+                "lon": -71.107341,
+                "name": "Green Street T Stop - Green St at Amory St",
+                "region_id": 10,
+                "rental_methods": [
+                    "KEY",
+                    "CREDITCARD"
+                ],
+                "rental_url": "http://app.thehubway.com/KtpS/x7ZxSgCOTF?station_id=133",
+                "short_name": "E32005",
+                "station_id": "133"
+            },
+            {
+                "capacity": 15,
+                "eightd_has_key_dispenser": false,
+                "lat": 42.350413,
+                "lon": -71.07655,
+                "name": "Boylston St at Dartmouth St",
+                "region_id": 10,
+                "rental_methods": [
+                    "KEY",
+                    "CREDITCARD"
+                ],
+                "rental_url": "http://app.thehubway.com/KtpS/x7ZxSgCOTF?station_id=134",
+                "short_name": "D32027",
+                "station_id": "134"
+            },
+            {
+                "capacity": 17,
+                "eightd_has_key_dispenser": false,
+                "lat": 42.344827,
+                "lon": -71.028664,
+                "name": "ID Building East",
+                "region_id": 10,
+                "rental_methods": [
+                    "KEY",
+                    "CREDITCARD"
+                ],
+                "rental_url": "http://app.thehubway.com/KtpS/x7ZxSgCOTF?station_id=135",
+                "short_name": "C32020",
+                "station_id": "135"
+            },
+            {
+                "capacity": 19,
+                "eightd_has_key_dispenser": false,
+                "lat": 42.344796,
+                "lon": -71.031614,
+                "name": "ID Building West",
+                "region_id": 10,
+                "rental_methods": [
+                    "KEY",
+                    "CREDITCARD"
+                ],
+                "rental_url": "http://app.thehubway.com/KtpS/x7ZxSgCOTF?station_id=136",
+                "short_name": "C32021",
+                "station_id": "136"
+            },
+            {
+                "capacity": 15,
+                "eightd_has_key_dispenser": false,
+                "lat": 42.398365,
+                "lon": -71.107818,
+                "name": "Magoun Square at Trum Field",
+                "region_id": 9,
+                "rental_methods": [
+                    "KEY",
+                    "CREDITCARD"
+                ],
+                "rental_url": "http://app.thehubway.com/KtpS/x7ZxSgCOTF?station_id=137",
+                "short_name": "S32013",
+                "station_id": "137"
+            },
+            {
+                "capacity": 15,
+                "eightd_has_key_dispenser": false,
+                "lat": 42.326599,
+                "lon": -71.066498,
+                "name": "Newmarket Square T Stop - Massachusetts Ave at Newmarket Square",
+                "region_id": 10,
+                "rental_methods": [
+                    "KEY",
+                    "CREDITCARD"
+                ],
+                "rental_url": "http://app.thehubway.com/KtpS/x7ZxSgCOTF?station_id=138",
+                "short_name": "C32022",
+                "station_id": "138"
+            },
+            {
+                "capacity": 19,
+                "eightd_has_key_dispenser": false,
+                "lat": 42.361780439606044,
+                "lon": -71.10809952020645,
+                "name": "Dana Park",
+                "region_id": 8,
+                "rental_methods": [
+                    "KEY",
+                    "CREDITCARD"
+                ],
+                "rental_url": "http://app.thehubway.com/KtpS/x7ZxSgCOTF?station_id=139",
+                "short_name": "M32030",
+                "station_id": "139"
+            },
+            {
+                "capacity": 17,
+                "eightd_has_key_dispenser": false,
+                "lat": 42.388966,
+                "lon": -71.132788,
+                "name": "Danehy Park",
+                "region_id": 8,
+                "rental_methods": [
+                    "KEY",
+                    "CREDITCARD"
+                ],
+                "rental_url": "http://app.thehubway.com/KtpS/x7ZxSgCOTF?station_id=140",
+                "short_name": "M32031",
+                "station_id": "140"
+            },
+            {
+                "capacity": 15,
+                "eightd_has_key_dispenser": false,
+                "lat": 42.363560158429884,
+                "lon": -71.08216792345047,
+                "name": "Kendall Street",
+                "region_id": 8,
+                "rental_methods": [
+                    "KEY",
+                    "CREDITCARD"
+                ],
+                "rental_url": "http://app.thehubway.com/KtpS/x7ZxSgCOTF?station_id=141",
+                "short_name": "M32032",
+                "station_id": "141"
+            },
+            {
+                "capacity": 23,
+                "eightd_has_key_dispenser": false,
+                "lat": 42.396105,
+                "lon": -71.139459,
+                "name": "Alewife Station at Russell Field",
+                "region_id": 8,
+                "rental_methods": [
+                    "KEY",
+                    "CREDITCARD"
+                ],
+                "rental_url": "http://app.thehubway.com/KtpS/x7ZxSgCOTF?station_id=142",
+                "short_name": "M32033",
+                "station_id": "142"
+            },
+            {
+                "capacity": 23,
+                "eightd_has_key_dispenser": false,
+                "lat": 42.369885,
+                "lon": -71.069957,
+                "name": "EF - North Point Park",
+                "region_id": 8,
+                "rental_methods": [
+                    "KEY",
+                    "CREDITCARD"
+                ],
+                "rental_url": "http://app.thehubway.com/KtpS/x7ZxSgCOTF?station_id=143",
+                "short_name": "M32034",
+                "station_id": "143"
+            },
+            {
+                "capacity": 19,
+                "eightd_has_key_dispenser": false,
+                "lat": 42.392766,
+                "lon": -71.129042,
+                "name": "Rindge Avenue - O'Neill Library",
+                "region_id": 8,
+                "rental_methods": [
+                    "KEY",
+                    "CREDITCARD"
+                ],
+                "rental_url": "http://app.thehubway.com/KtpS/x7ZxSgCOTF?station_id=145",
+                "short_name": "M32036",
+                "station_id": "145"
+            },
+            {
+                "capacity": 19,
+                "eightd_has_key_dispenser": false,
+                "lat": 42.336448,
+                "lon": -71.023739,
+                "name": "Murphy Skating Rink - 1880 Day Blvd",
+                "region_id": 10,
+                "rental_methods": [
+                    "KEY",
+                    "CREDITCARD"
+                ],
+                "rental_url": "http://app.thehubway.com/KtpS/x7ZxSgCOTF?station_id=146",
+                "short_name": "C32023",
+                "station_id": "146"
+            },
+            {
+                "capacity": 18,
+                "eightd_has_key_dispenser": true,
+                "lat": 42.363796,
+                "lon": -71.129164,
+                "name": "175 N Harvard St",
+                "region_id": 10,
+                "rental_methods": [
+                    "KEY",
+                    "CREDITCARD"
+                ],
+                "rental_url": "http://app.thehubway.com/KtpS/x7ZxSgCOTF?station_id=149",
+                "short_name": "A32019",
+                "station_id": "149"
+            },
+            {
+                "capacity": 19,
+                "eightd_has_key_dispenser": false,
+                "lat": 42.344137,
+                "lon": -71.052608,
+                "name": "State Street at Channel Center",
+                "region_id": 10,
+                "rental_methods": [
+                    "KEY",
+                    "CREDITCARD"
+                ],
+                "rental_url": "http://app.thehubway.com/KtpS/x7ZxSgCOTF?station_id=150",
+                "short_name": "C32024",
+                "station_id": "150"
+            },
+            {
+                "capacity": 19,
+                "eightd_has_key_dispenser": false,
+                "lat": 42.358155,
+                "lon": -71.052163,
+                "name": "Surface Rd at India St",
+                "region_id": 10,
+                "rental_methods": [
+                    "KEY",
+                    "CREDITCARD"
+                ],
+                "rental_url": "http://app.thehubway.com/KtpS/x7ZxSgCOTF?station_id=151",
+                "short_name": "A32013",
+                "station_id": "151"
+            },
+            {
+                "capacity": 15,
+                "eightd_has_key_dispenser": true,
+                "lat": 42.345901,
+                "lon": -71.063187,
+                "name": "Ink Block - Harrison Ave at Herald St",
+                "region_id": 10,
+                "rental_methods": [
+                    "KEY",
+                    "CREDITCARD"
+                ],
+                "rental_url": "http://app.thehubway.com/KtpS/x7ZxSgCOTF?station_id=152",
+                "short_name": "C32025",
+                "station_id": "152"
+            },
+            {
+                "capacity": 15,
+                "eightd_has_key_dispenser": false,
+                "lat": 42.35317809186252,
+                "lon": -71.04817356923377,
+                "name": "Seaport Blvd at Sleeper St",
+                "region_id": 10,
+                "rental_methods": [
+                    "KEY",
+                    "CREDITCARD"
+                ],
+                "rental_url": "http://app.thehubway.com/KtpS/x7ZxSgCOTF?station_id=157",
+                "short_name": "C32036",
+                "station_id": "157"
+            },
+            {
+                "capacity": 15,
+                "eightd_has_key_dispenser": false,
+                "lat": 42.3279727,
+                "lon": -71.1108971,
+                "name": "S Huntington Ave at Heath St",
+                "region_id": 10,
+                "rental_methods": [
+                    "KEY",
+                    "CREDITCARD"
+                ],
+                "rental_url": "http://app.thehubway.com/KtpS/x7ZxSgCOTF?station_id=159",
+                "short_name": "E32007",
+                "station_id": "159"
+            },
+            {
+                "capacity": 14,
+                "eightd_has_key_dispenser": true,
+                "lat": 42.33758601097239,
+                "lon": -71.09627097845076,
+                "name": "Wentworth Institute of Technology - Huntington Ave at Vancouver St",
+                "region_id": 10,
+                "rental_methods": [
+                    "KEY",
+                    "CREDITCARD"
+                ],
+                "rental_url": "http://app.thehubway.com/KtpS/x7ZxSgCOTF?station_id=160",
+                "short_name": "B32021",
+                "station_id": "160"
+            },
+            {
+                "capacity": 19,
+                "eightd_has_key_dispenser": true,
+                "lat": 42.3391085,
+                "lon": -71.0514432,
+                "name": "W Broadway at D St",
+                "region_id": 10,
+                "rental_methods": [
+                    "KEY",
+                    "CREDITCARD"
+                ],
+                "rental_url": "http://app.thehubway.com/KtpS/x7ZxSgCOTF?station_id=161",
+                "short_name": "C32029",
+                "station_id": "161"
+            },
+            {
+                "capacity": 15,
+                "eightd_has_key_dispenser": false,
+                "lat": 42.309796,
+                "lon": -71.092225,
+                "name": "Franklin Park - Seaver St at Humbolt Ave",
+                "region_id": 10,
+                "rental_methods": [
+                    "KEY",
+                    "CREDITCARD"
+                ],
+                "rental_url": "http://app.thehubway.com/KtpS/x7ZxSgCOTF?station_id=162",
+                "short_name": "C32027",
+                "station_id": "162"
+            },
+            {
+                "capacity": 19,
+                "eightd_has_key_dispenser": false,
+                "lat": 42.344792,
+                "lon": -71.044024,
+                "name": "The Lawn on D",
+                "region_id": 10,
+                "rental_methods": [
+                    "KEY",
+                    "CREDITCARD"
+                ],
+                "rental_url": "http://app.thehubway.com/KtpS/x7ZxSgCOTF?station_id=163",
+                "short_name": "C32028",
+                "station_id": "163"
+            },
+            {
+                "capacity": 15,
+                "eightd_has_key_dispenser": false,
+                "lat": 42.317642,
+                "lon": -71.056664,
+                "name": "Ryan Playground - Dorchester Ave at Harbor View St",
+                "region_id": 10,
+                "rental_methods": [
+                    "KEY",
+                    "CREDITCARD"
+                ],
+                "rental_url": "http://app.thehubway.com/KtpS/x7ZxSgCOTF?station_id=167",
+                "short_name": "C32031",
+                "station_id": "167"
+            },
+            {
+                "capacity": 15,
+                "eightd_has_key_dispenser": false,
+                "lat": 42.378965,
+                "lon": -71.068607,
+                "name": "Edwards Playground - Main St at Eden St",
+                "region_id": 10,
+                "rental_methods": [
+                    "KEY",
+                    "CREDITCARD"
+                ],
+                "rental_url": "http://app.thehubway.com/KtpS/x7ZxSgCOTF?station_id=169",
+                "short_name": "A32022",
+                "station_id": "169"
+            },
+            {
+                "capacity": 14,
+                "eightd_has_key_dispenser": false,
+                "lat": 42.303469,
+                "lon": -71.085347,
+                "name": "Franklin Park Zoo - Franklin Park Rd at Blue Hill Ave",
+                "region_id": 10,
+                "rental_methods": [
+                    "KEY",
+                    "CREDITCARD"
+                ],
+                "rental_url": "http://app.thehubway.com/KtpS/x7ZxSgCOTF?station_id=170",
+                "short_name": "C32030",
+                "station_id": "170"
+            },
+            {
+                "capacity": 11,
+                "eightd_has_key_dispenser": true,
+                "lat": 42.37408991426522,
+                "lon": -71.06905996799469,
+                "name": "Bunker Hill Community College",
+                "region_id": 10,
+                "rental_methods": [
+                    "KEY",
+                    "CREDITCARD"
+                ],
+                "rental_url": "http://app.thehubway.com/KtpS/x7ZxSgCOTF?station_id=171",
+                "short_name": "A32023",
+                "station_id": "171"
+            },
+            {
+                "capacity": 14,
+                "eightd_has_key_dispenser": true,
+                "lat": 42.3106,
+                "lon": -71.0539,
+                "name": "Savin Hill T Stop - S Sydney St at Bay St",
+                "region_id": 10,
+                "rental_methods": [
+                    "KEY",
+                    "CREDITCARD"
+                ],
+                "rental_url": "http://app.thehubway.com/KtpS/x7ZxSgCOTF?station_id=173",
+                "short_name": "C32033",
+                "station_id": "173"
+            },
+            {
+                "capacity": 15,
+                "eightd_has_key_dispenser": false,
+                "lat": 42.3489528466951,
+                "lon": -71.16031676530838,
+                "name": "Washington St at Brock St",
+                "region_id": 10,
+                "rental_methods": [
+                    "KEY",
+                    "CREDITCARD"
+                ],
+                "rental_url": "http://app.thehubway.com/KtpS/x7ZxSgCOTF?station_id=174",
+                "short_name": "D32029",
+                "station_id": "174"
+            },
+            {
+                "capacity": 17,
+                "eightd_has_key_dispenser": true,
+                "lat": 42.34894857235593,
+                "lon": -71.15027189254761,
+                "name": "Brighton Center - Washington St at Cambridge St",
+                "region_id": 10,
+                "rental_methods": [
+                    "KEY",
+                    "CREDITCARD"
+                ],
+                "rental_url": "http://app.thehubway.com/KtpS/x7ZxSgCOTF?station_id=175",
+                "short_name": "D32028",
+                "station_id": "175"
+            },
+            {
+                "capacity": 15,
+                "eightd_has_key_dispenser": false,
+                "lat": 42.38674802045056,
+                "lon": -71.11901879310608,
+                "name": "Lesley University",
+                "region_id": 8,
+                "rental_methods": [
+                    "KEY",
+                    "CREDITCARD"
+                ],
+                "rental_url": "http://app.thehubway.com/KtpS/x7ZxSgCOTF?station_id=176",
+                "short_name": "M32039",
+                "station_id": "176"
+            },
+            {
+                "capacity": 19,
+                "eightd_has_key_dispenser": false,
+                "lat": 42.36264779118595,
+                "lon": -71.10006093978882,
+                "name": "University Park",
+                "region_id": 8,
+                "rental_methods": [
+                    "KEY",
+                    "CREDITCARD"
+                ],
+                "rental_url": "http://app.thehubway.com/KtpS/x7ZxSgCOTF?station_id=177",
+                "short_name": "M32040",
+                "station_id": "177"
+            },
+            {
+                "capacity": 19,
+                "eightd_has_key_dispenser": false,
+                "lat": 42.35957320109044,
+                "lon": -71.10129475593567,
+                "name": "MIT Pacific St at Purrington St",
+                "region_id": 8,
+                "rental_methods": [
+                    "KEY",
+                    "CREDITCARD"
+                ],
+                "rental_url": "http://app.thehubway.com/KtpS/x7ZxSgCOTF?station_id=178",
+                "short_name": "M32041",
+                "station_id": "178"
+            },
+            {
+                "capacity": 25,
+                "eightd_has_key_dispenser": false,
+                "lat": 42.355601213279265,
+                "lon": -71.10394477844238,
+                "name": "MIT Vassar St",
+                "region_id": 8,
+                "rental_methods": [
+                    "KEY",
+                    "CREDITCARD"
+                ],
+                "rental_url": "http://app.thehubway.com/KtpS/x7ZxSgCOTF?station_id=179",
+                "short_name": "M32042",
+                "station_id": "179"
+            },
+            {
+                "capacity": 19,
+                "eightd_has_key_dispenser": false,
+                "lat": 42.37478628706384,
+                "lon": -71.13320231437683,
+                "name": "Mt Auburn",
+                "region_id": 8,
+                "rental_methods": [
+                    "KEY",
+                    "CREDITCARD"
+                ],
+                "rental_url": "http://app.thehubway.com/KtpS/x7ZxSgCOTF?station_id=180",
+                "short_name": "M32043",
+                "station_id": "180"
+            },
+            {
+                "capacity": 19,
+                "eightd_has_key_dispenser": false,
+                "lat": 42.381650612901176,
+                "lon": -71.13426981498378,
+                "name": "Huron Ave. At Vassal Lane",
+                "region_id": 8,
+                "rental_methods": [
+                    "KEY",
+                    "CREDITCARD"
+                ],
+                "rental_url": "http://app.thehubway.com/KtpS/x7ZxSgCOTF?station_id=181",
+                "short_name": "M32044",
+                "station_id": "181"
+            },
+            {
+                "capacity": 19,
+                "eightd_has_key_dispenser": false,
+                "lat": 42.36769018024484,
+                "lon": -71.07116281986237,
+                "name": "Museum of Science",
+                "region_id": 8,
+                "rental_methods": [
+                    "KEY",
+                    "CREDITCARD"
+                ],
+                "rental_url": "http://app.thehubway.com/KtpS/x7ZxSgCOTF?station_id=182",
+                "short_name": "M32045",
+                "station_id": "182"
+            },
+            {
+                "capacity": 19,
+                "eightd_has_key_dispenser": false,
+                "lat": 42.395588457167094,
+                "lon": -71.14260613918304,
+                "name": "Alewife MBTA at Steel Place",
+                "region_id": 8,
+                "rental_methods": [
+                    "KEY",
+                    "CREDITCARD"
+                ],
+                "rental_url": "http://app.thehubway.com/KtpS/x7ZxSgCOTF?station_id=183",
+                "short_name": "M32046",
+                "station_id": "183"
+            },
+            {
+                "capacity": 19,
+                "eightd_has_key_dispenser": false,
+                "lat": 42.35775309465199,
+                "lon": -71.10393404960632,
+                "name": "Sidney Research Campus/ Erie Street at Waverly",
+                "region_id": 8,
+                "rental_methods": [
+                    "KEY",
+                    "CREDITCARD"
+                ],
+                "rental_url": "http://app.thehubway.com/KtpS/x7ZxSgCOTF?station_id=184",
+                "short_name": "M32047",
+                "station_id": "184"
+            },
+            {
+                "capacity": 15,
+                "eightd_has_key_dispenser": false,
+                "lat": 42.36544486137399,
+                "lon": -71.08277142047882,
+                "name": "Third at Binney",
+                "region_id": 8,
+                "rental_methods": [
+                    "KEY",
+                    "CREDITCARD"
+                ],
+                "rental_url": "http://app.thehubway.com/KtpS/x7ZxSgCOTF?station_id=185",
+                "short_name": "M32048",
+                "station_id": "185"
+            },
+            {
+                "capacity": 15,
+                "eightd_has_key_dispenser": false,
+                "lat": 42.3481,
+                "lon": -71.03764,
+                "name": "Congress St at Northern Ave",
+                "region_id": 10,
+                "rental_methods": [
+                    "KEY",
+                    "CREDITCARD"
+                ],
+                "rental_url": "http://app.thehubway.com/KtpS/x7ZxSgCOTF?station_id=186",
+                "short_name": "C32032",
+                "station_id": "186"
+            },
+            {
+                "capacity": 23,
+                "eightd_has_key_dispenser": false,
+                "lat": 42.362427842912396,
+                "lon": -71.08495473861694,
+                "name": "Kendall T",
+                "region_id": 8,
+                "rental_methods": [
+                    "KEY",
+                    "CREDITCARD"
+                ],
+                "rental_url": "http://app.thehubway.com/KtpS/x7ZxSgCOTF?station_id=189",
+                "short_name": "M32004",
+                "station_id": "189"
+            },
+            {
+                "capacity": 37,
+                "eightd_has_key_dispenser": false,
+                "lat": 42.365673,
+                "lon": -71.064263,
+                "name": "Nashua Street at Red Auerbach Way",
+                "region_id": 10,
+                "rental_methods": [
+                    "KEY",
+                    "CREDITCARD"
+                ],
+                "rental_url": "http://app.thehubway.com/KtpS/x7ZxSgCOTF?station_id=190",
+                "short_name": "A32025",
+                "station_id": "190"
+            },
+            {
+                "capacity": 19,
+                "eightd_has_key_dispenser": false,
+                "lat": 42.354659,
+                "lon": -71.053181,
+                "name": "Purchase St at Pearl St",
+                "region_id": 10,
+                "rental_methods": [
+                    "KEY",
+                    "CREDITCARD"
+                ],
+                "rental_url": "http://app.thehubway.com/KtpS/x7ZxSgCOTF?station_id=192",
+                "short_name": "A32026",
+                "station_id": "192"
+            },
+            {
+                "capacity": 15,
+                "eightd_has_key_dispenser": false,
+                "lat": 42.33376472623494,
+                "lon": -71.12046446660315,
+                "name": "Brookline Village - Station Street @ MBTA TEMPORARY WINTER LOCATION",
+                "region_id": 4,
+                "rental_methods": [
+                    "KEY",
+                    "CREDITCARD"
+                ],
+                "rental_url": "http://app.thehubway.com/KtpS/x7ZxSgCOTF?station_id=193",
+                "short_name": "K32005",
+                "station_id": "193"
+            },
+            {
+                "capacity": 15,
+                "eightd_has_key_dispenser": false,
+                "lat": 42.386141411639564,
+                "lon": -71.07828140258789,
+                "name": "Broadway St at Mt Pleasant St",
+                "region_id": 9,
+                "rental_methods": [
+                    "KEY",
+                    "CREDITCARD"
+                ],
+                "rental_url": "http://app.thehubway.com/KtpS/x7ZxSgCOTF?station_id=194",
+                "short_name": "S32014",
+                "station_id": "194"
+            },
+            {
+                "capacity": 23,
+                "eightd_has_key_dispenser": false,
+                "lat": 42.3720597013741,
+                "lon": -71.07202649116516,
+                "name": "Brian P. Murphy Staircase at Child Street",
+                "region_id": 8,
+                "rental_methods": [
+                    "KEY",
+                    "CREDITCARD"
+                ],
+                "rental_url": "http://app.thehubway.com/KtpS/x7ZxSgCOTF?station_id=195",
+                "short_name": "M32049",
+                "station_id": "195"
+            },
+            {
+                "capacity": 10,
+                "eightd_has_key_dispenser": true,
+                "lat": 42.31787329345602,
+                "lon": -71.08243077993393,
+                "name": "Roxbury YMCA - Warren St at MLK Blvd",
+                "region_id": 10,
+                "rental_methods": [
+                    "KEY",
+                    "CREDITCARD"
+                ],
+                "rental_url": "http://app.thehubway.com/KtpS/x7ZxSgCOTF?station_id=196",
+                "short_name": "B32022",
+                "station_id": "196"
+            },
+            {
+                "capacity": 15,
+                "eightd_has_key_dispenser": false,
+                "lat": 42.32143814183195,
+                "lon": -71.09126061201096,
+                "name": "MLK Blvd at Washington St",
+                "region_id": 10,
+                "rental_methods": [
+                    "KEY",
+                    "CREDITCARD"
+                ],
+                "rental_url": "http://app.thehubway.com/KtpS/x7ZxSgCOTF?station_id=197",
+                "short_name": "B32023",
+                "station_id": "197"
+            },
+            {
+                "capacity": 15,
+                "eightd_has_key_dispenser": false,
+                "lat": 42.318697341722434,
+                "lon": -71.0697814822197,
+                "name": "Upham's Corner T Stop - Magnolia St at Dudley St",
+                "region_id": 10,
+                "rental_methods": [
+                    "KEY",
+                    "CREDITCARD"
+                ],
+                "rental_url": "http://app.thehubway.com/KtpS/x7ZxSgCOTF?station_id=199",
+                "short_name": "B32025",
+                "station_id": "199"
+            },
+            {
+                "capacity": 15,
+                "eightd_has_key_dispenser": false,
+                "lat": 42.332817,
+                "lon": -71.081198,
+                "name": "Washington St at Melnea Cass Blvd",
+                "region_id": 10,
+                "rental_methods": [
+                    "KEY",
+                    "CREDITCARD"
+                ],
+                "rental_url": "http://app.thehubway.com/KtpS/x7ZxSgCOTF?station_id=200",
+                "short_name": "B32026",
+                "station_id": "200"
+            },
+            {
+                "capacity": 15,
+                "eightd_has_key_dispenser": false,
+                "lat": 42.316902,
+                "lon": -71.091946,
+                "name": "NCAAA - Walnut Ave at Crawford St",
+                "region_id": 10,
+                "rental_methods": [
+                    "KEY",
+                    "CREDITCARD"
+                ],
+                "rental_url": "http://app.thehubway.com/KtpS/x7ZxSgCOTF?station_id=201",
+                "short_name": "B32027",
+                "station_id": "201"
+            },
+            {
+                "capacity": 15,
+                "eightd_has_key_dispenser": false,
+                "lat": 42.30791,
+                "lon": -71.080952,
+                "name": "Grove Hall Library - 41 Geneva Ave",
+                "region_id": 10,
+                "rental_methods": [
+                    "KEY",
+                    "CREDITCARD"
+                ],
+                "rental_url": "http://app.thehubway.com/KtpS/x7ZxSgCOTF?station_id=202",
+                "short_name": "B32028",
+                "station_id": "202"
+            },
+            {
+                "capacity": 15,
+                "eightd_has_key_dispenser": false,
+                "lat": 42.309572,
+                "lon": -71.0729,
+                "name": "Columbia Rd at Ceylon St",
+                "region_id": 10,
+                "rental_methods": [
+                    "KEY",
+                    "CREDITCARD"
+                ],
+                "rental_url": "http://app.thehubway.com/KtpS/x7ZxSgCOTF?station_id=203",
+                "short_name": "B32029",
+                "station_id": "203"
+            },
+            {
+                "capacity": 0,
+                "eightd_has_key_dispenser": false,
+                "lat": 42.324081,
+                "lon": -71.083235,
+                "name": "Walnut Ave at Warren St",
+                "region_id": 10,
+                "rental_methods": [
+                    "KEY",
+                    "CREDITCARD"
+                ],
+                "rental_url": "http://app.thehubway.com/KtpS/x7ZxSgCOTF?station_id=204",
+                "short_name": "B32030",
+                "station_id": "204"
+            },
+            {
+                "capacity": 15,
+                "eightd_has_key_dispenser": false,
+                "lat": 42.30785224238503,
+                "lon": -71.06512248516083,
+                "name": "Bowdoin St at Quincy St",
+                "region_id": 10,
+                "rental_methods": [
+                    "KEY",
+                    "CREDITCARD"
+                ],
+                "rental_url": "http://app.thehubway.com/KtpS/x7ZxSgCOTF?station_id=205",
+                "short_name": "B32031",
+                "station_id": "205"
+            },
+            {
+                "capacity": 15,
+                "eightd_has_key_dispenser": false,
+                "lat": 42.35484,
+                "lon": -71.150226,
+                "name": "Faneuil St at Market St",
+                "region_id": 10,
+                "rental_methods": [
+                    "KEY",
+                    "CREDITCARD"
+                ],
+                "rental_url": "http://app.thehubway.com/KtpS/x7ZxSgCOTF?station_id=207",
+                "short_name": "D32030",
+                "station_id": "207"
+            },
+            {
+                "capacity": 15,
+                "eightd_has_key_dispenser": false,
+                "lat": 42.35057,
+                "lon": -71.166491,
+                "name": "Oak Square - 615 Washington St",
+                "region_id": 10,
+                "rental_methods": [
+                    "KEY",
+                    "CREDITCARD"
+                ],
+                "rental_url": "http://app.thehubway.com/KtpS/x7ZxSgCOTF?station_id=208",
+                "short_name": "D32031",
+                "station_id": "208"
+            },
+            {
+                "capacity": 15,
+                "eightd_has_key_dispenser": false,
+                "lat": 42.379772,
+                "lon": -71.027448,
+                "name": "Chelsea St at Saratoga St",
+                "region_id": 10,
+                "rental_methods": [
+                    "KEY",
+                    "CREDITCARD"
+                ],
+                "rental_url": "http://app.thehubway.com/KtpS/x7ZxSgCOTF?station_id=209",
+                "short_name": "A32027",
+                "station_id": "209"
+            },
+            {
+                "capacity": 15,
+                "eightd_has_key_dispenser": false,
+                "lat": 42.38337841883669,
+                "lon": -71.01612031481636,
+                "name": "Bennington St at Byron St",
+                "region_id": 10,
+                "rental_methods": [
+                    "KEY",
+                    "CREDITCARD"
+                ],
+                "rental_url": "http://app.thehubway.com/KtpS/x7ZxSgCOTF?station_id=210",
+                "short_name": "A32028",
+                "station_id": "210"
+            },
+            {
+                "capacity": 0,
+                "eightd_has_key_dispenser": false,
+                "lat": 42.365431546274806,
+                "lon": -71.03625655174255,
+                "name": "Piers Park",
+                "region_id": 10,
+                "rental_methods": [
+                    "KEY",
+                    "CREDITCARD"
+                ],
+                "rental_url": "http://app.thehubway.com/KtpS/x7ZxSgCOTF?station_id=211",
+                "short_name": "A32029",
+                "station_id": "211"
+            },
+            {
+                "capacity": 33,
+                "eightd_has_key_dispenser": false,
+                "lat": 42.368844082898356,
+                "lon": -71.03977829217911,
+                "name": "Maverick Square - Lewis Mall",
+                "region_id": 10,
+                "rental_methods": [
+                    "KEY",
+                    "CREDITCARD"
+                ],
+                "rental_url": "http://app.thehubway.com/KtpS/x7ZxSgCOTF?station_id=212",
+                "short_name": "A32030",
+                "station_id": "212"
+            },
+            {
+                "capacity": 16,
+                "eightd_has_key_dispenser": false,
+                "lat": 42.369536,
+                "lon": -71.039431,
+                "name": "East Boston Neighborhood Health Center - 20 Maverick Square",
+                "region_id": 10,
+                "rental_methods": [
+                    "KEY",
+                    "CREDITCARD"
+                ],
+                "rental_url": "http://app.thehubway.com/KtpS/x7ZxSgCOTF?station_id=213",
+                "short_name": "A32031",
+                "station_id": "213"
+            },
+            {
+                "capacity": 15,
+                "eightd_has_key_dispenser": true,
+                "lat": 42.375339,
+                "lon": -71.031304,
+                "name": "Airport T Stop - Bremen St at Brooks St",
+                "region_id": 10,
+                "rental_methods": [
+                    "KEY",
+                    "CREDITCARD"
+                ],
+                "rental_url": "http://app.thehubway.com/KtpS/x7ZxSgCOTF?station_id=214",
+                "short_name": "A32032",
+                "station_id": "214"
+            },
+            {
+                "capacity": 15,
+                "eightd_has_key_dispenser": false,
+                "lat": 42.370744,
+                "lon": -71.044201,
+                "name": "The Eddy - New St at Sumner St",
+                "region_id": 10,
+                "rental_methods": [
+                    "KEY",
+                    "CREDITCARD"
+                ],
+                "rental_url": "http://app.thehubway.com/KtpS/x7ZxSgCOTF?station_id=215",
+                "short_name": "A32033",
+                "station_id": "215"
+            },
+            {
+                "capacity": 19,
+                "eightd_has_key_dispenser": false,
+                "lat": 42.38240377674137,
+                "lon": -71.03024303913116,
+                "name": "Glendon St at Condor St",
+                "region_id": 10,
+                "rental_methods": [
+                    "KEY",
+                    "CREDITCARD"
+                ],
+                "rental_url": "http://app.thehubway.com/KtpS/x7ZxSgCOTF?station_id=216",
+                "short_name": "A32034",
+                "station_id": "216"
+            },
+            {
+                "capacity": 19,
+                "eightd_has_key_dispenser": false,
+                "lat": 42.386781,
+                "lon": -71.006098,
+                "name": "Orient Heights T Stop - Bennington St at Saratoga St",
+                "region_id": 10,
+                "rental_methods": [
+                    "KEY",
+                    "CREDITCARD"
+                ],
+                "rental_url": "http://app.thehubway.com/KtpS/x7ZxSgCOTF?station_id=217",
+                "short_name": "A32035",
+                "station_id": "217"
+            },
+            {
+                "capacity": 15,
+                "eightd_has_key_dispenser": false,
+                "lat": 42.351586001198456,
+                "lon": -71.04569256305693,
+                "name": "Watermark Seaport - Boston Wharf Rd at Seaport Blvd",
+                "region_id": 10,
+                "rental_methods": [
+                    "KEY",
+                    "CREDITCARD"
+                ],
+                "rental_url": "http://app.thehubway.com/KtpS/x7ZxSgCOTF?station_id=218",
+                "short_name": "C32034",
+                "station_id": "218"
+            },
+            {
+                "capacity": 19,
+                "eightd_has_key_dispenser": false,
+                "lat": 42.37430732260765,
+                "lon": -71.03807777166365,
+                "name": "Central Square - East Boston",
+                "region_id": 10,
+                "rental_methods": [
+                    "KEY",
+                    "CREDITCARD"
+                ],
+                "rental_url": "http://app.thehubway.com/KtpS/x7ZxSgCOTF?station_id=219",
+                "short_name": "A32036",
+                "station_id": "219"
+            },
+            {
+                "capacity": 19,
+                "eightd_has_key_dispenser": false,
+                "lat": 42.37250864997261,
+                "lon": -71.11305356025696,
+                "name": "Verizon Innovation Hub 10 Ware Street",
+                "region_id": 8,
+                "rental_methods": [
+                    "KEY",
+                    "CREDITCARD"
+                ],
+                "rental_url": "http://app.thehubway.com/KtpS/x7ZxSgCOTF?station_id=221",
+                "short_name": "M32050",
+                "station_id": "221"
+            },
+            {
+                "capacity": 14,
+                "eightd_has_key_dispenser": false,
+                "lat": 42.343749,
+                "lon": -71.062256,
+                "name": "Troy Boston",
+                "region_id": 10,
+                "rental_methods": [
+                    "KEY",
+                    "CREDITCARD"
+                ],
+                "rental_url": "http://app.thehubway.com/KtpS/x7ZxSgCOTF?station_id=222",
+                "short_name": "C32035",
+                "station_id": "222"
+            },
+            {
+                "capacity": 17,
+                "eightd_has_key_dispenser": false,
+                "lat": 42.38267827521855,
+                "lon": -71.143478951426,
+                "name": "Fresh Pond Reservation",
+                "region_id": 8,
+                "rental_methods": [
+                    "KEY",
+                    "CREDITCARD"
+                ],
+                "rental_url": "http://app.thehubway.com/KtpS/x7ZxSgCOTF?station_id=224",
+                "short_name": "M32051",
+                "station_id": "224"
+            },
+            {
+                "capacity": 19,
+                "eightd_has_key_dispenser": false,
+                "lat": 42.37119727759414,
+                "lon": -71.09759867191315,
+                "name": "Cambridge Dept. of Public Works -147 Hampshire St.",
+                "region_id": 8,
+                "rental_methods": [
+                    "KEY",
+                    "CREDITCARD"
+                ],
+                "rental_url": "http://app.thehubway.com/KtpS/x7ZxSgCOTF?station_id=225",
+                "short_name": "M32052",
+                "station_id": "225"
+            },
+            {
+                "capacity": 15,
+                "eightd_has_key_dispenser": false,
+                "lat": 42.35154734791375,
+                "lon": -71.12126246094704,
+                "name": "Commonwealth Ave At Babcock St",
+                "region_id": 4,
+                "rental_methods": [
+                    "KEY",
+                    "CREDITCARD"
+                ],
+                "rental_url": "http://app.thehubway.com/KtpS/x7ZxSgCOTF?station_id=226",
+                "short_name": "K32006",
+                "station_id": "226"
+            },
+            {
+                "capacity": 0,
+                "eightd_has_key_dispenser": false,
+                "lat": 42.34949599514002,
+                "lon": -71.10057592391968,
+                "name": "Silber Way",
+                "region_id": 10,
+                "rental_methods": [
+                    "KEY",
+                    "CREDITCARD"
+                ],
+                "rental_url": "http://app.thehubway.com/KtpS/x7ZxSgCOTF?station_id=227",
+                "short_name": "D32032",
+                "station_id": "227"
+            },
+            {
+                "capacity": 19,
+                "eightd_has_key_dispenser": false,
+                "lat": 42.361619320766856,
+                "lon": -71.0804355052096,
+                "name": "One Memorial Drive",
+                "region_id": 8,
+                "rental_methods": [
+                    "KEY",
+                    "CREDITCARD"
+                ],
+                "rental_url": "http://app.thehubway.com/KtpS/x7ZxSgCOTF?station_id=228",
+                "short_name": "M32053",
+                "station_id": "228"
+            },
+            {
+                "capacity": 11,
+                "eightd_has_key_dispenser": false,
+                "lat": 42.304127927390155,
+                "lon": -71.07929527759552,
+                "name": "Four Corners - 157 Washington St",
+                "region_id": 10,
+                "rental_methods": [
+                    "KEY",
+                    "CREDITCARD"
+                ],
+                "rental_url": "http://app.thehubway.com/KtpS/x7ZxSgCOTF?station_id=232",
+                "short_name": "C32037",
+                "station_id": "232"
+            }
+        ]
+    },
+    "last_updated": 1515385771,
+    "ttl": 10
+}
