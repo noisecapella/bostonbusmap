@@ -44,6 +44,7 @@ import com.schneeloch.bostonbusmap_library.database.Schema;
 import com.schneeloch.bostonbusmap_library.parser.MbtaAlertsParser;
 import com.schneeloch.bostonbusmap_library.provider.IDatabaseAgent;
 import com.schneeloch.bostonbusmap_library.util.Constants;
+import com.schneeloch.bostonbusmap_library.util.Downloader;
 import com.schneeloch.bostonbusmap_library.util.FeedException;
 import com.schneeloch.bostonbusmap_library.util.IDownloader;
 import com.schneeloch.bostonbusmap_library.util.LogUtil;
@@ -57,30 +58,24 @@ import com.schneeloch.bostonbusmap_library.util.Now;
 public class TransitSystem implements ITransitSystem {
 	private static final double bostonLatitude = 42.3583333;
 	private static final double bostonLongitude = -71.0602778;
-	
+
 	private static final String website = "http://www.georgeschneeloch.com/bostonbusmap";
 
 	private static final String[] emails = new String[]{"bostonbusmap@gmail.com"};
 	private static final String emailSubject = "BostonBusMap error report";
-    private static final String feedbackUrl = "http://www.mbta.com/customer_support/feedback/";
+	private static final String feedbackUrl = "http://www.mbta.com/customer_support/feedback/";
 
 	private static final boolean showRunNumber = false;
 
 	private RouteTitles routeTitles;
-	
+
 	/**
 	 * This will be null when alerts haven't been read yet
 	 */
 	private AlertsFuture alertsFuture;
-    private static final String agencyName = "MBTA";
+	private static final String agencyName = "MBTA";
 
-    private final IDownloader downloader;
-
-    public TransitSystem(IDownloader downloader) {
-    	this.downloader = downloader;
-	}
-
-    public static double getCenterLat() {
+	public static double getCenterLat() {
 		return bostonLatitude;
 	}
 
@@ -92,7 +87,7 @@ public class TransitSystem implements ITransitSystem {
 	{
 		return (int)(bostonLatitude * Constants.E6);
 	}
-	
+
 	public static int getCenterLonAsInt()
 	{
 		return (int)(bostonLongitude * Constants.E6);
@@ -101,24 +96,30 @@ public class TransitSystem implements ITransitSystem {
 	public static String getWebSite() {
 		return website;
 	}
-	
+
 
 	/**
 	 * Mapping of route name to its transit source
 	 */
 	private ImmutableMap<String, TransitSource> transitSourceMap;
 	private ImmutableList<TransitSource> transitSources;
-	
+
 	/**
 	 * Be careful with this; this stays around forever since it's static
 	 */
 	private TransitSource defaultTransitSource;
 
-    public static String getAgencyName() {
-        return agencyName;
-    }
+	private final IDownloader downloader;
 
-    /**
+	public TransitSystem(IDownloader downloader) {
+		this.downloader = downloader;
+	}
+
+	public static String getAgencyName() {
+		return agencyName;
+	}
+
+	/**
 	 * Only call this on the UI thread!
 	 * @param busDrawables
 	 * @param subwayDrawables
@@ -126,7 +127,7 @@ public class TransitSystem implements ITransitSystem {
 	 */
 	@Override
 	public void setDefaultTransitSource(ITransitDrawables busDrawables, ITransitDrawables subwayDrawables,
-			ITransitDrawables commuterRailDrawables, ITransitDrawables hubwayDrawables, IDatabaseAgent databaseAgent)
+										ITransitDrawables commuterRailDrawables, ITransitDrawables hubwayDrawables, IDatabaseAgent databaseAgent)
 	{
 		if (defaultTransitSource == null)
 		{
@@ -134,17 +135,17 @@ public class TransitSystem implements ITransitSystem {
 
 			TransitSourceTitles busTransitRoutes = routeTitles.getMappingForSource(Schema.Routes.SourceId.Bus);
 			TransitSourceTitles hubwayTransitRoutes = routeTitles.getMappingForSource(Schema.Routes.SourceId.Hubway);
-			
+
 			defaultTransitSource = new BusTransitSource(this, busDrawables, busTransitRoutes, routeTitles, downloader);
-			
+
 			ImmutableMap.Builder<String, TransitSource> mapBuilder = ImmutableMap.builder();
-			MbtaRealtimeTransitSource subwayTransitSource = new MbtaRealtimeTransitSource(
+			MbtaV3TransitSource subwayTransitSource = new MbtaV3TransitSource(
 					subwayDrawables,
-                    routeTitles.getMappingForSources(
-                    		new Schema.Routes.SourceId[]{
-                    				Schema.Routes.SourceId.Subway, Schema.Routes.SourceId.CommuterRail
-                    		}
-                    		), this, downloader);
+					routeTitles.getMappingForSources(
+							new Schema.Routes.SourceId[]{
+									Schema.Routes.SourceId.Subway, Schema.Routes.SourceId.CommuterRail
+							}),
+					this, downloader);
 			for (String route : subwayTransitSource.getRouteTitles().routeTags()) {
 				mapBuilder.put(route, subwayTransitSource);
 			}
@@ -159,19 +160,19 @@ public class TransitSystem implements ITransitSystem {
 
 			transitSources = ImmutableList.of(subwayTransitSource,
 					defaultTransitSource, hubwayTransitSource);
-		
+
 		}
 		else
 		{
 			Log.e("BostonBusMap", "ERROR: called setDefaultTransitSource twice");
 		}
 	}
-	
+
 	@Override
 	public TransitSource getDefaultTransitSource() {
 		return defaultTransitSource;
 	}
-	
+
 	@Override
 	public TransitSource getTransitSource(String routeToUpdate) {
 		if (null == routeToUpdate)
@@ -180,7 +181,7 @@ public class TransitSystem implements ITransitSystem {
 		}
 		else
 		{
-			
+
 			TransitSource transitSource = transitSourceMap.get(routeToUpdate);
 			if (transitSource == null)
 			{
@@ -189,7 +190,7 @@ public class TransitSystem implements ITransitSystem {
 			else
 			{
 				return transitSource;
-				
+
 			}
 		}
 	}
@@ -201,44 +202,44 @@ public class TransitSystem implements ITransitSystem {
 
 	@Override
 	public void refreshData(final RouteConfig routeConfig,
-                            final Selection selection, final int maxStops, final double centerLatitude,
-                            final double centerLongitude, final VehicleLocations busMapping,
-                            final RoutePool routePool,
-                            final Directions directions, final Locations locations) throws IOException, ParserConfigurationException, SAXException {
-        List<Thread> threads = Lists.newArrayList();
-        final CopyOnWriteArrayList<Exception> exceptions = new CopyOnWriteArrayList<>();
+							final Selection selection, final int maxStops, final double centerLatitude,
+							final double centerLongitude, final VehicleLocations busMapping,
+							final RoutePool routePool,
+							final Directions directions, final Locations locations) throws IOException, ParserConfigurationException, SAXException {
+		List<Thread> threads = Lists.newArrayList();
+		final CopyOnWriteArrayList<Exception> exceptions = new CopyOnWriteArrayList<>();
 
 		for (final TransitSource source : transitSources)
 		{
-            Thread thread = new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    try {
-                        source.refreshData(routeConfig, selection, maxStops, centerLatitude,
-                                centerLongitude, busMapping, routePool, directions, locations);
-                    } catch (Exception e) {
-                        exceptions.add(e);
-                    }
-                }
-            });
-            threads.add(thread);
-            thread.start();
+			Thread thread = new Thread(new Runnable() {
+				@Override
+				public void run() {
+					try {
+						source.refreshData(routeConfig, selection, maxStops, centerLatitude,
+								centerLongitude, busMapping, routePool, directions, locations);
+					} catch (Exception e) {
+						exceptions.add(e);
+					}
+				}
+			});
+			threads.add(thread);
+			thread.start();
 		}
 
 
-        for (Thread thread : threads) {
-            try {
-                thread.join();
-            } catch (InterruptedException e) {
-                LogUtil.e(e);
-            }
-        }
+		for (Thread thread : threads) {
+			try {
+				thread.join();
+			} catch (InterruptedException e) {
+				LogUtil.e(e);
+			}
+		}
 
-        if (exceptions.size() > 0) {
-            // hopefully no more than one. We can't throw more than one exception at a time
-            Exception exception = exceptions.iterator().next();
-            throw new FeedException("Error downloading from data feed", exception);
-        }
+		if (exceptions.size() > 0) {
+			// hopefully no more than one. We can't throw more than one exception at a time
+			Exception exception = exceptions.iterator().next();
+			throw new FeedException("Error downloading from data feed", exception);
+		}
 	}
 
 
@@ -246,13 +247,13 @@ public class TransitSystem implements ITransitSystem {
 	private static final boolean defaultAllRoutesBlue = false;
 
 	public static final String ALERTS_URL = "http://developer.mbta.com/lib/gtrtfs/Alerts/Alerts.pb";
-	
+
 	private static DateFormat defaultTimeFormat;
 	private static DateFormat defaultDateFormat;
-		
+
 	/**
 	 * TODO: Time handling in this app should be cleaned up to be all
-	 * UTC, but I don't want to risk breaking something that works 
+	 * UTC, but I don't want to risk breaking something that works
 	 * @return
 	 */
 	public static TimeZone getTimeZone()
@@ -265,11 +266,11 @@ public class TransitSystem implements ITransitSystem {
 		defaultTimeFormat = android.text.format.DateFormat.getTimeFormat(context);
 		defaultDateFormat = android.text.format.DateFormat.getDateFormat(context);
 	}
-	
+
 	public static DateFormat getDefaultTimeFormat() {
 		return defaultTimeFormat;
 	}
-	
+
 	public static DateFormat getDefaultDateFormat()
 	{
 		return defaultDateFormat;
@@ -279,7 +280,7 @@ public class TransitSystem implements ITransitSystem {
 	 * Looks for a route that's similar to the search term
 	 * @param indexingQuery
 	 * @param lowercaseQuery
-	 * @return null if nothing found, otherwise the route key 
+	 * @return null if nothing found, otherwise the route key
 	 */
 	@Override
 	public String searchForRoute(String indexingQuery, String lowercaseQuery)
@@ -297,10 +298,10 @@ public class TransitSystem implements ITransitSystem {
 
 	@Override
 	public StopLocation createStop(float latitude, float longitude,
-			String stopTag, String stopTitle,
-			String route, Optional<String> parent) {
+								   String stopTag, String stopTitle,
+								   String route, Optional<String> parent) {
 		TransitSource source = getTransitSource(route);
-		
+
 		return source.createStop(latitude, longitude, stopTag, stopTitle, route, parent);
 	}
 
@@ -320,7 +321,7 @@ public class TransitSystem implements ITransitSystem {
 	public static String[] getEmails() {
 		return emails;
 	}
-	
+
 	public static String getEmailSubject() {
 		return emailSubject;
 	}
@@ -342,31 +343,31 @@ public class TransitSystem implements ITransitSystem {
 	 * not available when getAlerts() is called, empty alerts are returned
 	 */
 	public void startObtainAlerts(IDatabaseAgent databaseAgent, Runnable runnable) {
-        final long oneMinuteInMillis = 1000 * 60;
+		final long oneMinuteInMillis = 1000 * 60;
 
 		if (alertsFuture == null) {
 			// this runs the alerts code in the background,
 			// providing empty alerts until the data is ready
-			
-			alertsFuture = new AlertsFuture(databaseAgent, new MbtaAlertsParser(this, downloader), runnable);
+
+			alertsFuture = new AlertsFuture(databaseAgent, new MbtaAlertsParser(this), runnable);
 		}
-        else if (alertsFuture.getCreationTime() + oneMinuteInMillis < Now.getMillis()) {
-            // refresh alerts
-            alertsFuture = new AlertsFuture(databaseAgent, new MbtaAlertsParser(this, downloader), runnable);
-        }
+		else if (alertsFuture.getCreationTime() + oneMinuteInMillis < Now.getMillis()) {
+			// refresh alerts
+			alertsFuture = new AlertsFuture(databaseAgent, new MbtaAlertsParser(this), runnable);
+		}
 	}
 
-    public static String getFeedbackUrl() {
-        return feedbackUrl;
-    }
+	public static String getFeedbackUrl() {
+		return feedbackUrl;
+	}
 
-    @Override
-    public boolean hasVehicles(Schema.Routes.SourceId transitSourceType) {
-        if (transitSourceType == Schema.Routes.SourceId.Hubway) {
-            return false;
-        }
-        return true;
-    }
+	@Override
+	public boolean hasVehicles(Schema.Routes.SourceId transitSourceType) {
+		if (transitSourceType == Schema.Routes.SourceId.Hubway) {
+			return false;
+		}
+		return true;
+	}
 
 	@Override
 	public ImmutableSet<Schema.Routes.SourceId> getSourceIds(Collection<String> routes) {
