@@ -28,11 +28,14 @@ import com.schneeloch.bostonbusmap_library.provider.IDatabaseAgent;
 import com.schneeloch.bostonbusmap_library.transit.ITransitSystem;
 import com.schneeloch.bostonbusmap_library.transit.TransitSource;
 import com.schneeloch.bostonbusmap_library.transit.TransitSystem;
-import com.schneeloch.bostonbusmap_library.util.DownloadHelper;
+import com.schneeloch.bostonbusmap_library.util.Downloader;
+import com.schneeloch.bostonbusmap_library.util.IDownloadHelper;
+import com.schneeloch.bostonbusmap_library.util.IDownloader;
 
 public class MbtaAlertsParser implements IAlertsParser {
 	private final ITransitSystem transitSystem;
 	private final RouteTitles routeTitles;
+	private final IDownloader downloader;
 
 	/**
 	 * Mapping of gtfs route id to a Nextbus route id. If key doesn't exist,
@@ -61,9 +64,10 @@ public class MbtaAlertsParser implements IAlertsParser {
 		gtfsRoutes = builder.build();
 	}
 	
-	public MbtaAlertsParser(TransitSystem transitSystem) {
+	public MbtaAlertsParser(TransitSystem transitSystem, IDownloader downloader) {
 		this.transitSystem = transitSystem;
 		this.routeTitles = transitSystem.getRouteKeysToTitles();
+		this.downloader = downloader;
 	}
 	
 	@Override
@@ -78,7 +82,7 @@ public class MbtaAlertsParser implements IAlertsParser {
         }
 
 		String alertsUrl = TransitSystem.ALERTS_URL;
-		DownloadHelper downloadHelper = new DownloadHelper(alertsUrl);
+		IDownloadHelper downloadHelper = downloader.create(alertsUrl);
         try {
             InputStream data = downloadHelper.getResponseData();
 

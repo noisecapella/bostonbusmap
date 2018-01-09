@@ -13,7 +13,7 @@ public class Now {
         if (useFakeTime) {
             return fakeTimeMillis;
         } else {
-            return Now.getMillis();
+            return System.currentTimeMillis();
         }
     }
 }

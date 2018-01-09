@@ -29,7 +29,8 @@ import com.schneeloch.bostonbusmap_library.data.TransitSourceTitles;
 import com.schneeloch.bostonbusmap_library.data.VehicleLocations;
 import com.schneeloch.bostonbusmap_library.database.Schema;
 import com.schneeloch.bostonbusmap_library.parser.HubwayParser;
-import com.schneeloch.bostonbusmap_library.util.DownloadHelper;
+import com.schneeloch.bostonbusmap_library.util.IDownloadHelper;
+import com.schneeloch.bostonbusmap_library.util.IDownloader;
 import com.schneeloch.bostonbusmap_library.util.SearchHelper;
 
 /**
@@ -46,13 +47,15 @@ public class HubwayTransitSource implements TransitSource {
 	private final ITransitSystem transitSystem;
 
     private final TransitSourceCache cache;
+    private final IDownloader downloader;
 
 	public HubwayTransitSource(ITransitDrawables drawables, TransitSourceTitles routeTitles,
-							   TransitSystem transitSystem) {
+							   TransitSystem transitSystem, IDownloader downloader) {
 
 		this.drawables = drawables;
 		this.routeTitles = routeTitles;
 		this.transitSystem = transitSystem;
+		this.downloader = downloader;
 
         cache = new TransitSourceCache();
 	}
@@ -79,8 +82,8 @@ public class HubwayTransitSource implements TransitSource {
 
 
                 RouteConfig hubwayRouteConfig = routePool.get(routeTag);
-                DownloadHelper infoHelper = new DownloadHelper(infoUrl);
-				DownloadHelper statusHelper = new DownloadHelper(statusUrl);
+                IDownloadHelper infoHelper = downloader.create(infoUrl);
+				IDownloadHelper statusHelper = downloader.create(statusUrl);
                 try {
                     InputStream infoStream = infoHelper.getResponseData();
 					InputStream statusStream = statusHelper.getResponseData();

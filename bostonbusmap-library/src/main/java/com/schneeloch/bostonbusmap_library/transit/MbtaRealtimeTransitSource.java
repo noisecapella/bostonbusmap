@@ -37,7 +37,8 @@ import com.schneeloch.bostonbusmap_library.database.Schema;
 import com.schneeloch.bostonbusmap_library.parser.GtfsRealtimeVehicleParser;
 import com.schneeloch.bostonbusmap_library.parser.MbtaRealtimePredictionsParser;
 import com.schneeloch.bostonbusmap_library.parser.MbtaRealtimeVehicleParser;
-import com.schneeloch.bostonbusmap_library.util.DownloadHelper;
+import com.schneeloch.bostonbusmap_library.util.IDownloadHelper;
+import com.schneeloch.bostonbusmap_library.util.IDownloader;
 import com.schneeloch.bostonbusmap_library.util.SearchHelper;
 
 public class MbtaRealtimeTransitSource implements TransitSource {
@@ -55,13 +56,15 @@ public class MbtaRealtimeTransitSource implements TransitSource {
 	public static final ImmutableMap<String, Schema.Routes.SourceId> routeNameToTransitSource;
 
     private final TransitSourceCache cache;
+    private final IDownloader downloader;
 
 	public MbtaRealtimeTransitSource(ITransitDrawables drawables,
-			TransitSourceTitles routeTitles,
-			TransitSystem transitSystem) {
+									 TransitSourceTitles routeTitles,
+									 TransitSystem transitSystem, IDownloader downloader) {
 		this.drawables = drawables;
 		this.routeTitles = routeTitles;
 		this.transitSystem = transitSystem;
+		this.downloader = downloader;
 
         cache = new TransitSourceCache();
 	}
@@ -190,7 +193,7 @@ public class MbtaRealtimeTransitSource implements TransitSource {
         String vehiclesUrl = dataUrlPrefix + "vehiclesbyroutes?api_key=" + apiKey + "&format=json&routes=" + routesString;
         String predictionsUrl = dataUrlPrefix + "predictionsbyroutes?api_key=" + apiKey + "&format=json&include_service_alerts=false&routes=" + routesString;
 
-        DownloadHelper vehiclesDownloadHelper = new DownloadHelper(vehiclesUrl);
+        IDownloadHelper vehiclesDownloadHelper = downloader.create(vehiclesUrl);
         try {
             InputStream vehicleStream = vehiclesDownloadHelper.getResponseData();
             InputStreamReader reader = new InputStreamReader(vehicleStream);
@@ -202,7 +205,7 @@ public class MbtaRealtimeTransitSource implements TransitSource {
         finally {
             vehiclesDownloadHelper.disconnect();
 
-        DownloadHelper predictionsDownloadHelper = new DownloadHelper(predictionsUrl);
+        IDownloadHelper predictionsDownloadHelper = downloader.create(predictionsUrl);
             try {
                 InputStream predictionsStream = predictionsDownloadHelper.getResponseData();
                 InputStreamReader predictionsData = new InputStreamReader(predictionsStream);

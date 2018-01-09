@@ -45,6 +45,7 @@ import com.schneeloch.bostonbusmap_library.parser.MbtaAlertsParser;
 import com.schneeloch.bostonbusmap_library.provider.IDatabaseAgent;
 import com.schneeloch.bostonbusmap_library.util.Constants;
 import com.schneeloch.bostonbusmap_library.util.FeedException;
+import com.schneeloch.bostonbusmap_library.util.IDownloader;
 import com.schneeloch.bostonbusmap_library.util.LogUtil;
 import com.schneeloch.bostonbusmap_library.util.Now;
 
@@ -72,6 +73,12 @@ public class TransitSystem implements ITransitSystem {
 	 */
 	private AlertsFuture alertsFuture;
     private static final String agencyName = "MBTA";
+
+    private final IDownloader downloader;
+
+    public TransitSystem(IDownloader downloader) {
+    	this.downloader = downloader;
+	}
 
     public static double getCenterLat() {
 		return bostonLatitude;
@@ -128,18 +135,22 @@ public class TransitSystem implements ITransitSystem {
 			TransitSourceTitles busTransitRoutes = routeTitles.getMappingForSource(Schema.Routes.SourceId.Bus);
 			TransitSourceTitles hubwayTransitRoutes = routeTitles.getMappingForSource(Schema.Routes.SourceId.Hubway);
 			
-			defaultTransitSource = new BusTransitSource(this, busDrawables, busTransitRoutes, routeTitles);
+			defaultTransitSource = new BusTransitSource(this, busDrawables, busTransitRoutes, routeTitles, downloader);
 			
 			ImmutableMap.Builder<String, TransitSource> mapBuilder = ImmutableMap.builder();
 			MbtaRealtimeTransitSource subwayTransitSource = new MbtaRealtimeTransitSource(
 					subwayDrawables,
-                    routeTitles.getMappingForSources(new Schema.Routes.SourceId[]{Schema.Routes.SourceId.Subway, Schema.Routes.SourceId.CommuterRail}), this);
+                    routeTitles.getMappingForSources(
+                    		new Schema.Routes.SourceId[]{
+                    				Schema.Routes.SourceId.Subway, Schema.Routes.SourceId.CommuterRail
+                    		}
+                    		), this, downloader);
 			for (String route : subwayTransitSource.getRouteTitles().routeTags()) {
 				mapBuilder.put(route, subwayTransitSource);
 			}
 
 			HubwayTransitSource hubwayTransitSource = new HubwayTransitSource(hubwayDrawables, hubwayTransitRoutes,
-					this);
+					this, downloader);
 
 			for (String route : hubwayTransitSource.getRouteTitles().routeTags()) {
 				mapBuilder.put(route, hubwayTransitSource);
@@ -337,11 +348,11 @@ public class TransitSystem implements ITransitSystem {
 			// this runs the alerts code in the background,
 			// providing empty alerts until the data is ready
 			
-			alertsFuture = new AlertsFuture(databaseAgent, new MbtaAlertsParser(this), runnable);
+			alertsFuture = new AlertsFuture(databaseAgent, new MbtaAlertsParser(this, downloader), runnable);
 		}
         else if (alertsFuture.getCreationTime() + oneMinuteInMillis < Now.getMillis()) {
             // refresh alerts
-            alertsFuture = new AlertsFuture(databaseAgent, new MbtaAlertsParser(this), runnable);
+            alertsFuture = new AlertsFuture(databaseAgent, new MbtaAlertsParser(this, downloader), runnable);
         }
 	}
 

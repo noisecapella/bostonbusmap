@@ -21,8 +21,9 @@ import com.schneeloch.bostonbusmap_library.data.TransitSourceTitles;
 import com.schneeloch.bostonbusmap_library.data.VehicleLocations;
 import com.schneeloch.bostonbusmap_library.database.Schema;
 import com.schneeloch.bostonbusmap_library.parser.CommuterRailPredictionsFeedParser;
-import com.schneeloch.bostonbusmap_library.util.DownloadHelper;
 import com.schneeloch.bostonbusmap_library.util.FeedException;
+import com.schneeloch.bostonbusmap_library.util.IDownloadHelper;
+import com.schneeloch.bostonbusmap_library.util.IDownloader;
 import com.schneeloch.bostonbusmap_library.util.LogUtil;
 import com.schneeloch.bostonbusmap_library.util.SearchHelper;
 
@@ -48,14 +49,16 @@ public class CommuterRailTransitSource implements TransitSource {
     private final TransitSourceCache cache;
 	
 	private final ImmutableMap<String, String> routesToUrls;
+	private final IDownloader downloader;
 
 	public CommuterRailTransitSource(ITransitDrawables drawables,
-			TransitSourceTitles routeTitles,
-			TransitSystem transitSystem)
+									 TransitSourceTitles routeTitles,
+									 TransitSystem transitSystem, IDownloader downloader)
 	{
 		this.drawables = drawables;
 		this.routeTitles = routeTitles;
 		this.transitSystem = transitSystem;
+		this.downloader = downloader;
 		
 		final String predictionsUrlSuffix = ".json";
 		final String dataUrlPrefix = "http://developer.mbta.com/lib/RTCR/RailLine_";
@@ -122,7 +125,7 @@ public class CommuterRailTransitSource implements TransitSource {
                 public void run() {
                     try {
                         String url = outputRow.url;
-                        DownloadHelper downloadHelper = new DownloadHelper(url);
+                        IDownloadHelper downloadHelper = downloader.create(url);
                         try {
                             InputStream stream = downloadHelper.getResponseData();
                             InputStreamReader data = new InputStreamReader(stream);

@@ -34,7 +34,8 @@ import com.schneeloch.bostonbusmap_library.data.VehicleLocations;
 import com.schneeloch.bostonbusmap_library.database.Schema;
 import com.schneeloch.bostonbusmap_library.parser.BusPredictionsFeedParser;
 import com.schneeloch.bostonbusmap_library.parser.VehicleLocationsFeedParser;
-import com.schneeloch.bostonbusmap_library.util.DownloadHelper;
+import com.schneeloch.bostonbusmap_library.util.IDownloadHelper;
+import com.schneeloch.bostonbusmap_library.util.IDownloader;
 import com.schneeloch.bostonbusmap_library.util.SearchHelper;
 
 /**
@@ -61,13 +62,15 @@ public abstract class NextBusTransitSource implements TransitSource
 	private final TransitSourceTitles routeTitles;
 
     private final TransitSourceCache cache;
+    private final IDownloader downloader;
 
 	public NextBusTransitSource(TransitSystem transitSystem,
-			ITransitDrawables drawables, String agency, TransitSourceTitles routeTitles,
-			RouteTitles allRouteTitles)
+                                ITransitDrawables drawables, String agency, TransitSourceTitles routeTitles,
+                                RouteTitles allRouteTitles, IDownloader downloader)
 	{
 		this.transitSystem = transitSystem;
 		this.drawables = drawables;
+		this.downloader = downloader;
 
 		mbtaLocationsDataUrlOneRoute = "http://" + prefix + ".nextbus.com/service/publicXMLFeed?command=vehicleLocations&a=" + agency + "&t=";
 		mbtaLocationsDataUrlAllRoutes = "http://" + prefix + ".nextbus.com/service/publicXMLFeed?command=vehicleLocations&a=" + agency + "&t=";
@@ -87,7 +90,7 @@ public abstract class NextBusTransitSource implements TransitSource
 	throws IOException, ParserConfigurationException, SAXException {
         //read data from the URL
         ITransitSystem transitSystem = locationsObj.getTransitSystem();
-        DownloadHelper downloadHelper;
+        IDownloadHelper downloadHelper;
         Selection.Mode mode = selection.getMode();
         switch (mode) {
             case BUS_PREDICTIONS_ONE:
@@ -119,14 +122,14 @@ public abstract class NextBusTransitSource implements TransitSource
                     return;
                 }
 
-                downloadHelper = new DownloadHelper(url);
+                downloadHelper = downloader.create(url);
                 break;
             case VEHICLE_LOCATIONS_ONE: {
                 final String urlString = getVehicleLocationsUrl(locationsObj.getLastUpdateTime(), routeConfig.getRouteName());
                 if (urlString == null) {
                     return;
                 }
-                downloadHelper = new DownloadHelper(urlString);
+                downloadHelper = downloader.create(urlString);
                 break;
             }
             case VEHICLE_LOCATIONS_ALL: {
@@ -134,7 +137,7 @@ public abstract class NextBusTransitSource implements TransitSource
                 if (urlString == null) {
                     return;
                 }
-                downloadHelper = new DownloadHelper(urlString);
+                downloadHelper = downloader.create(urlString);
                 break;
             }
             default:

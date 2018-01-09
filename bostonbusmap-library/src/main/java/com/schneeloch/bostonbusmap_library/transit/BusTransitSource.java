@@ -3,12 +3,13 @@ package com.schneeloch.bostonbusmap_library.transit;
 import com.schneeloch.bostonbusmap_library.data.ITransitDrawables;
 import com.schneeloch.bostonbusmap_library.data.RouteTitles;
 import com.schneeloch.bostonbusmap_library.data.TransitSourceTitles;
+import com.schneeloch.bostonbusmap_library.util.IDownloader;
 
 public class BusTransitSource extends NextBusTransitSource {
 
-	public BusTransitSource(TransitSystem transitSystem, ITransitDrawables drawables, TransitSourceTitles routeTitles, RouteTitles allRouteTitles)
+	public BusTransitSource(TransitSystem transitSystem, ITransitDrawables drawables, TransitSourceTitles routeTitles, RouteTitles allRouteTitles, IDownloader downloader)
 	{
-		super(transitSystem, drawables, "mbta", routeTitles, allRouteTitles);
+		super(transitSystem, drawables, "mbta", routeTitles, allRouteTitles, downloader);
 	}
 	
 

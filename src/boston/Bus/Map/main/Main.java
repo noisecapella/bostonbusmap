@@ -102,6 +102,7 @@ import android.widget.Toast;
 import android.widget.AdapterView.OnItemSelectedListener;
 
 import com.google.android.gms.maps.SupportMapFragment;
+import com.schneeloch.bostonbusmap_library.util.Downloader;
 
 /**
  * The main activity
@@ -292,7 +293,7 @@ public class Main extends AbstractMapActivity {
                     }
                 });
 
-                final ITransitSystem transitSystem = new TransitSystem();
+                final ITransitSystem transitSystem = new TransitSystem(new Downloader());
                 {
                     ITransitDrawables busDrawables = new TransitDrawables(
                             R.drawable.busstop_intersect, R.drawable.busstop_intersect_selected,
