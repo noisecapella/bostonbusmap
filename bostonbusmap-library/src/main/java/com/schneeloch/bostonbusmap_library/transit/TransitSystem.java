@@ -349,11 +349,11 @@ public class TransitSystem implements ITransitSystem {
 			// this runs the alerts code in the background,
 			// providing empty alerts until the data is ready
 
-			alertsFuture = new AlertsFuture(databaseAgent, new MbtaAlertsParser(this), runnable);
+			alertsFuture = new AlertsFuture(databaseAgent, new MbtaAlertsParser(this, downloader), runnable);
 		}
 		else if (alertsFuture.getCreationTime() + oneMinuteInMillis < Now.getMillis()) {
 			// refresh alerts
-			alertsFuture = new AlertsFuture(databaseAgent, new MbtaAlertsParser(this), runnable);
+			alertsFuture = new AlertsFuture(databaseAgent, new MbtaAlertsParser(this, downloader), runnable);
 		}
 	}
 
