@@ -25,22 +25,22 @@ import com.schneeloch.bostonbusmap_library.transit.ITransitSystem;
 
 public class RoutePool extends Pool<String, RouteConfig> {
 	private final IDatabaseAgent databaseAgent;
-	
+
 	private final ConcurrentMap<String, StopLocation> sharedStops = Maps.newConcurrentMap();
-	
+
 	/**
 	 * A mapping of stop key to route key. Look in sharedStops for the StopLocation
 	 */
 	private final CopyOnWriteArraySet<String> favoriteStops = Sets.newCopyOnWriteArraySet();
-	
+
 	private final ConcurrentMap<String, IntersectionLocation> intersections = Maps.newConcurrentMap();
-	
+
 	private final ITransitSystem transitSystem;
-	
+
 	private float maximumDistanceFromIntersection;
 
 	private boolean filterStopsFromIntersection;
-	
+
 	public RoutePool(IDatabaseAgent databaseAgent, ITransitSystem transitSystem) {
 		super(50);
 
@@ -51,20 +51,21 @@ public class RoutePool extends Pool<String, RouteConfig> {
 		filterStopsFromIntersection = true;
 
 		populateFavorites();
-		
+
 		populateIntersections();
-		
+
 	}
-	
+
 	/**
 	 * If you upgraded, favoritesStops.values() only has nulls. Use the information from the database to figure out
 	 * what routes each stop is in.
-	 * 
+	 *
 	 * Set the favorite status for all StopLocation favorites, and make sure they persist in the route pool.
 	 */
 	public void fillInFavoritesRoutes()
 	{
-		Map<String, StopLocation> stops = getStops(favoriteStops);
+		ConcurrentMap<String, StopLocation> stops = Maps.newConcurrentMap();
+		getStops(favoriteStops, stops);
 		for (String stop : stops.keySet())
 		{
 			StopLocation stopLocation = stops.get(stop);
@@ -77,16 +78,15 @@ public class RoutePool extends Pool<String, RouteConfig> {
 		}
 	}
 
-	
-	private Map<String, StopLocation> getStops(AbstractCollection<String> stopTags) {
+
+	private void getStops(AbstractCollection<String> stopTags, ConcurrentMap<String, StopLocation> output) {
 		if (stopTags.size() == 0)
 		{
-			return Collections.emptyMap();
+			return;
 		}
-		
-		ConcurrentMap<String, StopLocation> ret = Maps.newConcurrentMap();
+
 		ArrayList<String> stopTagsToRetrieve = new ArrayList<String>();
-		
+
 		for (String stopTag : stopTags)
 		{
 			StopLocation stop = sharedStops.get(stopTag);
@@ -96,34 +96,29 @@ public class RoutePool extends Pool<String, RouteConfig> {
 			}
 			else
 			{
-				ret.put(stopTag, stop);
+				output.put(stopTag, stop);
 			}
 		}
-		
-		databaseAgent.getStops(ImmutableList.copyOf(stopTagsToRetrieve),
-				transitSystem, ret);
-		
-		if (ret != null)
-		{
-			sharedStops.putAll(ret);
-		}
 
-		return ret;
+		databaseAgent.getStops(ImmutableList.copyOf(stopTagsToRetrieve),
+				transitSystem, output);
+
+		sharedStops.putAll(output);
 	}
 
 	protected RouteConfig create(String routeToUpdate) throws IOException {
 		return databaseAgent.getRoute(routeToUpdate, sharedStops, transitSystem);
 	}
-	
+
 
 	private void populateFavorites() {
-        databaseAgent.populateFavorites(favoriteStops);
+		databaseAgent.populateFavorites(favoriteStops);
 		fillInFavoritesRoutes();
 
 	}
-	
+
 	private void populateIntersections() {
-        databaseAgent.populateIntersections(intersections,
+		databaseAgent.populateIntersections(intersections,
 				transitSystem, sharedStops, maximumDistanceFromIntersection, filterStopsFromIntersection);
 	}
 
@@ -141,13 +136,13 @@ public class RoutePool extends Pool<String, RouteConfig> {
 		for (String stopTag : favoriteStops)
 		{
 			StopLocation stopLocation = sharedStops.get(stopTag);
-			
+
 			if (stopLocation != null)
 			{
 				ret.add(stopLocation);
 			}
 		}
-		
+
 		return ret.build();
 	}
 
@@ -155,14 +150,14 @@ public class RoutePool extends Pool<String, RouteConfig> {
 	{
 		return favoriteStops.contains(location.getStopTag()) ? Favorite.IsFavorite : Favorite.IsNotFavorite;
 	}
-	
+
 	public Favorite setFavorite(StopLocation location, Favorite isFavorite) throws RemoteException {
 		Collection<String> stopTags = databaseAgent.getAllStopTagsAtLocation(location.getStopTag());
 
-        databaseAgent.saveFavorite(stopTags, isFavorite);
+		databaseAgent.saveFavorite(stopTags, isFavorite);
 		favoriteStops.clear();
 		populateFavorites();
-		
+
 		if (isFavorite == Favorite.IsNotFavorite)
 		{
 			//make sure setFavorite(false) is called for each stop
@@ -175,7 +170,7 @@ public class RoutePool extends Pool<String, RouteConfig> {
 				}
 			}
 		}
-		
+
 		return isFavorite;
 	}
 
@@ -186,12 +181,12 @@ public class RoutePool extends Pool<String, RouteConfig> {
 		}
 		return success;
 	}
-	
+
 	public ConcurrentMap<String, StopLocation> getAllStopTagsAtLocation(String stopTag) {
 		ImmutableList<String> tags = databaseAgent.getAllStopTagsAtLocation(stopTag);
 		ConcurrentMap<String, StopLocation> outputMapping = Maps.newConcurrentMap();
-        databaseAgent.getStops(tags, transitSystem, outputMapping);
-		
+		getStops(tags, outputMapping);
+
 		return outputMapping;
 	}
 
@@ -200,7 +195,7 @@ public class RoutePool extends Pool<String, RouteConfig> {
 		{
 			stop.clearRecentlyUpdated();
 		}
-		
+
 		for (RouteConfig route : values())
 		{
 			for (StopLocation stop : route.getStopMapping().values())
@@ -209,14 +204,14 @@ public class RoutePool extends Pool<String, RouteConfig> {
 			}
 		}
 	}
-	
+
 	private static class ClosestCacheKey {
 		private final double lat;
 		private final double lon;
 		private final int maxStops;
 		private final Set<String> routes;
 		private final boolean usesRoutes;
-		
+
 		public ClosestCacheKey(double lat, double lon, int maxStops, Set<String> routes, boolean usesRoutes) {
 			this.lat = lat;
 			this.lon = lon;
@@ -224,7 +219,7 @@ public class RoutePool extends Pool<String, RouteConfig> {
 			this.routes = routes;
 			this.usesRoutes = usesRoutes;
 		}
-		
+
 		public boolean equals(double lat, double lon, int maxStops, Set<String> routes, boolean usesRoutes) {
 			return this.usesRoutes == usesRoutes &&
 					this.lat == lat &&
@@ -233,12 +228,12 @@ public class RoutePool extends Pool<String, RouteConfig> {
 					this.routes.equals(routes);
 		}
 	}
-	
+
 	private ClosestCacheKey previousKey;
 	private Collection<StopLocation> previousValue;
-	
+
 	public Collection<StopLocation> getClosestStops(double centerLatitude,
-			double centerLongitude, int maxStops)
+													double centerLongitude, int maxStops)
 	{
 		return databaseAgent.getClosestStops(centerLatitude, centerLongitude, transitSystem, sharedStops, maxStops);
 
@@ -253,7 +248,7 @@ public class RoutePool extends Pool<String, RouteConfig> {
 			return intersections.get(name);
 		}
 	}
-	
+
 	public boolean hasIntersection(String name) {
 		if (name == null) {
 			return false;
@@ -263,18 +258,18 @@ public class RoutePool extends Pool<String, RouteConfig> {
 			return intersections.containsKey(name);
 		}
 	}
-	
+
 	public void removeIntersection(String name) {
-        databaseAgent.removeIntersection(name);
-		
+		databaseAgent.removeIntersection(name);
+
 		intersections.remove(name);
 	}
 
 	public void editIntersectionName(String oldName, String newName) {
-        databaseAgent.editIntersectionName(oldName, newName);
-		
+		databaseAgent.editIntersectionName(oldName, newName);
+
 		intersections.remove(oldName);
-		
+
 		populateIntersections();
 	}
 
@@ -285,59 +280,59 @@ public class RoutePool extends Pool<String, RouteConfig> {
 	public Collection<IntersectionLocation> getIntersections() {
 		return intersections.values();
 	}
-	
+
 	public ITransitSystem getTransitSystem() {
 		return transitSystem;
 	}
 
-    /**
-     * Update stops in route and database
-     * @param route
-     * @param stops All stops in the route
-     * @throws IOException
-     */
-    public void replaceStops(String route, ImmutableMap<String, StopLocation> stops) throws IOException {
-        ImmutableMap.Builder<String, StopLocation> updatedStopsBuilder = ImmutableMap.builder();
-        ImmutableMap.Builder<String, StopLocation> allStopsBuilder = ImmutableMap.builder();
+	/**
+	 * Update stops in route and database
+	 * @param route
+	 * @param stops All stops in the route
+	 * @throws IOException
+	 */
+	public void replaceStops(String route, ImmutableMap<String, StopLocation> stops) throws IOException {
+		ImmutableMap.Builder<String, StopLocation> updatedStopsBuilder = ImmutableMap.builder();
+		ImmutableMap.Builder<String, StopLocation> allStopsBuilder = ImmutableMap.builder();
 
-        for (Map.Entry<String, StopLocation> entry : stops.entrySet()) {
-            StopLocation newStop = entry.getValue();
-            if (sharedStops.containsKey(entry.getKey())) {
-                // sharedStops.put(entry.getKey(), entry.getValue());
-                StopLocation sharedStop = sharedStops.get(entry.getKey());
-                if (sharedStop.getLatitudeAsDegrees() == newStop.getLatitudeAsDegrees() &&
-                        sharedStop.getLongitudeAsDegrees() == newStop.getLongitudeAsDegrees() &&
-                        sharedStop.getTitle().equals(newStop.getTitle())) {
-                    // hasn't changed, leave it alone
-                    allStopsBuilder.put(sharedStop.getStopTag(), sharedStop);
-                }
-                else {
-                    // something about stop is updated, replace it in sharedStops and queue it for
-                    // update in database
-                    sharedStops.put(newStop.getStopTag(), newStop);
-                    updatedStopsBuilder.put(entry);
-                    allStopsBuilder.put(entry);
-                }
-            }
-            else {
-                // new stop, update it in database
-                sharedStops.put(newStop.getStopTag(), newStop);
-                updatedStopsBuilder.put(entry);
-                allStopsBuilder.put(entry);
-            }
-        }
+		for (Map.Entry<String, StopLocation> entry : stops.entrySet()) {
+			StopLocation newStop = entry.getValue();
+			if (sharedStops.containsKey(entry.getKey())) {
+				// sharedStops.put(entry.getKey(), entry.getValue());
+				StopLocation sharedStop = sharedStops.get(entry.getKey());
+				if (sharedStop.getLatitudeAsDegrees() == newStop.getLatitudeAsDegrees() &&
+						sharedStop.getLongitudeAsDegrees() == newStop.getLongitudeAsDegrees() &&
+						sharedStop.getTitle().equals(newStop.getTitle())) {
+					// hasn't changed, leave it alone
+					allStopsBuilder.put(sharedStop.getStopTag(), sharedStop);
+				}
+				else {
+					// something about stop is updated, replace it in sharedStops and queue it for
+					// update in database
+					sharedStops.put(newStop.getStopTag(), newStop);
+					updatedStopsBuilder.put(entry);
+					allStopsBuilder.put(entry);
+				}
+			}
+			else {
+				// new stop, update it in database
+				sharedStops.put(newStop.getStopTag(), newStop);
+				updatedStopsBuilder.put(entry);
+				allStopsBuilder.put(entry);
+			}
+		}
 
-        ImmutableMap<String, StopLocation> updatedStops = updatedStopsBuilder.build();
+		ImmutableMap<String, StopLocation> updatedStops = updatedStopsBuilder.build();
 
-        // Set favorite status for new or updated stops
-        for (Map.Entry<String, StopLocation> entry : updatedStops.entrySet()) {
-            StopLocation stop = entry.getValue();
+		// Set favorite status for new or updated stops
+		for (Map.Entry<String, StopLocation> entry : updatedStops.entrySet()) {
+			StopLocation stop = entry.getValue();
 
-            stop.setFavorite(isFavorite(stop));
-        }
+			stop.setFavorite(isFavorite(stop));
+		}
 
-        RouteConfig routeConfig = get(route);
-        routeConfig.replaceStops(allStopsBuilder.build());
-        databaseAgent.replaceStops(updatedStops.values());
-    }
+		RouteConfig routeConfig = get(route);
+		routeConfig.replaceStops(allStopsBuilder.build());
+		databaseAgent.replaceStops(updatedStops.values());
+	}
 }
