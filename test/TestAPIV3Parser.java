@@ -3,6 +3,7 @@ import android.text.Html;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import com.schneeloch.bostonbusmap_library.data.Alert;
 import com.schneeloch.bostonbusmap_library.data.BusLocation;
 import com.schneeloch.bostonbusmap_library.data.Directions;
 import com.schneeloch.bostonbusmap_library.data.IAlertsFetcher;
@@ -67,7 +68,7 @@ public class TestAPIV3Parser {
 
 
     @Test
-    public void testPredictions() throws Exception {
+    public void testPredictionsWatertown() throws Exception {
         Now.fakeTimeMillis = new SimpleDateFormat(Constants.ISO8601, Locale.getDefault()).parse("2018-01-07T11:23:43-05:00").getTime();
 
         ContentResolver resolver = RuntimeEnvironment.application.getContentResolver();
@@ -76,10 +77,12 @@ public class TestAPIV3Parser {
         InputStream apiv3Stream = new FileInputStream(new File("./test/resources/predictions.json"));
         InputStream hubwayInfoStream = new FileInputStream(new File("./test/resources/station_information.json"));
         InputStream hubwayStatusStream = new FileInputStream(new File("./test/resources/station_status.json"));
+        InputStream alertsStream = new FileInputStream(new File("./test/resources/alerts.pb"));
         IDownloader downloader = new TestingDownloader(ImmutableMap.of(
-                "https://api-v3.mbta.com/predictions?api_key=109fafba79a848e792e8e7c584f6d1f1&filter[stop]=2043,2050,2044,2049,8816,8297,8817,8815,8296,88171,2042,2048,2051,2046,8178,8818,1452,2047,2052,1432,900,8179,8295,8284,8177,8180,1451,1433,2040,8819,8298,2054,1450,1434,8294,8181,8820,8176,8175,8182,1449,1435,17711,989,902,7711,2106,2107,2128,2127,2056,2126,2108,14481,2104,2129,2038,2125,8174,8339,8183,8293,1900,77110,77051,988,8173,2057,2110,2103,1448,2124,2130,8292,1436&include=vehicle,trip", apiv3Stream,
+                "https://api-v3.mbta.com/predictions?api_key=109fafba79a848e792e8e7c584f6d1f1&filter[stop]=2043,2050,2044,2049,8816,8297,8817,8815,8296,88171,2042,2048,2051,2046,8178&include=vehicle,trip", apiv3Stream,
                 "https://gbfs.thehubway.com/gbfs/en/station_information.json", hubwayInfoStream,
-                "https://gbfs.thehubway.com/gbfs/en/station_status.json", hubwayStatusStream
+                "https://gbfs.thehubway.com/gbfs/en/station_status.json", hubwayStatusStream,
+                "http://developer.mbta.com/lib/gtrtfs/Alerts/Alerts.pb", alertsStream
         ));
         ITransitSystem transitSystem = new TransitSystem(downloader, new TestingAlertsFetcher());
 
@@ -105,7 +108,7 @@ public class TestAPIV3Parser {
         // prepare
         stop.makeSnippetAndTitle(routeConfig, routeTitles, locations);
 
-        assertEquals("\nRoute 71, Vehicle y0603\n" +
+        assertEquals("\nRoute 71, Vehicle 0603\n" +
                 "Watertown Square\n" +
                 "Arriving in 60 min\n" +
                 "\n" +
@@ -116,6 +119,18 @@ public class TestAPIV3Parser {
                 "Route 71\n" +
                 "Watertown Square\n" +
                 "Arriving in 78 min", Html.fromHtml(stop.getPredictionView().getSnippet()).toString());
+
+        StringBuilder alertsText = new StringBuilder();
+        for (Alert alert : stop.getPredictions().getPredictionView().getAlerts()) {
+            alertsText.append(alert.getTitle() + "\n" + alert.getDescription() + "\n");
+        }
+        assertEquals(
+                alertsText.toString(),
+                "Route 71\n" +
+                        "Minor Route 71 delay\n" +
+                        "\n" +
+                        "Route 71 experiencing minor delays due to traffic.\n"
+        );
     }
 
     @Test

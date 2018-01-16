@@ -2,15 +2,15 @@
     "data": [
         {
             "attributes": {
-                "arrival_time": "2018-01-15T22:49:39-05:00",
-                "departure_time": "2018-01-15T22:51:00-05:00",
+                "arrival_time": "2018-01-16T00:05:07-05:00",
+                "departure_time": "2018-01-16T00:05:07-05:00",
                 "direction_id": 0,
                 "schedule_relationship": null,
                 "status": null,
                 "stop_sequence": 5,
                 "track": null
             },
-            "id": "prediction-CR-Weekday-Fall-17-535-Newtonville-5",
+            "id": "prediction-CR-Weekday-Fall-17-537-Newtonville-5",
             "relationships": {
                 "alerts": {},
                 "route": {
@@ -28,13 +28,13 @@
                 },
                 "trip": {
                     "data": {
-                        "id": "CR-Weekday-Fall-17-535",
+                        "id": "CR-Weekday-Fall-17-537",
                         "type": "trip"
                     }
                 },
                 "vehicle": {
                     "data": {
-                        "id": "1700",
+                        "id": "1701",
                         "type": "vehicle"
                     }
                 }
@@ -43,7 +43,7 @@
         },
         {
             "attributes": {
-                "arrival_time": "2018-01-16T00:30:10-05:00",
+                "arrival_time": "2018-01-16T00:30:25-05:00",
                 "departure_time": "2018-01-16T00:33:00-05:00",
                 "direction_id": 1,
                 "schedule_relationship": null,
@@ -74,6 +74,47 @@
                     }
                 },
                 "vehicle": {
+                    "data": {
+                        "id": "1531",
+                        "type": "vehicle"
+                    }
+                }
+            },
+            "type": "prediction"
+        },
+        {
+            "attributes": {
+                "arrival_time": "2018-01-16T01:31:06-05:00",
+                "departure_time": "2018-01-16T01:33:00-05:00",
+                "direction_id": 1,
+                "schedule_relationship": null,
+                "status": null,
+                "stop_sequence": 14,
+                "track": null
+            },
+            "id": "prediction-CR-Weekday-Fall-17-536-Newtonville-14",
+            "relationships": {
+                "alerts": {},
+                "route": {
+                    "data": {
+                        "id": "CR-Worcester",
+                        "type": "route"
+                    }
+                },
+                "schedule": {},
+                "stop": {
+                    "data": {
+                        "id": "Newtonville",
+                        "type": "stop"
+                    }
+                },
+                "trip": {
+                    "data": {
+                        "id": "CR-Weekday-Fall-17-536",
+                        "type": "trip"
+                    }
+                },
+                "vehicle": {
                     "data": null
                 }
             },
@@ -83,19 +124,57 @@
     "included": [
         {
             "attributes": {
-                "bearing": 206.0,
+                "bearing": 84.0,
+                "current_status": "IN_TRANSIT_TO",
+                "current_stop_sequence": 4,
+                "direction_id": 1,
+                "label": "1531",
+                "last_updated": "2018-01-15T23:44:43-05:00",
+                "latitude": 42.266571044921875,
+                "longitude": -71.52934265136719,
+                "speed": 16.0
+            },
+            "id": "1531",
+            "links": {
+                "self": "/vehicles/1531"
+            },
+            "relationships": {
+                "route": {
+                    "data": {
+                        "id": "CR-Worcester",
+                        "type": "route"
+                    }
+                },
+                "stop": {
+                    "data": {
+                        "id": "Southborough",
+                        "type": "stop"
+                    }
+                },
+                "trip": {
+                    "data": {
+                        "id": "CR-Weekday-Fall-17-534",
+                        "type": "trip"
+                    }
+                }
+            },
+            "type": "vehicle"
+        },
+        {
+            "attributes": {
+                "bearing": null,
                 "current_status": "STOPPED_AT",
                 "current_stop_sequence": 1,
                 "direction_id": 0,
-                "label": "1700",
-                "last_updated": "2018-01-15T22:29:07-05:00",
-                "latitude": 42.35084915161133,
-                "longitude": -71.0557632446289,
+                "label": "1701",
+                "last_updated": "2018-01-15T23:44:43-05:00",
+                "latitude": 42.33890914916992,
+                "longitude": -71.06044006347656,
                 "speed": null
             },
-            "id": "1700",
+            "id": "1701",
             "links": {
-                "self": "/vehicles/1700"
+                "self": "/vehicles/1701"
             },
             "relationships": {
                 "route": {
@@ -112,7 +191,7 @@
                 },
                 "trip": {
                     "data": {
-                        "id": "CR-Weekday-Fall-17-535",
+                        "id": "CR-Weekday-Fall-17-537",
                         "type": "trip"
                     }
                 }
@@ -151,6 +230,46 @@
                     }
                 },
                 "vehicle": {
+                    "data": {
+                        "id": "1531",
+                        "type": "vehicle"
+                    }
+                }
+            },
+            "type": "trip"
+        },
+        {
+            "attributes": {
+                "block_id": "",
+                "direction_id": 1,
+                "headsign": "South Station",
+                "name": "536",
+                "wheelchair_accessible": 1
+            },
+            "id": "CR-Weekday-Fall-17-536",
+            "links": {
+                "self": "/trips/CR-Weekday-Fall-17-536"
+            },
+            "relationships": {
+                "route": {
+                    "data": {
+                        "id": "CR-Worcester",
+                        "type": "route"
+                    }
+                },
+                "service": {
+                    "data": {
+                        "id": "CR-Weekday-SouthSide-Fall-17-RegReduced",
+                        "type": "service"
+                    }
+                },
+                "shape": {
+                    "data": {
+                        "id": "9850001",
+                        "type": "shape"
+                    }
+                },
+                "vehicle": {
                     "data": null
                 }
             },
@@ -161,12 +280,12 @@
                 "block_id": "",
                 "direction_id": 0,
                 "headsign": "Worcester",
-                "name": "535",
+                "name": "537",
                 "wheelchair_accessible": 1
             },
-            "id": "CR-Weekday-Fall-17-535",
+            "id": "CR-Weekday-Fall-17-537",
             "links": {
-                "self": "/trips/CR-Weekday-Fall-17-535"
+                "self": "/trips/CR-Weekday-Fall-17-537"
             },
             "relationships": {
                 "route": {
@@ -189,7 +308,7 @@
                 },
                 "vehicle": {
                     "data": {
-                        "id": "1700",
+                        "id": "1701",
                         "type": "vehicle"
                     }
                 }
