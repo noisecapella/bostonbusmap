@@ -2,15 +2,15 @@
     "data": [
         {
             "attributes": {
-                "arrival_time": "2018-01-15T21:34:20-05:00",
-                "departure_time": "2018-01-15T21:34:20-05:00",
-                "direction_id": 1,
+                "arrival_time": "2018-01-15T22:34:41-05:00",
+                "departure_time": "2018-01-15T22:35:00-05:00",
+                "direction_id": 0,
                 "schedule_relationship": null,
                 "status": null,
-                "stop_sequence": 4,
+                "stop_sequence": 7,
                 "track": null
             },
-            "id": "prediction-CR-Weekday-Fall-17-836-South Attleboro-4",
+            "id": "prediction-CR-Weekday-Fall-17-835-Sharon-7",
             "relationships": {
                 "alerts": {},
                 "route": {
@@ -22,19 +22,19 @@
                 "schedule": {},
                 "stop": {
                     "data": {
-                        "id": "South Attleboro",
+                        "id": "Sharon",
                         "type": "stop"
                     }
                 },
                 "trip": {
                     "data": {
-                        "id": "CR-Weekday-Fall-17-836",
+                        "id": "CR-Weekday-Fall-17-835",
                         "type": "trip"
                     }
                 },
                 "vehicle": {
                     "data": {
-                        "id": "1815",
+                        "id": "1703",
                         "type": "vehicle"
                     }
                 }
@@ -43,370 +43,7 @@
         },
         {
             "attributes": {
-                "arrival_time": "2018-01-15T21:41:26-05:00",
-                "departure_time": "2018-01-15T21:42:00-05:00",
-                "direction_id": 0,
-                "schedule_relationship": null,
-                "status": null,
-                "stop_sequence": 11,
-                "track": null
-            },
-            "id": "prediction-CR-Weekday-Fall-17-727-Walpole-11",
-            "relationships": {
-                "alerts": {},
-                "route": {
-                    "data": {
-                        "id": "CR-Franklin",
-                        "type": "route"
-                    }
-                },
-                "schedule": {},
-                "stop": {
-                    "data": {
-                        "id": "Walpole",
-                        "type": "stop"
-                    }
-                },
-                "trip": {
-                    "data": {
-                        "id": "CR-Weekday-Fall-17-727",
-                        "type": "trip"
-                    }
-                },
-                "vehicle": {
-                    "data": {
-                        "id": "1713",
-                        "type": "vehicle"
-                    }
-                }
-            },
-            "type": "prediction"
-        },
-        {
-            "attributes": {
-                "arrival_time": "2018-01-15T21:43:15-05:00",
-                "departure_time": "2018-01-15T21:44:00-05:00",
-                "direction_id": 1,
-                "schedule_relationship": null,
-                "status": null,
-                "stop_sequence": 5,
-                "track": null
-            },
-            "id": "prediction-CR-Weekday-Fall-17-836-Attleboro-5",
-            "relationships": {
-                "alerts": {},
-                "route": {
-                    "data": {
-                        "id": "CR-Providence",
-                        "type": "route"
-                    }
-                },
-                "schedule": {},
-                "stop": {
-                    "data": {
-                        "id": "Attleboro",
-                        "type": "stop"
-                    }
-                },
-                "trip": {
-                    "data": {
-                        "id": "CR-Weekday-Fall-17-836",
-                        "type": "trip"
-                    }
-                },
-                "vehicle": {
-                    "data": {
-                        "id": "1815",
-                        "type": "vehicle"
-                    }
-                }
-            },
-            "type": "prediction"
-        },
-        {
-            "attributes": {
-                "arrival_time": "2018-01-15T21:44:52-05:00",
-                "departure_time": null,
-                "direction_id": 0,
-                "schedule_relationship": null,
-                "status": null,
-                "stop_sequence": 11,
-                "track": null
-            },
-            "id": "prediction-CR-Weekday-Fall-17-833-Providence-11",
-            "relationships": {
-                "alerts": {},
-                "route": {
-                    "data": {
-                        "id": "CR-Providence",
-                        "type": "route"
-                    }
-                },
-                "schedule": {},
-                "stop": {
-                    "data": {
-                        "id": "Providence",
-                        "type": "stop"
-                    }
-                },
-                "trip": {
-                    "data": {
-                        "id": "CR-Weekday-Fall-17-833",
-                        "type": "trip"
-                    }
-                },
-                "vehicle": {
-                    "data": {
-                        "id": "1706",
-                        "type": "vehicle"
-                    }
-                }
-            },
-            "type": "prediction"
-        },
-        {
-            "attributes": {
-                "arrival_time": "2018-01-15T21:47:03-05:00",
-                "departure_time": "2018-01-15T21:49:00-05:00",
-                "direction_id": 0,
-                "schedule_relationship": null,
-                "status": null,
-                "stop_sequence": 12,
-                "track": null
-            },
-            "id": "prediction-CR-Weekday-Fall-17-727-Norfolk-12",
-            "relationships": {
-                "alerts": {},
-                "route": {
-                    "data": {
-                        "id": "CR-Franklin",
-                        "type": "route"
-                    }
-                },
-                "schedule": {},
-                "stop": {
-                    "data": {
-                        "id": "Norfolk",
-                        "type": "stop"
-                    }
-                },
-                "trip": {
-                    "data": {
-                        "id": "CR-Weekday-Fall-17-727",
-                        "type": "trip"
-                    }
-                },
-                "vehicle": {
-                    "data": {
-                        "id": "1713",
-                        "type": "vehicle"
-                    }
-                }
-            },
-            "type": "prediction"
-        },
-        {
-            "attributes": {
-                "arrival_time": "2018-01-15T21:53:07-05:00",
-                "departure_time": "2018-01-15T21:54:00-05:00",
-                "direction_id": 1,
-                "schedule_relationship": null,
-                "status": null,
-                "stop_sequence": 6,
-                "track": null
-            },
-            "id": "prediction-CR-Weekday-Fall-17-836-Mansfield-6",
-            "relationships": {
-                "alerts": {},
-                "route": {
-                    "data": {
-                        "id": "CR-Providence",
-                        "type": "route"
-                    }
-                },
-                "schedule": {},
-                "stop": {
-                    "data": {
-                        "id": "Mansfield",
-                        "type": "stop"
-                    }
-                },
-                "trip": {
-                    "data": {
-                        "id": "CR-Weekday-Fall-17-836",
-                        "type": "trip"
-                    }
-                },
-                "vehicle": {
-                    "data": {
-                        "id": "1815",
-                        "type": "vehicle"
-                    }
-                }
-            },
-            "type": "prediction"
-        },
-        {
-            "attributes": {
-                "arrival_time": "2018-01-15T21:53:59-05:00",
-                "departure_time": "2018-01-15T21:56:00-05:00",
-                "direction_id": 0,
-                "schedule_relationship": null,
-                "status": null,
-                "stop_sequence": 13,
-                "track": null
-            },
-            "id": "prediction-CR-Weekday-Fall-17-727-Franklin-13",
-            "relationships": {
-                "alerts": {},
-                "route": {
-                    "data": {
-                        "id": "CR-Franklin",
-                        "type": "route"
-                    }
-                },
-                "schedule": {},
-                "stop": {
-                    "data": {
-                        "id": "Franklin",
-                        "type": "stop"
-                    }
-                },
-                "trip": {
-                    "data": {
-                        "id": "CR-Weekday-Fall-17-727",
-                        "type": "trip"
-                    }
-                },
-                "vehicle": {
-                    "data": {
-                        "id": "1713",
-                        "type": "vehicle"
-                    }
-                }
-            },
-            "type": "prediction"
-        },
-        {
-            "attributes": {
-                "arrival_time": "2018-01-15T22:00:27-05:00",
-                "departure_time": null,
-                "direction_id": 0,
-                "schedule_relationship": null,
-                "status": null,
-                "stop_sequence": 14,
-                "track": null
-            },
-            "id": "prediction-CR-Weekday-Fall-17-727-Forge Park / 495-14",
-            "relationships": {
-                "alerts": {},
-                "route": {
-                    "data": {
-                        "id": "CR-Franklin",
-                        "type": "route"
-                    }
-                },
-                "schedule": {},
-                "stop": {
-                    "data": {
-                        "id": "Forge Park / 495",
-                        "type": "stop"
-                    }
-                },
-                "trip": {
-                    "data": {
-                        "id": "CR-Weekday-Fall-17-727",
-                        "type": "trip"
-                    }
-                },
-                "vehicle": {
-                    "data": {
-                        "id": "1713",
-                        "type": "vehicle"
-                    }
-                }
-            },
-            "type": "prediction"
-        },
-        {
-            "attributes": {
-                "arrival_time": "2018-01-15T22:25:00-05:00",
-                "departure_time": "2018-01-15T22:25:00-05:00",
-                "direction_id": 1,
-                "schedule_relationship": null,
-                "status": null,
-                "stop_sequence": 1,
-                "track": null
-            },
-            "id": "prediction-CR-Weekday-Fall-17-730-Forge Park / 495-1",
-            "relationships": {
-                "alerts": {},
-                "route": {
-                    "data": {
-                        "id": "CR-Franklin",
-                        "type": "route"
-                    }
-                },
-                "schedule": {},
-                "stop": {
-                    "data": {
-                        "id": "Forge Park / 495",
-                        "type": "stop"
-                    }
-                },
-                "trip": {
-                    "data": {
-                        "id": "CR-Weekday-Fall-17-730",
-                        "type": "trip"
-                    }
-                },
-                "vehicle": {
-                    "data": null
-                }
-            },
-            "type": "prediction"
-        },
-        {
-            "attributes": {
-                "arrival_time": "2018-01-15T22:30:33-05:00",
-                "departure_time": "2018-01-15T22:32:00-05:00",
-                "direction_id": 1,
-                "schedule_relationship": null,
-                "status": null,
-                "stop_sequence": 2,
-                "track": null
-            },
-            "id": "prediction-CR-Weekday-Fall-17-730-Franklin-2",
-            "relationships": {
-                "alerts": {},
-                "route": {
-                    "data": {
-                        "id": "CR-Franklin",
-                        "type": "route"
-                    }
-                },
-                "schedule": {},
-                "stop": {
-                    "data": {
-                        "id": "Franklin",
-                        "type": "stop"
-                    }
-                },
-                "trip": {
-                    "data": {
-                        "id": "CR-Weekday-Fall-17-730",
-                        "type": "trip"
-                    }
-                },
-                "vehicle": {
-                    "data": null
-                }
-            },
-            "type": "prediction"
-        },
-        {
-            "attributes": {
-                "arrival_time": "2018-01-15T22:37:09-05:00",
+                "arrival_time": "2018-01-15T22:38:19-05:00",
                 "departure_time": "2018-01-15T22:39:00-05:00",
                 "direction_id": 1,
                 "schedule_relationship": null,
@@ -437,15 +74,59 @@
                     }
                 },
                 "vehicle": {
-                    "data": null
+                    "data": {
+                        "id": "1713",
+                        "type": "vehicle"
+                    }
                 }
             },
             "type": "prediction"
         },
         {
             "attributes": {
-                "arrival_time": "2018-01-15T22:40:11-05:00",
-                "departure_time": "2018-01-15T22:43:00-05:00",
+                "arrival_time": "2018-01-15T22:40:40-05:00",
+                "departure_time": "2018-01-15T22:40:40-05:00",
+                "direction_id": 1,
+                "schedule_relationship": null,
+                "status": null,
+                "stop_sequence": 2,
+                "track": null
+            },
+            "id": "prediction-CR-Weekday-Fall-17-838-South Attleboro-2",
+            "relationships": {
+                "alerts": {},
+                "route": {
+                    "data": {
+                        "id": "CR-Providence",
+                        "type": "route"
+                    }
+                },
+                "schedule": {},
+                "stop": {
+                    "data": {
+                        "id": "South Attleboro",
+                        "type": "stop"
+                    }
+                },
+                "trip": {
+                    "data": {
+                        "id": "CR-Weekday-Fall-17-838",
+                        "type": "trip"
+                    }
+                },
+                "vehicle": {
+                    "data": {
+                        "id": "1706",
+                        "type": "vehicle"
+                    }
+                }
+            },
+            "type": "prediction"
+        },
+        {
+            "attributes": {
+                "arrival_time": "2018-01-15T22:43:15-05:00",
+                "departure_time": "2018-01-15T22:43:15-05:00",
                 "direction_id": 0,
                 "schedule_relationship": null,
                 "status": null,
@@ -475,14 +156,17 @@
                     }
                 },
                 "vehicle": {
-                    "data": null
+                    "data": {
+                        "id": "1703",
+                        "type": "vehicle"
+                    }
                 }
             },
             "type": "prediction"
         },
         {
             "attributes": {
-                "arrival_time": "2018-01-15T22:42:54-05:00",
+                "arrival_time": "2018-01-15T22:44:04-05:00",
                 "departure_time": "2018-01-15T22:46:00-05:00",
                 "direction_id": 1,
                 "schedule_relationship": null,
@@ -513,15 +197,387 @@
                     }
                 },
                 "vehicle": {
-                    "data": null
+                    "data": {
+                        "id": "1713",
+                        "type": "vehicle"
+                    }
                 }
             },
             "type": "prediction"
         },
         {
             "attributes": {
-                "arrival_time": "2018-01-15T22:48:35-05:00",
-                "departure_time": "2018-01-15T22:51:00-05:00",
+                "arrival_time": "2018-01-15T22:44:12-05:00",
+                "departure_time": "2018-01-15T22:44:12-05:00",
+                "direction_id": 0,
+                "schedule_relationship": null,
+                "status": null,
+                "stop_sequence": 68,
+                "track": null
+            },
+            "id": "prediction-35754157-37618-68",
+            "relationships": {
+                "alerts": {},
+                "route": {
+                    "data": {
+                        "id": "34E",
+                        "type": "route"
+                    }
+                },
+                "schedule": {},
+                "stop": {
+                    "data": {
+                        "id": "37618",
+                        "type": "stop"
+                    }
+                },
+                "trip": {
+                    "data": {
+                        "id": "35754157",
+                        "type": "trip"
+                    }
+                },
+                "vehicle": {
+                    "data": {
+                        "id": "y1707",
+                        "type": "vehicle"
+                    }
+                }
+            },
+            "type": "prediction"
+        },
+        {
+            "attributes": {
+                "arrival_time": "2018-01-15T22:44:18-05:00",
+                "departure_time": "2018-01-15T22:44:18-05:00",
+                "direction_id": 0,
+                "schedule_relationship": null,
+                "status": null,
+                "stop_sequence": 69,
+                "track": null
+            },
+            "id": "prediction-35754157-38618-69",
+            "relationships": {
+                "alerts": {},
+                "route": {
+                    "data": {
+                        "id": "34E",
+                        "type": "route"
+                    }
+                },
+                "schedule": {},
+                "stop": {
+                    "data": {
+                        "id": "38618",
+                        "type": "stop"
+                    }
+                },
+                "trip": {
+                    "data": {
+                        "id": "35754157",
+                        "type": "trip"
+                    }
+                },
+                "vehicle": {
+                    "data": {
+                        "id": "y1707",
+                        "type": "vehicle"
+                    }
+                }
+            },
+            "type": "prediction"
+        },
+        {
+            "attributes": {
+                "arrival_time": "2018-01-15T22:44:27-05:00",
+                "departure_time": "2018-01-15T22:44:27-05:00",
+                "direction_id": 0,
+                "schedule_relationship": null,
+                "status": null,
+                "stop_sequence": 70,
+                "track": null
+            },
+            "id": "prediction-35754157-39618-70",
+            "relationships": {
+                "alerts": {},
+                "route": {
+                    "data": {
+                        "id": "34E",
+                        "type": "route"
+                    }
+                },
+                "schedule": {},
+                "stop": {
+                    "data": {
+                        "id": "39618",
+                        "type": "stop"
+                    }
+                },
+                "trip": {
+                    "data": {
+                        "id": "35754157",
+                        "type": "trip"
+                    }
+                },
+                "vehicle": {
+                    "data": {
+                        "id": "y1707",
+                        "type": "vehicle"
+                    }
+                }
+            },
+            "type": "prediction"
+        },
+        {
+            "attributes": {
+                "arrival_time": "2018-01-15T22:44:50-05:00",
+                "departure_time": "2018-01-15T22:44:50-05:00",
+                "direction_id": 0,
+                "schedule_relationship": null,
+                "status": null,
+                "stop_sequence": 71,
+                "track": null
+            },
+            "id": "prediction-35754157-40618-71",
+            "relationships": {
+                "alerts": {},
+                "route": {
+                    "data": {
+                        "id": "34E",
+                        "type": "route"
+                    }
+                },
+                "schedule": {},
+                "stop": {
+                    "data": {
+                        "id": "40618",
+                        "type": "stop"
+                    }
+                },
+                "trip": {
+                    "data": {
+                        "id": "35754157",
+                        "type": "trip"
+                    }
+                },
+                "vehicle": {
+                    "data": {
+                        "id": "y1707",
+                        "type": "vehicle"
+                    }
+                }
+            },
+            "type": "prediction"
+        },
+        {
+            "attributes": {
+                "arrival_time": "2018-01-15T22:45:13-05:00",
+                "departure_time": "2018-01-15T22:45:13-05:00",
+                "direction_id": 0,
+                "schedule_relationship": null,
+                "status": null,
+                "stop_sequence": 72,
+                "track": null
+            },
+            "id": "prediction-35754157-41618-72",
+            "relationships": {
+                "alerts": {},
+                "route": {
+                    "data": {
+                        "id": "34E",
+                        "type": "route"
+                    }
+                },
+                "schedule": {},
+                "stop": {
+                    "data": {
+                        "id": "41618",
+                        "type": "stop"
+                    }
+                },
+                "trip": {
+                    "data": {
+                        "id": "35754157",
+                        "type": "trip"
+                    }
+                },
+                "vehicle": {
+                    "data": {
+                        "id": "y1707",
+                        "type": "vehicle"
+                    }
+                }
+            },
+            "type": "prediction"
+        },
+        {
+            "attributes": {
+                "arrival_time": "2018-01-15T22:45:20-05:00",
+                "departure_time": "2018-01-15T22:45:20-05:00",
+                "direction_id": 0,
+                "schedule_relationship": null,
+                "status": null,
+                "stop_sequence": 73,
+                "track": null
+            },
+            "id": "prediction-35754157-61842-73",
+            "relationships": {
+                "alerts": {},
+                "route": {
+                    "data": {
+                        "id": "34E",
+                        "type": "route"
+                    }
+                },
+                "schedule": {},
+                "stop": {
+                    "data": {
+                        "id": "61842",
+                        "type": "stop"
+                    }
+                },
+                "trip": {
+                    "data": {
+                        "id": "35754157",
+                        "type": "trip"
+                    }
+                },
+                "vehicle": {
+                    "data": {
+                        "id": "y1707",
+                        "type": "vehicle"
+                    }
+                }
+            },
+            "type": "prediction"
+        },
+        {
+            "attributes": {
+                "arrival_time": "2018-01-15T22:45:27-05:00",
+                "departure_time": "2018-01-15T22:45:27-05:00",
+                "direction_id": 0,
+                "schedule_relationship": null,
+                "status": null,
+                "stop_sequence": 74,
+                "track": null
+            },
+            "id": "prediction-35754157-73618-74",
+            "relationships": {
+                "alerts": {},
+                "route": {
+                    "data": {
+                        "id": "34E",
+                        "type": "route"
+                    }
+                },
+                "schedule": {},
+                "stop": {
+                    "data": {
+                        "id": "73618",
+                        "type": "stop"
+                    }
+                },
+                "trip": {
+                    "data": {
+                        "id": "35754157",
+                        "type": "trip"
+                    }
+                },
+                "vehicle": {
+                    "data": {
+                        "id": "y1707",
+                        "type": "vehicle"
+                    }
+                }
+            },
+            "type": "prediction"
+        },
+        {
+            "attributes": {
+                "arrival_time": "2018-01-15T22:46:14-05:00",
+                "departure_time": null,
+                "direction_id": 0,
+                "schedule_relationship": null,
+                "status": null,
+                "stop_sequence": 75,
+                "track": null
+            },
+            "id": "prediction-35754157-73619-75",
+            "relationships": {
+                "alerts": {},
+                "route": {
+                    "data": {
+                        "id": "34E",
+                        "type": "route"
+                    }
+                },
+                "schedule": {},
+                "stop": {
+                    "data": {
+                        "id": "73619",
+                        "type": "stop"
+                    }
+                },
+                "trip": {
+                    "data": {
+                        "id": "35754157",
+                        "type": "trip"
+                    }
+                },
+                "vehicle": {
+                    "data": {
+                        "id": "y1707",
+                        "type": "vehicle"
+                    }
+                }
+            },
+            "type": "prediction"
+        },
+        {
+            "attributes": {
+                "arrival_time": "2018-01-15T22:50:06-05:00",
+                "departure_time": "2018-01-15T22:50:06-05:00",
+                "direction_id": 1,
+                "schedule_relationship": null,
+                "status": null,
+                "stop_sequence": 3,
+                "track": null
+            },
+            "id": "prediction-CR-Weekday-Fall-17-838-Attleboro-3",
+            "relationships": {
+                "alerts": {},
+                "route": {
+                    "data": {
+                        "id": "CR-Providence",
+                        "type": "route"
+                    }
+                },
+                "schedule": {},
+                "stop": {
+                    "data": {
+                        "id": "Attleboro",
+                        "type": "stop"
+                    }
+                },
+                "trip": {
+                    "data": {
+                        "id": "CR-Weekday-Fall-17-838",
+                        "type": "trip"
+                    }
+                },
+                "vehicle": {
+                    "data": {
+                        "id": "1706",
+                        "type": "vehicle"
+                    }
+                }
+            },
+            "type": "prediction"
+        },
+        {
+            "attributes": {
+                "arrival_time": "2018-01-15T22:51:38-05:00",
+                "departure_time": "2018-01-15T22:51:38-05:00",
                 "direction_id": 0,
                 "schedule_relationship": null,
                 "status": null,
@@ -551,14 +607,17 @@
                     }
                 },
                 "vehicle": {
-                    "data": null
+                    "data": {
+                        "id": "1703",
+                        "type": "vehicle"
+                    }
                 }
             },
             "type": "prediction"
         },
         {
             "attributes": {
-                "arrival_time": "2018-01-15T22:55:51-05:00",
+                "arrival_time": "2018-01-15T22:58:55-05:00",
                 "departure_time": "2018-01-15T23:01:00-05:00",
                 "direction_id": 0,
                 "schedule_relationship": null,
@@ -589,6 +648,88 @@
                     }
                 },
                 "vehicle": {
+                    "data": {
+                        "id": "1703",
+                        "type": "vehicle"
+                    }
+                }
+            },
+            "type": "prediction"
+        },
+        {
+            "attributes": {
+                "arrival_time": "2018-01-15T23:00:17-05:00",
+                "departure_time": "2018-01-15T23:00:17-05:00",
+                "direction_id": 1,
+                "schedule_relationship": null,
+                "status": null,
+                "stop_sequence": 4,
+                "track": null
+            },
+            "id": "prediction-CR-Weekday-Fall-17-838-Mansfield-4",
+            "relationships": {
+                "alerts": {},
+                "route": {
+                    "data": {
+                        "id": "CR-Providence",
+                        "type": "route"
+                    }
+                },
+                "schedule": {},
+                "stop": {
+                    "data": {
+                        "id": "Mansfield",
+                        "type": "stop"
+                    }
+                },
+                "trip": {
+                    "data": {
+                        "id": "CR-Weekday-Fall-17-838",
+                        "type": "trip"
+                    }
+                },
+                "vehicle": {
+                    "data": {
+                        "id": "1706",
+                        "type": "vehicle"
+                    }
+                }
+            },
+            "type": "prediction"
+        },
+        {
+            "attributes": {
+                "arrival_time": "2018-01-15T23:05:00-05:00",
+                "departure_time": "2018-01-15T23:05:00-05:00",
+                "direction_id": 1,
+                "schedule_relationship": null,
+                "status": null,
+                "stop_sequence": 1,
+                "track": null
+            },
+            "id": "prediction-35755101-89617-1",
+            "relationships": {
+                "alerts": {},
+                "route": {
+                    "data": {
+                        "id": "34E",
+                        "type": "route"
+                    }
+                },
+                "schedule": {},
+                "stop": {
+                    "data": {
+                        "id": "89617",
+                        "type": "stop"
+                    }
+                },
+                "trip": {
+                    "data": {
+                        "id": "35755101",
+                        "type": "trip"
+                    }
+                },
+                "vehicle": {
                     "data": null
                 }
             },
@@ -596,9 +737,317 @@
         },
         {
             "attributes": {
-                "arrival_time": "2018-01-15T23:05:39-05:00",
+                "arrival_time": "2018-01-15T23:06:01-05:00",
+                "departure_time": "2018-01-15T23:06:01-05:00",
+                "direction_id": 1,
+                "schedule_relationship": null,
+                "status": null,
+                "stop_sequence": 2,
+                "track": null
+            },
+            "id": "prediction-35755101-42618-2",
+            "relationships": {
+                "alerts": {},
+                "route": {
+                    "data": {
+                        "id": "34E",
+                        "type": "route"
+                    }
+                },
+                "schedule": {},
+                "stop": {
+                    "data": {
+                        "id": "42618",
+                        "type": "stop"
+                    }
+                },
+                "trip": {
+                    "data": {
+                        "id": "35755101",
+                        "type": "trip"
+                    }
+                },
+                "vehicle": {
+                    "data": null
+                }
+            },
+            "type": "prediction"
+        },
+        {
+            "attributes": {
+                "arrival_time": "2018-01-15T23:06:21-05:00",
+                "departure_time": "2018-01-15T23:08:00-05:00",
+                "direction_id": 0,
+                "schedule_relationship": null,
+                "status": null,
+                "stop_sequence": 11,
+                "track": null
+            },
+            "id": "prediction-CR-Weekday-Fall-17-729-Windsor Gardens-11",
+            "relationships": {
+                "alerts": {},
+                "route": {
+                    "data": {
+                        "id": "CR-Franklin",
+                        "type": "route"
+                    }
+                },
+                "schedule": {},
+                "stop": {
+                    "data": {
+                        "id": "Windsor Gardens",
+                        "type": "stop"
+                    }
+                },
+                "trip": {
+                    "data": {
+                        "id": "CR-Weekday-Fall-17-729",
+                        "type": "trip"
+                    }
+                },
+                "vehicle": {
+                    "data": {
+                        "id": "1527",
+                        "type": "vehicle"
+                    }
+                }
+            },
+            "type": "prediction"
+        },
+        {
+            "attributes": {
+                "arrival_time": "2018-01-15T23:06:26-05:00",
+                "departure_time": "2018-01-15T23:06:26-05:00",
+                "direction_id": 1,
+                "schedule_relationship": null,
+                "status": null,
+                "stop_sequence": 3,
+                "track": null
+            },
+            "id": "prediction-35755101-43618-3",
+            "relationships": {
+                "alerts": {},
+                "route": {
+                    "data": {
+                        "id": "34E",
+                        "type": "route"
+                    }
+                },
+                "schedule": {},
+                "stop": {
+                    "data": {
+                        "id": "43618",
+                        "type": "stop"
+                    }
+                },
+                "trip": {
+                    "data": {
+                        "id": "35755101",
+                        "type": "trip"
+                    }
+                },
+                "vehicle": {
+                    "data": null
+                }
+            },
+            "type": "prediction"
+        },
+        {
+            "attributes": {
+                "arrival_time": "2018-01-15T23:06:38-05:00",
+                "departure_time": "2018-01-15T23:06:38-05:00",
+                "direction_id": 1,
+                "schedule_relationship": null,
+                "status": null,
+                "stop_sequence": 4,
+                "track": null
+            },
+            "id": "prediction-35755101-44618-4",
+            "relationships": {
+                "alerts": {},
+                "route": {
+                    "data": {
+                        "id": "34E",
+                        "type": "route"
+                    }
+                },
+                "schedule": {},
+                "stop": {
+                    "data": {
+                        "id": "44618",
+                        "type": "stop"
+                    }
+                },
+                "trip": {
+                    "data": {
+                        "id": "35755101",
+                        "type": "trip"
+                    }
+                },
+                "vehicle": {
+                    "data": null
+                }
+            },
+            "type": "prediction"
+        },
+        {
+            "attributes": {
+                "arrival_time": "2018-01-15T23:07:04-05:00",
+                "departure_time": "2018-01-15T23:07:04-05:00",
+                "direction_id": 1,
+                "schedule_relationship": null,
+                "status": null,
+                "stop_sequence": 5,
+                "track": null
+            },
+            "id": "prediction-35755101-45618-5",
+            "relationships": {
+                "alerts": {},
+                "route": {
+                    "data": {
+                        "id": "34E",
+                        "type": "route"
+                    }
+                },
+                "schedule": {},
+                "stop": {
+                    "data": {
+                        "id": "45618",
+                        "type": "stop"
+                    }
+                },
+                "trip": {
+                    "data": {
+                        "id": "35755101",
+                        "type": "trip"
+                    }
+                },
+                "vehicle": {
+                    "data": null
+                }
+            },
+            "type": "prediction"
+        },
+        {
+            "attributes": {
+                "arrival_time": "2018-01-15T23:07:22-05:00",
+                "departure_time": "2018-01-15T23:07:22-05:00",
+                "direction_id": 1,
+                "schedule_relationship": null,
+                "status": null,
+                "stop_sequence": 6,
+                "track": null
+            },
+            "id": "prediction-35755101-61847-6",
+            "relationships": {
+                "alerts": {},
+                "route": {
+                    "data": {
+                        "id": "34E",
+                        "type": "route"
+                    }
+                },
+                "schedule": {},
+                "stop": {
+                    "data": {
+                        "id": "61847",
+                        "type": "stop"
+                    }
+                },
+                "trip": {
+                    "data": {
+                        "id": "35755101",
+                        "type": "trip"
+                    }
+                },
+                "vehicle": {
+                    "data": null
+                }
+            },
+            "type": "prediction"
+        },
+        {
+            "attributes": {
+                "arrival_time": "2018-01-15T23:07:34-05:00",
+                "departure_time": "2018-01-15T23:07:34-05:00",
+                "direction_id": 1,
+                "schedule_relationship": null,
+                "status": null,
+                "stop_sequence": 7,
+                "track": null
+            },
+            "id": "prediction-35755101-46618-7",
+            "relationships": {
+                "alerts": {},
+                "route": {
+                    "data": {
+                        "id": "34E",
+                        "type": "route"
+                    }
+                },
+                "schedule": {},
+                "stop": {
+                    "data": {
+                        "id": "46618",
+                        "type": "stop"
+                    }
+                },
+                "trip": {
+                    "data": {
+                        "id": "35755101",
+                        "type": "trip"
+                    }
+                },
+                "vehicle": {
+                    "data": null
+                }
+            },
+            "type": "prediction"
+        },
+        {
+            "attributes": {
+                "arrival_time": "2018-01-15T23:07:39-05:00",
+                "departure_time": "2018-01-15T23:07:39-05:00",
+                "direction_id": 1,
+                "schedule_relationship": null,
+                "status": null,
+                "stop_sequence": 8,
+                "track": null
+            },
+            "id": "prediction-35755101-47618-8",
+            "relationships": {
+                "alerts": {},
+                "route": {
+                    "data": {
+                        "id": "34E",
+                        "type": "route"
+                    }
+                },
+                "schedule": {},
+                "stop": {
+                    "data": {
+                        "id": "47618",
+                        "type": "stop"
+                    }
+                },
+                "trip": {
+                    "data": {
+                        "id": "35755101",
+                        "type": "trip"
+                    }
+                },
+                "vehicle": {
+                    "data": null
+                }
+            },
+            "type": "prediction"
+        },
+        {
+            "attributes": {
+                "arrival_time": "2018-01-15T23:08:43-05:00",
                 "departure_time": "2018-01-15T23:11:00-05:00",
                 "direction_id": 0,
+                "schedule_relationship": null,
                 "status": null,
                 "stop_sequence": 11,
                 "track": null
@@ -626,14 +1075,222 @@
                     }
                 },
                 "vehicle": {
-                    "data": null
+                    "data": {
+                        "id": "1703",
+                        "type": "vehicle"
+                    }
                 }
             },
             "type": "prediction"
         },
         {
             "attributes": {
-                "arrival_time": "2018-01-15T23:20:36-05:00",
+                "arrival_time": "2018-01-15T23:09:16-05:00",
+                "departure_time": "2018-01-15T23:09:16-05:00",
+                "direction_id": 1,
+                "schedule_relationship": null,
+                "status": null,
+                "stop_sequence": 5,
+                "track": null
+            },
+            "id": "prediction-CR-Weekday-Fall-17-838-Sharon-5",
+            "relationships": {
+                "alerts": {},
+                "route": {
+                    "data": {
+                        "id": "CR-Providence",
+                        "type": "route"
+                    }
+                },
+                "schedule": {},
+                "stop": {
+                    "data": {
+                        "id": "Sharon",
+                        "type": "stop"
+                    }
+                },
+                "trip": {
+                    "data": {
+                        "id": "CR-Weekday-Fall-17-838",
+                        "type": "trip"
+                    }
+                },
+                "vehicle": {
+                    "data": {
+                        "id": "1706",
+                        "type": "vehicle"
+                    }
+                }
+            },
+            "type": "prediction"
+        },
+        {
+            "attributes": {
+                "arrival_time": "2018-01-15T23:09:48-05:00",
+                "departure_time": "2018-01-15T23:12:00-05:00",
+                "direction_id": 0,
+                "schedule_relationship": null,
+                "status": null,
+                "stop_sequence": 12,
+                "track": null
+            },
+            "id": "prediction-CR-Weekday-Fall-17-729-Walpole-12",
+            "relationships": {
+                "alerts": {},
+                "route": {
+                    "data": {
+                        "id": "CR-Franklin",
+                        "type": "route"
+                    }
+                },
+                "schedule": {},
+                "stop": {
+                    "data": {
+                        "id": "Walpole",
+                        "type": "stop"
+                    }
+                },
+                "trip": {
+                    "data": {
+                        "id": "CR-Weekday-Fall-17-729",
+                        "type": "trip"
+                    }
+                },
+                "vehicle": {
+                    "data": {
+                        "id": "1527",
+                        "type": "vehicle"
+                    }
+                }
+            },
+            "type": "prediction"
+        },
+        {
+            "attributes": {
+                "arrival_time": "2018-01-15T23:14:35-05:00",
+                "departure_time": "2018-01-15T23:16:00-05:00",
+                "direction_id": 0,
+                "schedule_relationship": null,
+                "status": null,
+                "stop_sequence": 7,
+                "track": null
+            },
+            "id": "prediction-CR-Weekday-Fall-17-029-Bridgewater-7",
+            "relationships": {
+                "alerts": {},
+                "route": {
+                    "data": {
+                        "id": "CR-Middleborough",
+                        "type": "route"
+                    }
+                },
+                "schedule": {},
+                "stop": {
+                    "data": {
+                        "id": "Bridgewater",
+                        "type": "stop"
+                    }
+                },
+                "trip": {
+                    "data": {
+                        "id": "CR-Weekday-Fall-17-029",
+                        "type": "trip"
+                    }
+                },
+                "vehicle": {
+                    "data": {
+                        "id": "1801",
+                        "type": "vehicle"
+                    }
+                }
+            },
+            "type": "prediction"
+        },
+        {
+            "attributes": {
+                "arrival_time": "2018-01-15T23:15:33-05:00",
+                "departure_time": "2018-01-15T23:19:00-05:00",
+                "direction_id": 0,
+                "schedule_relationship": null,
+                "status": null,
+                "stop_sequence": 13,
+                "track": null
+            },
+            "id": "prediction-CR-Weekday-Fall-17-729-Norfolk-13",
+            "relationships": {
+                "alerts": {},
+                "route": {
+                    "data": {
+                        "id": "CR-Franklin",
+                        "type": "route"
+                    }
+                },
+                "schedule": {},
+                "stop": {
+                    "data": {
+                        "id": "Norfolk",
+                        "type": "stop"
+                    }
+                },
+                "trip": {
+                    "data": {
+                        "id": "CR-Weekday-Fall-17-729",
+                        "type": "trip"
+                    }
+                },
+                "vehicle": {
+                    "data": {
+                        "id": "1527",
+                        "type": "vehicle"
+                    }
+                }
+            },
+            "type": "prediction"
+        },
+        {
+            "attributes": {
+                "arrival_time": "2018-01-15T23:22:16-05:00",
+                "departure_time": "2018-01-15T23:26:00-05:00",
+                "direction_id": 0,
+                "schedule_relationship": null,
+                "status": null,
+                "stop_sequence": 14,
+                "track": null
+            },
+            "id": "prediction-CR-Weekday-Fall-17-729-Franklin-14",
+            "relationships": {
+                "alerts": {},
+                "route": {
+                    "data": {
+                        "id": "CR-Franklin",
+                        "type": "route"
+                    }
+                },
+                "schedule": {},
+                "stop": {
+                    "data": {
+                        "id": "Franklin",
+                        "type": "stop"
+                    }
+                },
+                "trip": {
+                    "data": {
+                        "id": "CR-Weekday-Fall-17-729",
+                        "type": "trip"
+                    }
+                },
+                "vehicle": {
+                    "data": {
+                        "id": "1527",
+                        "type": "vehicle"
+                    }
+                }
+            },
+            "type": "prediction"
+        },
+        {
+            "attributes": {
+                "arrival_time": "2018-01-15T23:23:40-05:00",
                 "departure_time": "2018-01-15T23:27:00-05:00",
                 "direction_id": 0,
                 "schedule_relationship": null,
@@ -664,6 +1321,129 @@
                     }
                 },
                 "vehicle": {
+                    "data": {
+                        "id": "1703",
+                        "type": "vehicle"
+                    }
+                }
+            },
+            "type": "prediction"
+        },
+        {
+            "attributes": {
+                "arrival_time": "2018-01-15T23:25:22-05:00",
+                "departure_time": null,
+                "direction_id": 0,
+                "schedule_relationship": null,
+                "status": null,
+                "stop_sequence": 8,
+                "track": null
+            },
+            "id": "prediction-CR-Weekday-Fall-17-029-Middleborough/ Lakeville-8",
+            "relationships": {
+                "alerts": {},
+                "route": {
+                    "data": {
+                        "id": "CR-Middleborough",
+                        "type": "route"
+                    }
+                },
+                "schedule": {},
+                "stop": {
+                    "data": {
+                        "id": "Middleborough/ Lakeville",
+                        "type": "stop"
+                    }
+                },
+                "trip": {
+                    "data": {
+                        "id": "CR-Weekday-Fall-17-029",
+                        "type": "trip"
+                    }
+                },
+                "vehicle": {
+                    "data": {
+                        "id": "1801",
+                        "type": "vehicle"
+                    }
+                }
+            },
+            "type": "prediction"
+        },
+        {
+            "attributes": {
+                "arrival_time": "2018-01-15T23:29:25-05:00",
+                "departure_time": null,
+                "direction_id": 0,
+                "schedule_relationship": null,
+                "status": null,
+                "stop_sequence": 15,
+                "track": null
+            },
+            "id": "prediction-CR-Weekday-Fall-17-729-Forge Park / 495-15",
+            "relationships": {
+                "alerts": {},
+                "route": {
+                    "data": {
+                        "id": "CR-Franklin",
+                        "type": "route"
+                    }
+                },
+                "schedule": {},
+                "stop": {
+                    "data": {
+                        "id": "Forge Park / 495",
+                        "type": "stop"
+                    }
+                },
+                "trip": {
+                    "data": {
+                        "id": "CR-Weekday-Fall-17-729",
+                        "type": "trip"
+                    }
+                },
+                "vehicle": {
+                    "data": {
+                        "id": "1527",
+                        "type": "vehicle"
+                    }
+                }
+            },
+            "type": "prediction"
+        },
+        {
+            "attributes": {
+                "arrival_time": "2018-01-15T23:29:39-05:00",
+                "departure_time": "2018-01-15T23:35:00-05:00",
+                "direction_id": 0,
+                "schedule_relationship": null,
+                "status": null,
+                "stop_sequence": 7,
+                "track": null
+            },
+            "id": "prediction-CR-Weekday-Fall-17-837-Sharon-7",
+            "relationships": {
+                "alerts": {},
+                "route": {
+                    "data": {
+                        "id": "CR-Providence",
+                        "type": "route"
+                    }
+                },
+                "schedule": {},
+                "stop": {
+                    "data": {
+                        "id": "Sharon",
+                        "type": "stop"
+                    }
+                },
+                "trip": {
+                    "data": {
+                        "id": "CR-Weekday-Fall-17-837",
+                        "type": "trip"
+                    }
+                },
+                "vehicle": {
                     "data": null
                 }
             },
@@ -671,7 +1451,7 @@
         },
         {
             "attributes": {
-                "arrival_time": "2018-01-15T23:32:38-05:00",
+                "arrival_time": "2018-01-15T23:35:42-05:00",
                 "departure_time": null,
                 "direction_id": 0,
                 "schedule_relationship": null,
@@ -702,6 +1482,465 @@
                     }
                 },
                 "vehicle": {
+                    "data": {
+                        "id": "1703",
+                        "type": "vehicle"
+                    }
+                }
+            },
+            "type": "prediction"
+        },
+        {
+            "attributes": {
+                "arrival_time": "2018-01-15T23:36:41-05:00",
+                "departure_time": "2018-01-15T23:43:00-05:00",
+                "direction_id": 0,
+                "schedule_relationship": null,
+                "status": null,
+                "stop_sequence": 8,
+                "track": null
+            },
+            "id": "prediction-CR-Weekday-Fall-17-837-Mansfield-8",
+            "relationships": {
+                "alerts": {},
+                "route": {
+                    "data": {
+                        "id": "CR-Providence",
+                        "type": "route"
+                    }
+                },
+                "schedule": {},
+                "stop": {
+                    "data": {
+                        "id": "Mansfield",
+                        "type": "stop"
+                    }
+                },
+                "trip": {
+                    "data": {
+                        "id": "CR-Weekday-Fall-17-837",
+                        "type": "trip"
+                    }
+                },
+                "vehicle": {
+                    "data": null
+                }
+            },
+            "type": "prediction"
+        },
+        {
+            "attributes": {
+                "arrival_time": "2018-01-15T23:45:00-05:00",
+                "departure_time": "2018-01-15T23:51:00-05:00",
+                "direction_id": 0,
+                "schedule_relationship": null,
+                "status": null,
+                "stop_sequence": 9,
+                "track": null
+            },
+            "id": "prediction-CR-Weekday-Fall-17-837-Attleboro-9",
+            "relationships": {
+                "alerts": {},
+                "route": {
+                    "data": {
+                        "id": "CR-Providence",
+                        "type": "route"
+                    }
+                },
+                "schedule": {},
+                "stop": {
+                    "data": {
+                        "id": "Attleboro",
+                        "type": "stop"
+                    }
+                },
+                "trip": {
+                    "data": {
+                        "id": "CR-Weekday-Fall-17-837",
+                        "type": "trip"
+                    }
+                },
+                "vehicle": {
+                    "data": null
+                }
+            },
+            "type": "prediction"
+        },
+        {
+            "attributes": {
+                "arrival_time": "2018-01-15T23:45:20-05:00",
+                "departure_time": "2018-01-15T23:45:20-05:00",
+                "direction_id": 0,
+                "schedule_relationship": null,
+                "status": null,
+                "stop_sequence": 68,
+                "track": null
+            },
+            "id": "prediction-35754946-37618-68",
+            "relationships": {
+                "alerts": {},
+                "route": {
+                    "data": {
+                        "id": "34E",
+                        "type": "route"
+                    }
+                },
+                "schedule": {},
+                "stop": {
+                    "data": {
+                        "id": "37618",
+                        "type": "stop"
+                    }
+                },
+                "trip": {
+                    "data": {
+                        "id": "35754946",
+                        "type": "trip"
+                    }
+                },
+                "vehicle": {
+                    "data": null
+                }
+            },
+            "type": "prediction"
+        },
+        {
+            "attributes": {
+                "arrival_time": "2018-01-15T23:45:26-05:00",
+                "departure_time": "2018-01-15T23:45:26-05:00",
+                "direction_id": 0,
+                "schedule_relationship": null,
+                "status": null,
+                "stop_sequence": 69,
+                "track": null
+            },
+            "id": "prediction-35754946-38618-69",
+            "relationships": {
+                "alerts": {},
+                "route": {
+                    "data": {
+                        "id": "34E",
+                        "type": "route"
+                    }
+                },
+                "schedule": {},
+                "stop": {
+                    "data": {
+                        "id": "38618",
+                        "type": "stop"
+                    }
+                },
+                "trip": {
+                    "data": {
+                        "id": "35754946",
+                        "type": "trip"
+                    }
+                },
+                "vehicle": {
+                    "data": null
+                }
+            },
+            "type": "prediction"
+        },
+        {
+            "attributes": {
+                "arrival_time": "2018-01-15T23:45:35-05:00",
+                "departure_time": "2018-01-15T23:45:35-05:00",
+                "direction_id": 0,
+                "schedule_relationship": null,
+                "status": null,
+                "stop_sequence": 70,
+                "track": null
+            },
+            "id": "prediction-35754946-39618-70",
+            "relationships": {
+                "alerts": {},
+                "route": {
+                    "data": {
+                        "id": "34E",
+                        "type": "route"
+                    }
+                },
+                "schedule": {},
+                "stop": {
+                    "data": {
+                        "id": "39618",
+                        "type": "stop"
+                    }
+                },
+                "trip": {
+                    "data": {
+                        "id": "35754946",
+                        "type": "trip"
+                    }
+                },
+                "vehicle": {
+                    "data": null
+                }
+            },
+            "type": "prediction"
+        },
+        {
+            "attributes": {
+                "arrival_time": "2018-01-15T23:45:58-05:00",
+                "departure_time": "2018-01-15T23:45:58-05:00",
+                "direction_id": 0,
+                "schedule_relationship": null,
+                "status": null,
+                "stop_sequence": 71,
+                "track": null
+            },
+            "id": "prediction-35754946-40618-71",
+            "relationships": {
+                "alerts": {},
+                "route": {
+                    "data": {
+                        "id": "34E",
+                        "type": "route"
+                    }
+                },
+                "schedule": {},
+                "stop": {
+                    "data": {
+                        "id": "40618",
+                        "type": "stop"
+                    }
+                },
+                "trip": {
+                    "data": {
+                        "id": "35754946",
+                        "type": "trip"
+                    }
+                },
+                "vehicle": {
+                    "data": null
+                }
+            },
+            "type": "prediction"
+        },
+        {
+            "attributes": {
+                "arrival_time": "2018-01-15T23:46:21-05:00",
+                "departure_time": "2018-01-15T23:46:21-05:00",
+                "direction_id": 0,
+                "schedule_relationship": null,
+                "status": null,
+                "stop_sequence": 72,
+                "track": null
+            },
+            "id": "prediction-35754946-41618-72",
+            "relationships": {
+                "alerts": {},
+                "route": {
+                    "data": {
+                        "id": "34E",
+                        "type": "route"
+                    }
+                },
+                "schedule": {},
+                "stop": {
+                    "data": {
+                        "id": "41618",
+                        "type": "stop"
+                    }
+                },
+                "trip": {
+                    "data": {
+                        "id": "35754946",
+                        "type": "trip"
+                    }
+                },
+                "vehicle": {
+                    "data": null
+                }
+            },
+            "type": "prediction"
+        },
+        {
+            "attributes": {
+                "arrival_time": "2018-01-15T23:46:27-05:00",
+                "departure_time": "2018-01-15T23:46:27-05:00",
+                "direction_id": 0,
+                "schedule_relationship": null,
+                "status": null,
+                "stop_sequence": 73,
+                "track": null
+            },
+            "id": "prediction-35754946-61842-73",
+            "relationships": {
+                "alerts": {},
+                "route": {
+                    "data": {
+                        "id": "34E",
+                        "type": "route"
+                    }
+                },
+                "schedule": {},
+                "stop": {
+                    "data": {
+                        "id": "61842",
+                        "type": "stop"
+                    }
+                },
+                "trip": {
+                    "data": {
+                        "id": "35754946",
+                        "type": "trip"
+                    }
+                },
+                "vehicle": {
+                    "data": null
+                }
+            },
+            "type": "prediction"
+        },
+        {
+            "attributes": {
+                "arrival_time": "2018-01-15T23:46:34-05:00",
+                "departure_time": "2018-01-15T23:46:34-05:00",
+                "direction_id": 0,
+                "schedule_relationship": null,
+                "status": null,
+                "stop_sequence": 74,
+                "track": null
+            },
+            "id": "prediction-35754946-73618-74",
+            "relationships": {
+                "alerts": {},
+                "route": {
+                    "data": {
+                        "id": "34E",
+                        "type": "route"
+                    }
+                },
+                "schedule": {},
+                "stop": {
+                    "data": {
+                        "id": "73618",
+                        "type": "stop"
+                    }
+                },
+                "trip": {
+                    "data": {
+                        "id": "35754946",
+                        "type": "trip"
+                    }
+                },
+                "vehicle": {
+                    "data": null
+                }
+            },
+            "type": "prediction"
+        },
+        {
+            "attributes": {
+                "arrival_time": "2018-01-15T23:47:21-05:00",
+                "departure_time": null,
+                "direction_id": 0,
+                "schedule_relationship": null,
+                "status": null,
+                "stop_sequence": 75,
+                "track": null
+            },
+            "id": "prediction-35754946-73619-75",
+            "relationships": {
+                "alerts": {},
+                "route": {
+                    "data": {
+                        "id": "34E",
+                        "type": "route"
+                    }
+                },
+                "schedule": {},
+                "stop": {
+                    "data": {
+                        "id": "73619",
+                        "type": "stop"
+                    }
+                },
+                "trip": {
+                    "data": {
+                        "id": "35754946",
+                        "type": "trip"
+                    }
+                },
+                "vehicle": {
+                    "data": null
+                }
+            },
+            "type": "prediction"
+        },
+        {
+            "attributes": {
+                "arrival_time": "2018-01-15T23:53:36-05:00",
+                "departure_time": "2018-01-16T00:01:00-05:00",
+                "direction_id": 0,
+                "schedule_relationship": null,
+                "status": null,
+                "stop_sequence": 10,
+                "track": null
+            },
+            "id": "prediction-CR-Weekday-Fall-17-837-South Attleboro-10",
+            "relationships": {
+                "alerts": {},
+                "route": {
+                    "data": {
+                        "id": "CR-Providence",
+                        "type": "route"
+                    }
+                },
+                "schedule": {},
+                "stop": {
+                    "data": {
+                        "id": "South Attleboro",
+                        "type": "stop"
+                    }
+                },
+                "trip": {
+                    "data": {
+                        "id": "CR-Weekday-Fall-17-837",
+                        "type": "trip"
+                    }
+                },
+                "vehicle": {
+                    "data": null
+                }
+            },
+            "type": "prediction"
+        },
+        {
+            "attributes": {
+                "arrival_time": "2018-01-16T00:11:51-05:00",
+                "departure_time": null,
+                "direction_id": 0,
+                "schedule_relationship": null,
+                "status": null,
+                "stop_sequence": 11,
+                "track": null
+            },
+            "id": "prediction-CR-Weekday-Fall-17-837-Providence-11",
+            "relationships": {
+                "alerts": {},
+                "route": {
+                    "data": {
+                        "id": "CR-Providence",
+                        "type": "route"
+                    }
+                },
+                "schedule": {},
+                "stop": {
+                    "data": {
+                        "id": "Providence",
+                        "type": "stop"
+                    }
+                },
+                "trip": {
+                    "data": {
+                        "id": "CR-Weekday-Fall-17-837",
+                        "type": "trip"
+                    }
+                },
+                "vehicle": {
                     "data": null
                 }
             },
@@ -711,15 +1950,91 @@
     "included": [
         {
             "attributes": {
-                "bearing": 270.0,
+                "bearing": 204.0,
                 "current_status": "IN_TRANSIT_TO",
-                "current_stop_sequence": 10,
+                "current_stop_sequence": 2,
                 "direction_id": 0,
+                "label": "1527",
+                "last_updated": "2018-01-15T22:32:12-05:00",
+                "latitude": 42.34756088256836,
+                "longitude": -71.05703735351562,
+                "speed": 4.0
+            },
+            "id": "1527",
+            "links": {
+                "self": "/vehicles/1527"
+            },
+            "relationships": {
+                "route": {
+                    "data": {
+                        "id": "CR-Franklin",
+                        "type": "route"
+                    }
+                },
+                "stop": {
+                    "data": {
+                        "id": "Back Bay",
+                        "type": "stop"
+                    }
+                },
+                "trip": {
+                    "data": {
+                        "id": "CR-Weekday-Fall-17-729",
+                        "type": "trip"
+                    }
+                }
+            },
+            "type": "vehicle"
+        },
+        {
+            "attributes": {
+                "bearing": 228.0,
+                "current_status": "IN_TRANSIT_TO",
+                "current_stop_sequence": 7,
+                "direction_id": 0,
+                "label": "1703",
+                "last_updated": "2018-01-15T22:32:29-05:00",
+                "latitude": 42.147220611572266,
+                "longitude": -71.16130065917969,
+                "speed": 25.0
+            },
+            "id": "1703",
+            "links": {
+                "self": "/vehicles/1703"
+            },
+            "relationships": {
+                "route": {
+                    "data": {
+                        "id": "CR-Providence",
+                        "type": "route"
+                    }
+                },
+                "stop": {
+                    "data": {
+                        "id": "Sharon",
+                        "type": "stop"
+                    }
+                },
+                "trip": {
+                    "data": {
+                        "id": "CR-Weekday-Fall-17-835",
+                        "type": "trip"
+                    }
+                }
+            },
+            "type": "vehicle"
+        },
+        {
+            "attributes": {
+                "bearing": null,
+                "current_status": "IN_TRANSIT_TO",
+                "current_stop_sequence": 2,
+                "direction_id": 1,
                 "label": "1706",
-                "last_updated": "2018-01-15T21:25:16-05:00",
-                "latitude": 41.90047073364258,
-                "longitude": -71.33991241455078,
-                "speed": 17.0
+                "last_updated": "2018-01-15T22:32:20-05:00",
+                "latitude": 41.83341979980469,
+                "longitude": -71.41310119628906,
+                "speed": 7.0
             },
             "id": "1706",
             "links": {
@@ -740,7 +2055,7 @@
                 },
                 "trip": {
                     "data": {
-                        "id": "CR-Weekday-Fall-17-833",
+                        "id": "CR-Weekday-Fall-17-838",
                         "type": "trip"
                     }
                 }
@@ -749,15 +2064,15 @@
         },
         {
             "attributes": {
-                "bearing": 241.0,
-                "current_status": "IN_TRANSIT_TO",
-                "current_stop_sequence": 6,
-                "direction_id": 0,
+                "bearing": 48.0,
+                "current_status": "STOPPED_AT",
+                "current_stop_sequence": 2,
+                "direction_id": 1,
                 "label": "1713",
-                "last_updated": "2018-01-15T21:25:25-05:00",
-                "latitude": 42.22890853881836,
-                "longitude": -71.1697006225586,
-                "speed": 17.0
+                "last_updated": "2018-01-15T22:32:30-05:00",
+                "latitude": 42.08340835571289,
+                "longitude": -71.39571380615234,
+                "speed": 8.0
             },
             "id": "1713",
             "links": {
@@ -772,13 +2087,13 @@
                 },
                 "stop": {
                     "data": {
-                        "id": "Dedham Corp Center",
+                        "id": "Franklin",
                         "type": "stop"
                     }
                 },
                 "trip": {
                     "data": {
-                        "id": "CR-Weekday-Fall-17-727",
+                        "id": "CR-Weekday-Fall-17-730",
                         "type": "trip"
                     }
                 }
@@ -787,53 +2102,207 @@
         },
         {
             "attributes": {
-                "bearing": null,
+                "bearing": 205.0,
                 "current_status": "IN_TRANSIT_TO",
-                "current_stop_sequence": 4,
-                "direction_id": 1,
-                "label": "1815",
-                "last_updated": "2018-01-15T21:25:19-05:00",
-                "latitude": 41.831119537353516,
-                "longitude": -71.41217041015625,
-                "speed": 9.0
+                "current_stop_sequence": 2,
+                "direction_id": 0,
+                "label": "1801",
+                "last_updated": "2018-01-15T22:32:34-05:00",
+                "latitude": 42.344871520996094,
+                "longitude": -71.05854034423828,
+                "speed": 7.0
             },
-            "id": "1815",
+            "id": "1801",
             "links": {
-                "self": "/vehicles/1815"
+                "self": "/vehicles/1801"
             },
             "relationships": {
                 "route": {
                     "data": {
-                        "id": "CR-Providence",
+                        "id": "CR-Middleborough",
                         "type": "route"
                     }
                 },
                 "stop": {
                     "data": {
-                        "id": "South Attleboro",
+                        "id": "Quincy Center",
                         "type": "stop"
                     }
                 },
                 "trip": {
                     "data": {
-                        "id": "CR-Weekday-Fall-17-836",
+                        "id": "CR-Weekday-Fall-17-029",
                         "type": "trip"
                     }
                 }
             },
             "type": "vehicle"
+        },
+        {
+            "attributes": {
+                "block_id": "B34E-150",
+                "direction_id": 0,
+                "headsign": "East Walpole",
+                "name": "",
+                "wheelchair_accessible": 1
+            },
+            "id": "35754157",
+            "links": {
+                "self": "/trips/35754157"
+            },
+            "relationships": {
+                "route": {
+                    "data": {
+                        "id": "34E",
+                        "type": "route"
+                    }
+                },
+                "service": {
+                    "data": {
+                        "id": "BUS12018-hbb18hl6-Saturday-02",
+                        "type": "service"
+                    }
+                },
+                "shape": {
+                    "data": {
+                        "id": "34E0115",
+                        "type": "shape"
+                    }
+                },
+                "vehicle": {
+                    "data": {
+                        "id": "y1707",
+                        "type": "vehicle"
+                    }
+                }
+            },
+            "type": "trip"
+        },
+        {
+            "attributes": {
+                "block_id": "B34E-151",
+                "direction_id": 0,
+                "headsign": "East Walpole",
+                "name": "",
+                "wheelchair_accessible": 1
+            },
+            "id": "35754946",
+            "links": {
+                "self": "/trips/35754946"
+            },
+            "relationships": {
+                "route": {
+                    "data": {
+                        "id": "34E",
+                        "type": "route"
+                    }
+                },
+                "service": {
+                    "data": {
+                        "id": "BUS12018-hbb18hl6-Saturday-02",
+                        "type": "service"
+                    }
+                },
+                "shape": {
+                    "data": {
+                        "id": "34E0115",
+                        "type": "shape"
+                    }
+                },
+                "vehicle": {
+                    "data": null
+                }
+            },
+            "type": "trip"
+        },
+        {
+            "attributes": {
+                "block_id": "B34E-150",
+                "direction_id": 1,
+                "headsign": "Forest Hills",
+                "name": "",
+                "wheelchair_accessible": 1
+            },
+            "id": "35755101",
+            "links": {
+                "self": "/trips/35755101"
+            },
+            "relationships": {
+                "route": {
+                    "data": {
+                        "id": "34E",
+                        "type": "route"
+                    }
+                },
+                "service": {
+                    "data": {
+                        "id": "BUS12018-hbb18hl6-Saturday-02",
+                        "type": "service"
+                    }
+                },
+                "shape": {
+                    "data": {
+                        "id": "34E0116",
+                        "type": "shape"
+                    }
+                },
+                "vehicle": {
+                    "data": null
+                }
+            },
+            "type": "trip"
+        },
+        {
+            "attributes": {
+                "block_id": "",
+                "direction_id": 0,
+                "headsign": "Middleborough/Lakeville",
+                "name": "029",
+                "wheelchair_accessible": 1
+            },
+            "id": "CR-Weekday-Fall-17-029",
+            "links": {
+                "self": "/trips/CR-Weekday-Fall-17-029"
+            },
+            "relationships": {
+                "route": {
+                    "data": {
+                        "id": "CR-Middleborough",
+                        "type": "route"
+                    }
+                },
+                "service": {
+                    "data": {
+                        "id": "CR-Weekday-SouthSide-Fall-17-RegReduced",
+                        "type": "service"
+                    }
+                },
+                "shape": {
+                    "data": {
+                        "id": "9800002",
+                        "type": "shape"
+                    }
+                },
+                "vehicle": {
+                    "data": {
+                        "id": "1801",
+                        "type": "vehicle"
+                    }
+                }
+            },
+            "type": "trip"
         },
         {
             "attributes": {
                 "block_id": "",
                 "direction_id": 0,
                 "headsign": "Forge Park/495",
-                "name": "727",
+                "name": "729",
                 "wheelchair_accessible": 1
             },
-            "id": "CR-Weekday-Fall-17-727",
+            "id": "CR-Weekday-Fall-17-729",
             "links": {
-                "self": "/trips/CR-Weekday-Fall-17-727"
+                "self": "/trips/CR-Weekday-Fall-17-729"
             },
             "relationships": {
                 "route": {
@@ -856,7 +2325,7 @@
                 },
                 "vehicle": {
                     "data": {
-                        "id": "1713",
+                        "id": "1527",
                         "type": "vehicle"
                     }
                 }
@@ -895,45 +2364,8 @@
                     }
                 },
                 "vehicle": {
-                    "data": null
-                }
-            },
-            "type": "trip"
-        },
-        {
-            "attributes": {
-                "block_id": "",
-                "direction_id": 0,
-                "headsign": "Providence",
-                "name": "833",
-                "wheelchair_accessible": 1
-            },
-            "id": "CR-Weekday-Fall-17-833",
-            "links": {
-                "self": "/trips/CR-Weekday-Fall-17-833"
-            },
-            "relationships": {
-                "route": {
                     "data": {
-                        "id": "CR-Providence",
-                        "type": "route"
-                    }
-                },
-                "service": {
-                    "data": {
-                        "id": "CR-Weekday-SouthSide-Fall-17-RegReduced",
-                        "type": "service"
-                    }
-                },
-                "shape": {
-                    "data": {
-                        "id": "9890009",
-                        "type": "shape"
-                    }
-                },
-                "vehicle": {
-                    "data": {
-                        "id": "1706",
+                        "id": "1713",
                         "type": "vehicle"
                     }
                 }
@@ -972,6 +2404,46 @@
                     }
                 },
                 "vehicle": {
+                    "data": {
+                        "id": "1703",
+                        "type": "vehicle"
+                    }
+                }
+            },
+            "type": "trip"
+        },
+        {
+            "attributes": {
+                "block_id": "",
+                "direction_id": 0,
+                "headsign": "Providence",
+                "name": "837",
+                "wheelchair_accessible": 1
+            },
+            "id": "CR-Weekday-Fall-17-837",
+            "links": {
+                "self": "/trips/CR-Weekday-Fall-17-837"
+            },
+            "relationships": {
+                "route": {
+                    "data": {
+                        "id": "CR-Providence",
+                        "type": "route"
+                    }
+                },
+                "service": {
+                    "data": {
+                        "id": "CR-Weekday-SouthSide-Fall-17-RegReduced",
+                        "type": "service"
+                    }
+                },
+                "shape": {
+                    "data": {
+                        "id": "9890009",
+                        "type": "shape"
+                    }
+                },
+                "vehicle": {
                     "data": null
                 }
             },
@@ -982,12 +2454,12 @@
                 "block_id": "",
                 "direction_id": 1,
                 "headsign": "South Station",
-                "name": "836",
+                "name": "838",
                 "wheelchair_accessible": 1
             },
-            "id": "CR-Weekday-Fall-17-836",
+            "id": "CR-Weekday-Fall-17-838",
             "links": {
-                "self": "/trips/CR-Weekday-Fall-17-836"
+                "self": "/trips/CR-Weekday-Fall-17-838"
             },
             "relationships": {
                 "route": {
@@ -1010,12 +2482,50 @@
                 },
                 "vehicle": {
                     "data": {
-                        "id": "1815",
+                        "id": "1706",
                         "type": "vehicle"
                     }
                 }
             },
             "type": "trip"
+        },
+        {
+            "attributes": {
+                "bearing": 217.0,
+                "current_status": "STOPPED_AT",
+                "current_stop_sequence": 44,
+                "direction_id": 0,
+                "label": "1707",
+                "last_updated": "2018-01-15T22:33:02-05:00",
+                "latitude": 42.218231201171875,
+                "longitude": -71.1884536743164,
+                "speed": null
+            },
+            "id": "y1707",
+            "links": {
+                "self": "/vehicles/y1707"
+            },
+            "relationships": {
+                "route": {
+                    "data": {
+                        "id": "34E",
+                        "type": "route"
+                    }
+                },
+                "stop": {
+                    "data": {
+                        "id": "90620",
+                        "type": "stop"
+                    }
+                },
+                "trip": {
+                    "data": {
+                        "id": "35754157",
+                        "type": "trip"
+                    }
+                }
+            },
+            "type": "vehicle"
         }
     ],
     "jsonapi": {
