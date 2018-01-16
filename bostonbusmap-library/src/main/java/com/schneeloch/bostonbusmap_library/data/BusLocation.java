@@ -60,12 +60,14 @@ public class BusLocation implements Location {
 	private SimplePredictionView predictionView = SimplePredictionView.empty();
 	
 	private ImmutableCollection<Alert> snippetAlerts = ImmutableList.of();
+
+	private final Schema.Routes.SourceId sourceId;
 	
 	private static final int LOCATIONTYPE = 1;
 
 	public BusLocation(float latitude, float longitude, String id,
-			long lastFeedUpdateInMillis, Optional<Integer> heading,
-			String routeName, String headsign) {
+					   long lastFeedUpdateInMillis, Optional<Integer> heading,
+					   String routeName, String headsign, Schema.Routes.SourceId sourceId) {
 		this.latitude = (float) (latitude * Geometry.degreesToRadians);
 		this.longitude = (float) (longitude * Geometry.degreesToRadians);
 		this.latitudeAsDegrees = latitude;
@@ -78,6 +80,7 @@ public class BusLocation implements Location {
 		this.heading = heading;
 		this.routeName = routeName;
         this.headsign = headsign;
+        this.sourceId = sourceId;
 	}
 
 	public boolean hasHeading() {
@@ -154,8 +157,11 @@ public class BusLocation implements Location {
 	{
 		if (getVehicleSourceId() == Schema.Routes.SourceId.CommuterRail) {
 			return "Trip: " + busId + "<br />";
+		} else if (getVehicleSourceId() == Schema.Routes.SourceId.Subway) {
+			return "Train number: " + busId + "<br />";
+		} else {
+			return "Bus number: " + busId + "<br />";
 		}
-		return "Bus number: " + busId + "<br />";
 	}
 
 	private String makeTitle(RouteTitles routeTitles) {
@@ -280,7 +286,7 @@ public class BusLocation implements Location {
     }
 
     public Schema.Routes.SourceId getVehicleSourceId() {
-		return Schema.Routes.SourceId.Bus;
+		return sourceId;
 	}
 
     @Override

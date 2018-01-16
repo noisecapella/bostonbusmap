@@ -15,7 +15,6 @@ import javax.xml.parsers.ParserConfigurationException;
 
 import com.schneeloch.bostonbusmap_library.data.BusLocation;
 import com.schneeloch.bostonbusmap_library.data.Directions;
-import com.schneeloch.bostonbusmap_library.data.HubwayStopLocation;
 import com.schneeloch.bostonbusmap_library.data.IAlerts;
 import com.schneeloch.bostonbusmap_library.data.ITransitDrawables;
 import com.schneeloch.bostonbusmap_library.data.Locations;
@@ -127,32 +126,9 @@ public class HubwayTransitSource implements TransitSource {
 		return drawables;
 	}
 
-	@Override
-	public StopLocation createStop(float latitude, float longitude, String stopTag, String stopTitle, String route, Optional<String> parent) {
-		HubwayStopLocation stop = new HubwayStopLocation.HubwayBuilder(latitude,
-				longitude, stopTag, stopTitle, parent).build();
-		stop.addRoute(route);
-		return stop;
-	}
-
-    @Override
-    public BusLocation createVehicleLocation(float latitude, float longitude, String id, long lastFeedUpdateInMillis, Optional<Integer> heading, String routeName, String headsign) {
-        throw new RuntimeException("Cannot create hubway location");
-    }
-
     @Override
 	public TransitSourceTitles getRouteTitles() {
 		return routeTitles;
-	}
-
-	@Override
-	public int getLoadOrder() {
-		return 4;
-	}
-
-	@Override
-	public boolean requiresSubwayTable() {
-		return false;
 	}
 
 	@Override

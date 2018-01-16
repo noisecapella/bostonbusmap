@@ -143,10 +143,12 @@ public class TestAPIV3Parser {
         InputStream apiv3Stream = new FileInputStream(new File("./test/resources/predictions_worcester.json"));
         InputStream hubwayInfoStream = new FileInputStream(new File("./test/resources/station_information.json"));
         InputStream hubwayStatusStream = new FileInputStream(new File("./test/resources/station_status.json"));
+        InputStream alertsStream = new FileInputStream(new File("./test/resources/alerts.pb"));
         IDownloader downloader = new TestingDownloader(ImmutableMap.of(
                 "https://api-v3.mbta.com/predictions?api_key=109fafba79a848e792e8e7c584f6d1f1&filter[stop]=7742,81684,81685,7741,7743,81683,7744,81682,81686,8189,81681,7740,8285,8169,81687,8188,7739,9492,8168,82851,7646,7629,7627,7647,17645,7630,7648,7626,8167,Newtonville,7645,7738,7631,81688,7649,76251,7580,7482,78513,8166,82853,8170,78512,8187,7802,78073,7752,7853,78071,77379,7852,7808,7806,7854,81651,7632,7644,78571,7625,7855,78531,7807,7650,8171,8186,7805,7856,7804,8192,8165,77378,77521,7624,78511,7654&include=vehicle,trip", apiv3Stream,
                 "https://gbfs.thehubway.com/gbfs/en/station_information.json", hubwayInfoStream,
-                "https://gbfs.thehubway.com/gbfs/en/station_status.json", hubwayStatusStream
+                "https://gbfs.thehubway.com/gbfs/en/station_status.json", hubwayStatusStream,
+                "http://developer.mbta.com/lib/gtrtfs/Alerts/Alerts.pb", alertsStream
         ));
         ITransitSystem transitSystem = new TransitSystem(downloader, new TestingAlertsFetcher());
 
@@ -196,10 +198,12 @@ public class TestAPIV3Parser {
         InputStream apiv3Stream = new FileInputStream(new File("./test/resources/predictions_providence.json"));
         InputStream hubwayInfoStream = new FileInputStream(new File("./test/resources/station_information.json"));
         InputStream hubwayStatusStream = new FileInputStream(new File("./test/resources/station_status.json"));
+        InputStream alertsStream = new FileInputStream(new File("./test/resources/alerts.pb"));
         IDownloader downloader = new TestingDownloader(ImmutableMap.of(
                 "https://api-v3.mbta.com/predictions?api_key=109fafba79a848e792e8e7c584f6d1f1&filter[stop]=2043,2050,2044,2049,8816,8297,8817,8815,8296,88171,2042,2048,2051,2046,8178,8818,1452,2047,2052,1432,900,8179,8295,8284,8177,8180,1451,1433,2040,8819,8298,2054,1450,1434,8294,8181,8820,8176,8175,8182,1449,1435,17711,989,902,7711,2106,2107,2128,2127,2056,2126,2108,14481,2104,2129,2038,2125,8174,8339,8183,8293,1900,77110,77051,988,8173,2057,2110,2103,1448,2124,2130,8292,1436&include=vehicle,trip", apiv3Stream,
                 "https://gbfs.thehubway.com/gbfs/en/station_information.json", hubwayInfoStream,
-                "https://gbfs.thehubway.com/gbfs/en/station_status.json", hubwayStatusStream
+                "https://gbfs.thehubway.com/gbfs/en/station_status.json", hubwayStatusStream,
+                "http://developer.mbta.com/lib/gtrtfs/Alerts/Alerts.pb", alertsStream
         ));
         ITransitSystem transitSystem = new TransitSystem(downloader, new TestingAlertsFetcher());
 
@@ -247,10 +251,12 @@ public class TestAPIV3Parser {
         InputStream apiv3Stream = new FileInputStream(new File("./test/resources/predictions_south_station.json"));
         InputStream hubwayInfoStream = new FileInputStream(new File("./test/resources/station_information.json"));
         InputStream hubwayStatusStream = new FileInputStream(new File("./test/resources/station_status.json"));
+        InputStream alertsStream = new FileInputStream(new File("./test/resources/alerts.pb"));
         IDownloader downloader = new TestingDownloader(ImmutableMap.of(
                 "https://api-v3.mbta.com/predictions?api_key=109fafba79a848e792e8e7c584f6d1f1&filter[stop]=2043,2050,2044,2049,8816,8297,8817,8815,8296,88171,2042,2048,2051,2046,8178,8818,1452,2047,2052,1432,900,8179,8295,8284,8177,8180,1451,1433,2040,8819,8298,2054,1450,1434,8294,8181,8820,8176,8175,8182,1449,1435,17711,989,902,7711,2106,2107,2128,2127,2056,2126,2108,14481,2104,2129,2038,2125,8174,8339,8183,8293,1900,77110,77051,988,8173,2057,2110,2103,1448,2124,2130,8292,1436&include=vehicle,trip", apiv3Stream,
                 "https://gbfs.thehubway.com/gbfs/en/station_information.json", hubwayInfoStream,
-                "https://gbfs.thehubway.com/gbfs/en/station_status.json", hubwayStatusStream
+                "https://gbfs.thehubway.com/gbfs/en/station_status.json", hubwayStatusStream,
+                "http://developer.mbta.com/lib/gtrtfs/Alerts/Alerts.pb", alertsStream
         ));
         ITransitSystem transitSystem = new TransitSystem(downloader, new TestingAlertsFetcher());
 
@@ -300,10 +306,12 @@ public class TestAPIV3Parser {
         InputStream apiv3Stream = new FileInputStream(new File("./test/resources/predictions_empty.json"));
         InputStream hubwayInfoStream = new FileInputStream(new File("./test/resources/station_information.json"));
         InputStream hubwayStatusStream = new FileInputStream(new File("./test/resources/station_status.json"));
+        InputStream alertsStream = new FileInputStream(new File("./test/resources/alerts.pb"));
         IDownloader downloader = new TestingDownloader(ImmutableMap.of(
-                "https://api-v3.mbta.com/predictions?api_key=109fafba79a848e792e8e7c584f6d1f1&filter[stop]=2043,2050,2044,2049,8816,8297,8817,8815,8296,88171,2042,2048,2051,2046,8178,8818,1452,2047,2052,1432,900,8179,8295,8284,8177,8180,1451,1433,2040,8819,8298,2054,1450,1434,8294,8181,8820,8176,8175,8182,1449,1435,17711,989,902,7711,2106,2107,2128,2127,2056,2126,2108,14481,2104,2129,2038,2125,8174,8339,8183,8293,1900,77110,77051,988,8173,2057,2110,2103,1448,2124,2130,8292,1436&include=vehicle,trip", apiv3Stream,
+                "https://api-v3.mbta.com/predictions?api_key=109fafba79a848e792e8e7c584f6d1f1&filter[stop]=2043,2050,2044,2049,8816,8297,8817,8815,8296,88171,2042,2048,2051,2046,8178&include=vehicle,trip", apiv3Stream,
                 "https://gbfs.thehubway.com/gbfs/en/station_information.json", hubwayInfoStream,
-                "https://gbfs.thehubway.com/gbfs/en/station_status.json", hubwayStatusStream
+                "https://gbfs.thehubway.com/gbfs/en/station_status.json", hubwayStatusStream,
+                "http://developer.mbta.com/lib/gtrtfs/Alerts/Alerts.pb", alertsStream
         ));
         ITransitSystem transitSystem = new TransitSystem(downloader, new TestingAlertsFetcher());
 
@@ -448,10 +456,12 @@ public class TestAPIV3Parser {
         InputStream apiv3Stream = new FileInputStream(new File("./test/resources/vehicles_union_sq.json"));
         InputStream hubwayInfoStream = new FileInputStream(new File("./test/resources/station_information.json"));
         InputStream hubwayStatusStream = new FileInputStream(new File("./test/resources/station_status.json"));
+        InputStream alertsStream = new FileInputStream(new File("./test/resources/alerts.pb"));
         IDownloader downloader = new TestingDownloader(ImmutableMap.of(
                 "https://api-v3.mbta.com/vehicles?api_key=109fafba79a848e792e8e7c584f6d1f1&include=trip", apiv3Stream,
                 "https://gbfs.thehubway.com/gbfs/en/station_information.json", hubwayInfoStream,
-                "https://gbfs.thehubway.com/gbfs/en/station_status.json", hubwayStatusStream
+                "https://gbfs.thehubway.com/gbfs/en/station_status.json", hubwayStatusStream,
+                "http://developer.mbta.com/lib/gtrtfs/Alerts/Alerts.pb", alertsStream
         ));
         ITransitSystem transitSystem = new TransitSystem(downloader, new TestingAlertsFetcher());
 

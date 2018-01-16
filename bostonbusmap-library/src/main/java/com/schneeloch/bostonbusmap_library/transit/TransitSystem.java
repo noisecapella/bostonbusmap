@@ -299,9 +299,14 @@ public class TransitSystem implements ITransitSystem {
 	public StopLocation createStop(float latitude, float longitude,
 								   String stopTag, String stopTitle,
 								   String route, Optional<String> parent) {
-		TransitSource source = getTransitSource(route);
-
-		return source.createStop(latitude, longitude, stopTag, stopTitle, route, parent);
+		StopLocation.Builder builder = new StopLocation.Builder(
+				latitude,
+				longitude,
+				stopTag,
+				stopTitle,
+				parent
+		);
+		return builder.build();
 	}
 
 	@Override

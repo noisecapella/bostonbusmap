@@ -300,16 +300,6 @@ public abstract class NextBusTransitSource implements TransitSource
 		return true;
 	}
 
-
-	@Override
-	public StopLocation createStop(float lat, float lon, String stopTag,
-			String title, String route, Optional<String> parent)
-	{
-		StopLocation stop = new StopLocation.Builder(lat, lon, stopTag, title, parent).build();
-		stop.addRoute(route);
-		return stop;
-	}
-
 	@Override
 	public String searchForRoute(String indexingQuery, String lowercaseQuery)
 	{
@@ -322,27 +312,12 @@ public abstract class NextBusTransitSource implements TransitSource
 	}
 
 	@Override
-	public int getLoadOrder() {
-		return 1;
-	}
-	
-	@Override
 	public TransitSourceTitles getRouteTitles() {
 		return routeTitles;
 	}
 
 	@Override
-	public boolean requiresSubwayTable() {
-		return false;
-	}
-	
-	@Override
 	public IAlerts getAlerts() {
 		return transitSystem.getAlerts();
 	}
-	
-    @Override
-    public BusLocation createVehicleLocation(float latitude, float longitude, String id, long lastFeedUpdateInMillis, Optional<Integer> heading, String routeName, String headsign) {
-        return new BusLocation(latitude, longitude, id, lastFeedUpdateInMillis, heading, routeName, headsign);
-    }
 }

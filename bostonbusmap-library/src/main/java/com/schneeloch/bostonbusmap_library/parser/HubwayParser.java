@@ -17,7 +17,6 @@ import java.util.Map;
 import com.google.common.collect.Maps;
 import com.google.gson.Gson;
 import com.schneeloch.bostonbusmap_library.data.HubwayStopData;
-import com.schneeloch.bostonbusmap_library.data.HubwayStopLocation;
 import com.schneeloch.bostonbusmap_library.data.Locations;
 import com.schneeloch.bostonbusmap_library.data.PredictionStopLocationPair;
 import com.schneeloch.bostonbusmap_library.data.RouteConfig;
@@ -74,9 +73,9 @@ public class HubwayParser {
         ImmutableMap.Builder<String, StopLocation> builder = ImmutableMap.builder();
 
         for (HubwayStopData data : hubwayStopData) {
-            HubwayStopLocation.HubwayBuilder hubwayBuilder = new HubwayStopLocation.HubwayBuilder(data.latitude, data.longitude, data.tag, data.name, Optional.<String>absent());
+            StopLocation.Builder hubwayBuilder = new StopLocation.Builder(data.latitude, data.longitude, data.tag, data.name, Optional.<String>absent());
 
-            HubwayStopLocation newStop = hubwayBuilder.build();
+            StopLocation newStop = hubwayBuilder.build();
             newStop.addRoute(routeConfig.getRouteName());
             builder.put(data.tag, newStop);
         }

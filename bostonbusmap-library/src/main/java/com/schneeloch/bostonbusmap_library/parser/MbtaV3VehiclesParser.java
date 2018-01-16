@@ -105,7 +105,8 @@ public class MbtaV3VehiclesParser {
                     attributes.last_updated.millis,
                     Optional.of((int) attributes.bearing),
                     routeId,
-                    trip != null ? trip.headsign : null
+                    trip != null ? trip.headsign : null,
+                    sourceId
             );
             vehicles.put(key, busLocation);
         }

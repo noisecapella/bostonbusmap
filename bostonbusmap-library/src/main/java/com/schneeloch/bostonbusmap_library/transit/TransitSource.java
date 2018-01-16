@@ -34,26 +34,7 @@ public interface TransitSource {
 
 	ITransitDrawables getDrawables();
 
-	StopLocation createStop(float latitude, float longitude, String stopTag,
-			String stopTitle, String route, Optional<String> parent);
-
-    BusLocation createVehicleLocation(float latitude, float longitude, String id,
-                                      long lastFeedUpdateInMillis, Optional<Integer> heading,
-                                      String routeName, String headsign);
-	
 	TransitSourceTitles getRouteTitles();
-	
-	/**
-	 * The order in which to load transit sources. Lower numbers go first. Must be unique!
-	 * @return
-	 */
-	int getLoadOrder();
-
-	/**
-	 * Do we need to look at the Schema.Subway table to get branch
-	 * and platform information?
-	 */
-	boolean requiresSubwayTable();
 
 	IAlerts getAlerts();
 }

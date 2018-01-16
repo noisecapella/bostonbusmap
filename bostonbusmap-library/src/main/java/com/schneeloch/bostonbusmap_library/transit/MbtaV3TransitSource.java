@@ -205,30 +205,8 @@ public class MbtaV3TransitSource implements TransitSource {
     }
 
     @Override
-    public StopLocation createStop(float latitude, float longitude, String stopTag, String stopTitle, String route, Optional<String> parent) {
-        StopLocation stop = new StopLocation.Builder(latitude, longitude, stopTag, stopTitle, parent).build();
-        stop.addRoute(route);
-        return stop;
-    }
-
-    @Override
-    public BusLocation createVehicleLocation(float latitude, float longitude, String id, long lastFeedUpdateInMillis, Optional<Integer> heading, String routeName, String headsign) {
-        return new BusLocation(latitude, longitude, id, lastFeedUpdateInMillis, heading, routeName, headsign);
-    }
-
-    @Override
     public TransitSourceTitles getRouteTitles() {
         return routeTitles;
-    }
-
-    @Override
-    public int getLoadOrder() {
-        return 3;
-    }
-
-    @Override
-    public boolean requiresSubwayTable() {
-        return true;
     }
 
     @Override
