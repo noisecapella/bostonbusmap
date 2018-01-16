@@ -44,6 +44,11 @@ public class MbtaV3VehiclesParser {
         Map<VehicleLocations.Key, BusLocation> vehicles = Maps.newHashMap();
         Map<String, TripAttributes> trips = Maps.newHashMap();
 
+        if (root.included == null) {
+            LogUtil.w("Strange, included is empty");
+            return Maps.newHashMap();
+        }
+
         for (Resource resource : root.included) {
             if (resource.tripAttributes != null) {
                 trips.put(resource.id, resource.tripAttributes);

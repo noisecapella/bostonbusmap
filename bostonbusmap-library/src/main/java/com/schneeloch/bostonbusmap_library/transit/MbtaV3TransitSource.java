@@ -121,7 +121,7 @@ public class MbtaV3TransitSource implements TransitSource {
                     //bus prediction
 
                     try {
-                        MbtaV3PredictionsParser.runParse(routeTitles, cache, routePool, groups, data);
+                        MbtaV3PredictionsParser.runParse(locationsObj.getRouteTitles(), cache, routePool, groups, data);
                     }
                     catch (ParseException e) {
                         throw new RuntimeException(e);

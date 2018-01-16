@@ -7,6 +7,7 @@ import com.google.common.base.Objects;
 import com.google.common.collect.ComparisonChain;
 import com.google.common.collect.ImmutableMap;
 
+import com.schneeloch.bostonbusmap_library.database.Schema;
 import com.schneeloch.bostonbusmap_library.transit.TransitSystem;
 import com.schneeloch.bostonbusmap_library.util.MoreInfoConstants;
 import com.schneeloch.bostonbusmap_library.util.Now;
@@ -23,17 +24,20 @@ import android.text.Spanned;
  * @author schneg
  *
  */
-public class TimePrediction implements IPrediction
+public final class TimePrediction implements IPrediction
 {
 	public static final int NULL_LATENESS = -1;
 	/**
 	 * This may be null
 	 */
 	protected final String vehicleId;
+	protected final String vehicleLabel;
 	protected final String direction;
 	protected final String routeName;
 	protected final String routeTitle;
+	private final Schema.Routes.SourceId sourceId;
 	protected final long arrivalTimeMillis;
+	protected final long departureTimeMillis;
 	protected final boolean affectedByLayover;
 	protected final boolean isDelayed;
 	/**
@@ -42,27 +46,34 @@ public class TimePrediction implements IPrediction
 	protected final int lateness;
 	protected final String block;
 	protected final String stopId;
-	
-	public TimePrediction(long arrivalTimeMillis, String vehicleId,
+
+	public TimePrediction(long arrivalTimeMillis, long departureTimeMillis, String vehicleId,
+                          String vehicleLabel,
                           String direction, String routeName, String routeTitle,
                           boolean affectedByLayover, boolean isDelayed, int lateness,
-						  String block, String stopId)
+						  String block, String stopId, Schema.Routes.SourceId sourceId)
 	{
 		this.vehicleId = vehicleId;
+		this.vehicleLabel = vehicleLabel;
 		this.direction = direction;
 		this.routeName = routeName;
 		this.routeTitle = routeTitle;
 
 		this.arrivalTimeMillis = arrivalTimeMillis;
+		this.departureTimeMillis = departureTimeMillis;
 
 		this.affectedByLayover = affectedByLayover;
 		this.isDelayed = isDelayed;
 		this.lateness = lateness;
 		this.block = block;
 		this.stopId = stopId;
+		this.sourceId = sourceId;
 	}
 
 	public void makeSnippet(StringBuilder builder, boolean showRunNumber) {
+		if (sourceId == Schema.Routes.SourceId.CommuterRail) {
+			//throw new RuntimeException("TODO");
+		}
 		int minutes = getMinutes();
 		if (minutes < 0)
 		{
@@ -70,9 +81,9 @@ public class TimePrediction implements IPrediction
 		}
 
         builder.append("Route <b>").append(routeTitle).append("</b>");
-        if (vehicleId != null)
+        if (vehicleLabel != null)
         {
-            builder.append(", Vehicle <b>").append(vehicleId).append("</b>");
+            builder.append(", Vehicle <b>").append(vehicleLabel).append("</b>");
         }
 
 		if (!StringUtil.isEmpty(block) && showRunNumber) {
@@ -139,15 +150,16 @@ public class TimePrediction implements IPrediction
 
 	@Override
 	public int hashCode() {
-		return Objects.hashCode(vehicleId, direction, routeName, arrivalTimeMillis,
+		return Objects.hashCode(vehicleId, direction, routeName, arrivalTimeMillis, departureTimeMillis,
 				affectedByLayover, isDelayed, lateness, block, stopId);
 	}
-	
+
 	@Override
 	public boolean equals(Object o) {
 		if (o instanceof TimePrediction) {
 			TimePrediction another = (TimePrediction)o;
 			return Objects.equal(arrivalTimeMillis, another.arrivalTimeMillis) &&
+					Objects.equal(departureTimeMillis, another.departureTimeMillis) &&
 					Objects.equal(vehicleId, another.vehicleId) &&
 					Objects.equal(direction, another.direction) &&
 					Objects.equal(routeName, another.routeName) &&
@@ -162,11 +174,11 @@ public class TimePrediction implements IPrediction
 			return false;
 		}
 	}
-	
+
 	public String getRouteName() {
 		return routeName;
 	}
-	
+
 	public String getRouteTitle() {
 		return routeTitle;
 	}
@@ -193,7 +205,9 @@ public class TimePrediction implements IPrediction
 	@Override
 	public void writeToParcel(Parcel dest, int flags) {
 		dest.writeLong(arrivalTimeMillis);
-		dest.writeString(vehicleId != null ? vehicleId : "");
+		dest.writeLong(departureTimeMillis);
+		dest.writeString(vehicleId);
+		dest.writeString(vehicleLabel);
 		dest.writeString(direction);
 		dest.writeString(routeName);
 		dest.writeString(routeTitle);
@@ -203,23 +217,21 @@ public class TimePrediction implements IPrediction
 		dest.writeString(block);
 		dest.writeString(stopId);
 	}
-	
+
 	public static final Parcelable.Creator<TimePrediction> CREATOR = new Creator<TimePrediction>() {
-		
+
 		@Override
 		public TimePrediction[] newArray(int size) {
 			return new TimePrediction[size];
 		}
-		
+
 		@Override
 		public TimePrediction createFromParcel(Parcel source) {
 			//NOTE: if this changes you must also change CommuterRailPrediction.CREATOR.createFromParcel
 			long arrivalTimeMillis = source.readLong();
+			long departureTimeMillis = source.readLong();
 			String vehicleId = source.readString();
-			if (vehicleId.length() == 0)
-			{
-				vehicleId = null;
-			}
+			String vehicleLabel = source.readString();
 			String direction = source.readString();
 			String routeName = source.readString();
 			String routeTitle = source.readString();
@@ -228,25 +240,27 @@ public class TimePrediction implements IPrediction
 			int lateness = source.readInt();
 			String block = source.readString();
 			String stopId = source.readString();
+			Schema.Routes.SourceId sourceId = Schema.Routes.SourceId.fromValue(source.readInt());
 
-			TimePrediction prediction = new TimePrediction(arrivalTimeMillis, vehicleId, direction, routeName, routeTitle, affectedByLayover, isDelayed, lateness, block, stopId);
-			return prediction;
+			return new TimePrediction(
+					arrivalTimeMillis, departureTimeMillis,
+					vehicleId, vehicleLabel,
+					direction, routeName, routeTitle, affectedByLayover,
+					isDelayed, lateness, block, stopId, sourceId);
 		}
 	};
 
 	public ImmutableMap<String, Spanned> makeSnippetMap() {
 		StringBuilder ret = new StringBuilder();
 		makeSnippet(ret, TransitSystem.showRunNumber());
-		
-		ImmutableMap<String, Spanned> map = ImmutableMap.of(MoreInfoConstants.textKey, Html.fromHtml(ret.toString()));
 
-		return map;
+		return ImmutableMap.of(MoreInfoConstants.textKey, Html.fromHtml(ret.toString()));
 	}
 
 	protected static boolean readBoolean(Parcel source) {
 		return source.readInt() == 1;
 	}
-	
+
 	protected static void writeBoolean(Parcel dest, boolean data)
 	{
 		dest.writeInt(data ? 1 : 0);
@@ -257,11 +271,4 @@ public class TimePrediction implements IPrediction
         return getMinutes() < 0;
     }
 
-    public void addVehicleAndRoute(StringBuilder builder) {
-        builder.append("Route <b>").append(routeTitle).append("</b>");
-        if (vehicleId != null)
-        {
-            builder.append(", Vehicle <b>").append(vehicleId).append("</b>");
-        }
-    }
 }

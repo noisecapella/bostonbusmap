@@ -7,10 +7,12 @@ import com.schneeloch.bostonbusmap_library.data.Location;
 import com.schneeloch.bostonbusmap_library.data.PredictionStopLocationPair;
 import com.schneeloch.bostonbusmap_library.data.RoutePool;
 import com.schneeloch.bostonbusmap_library.data.RouteStopPair;
+import com.schneeloch.bostonbusmap_library.data.RouteTitles;
 import com.schneeloch.bostonbusmap_library.data.StopLocation;
 import com.schneeloch.bostonbusmap_library.data.TimePrediction;
 import com.schneeloch.bostonbusmap_library.data.TransitSourceCache;
 import com.schneeloch.bostonbusmap_library.data.TransitSourceTitles;
+import com.schneeloch.bostonbusmap_library.database.Schema;
 import com.schneeloch.bostonbusmap_library.parser.apiv3.PredictionAttributes;
 import com.schneeloch.bostonbusmap_library.parser.apiv3.Relationship;
 import com.schneeloch.bostonbusmap_library.parser.apiv3.Relationships;
@@ -21,6 +23,7 @@ import com.schneeloch.bostonbusmap_library.parser.apiv3.Resource;
 import com.schneeloch.bostonbusmap_library.parser.apiv3.ResourceDeserializer;
 import com.schneeloch.bostonbusmap_library.parser.apiv3.Root;
 import com.schneeloch.bostonbusmap_library.parser.apiv3.TripAttributes;
+import com.schneeloch.bostonbusmap_library.parser.apiv3.VehicleAttributes;
 import com.schneeloch.bostonbusmap_library.transit.MbtaV3TransitSource;
 import com.schneeloch.bostonbusmap_library.util.LogUtil;
 
@@ -32,12 +35,14 @@ import java.text.ParseException;
 import java.util.List;
 import java.util.Map;
 
+import javax.xml.transform.Source;
+
 /**
  * Created by schneg on 12/15/17.
  */
 
 public class MbtaV3PredictionsParser {
-    public static void runParse(TransitSourceTitles routeTitles, TransitSourceCache cache, RoutePool routePool, ImmutableList<ImmutableList<Location>> groups, InputStream data) throws IOException, ParseException {
+    public static void runParse(RouteTitles routeTitles, TransitSourceCache cache, RoutePool routePool, ImmutableList<ImmutableList<Location>> groups, InputStream data) throws IOException, ParseException {
         BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(data), 2048);
         GsonBuilder gsonBuilder = new GsonBuilder();
         gsonBuilder.registerTypeAdapter(Timestamp.class, new TimestampDeserializer());
@@ -84,13 +89,22 @@ public class MbtaV3PredictionsParser {
         }
     }
 
-    private static ImmutableList<PredictionStopLocationPair> parseTree(RoutePool routePool, TransitSourceTitles routeTitles, Root root) throws IOException, ParseException {
+    private static ImmutableList<PredictionStopLocationPair> parseTree(RoutePool routePool, RouteTitles routeTitles, Root root) throws IOException, ParseException {
         ImmutableList.Builder<PredictionStopLocationPair> builder = ImmutableList.builder();
 
         Map<String, TripAttributes> trips = Maps.newHashMap();
+        Map<String, VehicleAttributes> vehicles = Maps.newHashMap();
+        if (root.included == null) {
+            LogUtil.w("Strange, predictions list is empty");
+            return ImmutableList.of();
+        }
+
         for (Resource resource : root.included) {
             if (resource.tripAttributes != null) {
                 trips.put(resource.id, resource.tripAttributes);
+            }
+            if (resource.vehicleAttributes != null) {
+                vehicles.put(resource.id, resource.vehicleAttributes);
             }
         }
 
@@ -108,38 +122,75 @@ public class MbtaV3PredictionsParser {
                 continue;
             }
 
-            String stopId = relationships.stop.id;
-            String routeId = MbtaV3TransitSource.translateRoute(relationships.route.id);
-            String vehicleId = relationships.vehicle.id;
-            String tripId = relationships.trip.id;
-            StopLocation location = routePool.get(routeId).getStop(stopId);
-
-            if (attributes.arrival_time == null) {
-                LogUtil.w("Stop " + id + " has a null arrival time");
+            if (relationships.route == null) {
+                LogUtil.w("Unable to find route for " + id);
                 continue;
             }
-            long arrivalTimeMillis = attributes.arrival_time.millis;
+
+            if (relationships.stop == null) {
+                LogUtil.w("Unable to find stop for " + id);
+                continue;
+            }
+
+            String routeId = MbtaV3TransitSource.translateRoute(relationships.route.id);
+            Schema.Routes.SourceId sourceId = routeTitles.getTransitSourceId(routeId);
+            String stopId = relationships.stop.id;
+            String vehicleId = relationships.vehicle != null ? relationships.vehicle.id : null;
+            String tripId = relationships.trip != null ? relationships.trip.id : null;
+            StopLocation location = routePool.get(routeId).getStop(stopId);
+
+            long arrivalTimeMillis, departureTimeMillis;
+            if (attributes.arrival_time != null) {
+                arrivalTimeMillis = attributes.arrival_time.millis;
+                if (attributes.departure_time != null) {
+                    departureTimeMillis = attributes.departure_time.millis;
+                } else {
+                    departureTimeMillis = arrivalTimeMillis;
+                }
+            } else {
+                if (attributes.departure_time != null) {
+                    departureTimeMillis = attributes.departure_time.millis;
+                    arrivalTimeMillis = departureTimeMillis;
+                } else {
+                    LogUtil.w("Stop " + id + " has a null arrival and departure time");
+                    continue;
+                }
+            }
 
 
             TripAttributes tripAttributes = trips.get(tripId);
             String headsign = null;
             String block = null;
+            int delay = 0;
             if (tripAttributes != null) {
                 headsign = tripAttributes.headsign;
                 block = tripAttributes.block_id;
+
+                if (tripAttributes.departure_time != null && attributes.departure_time != null) {
+                    delay = (int)((attributes.departure_time.millis - tripAttributes.departure_time.millis) / 1000);
+                }
+            }
+
+            String vehicleLabel = vehicleId;
+            VehicleAttributes vehicleAttributes = vehicles.get(vehicleId);
+            if (vehicleAttributes != null) {
+                vehicleLabel = vehicleAttributes.label;
             }
 
             TimePrediction prediction = new TimePrediction(
                     arrivalTimeMillis,
+                    departureTimeMillis,
                     vehicleId,
+                    vehicleLabel,
                     headsign,
                     routeId,
                     routeTitles.getTitle(routeId),
+                    arrivalTimeMillis != departureTimeMillis,
                     false, // TODO
-                    false, // TODO
-                    0, // TODO
+                    delay,
                     block,
-                    stopId
+                    stopId,
+                    sourceId
             );
 
             PredictionStopLocationPair pair = new PredictionStopLocationPair(prediction, location);

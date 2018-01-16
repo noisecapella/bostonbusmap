@@ -19,6 +19,7 @@ import com.schneeloch.bostonbusmap_library.data.TimePrediction;
 import com.schneeloch.bostonbusmap_library.data.RouteConfig;
 import com.schneeloch.bostonbusmap_library.data.RoutePool;
 import com.schneeloch.bostonbusmap_library.data.StopLocation;
+import com.schneeloch.bostonbusmap_library.database.Schema;
 import com.schneeloch.bostonbusmap_library.util.LogUtil;
 import com.schneeloch.bostonbusmap_library.util.Now;
 import com.schneeloch.bostonbusmap_library.util.StringUtil;
@@ -122,10 +123,10 @@ public class BusPredictionsFeedParser extends DefaultHandler
 				}
 				long arrivalTimeMillis = currentTimeMillis + minutes * 60 * 1000;
 
-				TimePrediction prediction = new TimePrediction(arrivalTimeMillis, vehicleId,
+				TimePrediction prediction = new TimePrediction(arrivalTimeMillis, arrivalTimeMillis, vehicleId, vehicleId,
                         directionSnippet, currentRoute.getRouteName(),
                         currentRoute.getRouteTitle(), affectedByLayover, isDelayed,
-                        TimePrediction.NULL_LATENESS, block, currentLocation.getStopTag());
+                        TimePrediction.NULL_LATENESS, block, currentLocation.getStopTag(), Schema.Routes.SourceId.Bus);
 				currentLocation.addPrediction(prediction);
 			}
 		}

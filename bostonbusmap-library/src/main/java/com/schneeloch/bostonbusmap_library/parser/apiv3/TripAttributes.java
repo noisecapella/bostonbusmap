@@ -9,4 +9,6 @@ public class TripAttributes {
     public int direction_id;
     public int wheelchair_accessible;
     public String block_id;
+    public Timestamp arrival_time;
+    public Timestamp departure_time;
 }
