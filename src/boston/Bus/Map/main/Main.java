@@ -31,6 +31,7 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.LatLng;
+import com.schneeloch.bostonbusmap_library.data.AlertsFetcher;
 import com.schneeloch.bostonbusmap_library.data.BusLocation;
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
@@ -293,7 +294,7 @@ public class Main extends AbstractMapActivity {
                     }
                 });
 
-                final ITransitSystem transitSystem = new TransitSystem(new Downloader());
+                final ITransitSystem transitSystem = new TransitSystem(new Downloader(), new AlertsFetcher());
                 {
                     ITransitDrawables busDrawables = new TransitDrawables(
                             R.drawable.busstop_intersect, R.drawable.busstop_intersect_selected,

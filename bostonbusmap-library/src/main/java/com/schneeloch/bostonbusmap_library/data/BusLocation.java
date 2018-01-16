@@ -152,6 +152,9 @@ public class BusLocation implements Location {
 
 	protected String getBusNumberMessage()
 	{
+		if (getVehicleSourceId() == Schema.Routes.SourceId.CommuterRail) {
+			return "Trip: " + busId + "<br />";
+		}
 		return "Bus number: " + busId + "<br />";
 	}
 

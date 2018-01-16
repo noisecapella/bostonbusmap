@@ -83,7 +83,7 @@ public class MbtaV3TransitSource implements TransitSource {
                         StopLocation stopLocation = (StopLocation) location;
                         for (String route : location.getRoutes()) {
                             Schema.Routes.SourceId sourceId = transitSystem.getSourceId(route);
-                            if (sourceId == Schema.Routes.SourceId.Subway || sourceId == Schema.Routes.SourceId.CommuterRail) {
+                            if (sourceId != Schema.Routes.SourceId.Hubway) {
                                 stopIds.add(stopLocation.getStopTag());
                                 break;
                             }

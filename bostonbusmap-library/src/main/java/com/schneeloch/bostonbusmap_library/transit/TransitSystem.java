@@ -27,9 +27,11 @@ import android.util.Log;
 
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
-import com.schneeloch.bostonbusmap_library.data.AlertsFuture;
+import com.schneeloch.bostonbusmap_library.data.AlertsFetcher;
 import com.schneeloch.bostonbusmap_library.data.Directions;
 import com.schneeloch.bostonbusmap_library.data.IAlerts;
+import com.schneeloch.bostonbusmap_library.data.IAlertsFetcher;
+import com.schneeloch.bostonbusmap_library.data.IAlertsFuture;
 import com.schneeloch.bostonbusmap_library.data.ITransitDrawables;
 import com.schneeloch.bostonbusmap_library.data.Location;
 import com.schneeloch.bostonbusmap_library.data.Locations;
@@ -72,8 +74,9 @@ public class TransitSystem implements ITransitSystem {
 	/**
 	 * This will be null when alerts haven't been read yet
 	 */
-	private AlertsFuture alertsFuture;
+	private IAlertsFuture alertsFuture;
 	private static final String agencyName = "MBTA";
+	private final IAlertsFetcher fetchAlerts;
 
 	public static double getCenterLat() {
 		return bostonLatitude;
@@ -111,8 +114,9 @@ public class TransitSystem implements ITransitSystem {
 
 	private final IDownloader downloader;
 
-	public TransitSystem(IDownloader downloader) {
+	public TransitSystem(IDownloader downloader, IAlertsFetcher fetchAlerts) {
 		this.downloader = downloader;
+		this.fetchAlerts = fetchAlerts;
 	}
 
 	public static String getAgencyName() {
@@ -309,7 +313,7 @@ public class TransitSystem implements ITransitSystem {
 		{
 			// this shouldn't happen but maybe some code might change
 			// to cause alerts to be read before they're set
-			return AlertsFuture.EMPTY;
+			return AlertsFetcher.EMPTY;
 		}
 	}
 
@@ -344,11 +348,11 @@ public class TransitSystem implements ITransitSystem {
 			// this runs the alerts code in the background,
 			// providing empty alerts until the data is ready
 
-			alertsFuture = new AlertsFuture(databaseAgent, new MbtaAlertsParser(this, downloader), runnable);
+			alertsFuture = fetchAlerts.fetchAlerts(databaseAgent, new MbtaAlertsParser(this, downloader), runnable);
 		}
 		else if (alertsFuture.getCreationTime() + oneMinuteInMillis < Now.getMillis()) {
 			// refresh alerts
-			alertsFuture = new AlertsFuture(databaseAgent, new MbtaAlertsParser(this, downloader), runnable);
+			alertsFuture = fetchAlerts.fetchAlerts(databaseAgent, new MbtaAlertsParser(this, downloader), runnable);
 		}
 	}
 
