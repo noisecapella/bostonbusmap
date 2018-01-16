@@ -1,0 +1,1024 @@
+{
+    "data": [
+        {
+            "attributes": {
+                "arrival_time": "2018-01-15T21:34:20-05:00",
+                "departure_time": "2018-01-15T21:34:20-05:00",
+                "direction_id": 1,
+                "schedule_relationship": null,
+                "status": null,
+                "stop_sequence": 4,
+                "track": null
+            },
+            "id": "prediction-CR-Weekday-Fall-17-836-South Attleboro-4",
+            "relationships": {
+                "alerts": {},
+                "route": {
+                    "data": {
+                        "id": "CR-Providence",
+                        "type": "route"
+                    }
+                },
+                "schedule": {},
+                "stop": {
+                    "data": {
+                        "id": "South Attleboro",
+                        "type": "stop"
+                    }
+                },
+                "trip": {
+                    "data": {
+                        "id": "CR-Weekday-Fall-17-836",
+                        "type": "trip"
+                    }
+                },
+                "vehicle": {
+                    "data": {
+                        "id": "1815",
+                        "type": "vehicle"
+                    }
+                }
+            },
+            "type": "prediction"
+        },
+        {
+            "attributes": {
+                "arrival_time": "2018-01-15T21:41:26-05:00",
+                "departure_time": "2018-01-15T21:42:00-05:00",
+                "direction_id": 0,
+                "schedule_relationship": null,
+                "status": null,
+                "stop_sequence": 11,
+                "track": null
+            },
+            "id": "prediction-CR-Weekday-Fall-17-727-Walpole-11",
+            "relationships": {
+                "alerts": {},
+                "route": {
+                    "data": {
+                        "id": "CR-Franklin",
+                        "type": "route"
+                    }
+                },
+                "schedule": {},
+                "stop": {
+                    "data": {
+                        "id": "Walpole",
+                        "type": "stop"
+                    }
+                },
+                "trip": {
+                    "data": {
+                        "id": "CR-Weekday-Fall-17-727",
+                        "type": "trip"
+                    }
+                },
+                "vehicle": {
+                    "data": {
+                        "id": "1713",
+                        "type": "vehicle"
+                    }
+                }
+            },
+            "type": "prediction"
+        },
+        {
+            "attributes": {
+                "arrival_time": "2018-01-15T21:43:15-05:00",
+                "departure_time": "2018-01-15T21:44:00-05:00",
+                "direction_id": 1,
+                "schedule_relationship": null,
+                "status": null,
+                "stop_sequence": 5,
+                "track": null
+            },
+            "id": "prediction-CR-Weekday-Fall-17-836-Attleboro-5",
+            "relationships": {
+                "alerts": {},
+                "route": {
+                    "data": {
+                        "id": "CR-Providence",
+                        "type": "route"
+                    }
+                },
+                "schedule": {},
+                "stop": {
+                    "data": {
+                        "id": "Attleboro",
+                        "type": "stop"
+                    }
+                },
+                "trip": {
+                    "data": {
+                        "id": "CR-Weekday-Fall-17-836",
+                        "type": "trip"
+                    }
+                },
+                "vehicle": {
+                    "data": {
+                        "id": "1815",
+                        "type": "vehicle"
+                    }
+                }
+            },
+            "type": "prediction"
+        },
+        {
+            "attributes": {
+                "arrival_time": "2018-01-15T21:44:52-05:00",
+                "departure_time": null,
+                "direction_id": 0,
+                "schedule_relationship": null,
+                "status": null,
+                "stop_sequence": 11,
+                "track": null
+            },
+            "id": "prediction-CR-Weekday-Fall-17-833-Providence-11",
+            "relationships": {
+                "alerts": {},
+                "route": {
+                    "data": {
+                        "id": "CR-Providence",
+                        "type": "route"
+                    }
+                },
+                "schedule": {},
+                "stop": {
+                    "data": {
+                        "id": "Providence",
+                        "type": "stop"
+                    }
+                },
+                "trip": {
+                    "data": {
+                        "id": "CR-Weekday-Fall-17-833",
+                        "type": "trip"
+                    }
+                },
+                "vehicle": {
+                    "data": {
+                        "id": "1706",
+                        "type": "vehicle"
+                    }
+                }
+            },
+            "type": "prediction"
+        },
+        {
+            "attributes": {
+                "arrival_time": "2018-01-15T21:47:03-05:00",
+                "departure_time": "2018-01-15T21:49:00-05:00",
+                "direction_id": 0,
+                "schedule_relationship": null,
+                "status": null,
+                "stop_sequence": 12,
+                "track": null
+            },
+            "id": "prediction-CR-Weekday-Fall-17-727-Norfolk-12",
+            "relationships": {
+                "alerts": {},
+                "route": {
+                    "data": {
+                        "id": "CR-Franklin",
+                        "type": "route"
+                    }
+                },
+                "schedule": {},
+                "stop": {
+                    "data": {
+                        "id": "Norfolk",
+                        "type": "stop"
+                    }
+                },
+                "trip": {
+                    "data": {
+                        "id": "CR-Weekday-Fall-17-727",
+                        "type": "trip"
+                    }
+                },
+                "vehicle": {
+                    "data": {
+                        "id": "1713",
+                        "type": "vehicle"
+                    }
+                }
+            },
+            "type": "prediction"
+        },
+        {
+            "attributes": {
+                "arrival_time": "2018-01-15T21:53:07-05:00",
+                "departure_time": "2018-01-15T21:54:00-05:00",
+                "direction_id": 1,
+                "schedule_relationship": null,
+                "status": null,
+                "stop_sequence": 6,
+                "track": null
+            },
+            "id": "prediction-CR-Weekday-Fall-17-836-Mansfield-6",
+            "relationships": {
+                "alerts": {},
+                "route": {
+                    "data": {
+                        "id": "CR-Providence",
+                        "type": "route"
+                    }
+                },
+                "schedule": {},
+                "stop": {
+                    "data": {
+                        "id": "Mansfield",
+                        "type": "stop"
+                    }
+                },
+                "trip": {
+                    "data": {
+                        "id": "CR-Weekday-Fall-17-836",
+                        "type": "trip"
+                    }
+                },
+                "vehicle": {
+                    "data": {
+                        "id": "1815",
+                        "type": "vehicle"
+                    }
+                }
+            },
+            "type": "prediction"
+        },
+        {
+            "attributes": {
+                "arrival_time": "2018-01-15T21:53:59-05:00",
+                "departure_time": "2018-01-15T21:56:00-05:00",
+                "direction_id": 0,
+                "schedule_relationship": null,
+                "status": null,
+                "stop_sequence": 13,
+                "track": null
+            },
+            "id": "prediction-CR-Weekday-Fall-17-727-Franklin-13",
+            "relationships": {
+                "alerts": {},
+                "route": {
+                    "data": {
+                        "id": "CR-Franklin",
+                        "type": "route"
+                    }
+                },
+                "schedule": {},
+                "stop": {
+                    "data": {
+                        "id": "Franklin",
+                        "type": "stop"
+                    }
+                },
+                "trip": {
+                    "data": {
+                        "id": "CR-Weekday-Fall-17-727",
+                        "type": "trip"
+                    }
+                },
+                "vehicle": {
+                    "data": {
+                        "id": "1713",
+                        "type": "vehicle"
+                    }
+                }
+            },
+            "type": "prediction"
+        },
+        {
+            "attributes": {
+                "arrival_time": "2018-01-15T22:00:27-05:00",
+                "departure_time": null,
+                "direction_id": 0,
+                "schedule_relationship": null,
+                "status": null,
+                "stop_sequence": 14,
+                "track": null
+            },
+            "id": "prediction-CR-Weekday-Fall-17-727-Forge Park / 495-14",
+            "relationships": {
+                "alerts": {},
+                "route": {
+                    "data": {
+                        "id": "CR-Franklin",
+                        "type": "route"
+                    }
+                },
+                "schedule": {},
+                "stop": {
+                    "data": {
+                        "id": "Forge Park / 495",
+                        "type": "stop"
+                    }
+                },
+                "trip": {
+                    "data": {
+                        "id": "CR-Weekday-Fall-17-727",
+                        "type": "trip"
+                    }
+                },
+                "vehicle": {
+                    "data": {
+                        "id": "1713",
+                        "type": "vehicle"
+                    }
+                }
+            },
+            "type": "prediction"
+        },
+        {
+            "attributes": {
+                "arrival_time": "2018-01-15T22:25:00-05:00",
+                "departure_time": "2018-01-15T22:25:00-05:00",
+                "direction_id": 1,
+                "schedule_relationship": null,
+                "status": null,
+                "stop_sequence": 1,
+                "track": null
+            },
+            "id": "prediction-CR-Weekday-Fall-17-730-Forge Park / 495-1",
+            "relationships": {
+                "alerts": {},
+                "route": {
+                    "data": {
+                        "id": "CR-Franklin",
+                        "type": "route"
+                    }
+                },
+                "schedule": {},
+                "stop": {
+                    "data": {
+                        "id": "Forge Park / 495",
+                        "type": "stop"
+                    }
+                },
+                "trip": {
+                    "data": {
+                        "id": "CR-Weekday-Fall-17-730",
+                        "type": "trip"
+                    }
+                },
+                "vehicle": {
+                    "data": null
+                }
+            },
+            "type": "prediction"
+        },
+        {
+            "attributes": {
+                "arrival_time": "2018-01-15T22:30:33-05:00",
+                "departure_time": "2018-01-15T22:32:00-05:00",
+                "direction_id": 1,
+                "schedule_relationship": null,
+                "status": null,
+                "stop_sequence": 2,
+                "track": null
+            },
+            "id": "prediction-CR-Weekday-Fall-17-730-Franklin-2",
+            "relationships": {
+                "alerts": {},
+                "route": {
+                    "data": {
+                        "id": "CR-Franklin",
+                        "type": "route"
+                    }
+                },
+                "schedule": {},
+                "stop": {
+                    "data": {
+                        "id": "Franklin",
+                        "type": "stop"
+                    }
+                },
+                "trip": {
+                    "data": {
+                        "id": "CR-Weekday-Fall-17-730",
+                        "type": "trip"
+                    }
+                },
+                "vehicle": {
+                    "data": null
+                }
+            },
+            "type": "prediction"
+        },
+        {
+            "attributes": {
+                "arrival_time": "2018-01-15T22:37:09-05:00",
+                "departure_time": "2018-01-15T22:39:00-05:00",
+                "direction_id": 1,
+                "schedule_relationship": null,
+                "status": null,
+                "stop_sequence": 3,
+                "track": null
+            },
+            "id": "prediction-CR-Weekday-Fall-17-730-Norfolk-3",
+            "relationships": {
+                "alerts": {},
+                "route": {
+                    "data": {
+                        "id": "CR-Franklin",
+                        "type": "route"
+                    }
+                },
+                "schedule": {},
+                "stop": {
+                    "data": {
+                        "id": "Norfolk",
+                        "type": "stop"
+                    }
+                },
+                "trip": {
+                    "data": {
+                        "id": "CR-Weekday-Fall-17-730",
+                        "type": "trip"
+                    }
+                },
+                "vehicle": {
+                    "data": null
+                }
+            },
+            "type": "prediction"
+        },
+        {
+            "attributes": {
+                "arrival_time": "2018-01-15T22:40:11-05:00",
+                "departure_time": "2018-01-15T22:43:00-05:00",
+                "direction_id": 0,
+                "schedule_relationship": null,
+                "status": null,
+                "stop_sequence": 8,
+                "track": null
+            },
+            "id": "prediction-CR-Weekday-Fall-17-835-Mansfield-8",
+            "relationships": {
+                "alerts": {},
+                "route": {
+                    "data": {
+                        "id": "CR-Providence",
+                        "type": "route"
+                    }
+                },
+                "schedule": {},
+                "stop": {
+                    "data": {
+                        "id": "Mansfield",
+                        "type": "stop"
+                    }
+                },
+                "trip": {
+                    "data": {
+                        "id": "CR-Weekday-Fall-17-835",
+                        "type": "trip"
+                    }
+                },
+                "vehicle": {
+                    "data": null
+                }
+            },
+            "type": "prediction"
+        },
+        {
+            "attributes": {
+                "arrival_time": "2018-01-15T22:42:54-05:00",
+                "departure_time": "2018-01-15T22:46:00-05:00",
+                "direction_id": 1,
+                "schedule_relationship": null,
+                "status": null,
+                "stop_sequence": 4,
+                "track": null
+            },
+            "id": "prediction-CR-Weekday-Fall-17-730-Walpole-4",
+            "relationships": {
+                "alerts": {},
+                "route": {
+                    "data": {
+                        "id": "CR-Franklin",
+                        "type": "route"
+                    }
+                },
+                "schedule": {},
+                "stop": {
+                    "data": {
+                        "id": "Walpole",
+                        "type": "stop"
+                    }
+                },
+                "trip": {
+                    "data": {
+                        "id": "CR-Weekday-Fall-17-730",
+                        "type": "trip"
+                    }
+                },
+                "vehicle": {
+                    "data": null
+                }
+            },
+            "type": "prediction"
+        },
+        {
+            "attributes": {
+                "arrival_time": "2018-01-15T22:48:35-05:00",
+                "departure_time": "2018-01-15T22:51:00-05:00",
+                "direction_id": 0,
+                "schedule_relationship": null,
+                "status": null,
+                "stop_sequence": 9,
+                "track": null
+            },
+            "id": "prediction-CR-Weekday-Fall-17-835-Attleboro-9",
+            "relationships": {
+                "alerts": {},
+                "route": {
+                    "data": {
+                        "id": "CR-Providence",
+                        "type": "route"
+                    }
+                },
+                "schedule": {},
+                "stop": {
+                    "data": {
+                        "id": "Attleboro",
+                        "type": "stop"
+                    }
+                },
+                "trip": {
+                    "data": {
+                        "id": "CR-Weekday-Fall-17-835",
+                        "type": "trip"
+                    }
+                },
+                "vehicle": {
+                    "data": null
+                }
+            },
+            "type": "prediction"
+        },
+        {
+            "attributes": {
+                "arrival_time": "2018-01-15T22:55:51-05:00",
+                "departure_time": "2018-01-15T23:01:00-05:00",
+                "direction_id": 0,
+                "schedule_relationship": null,
+                "status": null,
+                "stop_sequence": 10,
+                "track": null
+            },
+            "id": "prediction-CR-Weekday-Fall-17-835-South Attleboro-10",
+            "relationships": {
+                "alerts": {},
+                "route": {
+                    "data": {
+                        "id": "CR-Providence",
+                        "type": "route"
+                    }
+                },
+                "schedule": {},
+                "stop": {
+                    "data": {
+                        "id": "South Attleboro",
+                        "type": "stop"
+                    }
+                },
+                "trip": {
+                    "data": {
+                        "id": "CR-Weekday-Fall-17-835",
+                        "type": "trip"
+                    }
+                },
+                "vehicle": {
+                    "data": null
+                }
+            },
+            "type": "prediction"
+        },
+        {
+            "attributes": {
+                "arrival_time": "2018-01-15T23:05:39-05:00",
+                "departure_time": "2018-01-15T23:11:00-05:00",
+                "direction_id": 0,
+                "status": null,
+                "stop_sequence": 11,
+                "track": null
+            },
+            "id": "prediction-CR-Weekday-Fall-17-835-Providence-11",
+            "relationships": {
+                "alerts": {},
+                "route": {
+                    "data": {
+                        "id": "CR-Providence",
+                        "type": "route"
+                    }
+                },
+                "schedule": {},
+                "stop": {
+                    "data": {
+                        "id": "Providence",
+                        "type": "stop"
+                    }
+                },
+                "trip": {
+                    "data": {
+                        "id": "CR-Weekday-Fall-17-835",
+                        "type": "trip"
+                    }
+                },
+                "vehicle": {
+                    "data": null
+                }
+            },
+            "type": "prediction"
+        },
+        {
+            "attributes": {
+                "arrival_time": "2018-01-15T23:20:36-05:00",
+                "departure_time": "2018-01-15T23:27:00-05:00",
+                "direction_id": 0,
+                "schedule_relationship": null,
+                "status": null,
+                "stop_sequence": 12,
+                "track": null
+            },
+            "id": "prediction-CR-Weekday-Fall-17-835-TF Green Airport-12",
+            "relationships": {
+                "alerts": {},
+                "route": {
+                    "data": {
+                        "id": "CR-Providence",
+                        "type": "route"
+                    }
+                },
+                "schedule": {},
+                "stop": {
+                    "data": {
+                        "id": "TF Green Airport",
+                        "type": "stop"
+                    }
+                },
+                "trip": {
+                    "data": {
+                        "id": "CR-Weekday-Fall-17-835",
+                        "type": "trip"
+                    }
+                },
+                "vehicle": {
+                    "data": null
+                }
+            },
+            "type": "prediction"
+        },
+        {
+            "attributes": {
+                "arrival_time": "2018-01-15T23:32:38-05:00",
+                "departure_time": null,
+                "direction_id": 0,
+                "schedule_relationship": null,
+                "status": null,
+                "stop_sequence": 13,
+                "track": null
+            },
+            "id": "prediction-CR-Weekday-Fall-17-835-Wickford Junction-13",
+            "relationships": {
+                "alerts": {},
+                "route": {
+                    "data": {
+                        "id": "CR-Providence",
+                        "type": "route"
+                    }
+                },
+                "schedule": {},
+                "stop": {
+                    "data": {
+                        "id": "Wickford Junction",
+                        "type": "stop"
+                    }
+                },
+                "trip": {
+                    "data": {
+                        "id": "CR-Weekday-Fall-17-835",
+                        "type": "trip"
+                    }
+                },
+                "vehicle": {
+                    "data": null
+                }
+            },
+            "type": "prediction"
+        }
+    ],
+    "included": [
+        {
+            "attributes": {
+                "bearing": 270.0,
+                "current_status": "IN_TRANSIT_TO",
+                "current_stop_sequence": 10,
+                "direction_id": 0,
+                "label": "1706",
+                "last_updated": "2018-01-15T21:25:16-05:00",
+                "latitude": 41.90047073364258,
+                "longitude": -71.33991241455078,
+                "speed": 17.0
+            },
+            "id": "1706",
+            "links": {
+                "self": "/vehicles/1706"
+            },
+            "relationships": {
+                "route": {
+                    "data": {
+                        "id": "CR-Providence",
+                        "type": "route"
+                    }
+                },
+                "stop": {
+                    "data": {
+                        "id": "South Attleboro",
+                        "type": "stop"
+                    }
+                },
+                "trip": {
+                    "data": {
+                        "id": "CR-Weekday-Fall-17-833",
+                        "type": "trip"
+                    }
+                }
+            },
+            "type": "vehicle"
+        },
+        {
+            "attributes": {
+                "bearing": 241.0,
+                "current_status": "IN_TRANSIT_TO",
+                "current_stop_sequence": 6,
+                "direction_id": 0,
+                "label": "1713",
+                "last_updated": "2018-01-15T21:25:25-05:00",
+                "latitude": 42.22890853881836,
+                "longitude": -71.1697006225586,
+                "speed": 17.0
+            },
+            "id": "1713",
+            "links": {
+                "self": "/vehicles/1713"
+            },
+            "relationships": {
+                "route": {
+                    "data": {
+                        "id": "CR-Franklin",
+                        "type": "route"
+                    }
+                },
+                "stop": {
+                    "data": {
+                        "id": "Dedham Corp Center",
+                        "type": "stop"
+                    }
+                },
+                "trip": {
+                    "data": {
+                        "id": "CR-Weekday-Fall-17-727",
+                        "type": "trip"
+                    }
+                }
+            },
+            "type": "vehicle"
+        },
+        {
+            "attributes": {
+                "bearing": null,
+                "current_status": "IN_TRANSIT_TO",
+                "current_stop_sequence": 4,
+                "direction_id": 1,
+                "label": "1815",
+                "last_updated": "2018-01-15T21:25:19-05:00",
+                "latitude": 41.831119537353516,
+                "longitude": -71.41217041015625,
+                "speed": 9.0
+            },
+            "id": "1815",
+            "links": {
+                "self": "/vehicles/1815"
+            },
+            "relationships": {
+                "route": {
+                    "data": {
+                        "id": "CR-Providence",
+                        "type": "route"
+                    }
+                },
+                "stop": {
+                    "data": {
+                        "id": "South Attleboro",
+                        "type": "stop"
+                    }
+                },
+                "trip": {
+                    "data": {
+                        "id": "CR-Weekday-Fall-17-836",
+                        "type": "trip"
+                    }
+                }
+            },
+            "type": "vehicle"
+        },
+        {
+            "attributes": {
+                "block_id": "",
+                "direction_id": 0,
+                "headsign": "Forge Park/495",
+                "name": "727",
+                "wheelchair_accessible": 1
+            },
+            "id": "CR-Weekday-Fall-17-727",
+            "links": {
+                "self": "/trips/CR-Weekday-Fall-17-727"
+            },
+            "relationships": {
+                "route": {
+                    "data": {
+                        "id": "CR-Franklin",
+                        "type": "route"
+                    }
+                },
+                "service": {
+                    "data": {
+                        "id": "CR-Weekday-SouthSide-Fall-17-RegReduced",
+                        "type": "service"
+                    }
+                },
+                "shape": {
+                    "data": {
+                        "id": "9880006",
+                        "type": "shape"
+                    }
+                },
+                "vehicle": {
+                    "data": {
+                        "id": "1713",
+                        "type": "vehicle"
+                    }
+                }
+            },
+            "type": "trip"
+        },
+        {
+            "attributes": {
+                "block_id": "",
+                "direction_id": 1,
+                "headsign": "South Station",
+                "name": "730",
+                "wheelchair_accessible": 1
+            },
+            "id": "CR-Weekday-Fall-17-730",
+            "links": {
+                "self": "/trips/CR-Weekday-Fall-17-730"
+            },
+            "relationships": {
+                "route": {
+                    "data": {
+                        "id": "CR-Franklin",
+                        "type": "route"
+                    }
+                },
+                "service": {
+                    "data": {
+                        "id": "CR-Weekday-SouthSide-Fall-17-RegReduced",
+                        "type": "service"
+                    }
+                },
+                "shape": {
+                    "data": {
+                        "id": "9880005",
+                        "type": "shape"
+                    }
+                },
+                "vehicle": {
+                    "data": null
+                }
+            },
+            "type": "trip"
+        },
+        {
+            "attributes": {
+                "block_id": "",
+                "direction_id": 0,
+                "headsign": "Providence",
+                "name": "833",
+                "wheelchair_accessible": 1
+            },
+            "id": "CR-Weekday-Fall-17-833",
+            "links": {
+                "self": "/trips/CR-Weekday-Fall-17-833"
+            },
+            "relationships": {
+                "route": {
+                    "data": {
+                        "id": "CR-Providence",
+                        "type": "route"
+                    }
+                },
+                "service": {
+                    "data": {
+                        "id": "CR-Weekday-SouthSide-Fall-17-RegReduced",
+                        "type": "service"
+                    }
+                },
+                "shape": {
+                    "data": {
+                        "id": "9890009",
+                        "type": "shape"
+                    }
+                },
+                "vehicle": {
+                    "data": {
+                        "id": "1706",
+                        "type": "vehicle"
+                    }
+                }
+            },
+            "type": "trip"
+        },
+        {
+            "attributes": {
+                "block_id": "",
+                "direction_id": 0,
+                "headsign": "Wickford Junction",
+                "name": "835",
+                "wheelchair_accessible": 1
+            },
+            "id": "CR-Weekday-Fall-17-835",
+            "links": {
+                "self": "/trips/CR-Weekday-Fall-17-835"
+            },
+            "relationships": {
+                "route": {
+                    "data": {
+                        "id": "CR-Providence",
+                        "type": "route"
+                    }
+                },
+                "service": {
+                    "data": {
+                        "id": "CR-Weekday-SouthSide-Fall-17-RegReduced",
+                        "type": "service"
+                    }
+                },
+                "shape": {
+                    "data": {
+                        "id": "9890009",
+                        "type": "shape"
+                    }
+                },
+                "vehicle": {
+                    "data": null
+                }
+            },
+            "type": "trip"
+        },
+        {
+            "attributes": {
+                "block_id": "",
+                "direction_id": 1,
+                "headsign": "South Station",
+                "name": "836",
+                "wheelchair_accessible": 1
+            },
+            "id": "CR-Weekday-Fall-17-836",
+            "links": {
+                "self": "/trips/CR-Weekday-Fall-17-836"
+            },
+            "relationships": {
+                "route": {
+                    "data": {
+                        "id": "CR-Providence",
+                        "type": "route"
+                    }
+                },
+                "service": {
+                    "data": {
+                        "id": "CR-Weekday-SouthSide-Fall-17-RegReduced",
+                        "type": "service"
+                    }
+                },
+                "shape": {
+                    "data": {
+                        "id": "9890008",
+                        "type": "shape"
+                    }
+                },
+                "vehicle": {
+                    "data": {
+                        "id": "1815",
+                        "type": "vehicle"
+                    }
+                }
+            },
+            "type": "trip"
+        }
+    ],
+    "jsonapi": {
+        "version": "1.0"
+    }
+}

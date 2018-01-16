@@ -1,0 +1,2979 @@
+{
+    "data": [
+        {
+            "attributes": {
+                "arrival_time": "2018-01-15T20:56:47-05:00",
+                "departure_time": "2018-01-15T20:56:47-05:00",
+                "direction_id": 1,
+                "schedule_relationship": null,
+                "status": null,
+                "stop_sequence": 4,
+                "track": null
+            },
+            "id": "prediction-CR-Weekday-Fall-17-528-Southborough-4",
+            "relationships": {
+                "alerts": {},
+                "route": {
+                    "data": {
+                        "id": "CR-Worcester",
+                        "type": "route"
+                    }
+                },
+                "schedule": {},
+                "stop": {
+                    "data": {
+                        "id": "Southborough",
+                        "type": "stop"
+                    }
+                },
+                "trip": {
+                    "data": {
+                        "id": "CR-Weekday-Fall-17-528",
+                        "type": "trip"
+                    }
+                },
+                "vehicle": {
+                    "data": {
+                        "id": "1700",
+                        "type": "vehicle"
+                    }
+                }
+            },
+            "type": "prediction"
+        },
+        {
+            "attributes": {
+                "arrival_time": "2018-01-15T20:57:00-05:00",
+                "departure_time": "2018-01-15T20:57:00-05:00",
+                "direction_id": 0,
+                "schedule_relationship": null,
+                "status": null,
+                "stop_sequence": 16,
+                "track": null
+            },
+            "id": "prediction-CR-Weekday-Fall-17-529-Westborough-16",
+            "relationships": {
+                "alerts": {},
+                "route": {
+                    "data": {
+                        "id": "CR-Worcester",
+                        "type": "route"
+                    }
+                },
+                "schedule": {},
+                "stop": {
+                    "data": {
+                        "id": "Westborough",
+                        "type": "stop"
+                    }
+                },
+                "trip": {
+                    "data": {
+                        "id": "CR-Weekday-Fall-17-529",
+                        "type": "trip"
+                    }
+                },
+                "vehicle": {
+                    "data": {
+                        "id": "1701",
+                        "type": "vehicle"
+                    }
+                }
+            },
+            "type": "prediction"
+        },
+        {
+            "attributes": {
+                "arrival_time": "2018-01-15T20:57:59-05:00",
+                "departure_time": "2018-01-15T20:57:59-05:00",
+                "direction_id": 0,
+                "schedule_relationship": null,
+                "status": null,
+                "stop_sequence": 5,
+                "track": null
+            },
+            "id": "prediction-CR-Weekday-Fall-17-531-Newtonville-5",
+            "relationships": {
+                "alerts": {},
+                "route": {
+                    "data": {
+                        "id": "CR-Worcester",
+                        "type": "route"
+                    }
+                },
+                "schedule": {},
+                "stop": {
+                    "data": {
+                        "id": "Newtonville",
+                        "type": "stop"
+                    }
+                },
+                "trip": {
+                    "data": {
+                        "id": "CR-Weekday-Fall-17-531",
+                        "type": "trip"
+                    }
+                },
+                "vehicle": {
+                    "data": {
+                        "id": "1827",
+                        "type": "vehicle"
+                    }
+                }
+            },
+            "type": "prediction"
+        },
+        {
+            "attributes": {
+                "arrival_time": "2018-01-15T21:00:00-05:00",
+                "departure_time": "2018-01-15T21:00:00-05:00",
+                "direction_id": 1,
+                "schedule_relationship": null,
+                "status": null,
+                "stop_sequence": 1,
+                "track": null
+            },
+            "id": "prediction-CR-Weekday-Fall-17-530-Worcester-1",
+            "relationships": {
+                "alerts": {},
+                "route": {
+                    "data": {
+                        "id": "CR-Worcester",
+                        "type": "route"
+                    }
+                },
+                "schedule": {},
+                "stop": {
+                    "data": {
+                        "id": "Worcester",
+                        "type": "stop"
+                    }
+                },
+                "trip": {
+                    "data": {
+                        "id": "CR-Weekday-Fall-17-530",
+                        "type": "trip"
+                    }
+                },
+                "vehicle": {
+                    "data": {
+                        "id": "1704",
+                        "type": "vehicle"
+                    }
+                }
+            },
+            "type": "prediction"
+        },
+        {
+            "attributes": {
+                "arrival_time": "2018-01-15T21:01:14-05:00",
+                "departure_time": "2018-01-15T21:01:14-05:00",
+                "direction_id": 1,
+                "schedule_relationship": null,
+                "status": null,
+                "stop_sequence": 5,
+                "track": null
+            },
+            "id": "prediction-CR-Weekday-Fall-17-528-Ashland-5",
+            "relationships": {
+                "alerts": {},
+                "route": {
+                    "data": {
+                        "id": "CR-Worcester",
+                        "type": "route"
+                    }
+                },
+                "schedule": {},
+                "stop": {
+                    "data": {
+                        "id": "Ashland",
+                        "type": "stop"
+                    }
+                },
+                "trip": {
+                    "data": {
+                        "id": "CR-Weekday-Fall-17-528",
+                        "type": "trip"
+                    }
+                },
+                "vehicle": {
+                    "data": {
+                        "id": "1700",
+                        "type": "vehicle"
+                    }
+                }
+            },
+            "type": "prediction"
+        },
+        {
+            "attributes": {
+                "arrival_time": "2018-01-15T21:01:20-05:00",
+                "departure_time": "2018-01-15T21:01:20-05:00",
+                "direction_id": 0,
+                "schedule_relationship": null,
+                "status": null,
+                "stop_sequence": 17,
+                "track": null
+            },
+            "id": "prediction-CR-Weekday-Fall-17-529-Grafton-17",
+            "relationships": {
+                "alerts": {},
+                "route": {
+                    "data": {
+                        "id": "CR-Worcester",
+                        "type": "route"
+                    }
+                },
+                "schedule": {},
+                "stop": {
+                    "data": {
+                        "id": "Grafton",
+                        "type": "stop"
+                    }
+                },
+                "trip": {
+                    "data": {
+                        "id": "CR-Weekday-Fall-17-529",
+                        "type": "trip"
+                    }
+                },
+                "vehicle": {
+                    "data": {
+                        "id": "1701",
+                        "type": "vehicle"
+                    }
+                }
+            },
+            "type": "prediction"
+        },
+        {
+            "attributes": {
+                "arrival_time": "2018-01-15T21:01:39-05:00",
+                "departure_time": "2018-01-15T21:01:39-05:00",
+                "direction_id": 0,
+                "schedule_relationship": null,
+                "status": null,
+                "stop_sequence": 6,
+                "track": null
+            },
+            "id": "prediction-CR-Weekday-Fall-17-531-West Newton-6",
+            "relationships": {
+                "alerts": {},
+                "route": {
+                    "data": {
+                        "id": "CR-Worcester",
+                        "type": "route"
+                    }
+                },
+                "schedule": {},
+                "stop": {
+                    "data": {
+                        "id": "West Newton",
+                        "type": "stop"
+                    }
+                },
+                "trip": {
+                    "data": {
+                        "id": "CR-Weekday-Fall-17-531",
+                        "type": "trip"
+                    }
+                },
+                "vehicle": {
+                    "data": {
+                        "id": "1827",
+                        "type": "vehicle"
+                    }
+                }
+            },
+            "type": "prediction"
+        },
+        {
+            "attributes": {
+                "arrival_time": "2018-01-15T21:04:41-05:00",
+                "departure_time": "2018-01-15T21:04:41-05:00",
+                "direction_id": 0,
+                "schedule_relationship": null,
+                "status": null,
+                "stop_sequence": 7,
+                "track": null
+            },
+            "id": "prediction-CR-Weekday-Fall-17-531-Auburndale-7",
+            "relationships": {
+                "alerts": {},
+                "route": {
+                    "data": {
+                        "id": "CR-Worcester",
+                        "type": "route"
+                    }
+                },
+                "schedule": {},
+                "stop": {
+                    "data": {
+                        "id": "Auburndale",
+                        "type": "stop"
+                    }
+                },
+                "trip": {
+                    "data": {
+                        "id": "CR-Weekday-Fall-17-531",
+                        "type": "trip"
+                    }
+                },
+                "vehicle": {
+                    "data": {
+                        "id": "1827",
+                        "type": "vehicle"
+                    }
+                }
+            },
+            "type": "prediction"
+        },
+        {
+            "attributes": {
+                "arrival_time": "2018-01-15T21:08:36-05:00",
+                "departure_time": "2018-01-15T21:08:36-05:00",
+                "direction_id": 0,
+                "schedule_relationship": null,
+                "status": null,
+                "stop_sequence": 8,
+                "track": null
+            },
+            "id": "prediction-CR-Weekday-Fall-17-531-Wellesley Farms-8",
+            "relationships": {
+                "alerts": {},
+                "route": {
+                    "data": {
+                        "id": "CR-Worcester",
+                        "type": "route"
+                    }
+                },
+                "schedule": {},
+                "stop": {
+                    "data": {
+                        "id": "Wellesley Farms",
+                        "type": "stop"
+                    }
+                },
+                "trip": {
+                    "data": {
+                        "id": "CR-Weekday-Fall-17-531",
+                        "type": "trip"
+                    }
+                },
+                "vehicle": {
+                    "data": {
+                        "id": "1827",
+                        "type": "vehicle"
+                    }
+                }
+            },
+            "type": "prediction"
+        },
+        {
+            "attributes": {
+                "arrival_time": "2018-01-15T21:10:13-05:00",
+                "departure_time": "2018-01-15T21:11:00-05:00",
+                "direction_id": 1,
+                "schedule_relationship": null,
+                "status": null,
+                "stop_sequence": 6,
+                "track": null
+            },
+            "id": "prediction-CR-Weekday-Fall-17-528-Framingham-6",
+            "relationships": {
+                "alerts": {},
+                "route": {
+                    "data": {
+                        "id": "CR-Worcester",
+                        "type": "route"
+                    }
+                },
+                "schedule": {},
+                "stop": {
+                    "data": {
+                        "id": "Framingham",
+                        "type": "stop"
+                    }
+                },
+                "trip": {
+                    "data": {
+                        "id": "CR-Weekday-Fall-17-528",
+                        "type": "trip"
+                    }
+                },
+                "vehicle": {
+                    "data": {
+                        "id": "1700",
+                        "type": "vehicle"
+                    }
+                }
+            },
+            "type": "prediction"
+        },
+        {
+            "attributes": {
+                "arrival_time": "2018-01-15T21:11:13-05:00",
+                "departure_time": "2018-01-15T21:11:13-05:00",
+                "direction_id": 0,
+                "schedule_relationship": null,
+                "status": null,
+                "stop_sequence": 9,
+                "track": null
+            },
+            "id": "prediction-CR-Weekday-Fall-17-531-Wellesley Hills-9",
+            "relationships": {
+                "alerts": {},
+                "route": {
+                    "data": {
+                        "id": "CR-Worcester",
+                        "type": "route"
+                    }
+                },
+                "schedule": {},
+                "stop": {
+                    "data": {
+                        "id": "Wellesley Hills",
+                        "type": "stop"
+                    }
+                },
+                "trip": {
+                    "data": {
+                        "id": "CR-Weekday-Fall-17-531",
+                        "type": "trip"
+                    }
+                },
+                "vehicle": {
+                    "data": {
+                        "id": "1827",
+                        "type": "vehicle"
+                    }
+                }
+            },
+            "type": "prediction"
+        },
+        {
+            "attributes": {
+                "arrival_time": "2018-01-15T21:12:07-05:00",
+                "departure_time": "2018-01-15T21:13:00-05:00",
+                "direction_id": 1,
+                "schedule_relationship": null,
+                "status": null,
+                "stop_sequence": 2,
+                "track": null
+            },
+            "id": "prediction-CR-Weekday-Fall-17-530-Grafton-2",
+            "relationships": {
+                "alerts": {},
+                "route": {
+                    "data": {
+                        "id": "CR-Worcester",
+                        "type": "route"
+                    }
+                },
+                "schedule": {},
+                "stop": {
+                    "data": {
+                        "id": "Grafton",
+                        "type": "stop"
+                    }
+                },
+                "trip": {
+                    "data": {
+                        "id": "CR-Weekday-Fall-17-530",
+                        "type": "trip"
+                    }
+                },
+                "vehicle": {
+                    "data": {
+                        "id": "1704",
+                        "type": "vehicle"
+                    }
+                }
+            },
+            "type": "prediction"
+        },
+        {
+            "attributes": {
+                "arrival_time": "2018-01-15T21:13:32-05:00",
+                "departure_time": "2018-01-15T21:13:32-05:00",
+                "direction_id": 0,
+                "schedule_relationship": null,
+                "status": null,
+                "stop_sequence": 10,
+                "track": null
+            },
+            "id": "prediction-CR-Weekday-Fall-17-531-Wellesley Square-10",
+            "relationships": {
+                "alerts": {},
+                "route": {
+                    "data": {
+                        "id": "CR-Worcester",
+                        "type": "route"
+                    }
+                },
+                "schedule": {},
+                "stop": {
+                    "data": {
+                        "id": "Wellesley Square",
+                        "type": "stop"
+                    }
+                },
+                "trip": {
+                    "data": {
+                        "id": "CR-Weekday-Fall-17-531",
+                        "type": "trip"
+                    }
+                },
+                "vehicle": {
+                    "data": {
+                        "id": "1827",
+                        "type": "vehicle"
+                    }
+                }
+            },
+            "type": "prediction"
+        },
+        {
+            "attributes": {
+                "arrival_time": "2018-01-15T21:14:54-05:00",
+                "departure_time": null,
+                "direction_id": 0,
+                "schedule_relationship": null,
+                "status": null,
+                "stop_sequence": 18,
+                "track": null
+            },
+            "id": "prediction-CR-Weekday-Fall-17-529-Worcester-18",
+            "relationships": {
+                "alerts": {},
+                "route": {
+                    "data": {
+                        "id": "CR-Worcester",
+                        "type": "route"
+                    }
+                },
+                "schedule": {},
+                "stop": {
+                    "data": {
+                        "id": "Worcester",
+                        "type": "stop"
+                    }
+                },
+                "trip": {
+                    "data": {
+                        "id": "CR-Weekday-Fall-17-529",
+                        "type": "trip"
+                    }
+                },
+                "vehicle": {
+                    "data": {
+                        "id": "1701",
+                        "type": "vehicle"
+                    }
+                }
+            },
+            "type": "prediction"
+        },
+        {
+            "attributes": {
+                "arrival_time": "2018-01-15T21:15:59-05:00",
+                "departure_time": "2018-01-15T21:17:00-05:00",
+                "direction_id": 1,
+                "schedule_relationship": null,
+                "status": null,
+                "stop_sequence": 3,
+                "track": null
+            },
+            "id": "prediction-CR-Weekday-Fall-17-530-Westborough-3",
+            "relationships": {
+                "alerts": {},
+                "route": {
+                    "data": {
+                        "id": "CR-Worcester",
+                        "type": "route"
+                    }
+                },
+                "schedule": {},
+                "stop": {
+                    "data": {
+                        "id": "Westborough",
+                        "type": "stop"
+                    }
+                },
+                "trip": {
+                    "data": {
+                        "id": "CR-Weekday-Fall-17-530",
+                        "type": "trip"
+                    }
+                },
+                "vehicle": {
+                    "data": {
+                        "id": "1704",
+                        "type": "vehicle"
+                    }
+                }
+            },
+            "type": "prediction"
+        },
+        {
+            "attributes": {
+                "arrival_time": "2018-01-15T21:17:40-05:00",
+                "departure_time": "2018-01-15T21:17:40-05:00",
+                "direction_id": 1,
+                "schedule_relationship": null,
+                "status": null,
+                "stop_sequence": 7,
+                "track": null
+            },
+            "id": "prediction-CR-Weekday-Fall-17-528-West Natick-7",
+            "relationships": {
+                "alerts": {},
+                "route": {
+                    "data": {
+                        "id": "CR-Worcester",
+                        "type": "route"
+                    }
+                },
+                "schedule": {},
+                "stop": {
+                    "data": {
+                        "id": "West Natick",
+                        "type": "stop"
+                    }
+                },
+                "trip": {
+                    "data": {
+                        "id": "CR-Weekday-Fall-17-528",
+                        "type": "trip"
+                    }
+                },
+                "vehicle": {
+                    "data": {
+                        "id": "1700",
+                        "type": "vehicle"
+                    }
+                }
+            },
+            "type": "prediction"
+        },
+        {
+            "attributes": {
+                "arrival_time": "2018-01-15T21:17:51-05:00",
+                "departure_time": "2018-01-15T21:17:51-05:00",
+                "direction_id": 0,
+                "schedule_relationship": null,
+                "status": null,
+                "stop_sequence": 11,
+                "track": null
+            },
+            "id": "prediction-CR-Weekday-Fall-17-531-Natick Center-11",
+            "relationships": {
+                "alerts": {},
+                "route": {
+                    "data": {
+                        "id": "CR-Worcester",
+                        "type": "route"
+                    }
+                },
+                "schedule": {},
+                "stop": {
+                    "data": {
+                        "id": "Natick Center",
+                        "type": "stop"
+                    }
+                },
+                "trip": {
+                    "data": {
+                        "id": "CR-Weekday-Fall-17-531",
+                        "type": "trip"
+                    }
+                },
+                "vehicle": {
+                    "data": {
+                        "id": "1827",
+                        "type": "vehicle"
+                    }
+                }
+            },
+            "type": "prediction"
+        },
+        {
+            "attributes": {
+                "arrival_time": "2018-01-15T21:20:43-05:00",
+                "departure_time": "2018-01-15T21:21:00-05:00",
+                "direction_id": 1,
+                "schedule_relationship": null,
+                "status": null,
+                "stop_sequence": 8,
+                "track": null
+            },
+            "id": "prediction-CR-Weekday-Fall-17-528-Natick Center-8",
+            "relationships": {
+                "alerts": {},
+                "route": {
+                    "data": {
+                        "id": "CR-Worcester",
+                        "type": "route"
+                    }
+                },
+                "schedule": {},
+                "stop": {
+                    "data": {
+                        "id": "Natick Center",
+                        "type": "stop"
+                    }
+                },
+                "trip": {
+                    "data": {
+                        "id": "CR-Weekday-Fall-17-528",
+                        "type": "trip"
+                    }
+                },
+                "vehicle": {
+                    "data": {
+                        "id": "1700",
+                        "type": "vehicle"
+                    }
+                }
+            },
+            "type": "prediction"
+        },
+        {
+            "attributes": {
+                "arrival_time": "2018-01-15T21:21:22-05:00",
+                "departure_time": "2018-01-15T21:21:22-05:00",
+                "direction_id": 0,
+                "schedule_relationship": null,
+                "status": null,
+                "stop_sequence": 12,
+                "track": null
+            },
+            "id": "prediction-CR-Weekday-Fall-17-531-West Natick-12",
+            "relationships": {
+                "alerts": {},
+                "route": {
+                    "data": {
+                        "id": "CR-Worcester",
+                        "type": "route"
+                    }
+                },
+                "schedule": {},
+                "stop": {
+                    "data": {
+                        "id": "West Natick",
+                        "type": "stop"
+                    }
+                },
+                "trip": {
+                    "data": {
+                        "id": "CR-Weekday-Fall-17-531",
+                        "type": "trip"
+                    }
+                },
+                "vehicle": {
+                    "data": {
+                        "id": "1827",
+                        "type": "vehicle"
+                    }
+                }
+            },
+            "type": "prediction"
+        },
+        {
+            "attributes": {
+                "arrival_time": "2018-01-15T21:24:53-05:00",
+                "departure_time": "2018-01-15T21:26:00-05:00",
+                "direction_id": 1,
+                "schedule_relationship": null,
+                "status": null,
+                "stop_sequence": 4,
+                "track": null
+            },
+            "id": "prediction-CR-Weekday-Fall-17-530-Southborough-4",
+            "relationships": {
+                "alerts": {},
+                "route": {
+                    "data": {
+                        "id": "CR-Worcester",
+                        "type": "route"
+                    }
+                },
+                "schedule": {},
+                "stop": {
+                    "data": {
+                        "id": "Southborough",
+                        "type": "stop"
+                    }
+                },
+                "trip": {
+                    "data": {
+                        "id": "CR-Weekday-Fall-17-530",
+                        "type": "trip"
+                    }
+                },
+                "vehicle": {
+                    "data": {
+                        "id": "1704",
+                        "type": "vehicle"
+                    }
+                }
+            },
+            "type": "prediction"
+        },
+        {
+            "attributes": {
+                "arrival_time": "2018-01-15T21:25:48-05:00",
+                "departure_time": "2018-01-15T21:26:00-05:00",
+                "direction_id": 0,
+                "schedule_relationship": null,
+                "status": null,
+                "stop_sequence": 13,
+                "track": null
+            },
+            "id": "prediction-CR-Weekday-Fall-17-531-Framingham-13",
+            "relationships": {
+                "alerts": {},
+                "route": {
+                    "data": {
+                        "id": "CR-Worcester",
+                        "type": "route"
+                    }
+                },
+                "schedule": {},
+                "stop": {
+                    "data": {
+                        "id": "Framingham",
+                        "type": "stop"
+                    }
+                },
+                "trip": {
+                    "data": {
+                        "id": "CR-Weekday-Fall-17-531",
+                        "type": "trip"
+                    }
+                },
+                "vehicle": {
+                    "data": {
+                        "id": "1827",
+                        "type": "vehicle"
+                    }
+                }
+            },
+            "type": "prediction"
+        },
+        {
+            "attributes": {
+                "arrival_time": "2018-01-15T21:26:04-05:00",
+                "departure_time": "2018-01-15T21:26:04-05:00",
+                "direction_id": 1,
+                "schedule_relationship": null,
+                "status": null,
+                "stop_sequence": 9,
+                "track": null
+            },
+            "id": "prediction-CR-Weekday-Fall-17-528-Wellesley Square-9",
+            "relationships": {
+                "alerts": {},
+                "route": {
+                    "data": {
+                        "id": "CR-Worcester",
+                        "type": "route"
+                    }
+                },
+                "schedule": {},
+                "stop": {
+                    "data": {
+                        "id": "Wellesley Square",
+                        "type": "stop"
+                    }
+                },
+                "trip": {
+                    "data": {
+                        "id": "CR-Weekday-Fall-17-528",
+                        "type": "trip"
+                    }
+                },
+                "vehicle": {
+                    "data": {
+                        "id": "1700",
+                        "type": "vehicle"
+                    }
+                }
+            },
+            "type": "prediction"
+        },
+        {
+            "attributes": {
+                "arrival_time": "2018-01-15T21:29:06-05:00",
+                "departure_time": "2018-01-15T21:29:06-05:00",
+                "direction_id": 1,
+                "schedule_relationship": null,
+                "status": null,
+                "stop_sequence": 10,
+                "track": null
+            },
+            "id": "prediction-CR-Weekday-Fall-17-528-Wellesley Hills-10",
+            "relationships": {
+                "alerts": {},
+                "route": {
+                    "data": {
+                        "id": "CR-Worcester",
+                        "type": "route"
+                    }
+                },
+                "schedule": {},
+                "stop": {
+                    "data": {
+                        "id": "Wellesley Hills",
+                        "type": "stop"
+                    }
+                },
+                "trip": {
+                    "data": {
+                        "id": "CR-Weekday-Fall-17-528",
+                        "type": "trip"
+                    }
+                },
+                "vehicle": {
+                    "data": {
+                        "id": "1700",
+                        "type": "vehicle"
+                    }
+                }
+            },
+            "type": "prediction"
+        },
+        {
+            "attributes": {
+                "arrival_time": "2018-01-15T21:29:54-05:00",
+                "departure_time": "2018-01-15T21:30:00-05:00",
+                "direction_id": 1,
+                "schedule_relationship": null,
+                "status": null,
+                "stop_sequence": 5,
+                "track": null
+            },
+            "id": "prediction-CR-Weekday-Fall-17-530-Ashland-5",
+            "relationships": {
+                "alerts": {},
+                "route": {
+                    "data": {
+                        "id": "CR-Worcester",
+                        "type": "route"
+                    }
+                },
+                "schedule": {},
+                "stop": {
+                    "data": {
+                        "id": "Ashland",
+                        "type": "stop"
+                    }
+                },
+                "trip": {
+                    "data": {
+                        "id": "CR-Weekday-Fall-17-530",
+                        "type": "trip"
+                    }
+                },
+                "vehicle": {
+                    "data": {
+                        "id": "1704",
+                        "type": "vehicle"
+                    }
+                }
+            },
+            "type": "prediction"
+        },
+        {
+            "attributes": {
+                "arrival_time": "2018-01-15T21:32:06-05:00",
+                "departure_time": "2018-01-15T21:32:06-05:00",
+                "direction_id": 1,
+                "schedule_relationship": null,
+                "status": null,
+                "stop_sequence": 11,
+                "track": null
+            },
+            "id": "prediction-CR-Weekday-Fall-17-528-Wellesley Farms-11",
+            "relationships": {
+                "alerts": {},
+                "route": {
+                    "data": {
+                        "id": "CR-Worcester",
+                        "type": "route"
+                    }
+                },
+                "schedule": {},
+                "stop": {
+                    "data": {
+                        "id": "Wellesley Farms",
+                        "type": "stop"
+                    }
+                },
+                "trip": {
+                    "data": {
+                        "id": "CR-Weekday-Fall-17-528",
+                        "type": "trip"
+                    }
+                },
+                "vehicle": {
+                    "data": {
+                        "id": "1700",
+                        "type": "vehicle"
+                    }
+                }
+            },
+            "type": "prediction"
+        },
+        {
+            "attributes": {
+                "arrival_time": "2018-01-15T21:32:31-05:00",
+                "departure_time": "2018-01-15T21:32:31-05:00",
+                "direction_id": 0,
+                "schedule_relationship": null,
+                "status": null,
+                "stop_sequence": 14,
+                "track": null
+            },
+            "id": "prediction-CR-Weekday-Fall-17-531-Ashland-14",
+            "relationships": {
+                "alerts": {},
+                "route": {
+                    "data": {
+                        "id": "CR-Worcester",
+                        "type": "route"
+                    }
+                },
+                "schedule": {},
+                "stop": {
+                    "data": {
+                        "id": "Ashland",
+                        "type": "stop"
+                    }
+                },
+                "trip": {
+                    "data": {
+                        "id": "CR-Weekday-Fall-17-531",
+                        "type": "trip"
+                    }
+                },
+                "vehicle": {
+                    "data": {
+                        "id": "1827",
+                        "type": "vehicle"
+                    }
+                }
+            },
+            "type": "prediction"
+        },
+        {
+            "attributes": {
+                "arrival_time": "2018-01-15T21:35:00-05:00",
+                "departure_time": "2018-01-15T21:35:00-05:00",
+                "direction_id": 1,
+                "schedule_relationship": null,
+                "status": null,
+                "stop_sequence": 1,
+                "track": null
+            },
+            "id": "prediction-CR-Weekday-Fall-17-532-Worcester-1",
+            "relationships": {
+                "alerts": {},
+                "route": {
+                    "data": {
+                        "id": "CR-Worcester",
+                        "type": "route"
+                    }
+                },
+                "schedule": {},
+                "stop": {
+                    "data": {
+                        "id": "Worcester",
+                        "type": "stop"
+                    }
+                },
+                "trip": {
+                    "data": {
+                        "id": "CR-Weekday-Fall-17-532",
+                        "type": "trip"
+                    }
+                },
+                "vehicle": {
+                    "data": null
+                }
+            },
+            "type": "prediction"
+        },
+        {
+            "attributes": {
+                "arrival_time": "2018-01-15T21:36:49-05:00",
+                "departure_time": "2018-01-15T21:37:00-05:00",
+                "direction_id": 0,
+                "schedule_relationship": null,
+                "status": null,
+                "stop_sequence": 15,
+                "track": null
+            },
+            "id": "prediction-CR-Weekday-Fall-17-531-Southborough-15",
+            "relationships": {
+                "alerts": {},
+                "route": {
+                    "data": {
+                        "id": "CR-Worcester",
+                        "type": "route"
+                    }
+                },
+                "schedule": {},
+                "stop": {
+                    "data": {
+                        "id": "Southborough",
+                        "type": "stop"
+                    }
+                },
+                "trip": {
+                    "data": {
+                        "id": "CR-Weekday-Fall-17-531",
+                        "type": "trip"
+                    }
+                },
+                "vehicle": {
+                    "data": {
+                        "id": "1827",
+                        "type": "vehicle"
+                    }
+                }
+            },
+            "type": "prediction"
+        },
+        {
+            "attributes": {
+                "arrival_time": "2018-01-15T21:39:27-05:00",
+                "departure_time": "2018-01-15T21:41:00-05:00",
+                "direction_id": 1,
+                "schedule_relationship": null,
+                "status": null,
+                "stop_sequence": 6,
+                "track": null
+            },
+            "id": "prediction-CR-Weekday-Fall-17-530-Framingham-6",
+            "relationships": {
+                "alerts": {},
+                "route": {
+                    "data": {
+                        "id": "CR-Worcester",
+                        "type": "route"
+                    }
+                },
+                "schedule": {},
+                "stop": {
+                    "data": {
+                        "id": "Framingham",
+                        "type": "stop"
+                    }
+                },
+                "trip": {
+                    "data": {
+                        "id": "CR-Weekday-Fall-17-530",
+                        "type": "trip"
+                    }
+                },
+                "vehicle": {
+                    "data": {
+                        "id": "1704",
+                        "type": "vehicle"
+                    }
+                }
+            },
+            "type": "prediction"
+        },
+        {
+            "attributes": {
+                "arrival_time": "2018-01-15T21:41:40-05:00",
+                "departure_time": "2018-01-15T21:41:40-05:00",
+                "direction_id": 1,
+                "schedule_relationship": null,
+                "status": null,
+                "stop_sequence": 12,
+                "track": null
+            },
+            "id": "prediction-CR-Weekday-Fall-17-528-Boston Landing-12",
+            "relationships": {
+                "alerts": {},
+                "route": {
+                    "data": {
+                        "id": "CR-Worcester",
+                        "type": "route"
+                    }
+                },
+                "schedule": {},
+                "stop": {
+                    "data": {
+                        "id": "Boston Landing",
+                        "type": "stop"
+                    }
+                },
+                "trip": {
+                    "data": {
+                        "id": "CR-Weekday-Fall-17-528",
+                        "type": "trip"
+                    }
+                },
+                "vehicle": {
+                    "data": {
+                        "id": "1700",
+                        "type": "vehicle"
+                    }
+                }
+            },
+            "type": "prediction"
+        },
+        {
+            "attributes": {
+                "arrival_time": "2018-01-15T21:44:42-05:00",
+                "departure_time": "2018-01-15T21:46:00-05:00",
+                "direction_id": 1,
+                "schedule_relationship": null,
+                "status": null,
+                "stop_sequence": 7,
+                "track": null
+            },
+            "id": "prediction-CR-Weekday-Fall-17-530-West Natick-7",
+            "relationships": {
+                "alerts": {},
+                "route": {
+                    "data": {
+                        "id": "CR-Worcester",
+                        "type": "route"
+                    }
+                },
+                "schedule": {},
+                "stop": {
+                    "data": {
+                        "id": "West Natick",
+                        "type": "stop"
+                    }
+                },
+                "trip": {
+                    "data": {
+                        "id": "CR-Weekday-Fall-17-530",
+                        "type": "trip"
+                    }
+                },
+                "vehicle": {
+                    "data": {
+                        "id": "1704",
+                        "type": "vehicle"
+                    }
+                }
+            },
+            "type": "prediction"
+        },
+        {
+            "attributes": {
+                "arrival_time": "2018-01-15T21:44:59-05:00",
+                "departure_time": "2018-01-15T21:46:00-05:00",
+                "direction_id": 0,
+                "schedule_relationship": null,
+                "status": null,
+                "stop_sequence": 16,
+                "track": null
+            },
+            "id": "prediction-CR-Weekday-Fall-17-531-Westborough-16",
+            "relationships": {
+                "alerts": {},
+                "route": {
+                    "data": {
+                        "id": "CR-Worcester",
+                        "type": "route"
+                    }
+                },
+                "schedule": {},
+                "stop": {
+                    "data": {
+                        "id": "Westborough",
+                        "type": "stop"
+                    }
+                },
+                "trip": {
+                    "data": {
+                        "id": "CR-Weekday-Fall-17-531",
+                        "type": "trip"
+                    }
+                },
+                "vehicle": {
+                    "data": {
+                        "id": "1827",
+                        "type": "vehicle"
+                    }
+                }
+            },
+            "type": "prediction"
+        },
+        {
+            "attributes": {
+                "arrival_time": "2018-01-15T21:48:26-05:00",
+                "departure_time": "2018-01-15T21:51:00-05:00",
+                "direction_id": 1,
+                "schedule_relationship": null,
+                "status": null,
+                "stop_sequence": 8,
+                "track": null
+            },
+            "id": "prediction-CR-Weekday-Fall-17-530-Natick Center-8",
+            "relationships": {
+                "alerts": {},
+                "route": {
+                    "data": {
+                        "id": "CR-Worcester",
+                        "type": "route"
+                    }
+                },
+                "schedule": {},
+                "stop": {
+                    "data": {
+                        "id": "Natick Center",
+                        "type": "stop"
+                    }
+                },
+                "trip": {
+                    "data": {
+                        "id": "CR-Weekday-Fall-17-530",
+                        "type": "trip"
+                    }
+                },
+                "vehicle": {
+                    "data": {
+                        "id": "1704",
+                        "type": "vehicle"
+                    }
+                }
+            },
+            "type": "prediction"
+        },
+        {
+            "attributes": {
+                "arrival_time": "2018-01-15T21:48:44-05:00",
+                "departure_time": "2018-01-15T21:48:44-05:00",
+                "direction_id": 1,
+                "schedule_relationship": null,
+                "status": null,
+                "stop_sequence": 2,
+                "track": null
+            },
+            "id": "prediction-CR-Weekday-Fall-17-532-Grafton-2",
+            "relationships": {
+                "alerts": {},
+                "route": {
+                    "data": {
+                        "id": "CR-Worcester",
+                        "type": "route"
+                    }
+                },
+                "schedule": {},
+                "stop": {
+                    "data": {
+                        "id": "Grafton",
+                        "type": "stop"
+                    }
+                },
+                "trip": {
+                    "data": {
+                        "id": "CR-Weekday-Fall-17-532",
+                        "type": "trip"
+                    }
+                },
+                "vehicle": {
+                    "data": null
+                }
+            },
+            "type": "prediction"
+        },
+        {
+            "attributes": {
+                "arrival_time": "2018-01-15T21:49:26-05:00",
+                "departure_time": "2018-01-15T21:51:00-05:00",
+                "direction_id": 0,
+                "schedule_relationship": null,
+                "status": null,
+                "stop_sequence": 17,
+                "track": null
+            },
+            "id": "prediction-CR-Weekday-Fall-17-531-Grafton-17",
+            "relationships": {
+                "alerts": {},
+                "route": {
+                    "data": {
+                        "id": "CR-Worcester",
+                        "type": "route"
+                    }
+                },
+                "schedule": {},
+                "stop": {
+                    "data": {
+                        "id": "Grafton",
+                        "type": "stop"
+                    }
+                },
+                "trip": {
+                    "data": {
+                        "id": "CR-Weekday-Fall-17-531",
+                        "type": "trip"
+                    }
+                },
+                "vehicle": {
+                    "data": {
+                        "id": "1827",
+                        "type": "vehicle"
+                    }
+                }
+            },
+            "type": "prediction"
+        },
+        {
+            "attributes": {
+                "arrival_time": "2018-01-15T21:51:00-05:00",
+                "departure_time": "2018-01-15T21:51:00-05:00",
+                "direction_id": 0,
+                "schedule_relationship": null,
+                "status": null,
+                "stop_sequence": 4,
+                "track": null
+            },
+            "id": "prediction-CR-Weekday-Fall-17-533-Boston Landing-4",
+            "relationships": {
+                "alerts": {},
+                "route": {
+                    "data": {
+                        "id": "CR-Worcester",
+                        "type": "route"
+                    }
+                },
+                "schedule": {},
+                "stop": {
+                    "data": {
+                        "id": "Boston Landing",
+                        "type": "stop"
+                    }
+                },
+                "trip": {
+                    "data": {
+                        "id": "CR-Weekday-Fall-17-533",
+                        "type": "trip"
+                    }
+                },
+                "vehicle": {
+                    "data": null
+                }
+            },
+            "type": "prediction"
+        },
+        {
+            "attributes": {
+                "arrival_time": "2018-01-15T21:52:44-05:00",
+                "departure_time": "2018-01-15T21:55:00-05:00",
+                "direction_id": 1,
+                "schedule_relationship": null,
+                "status": null,
+                "stop_sequence": 9,
+                "track": null
+            },
+            "id": "prediction-CR-Weekday-Fall-17-530-Wellesley Square-9",
+            "relationships": {
+                "alerts": {},
+                "route": {
+                    "data": {
+                        "id": "CR-Worcester",
+                        "type": "route"
+                    }
+                },
+                "schedule": {},
+                "stop": {
+                    "data": {
+                        "id": "Wellesley Square",
+                        "type": "stop"
+                    }
+                },
+                "trip": {
+                    "data": {
+                        "id": "CR-Weekday-Fall-17-530",
+                        "type": "trip"
+                    }
+                },
+                "vehicle": {
+                    "data": {
+                        "id": "1704",
+                        "type": "vehicle"
+                    }
+                }
+            },
+            "type": "prediction"
+        },
+        {
+            "attributes": {
+                "arrival_time": "2018-01-15T21:52:48-05:00",
+                "departure_time": "2018-01-15T21:52:48-05:00",
+                "direction_id": 1,
+                "schedule_relationship": null,
+                "status": null,
+                "stop_sequence": 3,
+                "track": null
+            },
+            "id": "prediction-CR-Weekday-Fall-17-532-Westborough-3",
+            "relationships": {
+                "alerts": {},
+                "route": {
+                    "data": {
+                        "id": "CR-Worcester",
+                        "type": "route"
+                    }
+                },
+                "schedule": {},
+                "stop": {
+                    "data": {
+                        "id": "Westborough",
+                        "type": "stop"
+                    }
+                },
+                "trip": {
+                    "data": {
+                        "id": "CR-Weekday-Fall-17-532",
+                        "type": "trip"
+                    }
+                },
+                "vehicle": {
+                    "data": null
+                }
+            },
+            "type": "prediction"
+        },
+        {
+            "attributes": {
+                "arrival_time": "2018-01-15T21:56:06-05:00",
+                "departure_time": "2018-01-15T21:59:00-05:00",
+                "direction_id": 1,
+                "schedule_relationship": null,
+                "status": null,
+                "stop_sequence": 10,
+                "track": null
+            },
+            "id": "prediction-CR-Weekday-Fall-17-530-Wellesley Hills-10",
+            "relationships": {
+                "alerts": {},
+                "route": {
+                    "data": {
+                        "id": "CR-Worcester",
+                        "type": "route"
+                    }
+                },
+                "schedule": {},
+                "stop": {
+                    "data": {
+                        "id": "Wellesley Hills",
+                        "type": "stop"
+                    }
+                },
+                "trip": {
+                    "data": {
+                        "id": "CR-Weekday-Fall-17-530",
+                        "type": "trip"
+                    }
+                },
+                "vehicle": {
+                    "data": {
+                        "id": "1704",
+                        "type": "vehicle"
+                    }
+                }
+            },
+            "type": "prediction"
+        },
+        {
+            "attributes": {
+                "arrival_time": "2018-01-15T21:56:17-05:00",
+                "departure_time": "2018-01-15T21:56:17-05:00",
+                "direction_id": 0,
+                "schedule_relationship": null,
+                "status": null,
+                "stop_sequence": 5,
+                "track": null
+            },
+            "id": "prediction-CR-Weekday-Fall-17-533-Newtonville-5",
+            "relationships": {
+                "alerts": {},
+                "route": {
+                    "data": {
+                        "id": "CR-Worcester",
+                        "type": "route"
+                    }
+                },
+                "schedule": {},
+                "stop": {
+                    "data": {
+                        "id": "Newtonville",
+                        "type": "stop"
+                    }
+                },
+                "trip": {
+                    "data": {
+                        "id": "CR-Weekday-Fall-17-533",
+                        "type": "trip"
+                    }
+                },
+                "vehicle": {
+                    "data": null
+                }
+            },
+            "type": "prediction"
+        },
+        {
+            "attributes": {
+                "arrival_time": "2018-01-15T21:59:01-05:00",
+                "departure_time": "2018-01-15T22:00:00-05:00",
+                "direction_id": 0,
+                "schedule_relationship": null,
+                "status": null,
+                "stop_sequence": 6,
+                "track": null
+            },
+            "id": "prediction-CR-Weekday-Fall-17-533-West Newton-6",
+            "relationships": {
+                "alerts": {},
+                "route": {
+                    "data": {
+                        "id": "CR-Worcester",
+                        "type": "route"
+                    }
+                },
+                "schedule": {},
+                "stop": {
+                    "data": {
+                        "id": "West Newton",
+                        "type": "stop"
+                    }
+                },
+                "trip": {
+                    "data": {
+                        "id": "CR-Weekday-Fall-17-533",
+                        "type": "trip"
+                    }
+                },
+                "vehicle": {
+                    "data": null
+                }
+            },
+            "type": "prediction"
+        },
+        {
+            "attributes": {
+                "arrival_time": "2018-01-15T21:59:16-05:00",
+                "departure_time": "2018-01-15T22:02:00-05:00",
+                "direction_id": 1,
+                "schedule_relationship": null,
+                "status": null,
+                "stop_sequence": 11,
+                "track": null
+            },
+            "id": "prediction-CR-Weekday-Fall-17-530-Wellesley Farms-11",
+            "relationships": {
+                "alerts": {},
+                "route": {
+                    "data": {
+                        "id": "CR-Worcester",
+                        "type": "route"
+                    }
+                },
+                "schedule": {},
+                "stop": {
+                    "data": {
+                        "id": "Wellesley Farms",
+                        "type": "stop"
+                    }
+                },
+                "trip": {
+                    "data": {
+                        "id": "CR-Weekday-Fall-17-530",
+                        "type": "trip"
+                    }
+                },
+                "vehicle": {
+                    "data": {
+                        "id": "1704",
+                        "type": "vehicle"
+                    }
+                }
+            },
+            "type": "prediction"
+        },
+        {
+            "attributes": {
+                "arrival_time": "2018-01-15T22:01:12-05:00",
+                "departure_time": "2018-01-15T22:01:12-05:00",
+                "direction_id": 1,
+                "schedule_relationship": null,
+                "status": null,
+                "stop_sequence": 4,
+                "track": null
+            },
+            "id": "prediction-CR-Weekday-Fall-17-532-Southborough-4",
+            "relationships": {
+                "alerts": {},
+                "route": {
+                    "data": {
+                        "id": "CR-Worcester",
+                        "type": "route"
+                    }
+                },
+                "schedule": {},
+                "stop": {
+                    "data": {
+                        "id": "Southborough",
+                        "type": "stop"
+                    }
+                },
+                "trip": {
+                    "data": {
+                        "id": "CR-Weekday-Fall-17-532",
+                        "type": "trip"
+                    }
+                },
+                "vehicle": {
+                    "data": null
+                }
+            },
+            "type": "prediction"
+        },
+        {
+            "attributes": {
+                "arrival_time": "2018-01-15T22:02:12-05:00",
+                "departure_time": "2018-01-15T22:03:00-05:00",
+                "direction_id": 0,
+                "schedule_relationship": null,
+                "status": null,
+                "stop_sequence": 7,
+                "track": null
+            },
+            "id": "prediction-CR-Weekday-Fall-17-533-Auburndale-7",
+            "relationships": {
+                "alerts": {},
+                "route": {
+                    "data": {
+                        "id": "CR-Worcester",
+                        "type": "route"
+                    }
+                },
+                "schedule": {},
+                "stop": {
+                    "data": {
+                        "id": "Auburndale",
+                        "type": "stop"
+                    }
+                },
+                "trip": {
+                    "data": {
+                        "id": "CR-Weekday-Fall-17-533",
+                        "type": "trip"
+                    }
+                },
+                "vehicle": {
+                    "data": null
+                }
+            },
+            "type": "prediction"
+        },
+        {
+            "attributes": {
+                "arrival_time": "2018-01-15T22:03:07-05:00",
+                "departure_time": null,
+                "direction_id": 0,
+                "schedule_relationship": null,
+                "status": null,
+                "stop_sequence": 18,
+                "track": null
+            },
+            "id": "prediction-CR-Weekday-Fall-17-531-Worcester-18",
+            "relationships": {
+                "alerts": {},
+                "route": {
+                    "data": {
+                        "id": "CR-Worcester",
+                        "type": "route"
+                    }
+                },
+                "schedule": {},
+                "stop": {
+                    "data": {
+                        "id": "Worcester",
+                        "type": "stop"
+                    }
+                },
+                "trip": {
+                    "data": {
+                        "id": "CR-Weekday-Fall-17-531",
+                        "type": "trip"
+                    }
+                },
+                "vehicle": {
+                    "data": {
+                        "id": "1827",
+                        "type": "vehicle"
+                    }
+                }
+            },
+            "type": "prediction"
+        },
+        {
+            "attributes": {
+                "arrival_time": "2018-01-15T22:04:49-05:00",
+                "departure_time": "2018-01-15T22:05:00-05:00",
+                "direction_id": 1,
+                "schedule_relationship": null,
+                "status": null,
+                "stop_sequence": 5,
+                "track": null
+            },
+            "id": "prediction-CR-Weekday-Fall-17-532-Ashland-5",
+            "relationships": {
+                "alerts": {},
+                "route": {
+                    "data": {
+                        "id": "CR-Worcester",
+                        "type": "route"
+                    }
+                },
+                "schedule": {},
+                "stop": {
+                    "data": {
+                        "id": "Ashland",
+                        "type": "stop"
+                    }
+                },
+                "trip": {
+                    "data": {
+                        "id": "CR-Weekday-Fall-17-532",
+                        "type": "trip"
+                    }
+                },
+                "vehicle": {
+                    "data": null
+                }
+            },
+            "type": "prediction"
+        },
+        {
+            "attributes": {
+                "arrival_time": "2018-01-15T22:07:11-05:00",
+                "departure_time": "2018-01-15T22:07:11-05:00",
+                "direction_id": 0,
+                "schedule_relationship": null,
+                "status": null,
+                "stop_sequence": 8,
+                "track": null
+            },
+            "id": "prediction-CR-Weekday-Fall-17-533-Wellesley Farms-8",
+            "relationships": {
+                "alerts": {},
+                "route": {
+                    "data": {
+                        "id": "CR-Worcester",
+                        "type": "route"
+                    }
+                },
+                "schedule": {},
+                "stop": {
+                    "data": {
+                        "id": "Wellesley Farms",
+                        "type": "stop"
+                    }
+                },
+                "trip": {
+                    "data": {
+                        "id": "CR-Weekday-Fall-17-533",
+                        "type": "trip"
+                    }
+                },
+                "vehicle": {
+                    "data": null
+                }
+            },
+            "type": "prediction"
+        },
+        {
+            "attributes": {
+                "arrival_time": "2018-01-15T22:09:48-05:00",
+                "departure_time": "2018-01-15T22:09:48-05:00",
+                "direction_id": 0,
+                "schedule_relationship": null,
+                "status": null,
+                "stop_sequence": 9,
+                "track": null
+            },
+            "id": "prediction-CR-Weekday-Fall-17-533-Wellesley Hills-9",
+            "relationships": {
+                "alerts": {},
+                "route": {
+                    "data": {
+                        "id": "CR-Worcester",
+                        "type": "route"
+                    }
+                },
+                "schedule": {},
+                "stop": {
+                    "data": {
+                        "id": "Wellesley Hills",
+                        "type": "stop"
+                    }
+                },
+                "trip": {
+                    "data": {
+                        "id": "CR-Weekday-Fall-17-533",
+                        "type": "trip"
+                    }
+                },
+                "vehicle": {
+                    "data": null
+                }
+            },
+            "type": "prediction"
+        },
+        {
+            "attributes": {
+                "arrival_time": "2018-01-15T22:09:54-05:00",
+                "departure_time": "2018-01-15T22:09:54-05:00",
+                "direction_id": 1,
+                "schedule_relationship": null,
+                "status": null,
+                "stop_sequence": 12,
+                "track": null
+            },
+            "id": "prediction-CR-Weekday-Fall-17-530-Boston Landing-12",
+            "relationships": {
+                "alerts": {},
+                "route": {
+                    "data": {
+                        "id": "CR-Worcester",
+                        "type": "route"
+                    }
+                },
+                "schedule": {},
+                "stop": {
+                    "data": {
+                        "id": "Boston Landing",
+                        "type": "stop"
+                    }
+                },
+                "trip": {
+                    "data": {
+                        "id": "CR-Weekday-Fall-17-530",
+                        "type": "trip"
+                    }
+                },
+                "vehicle": {
+                    "data": {
+                        "id": "1704",
+                        "type": "vehicle"
+                    }
+                }
+            },
+            "type": "prediction"
+        },
+        {
+            "attributes": {
+                "arrival_time": "2018-01-15T22:12:52-05:00",
+                "departure_time": "2018-01-15T22:12:52-05:00",
+                "direction_id": 0,
+                "schedule_relationship": null,
+                "status": null,
+                "stop_sequence": 10,
+                "track": null
+            },
+            "id": "prediction-CR-Weekday-Fall-17-533-Wellesley Square-10",
+            "relationships": {
+                "alerts": {},
+                "route": {
+                    "data": {
+                        "id": "CR-Worcester",
+                        "type": "route"
+                    }
+                },
+                "schedule": {},
+                "stop": {
+                    "data": {
+                        "id": "Wellesley Square",
+                        "type": "stop"
+                    }
+                },
+                "trip": {
+                    "data": {
+                        "id": "CR-Weekday-Fall-17-533",
+                        "type": "trip"
+                    }
+                },
+                "vehicle": {
+                    "data": null
+                }
+            },
+            "type": "prediction"
+        },
+        {
+            "attributes": {
+                "arrival_time": "2018-01-15T22:13:26-05:00",
+                "departure_time": "2018-01-15T22:16:00-05:00",
+                "direction_id": 1,
+                "schedule_relationship": null,
+                "status": null,
+                "stop_sequence": 6,
+                "track": null
+            },
+            "id": "prediction-CR-Weekday-Fall-17-532-Framingham-6",
+            "relationships": {
+                "alerts": {},
+                "route": {
+                    "data": {
+                        "id": "CR-Worcester",
+                        "type": "route"
+                    }
+                },
+                "schedule": {},
+                "stop": {
+                    "data": {
+                        "id": "Framingham",
+                        "type": "stop"
+                    }
+                },
+                "trip": {
+                    "data": {
+                        "id": "CR-Weekday-Fall-17-532",
+                        "type": "trip"
+                    }
+                },
+                "vehicle": {
+                    "data": null
+                }
+            },
+            "type": "prediction"
+        },
+        {
+            "attributes": {
+                "arrival_time": "2018-01-15T22:17:35-05:00",
+                "departure_time": "2018-01-15T22:17:35-05:00",
+                "direction_id": 0,
+                "schedule_relationship": null,
+                "status": null,
+                "stop_sequence": 11,
+                "track": null
+            },
+            "id": "prediction-CR-Weekday-Fall-17-533-Natick Center-11",
+            "relationships": {
+                "alerts": {},
+                "route": {
+                    "data": {
+                        "id": "CR-Worcester",
+                        "type": "route"
+                    }
+                },
+                "schedule": {},
+                "stop": {
+                    "data": {
+                        "id": "Natick Center",
+                        "type": "stop"
+                    }
+                },
+                "trip": {
+                    "data": {
+                        "id": "CR-Weekday-Fall-17-533",
+                        "type": "trip"
+                    }
+                },
+                "vehicle": {
+                    "data": null
+                }
+            },
+            "type": "prediction"
+        },
+        {
+            "attributes": {
+                "arrival_time": "2018-01-15T22:19:17-05:00",
+                "departure_time": "2018-01-15T22:21:00-05:00",
+                "direction_id": 1,
+                "schedule_relationship": null,
+                "status": null,
+                "stop_sequence": 7,
+                "track": null
+            },
+            "id": "prediction-CR-Weekday-Fall-17-532-West Natick-7",
+            "relationships": {
+                "alerts": {},
+                "route": {
+                    "data": {
+                        "id": "CR-Worcester",
+                        "type": "route"
+                    }
+                },
+                "schedule": {},
+                "stop": {
+                    "data": {
+                        "id": "West Natick",
+                        "type": "stop"
+                    }
+                },
+                "trip": {
+                    "data": {
+                        "id": "CR-Weekday-Fall-17-532",
+                        "type": "trip"
+                    }
+                },
+                "vehicle": {
+                    "data": null
+                }
+            },
+            "type": "prediction"
+        },
+        {
+            "attributes": {
+                "arrival_time": "2018-01-15T22:22:00-05:00",
+                "departure_time": "2018-01-15T22:22:00-05:00",
+                "direction_id": 0,
+                "schedule_relationship": null,
+                "status": null,
+                "stop_sequence": 12,
+                "track": null
+            },
+            "id": "prediction-CR-Weekday-Fall-17-533-West Natick-12",
+            "relationships": {
+                "alerts": {},
+                "route": {
+                    "data": {
+                        "id": "CR-Worcester",
+                        "type": "route"
+                    }
+                },
+                "schedule": {},
+                "stop": {
+                    "data": {
+                        "id": "West Natick",
+                        "type": "stop"
+                    }
+                },
+                "trip": {
+                    "data": {
+                        "id": "CR-Weekday-Fall-17-533",
+                        "type": "trip"
+                    }
+                },
+                "vehicle": {
+                    "data": null
+                }
+            },
+            "type": "prediction"
+        },
+        {
+            "attributes": {
+                "arrival_time": "2018-01-15T22:22:41-05:00",
+                "departure_time": "2018-01-15T22:26:00-05:00",
+                "direction_id": 1,
+                "schedule_relationship": null,
+                "status": null,
+                "stop_sequence": 8,
+                "track": null
+            },
+            "id": "prediction-CR-Weekday-Fall-17-532-Natick Center-8",
+            "relationships": {
+                "alerts": {},
+                "route": {
+                    "data": {
+                        "id": "CR-Worcester",
+                        "type": "route"
+                    }
+                },
+                "schedule": {},
+                "stop": {
+                    "data": {
+                        "id": "Natick Center",
+                        "type": "stop"
+                    }
+                },
+                "trip": {
+                    "data": {
+                        "id": "CR-Weekday-Fall-17-532",
+                        "type": "trip"
+                    }
+                },
+                "vehicle": {
+                    "data": null
+                }
+            },
+            "type": "prediction"
+        },
+        {
+            "attributes": {
+                "arrival_time": "2018-01-15T22:26:29-05:00",
+                "departure_time": "2018-01-15T22:26:29-05:00",
+                "direction_id": 0,
+                "schedule_relationship": null,
+                "status": null,
+                "stop_sequence": 13,
+                "track": null
+            },
+            "id": "prediction-CR-Weekday-Fall-17-533-Framingham-13",
+            "relationships": {
+                "alerts": {},
+                "route": {
+                    "data": {
+                        "id": "CR-Worcester",
+                        "type": "route"
+                    }
+                },
+                "schedule": {},
+                "stop": {
+                    "data": {
+                        "id": "Framingham",
+                        "type": "stop"
+                    }
+                },
+                "trip": {
+                    "data": {
+                        "id": "CR-Weekday-Fall-17-533",
+                        "type": "trip"
+                    }
+                },
+                "vehicle": {
+                    "data": null
+                }
+            },
+            "type": "prediction"
+        },
+        {
+            "attributes": {
+                "arrival_time": "2018-01-15T22:27:19-05:00",
+                "departure_time": "2018-01-15T22:30:00-05:00",
+                "direction_id": 1,
+                "schedule_relationship": null,
+                "status": null,
+                "stop_sequence": 9,
+                "track": null
+            },
+            "id": "prediction-CR-Weekday-Fall-17-532-Wellesley Square-9",
+            "relationships": {
+                "alerts": {},
+                "route": {
+                    "data": {
+                        "id": "CR-Worcester",
+                        "type": "route"
+                    }
+                },
+                "schedule": {},
+                "stop": {
+                    "data": {
+                        "id": "Wellesley Square",
+                        "type": "stop"
+                    }
+                },
+                "trip": {
+                    "data": {
+                        "id": "CR-Weekday-Fall-17-532",
+                        "type": "trip"
+                    }
+                },
+                "vehicle": {
+                    "data": null
+                }
+            },
+            "type": "prediction"
+        },
+        {
+            "attributes": {
+                "arrival_time": "2018-01-15T22:30:29-05:00",
+                "departure_time": "2018-01-15T22:34:00-05:00",
+                "direction_id": 1,
+                "schedule_relationship": null,
+                "status": null,
+                "stop_sequence": 10,
+                "track": null
+            },
+            "id": "prediction-CR-Weekday-Fall-17-532-Wellesley Hills-10",
+            "relationships": {
+                "alerts": {},
+                "route": {
+                    "data": {
+                        "id": "CR-Worcester",
+                        "type": "route"
+                    }
+                },
+                "schedule": {},
+                "stop": {
+                    "data": {
+                        "id": "Wellesley Hills",
+                        "type": "stop"
+                    }
+                },
+                "trip": {
+                    "data": {
+                        "id": "CR-Weekday-Fall-17-532",
+                        "type": "trip"
+                    }
+                },
+                "vehicle": {
+                    "data": null
+                }
+            },
+            "type": "prediction"
+        },
+        {
+            "attributes": {
+                "arrival_time": "2018-01-15T22:31:41-05:00",
+                "departure_time": "2018-01-15T22:32:00-05:00",
+                "direction_id": 0,
+                "schedule_relationship": null,
+                "status": null,
+                "stop_sequence": 14,
+                "track": null
+            },
+            "id": "prediction-CR-Weekday-Fall-17-533-Ashland-14",
+            "relationships": {
+                "alerts": {},
+                "route": {
+                    "data": {
+                        "id": "CR-Worcester",
+                        "type": "route"
+                    }
+                },
+                "schedule": {},
+                "stop": {
+                    "data": {
+                        "id": "Ashland",
+                        "type": "stop"
+                    }
+                },
+                "trip": {
+                    "data": {
+                        "id": "CR-Weekday-Fall-17-533",
+                        "type": "trip"
+                    }
+                },
+                "vehicle": {
+                    "data": null
+                }
+            },
+            "type": "prediction"
+        },
+        {
+            "attributes": {
+                "arrival_time": "2018-01-15T22:34:30-05:00",
+                "departure_time": "2018-01-15T22:37:00-05:00",
+                "direction_id": 1,
+                "schedule_relationship": null,
+                "status": null,
+                "stop_sequence": 11,
+                "track": null
+            },
+            "id": "prediction-CR-Weekday-Fall-17-532-Wellesley Farms-11",
+            "relationships": {
+                "alerts": {},
+                "route": {
+                    "data": {
+                        "id": "CR-Worcester",
+                        "type": "route"
+                    }
+                },
+                "schedule": {},
+                "stop": {
+                    "data": {
+                        "id": "Wellesley Farms",
+                        "type": "stop"
+                    }
+                },
+                "trip": {
+                    "data": {
+                        "id": "CR-Weekday-Fall-17-532",
+                        "type": "trip"
+                    }
+                },
+                "vehicle": {
+                    "data": null
+                }
+            },
+            "type": "prediction"
+        },
+        {
+            "attributes": {
+                "arrival_time": "2018-01-15T22:35:26-05:00",
+                "departure_time": "2018-01-15T22:37:00-05:00",
+                "direction_id": 0,
+                "schedule_relationship": null,
+                "status": null,
+                "stop_sequence": 15,
+                "track": null
+            },
+            "id": "prediction-CR-Weekday-Fall-17-533-Southborough-15",
+            "relationships": {
+                "alerts": {},
+                "route": {
+                    "data": {
+                        "id": "CR-Worcester",
+                        "type": "route"
+                    }
+                },
+                "schedule": {},
+                "stop": {
+                    "data": {
+                        "id": "Southborough",
+                        "type": "stop"
+                    }
+                },
+                "trip": {
+                    "data": {
+                        "id": "CR-Weekday-Fall-17-533",
+                        "type": "trip"
+                    }
+                },
+                "vehicle": {
+                    "data": null
+                }
+            },
+            "type": "prediction"
+        },
+        {
+            "attributes": {
+                "arrival_time": "2018-01-15T22:43:30-05:00",
+                "departure_time": "2018-01-15T22:46:00-05:00",
+                "direction_id": 0,
+                "schedule_relationship": null,
+                "status": null,
+                "stop_sequence": 16,
+                "track": null
+            },
+            "id": "prediction-CR-Weekday-Fall-17-533-Westborough-16",
+            "relationships": {
+                "alerts": {},
+                "route": {
+                    "data": {
+                        "id": "CR-Worcester",
+                        "type": "route"
+                    }
+                },
+                "schedule": {},
+                "stop": {
+                    "data": {
+                        "id": "Westborough",
+                        "type": "stop"
+                    }
+                },
+                "trip": {
+                    "data": {
+                        "id": "CR-Weekday-Fall-17-533",
+                        "type": "trip"
+                    }
+                },
+                "vehicle": {
+                    "data": null
+                }
+            },
+            "type": "prediction"
+        },
+        {
+            "attributes": {
+                "arrival_time": "2018-01-15T22:43:37-05:00",
+                "departure_time": "2018-01-15T22:43:37-05:00",
+                "direction_id": 1,
+                "schedule_relationship": null,
+                "status": null,
+                "stop_sequence": 12,
+                "track": null
+            },
+            "id": "prediction-CR-Weekday-Fall-17-532-Boston Landing-12",
+            "relationships": {
+                "alerts": {},
+                "route": {
+                    "data": {
+                        "id": "CR-Worcester",
+                        "type": "route"
+                    }
+                },
+                "schedule": {},
+                "stop": {
+                    "data": {
+                        "id": "Boston Landing",
+                        "type": "stop"
+                    }
+                },
+                "trip": {
+                    "data": {
+                        "id": "CR-Weekday-Fall-17-532",
+                        "type": "trip"
+                    }
+                },
+                "vehicle": {
+                    "data": null
+                }
+            },
+            "type": "prediction"
+        },
+        {
+            "attributes": {
+                "arrival_time": "2018-01-15T22:47:48-05:00",
+                "departure_time": "2018-01-15T22:51:00-05:00",
+                "direction_id": 0,
+                "schedule_relationship": null,
+                "status": null,
+                "stop_sequence": 17,
+                "track": null
+            },
+            "id": "prediction-CR-Weekday-Fall-17-533-Grafton-17",
+            "relationships": {
+                "alerts": {},
+                "route": {
+                    "data": {
+                        "id": "CR-Worcester",
+                        "type": "route"
+                    }
+                },
+                "schedule": {},
+                "stop": {
+                    "data": {
+                        "id": "Grafton",
+                        "type": "stop"
+                    }
+                },
+                "trip": {
+                    "data": {
+                        "id": "CR-Weekday-Fall-17-533",
+                        "type": "trip"
+                    }
+                },
+                "vehicle": {
+                    "data": null
+                }
+            },
+            "type": "prediction"
+        },
+        {
+            "attributes": {
+                "arrival_time": "2018-01-15T23:00:13-05:00",
+                "departure_time": null,
+                "direction_id": 0,
+                "schedule_relationship": null,
+                "status": null,
+                "stop_sequence": 18,
+                "track": null
+            },
+            "id": "prediction-CR-Weekday-Fall-17-533-Worcester-18",
+            "relationships": {
+                "alerts": {},
+                "route": {
+                    "data": {
+                        "id": "CR-Worcester",
+                        "type": "route"
+                    }
+                },
+                "schedule": {},
+                "stop": {
+                    "data": {
+                        "id": "Worcester",
+                        "type": "stop"
+                    }
+                },
+                "trip": {
+                    "data": {
+                        "id": "CR-Weekday-Fall-17-533",
+                        "type": "trip"
+                    }
+                },
+                "vehicle": {
+                    "data": null
+                }
+            },
+            "type": "prediction"
+        }
+    ],
+    "included": [
+        {
+            "attributes": {
+                "bearing": 92.0,
+                "current_status": "IN_TRANSIT_TO",
+                "current_stop_sequence": 4,
+                "direction_id": 1,
+                "label": "1700",
+                "last_updated": "2018-01-15T20:54:30-05:00",
+                "latitude": 42.268798828125,
+                "longitude": -71.56369018554688,
+                "speed": 25.0
+            },
+            "id": "1700",
+            "links": {
+                "self": "/vehicles/1700"
+            },
+            "relationships": {
+                "route": {
+                    "data": {
+                        "id": "CR-Worcester",
+                        "type": "route"
+                    }
+                },
+                "stop": {
+                    "data": {
+                        "id": "Southborough",
+                        "type": "stop"
+                    }
+                },
+                "trip": {
+                    "data": {
+                        "id": "CR-Weekday-Fall-17-528",
+                        "type": "trip"
+                    }
+                }
+            },
+            "type": "vehicle"
+        },
+        {
+            "attributes": {
+                "bearing": 294.0,
+                "current_status": "IN_TRANSIT_TO",
+                "current_stop_sequence": 16,
+                "direction_id": 0,
+                "label": "1701",
+                "last_updated": "2018-01-15T20:54:28-05:00",
+                "latitude": 42.270118713378906,
+                "longitude": -71.60575866699219,
+                "speed": 25.0
+            },
+            "id": "1701",
+            "links": {
+                "self": "/vehicles/1701"
+            },
+            "relationships": {
+                "route": {
+                    "data": {
+                        "id": "CR-Worcester",
+                        "type": "route"
+                    }
+                },
+                "stop": {
+                    "data": {
+                        "id": "Westborough",
+                        "type": "stop"
+                    }
+                },
+                "trip": {
+                    "data": {
+                        "id": "CR-Weekday-Fall-17-529",
+                        "type": "trip"
+                    }
+                }
+            },
+            "type": "vehicle"
+        },
+        {
+            "attributes": {
+                "bearing": 93.0,
+                "current_status": "STOPPED_AT",
+                "current_stop_sequence": 1,
+                "direction_id": 1,
+                "label": "1704",
+                "last_updated": "2018-01-15T20:54:10-05:00",
+                "latitude": 42.261329650878906,
+                "longitude": -71.7939224243164,
+                "speed": null
+            },
+            "id": "1704",
+            "links": {
+                "self": "/vehicles/1704"
+            },
+            "relationships": {
+                "route": {
+                    "data": {
+                        "id": "CR-Worcester",
+                        "type": "route"
+                    }
+                },
+                "stop": {
+                    "data": {
+                        "id": "Worcester",
+                        "type": "stop"
+                    }
+                },
+                "trip": {
+                    "data": {
+                        "id": "CR-Weekday-Fall-17-530",
+                        "type": "trip"
+                    }
+                }
+            },
+            "type": "vehicle"
+        },
+        {
+            "attributes": {
+                "bearing": 259.0,
+                "current_status": "IN_TRANSIT_TO",
+                "current_stop_sequence": 5,
+                "direction_id": 0,
+                "label": "1827",
+                "last_updated": "2018-01-15T20:54:27-05:00",
+                "latitude": 42.35786819458008,
+                "longitude": -71.1497802734375,
+                "speed": 20.0
+            },
+            "id": "1827",
+            "links": {
+                "self": "/vehicles/1827"
+            },
+            "relationships": {
+                "route": {
+                    "data": {
+                        "id": "CR-Worcester",
+                        "type": "route"
+                    }
+                },
+                "stop": {
+                    "data": {
+                        "id": "Newtonville",
+                        "type": "stop"
+                    }
+                },
+                "trip": {
+                    "data": {
+                        "id": "CR-Weekday-Fall-17-531",
+                        "type": "trip"
+                    }
+                }
+            },
+            "type": "vehicle"
+        },
+        {
+            "attributes": {
+                "block_id": "",
+                "direction_id": 1,
+                "headsign": "South Station",
+                "name": "528",
+                "wheelchair_accessible": 1
+            },
+            "id": "CR-Weekday-Fall-17-528",
+            "links": {
+                "self": "/trips/CR-Weekday-Fall-17-528"
+            },
+            "relationships": {
+                "route": {
+                    "data": {
+                        "id": "CR-Worcester",
+                        "type": "route"
+                    }
+                },
+                "service": {
+                    "data": {
+                        "id": "CR-Weekday-SouthSide-Fall-17-RegReduced",
+                        "type": "service"
+                    }
+                },
+                "shape": {
+                    "data": {
+                        "id": "9850001",
+                        "type": "shape"
+                    }
+                },
+                "vehicle": {
+                    "data": {
+                        "id": "1700",
+                        "type": "vehicle"
+                    }
+                }
+            },
+            "type": "trip"
+        },
+        {
+            "attributes": {
+                "block_id": "",
+                "direction_id": 0,
+                "headsign": "Worcester",
+                "name": "529",
+                "wheelchair_accessible": 1
+            },
+            "id": "CR-Weekday-Fall-17-529",
+            "links": {
+                "self": "/trips/CR-Weekday-Fall-17-529"
+            },
+            "relationships": {
+                "route": {
+                    "data": {
+                        "id": "CR-Worcester",
+                        "type": "route"
+                    }
+                },
+                "service": {
+                    "data": {
+                        "id": "CR-Weekday-SouthSide-Fall-17-RegReduced",
+                        "type": "service"
+                    }
+                },
+                "shape": {
+                    "data": {
+                        "id": "9850002",
+                        "type": "shape"
+                    }
+                },
+                "vehicle": {
+                    "data": {
+                        "id": "1701",
+                        "type": "vehicle"
+                    }
+                }
+            },
+            "type": "trip"
+        },
+        {
+            "attributes": {
+                "block_id": "",
+                "direction_id": 1,
+                "headsign": "South Station",
+                "name": "530",
+                "wheelchair_accessible": 1
+            },
+            "id": "CR-Weekday-Fall-17-530",
+            "links": {
+                "self": "/trips/CR-Weekday-Fall-17-530"
+            },
+            "relationships": {
+                "route": {
+                    "data": {
+                        "id": "CR-Worcester",
+                        "type": "route"
+                    }
+                },
+                "service": {
+                    "data": {
+                        "id": "CR-Weekday-SouthSide-Fall-17-RegOnly",
+                        "type": "service"
+                    }
+                },
+                "shape": {
+                    "data": {
+                        "id": "9850001",
+                        "type": "shape"
+                    }
+                },
+                "vehicle": {
+                    "data": {
+                        "id": "1704",
+                        "type": "vehicle"
+                    }
+                }
+            },
+            "type": "trip"
+        },
+        {
+            "attributes": {
+                "block_id": "",
+                "direction_id": 0,
+                "headsign": "Worcester",
+                "name": "531",
+                "wheelchair_accessible": 1
+            },
+            "id": "CR-Weekday-Fall-17-531",
+            "links": {
+                "self": "/trips/CR-Weekday-Fall-17-531"
+            },
+            "relationships": {
+                "route": {
+                    "data": {
+                        "id": "CR-Worcester",
+                        "type": "route"
+                    }
+                },
+                "service": {
+                    "data": {
+                        "id": "CR-Weekday-SouthSide-Fall-17-RegReduced",
+                        "type": "service"
+                    }
+                },
+                "shape": {
+                    "data": {
+                        "id": "9850002",
+                        "type": "shape"
+                    }
+                },
+                "vehicle": {
+                    "data": {
+                        "id": "1827",
+                        "type": "vehicle"
+                    }
+                }
+            },
+            "type": "trip"
+        },
+        {
+            "attributes": {
+                "block_id": "",
+                "direction_id": 1,
+                "headsign": "South Station",
+                "name": "532",
+                "wheelchair_accessible": 1
+            },
+            "id": "CR-Weekday-Fall-17-532",
+            "links": {
+                "self": "/trips/CR-Weekday-Fall-17-532"
+            },
+            "relationships": {
+                "route": {
+                    "data": {
+                        "id": "CR-Worcester",
+                        "type": "route"
+                    }
+                },
+                "service": {
+                    "data": {
+                        "id": "CR-Weekday-SouthSide-Fall-17-RegReduced",
+                        "type": "service"
+                    }
+                },
+                "shape": {
+                    "data": {
+                        "id": "9850001",
+                        "type": "shape"
+                    }
+                },
+                "vehicle": {
+                    "data": null
+                }
+            },
+            "type": "trip"
+        },
+        {
+            "attributes": {
+                "block_id": "",
+                "direction_id": 0,
+                "headsign": "Worcester",
+                "name": "533",
+                "wheelchair_accessible": 1
+            },
+            "id": "CR-Weekday-Fall-17-533",
+            "links": {
+                "self": "/trips/CR-Weekday-Fall-17-533"
+            },
+            "relationships": {
+                "route": {
+                    "data": {
+                        "id": "CR-Worcester",
+                        "type": "route"
+                    }
+                },
+                "service": {
+                    "data": {
+                        "id": "CR-Weekday-SouthSide-Fall-17-RegReduced",
+                        "type": "service"
+                    }
+                },
+                "shape": {
+                    "data": {
+                        "id": "9850002",
+                        "type": "shape"
+                    }
+                },
+                "vehicle": {
+                    "data": null
+                }
+            },
+            "type": "trip"
+        }
+    ],
+    "jsonapi": {
+        "version": "1.0"
+    }
+}
