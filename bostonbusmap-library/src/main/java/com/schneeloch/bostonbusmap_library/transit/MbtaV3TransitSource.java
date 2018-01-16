@@ -98,12 +98,12 @@ public class MbtaV3TransitSource implements TransitSource {
                 break;
             }
             case VEHICLE_LOCATIONS_ONE: {
-                String url = dataUrlPrefix + "/vehicles?api_key=" + apiKey + "&filter[route]=" + routeConfig.getRouteName();
+                String url = dataUrlPrefix + "/vehicles?api_key=" + apiKey + "&filter[route]=" + routeConfig.getRouteName() + "&include=trip";
                 downloadHelper = downloader.create(url);
                 break;
             }
             case VEHICLE_LOCATIONS_ALL: {
-                String url = dataUrlPrefix + "/vehicles?api_key=" + apiKey;
+                String url = dataUrlPrefix + "/vehicles?api_key=" + apiKey + "&include=trip";
                 downloadHelper = downloader.create(url);
                 break;
             }
@@ -132,7 +132,7 @@ public class MbtaV3TransitSource implements TransitSource {
                 case VEHICLE_LOCATIONS_ALL:
                 case VEHICLE_LOCATIONS_ONE: {
                     //vehicle locations
-                    Map<VehicleLocations.Key, BusLocation> newBuses = MbtaV3VehiclesParser.runParse(data);
+                    Map<VehicleLocations.Key, BusLocation> newBuses = MbtaV3VehiclesParser.runParse(data, locationsObj.getRouteTitles());
 
                     busMapping.update(Schema.Routes.SourceId.Bus, routeTitles.routeTags(), true, newBuses);
 
@@ -234,5 +234,12 @@ public class MbtaV3TransitSource implements TransitSource {
     @Override
     public IAlerts getAlerts() {
         return transitSystem.getAlerts();
+    }
+
+    public static String translateRoute(String routeId) {
+        if (routeId.equals("Green-B") || routeId.equals("Green-C") || routeId.equals("Green-D") || routeId.equals("Green-E")) {
+            return "Green";
+        }
+        return routeId;
     }
 }

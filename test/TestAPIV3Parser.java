@@ -84,13 +84,6 @@ public class TestAPIV3Parser {
         // watertown square
         double lat = 42.3709;
         double lon = -71.1828;
-        ImmutableList<ImmutableList<Location>> groups = locations.getLocations(
-                75,
-                lat,
-                lon,
-                true,
-                selection
-        );
 
         VehicleLocations busMapping = new VehicleLocations();
         Directions directions = locations.getDirections();
@@ -114,5 +107,45 @@ public class TestAPIV3Parser {
                 "Route 71\n" +
                 "Watertown Square\n" +
                 "Arriving in 78 min", Html.fromHtml(stop.getPredictionView().getSnippet()).toString());
+    }
+
+    @Test
+    public void testVehicles() throws Exception {
+        LogUtil.print = true;
+        Now.useFakeTime = true;
+        Now.fakeTimeMillis = new SimpleDateFormat(Constants.ISO8601, Locale.getDefault()).parse("2018-01-09T04:34:02+00:00").getTime();
+
+        ContentResolver resolver = RuntimeEnvironment.application.getContentResolver();
+        IDatabaseAgent databaseAgent = new DatabaseAgent(resolver);
+
+        InputStream apiv3Stream = new FileInputStream(new File("./test/resources/vehicles.json"));
+        InputStream hubwayInfoStream = new FileInputStream(new File("./test/resources/station_information.json"));
+        InputStream hubwayStatusStream = new FileInputStream(new File("./test/resources/station_status.json"));
+        ITransitSystem transitSystem = new TransitSystem(new TestingDownloader(ImmutableMap.of(
+                "https://api-v3.mbta.com/vehicles?api_key=109fafba79a848e792e8e7c584f6d1f1&include=trip", apiv3Stream,
+                "https://gbfs.thehubway.com/gbfs/en/station_information.json", hubwayInfoStream,
+                "https://gbfs.thehubway.com/gbfs/en/station_status.json", hubwayStatusStream
+        )));
+
+
+        ITransitDrawables drawables = new TestingTransitDrawables();
+        transitSystem.setDefaultTransitSource(
+                drawables, drawables, drawables, drawables, databaseAgent
+        );
+        Selection selection = new Selection(Selection.Mode.VEHICLE_LOCATIONS_ALL, "71");
+        Locations locations = new Locations(databaseAgent, transitSystem, selection);
+        RoutePool routePool = locations.getRoutePool();
+        RouteTitles routeTitles = databaseAgent.getRouteTitles();
+
+        // watertown square
+        double lat = 42.3709;
+        double lon = -71.1828;
+
+        VehicleLocations busMapping = new VehicleLocations();
+        Directions directions = locations.getDirections();
+        RouteConfig routeConfig = null;
+        transitSystem.refreshData(routeConfig, selection, 75, lat, lon, busMapping, routePool, directions, locations);
+
+        assertEquals(busMapping.values().size(), 410);
     }
 }

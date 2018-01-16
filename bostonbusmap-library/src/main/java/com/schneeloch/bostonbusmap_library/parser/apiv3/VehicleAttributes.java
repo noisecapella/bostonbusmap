@@ -14,4 +14,5 @@ public class VehicleAttributes {
     public float bearing;
     public String headsign;
     public int direction_id;
+    public String current_status;
 }

@@ -21,6 +21,7 @@ import com.schneeloch.bostonbusmap_library.parser.apiv3.Resource;
 import com.schneeloch.bostonbusmap_library.parser.apiv3.ResourceDeserializer;
 import com.schneeloch.bostonbusmap_library.parser.apiv3.Root;
 import com.schneeloch.bostonbusmap_library.parser.apiv3.TripAttributes;
+import com.schneeloch.bostonbusmap_library.transit.MbtaV3TransitSource;
 import com.schneeloch.bostonbusmap_library.util.LogUtil;
 
 import java.io.BufferedReader;
@@ -108,13 +109,17 @@ public class MbtaV3PredictionsParser {
             }
 
             String stopId = relationships.stop.id;
-            String routeId = relationships.route.id;
+            String routeId = MbtaV3TransitSource.translateRoute(relationships.route.id);
             String vehicleId = relationships.vehicle.id;
             String tripId = relationships.trip.id;
             StopLocation location = routePool.get(routeId).getStop(stopId);
 
+            if (attributes.arrival_time == null) {
+                LogUtil.w("Stop " + id + " has a null arrival time");
+                continue;
+            }
             long arrivalTimeMillis = attributes.arrival_time.millis;
-            // TODO: departure time
+
 
             TripAttributes tripAttributes = trips.get(tripId);
             String headsign = null;
