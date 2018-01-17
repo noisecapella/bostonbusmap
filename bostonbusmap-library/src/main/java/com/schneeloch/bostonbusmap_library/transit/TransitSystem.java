@@ -306,7 +306,9 @@ public class TransitSystem implements ITransitSystem {
 				stopTitle,
 				parent
 		);
-		return builder.build();
+		StopLocation stop = builder.build();
+		stop.addRoute(route);
+		return stop;
 	}
 
 	@Override
