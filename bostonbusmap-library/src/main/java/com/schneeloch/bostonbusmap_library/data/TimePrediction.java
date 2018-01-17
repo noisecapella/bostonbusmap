@@ -216,6 +216,7 @@ public final class TimePrediction implements IPrediction
 		dest.writeInt(lateness);
 		dest.writeString(block);
 		dest.writeString(stopId);
+		dest.writeInt(sourceId.getValue());
 	}
 
 	public static final Parcelable.Creator<TimePrediction> CREATOR = new Creator<TimePrediction>() {
