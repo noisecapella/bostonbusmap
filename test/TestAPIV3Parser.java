@@ -1,4 +1,6 @@
 import android.content.ContentResolver;
+import android.content.OperationApplicationException;
+import android.os.RemoteException;
 import android.text.Html;
 
 import com.google.common.collect.ImmutableList;
@@ -37,10 +39,12 @@ import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.RuntimeEnvironment;
 import org.robolectric.annotation.Config;
+import org.xml.sax.SAXException;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.text.DateFormat;
@@ -48,6 +52,8 @@ import java.text.SimpleDateFormat;
 import java.util.Locale;
 import java.util.concurrent.ConcurrentMap;
 import java.util.zip.GZIPInputStream;
+
+import javax.xml.parsers.ParserConfigurationException;
 
 import boston.Bus.Map.BuildConfig;
 
@@ -483,4 +489,51 @@ public class TestAPIV3Parser {
         assertEquals(busMapping.values().size(), 387);
         BusLocation busLocation = busMapping.get(new VehicleLocations.Key(Schema.Routes.SourceId.Bus, "71", "3"));
         assertEquals(busLocation.busId, "");
-    }}
+    }
+
+    @Test
+    public void testKendall() throws Exception {
+        Now.fakeTimeMillis = new SimpleDateFormat(Constants.ISO8601, Locale.getDefault()).parse("2018-01-16T11:23:43-05:00").getTime();
+
+        ContentResolver resolver = RuntimeEnvironment.application.getContentResolver();
+        IDatabaseAgent databaseAgent = new DatabaseAgent(resolver);
+
+        InputStream apiv3Stream = new FileInputStream(new File("./test/resources/predictions_kendall.json"));
+        InputStream hubwayInfoStream = new FileInputStream(new File("./test/resources/station_information.json"));
+        InputStream hubwayStatusStream = new FileInputStream(new File("./test/resources/station_status.json"));
+        InputStream alertsStream = new FileInputStream(new File("./test/resources/alerts.pb"));
+        IDownloader downloader = new TestingDownloader(ImmutableMap.of(
+                "https://api-v3.mbta.com/predictions?api_key=109fafba79a848e792e8e7c584f6d1f1&filter[stop]=2515,1408,2525,1422,2514,2524,2516,2523,1423,1406,1421,1409,1424,2517,1405&include=vehicle,trip", apiv3Stream,
+                "https://gbfs.thehubway.com/gbfs/en/station_information.json", hubwayInfoStream,
+                "https://gbfs.thehubway.com/gbfs/en/station_status.json", hubwayStatusStream,
+                "http://developer.mbta.com/lib/gtrtfs/Alerts/Alerts.pb", alertsStream
+        ));
+        ITransitSystem transitSystem = new TransitSystem(downloader, new TestingAlertsFetcher());
+
+
+        ITransitDrawables drawables = new TestingTransitDrawables();
+        transitSystem.setDefaultTransitSource(
+                drawables, drawables, drawables, drawables, databaseAgent
+        );
+        Selection selection = new Selection(Selection.Mode.BUS_PREDICTIONS_ALL, "71");
+        Locations locations = new Locations(databaseAgent, transitSystem, selection);
+        RouteTitles routeTitles = databaseAgent.getRouteTitles();
+
+        // east cambridge/inman square
+        double lat =  42.371113;
+        double lon = -71.093937;
+
+        RouteConfig routeConfig = null;
+        locations.refresh(databaseAgent, selection, lat, lon, true, null);
+        // watertown square
+        ConcurrentMap<String, StopLocation> group = locations.getAllStopsAtStop("2515");
+        StopLocation stop = group.get("2515");
+
+        // prepare
+        stop.makeSnippetAndTitle(routeConfig, routeTitles, locations);
+
+        assertEquals("", Html.fromHtml(stop.getPredictionView().getSnippet()).toString());
+
+    }
+}
+

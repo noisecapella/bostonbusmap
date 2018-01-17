@@ -75,7 +75,7 @@ public class MbtaV3TransitSource implements TransitSource {
 
                 List<String> stopIds = Lists.newArrayList();
                 for (ImmutableList<Location> group : groups) {
-                    for (Location location : group) {
+                     for (Location location : group) {
                         if (!(location instanceof StopLocation)) {
                             // might happen if there's a race condition somewhere
                             continue;
