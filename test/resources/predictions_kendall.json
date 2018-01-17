@@ -1,0 +1,629 @@
+{
+    "data": [
+        {
+            "attributes": {
+                "arrival_time": "2018-01-16T23:42:56-05:00",
+                "departure_time": "2018-01-16T23:42:56-05:00",
+                "direction_id": 0,
+                "schedule_relationship": null,
+                "status": null,
+                "stop_sequence": 7,
+                "track": null
+            },
+            "id": "prediction-35827082-1421-7",
+            "relationships": {
+                "alerts": {},
+                "route": {
+                    "data": {
+                        "id": "69",
+                        "type": "route"
+                    }
+                },
+                "schedule": {},
+                "stop": {
+                    "data": {
+                        "id": "1421",
+                        "type": "stop"
+                    }
+                },
+                "trip": {
+                    "data": {
+                        "id": "35827082",
+                        "type": "trip"
+                    }
+                },
+                "vehicle": {
+                    "data": {
+                        "id": "633",
+                        "type": "vehicle"
+                    }
+                }
+            },
+            "type": "prediction"
+        },
+        {
+            "attributes": {
+                "arrival_time": "2018-01-16T23:43:18-05:00",
+                "departure_time": "2018-01-16T23:43:18-05:00",
+                "direction_id": 0,
+                "schedule_relationship": null,
+                "status": null,
+                "stop_sequence": 8,
+                "track": null
+            },
+            "id": "prediction-35827082-1422-8",
+            "relationships": {
+                "alerts": {},
+                "route": {
+                    "data": {
+                        "id": "69",
+                        "type": "route"
+                    }
+                },
+                "schedule": {},
+                "stop": {
+                    "data": {
+                        "id": "1422",
+                        "type": "stop"
+                    }
+                },
+                "trip": {
+                    "data": {
+                        "id": "35827082",
+                        "type": "trip"
+                    }
+                },
+                "vehicle": {
+                    "data": {
+                        "id": "633",
+                        "type": "vehicle"
+                    }
+                }
+            },
+            "type": "prediction"
+        },
+        {
+            "attributes": {
+                "arrival_time": "2018-01-16T23:44:16-05:00",
+                "departure_time": "2018-01-16T23:44:16-05:00",
+                "direction_id": 0,
+                "schedule_relationship": null,
+                "status": null,
+                "stop_sequence": 9,
+                "track": null
+            },
+            "id": "prediction-35827082-1423-9",
+            "relationships": {
+                "alerts": {},
+                "route": {
+                    "data": {
+                        "id": "69",
+                        "type": "route"
+                    }
+                },
+                "schedule": {},
+                "stop": {
+                    "data": {
+                        "id": "1423",
+                        "type": "stop"
+                    }
+                },
+                "trip": {
+                    "data": {
+                        "id": "35827082",
+                        "type": "trip"
+                    }
+                },
+                "vehicle": {
+                    "data": {
+                        "id": "633",
+                        "type": "vehicle"
+                    }
+                }
+            },
+            "type": "prediction"
+        },
+        {
+            "attributes": {
+                "arrival_time": "2018-01-16T23:44:33-05:00",
+                "departure_time": "2018-01-16T23:44:33-05:00",
+                "direction_id": 0,
+                "schedule_relationship": null,
+                "status": null,
+                "stop_sequence": 10,
+                "track": null
+            },
+            "id": "prediction-35827082-1424-10",
+            "relationships": {
+                "alerts": {},
+                "route": {
+                    "data": {
+                        "id": "69",
+                        "type": "route"
+                    }
+                },
+                "schedule": {},
+                "stop": {
+                    "data": {
+                        "id": "1424",
+                        "type": "stop"
+                    }
+                },
+                "trip": {
+                    "data": {
+                        "id": "35827082",
+                        "type": "trip"
+                    }
+                },
+                "vehicle": {
+                    "data": {
+                        "id": "633",
+                        "type": "vehicle"
+                    }
+                }
+            },
+            "type": "prediction"
+        },
+        {
+            "attributes": {
+                "arrival_time": "2018-01-17T00:04:38-05:00",
+                "departure_time": "2018-01-17T00:04:38-05:00",
+                "direction_id": 1,
+                "schedule_relationship": null,
+                "status": null,
+                "stop_sequence": 9,
+                "track": null
+            },
+            "id": "prediction-35827086-1405-9",
+            "relationships": {
+                "alerts": {},
+                "route": {
+                    "data": {
+                        "id": "69",
+                        "type": "route"
+                    }
+                },
+                "schedule": {},
+                "stop": {
+                    "data": {
+                        "id": "1405",
+                        "type": "stop"
+                    }
+                },
+                "trip": {
+                    "data": {
+                        "id": "35827086",
+                        "type": "trip"
+                    }
+                },
+                "vehicle": {
+                    "data": null
+                }
+            },
+            "type": "prediction"
+        },
+        {
+            "attributes": {
+                "arrival_time": "2018-01-17T00:05:17-05:00",
+                "departure_time": "2018-01-17T00:05:17-05:00",
+                "direction_id": 1,
+                "schedule_relationship": null,
+                "status": null,
+                "stop_sequence": 10,
+                "track": null
+            },
+            "id": "prediction-35827086-1406-10",
+            "relationships": {
+                "alerts": {},
+                "route": {
+                    "data": {
+                        "id": "69",
+                        "type": "route"
+                    }
+                },
+                "schedule": {},
+                "stop": {
+                    "data": {
+                        "id": "1406",
+                        "type": "stop"
+                    }
+                },
+                "trip": {
+                    "data": {
+                        "id": "35827086",
+                        "type": "trip"
+                    }
+                },
+                "vehicle": {
+                    "data": null
+                }
+            },
+            "type": "prediction"
+        },
+        {
+            "attributes": {
+                "arrival_time": "2018-01-17T00:05:55-05:00",
+                "departure_time": "2018-01-17T00:05:55-05:00",
+                "direction_id": 1,
+                "schedule_relationship": null,
+                "status": null,
+                "stop_sequence": 11,
+                "track": null
+            },
+            "id": "prediction-35827086-1408-11",
+            "relationships": {
+                "alerts": {},
+                "route": {
+                    "data": {
+                        "id": "69",
+                        "type": "route"
+                    }
+                },
+                "schedule": {},
+                "stop": {
+                    "data": {
+                        "id": "1408",
+                        "type": "stop"
+                    }
+                },
+                "trip": {
+                    "data": {
+                        "id": "35827086",
+                        "type": "trip"
+                    }
+                },
+                "vehicle": {
+                    "data": null
+                }
+            },
+            "type": "prediction"
+        },
+        {
+            "attributes": {
+                "arrival_time": "2018-01-17T00:06:41-05:00",
+                "departure_time": "2018-01-17T00:06:41-05:00",
+                "direction_id": 1,
+                "schedule_relationship": null,
+                "status": null,
+                "stop_sequence": 12,
+                "track": null
+            },
+            "id": "prediction-35827086-1409-12",
+            "relationships": {
+                "alerts": {},
+                "route": {
+                    "data": {
+                        "id": "69",
+                        "type": "route"
+                    }
+                },
+                "schedule": {},
+                "stop": {
+                    "data": {
+                        "id": "1409",
+                        "type": "stop"
+                    }
+                },
+                "trip": {
+                    "data": {
+                        "id": "35827086",
+                        "type": "trip"
+                    }
+                },
+                "vehicle": {
+                    "data": null
+                }
+            },
+            "type": "prediction"
+        },
+        {
+            "attributes": {
+                "arrival_time": "2018-01-17T00:22:43-05:00",
+                "departure_time": "2018-01-17T00:22:43-05:00",
+                "direction_id": 0,
+                "schedule_relationship": null,
+                "status": null,
+                "stop_sequence": 7,
+                "track": null
+            },
+            "id": "prediction-35827083-1421-7",
+            "relationships": {
+                "alerts": {},
+                "route": {
+                    "data": {
+                        "id": "69",
+                        "type": "route"
+                    }
+                },
+                "schedule": {},
+                "stop": {
+                    "data": {
+                        "id": "1421",
+                        "type": "stop"
+                    }
+                },
+                "trip": {
+                    "data": {
+                        "id": "35827083",
+                        "type": "trip"
+                    }
+                },
+                "vehicle": {
+                    "data": null
+                }
+            },
+            "type": "prediction"
+        },
+        {
+            "attributes": {
+                "arrival_time": "2018-01-17T00:23:04-05:00",
+                "departure_time": "2018-01-17T00:23:04-05:00",
+                "direction_id": 0,
+                "schedule_relationship": null,
+                "status": null,
+                "stop_sequence": 8,
+                "track": null
+            },
+            "id": "prediction-35827083-1422-8",
+            "relationships": {
+                "alerts": {},
+                "route": {
+                    "data": {
+                        "id": "69",
+                        "type": "route"
+                    }
+                },
+                "schedule": {},
+                "stop": {
+                    "data": {
+                        "id": "1422",
+                        "type": "stop"
+                    }
+                },
+                "trip": {
+                    "data": {
+                        "id": "35827083",
+                        "type": "trip"
+                    }
+                },
+                "vehicle": {
+                    "data": null
+                }
+            },
+            "type": "prediction"
+        },
+        {
+            "attributes": {
+                "arrival_time": "2018-01-17T00:23:45-05:00",
+                "departure_time": "2018-01-17T00:23:45-05:00",
+                "direction_id": 0,
+                "schedule_relationship": null,
+                "status": null,
+                "stop_sequence": 9,
+                "track": null
+            },
+            "id": "prediction-35827083-1423-9",
+            "relationships": {
+                "alerts": {},
+                "route": {
+                    "data": {
+                        "id": "69",
+                        "type": "route"
+                    }
+                },
+                "schedule": {},
+                "stop": {
+                    "data": {
+                        "id": "1423",
+                        "type": "stop"
+                    }
+                },
+                "trip": {
+                    "data": {
+                        "id": "35827083",
+                        "type": "trip"
+                    }
+                },
+                "vehicle": {
+                    "data": null
+                }
+            },
+            "type": "prediction"
+        },
+        {
+            "attributes": {
+                "arrival_time": "2018-01-17T00:23:59-05:00",
+                "departure_time": "2018-01-17T00:23:59-05:00",
+                "direction_id": 0,
+                "schedule_relationship": null,
+                "status": null,
+                "stop_sequence": 10,
+                "track": null
+            },
+            "id": "prediction-35827083-1424-10",
+            "relationships": {
+                "alerts": {},
+                "route": {
+                    "data": {
+                        "id": "69",
+                        "type": "route"
+                    }
+                },
+                "schedule": {},
+                "stop": {
+                    "data": {
+                        "id": "1424",
+                        "type": "stop"
+                    }
+                },
+                "trip": {
+                    "data": {
+                        "id": "35827083",
+                        "type": "trip"
+                    }
+                },
+                "vehicle": {
+                    "data": null
+                }
+            },
+            "type": "prediction"
+        }
+    ],
+    "included": [
+        {
+            "attributes": {
+                "block_id": "T69-32",
+                "direction_id": 0,
+                "headsign": "Harvard",
+                "name": "",
+                "wheelchair_accessible": 1
+            },
+            "id": "35827082",
+            "links": {
+                "self": "/trips/35827082"
+            },
+            "relationships": {
+                "route": {
+                    "data": {
+                        "id": "69",
+                        "type": "route"
+                    }
+                },
+                "service": {
+                    "data": {
+                        "id": "BUS12018-hbt18011-Weekday-02",
+                        "type": "service"
+                    }
+                },
+                "shape": {
+                    "data": {
+                        "id": "690074",
+                        "type": "shape"
+                    }
+                },
+                "vehicle": {
+                    "data": {
+                        "id": "633",
+                        "type": "vehicle"
+                    }
+                }
+            },
+            "type": "trip"
+        },
+        {
+            "attributes": {
+                "block_id": "T69-32",
+                "direction_id": 0,
+                "headsign": "Harvard",
+                "name": "",
+                "wheelchair_accessible": 1
+            },
+            "id": "35827083",
+            "links": {
+                "self": "/trips/35827083"
+            },
+            "relationships": {
+                "route": {
+                    "data": {
+                        "id": "69",
+                        "type": "route"
+                    }
+                },
+                "service": {
+                    "data": {
+                        "id": "BUS12018-hbt18011-Weekday-02",
+                        "type": "service"
+                    }
+                },
+                "shape": {
+                    "data": {
+                        "id": "690074",
+                        "type": "shape"
+                    }
+                },
+                "vehicle": {
+                    "data": null
+                }
+            },
+            "type": "trip"
+        },
+        {
+            "attributes": {
+                "block_id": "T69-32",
+                "direction_id": 1,
+                "headsign": "Lechmere",
+                "name": "",
+                "wheelchair_accessible": 1
+            },
+            "id": "35827086",
+            "links": {
+                "self": "/trips/35827086"
+            },
+            "relationships": {
+                "route": {
+                    "data": {
+                        "id": "69",
+                        "type": "route"
+                    }
+                },
+                "service": {
+                    "data": {
+                        "id": "BUS12018-hbt18011-Weekday-02",
+                        "type": "service"
+                    }
+                },
+                "shape": {
+                    "data": {
+                        "id": "690078",
+                        "type": "shape"
+                    }
+                },
+                "vehicle": {
+                    "data": null
+                }
+            },
+            "type": "trip"
+        },
+        {
+            "attributes": {
+                "bearing": 99.0,
+                "current_status": "STOPPED_AT",
+                "current_stop_sequence": 1,
+                "direction_id": 0,
+                "label": "633",
+                "last_updated": "2018-01-16T23:40:08-05:00",
+                "latitude": 42.37089157104492,
+                "longitude": -71.07666015625,
+                "speed": null
+            },
+            "id": "633",
+            "links": {
+                "self": "/vehicles/633"
+            },
+            "relationships": {
+                "route": {
+                    "data": {
+                        "id": "69",
+                        "type": "route"
+                    }
+                },
+                "stop": {
+                    "data": {
+                        "id": "14150",
+                        "type": "stop"
+                    }
+                },
+                "trip": {
+                    "data": {
+                        "id": "35827082",
+                        "type": "trip"
+                    }
+                }
+            },
+            "type": "vehicle"
+        }
+    ],
+    "jsonapi": {
+        "version": "1.0"
+    }
+}
