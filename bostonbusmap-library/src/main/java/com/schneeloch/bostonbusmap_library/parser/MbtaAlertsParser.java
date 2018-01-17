@@ -105,18 +105,6 @@ public class MbtaAlertsParser implements IAlertsParser {
                     // and logical OR between EntitySelectors. This is a little
                     // looser than that, but shouldn't cause any harm
 
-                    if (selector.hasTrip() && selector.getTrip().hasTripId()) {
-                        // this is a hack since it relies on the commuter rail
-                        // GTFS trip id having a similar id as the train number
-                        // which isn't true for subway or bus
-
-                        String tripId = selector.getTrip().getTripId();
-                        if (tripId.startsWith("CR-")) {
-                            String[] pieces = tripId.split("-");
-                            commuterRailTripIds.add(pieces[pieces.length - 1]);
-                        }
-                    }
-
                     if (selector.hasStopId()) {
                         String stopId = selector.getStopId();
                         stopsBuilder.add(stopId);
