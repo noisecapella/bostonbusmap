@@ -503,7 +503,7 @@ public class TestAPIV3Parser {
         InputStream hubwayStatusStream = new FileInputStream(new File("./test/resources/station_status.json"));
         InputStream alertsStream = new FileInputStream(new File("./test/resources/alerts.pb"));
         IDownloader downloader = new TestingDownloader(ImmutableMap.of(
-                "https://api-v3.mbta.com/predictions?api_key=109fafba79a848e792e8e7c584f6d1f1&filter[stop]=2515,1408,2525,1422,2514,2524,2516,2523,1423,1406,1421,1409,1424,2517,1405&include=vehicle,trip", apiv3Stream,
+                "https://api-v3.mbta.com/predictions?api_key=109fafba79a848e792e8e7c584f6d1f1&filter[stop]=2231,70071,70072,9070071,2228,24485,24486,2518,2521,21773,97,75,2522,11771,96&include=vehicle,trip", apiv3Stream,
                 "https://gbfs.thehubway.com/gbfs/en/station_information.json", hubwayInfoStream,
                 "https://gbfs.thehubway.com/gbfs/en/station_status.json", hubwayStatusStream,
                 "http://developer.mbta.com/lib/gtrtfs/Alerts/Alerts.pb", alertsStream
@@ -520,14 +520,14 @@ public class TestAPIV3Parser {
         RouteTitles routeTitles = databaseAgent.getRouteTitles();
 
         // east cambridge/inman square
-        double lat =  42.371113;
-        double lon = -71.093937;
+        double lat = 42.362425;
+        double lon = -71.086255;
 
         RouteConfig routeConfig = null;
         locations.refresh(databaseAgent, selection, lat, lon, true, null);
         // watertown square
-        ConcurrentMap<String, StopLocation> group = locations.getAllStopsAtStop("2515");
-        StopLocation stop = group.get("2515");
+        ConcurrentMap<String, StopLocation> group = locations.getAllStopsAtStop("2231");
+        StopLocation stop = group.get("2231");
 
         // prepare
         stop.makeSnippetAndTitle(routeConfig, routeTitles, locations);
