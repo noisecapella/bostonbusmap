@@ -16,12 +16,12 @@ repositories {
 
 dependencies {
     implementation 'com.google.code.gson:gson:+'
-    implementation 'com.android.support:appcompat-v7:+'
-    implementation 'com.google.android.gms:play-services-base:+'
-    implementation 'com.google.android.gms:play-services-location:+'
-    implementation 'com.google.android.gms:play-services-maps:+'
+    implementation 'com.android.support:appcompat-v7:24.2.1'
+    implementation 'com.google.android.gms:play-services-base:9.8.+'
+    implementation 'com.google.android.gms:play-services-location:9.8.+'
+    implementation 'com.google.android.gms:play-services-maps:9.8.+'
     implementation project(':bostonbusmap-library')
-    implementation 'com.android.support:support-v4:+'
+    implementation 'com.android.support:support-v4:24.2.1'
     implementation 'com.google.code.findbugs:jsr305:1.3.9'
 }
 
