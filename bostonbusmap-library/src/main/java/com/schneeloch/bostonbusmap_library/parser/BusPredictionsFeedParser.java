@@ -87,7 +87,7 @@ public class BusPredictionsFeedParser extends DefaultHandler
 
 				if (currentLocation != null)
 				{
-					currentLocation.clearPredictions(currentRoute);
+					currentLocation.clearPredictions(currentRoute.getRouteName());
 				}
 			}
 		}

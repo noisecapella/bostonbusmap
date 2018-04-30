@@ -195,20 +195,20 @@ public class StopLocation implements Location
 		return tag;
 	}
 
-	public void clearPredictions(RouteConfig routeConfig)
+	public void clearPredictions(String routeId)
 	{
 		if (predictions != null)
 		{
-			predictions.clearPredictions(routeConfig != null ? routeConfig.getRouteName() : null);
+			predictions.clearPredictions(routeId);
 		}
 		
 		recentlyUpdated = true;
-        if (routeConfig != null) {
-            if (!everUpdated.contains(routeConfig.getRouteName())) {
+        if (routeId != null) {
+            if (!everUpdated.contains(routeId)) {
                 List<String> everUpdatedCopy = Lists.newArrayList(everUpdated);
                 // Defensive check since we aren't using synchronize here
-                if (!everUpdatedCopy.contains(routeConfig.getRouteName())) {
-                    everUpdatedCopy.add(routeConfig.getRouteName());
+                if (!everUpdatedCopy.contains(routeId)) {
+                    everUpdatedCopy.add(routeId);
                 }
                 everUpdated = ImmutableList.copyOf(everUpdatedCopy);
             }

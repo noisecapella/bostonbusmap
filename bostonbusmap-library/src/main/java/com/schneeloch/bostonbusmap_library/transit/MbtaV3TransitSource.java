@@ -83,7 +83,7 @@ public class MbtaV3TransitSource implements TransitSource {
                         StopLocation stopLocation = (StopLocation) location;
                         for (String route : location.getRoutes()) {
                             Schema.Routes.SourceId sourceId = transitSystem.getSourceId(route);
-                            if (sourceId != Schema.Routes.SourceId.Hubway) {
+                            if (sourceId == Schema.Routes.SourceId.Subway || sourceId == Schema.Routes.SourceId.CommuterRail) {
                                 stopIds.add(stopLocation.getStopTag());
                                 break;
                             }
@@ -157,36 +157,6 @@ public class MbtaV3TransitSource implements TransitSource {
         finally {
             downloadHelper.disconnect();
         }
-    }
-
-    private ImmutableList<RouteStopPair> getStopPairs(List<Location> locations) {
-        ImmutableList.Builder<RouteStopPair> builder = ImmutableList.builder();
-
-        for (Location location : locations)
-        {
-            if (location instanceof StopLocation) {
-                StopLocation stopLocation = (StopLocation) location;
-                boolean matchesBus = false;
-                for (String route : stopLocation.getRoutes()) {
-                    if (transitSystem.getSourceId(route) == Schema.Routes.SourceId.Bus) {
-                        matchesBus = true;
-                        break;
-                    }
-                }
-                if (matchesBus) {
-
-                    for (String stopRoute : stopLocation.getRoutes()) {
-                        RouteStopPair pair = new RouteStopPair(stopRoute, stopLocation.getStopTag());
-                        if (cache.canUpdatePredictionForStop(pair)) {
-                            builder.add(pair);
-                        }
-                    }
-                }
-            }
-        }
-
-        return builder.build();
-
     }
 
     @Override

@@ -24,6 +24,7 @@ import com.schneeloch.bostonbusmap_library.parser.apiv3.ResourceDeserializer;
 import com.schneeloch.bostonbusmap_library.parser.apiv3.Root;
 import com.schneeloch.bostonbusmap_library.parser.apiv3.TripAttributes;
 import com.schneeloch.bostonbusmap_library.parser.apiv3.VehicleAttributes;
+import com.schneeloch.bostonbusmap_library.transit.ITransitSystem;
 import com.schneeloch.bostonbusmap_library.transit.MbtaV3TransitSource;
 import com.schneeloch.bostonbusmap_library.util.LogUtil;
 
@@ -50,7 +51,7 @@ public class MbtaV3PredictionsParser {
         gsonBuilder.registerTypeAdapter(Relationship.class, new RelationshipDeserializer());
         Root root = gsonBuilder.create().fromJson(bufferedReader, Root.class);
 
-        clearPredictions(groups);
+        clearPredictions(groups, routeTitles);
 
         List<PredictionStopLocationPair> predictionPairs = parseTree(routePool, routeTitles, root);
         for (PredictionStopLocationPair pair : predictionPairs) {
@@ -78,12 +79,18 @@ public class MbtaV3PredictionsParser {
         return builder.build();
     }
 
-    private static void clearPredictions(ImmutableList<ImmutableList<Location>> groups) {
+    private static void clearPredictions(ImmutableList<ImmutableList<Location>> groups, RouteTitles routeTitles) {
         for (ImmutableList<Location> group: groups) {
             for (Location location : group) {
                 if (location instanceof StopLocation) {
                     StopLocation stopLocation = (StopLocation)location;
-                    stopLocation.clearPredictions(null);
+                    for (String route : stopLocation.getRoutes()) {
+                        Schema.Routes.SourceId sourceId = routeTitles.getTransitSourceId(route);
+
+                        if (sourceId == Schema.Routes.SourceId.CommuterRail || sourceId == Schema.Routes.SourceId.Subway) {
+                            stopLocation.clearPredictions(route);
+                        }
+                    }
                 }
             }
         }
