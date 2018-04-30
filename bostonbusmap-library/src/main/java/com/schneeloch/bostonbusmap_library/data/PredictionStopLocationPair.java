@@ -8,6 +8,12 @@ public class PredictionStopLocationPair {
     public final StopLocation stopLocation;
 
     public PredictionStopLocationPair(IPrediction prediction, StopLocation stopLocation) {
+        if (prediction == null) {
+            throw new IllegalArgumentException();
+        }
+        if (stopLocation == null) {
+            throw new IllegalArgumentException();
+        }
         this.prediction = prediction;
         this.stopLocation = stopLocation;
     }

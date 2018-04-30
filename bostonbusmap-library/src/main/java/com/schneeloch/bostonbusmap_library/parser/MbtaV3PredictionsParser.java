@@ -138,6 +138,10 @@ public class MbtaV3PredictionsParser {
             String vehicleId = relationships.vehicle != null ? relationships.vehicle.id : null;
             String tripId = relationships.trip != null ? relationships.trip.id : null;
             StopLocation location = routePool.get(routeId).getStop(stopId);
+            if (location == null) {
+                LogUtil.w("Unable to find stop " + stopId + " in pool");
+                continue;
+            }
 
             long arrivalTimeMillis, departureTimeMillis;
             if (attributes.arrival_time != null) {

@@ -12,6 +12,7 @@ import com.schneeloch.bostonbusmap_library.database.Schema;
 import com.schneeloch.bostonbusmap_library.math.Geometry;
 import com.schneeloch.bostonbusmap_library.transit.ITransitSystem;
 import com.schneeloch.bostonbusmap_library.util.Now;
+import com.schneeloch.bostonbusmap_library.util.StringUtil;
 
 import java.util.Collection;
 
@@ -43,6 +44,11 @@ public class BusLocation implements Location {
 	 */
 	public final String busId;
 
+	/**
+	 * What is shown to the user
+	 */
+	public final String label;
+
 	protected final String routeName;
 
 	/**
@@ -65,7 +71,7 @@ public class BusLocation implements Location {
 	
 	private static final int LOCATIONTYPE = 1;
 
-	public BusLocation(float latitude, float longitude, String id,
+	public BusLocation(float latitude, float longitude, String id, String label,
 					   long lastFeedUpdateInMillis, Optional<Integer> heading,
 					   String routeName, String headsign, Schema.Routes.SourceId sourceId) {
 		this.latitude = (float) (latitude * Geometry.degreesToRadians);
@@ -73,6 +79,7 @@ public class BusLocation implements Location {
 		this.latitudeAsDegrees = latitude;
 		this.longitudeAsDegrees = longitude;
 		this.busId = id;
+		this.label = label;
 		this.lastFeedUpdateInMillis = lastFeedUpdateInMillis;
         if (heading == null) {
             throw new RuntimeException("heading must not be null");
@@ -155,12 +162,13 @@ public class BusLocation implements Location {
 
 	protected String getBusNumberMessage()
 	{
+		String label = !StringUtil.isEmpty(this.label) ? this.label : busId;
 		if (getVehicleSourceId() == Schema.Routes.SourceId.CommuterRail) {
-			return "Trip: " + busId + "<br />";
+			return "Trip: " + label + "<br />";
 		} else if (getVehicleSourceId() == Schema.Routes.SourceId.Subway) {
-			return "Train number: " + busId + "<br />";
+			return "Train number: " + label + "<br />";
 		} else {
-			return "Bus number: " + busId + "<br />";
+			return "Bus number: " + label + "<br />";
 		}
 	}
 

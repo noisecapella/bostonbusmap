@@ -67,6 +67,7 @@ public class MbtaV3VehiclesParser {
                 LogUtil.w("Missing attributes in vehicle " + id);
                 continue;
             }
+            String label = attributes.label;
 
             Relationships relationships = resource.relationships;
             if (relationships == null) {
@@ -102,6 +103,7 @@ public class MbtaV3VehiclesParser {
                     attributes.latitude,
                     attributes.longitude,
                     id,
+                    label,
                     attributes.last_updated.millis,
                     Optional.of((int) attributes.bearing),
                     routeId,

@@ -91,7 +91,7 @@ public class VehicleLocationsFeedParser extends DefaultHandler
 
                 long lastFeedUpdate = Now.getMillis() - (seconds * 1000);
 
-                BusLocation newBusLocation = new BusLocation(lat, lon, id, lastFeedUpdate,
+                BusLocation newBusLocation = new BusLocation(lat, lon, id, id, lastFeedUpdate,
                         heading, route, directions.getTitleAndName(dirTag), Schema.Routes.SourceId.Bus);
 
                 VehicleLocations.Key key = new VehicleLocations.Key(Schema.Routes.SourceId.Bus, route, id);

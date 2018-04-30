@@ -507,26 +507,30 @@ public class MapManager implements OnMapClickListener, OnMarkerClickListener,
                     PredictionView predictionView = stopLocation.getPredictions().getPredictionView();
                     if (predictionView instanceof StopPredictionView) {
                         final StopPredictionView stopPredictionView = (StopPredictionView) predictionView;
-                        vehiclesButton.setVisibility(View.VISIBLE);
+                        final Set<String> vehiclesUsed = Sets.newHashSet();
+                        final List<Pair<String, TimePrediction>> vehicleIds = Lists.newArrayList();
+
+                        for (IPrediction prediction : stopPredictionView.getPredictions()) {
+                            if (prediction instanceof TimePrediction) {
+                                TimePrediction timePrediction = (TimePrediction) prediction;
+                                String vehicleId = timePrediction.getVehicleId();
+                                if (vehicleId != null && !prediction.isInvalid()) {
+                                    if (!vehiclesUsed.contains(vehicleId)) {
+                                        vehicleIds.add(new Pair<>(vehicleId, timePrediction));
+                                        vehiclesUsed.add(vehicleId);
+                                    }
+                                }
+                            }
+                        }
+                        if (vehicleIds.size() > 0) {
+                            vehiclesButton.setVisibility(View.VISIBLE);
+                        } else {
+                            vehiclesButton.setVisibility(View.GONE);
+                        }
 
                         vehiclesButton.setOnClickListener(new View.OnClickListener() {
                             @Override
                             public void onClick(View v) {
-                                final Set<String> vehiclesUsed = Sets.newHashSet();
-                                final List<Pair<String, TimePrediction>> vehicleIds = Lists.newArrayList();
-
-                                for (IPrediction prediction : stopPredictionView.getPredictions()) {
-                                    if (prediction instanceof TimePrediction) {
-                                        TimePrediction timePrediction = (TimePrediction) prediction;
-                                        String vehicleId = timePrediction.getVehicleId();
-                                        if (vehicleId != null && !prediction.isInvalid()) {
-                                            if (!vehiclesUsed.contains(vehicleId)) {
-                                                vehicleIds.add(new Pair<>(vehicleId, timePrediction));
-                                                vehiclesUsed.add(vehicleId);
-                                            }
-                                        }
-                                    }
-                                }
 
                                 AlertDialog.Builder builder = new AlertDialog.Builder(context);
                                 builder.setTitle(context.getString(R.string.chooseVehicleInBuilder));
