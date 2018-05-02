@@ -32,7 +32,7 @@ public class TimestampDeserializer implements JsonDeserializer<Timestamp> {
 
         String timestampString = json.getAsString();
         try {
-            DateFormat format = new SimpleDateFormat(Constants.ISO8601, Locale.getDefault());
+            DateFormat format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ", Locale.getDefault());
             return new Timestamp(format.parse(timestampString).getTime());
         } catch (ParseException e) {
             throw new JsonParseException(e);
