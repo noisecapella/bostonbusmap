@@ -2,6 +2,7 @@ package com.schneeloch.bostonbusmap_library.transit;
 
 import com.google.common.base.Joiner;
 import com.google.common.base.Optional;
+import com.google.common.collect.BiMap;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.schneeloch.bostonbusmap_library.data.BusLocation;
@@ -98,7 +99,10 @@ public class MbtaV3TransitSource implements TransitSource {
                 break;
             }
             case VEHICLE_LOCATIONS_ONE: {
-                String url = dataUrlPrefix + "/vehicles?api_key=" + apiKey + "&filter[route]=" + routeConfig.getRouteName() + "&include=trip";
+                String routeName = routeConfig.getRouteName();
+                List<String> routeIds = MbtaV3TransitSource.getV3Routes(routeName);
+
+                String url = dataUrlPrefix + "/vehicles?api_key=" + apiKey + "&filter[route]=" + Joiner.on(",").join(routeIds) + "&include=trip";
                 downloadHelper = downloader.create(url);
                 break;
             }
@@ -182,6 +186,19 @@ public class MbtaV3TransitSource implements TransitSource {
     @Override
     public IAlerts getAlerts() {
         return transitSystem.getAlerts();
+    }
+
+    private static final List<String> getV3Routes(String routeId) {
+        if (routeId.equals("Green")) {
+            return ImmutableList.of(
+                "Green-B",
+                "Green-C",
+                "Green-D",
+                "Green-E"
+            );
+        } else {
+            return ImmutableList.of(routeId);
+        }
     }
 
     public static String translateRoute(String routeId) {
