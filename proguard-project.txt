@@ -62,6 +62,9 @@
 -dontobfuscate
 -dontwarn
 -dontwarn javax.naming.**
+-dontwarn javax.annotation.**
+-dontwarn javax.inject.**
+-dontwarn sun.misc.Unsafe
 #-libraryjars libs/guava-13.0.1.jar
 #-injars libs/guava-13.0.1.jar
 #-libraryjars libs/jsr305-2.0.1.jar
@@ -71,3 +74,4 @@
 -dontwarn com.actionbarsherlock.internal.**
 -keep class com.actionbarsherlock.** {*;}
 -keep class org.apache.http.** {*;}
+-dontwarn javax.lang.**
