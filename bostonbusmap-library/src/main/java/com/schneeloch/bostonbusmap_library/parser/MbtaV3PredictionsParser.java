@@ -38,6 +38,8 @@ import java.util.Map;
 
 import javax.xml.transform.Source;
 
+import static com.schneeloch.bostonbusmap_library.parser.MbtaV3VehiclesParser.parseVehicleLabel;
+
 /**
  * Created by schneg on 12/15/17.
  */
@@ -87,7 +89,7 @@ public class MbtaV3PredictionsParser {
                     for (String route : stopLocation.getRoutes()) {
                         Schema.Routes.SourceId sourceId = routeTitles.getTransitSourceId(route);
 
-                        if (sourceId == Schema.Routes.SourceId.CommuterRail || sourceId == Schema.Routes.SourceId.Subway) {
+                        if (sourceId == Schema.Routes.SourceId.CommuterRail || sourceId == Schema.Routes.SourceId.Subway || sourceId == Schema.Routes.SourceId.Bus) {
                             stopLocation.clearPredictions(route);
                         }
                     }
@@ -185,7 +187,7 @@ public class MbtaV3PredictionsParser {
             String vehicleLabel = vehicleId;
             VehicleAttributes vehicleAttributes = vehicles.get(vehicleId);
             if (vehicleAttributes != null) {
-                vehicleLabel = vehicleAttributes.label;
+                vehicleLabel = parseVehicleLabel(vehicleAttributes.label);
             }
 
             TimePrediction prediction = new TimePrediction(

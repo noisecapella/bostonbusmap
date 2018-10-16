@@ -140,7 +140,7 @@ public class TransitSystem implements ITransitSystem {
 			TransitSourceTitles busTransitRoutes = routeTitles.getMappingForSource(Schema.Routes.SourceId.Bus);
 			TransitSourceTitles hubwayTransitRoutes = routeTitles.getMappingForSource(Schema.Routes.SourceId.Hubway);
 
-			defaultTransitSource = new BusTransitSource(this, busDrawables, busTransitRoutes, routeTitles, downloader);
+			defaultTransitSource = new MbtaV3TransitSource( busDrawables, busTransitRoutes, this, downloader);
 
 			ImmutableMap.Builder<String, TransitSource> mapBuilder = ImmutableMap.builder();
 			MbtaV3TransitSource subwayTransitSource = new MbtaV3TransitSource(
@@ -397,7 +397,7 @@ public class TransitSystem implements ITransitSystem {
 		} else if (routeType == Schema.Routes.SourceId.CommuterRail) {
 			return "Commuter Rail";
 		} else if (routeType == Schema.Routes.SourceId.Hubway) {
-			return "Hubway";
+			return "Bluebikes";
 		} else {
 			return "Transit";
 		}

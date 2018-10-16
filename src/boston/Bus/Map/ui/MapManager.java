@@ -335,6 +335,7 @@ public class MapManager implements OnMapClickListener, OnMarkerClickListener,
                             try {
                                 TimeBounds[] bounds = new TimeBounds[predictionView.getRouteTitles().length];
                                 int i = 0;
+
                                 for (String routeTitle : predictionView.getRouteTitles()) {
                                     String routeKey = routeKeysToTitles.getKey(routeTitle);
                                     bounds[i] = locations.getRoute(routeKey).getTimeBounds();

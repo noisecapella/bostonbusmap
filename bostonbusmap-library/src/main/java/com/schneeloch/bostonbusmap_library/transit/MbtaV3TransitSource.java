@@ -83,8 +83,12 @@ public class MbtaV3TransitSource implements TransitSource {
                         }
                         StopLocation stopLocation = (StopLocation) location;
                         for (String route : location.getRoutes()) {
+                            if (!routeTitles.hasRoute(route)) {
+                                continue;
+                            }
+
                             Schema.Routes.SourceId sourceId = transitSystem.getSourceId(route);
-                            if (sourceId == Schema.Routes.SourceId.Subway || sourceId == Schema.Routes.SourceId.CommuterRail) {
+                            if (sourceId == Schema.Routes.SourceId.Subway || sourceId == Schema.Routes.SourceId.CommuterRail || sourceId == Schema.Routes.SourceId.Bus) {
                                 stopIds.add(stopLocation.getStopTag());
                                 break;
                             }
@@ -93,6 +97,9 @@ public class MbtaV3TransitSource implements TransitSource {
                 }
 
                 //ok, do predictions now
+                if (stopIds.size() == 0) {
+                    return;
+                }
 
                 String url = dataUrlPrefix + "/predictions?api_key=" + apiKey + "&filter[stop]=" + Joiner.on(",").join(stopIds) + "&include=vehicle,trip";
                 downloadHelper = downloader.create(url);

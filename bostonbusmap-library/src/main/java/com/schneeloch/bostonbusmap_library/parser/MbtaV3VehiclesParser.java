@@ -33,6 +33,13 @@ import javax.xml.transform.Source;
  */
 
 public class MbtaV3VehiclesParser {
+    public static String parseVehicleLabel(String label) {
+        if (label.startsWith("y")) {
+            return label.substring(1);
+        }
+        return label;
+    }
+
     public static Map<VehicleLocations.Key, BusLocation> runParse(InputStream data, RouteTitles routeTitles) {
         BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(data), 2048);
         GsonBuilder gsonBuilder = new GsonBuilder();
@@ -67,7 +74,7 @@ public class MbtaV3VehiclesParser {
                 LogUtil.w("Missing attributes in vehicle " + id);
                 continue;
             }
-            String label = attributes.label;
+            String label = parseVehicleLabel(attributes.label);
 
             Relationships relationships = resource.relationships;
             if (relationships == null) {
