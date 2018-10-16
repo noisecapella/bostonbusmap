@@ -137,20 +137,13 @@ public class TransitSystem implements ITransitSystem {
 		{
 			routeTitles = databaseAgent.getRouteTitles();
 
-			TransitSourceTitles busTransitRoutes = routeTitles.getMappingForSource(Schema.Routes.SourceId.Bus);
 			TransitSourceTitles hubwayTransitRoutes = routeTitles.getMappingForSource(Schema.Routes.SourceId.Hubway);
 
-			defaultTransitSource = new MbtaV3TransitSource( busDrawables, busTransitRoutes, this, downloader);
+			defaultTransitSource = new MbtaV3TransitSource( busDrawables, subwayDrawables, routeTitles.getMappingForSources(
+					new Schema.Routes.SourceId[]{Schema.Routes.SourceId.Subway, Schema.Routes.SourceId.CommuterRail, Schema.Routes.SourceId.Bus}),
+					this, downloader);
 
 			ImmutableMap.Builder<String, TransitSource> mapBuilder = ImmutableMap.builder();
-			MbtaV3TransitSource subwayTransitSource = new MbtaV3TransitSource(
-					subwayDrawables,
-					routeTitles.getMappingForSources(
-							new Schema.Routes.SourceId[]{Schema.Routes.SourceId.Subway, Schema.Routes.SourceId.CommuterRail}),
-					this, downloader);
-			for (String route : subwayTransitSource.getRouteTitles().routeTags()) {
-				mapBuilder.put(route, subwayTransitSource);
-			}
 
 			HubwayTransitSource hubwayTransitSource = new HubwayTransitSource(hubwayDrawables, hubwayTransitRoutes,
 					this, downloader);
@@ -160,7 +153,7 @@ public class TransitSystem implements ITransitSystem {
 			}
 			transitSourceMap = mapBuilder.build();
 
-			transitSources = ImmutableList.of(subwayTransitSource,
+			transitSources = ImmutableList.of(
 					defaultTransitSource, hubwayTransitSource);
 
 		}
@@ -408,7 +401,8 @@ public class TransitSystem implements ITransitSystem {
 		// this assumes that all routes for a given stop share the same set of drawables
 		String route = location.getRoutes().iterator().next();
 		TransitSource source = getTransitSource(route);
-		return source.getDrawables();
+		Schema.Routes.SourceId sourceId = routeTitles.getTransitSourceId(route);
+		return source.getDrawables(sourceId);
 	}
 
 	@Override

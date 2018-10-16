@@ -32,7 +32,7 @@ public interface TransitSource {
 
 	String searchForRoute(String indexingQuery, String lowercaseQuery);
 
-	ITransitDrawables getDrawables();
+	ITransitDrawables getDrawables(Schema.Routes.SourceId sourceId);
 
 	TransitSourceTitles getRouteTitles();
 

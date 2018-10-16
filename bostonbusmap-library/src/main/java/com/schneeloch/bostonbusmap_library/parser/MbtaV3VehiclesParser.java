@@ -34,7 +34,7 @@ import javax.xml.transform.Source;
 
 public class MbtaV3VehiclesParser {
     public static String parseVehicleLabel(String label) {
-        if (label.startsWith("y")) {
+        if (label != null && label.startsWith("y")) {
             return label.substring(1);
         }
         return label;

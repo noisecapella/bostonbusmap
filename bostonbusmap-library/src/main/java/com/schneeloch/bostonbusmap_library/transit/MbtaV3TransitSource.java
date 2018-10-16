@@ -42,18 +42,21 @@ import javax.xml.parsers.ParserConfigurationException;
 
 public class MbtaV3TransitSource implements TransitSource {
     private final TransitSourceCache cache;
-    private final ITransitDrawables drawables;
+    private final ITransitDrawables busDrawables;
+    private final ITransitDrawables subwayDrawables;
     private final TransitSourceTitles routeTitles;
     private final ITransitSystem transitSystem;
     private final IDownloader downloader;
     public static final String apiKey = "109fafba79a848e792e8e7c584f6d1f1";
     public static final String dataUrlPrefix = "https://api-v3.mbta.com";
 
-    public MbtaV3TransitSource(ITransitDrawables drawables,
+    public MbtaV3TransitSource(ITransitDrawables busDrawables,
+                               ITransitDrawables subwayDrawables,
                                TransitSourceTitles routeTitles,
                                ITransitSystem transitSystem,
                                IDownloader downloader) {
-        this.drawables = drawables;
+        this.busDrawables = busDrawables;
+        this.subwayDrawables = subwayDrawables;
         this.routeTitles = routeTitles;
         this.transitSystem = transitSystem;
         this.downloader = downloader;
@@ -181,8 +184,12 @@ public class MbtaV3TransitSource implements TransitSource {
     }
 
     @Override
-    public ITransitDrawables getDrawables() {
-        return drawables;
+    public ITransitDrawables getDrawables(Schema.Routes.SourceId sourceId) {
+        if (sourceId == Schema.Routes.SourceId.Bus) {
+            return busDrawables;
+        } else {
+            return subwayDrawables;
+        }
     }
 
     @Override

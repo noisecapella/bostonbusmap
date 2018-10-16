@@ -122,7 +122,7 @@ public class HubwayTransitSource implements TransitSource {
 	}
 
 	@Override
-	public ITransitDrawables getDrawables() {
+	public ITransitDrawables getDrawables(Schema.Routes.SourceId sourceId) {
 		return drawables;
 	}
 
