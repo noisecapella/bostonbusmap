@@ -4,8 +4,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Map;
 
-import javax.xml.parsers.ParserConfigurationException;
-
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
@@ -34,7 +32,7 @@ public class VehicleLocationsFeedParser extends DefaultHandler
 	}
 	
 	public void runParse(InputStream data)
-		throws SAXException, ParserConfigurationException, IOException
+		throws SAXException, IOException
 	{
 		android.util.Xml.parse(data, Encoding.UTF_8, this);
 		data.close();

@@ -1,6 +1,5 @@
 package com.schneeloch.bostonbusmap_library.transit;
 
-import java.io.IOException;
 import java.text.DateFormat;
 import java.util.List;
 import java.util.TimeZone;
@@ -15,6 +14,7 @@ import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.Source;
 
 import org.xml.sax.SAXException;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
@@ -175,12 +175,12 @@ public class TransitSystem implements ITransitSystem {
 
 	@Override
 	public void refreshData(final RouteConfig routeConfig,
-                            final Selection selection, final int maxStops, final double centerLatitude,
-                            final double centerLongitude, final VehicleLocations busMapping,
-                            final RoutePool routePool,
-                            final Directions directions, final Locations locations) throws IOException, ParserConfigurationException, SAXException {
-        List<Thread> threads = Lists.newArrayList();
-        final ConcurrentHashMap<String, Exception> exceptions = new ConcurrentHashMap<>();
+							final Selection selection, final int maxStops, final double centerLatitude,
+							final double centerLongitude, final VehicleLocations busMapping,
+							final RoutePool routePool,
+							final Directions directions, final Locations locations) {
+		List<Thread> threads = Lists.newArrayList();
+		final CopyOnWriteArrayList<Exception> exceptions = new CopyOnWriteArrayList<>();
 
 		for (final TransitSource source : transitSources)
 		{
@@ -191,7 +191,7 @@ public class TransitSystem implements ITransitSystem {
                         source.refreshData(routeConfig, selection, maxStops, centerLatitude,
                                 centerLongitude, busMapping, routePool, directions, locations);
                     } catch (Exception e) {
-                        exceptions.put(source.getDescription(), e);
+                        exceptions.add(e);
                     }
                 }
             });

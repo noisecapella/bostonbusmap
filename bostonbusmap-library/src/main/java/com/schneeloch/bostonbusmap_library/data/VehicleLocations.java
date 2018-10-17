@@ -6,12 +6,10 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 import com.google.common.base.Objects;
-import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
 import com.schneeloch.bostonbusmap_library.database.Schema;
 
-import javax.xml.transform.Source;
 
 public class VehicleLocations {
     public static class Key {
