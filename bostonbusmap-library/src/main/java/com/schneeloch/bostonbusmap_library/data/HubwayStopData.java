@@ -10,12 +10,12 @@ public class HubwayStopData {
     public final float latitude;
     public final float longitude;
     public final String name;
-    public final String numberBikes;
-    public final String numberEmptyDocks;
+    public final int numberBikes;
+    public final int numberEmptyDocks;
     public final boolean locked;
     public final boolean installed;
 
-    public HubwayStopData(String tag, String id, float latitude, float longitude, String name, String numberBikes, String numberEmptyDocks, boolean locked, boolean installed) {
+    public HubwayStopData(String tag, String id, float latitude, float longitude, String name, int numberBikes, int numberEmptyDocks, boolean locked, boolean installed) {
         this.tag = tag;
         this.id = id;
         this.latitude = latitude;

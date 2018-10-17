@@ -12,9 +12,11 @@ import com.google.common.collect.ImmutableMap;
 import com.schneeloch.bostonbusmap_library.data.ITransitDrawables;
 import com.schneeloch.bostonbusmap_library.data.Location;
 import com.schneeloch.bostonbusmap_library.data.LocationType;
+import com.schneeloch.bostonbusmap_library.data.StopLocation;
 import com.schneeloch.bostonbusmap_library.database.Schema;
 import com.schneeloch.bostonbusmap_library.transit.TransitSystem;
 
+import boston.Bus.Map.ui.BikeShareDrawablesLookup;
 import boston.Bus.Map.ui.BusDrawablesLookup;
 
 /**
@@ -53,6 +55,18 @@ public class TransitDrawables implements ITransitDrawables {
             }
         }
         else if (locationType == LocationType.Stop) {
+            boolean isHubway = false;
+            for (String route : location.getRoutes()) {
+                if (sourceIdMap.get(route) == Schema.Routes.SourceId.Hubway) {
+                    isHubway = true;
+                    break;
+                }
+            }
+
+            if (isHubway) {
+                return BikeShareDrawablesLookup.getDrawable((StopLocation)location, isSelected, isUpdated);
+            }
+
             if (isSelected) {
                 if (isUpdated) {
                     return stopUpdatedSelected;

@@ -4,13 +4,9 @@ import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 
-import org.xml.sax.Attributes;
-import org.xml.sax.SAXException;
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.Reader;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -20,7 +16,7 @@ import com.schneeloch.bostonbusmap_library.data.HubwayStopData;
 import com.schneeloch.bostonbusmap_library.data.Locations;
 import com.schneeloch.bostonbusmap_library.data.PredictionStopLocationPair;
 import com.schneeloch.bostonbusmap_library.data.RouteConfig;
-import com.schneeloch.bostonbusmap_library.data.SimplePrediction;
+import com.schneeloch.bostonbusmap_library.data.BikeSharePrediction;
 import com.schneeloch.bostonbusmap_library.data.StopLocation;
 import com.schneeloch.bostonbusmap_library.parser.gson.stationInfo.InfoRoot;
 import com.schneeloch.bostonbusmap_library.parser.gson.stationInfo.InfoStation;
@@ -59,7 +55,7 @@ public class HubwayParser {
 				boolean locked = !(statusStation.is_renting == 1 && statusStation.is_returning == 1);
 				HubwayStopData data = new HubwayStopData(
 						tag, String.valueOf(statusStation.station_id), infoStation.lat, infoStation.lon, infoStation.name,
-						String.valueOf(statusStation.num_bikes_available), String.valueOf(statusStation.num_docks_available), locked, installed
+						statusStation.num_bikes_available, statusStation.num_docks_available, locked, installed
 				);
 				hubwayStopData.add(data);
 			}
@@ -91,9 +87,8 @@ public class HubwayParser {
             StopLocation stop = routeConfig.getStop(data.tag);
 
             if (stop != null && data.name.equals(stop.getTitle())) {
-                String text = makeText(data.numberBikes, data.numberEmptyDocks, data.locked, data.installed);
-                SimplePrediction prediction = new SimplePrediction(routeConfig.getRouteName(),
-                        routeConfig.getRouteTitle(), text);
+                BikeSharePrediction prediction = new BikeSharePrediction(routeConfig.getRouteName(),
+                        routeConfig.getRouteTitle(), data.numberBikes, data.numberEmptyDocks, data.locked, data.installed);
 
 
                 PredictionStopLocationPair pair = new PredictionStopLocationPair(prediction, stop);
@@ -103,19 +98,4 @@ public class HubwayParser {
 
         return pairs;
     }
-
-	private static String makeText(String numberBikes, String numberEmptyDocks, boolean locked, boolean installed) {
-		StringBuilder ret = new StringBuilder();
-
-		ret.append("Bikes: ").append(numberBikes).append("<br />");
-		ret.append("Empty Docks: ").append(numberEmptyDocks).append("<br />");
-		if (locked) {
-			ret.append("<b>Locked</b><br />");
-		}
-		if (!installed) {
-			ret.append("<b>Not installed</b><br />");
-		}
-
-		return ret.toString();
-	}
 }

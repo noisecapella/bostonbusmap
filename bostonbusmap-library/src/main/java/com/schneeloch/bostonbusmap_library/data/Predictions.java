@@ -128,6 +128,12 @@ public class Predictions
 		
 	}
 
+	public SortedSet<IPrediction> getPredictionsCopy() {
+		synchronized (modificationLock) {
+			return Sets.newTreeSet(predictions);
+		}
+	}
+
 	public void addPredictionIfNotExists(IPrediction prediction)
 	{
 		synchronized (modificationLock) {
