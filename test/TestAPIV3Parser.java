@@ -53,8 +53,6 @@ import java.util.Locale;
 import java.util.concurrent.ConcurrentMap;
 import java.util.zip.GZIPInputStream;
 
-import javax.xml.parsers.ParserConfigurationException;
-
 import boston.Bus.Map.BuildConfig;
 
 import static junit.framework.Assert.assertEquals;
