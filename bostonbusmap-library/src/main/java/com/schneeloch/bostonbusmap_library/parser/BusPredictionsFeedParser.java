@@ -5,7 +5,6 @@ import java.io.InputStream;
 import java.util.Map;
 
 
-import javax.xml.parsers.ParserConfigurationException;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
@@ -57,7 +56,7 @@ public class BusPredictionsFeedParser extends DefaultHandler
 		this.currentTimeMillis = Now.getMillis();
 	}
 
-	public void runParse(InputStream data) throws ParserConfigurationException, SAXException, IOException
+	public void runParse(InputStream data) throws SAXException, IOException
 	{
 		android.util.Xml.parse(data, Encoding.UTF_8, this);
 		data.close();

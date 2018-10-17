@@ -4,9 +4,6 @@ import java.io.IOException;
 import java.net.SocketException;
 import java.net.SocketTimeoutException;
 
-import javax.xml.parsers.FactoryConfigurationError;
-import javax.xml.parsers.ParserConfigurationException;
-
 import org.xml.sax.SAXException;
 
 import com.google.android.gms.maps.model.LatLng;
@@ -74,19 +71,7 @@ public class RefreshAsyncTask extends UpdateAsyncTask
 			publish(new ProgressMessage(ProgressMessage.TOAST, null, "XML number parsing exception; cannot update. Maybe there was a hiccup in the feed?"));
 
 			LogUtil.e(e);
-			
-			return false;
-		} catch (ParserConfigurationException e) {
-			publish(new ProgressMessage(ProgressMessage.TOAST, null, "XML parser configuration exception; cannot update"));
 
-			LogUtil.e(e);
-			
-			return false;
-		} catch (FactoryConfigurationError e) {
-			publish(new ProgressMessage(ProgressMessage.TOAST, null, "XML parser factory configuration exception; cannot update"));
-
-			LogUtil.e(e);
-			
 			return false;
 		}
         catch (FeedException e) {

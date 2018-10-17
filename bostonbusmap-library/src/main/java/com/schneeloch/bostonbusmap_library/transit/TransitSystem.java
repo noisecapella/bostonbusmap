@@ -1,22 +1,10 @@
 package com.schneeloch.bostonbusmap_library.transit;
 
-import java.io.IOException;
 import java.text.DateFormat;
 import java.util.Collection;
 import java.util.List;
 import java.util.TimeZone;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.FutureTask;
-
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.transform.Source;
-
-import org.xml.sax.SAXException;
 
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
@@ -200,7 +188,7 @@ public class TransitSystem implements ITransitSystem {
 							final Selection selection, final int maxStops, final double centerLatitude,
 							final double centerLongitude, final VehicleLocations busMapping,
 							final RoutePool routePool,
-							final Directions directions, final Locations locations) throws IOException, ParserConfigurationException, SAXException {
+							final Directions directions, final Locations locations) {
 		List<Thread> threads = Lists.newArrayList();
 		final CopyOnWriteArrayList<Exception> exceptions = new CopyOnWriteArrayList<>();
 
@@ -241,7 +229,7 @@ public class TransitSystem implements ITransitSystem {
 	private static final TimeZone bostonTimeZone = TimeZone.getTimeZone("America/New_York");
 	private static final boolean defaultAllRoutesBlue = false;
 
-	public static final String ALERTS_URL = "http://developer.mbta.com/lib/gtrtfs/Alerts/Alerts.pb";
+	public static final String ALERTS_URL = "https://cdn.mbta.com/realtime/Alerts.pb";
 
 	private static DateFormat defaultTimeFormat;
 	private static DateFormat defaultDateFormat;

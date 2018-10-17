@@ -27,9 +27,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentMap;
 
-import javax.xml.parsers.FactoryConfigurationError;
-import javax.xml.parsers.ParserConfigurationException;
-
 import org.xml.sax.SAXException;
 
 import com.google.common.collect.ImmutableList;
@@ -91,16 +88,14 @@ public final class Locations
 	 * 
 	 * @throws SAXException
 	 * @throws IOException
-	 * @throws ParserConfigurationException
-	 * @throws FactoryConfigurationError
-	 * @throws OperationApplicationException 
+	 * @throws OperationApplicationException
 	 * @throws RemoteException 
 	 * @throws FeedException 
 	 */
 	public void refresh(IDatabaseAgent databaseAgent, Selection selection,
 			double centerLatitude, double centerLongitude,
 			boolean showRoute, Runnable refreshRunnable) throws SAXException, IOException,
-			ParserConfigurationException, FactoryConfigurationError, RemoteException, OperationApplicationException 
+			RemoteException, OperationApplicationException
 	{
 		final int maxStops = 15;
 

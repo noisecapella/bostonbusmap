@@ -11,8 +11,6 @@ import java.io.InputStreamReader;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 
-import javax.xml.parsers.ParserConfigurationException;
-
 import com.schneeloch.bostonbusmap_library.data.BusLocation;
 import com.schneeloch.bostonbusmap_library.data.Directions;
 import com.schneeloch.bostonbusmap_library.data.IAlerts;
@@ -64,7 +62,7 @@ public class HubwayTransitSource implements TransitSource {
 							int maxStops, double centerLatitude, double centerLongitude,
 							VehicleLocations busMapping,
 							RoutePool routePool, Directions directions,
-							Locations locationsObj) throws IOException, ParserConfigurationException, SAXException {
+							Locations locationsObj) throws IOException {
 		Selection.Mode mode = selection.getMode();
 
         switch (mode) {

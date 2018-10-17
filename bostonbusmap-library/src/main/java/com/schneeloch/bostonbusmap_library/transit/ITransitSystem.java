@@ -4,8 +4,6 @@ import java.io.IOException;
 import java.util.Collection;
 import java.util.List;
 
-import javax.xml.parsers.ParserConfigurationException;
-
 import org.xml.sax.SAXException;
 
 import com.google.common.base.Optional;
@@ -45,7 +43,7 @@ public interface ITransitSystem {
 			double centerLongitude,
 			VehicleLocations busMapping,
 			RoutePool routePool, Directions directions, Locations locations)
-			throws IOException, ParserConfigurationException, SAXException;
+			throws IOException, SAXException;
 
 	public abstract String searchForRoute(String indexingQuery,
 			String lowercaseQuery);

@@ -7,8 +7,6 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
-import javax.xml.parsers.ParserConfigurationException;
-
 import org.xml.sax.SAXException;
 
 import com.google.common.base.Optional;
@@ -87,7 +85,7 @@ public abstract class NextBusTransitSource implements TransitSource
 	public void refreshData(RouteConfig routeConfig, Selection selection, int maxStops,
 			double centerLatitude, double centerLongitude, VehicleLocations busMapping, 
 			RoutePool routePool, Directions directions, Locations locationsObj)
-	throws IOException, ParserConfigurationException, SAXException {
+	throws IOException, SAXException {
         //read data from the URL
         ITransitSystem transitSystem = locationsObj.getTransitSystem();
         IDownloadHelper downloadHelper;

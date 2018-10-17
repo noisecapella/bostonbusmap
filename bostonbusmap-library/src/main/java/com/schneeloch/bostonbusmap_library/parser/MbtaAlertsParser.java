@@ -26,9 +26,7 @@ import com.schneeloch.bostonbusmap_library.data.StopLocation;
 import com.schneeloch.bostonbusmap_library.database.Schema;
 import com.schneeloch.bostonbusmap_library.provider.IDatabaseAgent;
 import com.schneeloch.bostonbusmap_library.transit.ITransitSystem;
-import com.schneeloch.bostonbusmap_library.transit.TransitSource;
 import com.schneeloch.bostonbusmap_library.transit.TransitSystem;
-import com.schneeloch.bostonbusmap_library.util.Downloader;
 import com.schneeloch.bostonbusmap_library.util.IDownloadHelper;
 import com.schneeloch.bostonbusmap_library.util.IDownloader;
 

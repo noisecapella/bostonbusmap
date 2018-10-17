@@ -26,15 +26,11 @@ import com.schneeloch.bostonbusmap_library.util.IDownloadHelper;
 import com.schneeloch.bostonbusmap_library.util.IDownloader;
 import com.schneeloch.bostonbusmap_library.util.SearchHelper;
 
-import org.xml.sax.SAXException;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.text.ParseException;
 import java.util.List;
 import java.util.Map;
-
-import javax.xml.parsers.ParserConfigurationException;
 
 /**
  * Created by schneg on 12/14/17.
@@ -65,7 +61,7 @@ public class MbtaV3TransitSource implements TransitSource {
 
 
     @Override
-    public void refreshData(RouteConfig routeConfig, Selection selection, int maxStops, double centerLatitude, double centerLongitude, VehicleLocations busMapping, RoutePool routePool, Directions directions, Locations locationsObj) throws IOException, ParserConfigurationException, SAXException {
+    public void refreshData(RouteConfig routeConfig, Selection selection, int maxStops, double centerLatitude, double centerLongitude, VehicleLocations busMapping, RoutePool routePool, Directions directions, Locations locationsObj) throws IOException {
         //read data from the URL
         ImmutableList<ImmutableList<Location>> groups = locationsObj.getLocations(maxStops, centerLatitude, centerLongitude, false, selection);
 
