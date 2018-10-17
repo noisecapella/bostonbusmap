@@ -314,7 +314,7 @@ public class Main extends AbstractMapActivity {
                     ITransitDrawables hubwayDrawables = new TransitDrawables(
                             R.drawable.busstop_intersect, R.drawable.busstop_intersect_selected,
                             R.drawable.busstop_bike, R.drawable.busstop_bike_selected,
-                            R.drawable.busstop_bike_updated, R.drawable.busstop_bike_selected
+                            R.drawable.busstop_bike, R.drawable.busstop_bike_selected
                     );
 
 
