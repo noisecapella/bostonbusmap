@@ -64,7 +64,7 @@ public class TransitDrawables implements ITransitDrawables {
             }
 
             if (isHubway) {
-                return BikeShareDrawablesLookup.getDrawable((StopLocation)location, isSelected, isUpdated);
+                return BikeShareDrawablesLookup.getDrawable((StopLocation)location, isSelected);
             }
 
             if (isSelected) {
