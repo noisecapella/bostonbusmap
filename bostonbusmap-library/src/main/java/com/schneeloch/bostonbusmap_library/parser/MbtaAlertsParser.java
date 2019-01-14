@@ -58,7 +58,11 @@ public class MbtaAlertsParser implements IAlertsParser {
 		builder.put("9482", "Blue");
 		builder.put("903_", "Orange");
 		builder.put("913_", "Orange");
-		
+		builder.put("Green-B", "Green");
+        builder.put("Green-C", "Green");
+        builder.put("Green-D", "Green");
+        builder.put("Green-E", "Green");
+
 		gtfsRoutes = builder.build();
 	}
 	
