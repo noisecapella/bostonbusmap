@@ -9,11 +9,15 @@ import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.RemoteException;
+import android.text.InputType;
 import android.text.Spanned;
 import android.util.Pair;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.FrameLayout;
 import android.widget.SimpleAdapter;
 import android.widget.Toast;
 
@@ -370,63 +374,81 @@ public class MapManager implements OnMapClickListener, OnMarkerClickListener,
                     reportButton.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {
-                            AlertDialog.Builder builder = new AlertDialog.Builder(context);
-                            builder.setTitle("Who should get the error report?");
-                            builder.setItems(new String[]{
-                                    TransitSystem.getAgencyName(),
-                                    "App Developer"
-                            }, new DialogInterface.OnClickListener() {
+                            AlertDialog.Builder whatBuilder = new AlertDialog.Builder(context);
+                            whatBuilder.setTitle("Report a problem");
+                            LayoutInflater layoutInflater = context.getLayoutInflater();
+                            View reportDialog = layoutInflater.inflate(R.layout.report, null);
+                            whatBuilder.setView(reportDialog);
+
+                            whatBuilder.setPositiveButton("Next", new DialogInterface.OnClickListener() {
                                 @Override
-                                public void onClick(DialogInterface dialog, int which) {
-                                    if (which == 0) {
-                                        AlertDialog.Builder transitBuilder = new AlertDialog.Builder(context);
-                                        transitBuilder.setTitle("");
-                                        transitBuilder.setMessage("The report message has been copied to your clipboard." +
-                                                " This message contains specifics about the stop, route or vehicle" +
-                                                " that was selected when you clicked 'Report Problem'." +
-                                                " Click 'Ok' to visit their customer comment form, then you may paste " +
-                                                " this report into their textbox.");
-                                        transitBuilder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-                                            @Override
-                                            public void onClick(DialogInterface dialog, int which) {
-                                                dialog.dismiss();
+                                public void onClick(DialogInterface dialogInterface, int i) {
+                                    AlertDialog.Builder whoBuilder = new AlertDialog.Builder(context);
+                                    whoBuilder.setTitle("Who should get the error report?");
+                                    whoBuilder.setItems(new String[]{
+                                            TransitSystem.getAgencyName(),
+                                            "App Developer"
+                                    }, new DialogInterface.OnClickListener() {
+                                        @Override
+                                        public void onClick(DialogInterface dialog, int which) {
+                                            if (which == 0) {
+                                                AlertDialog.Builder reportBuilder = new AlertDialog.Builder(context);
+                                                reportBuilder.setTitle("");
+                                                reportBuilder.setMessage("The report message has been copied to your clipboard." +
+                                                        " This message contains specifics about the stop, route or vehicle" +
+                                                        " that was selected when you clicked 'Report Problem'." +
+                                                        " Click 'Ok' to visit their customer comment form, then you may paste " +
+                                                        " this report into their textbox.");
+                                                reportBuilder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                                                    @Override
+                                                    public void onClick(DialogInterface dialog, int which) {
+                                                        dialog.dismiss();
+                                                    }
+                                                });
+                                                reportBuilder.setPositiveButton("Visit their website", new DialogInterface.OnClickListener() {
+                                                    @Override
+                                                    public void onClick(DialogInterface dialog, int which) {
+                                                        ClipboardManager manager = (ClipboardManager) context.getSystemService(Context.CLIPBOARD_SERVICE);
+                                                        manager.setText(createEmailBody(newLocation));
+
+                                                        Intent intent = new Intent(Intent.ACTION_VIEW);
+                                                        intent.setData(Uri.parse(TransitSystem.getFeedbackUrl()));
+                                                        context.startActivity(intent);
+                                                    }
+                                                });
+                                                reportBuilder.create().show();
+                                            } else if (which == 1) {
+                                                //Intent intent = new Intent(context, ReportProblem.class);
+                                                Intent intent = new Intent(android.content.Intent.ACTION_SEND);
+                                                intent.setType("plain/text");
+
+                                                intent.putExtra(android.content.Intent.EXTRA_EMAIL, TransitSystem.getEmails());
+                                                intent.putExtra(android.content.Intent.EXTRA_SUBJECT, TransitSystem.getEmailSubject());
+
+
+                                                String otherText = createEmailBody(newLocation);
+
+                                                intent.putExtra(android.content.Intent.EXTRA_TEXT, otherText);
+                                                context.startActivity(Intent.createChooser(intent, "Send email..."));
                                             }
-                                        });
-                                        transitBuilder.setPositiveButton("Visit their website", new DialogInterface.OnClickListener() {
-                                            @Override
-                                            public void onClick(DialogInterface dialog, int which) {
-                                                ClipboardManager manager = (ClipboardManager) context.getSystemService(Context.CLIPBOARD_SERVICE);
-                                                manager.setText(createEmailBody(newLocation));
-
-                                                Intent intent = new Intent(Intent.ACTION_VIEW);
-                                                intent.setData(Uri.parse(TransitSystem.getFeedbackUrl()));
-                                                context.startActivity(intent);
-                                            }
-                                        });
-                                        transitBuilder.create().show();
-                                    } else if (which == 1) {
-                                        //Intent intent = new Intent(context, ReportProblem.class);
-                                        Intent intent = new Intent(android.content.Intent.ACTION_SEND);
-                                        intent.setType("plain/text");
-
-                                        intent.putExtra(android.content.Intent.EXTRA_EMAIL, TransitSystem.getEmails());
-                                        intent.putExtra(android.content.Intent.EXTRA_SUBJECT, TransitSystem.getEmailSubject());
-
-
-                                        String otherText = createEmailBody(newLocation);
-
-                                        intent.putExtra(android.content.Intent.EXTRA_TEXT, otherText);
-                                        context.startActivity(Intent.createChooser(intent, "Send email..."));
-                                    }
+                                        }
+                                    });
+                                    whoBuilder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                                        @Override
+                                        public void onClick(DialogInterface dialog, int which) {
+                                            dialog.dismiss();
+                                        }
+                                    });
+                                    whoBuilder.create().show();
                                 }
                             });
-                            builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                            whatBuilder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
                                 @Override
-                                public void onClick(DialogInterface dialog, int which) {
-                                    dialog.dismiss();
+                                public void onClick(DialogInterface dialogInterface, int i) {
+                                    dialogInterface.dismiss();
                                 }
                             });
-                            builder.create().show();
+                            whatBuilder.create().show();
                         }
                     });
                 } else {
