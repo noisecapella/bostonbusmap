@@ -1,6 +1,8 @@
 package boston.Bus.Map.ui;
 
 import android.app.AlertDialog;
+import android.app.Dialog;
+import android.content.ContextWrapper;
 import android.text.ClipboardManager;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -9,8 +11,10 @@ import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.RemoteException;
+import android.text.Editable;
 import android.text.InputType;
 import android.text.Spanned;
+import android.text.TextWatcher;
 import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -63,6 +67,7 @@ import com.schneeloch.bostonbusmap_library.data.TimeBounds;
 import com.schneeloch.bostonbusmap_library.data.TimePrediction;
 import com.schneeloch.bostonbusmap_library.transit.ITransitSystem;
 import com.schneeloch.bostonbusmap_library.transit.TransitSystem;
+import com.schneeloch.bostonbusmap_library.util.LogUtil;
 import com.schneeloch.bostonbusmap_library.util.MoreInfoConstants;
 
 import java.io.IOException;
@@ -374,15 +379,18 @@ public class MapManager implements OnMapClickListener, OnMarkerClickListener,
                     reportButton.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {
-                            AlertDialog.Builder whatBuilder = new AlertDialog.Builder(context);
+                            final AlertDialog.Builder whatBuilder = new AlertDialog.Builder(context);
                             whatBuilder.setTitle("Report a problem");
                             LayoutInflater layoutInflater = context.getLayoutInflater();
-                            View reportDialog = layoutInflater.inflate(R.layout.report, null);
+                            final View reportDialog = layoutInflater.inflate(R.layout.report, null);
                             whatBuilder.setView(reportDialog);
+                            final EditText editText = (EditText)reportDialog.findViewById(R.id.report_text);
 
                             whatBuilder.setPositiveButton("Next", new DialogInterface.OnClickListener() {
                                 @Override
                                 public void onClick(DialogInterface dialogInterface, int i) {
+                                    final String problemDescription = editText.getText().toString();
+
                                     AlertDialog.Builder whoBuilder = new AlertDialog.Builder(context);
                                     whoBuilder.setTitle("Who should get the error report?");
                                     whoBuilder.setItems(new String[]{
@@ -409,7 +417,7 @@ public class MapManager implements OnMapClickListener, OnMarkerClickListener,
                                                     @Override
                                                     public void onClick(DialogInterface dialog, int which) {
                                                         ClipboardManager manager = (ClipboardManager) context.getSystemService(Context.CLIPBOARD_SERVICE);
-                                                        manager.setText(createEmailBody(newLocation));
+                                                        manager.setText(createEmailBody(newLocation, problemDescription));
 
                                                         Intent intent = new Intent(Intent.ACTION_VIEW);
                                                         intent.setData(Uri.parse(TransitSystem.getFeedbackUrl()));
@@ -426,7 +434,7 @@ public class MapManager implements OnMapClickListener, OnMarkerClickListener,
                                                 intent.putExtra(android.content.Intent.EXTRA_SUBJECT, TransitSystem.getEmailSubject());
 
 
-                                                String otherText = createEmailBody(newLocation);
+                                                String otherText = createEmailBody(newLocation, problemDescription);
 
                                                 intent.putExtra(android.content.Intent.EXTRA_TEXT, otherText);
                                                 context.startActivity(Intent.createChooser(intent, "Send email..."));
@@ -448,7 +456,29 @@ public class MapManager implements OnMapClickListener, OnMarkerClickListener,
                                     dialogInterface.dismiss();
                                 }
                             });
-                            whatBuilder.create().show();
+                            final AlertDialog whatDialog = whatBuilder.create();
+
+                            editText.addTextChangedListener(new TextWatcher() {
+                                @Override
+                                public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+                                    // nothing
+                                }
+
+                                @Override
+                                public void onTextChanged(CharSequence s, int start, int before, int count) {
+                                    // make sure we have some text in the field
+                                    whatDialog.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(count != 0);
+                                }
+
+                                @Override
+                                public void afterTextChanged(Editable s) {
+                                    // nothing
+                                }
+                            });
+
+
+                            whatDialog.show();
+                            whatDialog.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(false);
                         }
                     });
                 } else {
@@ -682,7 +712,7 @@ public class MapManager implements OnMapClickListener, OnMarkerClickListener,
         }
     }
 
-    protected String createEmailBody(Location location)
+    protected String createEmailBody(Location location, String description)
     {
         Selection selection = locations.getSelection();
         if (selection == null) {
@@ -699,6 +729,9 @@ public class MapManager implements OnMapClickListener, OnMarkerClickListener,
         }
 
         StringBuilder otherText = new StringBuilder();
+        otherText.append("Problem description: ");
+        otherText.append(description);
+        otherText.append("\n\n");
         otherText.append("(This is an automatically generated error report by BostonBusMap which includes information about the state of the app when the error report was created. Feel free to include any extra information before this message.)\n\n");
         otherText.append("\n\n");
         createInfoForAgency(location, otherText, selection.getMode(), routeTitle);
