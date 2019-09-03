@@ -65,10 +65,13 @@ public class HubwayParser extends DefaultHandler {
 		this.routeConfig = routeConfig;
 	}
 
-	public void runParse(InputStream data)  throws ParserConfigurationException, SAXException, IOException {
-		android.util.Xml.parse(data, Xml.Encoding.UTF_8, this);
-		data.close();
-
+	public void runParse(InputStream data)  throws IOException {
+	    try {
+            android.util.Xml.parse(data, Xml.Encoding.UTF_8, this);
+            data.close();
+        } catch (SAXException ex) {
+	        throw new RuntimeException(ex);
+        }
 	}
 
     /**

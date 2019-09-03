@@ -4,6 +4,8 @@ import java.io.IOException;
 
 import org.xml.sax.SAXException;
 
+import com.google.common.base.Optional;
+import com.schneeloch.bostonbusmap_library.data.BusLocation;
 import com.schneeloch.bostonbusmap_library.data.Directions;
 import com.schneeloch.bostonbusmap_library.data.IAlerts;
 import com.schneeloch.bostonbusmap_library.data.ITransitDrawables;
@@ -11,6 +13,7 @@ import com.schneeloch.bostonbusmap_library.data.Locations;
 import com.schneeloch.bostonbusmap_library.data.RouteConfig;
 import com.schneeloch.bostonbusmap_library.data.RoutePool;
 import com.schneeloch.bostonbusmap_library.data.Selection;
+import com.schneeloch.bostonbusmap_library.data.StopLocation;
 import com.schneeloch.bostonbusmap_library.data.TransitSourceTitles;
 import com.schneeloch.bostonbusmap_library.data.VehicleLocations;
 import com.schneeloch.bostonbusmap_library.database.Schema;
@@ -30,11 +33,11 @@ public interface TransitSource {
 	ITransitDrawables getDrawables();
 
 	StopLocation createStop(float latitude, float longitude, String stopTag,
-			String stopTitle, String route, Optional<String> parent);
+							String stopTitle, String route, Optional<String> parent);
 
     BusLocation createVehicleLocation(float latitude, float longitude, String id,
-                                      long lastFeedUpdateInMillis, Optional<Integer> heading,
-                                      String routeName, String headsign);
+									  long lastFeedUpdateInMillis, Optional<Integer> heading,
+									  String routeName, String headsign);
 	
 	TransitSourceTitles getRouteTitles();
 	

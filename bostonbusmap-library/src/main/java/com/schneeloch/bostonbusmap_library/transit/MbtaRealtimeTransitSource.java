@@ -140,7 +140,7 @@ public class MbtaRealtimeTransitSource implements TransitSource {
 			int maxStops, double centerLatitude, double centerLongitude,
 			VehicleLocations busMapping,
 			RoutePool routePool, Directions directions, Locations locationsObj)
-			throws IOException, ParserConfigurationException, SAXException {
+			throws IOException, SAXException {
 		Selection.Mode mode = selection.getMode();
 		List<String> routesInUrl = Lists.newArrayList();
         ImmutableSet.Builder<String> builder = ImmutableSet.builder();

@@ -87,7 +87,7 @@ public class CommuterRailTransitSource implements TransitSource {
 			final VehicleLocations busMapping,
 			final RoutePool routePool, final Directions directions,
 			final Locations locationsObj) throws IOException,
-            ParserConfigurationException, SAXException
+            SAXException
 	{
 		Selection.Mode selectedBusPredictions = selection.getMode();
 

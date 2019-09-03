@@ -210,9 +210,8 @@ public class TransitSystem implements ITransitSystem {
 
         if (exceptions.size() > 0) {
             // hopefully no more than one. We can't throw more than one exception at a time
-            String key = exceptions.keySet().iterator().next();
-            Exception exception = exceptions.get(key);
-            throw new FeedException("Error downloading from " + key + " data feed", exception);
+            Exception exception = exceptions.iterator().next();
+            throw new FeedException("Error downloading from data feed", exception);
         }
 	}
 
