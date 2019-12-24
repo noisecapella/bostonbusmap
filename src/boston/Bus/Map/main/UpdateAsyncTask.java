@@ -40,8 +40,6 @@ import boston.Bus.Map.ui.ProgressMessage;
 import com.schneeloch.bostonbusmap_library.util.Constants;
 import com.schneeloch.bostonbusmap_library.util.LogUtil;
 
-import com.google.android.maps.GeoPoint;
-import com.google.android.maps.MapView;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;

@@ -20,11 +20,10 @@ repositories {
 }
 
 android {
-    compileSdkVersion 27
-
+    compileSdkVersion 28
     defaultConfig {
         minSdkVersion 4
-        targetSdkVersion 23
+        targetSdkVersion 28
         versionCode 1
         versionName "1.0"
     }
@@ -41,7 +40,7 @@ android {
 }
 
 dependencies {
-    implementation 'com.android.support:support-annotations:28.0.0'
+    implementation 'com.android.support:support-annotations:27+'
     implementation fileTree(include: ['*.jar'], dir: 'libs')
     implementation 'com.google.guava:guava:22.0-android'
     implementation 'com.google.code.gson:gson:+'

@@ -10,8 +10,6 @@ import com.schneeloch.bostonbusmap_library.transit.ITransitSystem;
 
 import boston.Bus.Map.ui.MapManager;
 
-import com.google.android.maps.MapView;
-
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.widget.ProgressBar;
