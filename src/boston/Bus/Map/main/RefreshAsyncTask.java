@@ -10,7 +10,6 @@ import javax.xml.parsers.ParserConfigurationException;
 import org.xml.sax.SAXException;
 
 import com.google.android.gms.maps.model.LatLng;
-import com.google.android.maps.GeoPoint;
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
 

@@ -92,10 +92,6 @@ public class Preferences extends PreferenceActivity
 				// show the tutorial since the key is set to false
 				finish();
 			}
-            else if ("showMapsLegal".equals(preferenceKey)) {
-                Intent legalIntent = new Intent(this, MapsLegal.class);
-                startActivity(legalIntent);
-            }
             else if ("emailLogs".equals(preferenceKey)) {
                 try {
                     Process process = Runtime.getRuntime().exec("logcat -d");
