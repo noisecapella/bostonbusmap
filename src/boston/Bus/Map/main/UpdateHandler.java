@@ -8,7 +8,6 @@ import com.schneeloch.bostonbusmap_library.transit.TransitSystem;
 
 import com.schneeloch.bostonbusmap_library.util.Constants;
 
-import com.google.android.maps.GeoPoint;
 import com.schneeloch.bostonbusmap_library.util.LogUtil;
 import com.schneeloch.bostonbusmap_library.util.Now;
 
