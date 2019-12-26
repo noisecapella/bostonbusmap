@@ -23,6 +23,7 @@
 		android:theme="@android:style/Theme.NoTitleBar"
         android:fullBackupContent="true"
         android:allowBackup="true"
+		android:usesCleartextTraffic="true"
 	>
 		<activity android:label="@string/app_name" android:name="boston.Bus.Map.main.Main" android:launchMode="singleTop"
                   android:configChanges="orientation|keyboardHidden|screenSize"
