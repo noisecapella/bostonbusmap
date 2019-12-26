@@ -17,8 +17,6 @@
 # project.properties file.
 
 -keepattributes *Annotation*
--keep public class com.google.vending.licensing.ILicensingService
--keep public class com.android.vending.licensing.ILicensingService
 
 # For native methods, see http://proguard.sourceforge.net/manual/examples.html#native
 -keepclasseswithmembernames class * {
@@ -57,19 +55,17 @@
 -dontwarn android.support.**
 
 
--keep public class * extends com.google.protobuf.GeneratedMessage
--keep public class com.google.transit.realtime.GtfsRealtime
+-keep public class com.google.transit.realtime.** { *; }
 -dontobfuscate
+-keep class org.apache.http.** { *; }
+-dontwarn org.apache.http.**
+-dontwarn android.net.**
+-dontwarn okio.**
 -dontwarn
--dontwarn javax.naming.**
--dontwarn javax.annotation.**
--dontwarn javax.inject.**
 -dontwarn sun.misc.Unsafe
 #-libraryjars libs/guava-13.0.1.jar
 #-injars libs/guava-13.0.1.jar
 #-libraryjars libs/jsr305-2.0.1.jar
--dontwarn java.awt.**,javax.security.**,java.beans.**
--dontwarn javax.xml.stream.events.**
 -dontwarn com.google.gdata.**, com.google.common.**
 -dontwarn com.actionbarsherlock.internal.**
 -keep class com.actionbarsherlock.** {*;}
