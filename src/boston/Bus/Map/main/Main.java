@@ -67,10 +67,6 @@ import boston.Bus.Map.util.SearchHelper;
 import com.schneeloch.bostonbusmap_library.util.Constants;
 
 
-import com.google.android.maps.GeoPoint;
-import com.google.android.maps.MapActivity;
-import com.google.android.maps.MapController;
-import com.google.android.maps.MapView;
 import com.google.common.collect.Lists;
 import com.schneeloch.latransit.R;
 
