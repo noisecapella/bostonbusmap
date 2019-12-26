@@ -5,14 +5,18 @@ buildscript {
         google()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:3.1.+'
+        classpath 'com.android.tools.build:gradle:3.3.0'
+        classpath 'com.google.protobuf:protobuf-gradle-plugin:0.8.6'
     }
 }
 
 apply plugin: 'com.android.library'
+apply plugin: 'com.google.protobuf'
 
 repositories {
     mavenCentral()
+    jcenter()
+    google()
 }
 
 android {
@@ -36,9 +40,10 @@ android {
 }
 
 dependencies {
+    implementation 'com.android.support:support-annotations:27+'
     implementation fileTree(include: ['*.jar'], dir: 'libs')
     implementation 'com.google.guava:guava:22.0-android'
     implementation 'com.google.code.gson:gson:+'
-    implementation 'com.google.protobuf:protobuf-java:+'
+    implementation 'com.google.protobuf:protobuf-lite:3.0.1'
     implementation 'com.google.code.findbugs:jsr305:1.3.9'
 }
