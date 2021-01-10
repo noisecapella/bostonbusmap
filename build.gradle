@@ -6,7 +6,7 @@ buildscript {
         google()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:+'
+        classpath 'com.android.tools.build:gradle:4.1.1'
     }
 }
 
@@ -78,6 +78,7 @@ android {
     testOptions.unitTests.includeAndroidResources true
     defaultConfig {
         minSdkVersion 14
+        targetSdkVersion 28
     }
 }
 
