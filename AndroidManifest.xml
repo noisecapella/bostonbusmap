@@ -3,8 +3,8 @@
 	xmlns:tools="http://schemas.android.com/tools"
 package="com.schneeloch.torontotransit"
 	android:installLocation="auto"
-android:versionCode="156"
-android:versionName="6.0.22">
+android:versionCode="157"
+android:versionName="6.0.23">
 	<!-- <supports-screens></supports-screens>-->
 	<uses-permission android:name="android.permission.INTERNET"></uses-permission>
 
