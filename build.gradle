@@ -78,7 +78,7 @@ android {
     testOptions.unitTests.includeAndroidResources true
     defaultConfig {
         minSdkVersion 14
-        targetSdkVersion 28
+        targetSdkVersion 30
     }
 }
 
