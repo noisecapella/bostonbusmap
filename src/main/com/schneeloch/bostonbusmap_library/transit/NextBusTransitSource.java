@@ -44,7 +44,6 @@ public abstract class NextBusTransitSource implements TransitSource
 {
 	private final ITransitSystem transitSystem;
 	
-	private static final String prefix = "webservices";
 	/**
 	 * The XML feed URL
 	 */
@@ -69,11 +68,11 @@ public abstract class NextBusTransitSource implements TransitSource
 		this.transitSystem = transitSystem;
 		this.drawables = drawables;
 
-		mbtaLocationsDataUrlOneRoute = "http://" + prefix + ".nextbus.com/service/publicXMLFeed?command=vehicleLocations&a=" + agency + "&t=";
-		mbtaLocationsDataUrlAllRoutes = "http://" + prefix + ".nextbus.com/service/publicXMLFeed?command=vehicleLocations&a=" + agency + "&t=";
-		mbtaRouteConfigDataUrl = "http://" + prefix + ".nextbus.com/service/publicXMLFeed?command=routeConfig&a=" + agency + "&r=";
-		mbtaRouteConfigDataUrlAllRoutes = "http://" + prefix + ".nextbus.com/service/publicXMLFeed?command=routeConfig&a=" + agency;
-		mbtaPredictionsDataUrl = "http://" + prefix + ".nextbus.com/service/publicXMLFeed?command=predictionsForMultiStops&a=" + agency;
+		mbtaLocationsDataUrlOneRoute = "https://retro.umoiq.com/service/publicXMLFeed?command=vehicleLocations&a=" + agency + "&t=";
+		mbtaLocationsDataUrlAllRoutes = "https://retro.umoiq.com/service/publicXMLFeed?command=vehicleLocations&a=" + agency + "&t=";
+		mbtaRouteConfigDataUrl = "https://retro.umoiq.com/service/publicXMLFeed?command=routeConfig&a=" + agency + "&r=";
+		mbtaRouteConfigDataUrlAllRoutes = "https://retro.umoiq.com/service/publicXMLFeed?command=routeConfig&a=" + agency;
+		mbtaPredictionsDataUrl = "https://retro.umoiq.com/service/publicXMLFeed?command=predictionsForMultiStops&a=" + agency;
 		
 		this.routeTitles = routeTitles;
         cache = new TransitSourceCache();
