@@ -5,12 +5,15 @@ import com.google.common.collect.ImmutableMap;
 
 import org.xml.sax.SAXException;
 
+import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.nio.Buffer;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 
+import com.google.gson.Gson;
 import com.schneeloch.bostonbusmap_library.data.BusLocation;
 import com.schneeloch.bostonbusmap_library.data.Directions;
 import com.schneeloch.bostonbusmap_library.data.IAlerts;
@@ -26,6 +29,8 @@ import com.schneeloch.bostonbusmap_library.data.TransitSourceTitles;
 import com.schneeloch.bostonbusmap_library.data.VehicleLocations;
 import com.schneeloch.bostonbusmap_library.database.Schema;
 import com.schneeloch.bostonbusmap_library.parser.HubwayParser;
+import com.schneeloch.bostonbusmap_library.parser.gson.gbfs.info.Feed;
+import com.schneeloch.bostonbusmap_library.parser.gson.gbfs.info.Root;
 import com.schneeloch.bostonbusmap_library.util.IDownloadHelper;
 import com.schneeloch.bostonbusmap_library.util.IDownloader;
 import com.schneeloch.bostonbusmap_library.util.SearchHelper;
@@ -36,8 +41,7 @@ import com.schneeloch.bostonbusmap_library.util.SearchHelper;
 public class HubwayTransitSource implements TransitSource {
 	public static final String stopTagPrefix = "hubway_";
 	private static final String routeTag = "Hubway";
-	private static final String infoUrl = "https://gbfs.thehubway.com/gbfs/en/station_information.json";
-	private static final String statusUrl = "https://gbfs.thehubway.com/gbfs/en/station_status.json";
+	private static final String gbfsUrl = "https://gbfs.bluebikes.com/gbfs/gbfs.json";
 
 	private final ITransitDrawables drawables;
 	private final TransitSourceTitles routeTitles;
@@ -45,6 +49,8 @@ public class HubwayTransitSource implements TransitSource {
 
     private final TransitSourceCache cache;
     private final IDownloader downloader;
+    private String stationInformationUrl;
+    private String stationStatusUrl;
 
 	public HubwayTransitSource(ITransitDrawables drawables, TransitSourceTitles routeTitles,
 							   TransitSystem transitSystem, IDownloader downloader) {
@@ -77,10 +83,25 @@ public class HubwayTransitSource implements TransitSource {
                     return;
                 }
 
-
                 RouteConfig hubwayRouteConfig = routePool.get(routeTag);
-                IDownloadHelper infoHelper = downloader.create(infoUrl);
-				IDownloadHelper statusHelper = downloader.create(statusUrl);
+
+                if (stationInformationUrl == null) {
+					IDownloadHelper gbfsHelper = downloader.create(gbfsUrl);
+                	InputStream gbfsStream = gbfsHelper.getResponseData();
+                	BufferedReader reader = new BufferedReader(new InputStreamReader(gbfsStream), 2048);
+                	Root root = new Gson().fromJson(reader, Root.class);
+                	ImmutableMap.Builder<String, String> builder = ImmutableMap.builder();
+                	for (Feed feed : root.data.en.feeds) {
+						if ("station_information".equals(feed.name)) {
+							stationInformationUrl = feed.url;
+						} else if ("station_status".equals(feed.name)) {
+							stationStatusUrl = feed.url;
+						}
+					}
+				}
+
+                IDownloadHelper infoHelper = downloader.create(stationInformationUrl);
+				IDownloadHelper statusHelper = downloader.create(stationStatusUrl);
                 try {
                     InputStream infoStream = infoHelper.getResponseData();
 					InputStream statusStream = statusHelper.getResponseData();
