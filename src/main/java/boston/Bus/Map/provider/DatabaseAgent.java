@@ -569,8 +569,13 @@ public class DatabaseAgent implements IDatabaseAgent {
         StringBuilder select;
         String[] selectArray;
 
-        select = new StringBuilder(Schema.Stops.tagColumnOnTable + "=? OR " + Schema.Stops.titleColumnOnTable + "=?");
-        selectArray = new String[]{tagQuery, titleQuery};
+        select = new StringBuilder(
+            Schema.Stops.tagColumnOnTable + "=? OR " +
+            Schema.Stops.tagColumnOnTable + "=? OR " +
+            Schema.Stops.titleColumnOnTable + "=? OR " +
+            Schema.Stops.titleColumnOnTable + "=?"
+        );
+        selectArray = new String[]{tagQuery, titleQuery, tagQuery, titleQuery};
 
         Cursor stopCursor = null;
         try
