@@ -5,7 +5,7 @@ package com.schneeloch.bostonbusmap_library.parser.gson.stationStatus;
  */
 public class StatusStation {
     public int capacity;
-    public int station_id;
+    public String station_id;
     public int num_bikes_available;
     public int num_bikes_disabled;
     public int num_docks_available;

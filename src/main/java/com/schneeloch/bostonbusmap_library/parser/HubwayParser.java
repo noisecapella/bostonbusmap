@@ -42,7 +42,7 @@ public class HubwayParser {
 		InfoRoot infoRoot = new Gson().fromJson(bufferedInfoReader, InfoRoot.class);
 		StatusRoot statusRoot = new Gson().fromJson(bufferedStatusReader, StatusRoot.class);
 
-		Map<Integer, StatusStation> statusLookup = Maps.newHashMap();
+		Map<String, StatusStation> statusLookup = Maps.newHashMap();
 		for (StatusStation station : statusRoot.data.stations) {
 			statusLookup.put(station.station_id, station);
 		}
