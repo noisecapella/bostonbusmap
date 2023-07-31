@@ -1,6 +1,7 @@
 package com.schneeloch.bostonbusmap_library.parser;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.gson.GsonBuilder;
 import com.schneeloch.bostonbusmap_library.data.Location;
@@ -146,10 +147,23 @@ public class MbtaV3PredictionsParser {
             String stopId = relationships.stop.id;
             String vehicleId = relationships.vehicle != null ? relationships.vehicle.id : null;
             String tripId = relationships.trip != null ? relationships.trip.id : null;
-            StopLocation location = routePool.get(routeId).getStop(stopId);
-            if (location == null) {
-                LogUtil.w("Unable to find stop " + stopId + " in pool");
-                continue;
+            List<StopLocation> locations = Lists.newArrayList();
+            StopLocation _location = routePool.get(routeId).getStop(stopId);
+            if (_location != null) {
+                locations.add(_location);
+            } else {
+                // workaround, some commuter rail predictions return a stop without a track number
+                for (StopLocation location : routePool.get(routeId).getStops()) {
+                    if (location.getStopTag().startsWith(stopId + "-")) {
+                        locations.add(location);
+                    }
+                }
+
+                if (locations.size() == 0) {
+
+                    LogUtil.w("Unable to find stop " + stopId + " in pool");
+                    continue;
+                }
             }
 
             long arrivalTimeMillis, departureTimeMillis;
@@ -190,24 +204,26 @@ public class MbtaV3PredictionsParser {
                 vehicleLabel = parseVehicleLabel(vehicleAttributes.label);
             }
 
-            TimePrediction prediction = new TimePrediction(
-                    arrivalTimeMillis,
-                    departureTimeMillis,
-                    vehicleId,
-                    vehicleLabel,
-                    headsign,
-                    routeId,
-                    routeTitles.getTitle(routeId),
-                    arrivalTimeMillis != departureTimeMillis,
-                    false, // TODO
-                    delay,
-                    block,
-                    stopId,
-                    sourceId
-            );
+            for (StopLocation location : locations) {
+                TimePrediction prediction = new TimePrediction(
+                        arrivalTimeMillis,
+                        departureTimeMillis,
+                        vehicleId,
+                        vehicleLabel,
+                        headsign,
+                        routeId,
+                        routeTitles.getTitle(routeId),
+                        arrivalTimeMillis != departureTimeMillis,
+                        false, // TODO
+                        delay,
+                        block,
+                        location.getStopTag(),
+                        sourceId
+                );
 
-            PredictionStopLocationPair pair = new PredictionStopLocationPair(prediction, location);
-            builder.add(pair);
+                PredictionStopLocationPair pair = new PredictionStopLocationPair(prediction, location);
+                builder.add(pair);
+            }
         }
         return builder.build();
     }
