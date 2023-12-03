@@ -237,7 +237,7 @@ public class Main extends AbstractMapActivity {
 
                     com.schneeloch.bostonbusmap_library.util.LogUtil.i("Successfully wrote to cachedDatabase, hash is " + databaseHash);
 
-                    boston.Bus.Map.provider.DatabaseContentProvider.DatabaseHelper.dirty.set(true);
+                    // boston.Bus.Map.provider.DatabaseContentProvider.DatabaseHelper.dirty.set(true);
                 } catch (IOException e) {
                     try {
                         if (inputStream != null) {
