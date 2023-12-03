@@ -20,6 +20,8 @@ package boston.Bus.Map.main;
 
 import boston.Bus.Map.R;
 import boston.Bus.Map.provider.TransitContentProvider;
+
+import com.google.common.hash.Hashing;
 import com.schneeloch.bostonbusmap_library.transit.TransitSystem;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
@@ -117,8 +119,9 @@ public class Preferences extends PreferenceActivity
             }
             else if ("databaseVersion".equals(preferenceKey)) {
             	AlertDialog.Builder builder = new AlertDialog.Builder(this);
-            	builder.setTitle("Database version");
-            	builder.setMessage("Database version is " + boston.Bus.Map.provider.DatabaseContentProvider.DatabaseHelper.getVersionCode(this));
+            	builder.setTitle("Database hashcode");
+				String hashcode = getPreferenceManager().getSharedPreferences().getString(boston.Bus.Map.main.Main.databaseHashCode, "(none)");
+            	builder.setMessage("Database hashcode is " + hashcode);
             	AlertDialog alert = builder.create();
             	alert.show();
 			}
