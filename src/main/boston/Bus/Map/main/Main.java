@@ -18,6 +18,15 @@
     */
 package boston.Bus.Map.main;
 
+import static com.google.common.io.ByteStreams.toByteArray;
+
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URL;
+import java.net.URLConnection;
+import java.security.MessageDigest;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -31,6 +40,9 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.common.hash.Hashing;
+import com.google.common.io.ByteStreams;
+import com.schneeloch.bostonbusmap_library.data.AlertsFetcher;
 import com.schneeloch.bostonbusmap_library.data.BusLocation;
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
@@ -78,6 +90,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.net.http.HttpResponseCache;
 import android.os.Bundle;
 
 import android.preference.PreferenceManager;
@@ -120,6 +133,7 @@ public class Main extends AbstractMapActivity {
     private static final String introScreenKey = "introScreen";
 
     public static final String tutorialStepKey = "tutorialStep";
+    public static final String databaseHashCode = "databaseHashCode";
 
     private EditText searchView;
 
@@ -188,6 +202,56 @@ public class Main extends AbstractMapActivity {
         firstRunMode = true;
 
         TransitSystem.setDefaultTimeFormat(this);
+
+        // create HTTP response cache directory to store downloaded databases
+        // https://developer.android.com/reference/android/net/http/HttpResponseCache
+        try {
+            File httpCacheDir = new File(this.getCacheDir(), "http");
+            long httpCacheSize = 20 * 1024 * 1024; // 20 MiB
+            HttpResponseCache.install(httpCacheDir, httpCacheSize);
+        } catch (IOException e) {
+            com.schneeloch.bostonbusmap_library.util.LogUtil.e(e);
+        }
+
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                InputStream inputStream = null;
+                FileOutputStream outputStream = null;
+                try {
+                    URL url = new URL("https://bostonbusmap.herokuapp.com/mbta.db");
+                    URLConnection connection = url.openConnection();
+                    connection.connect();
+
+                    inputStream = connection.getInputStream();
+                    byte[] bytes = ByteStreams.toByteArray(inputStream);
+
+                    File file = new File(Main.this.getCacheDir(), "cachedDatabase");
+                    outputStream = new FileOutputStream(file);
+                    outputStream.write(bytes);
+
+                    String databaseHash = Hashing.sha256().hashBytes(bytes).toString();
+
+                    PreferenceManager.getDefaultSharedPreferences(Main.this).edit().putString(databaseHashCode, databaseHash).commit();
+
+                    com.schneeloch.bostonbusmap_library.util.LogUtil.i("Successfully wrote to cachedDatabase, hash is " + databaseHash);
+
+                    boston.Bus.Map.provider.DatabaseContentProvider.DatabaseHelper.dirty.set(true);
+                } catch (IOException e) {
+                    try {
+                        if (inputStream != null) {
+                            inputStream.close();
+                        }
+                        if (outputStream != null) {
+                            outputStream.close();
+                        }
+                    } catch (IOException e2) {
+                        com.schneeloch.bostonbusmap_library.util.LogUtil.e(e2);
+                    }
+                    com.schneeloch.bostonbusmap_library.util.LogUtil.e(e);
+                }
+            }
+        }).start();
 
         //get widgets
         SupportMapFragment fragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);

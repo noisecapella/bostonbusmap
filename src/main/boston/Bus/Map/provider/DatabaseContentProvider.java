@@ -1,11 +1,17 @@
 package boston.Bus.Map.provider;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.URL;
+import java.net.URLConnection;
 import java.util.HashMap;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.zip.GZIPInputStream;
 
 import com.google.common.io.ByteStreams;
@@ -29,6 +35,8 @@ import android.database.sqlite.SQLiteOpenHelper;
 import android.database.sqlite.SQLiteQueryBuilder;
 import android.net.Uri;
 import android.preference.PreferenceManager;
+
+import javax.net.ssl.HttpsURLConnection;
 
 public class DatabaseContentProvider extends ContentProvider {
 	private static final UriMatcher uriMatcher;
@@ -96,25 +104,14 @@ public class DatabaseContentProvider extends ContentProvider {
 	{
 		private Context context;
 
-        /**
-         * Get the application's version code and use it to keep track of database versions.
-         * This means the database will be assumed to have changed on each update, which will cause this
-         * database to be recreated (the favorites database should be left alone though)
-         */
-        public static int getVersionCode(Context context) {
-            try {
-                return context.getPackageManager().getPackageInfo(context.getPackageName(), 0).versionCode;
-            } catch (PackageManager.NameNotFoundException e) {
-                throw new RuntimeException(e);
-            }
-        }
+		public final static AtomicBoolean dirty = new AtomicBoolean(true);
 
 		/**
 		 * Don't call this, use getInstance instead
 		 * @param context
 		 */
 		private DatabaseHelper(Context context) {
-			super(context, Schema.dbName, null, getVersionCode(context));
+			super(context, Schema.dbName, null, 600);
 
 			this.context = context;
 		}
@@ -130,34 +127,36 @@ public class DatabaseContentProvider extends ContentProvider {
 			
 			SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
 			int version = preferences.getInt(DATABASE_VERSION_KEY, -1);
-			if (version != getVersionCode(context)) {
+			if (dirty.get()) {
 				try {
 					copyDatabase();
-					preferences.edit().putInt(DATABASE_VERSION_KEY, getVersionCode(context)).commit();
+					dirty.set(false);
 				} catch (IOException e) {
 					LogUtil.e(e);
 					return null;
 				}
+			}
 				
-				db = super.getWritableDatabase();
-			}
-			else
-			{
-				db = super.getWritableDatabase();
-			}
-			
+			db = super.getWritableDatabase();
+
 			return db;
 		}
 		
 		private void copyDatabase() throws IOException {
 			InputStream in = null;
-			GZIPInputStream stream = null;
 			OutputStream outputStream = null;
 			try
 			{
-				in = context.getResources().openRawResource(com.schneeloch.torontotransit.R.raw.databasegz);
-
-				stream = new GZIPInputStream(in); 
+				File file = new File(context.getCacheDir(), "cachedDatabase");
+				try {
+					in = new FileInputStream(file);
+					LogUtil.i("Copying from cachedDatabase...");
+				} catch (FileNotFoundException ex) {
+					// fallback if user has not downloaded cached version yet
+					in = context.getResources().openRawResource(com.schneeloch.torontotransit.R.raw.databasegz);
+					in = new GZIPInputStream(in);
+					LogUtil.i("Copying from stored resource...");
+				}
 
 				SQLiteDatabase tempDatabase = null;
 				try
@@ -175,7 +174,8 @@ public class DatabaseContentProvider extends ContentProvider {
 				}
 				// overwrite database with prepopulated database
 				outputStream = new FileOutputStream(context.getDatabasePath(Schema.dbName));
-				ByteStreams.copy(stream, outputStream);
+				ByteStreams.copy(in, outputStream);
+				LogUtil.i("successfully updated cached database");
 			}
 			finally
 			{
@@ -183,9 +183,6 @@ public class DatabaseContentProvider extends ContentProvider {
 				{
 					if (in != null) {
 						in.close();
-					}
-					if (stream != null) {
-						stream.close();
 					}
 					if (outputStream != null) {
 						outputStream.close();
