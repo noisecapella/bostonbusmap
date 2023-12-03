@@ -115,6 +115,13 @@ public class Preferences extends PreferenceActivity
                     throw new RuntimeException(e);
                 }
             }
+            else if ("databaseVersion".equals(preferenceKey)) {
+            	AlertDialog.Builder builder = new AlertDialog.Builder(this);
+            	builder.setTitle("Database version");
+            	builder.setMessage("Database version is " + boston.Bus.Map.provider.DatabaseContentProvider.DatabaseHelper.getVersionCode(this));
+            	AlertDialog alert = builder.create();
+            	alert.show();
+			}
 		}
 		
 		return super.onPreferenceTreeClick(preferenceScreen, preference);

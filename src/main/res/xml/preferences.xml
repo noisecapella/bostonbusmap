@@ -10,6 +10,7 @@
 <Preference android:summary="" android:title="Show tutorial" android:key="showTutorial"></Preference>
 <!--<Preference android:summary="Shows basic usage instructions" android:title="Instructions" android:key="instructions" />-->
     <Preference android:title="Email logs to developer" android:key="emailLogs"></Preference>
+    <Preference android:title="Database version" android:key="databaseVersion"></Preference>
     <Preference android:title="About BostonBusMap" android:key="about"></Preference>
 
 
