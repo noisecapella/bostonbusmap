@@ -218,7 +218,7 @@ public class Main extends AbstractMapActivity {
                 InputStream inputStream = null;
                 FileOutputStream outputStream = null;
                 try {
-                    URL url = new URL("https://bostonbusmap.herokuapp.com/mbta.db");
+                    URL url = new URL("https://bostonbusmap.herokuapp.com/ttc.db");
                     URLConnection connection = url.openConnection();
                     connection.connect();
 
