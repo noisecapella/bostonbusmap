@@ -42,7 +42,6 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.common.hash.Hashing;
 import com.google.common.io.ByteStreams;
-import com.schneeloch.bostonbusmap_library.data.AlertsFetcher;
 import com.schneeloch.bostonbusmap_library.data.BusLocation;
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
