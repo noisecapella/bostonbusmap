@@ -3,8 +3,8 @@
 	xmlns:tools="http://schemas.android.com/tools"
 	package="boston.Bus.Map"
 	android:installLocation="auto"
-	android:versionCode="306"
-	android:versionName="6.0.91">
+	android:versionCode="307"
+	android:versionName="6.0.92">
 	<!-- <supports-screens></supports-screens>-->
 	<uses-permission android:name="android.permission.INTERNET"></uses-permission>
 
