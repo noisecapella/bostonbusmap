@@ -37,7 +37,7 @@ dependencies {
 
 android {
     compileSdkVersion 36
-    namespace "boston.Bus.Map"
+    namespace "com.schneeloch.torontotransit"
     buildTypes {
         release {
             minifyEnabled true
