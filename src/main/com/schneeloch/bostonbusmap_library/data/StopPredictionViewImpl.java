@@ -96,14 +96,6 @@ public class StopPredictionViewImpl extends StopPredictionView {
 					routeTitlesNotRunning.add(routeKeysToTitles.getTitle(routeTag));
 				}
 			}
-/*			if (routeTitlesNotRunning.size() == 1) {
-				String routeTitle = routeTitlesNotRunning.first();
-				ret.append("<font size='1'>Route " + routeTitle + " is not currently running").append("</font><br />");
-			}
-			else if (routeTitlesNotRunning.size() > 1) {
-				String routeTitle = Joiner.on(", ").join(routeTitlesNotRunning);
-				ret.append("<font size='1'>Routes " + routeTitle + " are not currently running</font><br />");
-			}*/
 		}
 		catch (IOException e) {
 			LogUtil.e(e);

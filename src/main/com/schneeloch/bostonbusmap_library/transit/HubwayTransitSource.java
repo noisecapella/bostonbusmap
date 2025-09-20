@@ -10,8 +10,8 @@ import java.io.InputStream;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 
-import javax.xml.parsers.ParserConfigurationException;
-
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.schneeloch.bostonbusmap_library.data.BusLocation;
 import com.schneeloch.bostonbusmap_library.data.Directions;
 import com.schneeloch.bostonbusmap_library.data.HubwayStopLocation;
@@ -28,7 +28,12 @@ import com.schneeloch.bostonbusmap_library.data.TransitSourceTitles;
 import com.schneeloch.bostonbusmap_library.data.VehicleLocations;
 import com.schneeloch.bostonbusmap_library.database.Schema;
 import com.schneeloch.bostonbusmap_library.parser.HubwayParser;
-import com.schneeloch.bostonbusmap_library.util.DownloadHelper;
+import com.schneeloch.bostonbusmap_library.parser.gson.gbfs.info.Feed;
+import com.schneeloch.bostonbusmap_library.parser.gson.gbfs.info.Feeds;
+import com.schneeloch.bostonbusmap_library.parser.gson.gbfs.info.FeedsDeserializer;
+import com.schneeloch.bostonbusmap_library.parser.gson.gbfs.info.Root;
+import com.schneeloch.bostonbusmap_library.util.IDownloadHelper;
+import com.schneeloch.bostonbusmap_library.util.IDownloader;
 import com.schneeloch.bostonbusmap_library.util.SearchHelper;
 
 /**
@@ -79,7 +84,25 @@ public class HubwayTransitSource implements TransitSource {
 
 
                 RouteConfig hubwayRouteConfig = routePool.get(routeTag);
-                DownloadHelper downloadHelper = new DownloadHelper(dataUrl);
+
+                if (stationInformationUrl == null) {
+					IDownloadHelper gbfsHelper = downloader.create(gbfsUrl);
+                	InputStream gbfsStream = gbfsHelper.getResponseData();
+                	BufferedReader reader = new BufferedReader(new InputStreamReader(gbfsStream), 2048);
+					GsonBuilder gsonBuilder = new GsonBuilder();
+					gsonBuilder.registerTypeAdapter(Feeds.class, new FeedsDeserializer());
+                	Root root = gsonBuilder.create().fromJson(reader, Root.class);
+                	for (Feed feed : root.data.en.feeds) {
+						if ("station_information".equals(feed.name)) {
+							stationInformationUrl = feed.url;
+						} else if ("station_status".equals(feed.name)) {
+							stationStatusUrl = feed.url;
+						}
+					}
+				}
+
+                IDownloadHelper infoHelper = downloader.create(stationInformationUrl);
+				IDownloadHelper statusHelper = downloader.create(stationStatusUrl);
                 try {
                     InputStream stream = downloadHelper.getResponseData();
 
