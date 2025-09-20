@@ -18,6 +18,7 @@ import com.schneeloch.bostonbusmap_library.parser.apiv3.PredictionAttributes;
 import com.schneeloch.bostonbusmap_library.parser.apiv3.Relationship;
 import com.schneeloch.bostonbusmap_library.parser.apiv3.Relationships;
 import com.schneeloch.bostonbusmap_library.parser.apiv3.RelationshipDeserializer;
+import com.schneeloch.bostonbusmap_library.parser.apiv3.RootDeserializer;
 import com.schneeloch.bostonbusmap_library.parser.apiv3.Timestamp;
 import com.schneeloch.bostonbusmap_library.parser.apiv3.TimestampDeserializer;
 import com.schneeloch.bostonbusmap_library.parser.apiv3.Resource;
@@ -52,6 +53,7 @@ public class MbtaV3PredictionsParser {
         gsonBuilder.registerTypeAdapter(Timestamp.class, new TimestampDeserializer());
         gsonBuilder.registerTypeAdapter(Resource.class, new ResourceDeserializer());
         gsonBuilder.registerTypeAdapter(Relationship.class, new RelationshipDeserializer());
+        gsonBuilder.registerTypeAdapter(Root.class, new RootDeserializer());
         Root root = gsonBuilder.create().fromJson(bufferedReader, Root.class);
 
         clearPredictions(groups, routeTitles);

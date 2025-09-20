@@ -12,6 +12,7 @@ import java.util.Map;
 
 import com.google.common.collect.Maps;
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.schneeloch.bostonbusmap_library.data.HubwayStopData;
 import com.schneeloch.bostonbusmap_library.data.Locations;
 import com.schneeloch.bostonbusmap_library.data.PredictionStopLocationPair;
@@ -39,8 +40,12 @@ public class HubwayParser {
 		BufferedReader bufferedInfoReader = new BufferedReader(infoReader, 2048);
 		BufferedReader bufferedStatusReader = new BufferedReader(statusReader, 2048);
 
-		InfoRoot infoRoot = new Gson().fromJson(bufferedInfoReader, InfoRoot.class);
-		StatusRoot statusRoot = new Gson().fromJson(bufferedStatusReader, StatusRoot.class);
+		GsonBuilder builder = new GsonBuilder();
+		builder.registerTypeAdapter(com.schneeloch.bostonbusmap_library.parser.gson.stationInfo.Data.class, new com.schneeloch.bostonbusmap_library.parser.gson.stationInfo.DataDeserializer());
+		builder.registerTypeAdapter(com.schneeloch.bostonbusmap_library.parser.gson.stationStatus.Data.class, new com.schneeloch.bostonbusmap_library.parser.gson.stationStatus.DataDeserializer());
+		Gson gson = builder.create();
+		InfoRoot infoRoot = gson.fromJson(bufferedInfoReader, InfoRoot.class);
+		StatusRoot statusRoot = gson.fromJson(bufferedStatusReader, StatusRoot.class);
 
 		Map<String, StatusStation> statusLookup = Maps.newHashMap();
 		for (StatusStation station : statusRoot.data.stations) {

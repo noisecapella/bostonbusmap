@@ -6,7 +6,7 @@ buildscript {
         google()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:4.1.1'
+        classpath 'com.android.tools.build:gradle:8.12.1'
     }
 }
 
@@ -20,7 +20,7 @@ repositories {
 
 dependencies {
     implementation 'androidx.annotation:annotation:1.0.0'
-    implementation 'com.google.code.gson:gson:+'
+    implementation 'com.google.code.gson:gson:2.8.9'
     implementation 'androidx.appcompat:appcompat:1.0.0'
     implementation 'com.google.android.gms:play-services-base:17.+'
     implementation 'com.google.android.gms:play-services-location:17.+'
@@ -37,6 +37,7 @@ dependencies {
 
 android {
     compileSdkVersion 36
+    namespace "boston.Bus.Map"
     buildTypes {
         release {
             minifyEnabled true
@@ -59,11 +60,15 @@ android {
     signingConfigs {
         release {
             release {
-                // these are fake values which are just put here so installRelease exists as a task. The afterEvaluate block will fill these in with real values
-                keyAlias 'alias'
-                keyPassword 'password'
-                storeFile file('../xyz.jks')
-                storePassword 'password'
+                def configName = 'release'
+                def propsFile = rootProject.file('keystore.properties')
+                def props = new Properties()
+                props.load(new FileInputStream(propsFile))
+                storeFile = file(props['storeFile'])
+                storePassword = props['storePassword']
+                keyAlias = props['keyAlias']
+                keyPassword = props['keyPassword']
+
             }
         }
     }
@@ -92,12 +97,8 @@ allprojects {
         if (propsFile.exists() && android.signingConfigs.hasProperty(configName)) {
             def props = new Properties()
             props.load(new FileInputStream(propsFile))
-            android.signingConfigs[configName].storeFile = file(props['storeFile'])
-            android.signingConfigs[configName].storePassword = props['storePassword']
-            android.signingConfigs[configName].keyAlias = props['keyAlias']
-            android.signingConfigs[configName].keyPassword = props['keyPassword']
 
-            android.buildTypes[configName].signingConfig = android.signingConfigs[configName]
+            //android.buildTypes[configName].signingConfig = android.signingConfigs[configName]
         }
     }
 }

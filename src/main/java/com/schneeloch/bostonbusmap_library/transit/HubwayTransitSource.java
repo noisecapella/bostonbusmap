@@ -14,6 +14,7 @@ import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.schneeloch.bostonbusmap_library.data.BusLocation;
 import com.schneeloch.bostonbusmap_library.data.Directions;
 import com.schneeloch.bostonbusmap_library.data.IAlerts;
@@ -30,6 +31,8 @@ import com.schneeloch.bostonbusmap_library.data.VehicleLocations;
 import com.schneeloch.bostonbusmap_library.database.Schema;
 import com.schneeloch.bostonbusmap_library.parser.HubwayParser;
 import com.schneeloch.bostonbusmap_library.parser.gson.gbfs.info.Feed;
+import com.schneeloch.bostonbusmap_library.parser.gson.gbfs.info.Feeds;
+import com.schneeloch.bostonbusmap_library.parser.gson.gbfs.info.FeedsDeserializer;
 import com.schneeloch.bostonbusmap_library.parser.gson.gbfs.info.Root;
 import com.schneeloch.bostonbusmap_library.util.IDownloadHelper;
 import com.schneeloch.bostonbusmap_library.util.IDownloader;
@@ -89,8 +92,9 @@ public class HubwayTransitSource implements TransitSource {
 					IDownloadHelper gbfsHelper = downloader.create(gbfsUrl);
                 	InputStream gbfsStream = gbfsHelper.getResponseData();
                 	BufferedReader reader = new BufferedReader(new InputStreamReader(gbfsStream), 2048);
-                	Root root = new Gson().fromJson(reader, Root.class);
-                	ImmutableMap.Builder<String, String> builder = ImmutableMap.builder();
+					GsonBuilder gsonBuilder = new GsonBuilder();
+					gsonBuilder.registerTypeAdapter(Feeds.class, new FeedsDeserializer());
+                	Root root = gsonBuilder.create().fromJson(reader, Root.class);
                 	for (Feed feed : root.data.en.feeds) {
 						if ("station_information".equals(feed.name)) {
 							stationInformationUrl = feed.url;
