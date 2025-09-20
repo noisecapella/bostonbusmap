@@ -36,7 +36,7 @@ dependencies {
 }
 
 android {
-    compileSdkVersion 33
+    compileSdkVersion 36
     buildTypes {
         release {
             minifyEnabled true
@@ -75,7 +75,7 @@ android {
     testOptions.unitTests.includeAndroidResources true
     defaultConfig {
         minSdkVersion 26
-        targetSdkVersion 34
+        targetSdkVersion 36
     }
 }
 
