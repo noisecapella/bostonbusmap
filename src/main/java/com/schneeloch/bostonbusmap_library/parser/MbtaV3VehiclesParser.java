@@ -14,6 +14,7 @@ import com.schneeloch.bostonbusmap_library.parser.apiv3.Relationships;
 import com.schneeloch.bostonbusmap_library.parser.apiv3.Resource;
 import com.schneeloch.bostonbusmap_library.parser.apiv3.ResourceDeserializer;
 import com.schneeloch.bostonbusmap_library.parser.apiv3.Root;
+import com.schneeloch.bostonbusmap_library.parser.apiv3.RootDeserializer;
 import com.schneeloch.bostonbusmap_library.parser.apiv3.Timestamp;
 import com.schneeloch.bostonbusmap_library.parser.apiv3.TimestampDeserializer;
 import com.schneeloch.bostonbusmap_library.parser.apiv3.TripAttributes;
@@ -46,6 +47,7 @@ public class MbtaV3VehiclesParser {
         gsonBuilder.registerTypeAdapter(Timestamp.class, new TimestampDeserializer());
         gsonBuilder.registerTypeAdapter(Resource.class, new ResourceDeserializer());
         gsonBuilder.registerTypeAdapter(Relationship.class, new RelationshipDeserializer());
+        gsonBuilder.registerTypeAdapter(Root.class, new RootDeserializer());
         Root root = gsonBuilder.create().fromJson(bufferedReader, Root.class);
 
         Map<VehicleLocations.Key, BusLocation> vehicles = Maps.newHashMap();
