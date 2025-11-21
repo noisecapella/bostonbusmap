@@ -25,9 +25,11 @@ public class RootDeserializer implements JsonDeserializer<Root> {
 
         JsonElement includedArray = json.getAsJsonObject().get("included");
         List<Resource> includedResources = Lists.newArrayList();
-        for (JsonElement includedObject : includedArray.getAsJsonArray()) {
-            Resource resource = context.deserialize(includedObject, Resource.class);
-            includedResources.add(resource);
+        if (includedArray != null) {
+            for (JsonElement includedObject : includedArray.getAsJsonArray()) {
+                Resource resource = context.deserialize(includedObject, Resource.class);
+                includedResources.add(resource);
+            }
         }
 
         return new Root(dataResources, includedResources);
