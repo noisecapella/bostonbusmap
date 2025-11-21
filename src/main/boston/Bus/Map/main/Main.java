@@ -18,15 +18,12 @@
     */
 package boston.Bus.Map.main;
 
-import static com.google.common.io.ByteStreams.toByteArray;
-
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.net.URLConnection;
-import java.security.MessageDigest;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -40,6 +37,7 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.MapStyleOptions;
 import com.google.common.hash.Hashing;
 import com.google.common.io.ByteStreams;
 import com.schneeloch.bostonbusmap_library.data.BusLocation;
@@ -270,7 +268,6 @@ public class Main extends AbstractMapActivity {
         fragment.getMapAsync(new OnMapReadyCallback() {
             @Override
             public void onMapReady(GoogleMap map) {
-
                 toggleButton = (Spinner) findViewById(R.id.predictionsOrLocations);
                 chooseAPlaceButton = (Button) findViewById(R.id.chooseAPlaceButton);
                 chooseAFavoriteButton = (Button) findViewById(R.id.chooseFavoriteButton);
@@ -937,6 +934,17 @@ public class Main extends AbstractMapActivity {
 
         manager.setDrawLine(prefs.getBoolean("showRouteLineCheckbox2", true));
 
+        String darkSetting = prefs.getString("mapTheme", "LIGHT");
+        MapStyleOptions lightStyle = MapStyleOptions.loadRawResourceStyle(Main.this, R.raw.mapstyle_light);
+        MapStyleOptions darkStyle = MapStyleOptions.loadRawResourceStyle(Main.this, R.raw.mapstyle_auberjine);
+        if (darkSetting.equals("SYSTEM")) {
+            manager.getMap().setMapStyle(null);
+        } else if (darkSetting.equals("LIGHT")) {
+            manager.getMap().setMapStyle(lightStyle);
+        } else if (darkSetting.equals("DARK")) {
+            manager.getMap().setMapStyle(darkStyle);
+        }
+
     	locationEnabled = prefs.getBoolean(getString(R.string.alwaysShowLocationCheckbox), true);
 
     	String intervalString = Integer.valueOf(updateInterval).toString();
@@ -948,6 +956,7 @@ public class Main extends AbstractMapActivity {
     		putBoolean(getString(R.string.allRoutesBlue), allRoutesBlue).
             putBoolean("showTraffic", showTraffic).
             putBoolean("showLinesOnSelected", changeRouteIfSelected).
+            putString("mapTheme", darkSetting).
     		apply();
     }
 
