@@ -2,8 +2,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
 	xmlns:tools="http://schemas.android.com/tools"
 	android:installLocation="auto"
-android:versionCode="165"
-android:versionName="6.0.31">
+android:versionCode="166"
+android:versionName="6.0.32">
 	<!-- <supports-screens></supports-screens>-->
 	<uses-permission android:name="android.permission.INTERNET"></uses-permission>
 
